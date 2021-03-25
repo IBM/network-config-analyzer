@@ -1,5 +1,5 @@
-namespaceList: https://github.ibm.com/HWVT/npv/tree/master/tests/example_workload_resources/
-podList: https://github.ibm.com/HWVT/npv/tree/master/tests/example_workload_resources/
+namespaceList: https://github.com/IBM/network-config-analyzer/tree/master/tests/example_workload_resources/
+podList: https://github.com/IBM/network-config-analyzer/tree/master/tests/example_workload_resources/
 
 networkPolicyLists:
   - name: workload_resources_captured

@@ -29,7 +29,7 @@ networkPolicyLists:
 
   - name: np5_from_ghe
     networkPolicyList:
-      - https://github.ibm.com/HWVT/npv/blob/master/tests/example_policies/withIpBlock2/withIpBlock2-networkpolicy5.yaml
+      - https://github.com/IBM/network-config-analyzer/blob/master/tests/example_policies/withIpBlock2/withIpBlock2-networkpolicy5.yaml
     expected_warnings: 0
 
 queries:

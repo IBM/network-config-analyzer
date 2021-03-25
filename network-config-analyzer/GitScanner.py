@@ -29,7 +29,10 @@ class GitScanner:
         if url.endswith('/'):
             url = url[:-1]
         parsed_url = urlparse(url)
-        ghe_base_url = parsed_url.scheme + '://' + parsed_url.hostname + '/api/v3'
+        if url.startswith('https://github.com'):
+            ghe_base_url = 'https://api.github.com'
+        else:
+            ghe_base_url = parsed_url.scheme + '://' + parsed_url.hostname + '/api/v3'
         self.url_path = parsed_url.path.split('/', maxsplit=5)
         if len(self.url_path) < 3:
             raise Exception(f'Bad GitHub URL: {url}')
