@@ -1,0 +1,21 @@
+###  This policy is meant to allow traffic from namespace vendor-system to namespace default through all ports
+### It has a (common) typo, as a result of which traffic to pods in default namespace is opened to all
+
+### A redundancy check as well as a vacuous one should reveal this
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traffic-from-vendor-system-to-default-on-all-ports-typo
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace
+    - ports: []     # the typo is here with the '-'
+ 

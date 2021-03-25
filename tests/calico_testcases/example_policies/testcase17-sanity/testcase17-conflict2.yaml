@@ -1,0 +1,55 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-allow-and-deny-containing-single-rule
+  namespace: kube-system
+spec:
+  order: 10
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 255.0.0.0
+      - 0.0.0.0
+      - 255.9.0.0
+      - 255.2.3.0/4
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/2
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-allow-and-deny5-contained-in-single-rule
+  namespace: kube-system
+spec:
+  order: 15
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 255.0.0.0
+      - 255.0.0.0
+      - 255.2.3.0/5
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/3

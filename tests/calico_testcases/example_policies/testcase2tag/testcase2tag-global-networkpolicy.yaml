@@ -1,0 +1,18 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase1-global-networkpolicy
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(tier)
+  egress:
+  - action: Allow
+    destination:
+      selector: has(tier)

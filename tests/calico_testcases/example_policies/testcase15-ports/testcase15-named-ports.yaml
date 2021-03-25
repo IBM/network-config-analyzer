@@ -1,0 +1,443 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-vacuous-no-exist-named-ports
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - no-exist-named-port1
+      - no-exist-named-port2
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-allPorts-explicit
+  namespace: kube-system
+spec:
+  order: 4
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-allPorts-using-noPorts-no-existing-named-ports
+  namespace: kube-system
+spec:
+  order: 4
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      notPorts:
+      - no-exist-named-port1
+      - no-exist-named-port2
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-ingress-egress-match-via-named-ports
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns-local
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns-local
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-ingress-egress-mismatch-via-named-ports
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns-local
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      notPorts:
+      - dns-local
+      selector: all()
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-match-namedports-labels-policy-namedport
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns-local
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-match-namedports-labels-policy-label
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - 10053
+      selector: has_named_port == 'dns-local'
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-TCP-UDP-egress
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+  egress:
+  - action: Allow
+    protocol: UDP
+  - action: Allow
+    protocol: TCP
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-specific-TCP-UDP-named-ports
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns
+      - dns-local
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - dns-tcp
+      - dns-tcp-local
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-named-ports-no-match-protocol
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns-tcp
+      - dns-tcp-local
+      selector: all()
+
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - dns
+      - dns-local
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-named-ports-allow-protocol-deny-higher
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Deny
+    protocol: UDP
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns
+      - dns-local
+      selector: all()
+  - action: Deny
+    protocol: TCP
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - dns-tcp
+      - dns-tcp-local
+      selector: all()
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-named-ports-allow-protocol-deny-lower
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns
+      - dns-local
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - dns-tcp
+      - dns-tcp-local
+      selector: all()
+  - action: Deny
+    protocol: UDP
+  - action: Deny
+    protocol: TCP
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-named-ports-conflicting-deny-ports-higher
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Deny
+    protocol: UDP
+    destination:
+      ports:
+      - 53
+      - 10053
+  - action: Allow
+    protocol: UDP
+    destination:
+      selector: all()
+      ports:
+      - dns
+      - dns-local
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-named-ports-conflicting-deny-ports-lower
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns
+      - dns-local
+  - action: Deny
+    protocol: TCP
+    destination:
+      selector: all()
+      ports:
+      - 53
+      - 10053
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-all-dns-named-ports-via-name
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - dns
+      - dns-local
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - dns-tcp
+      - dns-tcp-local
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-all-dns-named-ports-via-numbers
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+  egress:
+  - action: Allow
+    protocol: UDP
+    destination:
+      ports:
+      - 53
+      - 10053
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 53
+      - 10053

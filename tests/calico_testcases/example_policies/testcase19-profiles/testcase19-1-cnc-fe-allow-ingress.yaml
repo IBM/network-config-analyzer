@@ -1,0 +1,11 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase19-policy-cnc-fe-ingress-allow
+  namespace: cnc-fe
+spec:
+  order: 100
+  types:
+  - Ingress
+  ingress:
+  - action: Allow

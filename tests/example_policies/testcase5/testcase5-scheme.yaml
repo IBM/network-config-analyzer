@@ -1,0 +1,54 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - testcase5-networkpolicy1.yaml
+    expected_warnings: 0
+
+  - name: np2
+    networkPolicyList:
+      - testcase5-networkpolicy1.yaml
+      - testcase5-networkpolicy2.yaml
+    expected_warnings: 0
+
+queries:
+  - name: no_redunancy
+    redundancy:
+      - np1
+      - np2
+    expected: 0
+
+  - name: no_emptiness
+    emptiness:
+      - np1
+      - np2
+    expected: 0
+  - name: no_vacuity
+    vacuity:
+      - np1
+      - np2
+    expected: 0
+
+  - name: compare_np1_and_np2
+    equivalence:
+      - np1
+      - np2
+    expected: 1
+  - name: pairwiseInterferes_np1_and_np2
+    pairwiseInterferes:
+      - np1
+      - np2
+    expected: 1
+
+  - name: containment_np1_and_np2
+    containment:
+      - np1
+      - np2
+    expected: 0
+  - name: containment_np2_and_np1
+    containment:
+      - np2
+      - np1
+    expected: 1

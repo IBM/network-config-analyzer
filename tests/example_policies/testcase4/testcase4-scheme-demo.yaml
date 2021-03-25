@@ -1,0 +1,16 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - testcase4-networkpolicy1.yaml
+  - name: np2
+    networkPolicyList:
+      - testcase4-networkpolicy2.yaml
+    
+queries:
+  - name: compare_np1_and_np2
+    equivalence:
+      - np1
+      - np2

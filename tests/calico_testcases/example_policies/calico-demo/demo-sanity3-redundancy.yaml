@@ -1,0 +1,56 @@
+### This network policy demonstrates the ability of our sanity checks to detect different problems with redundancy.
+###  The problems are as follows:
+### 1. A pod with certain combination of labels that was believed to exist do not exist.
+###    In this example, a pod with app cnc-evaluation-service or cnc-feedback-service and with product not compare-and-comply
+### 2. Ingress into namespace x from namespace y was enabled, but it was forgotten to enable egress from y into x. Here x is cnc-fe and y is cnc-ntsgin
+### 3. Confusion with the number of a specific named-port.
+
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: sanity3-redundant-rules-various-problems
+  namespace: cnc-fe
+spec:
+  order: 10
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: product == 'compare-and-comply'
+  - action: Allow                   # redundancy #1: since app cnc-evaluation-service or cnc-feedback-service implies product compare-and-comply
+    source:
+      selector: app in {'cnc-evaluation-service', 'cnc-feedback-service'}
+  - action: Allow                   # redundancy #2: since egress was not opened for cnc-ntsgin
+    protocol: TCP
+    source:
+      namespaceSelector: unique-label == 'cnc-ntsginNameSpace''
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      ports:
+      - 8125:8141
+  - action: Allow
+
+---
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: sanity3-redundant-rules-named-ports
+  namespace: cnc-fe
+spec:
+  order: 100
+  types:
+  - Egress
+  egress:
+  - action: Allow              # redundancy #3: since this named port was already numerically referred to
+    protocol: TCP
+    destination:
+      ports:
+      - statsd
+      selector: all()
+

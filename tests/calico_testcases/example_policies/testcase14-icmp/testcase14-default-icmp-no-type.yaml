@@ -1,0 +1,44 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase14-networkpolicy-open-default
+  namespace: default
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: ICMP
+
+  egress:
+  - action: Allow
+    protocol: ICMP
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase14-networkpolicy-open-default-with-notICMP
+  namespace: default
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: ICMP
+  - action: Allow
+    protocol: ICMP
+    notICMP:
+      type: 204
+      code: 54
+
+  egress:
+  - action: Allow
+    protocol: ICMP
+  - action: Allow
+    protocol: ICMP
+    notICMP:
+      type: 204
+      code: 54

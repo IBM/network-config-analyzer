@@ -1,0 +1,14 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase21-Calico-allowAll
+spec:
+  order: 1000
+  types:
+  - Ingress
+  - Egress
+  egress:
+  - action: Allow
+  ingress:
+  - action: Allow
+

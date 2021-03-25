@@ -1,0 +1,14 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase19-10-local-open-within-cnc-kt-with-policy
+  namespace: cnc-kt
+spec:
+  order: 10
+  types:
+  - Egress
+  - Ingress
+  egress:
+  - action: Allow
+  ingress:
+  - action: Allow

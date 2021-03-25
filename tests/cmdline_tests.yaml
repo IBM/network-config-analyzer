@@ -1,0 +1,53 @@
+- name: basic_sanity
+  args: >
+    --sanity example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_equiv
+  args: >
+    --equiv example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_np_list example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+  expected: 0
+
+- name: basic_interferes
+  args: >
+    --interferes example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_np_list example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+  expected: 0
+
+- name: named_policy_interferes
+  args: >
+    --interferes enable-ingress-from-default
+    --base_np_list example_policies/testcase9-sanity/testcase9-sanity-between-policies.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_forbids
+  args: >
+    --forbids example_policies/testcase11-forbids-permits/testcase11-within-default.yaml
+    --base_np_list example_policies/testcase11-forbids-permits/testcase11-partly-within-default.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_permits
+  args: >
+    --permits example_policies/testcase11-forbids-permits/testcase11-within-default.yaml
+    --base_np_list example_policies/testcase11-forbids-permits/testcase11-partly-within-default.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+  expected: 1
+
+- name: git_resources
+  args: >
+    --sanity example_policies/all-captured-tests/some-captured-tests-networkpolicy.yaml
+    --ns_list https://github.ibm.com/HWVT/npv/tree/master/tests/example_workload_resources/
+    --pod_list https://github.ibm.com/HWVT/npv/tree/master/tests/example_workload_resources/
+  expected: 0

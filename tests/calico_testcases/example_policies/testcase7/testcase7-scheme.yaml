@@ -1,0 +1,51 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - testcase7-globalNetworkpolicy.yaml
+    expected_warnings: 2
+
+queries:
+  - name: policies_with_empty_rule
+    emptiness:
+      - np1/testcase7-globalNetworkpolicy-empty-policy
+      - np1/testcase7-globalNetworkpolicy-empty-rule
+    expected: 2
+
+  - name: non_empty_policies
+    emptiness:
+      - np1/testcase7-globalNetworkpolicy-seperate-rules
+      - np1/testcase7-globalNetworkpolicy-same-rule
+    expected: 0
+
+  - name: vacuous_policy
+    vacuity:
+      - np1/testcase7-globalNetworkpolicy-empty-policy
+    expected: 1
+
+  - name: non_vacuous_policies
+    vacuity:
+      - np1/testcase7-globalNetworkpolicy-empty-rule
+      - np1/testcase7-globalNetworkpolicy-seperate-rules
+      - np1/testcase7-globalNetworkpolicy-same-rule
+    expected: 0
+
+  - name: redundancy
+    redundancy:
+      - np1
+    expected: 5
+
+  - name: policies_are_not_equiv
+    equivalence:
+      - np1/testcase7-globalNetworkpolicy-seperate-rules
+      - np1/testcase7-globalNetworkpolicy-same-rule
+    expected: 1
+
+  - name: seperate_rules_contains_same_rule
+    containment:
+      - np1/testcase7-globalNetworkpolicy-seperate-rules
+      - np1/testcase7-globalNetworkpolicy-same-rule
+    expected: 1
+

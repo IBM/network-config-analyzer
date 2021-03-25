@@ -1,0 +1,35 @@
+### This file and demo-interder2.yaml in this folder demonstrates the ability of interferes to detect mistake
+### A good practice would be to execute the test whenever a specific policy/file should exclusively define the connections to and from a given pods set
+
+### The policies in the files demonstrates a case in which a believed to be empty intersection is not such
+### The policies restrict access to specific pods in kube-system
+### First policy should be the only one that enables connection to pods with product compare-and-comply
+### Second policy should be the only one that enables connection to pods with app cnc-analytics
+### issue is there are pods with both, even though the sets are not equal.
+### Specifically, the first policy interferes with the second since it extends it.
+
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: interferes2
+  namespace: cnc-ntsgin
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: product == 'compare-and-comply'
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 10.98.29.142/32
+        - 10.142.188.25/32
+        - 10.121.169.71/32
+  egress:
+  - action: Allow
+    source:
+      selector: all()

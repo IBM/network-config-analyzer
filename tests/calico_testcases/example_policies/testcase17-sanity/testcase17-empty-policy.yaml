@@ -1,0 +1,45 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-vacuous-networkpolicy
+  namespace: default
+spec:
+  order: 100
+  types:
+  - Ingress
+  - Egress
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-empty-captured-pods
+  namespace: default
+spec:
+  selector: tier == 'noExitsTier'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-empty-ingress-egress-rules
+  namespace: default
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: app  == 'no-exist-app'
+  egress:
+  - action: Allow
+    destination:
+      selector: app  == 'no-exist-app'

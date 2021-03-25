@@ -1,0 +1,39 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: ingress-networkpolicy-with-conflict-destination
+  namespace: kube-system
+spec:
+  selector: app == 'kube-fluentd'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      selector: has(k8s-app)
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      selector: all() #to disable communication outside the cluster.
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: egress-networkpolicy-with-source
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Egress
+  - Ingress
+  egress:
+  - action: Allow
+    source:
+      selector: has(app)
+  ingress:
+  - action: Allow
+    protocol: TCP

@@ -1,0 +1,15 @@
+
+### this policy is empty - it isolates not pods
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: empty
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      no_exists_label: no_exists_content
+  policyTypes:
+    - Ingress
+    - Egress

@@ -1,0 +1,15 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: interfere_np
+    networkPolicyList:
+      - interferes-networkpolicy.yaml
+    expected_warnings: 0
+
+queries:
+  - name: interference
+    interferes:
+      - interfere_np/kube-system/enable-from-default-to-isolated-by-app
+      - interfere_np/kube-system/enable-from-vendor-system-to-isolated-by-tier
+    expected: 1

@@ -1,0 +1,23 @@
+# enables communication between all the pods that are part of the "cnc-evaluation-service" app
+
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase22-blacklist-ports
+spec:
+  types:
+  - Egress
+  - Ingress
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 20:21
+      - 23
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      namespaceSelector: all()
+      selector: all()

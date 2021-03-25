@@ -1,0 +1,15 @@
+namespaceList: ../../example_podlist/ns_list_wdc.json
+podList: ../../example_podlist/wdc_wep.json
+
+networkPolicyLists:
+  - name: np_empty_selector
+    networkPolicyList:
+      - demo-sanity1-emptySelector.yaml
+      - demo-allow-all-wdc-wep-profiles.yaml
+    expected_warnings: 1
+
+queries:
+  - name: sanity_empty_selector
+    sanity:
+      - np_empty_selector
+    expected: 1

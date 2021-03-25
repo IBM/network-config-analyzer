@@ -1,0 +1,72 @@
+ ### All policies below are equiv; in each the enabled ip blocks are written syntactically different
+ 
+ ### Enables access from all pods in kube-system to all addresses
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-to-kube-system-from-ipBlock-all-addresses
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: 0.0.0.0/0     # All destinations
+
+---
+ ### Enables access from all pods in kube-system to all addresses with redundancy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-to-kube-system-from-ipBlock-all-addresses-with-redundancy
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: 0.0.0.0/0     # All destinations 
+    - from:
+      - ipBlock:
+          cidr: 20.0.0.0/2     # 1/4 of destinations
+
+---
+### Enables access from all pods in kube-system to first half of addresses
+### The ip block range here is written differently than the previous one - by separating all addresses to 2
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-to-kube-system-from-ipBlock-lower-addresses-half
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: 0.0.0.0/1     # All destinations first half
+
+---
+### Enables access from all pods in kube-system to all addresses
+### The ip block range here is written differently than the previous one - by separating all addresses to 2
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-to-kube-system-from-ipBlock-all-seperated-to-2
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: 0.0.0.0/1     # All destinations first half
+    - from:
+      - ipBlock:
+          cidr: 128.0.0.0/1     # All destinations second half

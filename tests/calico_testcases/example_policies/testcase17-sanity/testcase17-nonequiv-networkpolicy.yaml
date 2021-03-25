@@ -1,0 +1,30 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-nonequiv-networkpolicy
+  namespace: kube-system
+spec:
+  order: 6
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      namespaceSelector: unique-label == 'defaultNameSpace'
+  - action: Allow
+    source:
+      selector: has(app)
+  - action: Deny
+    source:
+      selector: has(app)
+
+  egress:
+  - action: Allow
+    destination:
+      selector: has(app)
+  - action: Deny
+    destination:
+      selector: has(app)

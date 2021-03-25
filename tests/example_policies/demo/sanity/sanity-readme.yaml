@@ -1,0 +1,26 @@
+
+### This folder contains policies and schemes for demonstrating the capabilities of our sanity checks
+
+### The sanity checks are:
+### 1. The "good practice" warnings:
+### A podSelector selects no pods. Better use "PodSelector: Null"
+### A podSelector selects all pods. Better use ""
+### Both cases above are likely a result of a mistake.
+### 2. Emptiness. A policy that does not enable any connections. Could be a result of a mistake. This test should be added to policies which not supposed to define actual connections.
+### 3. Redundancy. A policy or a rule in a policy is redundant w.r.t. the other policies or the other rules in the policy if removing it will have no effect.
+### Unless a policy is intended to isolate specific pods, it is not likely to be redundant w.r.t. other policies. 
+### Similarly, a rule in a policy is not likely to be redundant w.r.t. other rules in the policy.
+### Thus, a good practice should include emptiness and redundancy tests for all policies written or modified 
+
+### sanity-label-mistake-networkpolicy.yaml demonstrates the ability of the emptiness test and the first good practice rule to detect mistakes
+### the mistake concerns using the app label instead of the k8s-app label (they both exist) as a result of which the podSelector is empty
+
+### sanity misconsuption-podSelector-namespaceSelector is yet another example of the ability of the redundancy tests and the best practices to detect mistakes
+### the mistake occurs since podSelector and namespaceSelector can not be "anded" and moreover, namespaceSelector refers to "this" namespace. Thus, two meant to be different rules
+### are actually identical and redundant w.r.t. each other (does not work currently)
+
+### sanity-typoNotIn-networkpolicy.yaml demonstrates the ability of the redundancy and the first good practice rule to detect mistakes; 
+### the mistake is a typo in the "notIn" podSelector as result of all pods in the namespace are selected
+
+### sanity-redundant-dash-networkpolicy.yaml is yet another example of the ability of the redundant test to detect mistake
+### the mistake is a a forgotten dash when defining ports, as a result of which ingress is open to all; this rule thus makes the other rule in the policy redundant

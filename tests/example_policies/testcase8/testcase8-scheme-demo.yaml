@@ -1,0 +1,12 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - testcase8-networkpolicy1.yaml
+    
+queries:
+  - name: redundnacy_np1
+    redundancy:
+      - np1

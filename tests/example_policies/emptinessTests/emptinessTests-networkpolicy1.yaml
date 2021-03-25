@@ -1,0 +1,117 @@
+
+### various policies with emptiness issues - that at real life could be a result of a typo or a confusment
+
+### The first policy isolates all pods in namespace kube-system which has a app label which is not helm and a has a tier label.
+### After isolating these pods, more policies are written, for the same isolated pods, to:
+### 1. Enable ingress from namespace default; this is written with a typo in selecting the isolated pods
+### 2. Enable ingress from the same namespace with app calico-node; problem is that this is a typo - there is no app calico-node but only k8s-app
+### 3. Enable egress to pods with app=skydive and label=skydive and tier=frontend; problem is that the intersection is empty - there are no such pods
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: isolate-kube-system-specific-pods
+  namespace: kube-system 
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+    - Egress
+
+### 1. Enable ingress from namespace default; this is written with a typo in selecting the isolated pods
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-ingress-with-typo-in-isolatedpods
+  namespace: kube-system 
+spec:
+  podSelector:
+    matchExpressions: 
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: ti
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace
+
+
+### 2. Enable ingress from the same namespace with app calico-node; problem is that this is a typo - there is no app calico-node but only k8s-app
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-ingress-with-typo-in-ingress-rule-podSelector
+  namespace: kube-system 
+spec:
+  podSelector:
+    matchExpressions: 
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            app: celico-node
+
+
+### 3. Enable egress to pods with app=skydive and tier=frontend; problem is that the intersection is empty - there are no such pods
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-egress-with-typo-in-egress-rule-podSelector
+  namespace: kube-system 
+spec:
+  podSelector:
+    matchExpressions: 
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchExpressions: 
+            - key: tier
+              operator: In
+              values:
+                - frontend
+            - key: app
+              operator: In
+              values:
+                - skydive
+        

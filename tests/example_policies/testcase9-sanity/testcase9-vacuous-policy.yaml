@@ -1,0 +1,30 @@
+### This network policy demonstrates the ability of our sanity checks to detect real life problems.
+### The first policy contains a simple label mistake - the use of app label instead of k8s-app label (they both exist)
+
+
+### Both mistakes are detected by the sanity check.
+### The first mistake is detected since a podSelector is empty
+
+### To execute from command line:
+### python nca.py --sanity tests/example_policies/demo_short/sanity1-networkpolicy.yaml  --base_np_list tests/example_policies/testcase3/testcase3-networkpolicy1.yaml --ns_list tests/example_podlist/ns_list.json  --pod
+#_list tests/example_podlist/pods_list.json
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-with-podSelector-typo-in-ports
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+    - ports: []
+  egress:
+    - to: []

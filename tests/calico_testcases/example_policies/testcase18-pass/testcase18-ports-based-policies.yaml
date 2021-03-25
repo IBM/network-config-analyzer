@@ -1,0 +1,134 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase18-different-ranges-writing1 # TCP 60, 500-520, 1200-1270
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: all()
+
+  egress:
+  - action: Deny
+    protocol: UDP
+    destination:
+      ports:
+      - 10:300
+  - action: Pass
+    protocol: TCP
+    destination:
+      ports:
+      - 61:70
+      - 521:600
+      - 1271:1300
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 60:70
+      - 500:600
+      - 1200:1300
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase18-different-ranges-writing2 # TCP 60, 500-520, 1200-1270
+  namespace: kube-system
+spec:
+  order: 2
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: all()
+
+  egress:
+  - action: Pass
+    protocol: UDP
+    destination:
+      ports:
+      - 10:300
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 60
+      - 510
+      - 1210
+      - 1220
+      selector: all()
+  - action: Allow
+    protocol: TCP # TCP 60, 500-520, 1200-1270
+    destination:
+      ports:
+      - 500:509
+      - 511:520
+      - 1200:1209
+      - 1211:1219
+      - 1221:1270
+      selector: all()
+  - action: Pass
+    protocol: TCP
+    destination:
+      notPorts:
+      - 600
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase18-different-ranges-writing-slightly-bigger # TCP 60, 500-520, 1200-1270
+  namespace: kube-system
+spec:
+  order: 10
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: all()
+
+  egress:
+  - action: Pass
+    protocol: UDP
+    destination:
+      ports:
+      - 10:300
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 60
+      - 510
+      - 1210
+      - 1220
+      selector: all()
+  - action: Allow
+    protocol: TCP # TCP 60, 500-520, 1200-1271
+    destination:
+      ports:
+      - 500:509
+      - 511:520
+      - 1200:1209
+      - 1211:1219
+      - 1221:1271
+      selector: all()
+  - action: Pass
+    protocol: TCP
+    destination:
+      notPorts:
+      - 600

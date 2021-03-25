@@ -1,0 +1,26 @@
+### ingress rule with multiple items of "from"
+### The semantic is (pod_selector1 and port1) or (pod_selector2 and port2)
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-with-multiple-from
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+      ports: 
+        - port: 53
+    - from:
+      - podSelector: 
+          matchExpressions: 
+            - key: app
+              operator: Exists
+      ports: 
+        - port: 54

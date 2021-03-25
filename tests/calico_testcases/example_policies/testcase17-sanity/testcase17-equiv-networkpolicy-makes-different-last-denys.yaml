@@ -1,0 +1,33 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-equiv-local-networkpolicy-makes-different-denys
+  namespace: kube-system
+spec:
+  order: 4
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      namespaceSelector: unique-label == 'defaultNameSpace'
+  - action: Allow
+    source:
+      selector: app  == 'keepalived-watcher'
+  - action: Deny
+    source:
+      selector: !has(no_tag)
+  - action: Allow
+    source:
+      selector: has(no_tag)
+
+  egress:
+  - action: Allow
+    destination:
+      selector: app  == 'keepalived-watcher'
+  - action: Deny
+    destination:
+      selector: !has(no_exist_such_app)

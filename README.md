@@ -1,47 +1,70 @@
-<!-- This should be the location of the title of the repository, normally the short name -->
-# repo-template
+# Network Config Analyzer
+An analyzer for Network Policies and other connectivity-configuration resources
 
-<!-- Build Status, is a great thing to have at the top of your repository, it shows that you take your CI/CD as first class citizens -->
-<!-- [![Build Status](https://travis-ci.org/jjasghar/ibm-cloud-cli.svg?branch=master)](https://travis-ci.org/jjasghar/ibm-cloud-cli) -->
+---
 
-<!-- Not always needed, but a scope helps the user understand in a short sentance like below, why this repo exists -->
-## Scope
+## Usage (requires Python 3.7 or above)
+`python nca.py [--scheme <scheme_file>]`
 
-The purpose of this project is to provide a template for new open source repositories.
+where *scheme_file* is a yaml file describing what to verify.
 
-<!-- A more detailed Usage or detailed explaination of the repository here -->
-## Usage
+Scheme file structure is specified [here](docs/SchemeFileFormat.md).
+See an example scheme file [here](tests/example_policies/testcase1/testcase1-scheme.yaml).
 
-This repository contains some example best practices for open source repositories:
+#### Running without a scheme file
+Various predefined queries can be performed without providing a scheme file, using the following command line configurations.
+- `--sanity <NetworkPolicy set>` \
+Running several sanity checks on the given set of NetworkPolicies
+- `--equiv <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Semantically comparing two sets of NetworkPolicy sets to decide whether they allow exactly the same traffic
+- `--interferes <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Checking whether the base set of NetworkPolicies interferes with the given set of NetworkPolicies
+(allows more traffic between relevant endpoints)
+- `--permits <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Checking whether the base set of NetworkPolicies permits the traffic explicitly specified in the given set of NetworkPolicies
+- `--forbids <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Checking whether the base set of NetworkPolicies forbids the traffic explicitly specified in the given set of NetworkPolicies
 
-* [LICENSE](LICENSE)
-* [README.md](README.md)
-* [CONTRIBUTING.md](CONTRIBUTING.md)
-* [MAINTAINERS.md](MAINTAINERS.md)
-<!-- A Changelog allows you to track major changes and things that happen, https://github.com/github-changelog-generator/github-changelog-generator can help automate the process -->
-* [CHANGELOG.md](CHANGELOG.md)
+`<NetworkPolicy set>` should be one of:
+- a path to a yaml/json file defining NetworkPolicies
+- a path to a directory with files containing NetworkPolicies
+- a url of a GHE repository/dir/file with NetworkPolicies
+- The string `k8s`, instructing the tool to take all NetworkPolicies from a Kubernetes cluster (using `kubectl`)
+- The string `calico`, instructing the tool to take all NetworkPolicies from a Calico cluster (using `calicoctl`)
 
-> These are optional
+Running with no command-line options at all is like running `nca.py --sanity k8s`.
 
-<!-- The following are OPTIONAL, but strongly suggested to have in your repository. -->
-* [dco.yml](.github/dco.yml) - This enables DCO bot for you, please take a look https://github.com/probot/dco for more details.
-* [travis.yml](.travis.yml) - This is a example `.travis.yml`, please take a look https://docs.travis-ci.com/user/tutorial/ for more details.
+#### Additional command-line switches:
+- `--base_np_list`\
+The set of NetworkPolicies to compare against in `--equiv` and `--interferes` (default: `k8s`)
+- `--ns_list <path to file or 'k8s'>`\
+Allows specifying a file to take the list of namespaces from (default: the result of `kubectl get namespaces`)
+- `--pod_list <path to a file, 'calico' or 'k8s'>`\
+Allows specifying a file to take the list of pods/endpoints from (default: the result of `kubectl get pods --all-namespaces`)
+- `--ghe_token <token>`\
+A valid token to access a GHE repository
+- `--period <minutes>`\
+Run NCA with given arguments every specified number of minutes
+- `--daemon`\
+Run NCA as a daemon. Send and receive data using a REST API.
 
-These may be copied into a new or existing project to make it easier for developers not on a project team to collaborate.
+## Installation
+```commandline
+> git clone https://github.com/IBM/network-config-analyzer.git
+> cd network-config-analyzer
+> python3 -m venv venv
+> source venv/bin/activate
+> pip install -r requirements.txt
 
-<!-- A notes section is useful for anything that isn't covered in the Usage or Scope. Like what we have below. -->
-## Notes
+> python network-config-analyzer/nca.py -h
+```
 
-**NOTE: While this boilerplate project uses the Apache 2.0 license, when
-establishing a new repo using this template, please use the
-license that was approved for your project.**
+## Supported platforms
+* Kubernetes
+* Calico
 
-**NOTE: This repository has been configured with the [DCO bot](https://github.com/probot/dco).
-When you set up a new repository that uses the Apache license, you should
-use the DCO to manage contributions. The DCO bot will help enforce that.
-Please contact one of the IBM GH Org stewards.**
+## Contributing
 
-<!-- Questions can be useful but optional, this gives you a place to say, "This is how to contact this project maintainers or create PRs -->
 If you have any questions or issues you can create a new [issue here][issues].
 
 Pull requests are very welcome! Make sure your patches are well tested.
@@ -67,11 +90,5 @@ If you would like to see the detailed LICENSE click [here](LICENSE).
 # SPDX-License-Identifier: Apache2.0
 #
 ```
-## Authors
 
-Optionally, you may include a list of authors, though this is redundant with the built-in
-GitHub list of contributors.
-
-- Author: New OpenSource IBMer <new-opensource-ibmer@ibm.com>
-
-[issues]: https://github.com/IBM/repo-template/issues/new
+[issues]: https://github.com/IBM/network-config-analyzer/issues/new/choose

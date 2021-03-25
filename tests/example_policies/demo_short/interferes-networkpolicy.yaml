@@ -1,0 +1,52 @@
+### The network policies in the file demonstrates the ability of interferes to detect mistake
+### A good practice would be to execute the test whenever a specific policy/file should exclusively define the connections to and from a given pods set
+
+### The policies demonstrates a case in which a believed to be empty intersection is not such
+### The policies restrict access to specific pods in kube-system
+### First policy should be the only one that enables connection to pods with app keepalived-watcher or kube-fluentd
+### second policy, enabling connections to pods with tier frontend, should be disjoint. It should not interfere with the first one
+### thing is that there is a pod in namespace kube-system with tier frontend and also with app keepalived-watcher; thus each policy creates a hole in the other
+### and specifically the second policy interefers with the first one
+
+## First policy - enables access to pods in kube-system with app keepalived-watcher or kube-fluentd only by pods from namespace default
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-from-default-to-isolated-by-app
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - kube-fluentd
+          - keepalived-watcher
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: defaultNameSpace
+
+---
+## Second policy - enables access to pods in kube-system with tier frontend can be accessed only by pods from namespace vendor-system
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-from-vendor-system-to-isolated-by-tier
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace

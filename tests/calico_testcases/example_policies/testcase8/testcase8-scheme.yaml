@@ -1,0 +1,35 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - testcase8-networkpolicy.yaml
+    expected_warnings: 1
+
+queries:
+  - name: withConflict_empty
+    emptiness:
+      - np1/kube-system/ingress-networkpolicy-with-conflict-destination
+    expected: 1
+
+  - name: withConflict_vacuous
+    vacuity:
+      - np1/kube-system/ingress-networkpolicy-with-conflict-destination
+    expected: 1
+
+  - name: non_empty
+    emptiness:
+      - np1/kube-system/egress-networkpolicy-with-source
+    expected: 0
+
+  - name: non_vacuous
+    vacuity:
+      - np1/kube-system/egress-networkpolicy-with-source
+    expected: 0
+
+  - name: policies_not_equiv
+    equivalence:
+      - np1/kube-system/ingress-networkpolicy-with-conflict-destination
+      - np1/kube-system/egress-networkpolicy-with-source
+    expected: 1

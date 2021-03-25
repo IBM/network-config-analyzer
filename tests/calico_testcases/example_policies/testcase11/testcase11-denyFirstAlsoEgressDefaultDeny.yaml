@@ -1,0 +1,35 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase11-deny-denyFirstAlsoEgress-defaultAllow
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: !has(app)
+  egress:
+  - action: Deny
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase11-allow-denyFirstAlsoEgress-defaultAllow
+  namespace: kube-system
+spec:
+  order: 3
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: has(tier)
+  egress:
+  - action: Allow

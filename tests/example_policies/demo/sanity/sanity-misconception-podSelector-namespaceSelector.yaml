@@ -1,0 +1,33 @@
+### Currently it is not possible to allow traffic to specific pod in an external namespace
+
+### This policy is a wrong (but somehow expected) implementation of allowing traffic into default namespace only from pods with label tier=frontend in the vendor-system namespace
+### The podSelector and NamespaceSelector below will be "OR"ed when the PodSelector refers to "this" namespace
+
+### Thus, even though each of the rules is supposed to enable different ingress traffic,
+##      both rules are identical since they refer to the same name space
+##   and an empty podselector -  the pod selector they refer to exist in vendor-system namespace and not in default namespace
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: wrong-allow-traffic-from-specific-pods-in-external-namespace
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace
+      - podSelector:
+          matchLabels:
+            weird-lb-app-name: keepalived
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace
+      - podSelector:
+          matchLabels:
+            provider-ip: 1-1-1-10

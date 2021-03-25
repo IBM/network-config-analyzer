@@ -1,0 +1,125 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np
+    networkPolicyList:
+      - testcase12-kube-system-policies.yaml
+    expected_warnings: 0
+
+  - name: testcase5-allowFirst
+    networkPolicyList:
+      - ../testcase5/testcase5-allowFirst.yaml
+    expected_warnings: 0
+
+  - name: testcase5-denyFirst
+    networkPolicyList:
+      - ../testcase5/testcase5-denyFirst.yaml
+    expected_warnings: 0
+
+  - name: testcase11-allowFirstDefaultDeny
+    networkPolicyList:
+      - ../testcase11/testcase11-allowFirstDefaultDeny.yaml
+    expected_warnings: 0
+
+  - name: testcase11-denyFirstDefaultDeny
+    networkPolicyList:
+      - ../testcase11/testcase11-denyFirstDefaultDeny.yaml
+    expected_warnings: 0
+
+  - name: testcase1-open-default
+    networkPolicyList:
+      - ../testcase1/testcase1-open-default.yaml
+    expected_warnings: 0
+
+queries:
+  - name: nonEmpty_all_policies
+    emptiness:
+    - np/kube-system/allow-tier
+    - np/kube-system/allow-notSelector-tier
+    - np/kube-system/deny-no-app
+    - np/kube-system/allow-all
+    - np/kube-system/deny-all
+    - np/kube-system/no-rules
+    - np/kube-system/allow-no-app
+    expected: 0
+
+  - name: nonVacuous_policies
+    vacuity:
+    - np/kube-system/allow-tier
+    - np/kube-system/allow-notSelector-tier
+    - np/kube-system/allow-all
+    - np/kube-system/allow-no-app
+    expected: 0
+
+  - name: vacuous_policies
+    vacuity:
+    - np/kube-system/deny-no-app
+    - np/kube-system/deny-all
+    expected: 2
+
+# deny never interferes
+  - name: deny_do_not_interfere_allow
+    interferes:
+    - np/kube-system/allow-all
+    - np/kube-system/deny-no-app
+    - np/kube-system/deny-all
+    expected: 0
+
+  - name: deny_do_not_interfere_deny
+    pairwiseInterferes:
+    - np/kube-system/deny-no-app
+    - np/kube-system/deny-all
+    expected: 0
+
+# allow interferes
+# nothing interferes with allowAll
+  - name: nothing_interfers_allowAll
+    interferes:
+    - np/kube-system/allow-all
+    - np/kube-system/allow-no-app
+    - np/kube-system/allow-tier
+    - np/kube-system/allow-notSelector-tier
+    expected: 0
+
+  - name: intersecting_neq_allow_interfers
+    pairwiseInterferes:
+    - np/kube-system/allow-no-app
+    - np/kube-system/allow-tier
+    expected: 2
+
+  - name: not_intersecting_same_captured_allow_interfers
+    pairwiseInterferes:
+    - np/kube-system/allow-notSelector-tier
+    - np/kube-system/allow-tier
+    expected: 2
+
+  - name: single_policy_contained_in_not_interfere
+    interferes:
+    - testcase5-allowFirst
+    - testcase5-denyFirst
+    expected: 0
+
+  - name: single_policy_contains_interfere
+    interferes:
+    - testcase5-denyFirst
+    - testcase5-allowFirst
+    expected: 1
+
+  - name: multiple_policies_contained_in_not_interfere
+    interferes:
+    - testcase11-allowFirstDefaultDeny
+    - testcase11-denyFirstDefaultDeny
+    expected: 0
+
+  - name: multipe_policies_contains_interfere
+    interferes:
+    - testcase11-denyFirstDefaultDeny
+    - testcase11-allowFirstDefaultDeny
+    expected: 1
+
+  - name: different_namespace_no_interfere
+    pairwiseInterferes:
+    - np/kube-system/allow-all
+    - testcase1-open-default
+    expected: 0

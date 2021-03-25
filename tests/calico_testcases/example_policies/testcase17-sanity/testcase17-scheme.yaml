@@ -1,0 +1,155 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np_vacuous
+    networkPolicyList:
+      - testcase17-empty-policy.yaml
+
+  - name: np_globalEmpty
+    networkPolicyList:
+      - testcase17-empty-globalNetworkpolicy.yaml
+
+  - name: np_open_default
+    networkPolicyList:
+      - testcase17-open-default.yaml
+
+  - name: np_equiv_policy
+    networkPolicyList:
+      - testcase17-equiv-networkpolicy.yaml
+    expected_warnings: 0
+
+  - name: np_global_equiv
+    networkPolicyList:
+      - testcase17-equiv-global-networkpolicy.yaml
+    expected_warnings: 0
+
+  - name: np_equiv_policy_redundant_deny
+    networkPolicyList:
+      - testcase17-equiv-networkpolicy-redundant-denys.yaml
+    expected_warnings: 8
+
+  - name: np_equiv_policy_deny_last_with_difference
+    networkPolicyList:
+      - testcase17-equiv-networkpolicy-makes-different-last-denys.yaml
+    expected_warnings: 4
+
+  - name: np_with_redundant_policies
+    networkPolicyList:
+      - testcase17-open-default.yaml
+      - testcase17-equiv-networkpolicy.yaml
+      - testcase17-nonequiv-networkpolicy.yaml
+      - testcase17-equiv-global-networkpolicy.yaml
+    expected_warnings: 0
+
+  - name: np_with_redundant_policies_redundant_denys_version
+    networkPolicyList:
+      - testcase17-open-default.yaml
+      - testcase17-equiv-networkpolicy-redundant-denys.yaml
+      - testcase17-nonequiv-networkpolicy.yaml
+      - testcase17-equiv-global-networkpolicy.yaml
+    expected_warnings: 8
+
+  - name: np_with_redundant_policies_makes_a_diff_denys_version
+    networkPolicyList:
+      - testcase17-open-default.yaml
+      - testcase17-equiv-networkpolicy-makes-different-last-denys.yaml
+      - testcase17-nonequiv-networkpolicy.yaml
+      - testcase17-equiv-global-networkpolicy.yaml
+    expected_warnings: 4
+
+  - name: np_various-containment1
+    networkPolicyList:
+      - testcase17-various-containment-between-policies1.yaml
+    expected_warnings: 0
+
+  - name: np_various-containment2
+    networkPolicyList:
+      - testcase17-various-containment-between-policies2.yaml
+    expected_warnings: 0
+
+  - name: np_only_deny_containment
+    networkPolicyList:
+      - testcase17-containments-only-deny.yaml
+    expected_warnings: 0
+
+  - name: np_conflict1
+    networkPolicyList:
+      - testcase17-conflict1.yaml
+    expected_warnings: 0
+
+  - name: np_conflict2
+    networkPolicyList:
+      - testcase17-conflict2.yaml
+    expected_warnings: 0
+
+queries:
+  - name: sanity_np_open_default
+    sanity:
+      - np_open_default
+    expected: 0
+
+  - name: sanity_np_equiv_policy
+    sanity:
+      - np_equiv_policy
+    expected: 3
+
+  - name: sanity_np_vacuous
+    sanity:
+      - np_vacuous
+    expected: 4
+
+  - name: sanity_np_globalEmpty
+    sanity:
+      - np_globalEmpty
+    expected: 1
+
+  - name: sanity_np_equiv_policy_redundant_deny
+    sanity:
+      - np_equiv_policy_redundant_deny
+    expected: 5
+
+  - name: sanity_np_equiv_policy_deny_last_with_difference
+    sanity:
+      - np_equiv_policy_deny_last_with_difference
+    expected: 4
+
+  - name: sanity_np_with_redundant_policies
+    sanity:
+      - np_with_redundant_policies
+    expected: 5
+
+  - name: sanity_np_with_redundant_policies_redundant_denys_version
+    sanity:
+      - np_with_redundant_policies_redundant_denys_version
+    expected: 9
+
+  - name: sanity_np_with_redundant_policies_makes_a_diff_denys_version
+    sanity:
+      - np_with_redundant_policies_makes_a_diff_denys_version
+    expected: 6
+
+  - name: sanity_np_various-containment1
+    sanity:
+      - np_various-containment1
+    expected: 7
+
+  - name: sanity_np_various-containment2
+    sanity:
+      - np_various-containment2
+    expected: 3
+
+  - name: sanity_np_conflict1
+    sanity:
+      - np_conflict1
+    expected: 1
+
+  - name: sanity_np_conflict2
+    sanity:
+      - np_conflict2
+    expected: 2
+
+  - name: sanity_np_np_only_deny_containment
+    sanity:
+      - np_only_deny_containment
+    expected: 5

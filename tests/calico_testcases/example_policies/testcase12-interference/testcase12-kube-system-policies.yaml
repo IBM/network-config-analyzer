@@ -1,0 +1,128 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-tier
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: has(tier)
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-notSelector-tier
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      notSelector: has(tier)
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-no-app
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: !has(app)
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: deny-no-app
+  namespace: kube-system
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: !has(app)
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-all
+  namespace: kube-system
+spec:
+  order: 4
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: kube-system
+spec:
+  order: 4
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Deny
+  egress:
+  - action: Deny
+    destination:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: no-rules
+  namespace: kube-system
+spec:
+  order: 4
+  types:
+  - Ingress
+  - Egress

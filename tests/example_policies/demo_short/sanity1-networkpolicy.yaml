@@ -1,0 +1,47 @@
+### This network policy demonstrates the ability of our sanity checks to detect problems.
+### The first policy contains a simple label mistake - the use of app label instead of k8s-app label (they both exist)
+### The second policy contains a redundant dash - which in this context in k8s means that instead of "And", "Or" will be used
+
+### Both mistakes are detected by the sanity check.
+### The first mistake is detected since a podSelector is empty
+### The second mistake is detected since a podSelector is not in the context of namespace it should be in:
+###   So instead of enabling pods in namespace kubs-system which has 'app' (some has 'app', other has 'k8s-app'),
+###   All the pods in kubs-system are enables as well as pods from 'default' which has 'app';
+###   since all pods in default has 'app', the 'non-empty pod selector selects all pods' test reveals this mistake
+####  One can easily imagine other cases in which the emptiness test will detect such mistakes
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: typo-in-ingress-rule-podSelector-resulting-in-emptySelector
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            app: calico-node
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-defult-from-kube-system-app-with-typo
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: kubeSystemNameSpace
+      - podSelector:            # This is the redundant dash
+          matchExpressions:
+            - key: app         # some of the pods in kube-system have app, others have k8s-app
+              operator: Exists

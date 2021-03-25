@@ -1,0 +1,14 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: sanity_np1
+    networkPolicyList:
+      - sanity1-networkpolicy.yaml
+    expected_warnings: 3
+
+queries:
+  - name: sanity_np1
+    sanity:
+      - sanity_np1
+    expected: 1

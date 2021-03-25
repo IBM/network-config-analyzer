@@ -1,0 +1,53 @@
+
+### Demonstration of a policy with emptiness issues - that at real life could be a result of a typo or a confusment
+
+### The first policy isolates all pods in namespace kube-system which has a app label which is not helm and a has a tier label.
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: isolate-kube-system-specific-pods
+  namespace: kube-system 
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+    - Egress
+
+###  Enable ingress to the isolated pods from the same namespace with app calico-node; problem is that this is a mistake - there is no app calico-node; calico-node is labeled not under app but under k8s-app.
+###    This mistake is revealed by the best practice warnings as well as by the emptiness tests
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: typo-in-ingress-rule-podSelector-resulting-in-emptySelector
+  namespace: kube-system 
+spec:
+  podSelector:
+    matchExpressions: 
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            app: celico-node
+
+        

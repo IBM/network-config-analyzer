@@ -1,0 +1,155 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-enable-egress-TCP-all-ports-directly
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 1:65536
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-enable-egress-TCP-all-ports-implicit
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+  egress:
+  - action: Allow
+    protocol: TCP
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-simple-enable-TCP-101-104-from-301
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 101:104
+      - 301:65536
+      selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-messy-enable-TCP-101-104-from-301
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Deny
+    protocol: UDP
+    destination:
+      ports:
+      - 10:300
+  - action: Deny
+    protocol: TCP
+    destination:
+      ports:
+      - 1:100
+      - 105:200
+  - action: Allow
+    protocol: TCP
+    destination:
+      notPorts:
+      - 100:300
+      selector: all()
+  - action: Deny
+    protocol: TCP
+    destination:
+      notPorts:
+      - 100:104
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    destination:
+      notPorts:
+      - 600
+      selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-messy-enable-TCP-101-104 # match on ports 101-104 only
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 100:250
+      - 1100:1110
+    source:
+      selector: all()
+
+  egress:
+  - action: Deny
+    protocol: UDP
+    destination:
+      ports:
+      - 10:300
+      selector: all()
+  - action: Deny
+    protocol: TCP
+    destination:
+      ports:
+      - 1:100
+      - 105:200
+      - 300:65536
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    destination:
+      notPorts:
+      - 100:300
+      selector: all()
+  - action: Deny
+    protocol: TCP
+    destination:
+      notPorts:
+      - 100:104
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    destination:
+      notPorts:
+      - 600
+      selector: all()

@@ -1,0 +1,24 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: kube-system-none-matching-protocols
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: UDP
+    source:
+      namespaceSelector: unique-label == 'defaultNameSpace'
+  - action: Allow
+    protocol: 132 #(SCTP)
+    source:
+      selector: app  == 'keepalived-watcher'
+  egress:
+  - action: Allow
+    protocol: ICMP
+    destination:
+      selector: app  == 'keepalived-watcher'

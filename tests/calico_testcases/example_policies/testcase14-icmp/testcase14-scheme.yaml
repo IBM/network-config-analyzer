@@ -1,0 +1,137 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: icmp-no-type
+    networkPolicyList:
+      - testcase14-default-icmp-no-type.yaml
+    expected_warnings: 0
+
+  - name: match-icmp-only-between-namespaces
+    networkPolicyList:
+      - testcase14-kube-system-match-default-only-out-icmp.yaml
+      - testcase14-open-default-only-out-icmp.yaml
+    expected_warnings: 0
+
+  - name: default-open-but-vacuous
+    networkPolicyList:
+      - testcase14-open-default-only-out-icmp.yaml
+    expected_warnings: 0
+
+  - name: match-icmp-also-within-default
+    networkPolicyList:
+      - testcase14-kube-system-match-default-also-within-icmp.yaml
+      - testcase14-open-default-also-within-icmp.yaml
+    expected_warnings: 0
+
+  - name: default-also-within-icmp
+    networkPolicyList:
+      - testcase14-open-default-also-within-icmp.yaml
+    expected_warnings: 0
+
+  - name: match-icmp-within-kube-system
+    networkPolicyList:
+      - testcase14-kube-system-match-within.yaml
+    expected_warnings: 0
+
+  - name: np_kube-system-non-matching-icmps
+    networkPolicyList:
+      - testcase14-kube-system-non-match-icmp.yaml
+      - testcase14-open-default-only-out-icmp.yaml
+    expected_warnings: 0
+
+  - name: match-not-icmp
+    networkPolicyList:
+      - testcase14-kube-system-match-notICMP.yaml
+    expected_warnings: 0
+
+  - name: no-match-notICMP
+    networkPolicyList:
+      - testcase14-kube-system-no-match-notICMP.yaml
+    expected_warnings: 0
+
+queries:
+  - name: policies_not_empty
+    emptiness:
+      - match-icmp-only-between-namespaces
+      - np_kube-system-non-matching-icmps
+      - match-icmp-also-within-default
+      - default-open-but-vacuous
+      - match-not-icmp
+      - match-icmp-within-kube-system
+      - no-match-notICMP
+    expected: 0
+
+  - name: vacuous_policies
+    vacuity:
+      - np_kube-system-non-matching-icmps  #should be vacuous but is not
+      - default-open-but-vacuous
+      - no-match-notICMP
+    expected: 3
+
+  - name: not_vacuous_policies
+    vacuity:
+      - match-icmp-only-between-namespaces
+      - match-icmp-also-within-default
+      - match-not-icmp
+      - match-icmp-within-kube-system
+      - icmp-no-type
+    expected: 0
+
+  - name: policies_redundant_in_vacuous
+    redundancy:
+        - np_kube-system-non-matching-icmps
+    expected: 2
+
+  - name: policies_redundant_in_non-vacuous
+    redundancy:
+        -  match-icmp-only-between-namespaces
+    expected: 4
+
+  - name: policies_no_redundacy
+    redundancy:
+        - match-icmp-also-within-default
+    expected: 0
+
+  - name: non_equiv_only_between_namespaces_match_also_within_default
+    equivalence:
+        - match-icmp-also-within-default
+        - match-icmp-only-between-namespaces
+    expected: 1
+
+  - name: containment_match_only_between_namespaces_match_also_within_default
+    containment:
+        - match-icmp-also-within-default
+        - match-icmp-only-between-namespaces
+    expected: 1
+
+  - name: non_equiv_match_icmp_notICMP
+    equivalence:
+        - match-icmp-within-kube-system
+        - match-not-icmp
+    expected: 1
+
+  - name: icmp_no_type_contains_icmp_limited
+    containment:
+        - icmp-no-type
+        - default-also-within-icmp
+    expected: 1
+
+  - name: icmp_no_type_no_contained_in_icmp_limited
+    containment:
+        - default-also-within-icmp
+        - icmp-no-type
+    expected: 0
+
+  - name: containment_match_notICMP_match_icmp
+    containment:
+        - match-not-icmp
+        - match-icmp-within-kube-system
+    expected: 1
+
+  - name: icmp_no_type_two_equiv_policies
+    equivalence:
+        - icmp-no-type/default/testcase14-networkpolicy-open-default
+        - icmp-no-type/default/testcase14-networkpolicy-open-default-with-notICMP
+    expected: 0
+

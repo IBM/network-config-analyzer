@@ -1,0 +1,65 @@
+### This network policy demonstrates the ability of our sanity checks to detect problems with emptiness.
+
+### The policy is supposed to isolate specific pods in cnc-fe, enable inbound and outbound communication from and to the namespace,
+### and ingress from cnc-ntsgin namespace and specific IPs.
+
+### Issue is that there are two types of labels used here: 'app' and 'k8s-app'.
+### The policy contains a simple label mistake in the pod selector - the use of k8s-app label instead of app label, resulting in an empty selector
+### Our sanity check reveals this
+
+### Note that this mistake causes a security breach due to the default "Allow All" profiles.
+
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: sanity1-empty-selector
+  namespace: cnc-fe
+spec:
+  selector: k8s-app == 'cnc-evaluation-service'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    source:
+      namespaceSelector: unique-label == 'cnc-ntsginNameSpace'
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 158.85.156.21/32
+        - 169.46.89.150/32
+        - 10.98.29.142/32
+        - 10.142.188.25/32
+        - 10.121.169.71/32
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+
+---
+  apiVersion: projectcalico.org/v3
+  kind: NetworkPolicy
+  metadata:
+    name: testcase17-open-cnc-ntsgin-namespace
+    namespace: cnc-ntsgin
+  spec:
+    order: 10
+    types:
+    - Ingress
+    - Egress
+    ingress:
+    - action: Allow
+      source:
+        selector: all()
+        namespaceSelector: all()
+    egress:
+    - action: Allow
+      destination:
+        selector: all()
+        namespaceSelector: all()

@@ -1,0 +1,14 @@
+# enables communication between all the pods that are part of the "cnc-evaluation-service" app
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-equiv-local-networkpolicy
+  namespace: cnc-nlp
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow

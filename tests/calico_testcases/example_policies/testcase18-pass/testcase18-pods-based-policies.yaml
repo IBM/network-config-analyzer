@@ -1,0 +1,98 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase18-highPriorityPass-k8s-app-redundant
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Pass
+    source:
+      selector: has(k8s-app)
+  - action: Allow
+    source:
+      selector: has(app)
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: has(tier)
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase18-highPriorityPass-k8s-app-not-redundant
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Pass
+    source:
+      selector: has(k8s-app)
+  - action: Allow
+    source:
+      selector: has(app)
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(tier)
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase18-equivTo-highPriorityPass-k8s-app-not-redundant
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: has(app)
+  - action: Deny
+    source:
+      selector: has(k8s-app)
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(tier)
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase18-pass-not-k8s-app-not-redundant
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: has(app)
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: !has(tier)
+  - action: Pass
+    source:
+      selector: has(k8s-app)
+  - action: Allow
+    source:
+      selector: has(k8s-app)
+
+  egress:
+  - action: Allow

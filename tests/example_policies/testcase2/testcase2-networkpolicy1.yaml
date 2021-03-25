@@ -1,0 +1,29 @@
+
+### First policy
+### The policy defines traffic within the namespace kube-system. 
+### The possible app in the namespace are file-plugin, keepalived-watcher, kube-fluentd, storage-watcher, helm and vpn
+### This policy allows traffic within namespace kube-system only from pods in the namespace and with app in {kube-fluentd, storage-watcher, helm, vpn}
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-app-in-predefined
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector: 
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - kube-fluentd
+                - storage-watcher
+                - helm 
+                - vpn
+ 
+

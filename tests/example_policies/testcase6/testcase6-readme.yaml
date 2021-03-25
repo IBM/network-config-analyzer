@@ -1,0 +1,8 @@
+### The two files in this folder demonstrates that combining two policies can easily result in a policy different than intended
+
+### The policies restrict access to specific pods in kube-system
+
+### The first policy enables access to pods in kube-system with app keepalived-watcher or kube-fluentd only by pods from namespace default
+### The second policy defines that pods in kube-system with tier frontend can be accessed only by pods from namespace vendor-system
+
+### issue is there is a pod in  namespace kube-system with tier frontend and also with app keepalived-watcher; thus each policy in a way creates a hole in the other

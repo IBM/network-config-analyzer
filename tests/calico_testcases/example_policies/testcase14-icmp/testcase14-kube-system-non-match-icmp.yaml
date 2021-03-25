@@ -1,0 +1,33 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: kube-system-none-matching-protocols
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: ICMP
+    icmp:
+      type: 104
+      code: 54
+    source:
+      namespaceSelector: unique-label == 'defaultNameSpace'
+  - action: Allow
+    protocol: ICMP
+    icmp:
+      type: 104
+      code: 54
+    source:
+      selector: app  == 'keepalived-watcher'
+  egress:
+  - action: Allow
+    protocol: ICMPv6
+    icmp:
+      type: 104
+      code: 54
+    destination:
+      selector: app  == 'keepalived-watcher'

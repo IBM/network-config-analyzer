@@ -1,0 +1,148 @@
+namespaceList: ../../example_podlist/ns_list_wdc.json
+podList: ../../example_podlist/wdc_wep2.json
+
+
+networkPolicyLists:
+  - name: np0_cnc-kt-open
+    networkPolicyList:
+      - testcase22-0-deny-all-profiles.yaml
+      - testcase22-0-cnc-kt-open.yaml
+    expected_warnings: 0
+
+  - name: np0_cnc-nlp-open
+    networkPolicyList:
+      - testcase22-0-deny-all-profiles.yaml
+      - testcase22-0-cnc-nlp-open.yaml
+    expected_warnings: 0
+
+  - name: np0_cnc-fe-not-helm-open
+    networkPolicyList:
+      - testcase22-0-deny-all-profiles.yaml
+      - testcase22-0-cnc-fe-not-helm-open.yaml
+    expected_warnings: 0
+
+  - name: np0_global-to-from-outside
+    networkPolicyList:
+      - testcase22-0-global-to-from-outside.yaml
+      - testcase22-0-deny-all-profiles.yaml
+
+  - name: np0_cnc-evaluation-service-open
+    networkPolicyList:
+      - testcase22-0-deny-all-profiles.yaml
+      - testcase22-0-cnc-evaluation-service-open.yaml
+
+  - name: np0_global-blacklist-ports
+    networkPolicyList:
+      - testcase22-0-global-blacklist-ports.yaml
+      - testcase22-0-deny-all-profiles.yaml
+
+  - name: np1_traffic-between-cnc-evaluation-service-mistake-outside
+    networkPolicyList:
+      - testcase22-0-deny-all-profiles.yaml
+      - testcase22-1-traffic-between-cnc-evaluation-service-also-out.yaml
+    expected_warnings: 0
+
+  - name: np2_traffic-between-cnc-evaluation-service-no-outside
+    networkPolicyList:
+      - testcase22-0-deny-all-profiles.yaml
+      - testcase22-2-traffic-between-cnc-evaluation-service-no-out.yaml
+    expected_warnings: 0
+
+  - name: np3_product-compare-and-comply
+    networkPolicyList:
+      - testcase22-0-deny-all-profiles.yaml
+      - testcase22-3-traffic-between-compare-and-comply-no-out.yaml
+    expected_warnings: 0
+
+  - name: np4_empty-policy-allow-all-profiles
+    networkPolicyList:
+      - testcase22-0-allow-all-profiles.yaml
+      - testcase22-4-empty-policy.yaml
+    expected_warnings: 1
+
+queries:
+  - name: sanity_ok
+    sanity:
+    - np0_cnc-kt-open
+    - np0_global-to-from-outside
+    - np0_global-blacklist-ports
+    - np0_cnc-fe-not-helm-open
+    - np0_cnc-evaluation-service-open
+    - np1_traffic-between-cnc-evaluation-service-mistake-outside
+    - np2_traffic-between-cnc-evaluation-service-no-outside
+    - np3_product-compare-and-comply
+    expected: 0
+
+  - name: sanity_not_ok
+    sanity:
+    - np4_empty-policy-allow-all-profiles
+    expected: 2
+
+  - name: cnc-evaluation-service-with-mistake-no-ns-cnc-kt-cnc-nlp-no-outside
+    forbids:
+    - np1_traffic-between-cnc-evaluation-service-mistake-outside
+    - np0_cnc-kt-open
+    - np0_cnc-nlp-open
+    - np0_global-to-from-outside
+    expected: 1
+
+  - name: cnc-evaluation-service-no-mistake-no-ns-cnc-kt-cnc-nlp-no-outside
+    forbids:
+    - np2_traffic-between-cnc-evaluation-service-no-outside
+    - np0_cnc-kt-open
+    - np0_cnc-nlp-open
+    - np0_global-to-from-outside
+    expected: 0
+
+  - name: cnc-evaluation-service-did-not-blacklist-ports
+    forbids:
+    - np2_traffic-between-cnc-evaluation-service-no-outside
+    - np0_global-blacklist-ports
+    expected: 1
+
+  - name: cnc-evaluation-not-forbid-cnc-fe
+    forbids:
+    - np2_traffic-between-cnc-evaluation-service-no-outside
+    - np0_cnc-fe-not-helm-open
+    expected: 1
+
+# It was believed that all pods in cnc-fe has product compare-and-comply
+# but this is not the case due to a pod with "offering": "compare-and-comply"
+  - name: compare-and-comply-believed-but-not-permit-all-cnc-fe
+    permits:
+    - np3_product-compare-and-comply
+    - np0_cnc-fe-not-helm-open
+    expected: 1
+
+  - name: compare-and-comply-permits-all-cnc-evaluation-service
+    permits:
+    - np3_product-compare-and-comply
+    - np0_cnc-evaluation-service-open
+    expected: 0
+
+# This is just to test 'allow-all' profiles, with an empty policy
+
+# np4_empty-policy-allow-all-profiles permits "everything" (through profiles)
+  - name: empty-policy-profiles-allow-all-permit
+    permits:
+    - np4_empty-policy-allow-all-profiles
+    - np0_cnc-fe-not-helm-open
+    expected: 0
+
+  - name: empty-policy-profiles-allow-all-forbids
+    forbids:
+    - np4_empty-policy-allow-all-profiles
+    - np0_cnc-fe-not-helm-open
+    expected: 1
+
+  - name: empty-policy-profiles-allow-all-is-permited
+    permits:
+    - np0_cnc-fe-not-helm-open
+    - np4_empty-policy-allow-all-profiles
+    expected: 0
+
+  - name: empty-policy-profiles-allow-all-is-forbidden
+    forbids:
+    - np0_cnc-fe-not-helm-open
+    - np4_empty-policy-allow-all-profiles
+    expected: 0

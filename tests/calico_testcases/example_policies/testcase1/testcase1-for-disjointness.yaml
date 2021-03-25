@@ -1,0 +1,40 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase1-has_tier
+  namespace: kube-system
+spec:
+  selector: has(tier)
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow
+    destination:
+      selector: app  == 'keepalived-watcher'
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase1-has_app
+  namespace: kube-system
+spec:
+  selector: has(app)
+  types:
+  - Ingress
+  - Egress
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase1-has-k8s-app
+  namespace: kube-system
+spec:
+  selector: has(k8s-app)
+  types:
+  - Ingress
+  - Egress

@@ -1,0 +1,16 @@
+### This files in this folder demonstrates the ability of interferes to detect mistake
+### A good practice would be to execute the test whenever a specific policy/file should exclusively define the connections to and from a given pods set
+
+### The first two policies, interferes-networkpolicy1 and interferes-networkpolicy2 demonstrates a case in which a believed to be empty intersection is not such
+### The policies restrict access to specific pods in kube-system
+### First policy should be the only one that enables connection to pods with app keepalived-watcher or kube-fluentd
+### second policy, enabling connections to pods with tier frontend, should be disjoint. It should not interfere with the first one
+### issue is there is a pod in namespace kube-system with tier frontend and also with app keepalived-watcher; thus each policy creates a hole in the other
+### and specifically the second policy interefers with the first one
+
+### The second two policies, interferes-networkpolicy3 and interferes-networkpolicy4 demonstrates a typo that is revealed with the interferes test
+### Both policies restrict incoming traffic to namespace kube-system
+### The first enables traffic from pods in namespace default and the second to pods in namespace vendor-system on port 53
+### Hence, the traffic referred to by these policies should be disjoint and specifically not interfere
+### But due to a typo in the second policy (redundant -) it allows all traffic on port 53 into kube-system and interferes the first policy
+

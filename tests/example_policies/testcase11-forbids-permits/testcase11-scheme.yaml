@@ -1,0 +1,110 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np-empty
+    networkPolicyList:
+      - testcase11-empty-networkpolicy.yaml
+    expected_warnings: 1
+
+  - name: np-within-default
+    networkPolicyList:
+      - testcase11-within-default.yaml
+    expected_warnings: 0
+
+  - name: np-partly-within-default
+    networkPolicyList:
+      - testcase11-partly-within-default.yaml
+    expected_warnings: 0
+
+  - name: np-within-kube-system
+    networkPolicyList:
+      - testcase11-within-kube-system.yaml
+    expected_warnings: 0
+
+queries:
+  - name: sanity
+    sanity:
+      - np-empty
+      - np-within-default
+      - np-partly-within-default
+      - np-within-kube-system
+    expected: 2
+
+## all combinations of empty policy and withing-default policy
+
+  - name: forbids_default_impl_empty_spec
+    forbids:
+      - np-within-default
+      - np-empty
+    expected: 0
+
+  - name: forbids_empty_impl_default_spec
+    forbids:
+      - np-empty
+      - np-within-default
+    expected: 1
+
+  - name: permits_default_impl_empty_spec
+    permits:
+      - np-within-default
+      - np-empty
+    expected: 0
+
+  - name: permits_empty_impl_default_spec
+    permits:
+      - np-empty
+      - np-within-default
+    expected: 0
+
+## all combinations of within-default and partly-within-default policies
+
+  - name: forbids_default_impl_partly_default_spec
+    forbids:
+      - np-within-default
+      - np-partly-within-default
+    expected: 1
+
+  - name: forbids_partly_default_impl_default_spec
+    forbids:
+      - np-partly-within-default
+      - np-within-default
+    expected: 1
+
+  - name: permits_default_impl_partly_default_spec
+    permits:
+      - np-within-default
+      - np-partly-within-default
+    expected: 0
+
+  - name: permits_partly_default_impl_default_spec
+    permits:
+      - np-partly-within-default
+      - np-within-default
+    expected: 1
+
+## all combinations of within-default and within-kube-system
+
+  - name: forbids_default_impl_kube-system_spec
+    forbids:
+      - np-within-default
+      - np-within-kube-system
+    expected: 1
+
+  - name: forbids_kube-system_impl_default-spec
+    forbids:
+      - np-within-kube-system
+      - np-within-default
+    expected: 1
+
+  - name: permits_default_impl_kube-system_spec
+    permits:
+      - np-within-default
+      - np-within-kube-system
+    expected: 0
+
+  - name: permits_kube-system_impl_default-spec
+    permits:
+      - np-within-kube-system
+      - np-within-default
+    expected: 0

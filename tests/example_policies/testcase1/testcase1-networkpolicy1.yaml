@@ -1,0 +1,50 @@
+
+### The policy has a mistake - and actually it allows all, not as intended and as explained below
+### The mistake is that [] selects all pods; the source of the mistake is that right after ingress/egress [] means "select nothing"
+### This mistake was revealed by our redundancy check
+
+### namespace default contains (only) pods with app=skydive (only), some with tier=agent and some with tier=analyzer  
+### Communication is allowed within the namespace only from tier=analyzer to tier=agent (and app=skydive in both from and to)
+
+#### This policy isolates pods of namespace=default with app=skydive, and within the namespace (default) denys all incoming traffic (ingress) while allowing all outgoing traffic (egress) 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-deny-ingress-within-namespace
+  namespace: default 
+spec:
+  podSelector:
+    matchLabels:
+      app: skydive
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: 
+    - from:
+      - podSelector: {}
+  egress:
+    - to:
+      - podSelector: {}
+ 
+---
+### This policies allow traffic from tier=analyzer to tier=agent via ingress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-agent-to-analyzer-via-ingress
+  namespace: default 
+spec:
+  podSelector:
+    matchLabels:
+      app: skydive
+      tier: agent
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: skydive
+            tier: analyzer
+

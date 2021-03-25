@@ -1,0 +1,98 @@
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-contains-deny-of-only-deny
+  namespace: kube-system
+spec:
+  order: 1
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 255.0.0.0/2
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/3
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-not-contains-deny-of-other-policy
+  namespace: kube-system
+spec:
+  order: 5
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 255.0.0.0
+      - 0.0.0.0
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/3
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-only-deny-contained
+  namespace: kube-system
+spec:
+  order: 10
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 255.0.0.0
+      - 255.0.0.0
+      - 255.9.0.0
+      - 255.2.3.0/4
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-only-deny-no-contained
+  namespace: kube-system
+spec:
+  order: 10
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 255.0.0.0
+      - 0.0.0.0

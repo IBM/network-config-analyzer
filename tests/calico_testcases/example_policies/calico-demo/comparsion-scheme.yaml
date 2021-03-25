@@ -1,0 +1,28 @@
+namespaceList: ../../example_podlist/ns_list_wdc.json
+podList: ../../example_podlist/wdc_wep.json
+
+networkPolicyLists:
+  - name: np-old
+    networkPolicyList:
+      - demo-comparsionOld.yaml
+      - demo-deny-all-wdc-wep-profiles.yaml
+    expected_warnings: 0
+
+  - name: np-new
+    networkPolicyList:
+      - demo-comparsionNew.yaml
+      - demo-deny-all-wdc-wep-profiles.yaml
+    expected_warnings: 0
+
+queries:
+  - name: sanity
+    sanity:
+      - np-old
+      - np-new
+    expected: 0
+
+  - name: monitor_changes
+    twoWayContainment:
+      - np-old
+      - np-new
+    expected: 2

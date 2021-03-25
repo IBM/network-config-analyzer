@@ -1,0 +1,6 @@
+### The policies in this folder demonstrates the delicate semantic of Ingress (as rule as Egress) rules
+
+### first policy - ingress rule with multiple items of "podSelector" and with ports specified
+### The semantic is (pod_selector1 or pod_selector2) and (ports)
+### second policy - ingress rule with multiple items of "from"
+### The semantic is (pod_selector1 and port1) or (pod_selector2 and port2)

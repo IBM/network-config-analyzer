@@ -1,0 +1,396 @@
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-ntsgin
+spec:
+  types:
+  - Egress
+  - Ingress
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-fe
+spec:
+  types:
+  - Egress
+  - Ingress
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cap-unauth
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-pdf-tool
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.operia-benchmark
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cap-unauth.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-nlp.default
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-ntsgin.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.chaos-testing
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.ctighs.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-clntn-mgmt.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.chaos-testing.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-kt.default
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cap-agent.default
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.ctighs
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.ctighs-va.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-tooling.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-nlp
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-pdf-tool.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.blue-umbrella.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cap-agent
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.acc-research.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-clntn-mgmt
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.operia-benchmark.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-clntn-mgmt.default
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-ntsgin.default
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.ctighs-va
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.blue-umbrella
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-nlp.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-kt.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-tooling
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-tooling.default
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.vtngc-data.default
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-fe.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.vtngc-data
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.acc-research
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cap-agent.helm-tiller
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-kt
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-fe.default
+spec:
+  egress:
+  - action: Deny
+  ingress:
+  - action: Deny
+

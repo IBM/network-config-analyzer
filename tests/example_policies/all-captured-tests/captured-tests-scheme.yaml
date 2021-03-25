@@ -1,0 +1,26 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: no_policy
+    networkPolicyList: []
+    expected_warnings: 0
+
+  - name: some_captured
+    networkPolicyList:
+      - some-captured-tests-networkpolicy.yaml
+    expected_warnings: 1
+
+  - name: all_captured
+    networkPolicyList:
+      - some-captured-tests-networkpolicy.yaml
+      - other-captured-tests-networkpolicy.yaml
+    expected_warnings: 3
+
+queries:
+  - name: all-captured
+    allCaptured:
+      - no_policy
+      - some_captured
+      - all_captured
+    expected: 40

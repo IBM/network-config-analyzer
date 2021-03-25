@@ -1,0 +1,88 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np-superAllow
+    networkPolicyList:
+      - testcase6-superAllow.yaml
+    expected_warnings: 0
+
+  - name: np-subAllow
+    networkPolicyList:
+      - testcase6-subAllow.yaml
+    expected_warnings: 0
+
+  - name: np-superDeny
+    networkPolicyList:
+      - testcase6-superDeny.yaml
+    expected_warnings: 0
+
+  - name: np-subDeny
+    networkPolicyList:
+      - testcase6-subDeny.yaml
+    expected_warnings: 0
+
+queries:
+  - name: supDeny_vacuous
+    vacuity:
+      - np-superDeny
+    expected: 1
+  - name: other3_not_vacuous
+    vacuity:
+      - np-superAllow
+      - np-subAllow
+      - np-subDeny
+    expected: 0
+
+  - name: non_empty
+    emptiness:
+      - np-superDeny
+      - np-superAllow
+      - np-subAllow
+      - np-subDeny
+    expected: 0
+
+  - name: redundancy_superAllow
+    redundancy:
+      - np-superAllow
+    expected: 1
+  - name: redundancy_subAllow
+    redundancy:
+      - np-subAllow
+    expected: 1
+  - name: redundancy_superDeny
+    redundancy:
+      - np-superDeny
+    expected: 2
+  - name: redundancy_subDeny
+    redundancy:
+      - np-subDeny
+    expected: 0
+
+  - name: containment_in_superAllow
+    containment:
+      - np-superAllow
+      - np-subAllow
+      - np-superDeny
+      - np-subDeny
+    expected: 3
+  - name: containment_in_subAllow
+    containment:
+      - np-subAllow
+      - np-superAllow
+      - np-subDeny
+      - np-superDeny
+    expected: 1
+  - name: containment_in_subDeby
+    containment:
+      - np-subDeny
+      - np-subAllow
+      - np-superAllow
+      - np-superDeny
+    expected: 1
+
+  - name: subAllowSubDeny_no_containment
+    twoWayContainment:
+     - np-subAllow
+     - np-subDeny
+    expected: 0

@@ -1,0 +1,57 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - typoNotInTests-networkpolicy1.yaml
+    expected_warnings: 1
+
+  - name: np1_from_ghe
+    networkPolicyList:
+      - https://github.ibm.com/HWVT/npv/tree/master/tests/example_policies/typoNotInTests
+    expected_warnings: 1
+
+  - name: np2_from_ghe
+    networkPolicyList:
+      - https://github.ibm.com/HWVT/npv/tree/master/tests/example_policies
+    expected_warnings: 0
+
+queries:
+  - name: no_vacuity
+    vacuity:
+      - np1
+      - np1/kube-system/ingress-with-typo-notin
+      - np1/kube-system/enable-ingress-specific-pods
+    expected: 0
+  - name: emptiness
+    emptiness:
+      - np1
+    expected: 0
+  - name: emptiness_ghe
+    emptiness:
+      - np1_from_ghe
+    expected: 0
+  - name: redundancy
+    redundancy:
+      - np1
+    expected: 1
+  - name: redundancy_ghe
+    redundancy:
+      - np1_from_ghe
+    expected: 1
+
+  - name: compare_specific_policies
+  - name: contains_specific_policies_1_in_2
+    twoWayContainment:
+      - np1/kube-system/ingress-with-typo-notin
+      - np1/kube-system/enable-ingress-specific-pods
+    expected: 1
+
+  - name: compare_specific_policies_ghe
+    equivalence:
+      - np1_from_ghe/kube-system/ingress-with-typo-notin
+      - np1_from_ghe/kube-system/enable-ingress-specific-pods
+    expected: 1
+
+

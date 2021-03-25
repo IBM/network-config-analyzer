@@ -1,0 +1,19 @@
+### Second file - contains a policy that enables access within namespace kube-system also from pods with "tier" "frontend". 
+
+###   Problem is that there is a pod in namespace kube-system with "tier" "frontend" and also with app keepalived-watcher
+ 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-kube-system-tier-is-frontend
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+

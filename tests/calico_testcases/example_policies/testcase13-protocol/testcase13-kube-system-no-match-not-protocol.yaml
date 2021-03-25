@@ -1,0 +1,20 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: kube-system-not-matching-notProtocols-single-rule
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: SCTP
+    source:
+      selector: !has(app)
+  egress:
+  - action: Allow
+    notProtocol: 132 #(SCTP)
+    destination:
+      selector: !has(app)

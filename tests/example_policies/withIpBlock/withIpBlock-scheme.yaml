@@ -1,0 +1,45 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - withIpBlock-networkpolicy1.yaml
+    expected_warnings: 0
+
+  - name: np2
+    networkPolicyList:
+      - withIpBlock-networkpolicy2.yaml
+    expected_warnings: 0
+
+  - name: np3
+    networkPolicyList:
+      - withIpBlock-networkpolicy3.yaml
+    expected_warnings: 0
+
+  - name: np4
+    networkPolicyList:
+      - withIpBlock-networkpolicy4.yaml
+    expected_warnings: 0
+
+queries:
+  - name: equivalence
+    equivalence:
+      - np1
+      - np2
+      - np3
+    expected: 2
+  - name: equivalence_np4_with_itself
+    equivalence:
+      - np4
+      - np4
+  - name: redundnacy_np1_np4
+    redundancy:
+      - np1
+      - np4
+    expected: 0
+  - name: emptiness
+    emptiness:
+      - np1
+      - np2
+    expected: 0

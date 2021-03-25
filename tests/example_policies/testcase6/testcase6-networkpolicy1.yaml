@@ -1,0 +1,22 @@
+## First policy - enables access to pods in kube-system with app keepalived-watcher or kube-fluentd only by pods from namespace default
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-from-default-to-isolated-by-app
+  namespace: kube-system 
+spec:
+  podSelector: 
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - kube-fluentd
+          - keepalived-watcher
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector: 
+          matchLabels:
+            unique-label: defaultNameSpace

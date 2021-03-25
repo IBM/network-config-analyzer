@@ -1,0 +1,28 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase19-20-deny-allow-games
+  namespace: cnc-fe
+spec:
+  types:
+  - Ingress
+  ingress:
+  - action: Allow
+    source:
+      namespaceSelector: bigapp/namespace == 'cnc-ntsgin'
+  - action: Deny
+    protocol: TCP
+    source:
+      namespaceSelector: bigapp/namespace == 'cnc-kt'
+  - action: Allow
+    source:
+      namespaceSelector: bigapp/namespace == 'acc-research'
+  - action: Allow
+    source:
+      namespaceSelector: bigapp/namespace == 'cnc-pdf-tool'
+  - action: Deny
+    source:
+      namespaceSelector: bigapp/namespace == 'cnc-tooling'
+  - action: Allow
+    source:
+      namespaceSelector: bigapp/namespace == 'vtngc-data'

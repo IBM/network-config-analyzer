@@ -1,0 +1,15 @@
+namespaceList: ../../example_podlist/ns_list_wdc.json
+podList: ../../example_podlist/wdc_wep.json
+
+networkPolicyLists:
+  - name: typo_selector_globalPolicy
+    networkPolicyList:
+      - demo-sanity2-typo-selector-no-effect.yaml
+      - demo-allow-all-wdc-wep-profiles.yaml
+    expected_warnings: 1
+
+queries:
+  - name: sanity_typo_selector_globalPolicy
+    sanity:
+      - typo_selector_globalPolicy
+    expected: 0

@@ -1,0 +1,5 @@
+### This folder contains 2 network policies
+### Both meant to allow traffic from namespace default to namespace kube-system through ports 53 with UDP and TCP
+
+## The first one has a (common) typo, as a result of which traffic to kube-system is allow for all through ports 53 with UDP and TCP
+## The second fixes this typo

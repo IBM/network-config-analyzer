@@ -1,0 +1,6 @@
+### This folder contains two policies. 
+### Both policies restrict incoming traffic to namespace kube-system
+### The first enables traffic from pods in namespace default and the second to pods in namespace vendor-system on port 53
+### Hence, the traffic referred to by these policies should be disjoint and specifically not interfere
+### But due to a typo in the second policy (redundant -) it allows all traffic on port 53 into kube-system and interferes the first policy
+

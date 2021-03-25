@@ -1,0 +1,35 @@
+### Demonstrates the ability of sanity to detect problems
+### Specifically, the risk that can be result from a small typo: if in notIn there is a typo in the key, it practically imposes no restriction (since one should most probably add "exist" for the label)
+### The following example contains two policies for defining ingress rules into kube-system.
+### The first one has a typo as result of which the second restriction is void as a result the second rule is redundant
+### Our sanity check will reveal it
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-with-typo-notin
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchExpressions:
+            - key: tier
+              operator: Exists
+            - key: app
+              operator: NotIn
+              values:
+                - helmm
+    - from:
+      - podSelector:
+          matchExpressions:
+            - key: tier
+              operator: In
+              values:
+                - frontend
+
+
+

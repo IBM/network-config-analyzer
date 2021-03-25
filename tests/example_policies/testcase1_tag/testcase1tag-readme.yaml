@@ -1,0 +1,5 @@
+### This folder contains 2 files, each containing two network policies
+### the policies in the first file are equiv to the policies in the second one
+
+### namespace default, for which the policies are defined, contains pods with app=skydive (only), some with tier=agent and some with tier=analyzer  
+### Communication is allowed within the namespace for app=skydive only from tier=analyzer to tier=agent

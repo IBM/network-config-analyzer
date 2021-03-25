@@ -1,0 +1,134 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-traffic-kube-system
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from: []
+  egress:
+    - to: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-wep-traffic-kube-system1
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress: 
+    - from:
+      - namespaceSelector: {}
+      - podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+      - podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-wep-traffic-kube-system2
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-between-kube-system-some-other-namespaces
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchExpressions:
+            - key: unique-label
+              operator: Exists
+  egress:
+    - to:
+      - namespaceSelector:
+          matchExpressions:
+            - key: unique-label
+              operator: Exists
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-between-kube-system-some-other-namespaces-with-podSelector
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchExpressions:
+            - key: unique-label
+              operator: Exists
+        podSelector:
+          matchLabels:
+            app: skydive
+  egress:
+    - to:
+      - namespaceSelector:
+          matchExpressions:
+            - key: unique-label
+              operator: Exists
+        podSelector:
+          matchLabels:
+            app: skydive
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-between-kube-system-default-with-podSelector
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: defaultNameSpace
+        podSelector:
+          matchLabels:
+            app: skydive
+  egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: defaultNameSpace
+        podSelector:
+          matchLabels:
+            app: skydive

@@ -1,0 +1,26 @@
+
+### Second policy
+### The policy defines traffic within the namespace kube-system. 
+### The possible app in the namespace are file-plugin, keepalived-watcher, kube-fluentd, storage-watcher, helm and vpn
+### The policy allows traffic within namespace kube-system only from pods in the namespace and with app notin {file-plugin, keepalived-watcher}
+###   this implementation is wrong w.r.t. specification since traffic will also be allowed from pods in which app is not defined
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-app-notin-predefined
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector: 
+          matchExpressions:
+            - key: app
+              operator: NotIn
+              values:
+                - file-plugin
+                - keepalived-watcher
+ 

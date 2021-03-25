@@ -1,0 +1,34 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase9-ingress-all-selector
+  namespace: default
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+    protocol: TCP
+  egress:
+  - action: Allow
+    protocol: TCP
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase9-ingress-empty-selector
+  namespace: default
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+  egress:
+  - action: Allow
+    protocol: TCP

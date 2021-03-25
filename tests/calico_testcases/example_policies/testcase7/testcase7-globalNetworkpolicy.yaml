@@ -1,0 +1,79 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase7-globalNetworkpolicy-seperate-rules
+spec:
+  types:
+  - Ingress
+  - Egress
+  egress:
+  - action: Allow
+    destination:
+      selector: has(tier)
+  - action: Allow
+    destination:
+      notSelector: app == 'helm'
+  ingress:
+  - action: Allow
+    source:           # this is required to avoid communication from outside the cluster
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase7-globalNetworkpolicy-same-rule
+spec:
+  types:
+  - Ingress
+  - Egress
+  egress:
+  - action: Allow
+    destination:
+      selector: has(tier)
+      notSelector: app == 'helm'
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase7-globalNetworkpolicy-empty-policy
+spec:
+  types:
+  - Ingress
+  - Egress
+  egress:
+  - action: Allow
+    destination:
+      selector: app == 'skydive'
+      notSelector: has(tier)
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase7-globalNetworkpolicy-empty-rule
+spec:
+  types:
+  - Ingress
+  - Egress
+  egress:
+  - action: Allow
+    destination:
+      selector: app == 'skydive'
+      notSelector: has(tier)
+  - action: Allow
+    destination:
+      selector: has(app)
+  ingress:
+  - action: Allow
+    source:
+      selector: all()

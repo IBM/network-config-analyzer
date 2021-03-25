@@ -1,0 +1,32 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase1-networkpolicy-open-default-only-out
+  namespace: default
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Deny
+    protocol: ICMP
+    icmp:
+      type: 100
+      code: 154
+    source:
+      selector: all()
+  - action: Allow
+    protocol: ICMPv6
+    icmp:
+      type: 105
+      code: 54
+    source:
+      selector: all()
+  egress:
+  - action: Allow
+    protocol: ICMP
+    icmp:
+      type: 105
+      code: 54
+    destination:
+      namespaceSelector: all()

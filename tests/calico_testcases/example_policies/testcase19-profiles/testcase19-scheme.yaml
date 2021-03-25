@@ -1,0 +1,420 @@
+namespaceList: ../../example_podlist/ns_list_wdc.json
+podList: ../../example_podlist/wdc_wep.json
+
+
+networkPolicyLists:
+### basic equiv test between profile and policy
+
+  - name: np1_cnc-fe-only-ingress
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-1-cnc-fe-allow-ingress.yaml
+    expected_warnings: 0
+
+  - name: np2_cnc-fe-only-ingress_policy_cnc_fe_egress
+    networkPolicyList:
+    - testcase19-0-deny-all-profiles.yaml
+    - testcase19-1-cnc-fe-allow-ingress.yaml
+    - testcase19-2-policy-cnc-fe-egress-allow.yaml
+    expected_warnings: 0
+
+  - name: np3_cnc-fe-only-ingress_profile_cnc_fe_egress
+    networkPolicyList:
+    - testcase19-1-cnc-fe-allow-ingress.yaml
+    - testcase19-3-profile-kns-cnc-fe-egress-allow.yaml
+    expected_warnings: 0
+
+### games within policy, also with '2nd' profile (which should not be used)
+
+  - name: np4_cnc-ntsgin-policy-partly-within-namespace
+    networkPolicyList:
+    - testcase19-0-deny-all-profiles.yaml
+    - testcase19-0-1-empty-policy.yaml
+    - testcase19-4-policy-cnc-ntsgin-egress-ingress-within-namespace-partly-allow.yaml
+    expected_warnings: 0
+
+  - name: np5_cnc-ntsgin-profiles-partly-within-namespace
+    networkPolicyList:
+    - testcase19-0-1-empty-policy.yaml
+    - testcase19-5-profiles-cnc-ntsgin-egress-ingress-within-namespace-partly-allow.yaml
+    expected_warnings: 0
+
+  - name: np6_cnc-ntsgin-2nd-profiles-within-namespace
+    networkPolicyList:
+    - testcase19-0-1-empty-policy.yaml
+    - testcase19-6-2nd-profiles-cnc-ntsgin-egress-ingress-within-namespace-allow.yaml
+    expected_warnings: 0
+
+  - name: np7_cnc-ntsgin-profiles-all-within-namespace
+    networkPolicyList:
+    - testcase19-0-1-empty-policy.yaml
+    - testcase19-7-profiles-cnc-ntsgin-egress-ingress-within-namespace-all-allow.yaml
+    expected_warnings: 0
+
+## first set of tests of 'labels to apply", this set quit artificial with networkPolicy (non global)
+
+  - name: np8-0-cnc-fe-bewteen-namespaces-namespaceSelector-without-opening-egress
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-8-1-specific-ingress-between-namespaces-with-policies.yaml
+    expected_warnings: 0
+
+  - name: np8-1-between-namespaces-namespaceSelector-and-profile
+    networkPolicyList:
+      - testcase19-8-0-specific-egress-between-namespaces-with-profiles.yaml
+      - testcase19-8-1-specific-ingress-between-namespaces-with-policies.yaml
+    expected_warnings: 0
+
+  - name: np9-0-cnc-fe-between-namespaces-with-deny-all-profiles
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-9-1-specific-ingress-with-policies-based-apply-lables.yaml
+    expected_warnings: 2
+
+  - name: np9-0-cnc-fe-between-namespaces-missing-one-label-to-apply
+    networkPolicyList:
+      - testcase19-9-0-1-specific-egress-with-profiles-missing-apply-labels.yaml
+      - testcase19-9-1-specific-ingress-with-policies-based-apply-lables.yaml
+    expected_warnings: 0
+
+  - name: np9-cnc-fe-between-namespaces-with-label-to-apply
+    networkPolicyList:
+      - testcase19-9-0-specific-egress-with-profiles-based-on-apply-labels.yaml
+      - testcase19-9-1-specific-ingress-with-policies-based-apply-lables.yaml
+    expected_warnings: 0
+
+# second test of 'labels to apply' - also using global policies
+
+  - name: np10-cnc-kt-open-with-policy
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-10-open-within-cnc-kt-with-policy.yaml
+    expected_warnings: 0
+
+  - name: np11-global-without-label-to-apply
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-11-open-within-cnc-kt-with-global-labels-apply.yaml
+    expected_warnings: 1
+
+  - name: np11-global-enable-with-label-to-apply
+    networkPolicyList:
+      - testcase19-11-0-profiles-with-apply-all-cnc-kt.yaml
+      - testcase19-11-open-within-cnc-kt-with-global-labels-apply.yaml
+    expected_warnings: 0
+
+### policy with deny and allow rules, with games of "Deny all" vs. "Allow all" profiles.
+### mainly to see what are the redundancies and that they are correct. Also to verify containment and equiv
+
+  - name: np12-deny-allow-games-no-egress-default-deny
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-12-deny-allow-ingress-namespaces-games-no-egress.yaml
+    expected_warnings: 0
+
+  - name: np12-deny-allow-games-no-egress-default-allow
+    networkPolicyList:
+      - testcase19-0-2-allow-all-profiles.yaml
+      - testcase19-12-deny-allow-ingress-namespaces-games-no-egress.yaml
+    expected_warnings: 0
+
+  - name: np13-deny-allow-games-open-egress-default-deny
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-13-deny-allow-ingress-namespaces-games-open-egress.yaml
+    expected_warnings: 0
+
+  - name: np13-deny-allow-games-open-egress-default-allow
+    networkPolicyList:
+      - testcase19-0-2-allow-all-profiles.yaml
+      - testcase19-13-deny-allow-ingress-namespaces-games-open-egress.yaml
+    expected_warnings: 0
+
+### games within namespace of allow-deny-pass
+### there is one pass rule after all deny and allow rules, s.t. the pass rule contains the allow and deny rules
+### thus, default deny should result in redundant deny rules and default allow should result in redundant allow rules
+
+  - name: np14-deny-allow-pass-games-default-deny
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-14-ingress-allow-deny-pass-games-within-namespace.yaml
+    expected_warnings: 0
+
+  - name: np14-deny-allow-pass-games-default-allow
+    networkPolicyList:
+      - testcase19-0-2-allow-all-profiles.yaml
+      - testcase19-14-ingress-allow-deny-pass-games-within-namespace.yaml
+    expected_warnings: 0
+
+## and last two cfgs - same allow-deny games but without the pass
+
+  - name: np15-deny-allow-withoutpass-games-default-deny
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+      - testcase19-15-ingress-allow-deny-witoutpass-games-within-namespace.yaml
+    expected_warnings: 0
+
+  - name: np15-deny-allow-withoutpass-games-default-allow
+    networkPolicyList:
+      - testcase19-0-2-allow-all-profiles.yaml
+      - testcase19-15-ingress-allow-deny-witoutpass-games-within-namespace.yaml
+    expected_warnings: 0
+
+queries:
+  - name: non_empty
+    emptiness:
+    - np1_cnc-fe-only-ingress
+    - np3_cnc-fe-only-ingress_profile_cnc_fe_egress
+    - np2_cnc-fe-only-ingress_policy_cnc_fe_egress
+    - np4_cnc-ntsgin-policy-partly-within-namespace
+    - np5_cnc-ntsgin-profiles-partly-within-namespace
+    - np6_cnc-ntsgin-2nd-profiles-within-namespace
+    - np7_cnc-ntsgin-profiles-all-within-namespace
+    - np8-0-cnc-fe-bewteen-namespaces-namespaceSelector-without-opening-egress
+    - np8-1-between-namespaces-namespaceSelector-and-profile
+    - np9-0-cnc-fe-between-namespaces-missing-one-label-to-apply
+    - np9-cnc-fe-between-namespaces-with-label-to-apply
+    - np10-cnc-kt-open-with-policy
+    - np11-global-enable-with-label-to-apply
+    - np12-deny-allow-games-no-egress-default-deny
+    - np12-deny-allow-games-no-egress-default-allow
+    - np13-deny-allow-games-open-egress-default-deny
+    - np13-deny-allow-games-open-egress-default-allow
+    - np14-deny-allow-pass-games-default-deny
+    - np14-deny-allow-pass-games-default-allow
+    - np15-deny-allow-withoutpass-games-default-deny
+    - np15-deny-allow-withoutpass-games-default-allow
+    expected: 0
+
+  - name: with_emptiness
+    emptiness:
+    - np9-0-cnc-fe-between-namespaces-with-deny-all-profiles
+    - np11-global-without-label-to-apply
+    expected: 4
+
+### following 3 queries verifies that enabling connection through networkPolicy and profiles are equiv, when both refers to the same set of pods
+### captured by a namespace and profile defined for that namespace
+
+  - name: sanity_cnc-fe-related-policies
+    sanity:
+    - np1_cnc-fe-only-ingress
+    - np2_cnc-fe-only-ingress_policy_cnc_fe_egress
+    - np3_cnc-fe-only-ingress_profile_cnc_fe_egress
+    expected: 0
+
+  - name: allow_egress_cnc-fe_with_profile_contains_only_ingress
+    twoWayContainment:
+    - np3_cnc-fe-only-ingress_profile_cnc_fe_egress
+    - np1_cnc-fe-only-ingress
+    expected: 1
+
+## should be equiv since the profile refers to all endpoints in namespace
+
+  - name: allow_egress_cnc-fe_through_profile_through_policy_equiv
+    equivalence:
+    - np3_cnc-fe-only-ingress_profile_cnc_fe_egress
+    - np2_cnc-fe-only-ingress_policy_cnc_fe_egress
+    expected: 0
+
+##############################################################
+## Following are games between a policy and a profile enabling
+## partly and completely communication within namespace
+
+# due to empty_policy the sanity fails
+  - name: sanity_np4_cnc-ntsgin-policy-partly-within-namespace
+    sanity:
+    - np4_cnc-ntsgin-policy-partly-within-namespace
+    expected: 1
+
+# in addition to the empty_policy vacuity, the cfg is vacuous since the allow connections are all defined by profiles
+  - name: sanity_np5_cnc-ntsgin-profiles-partly-within-namespace
+    sanity:
+    - np5_cnc-ntsgin-profiles-partly-within-namespace
+    expected: 1
+
+# the empty policy blocks all connections to outside ips, but such connections ARE allowed by default profile kns.cnc-fe whose relevant namespace is captured by the policy
+# (recall that vacuity checking is done w.r.t. existing profiles, so empty policy does change default cluster behavior)
+  - name: sanity_np6_cnc-ntsgin-2nd-profiles-within-namespace
+    sanity:
+    - np6_cnc-ntsgin-2nd-profiles-within-namespace
+    expected: 0
+
+# the cfg is vacuous since the allow connections are all defined by profiles; the profile that enables all connection is not captured by the empty policy
+  - name: sanity_np7_cnc-ntsgin-profiles-all-within-namespace
+    sanity:
+    - np7_cnc-ntsgin-profiles-all-within-namespace
+    expected: 1
+
+  - name: partly_within_namespace_profile_equiv_policy
+    equivalence:
+    - np4_cnc-ntsgin-policy-partly-within-namespace
+    - np5_cnc-ntsgin-profiles-partly-within-namespace
+    expected: 0
+
+  - name: all_within_namespace_contains_partly_profile
+    twoWayContainment:
+    - np7_cnc-ntsgin-profiles-all-within-namespace
+    - np5_cnc-ntsgin-profiles-partly-within-namespace
+    expected: 1
+
+##############################################
+### the following is for labels to apply test - using networkPolicy (no global)
+### also tests communication between namespaces,
+### when in one end profile is used to open egress, in the other policies to open ingress
+### tests also combination of namespaceSelector and selector
+
+# the cfg does not enable any connections
+  - name: sanity_np8-0-cnc-fe-bewteen-namespaces-namespaceSelector-without-opening-egress
+    sanity:
+    - np8-0-cnc-fe-bewteen-namespaces-namespaceSelector-without-opening-egress
+    expected: 1
+
+  - name: sanity_np8-1-between-namespaces-namespaceSelector-and-profile
+    sanity:
+    - np8-1-between-namespaces-namespaceSelector-and-profile
+    expected: 0
+
+# the cfg should be empty
+  - name: sanity_np9-0-cnc-fe-between-namespaces-with-deny-all-profiles
+    sanity:
+    - np9-0-cnc-fe-between-namespaces-with-deny-all-profiles
+    expected: 2
+
+  - name: sanity_np9-cnc-fe-between-namespaces-with-label-to-apply
+    sanity:
+    - np9-cnc-fe-between-namespaces-with-label-to-apply
+    expected: 0
+
+  - name: sanity_np9-0-cnc-fe-between-namespaces-missing-one-label-to-apply
+    sanity:
+    - np9-0-cnc-fe-between-namespaces-missing-one-label-to-apply
+    expected: 0
+
+  - name: equiv_with_artificial_labels_to_apply
+    equivalence:
+    - np8-1-between-namespaces-namespaceSelector-and-profile
+    - np9-cnc-fe-between-namespaces-with-label-to-apply
+    expected: 0
+
+  - name: non_equiv_with_missing_label_to_apply
+    equivalence:
+    - np9-cnc-fe-between-namespaces-with-label-to-apply
+    - np9-0-cnc-fe-between-namespaces-missing-one-label-to-apply
+    expected: 1
+
+
+# testing labels-to-apply within a global context
+
+  - name: sanity_np10-cnc-kt-open-with-policy
+    sanity:
+    - np10-cnc-kt-open-with-policy
+    expected: 0
+
+  - name: sanity_np11-global-enable-with-label-to-apply
+    sanity:
+    - np11-global-enable-with-label-to-apply
+    expected: 0
+
+# should fail
+  - name: sanity_np11-global-without-label-to-apply
+    sanity:
+    - np11-global-without-label-to-apply
+    expected: 2
+
+  - name: equiv_via_policies_via_labels_to_apply
+    twoWayContainment:
+    - np11-global-enable-with-label-to-apply
+    - np10-cnc-kt-open-with-policy
+    expected: 3
+
+###############################################################
+## games of deny and allow with profiles deny all and allow all
+## this is to see that redundancies are as expected, and also
+## equiv and containment
+
+# cfg should be empty, thus sanity should fail
+  - name: sanity_np12-deny-allow-games-no-egress-default-deny
+    sanity:
+    - np12-deny-allow-games-no-egress-default-deny
+    expected: 1
+
+# Deny rules are redundant (and only deny rules, due to capturing)
+  - name: sanity_np12-deny-allow-games-no-egress-default-allow
+    sanity:
+    - np12-deny-allow-games-no-egress-default-allow
+    expected: 2
+
+# all ingress rules are redundant since communication in the other end is not enables
+  - name: sanity_np13-deny-allow-games-open-egress-default-deny
+    sanity:
+    - np13-deny-allow-games-open-egress-default-deny
+    expected: 6
+
+# again, all deny rules are redundant
+  - name: sanity_np13-deny-allow-games-open-egress-default-allow
+    sanity:
+    - np13-deny-allow-games-open-egress-default-allow
+    expected: 2
+
+### games within namespace of allow-deny-pass
+### there is one pass rule after all deny and allow rules, s.t. the pass rule contains the allow and deny rules
+### thus, default deny should result in redundant deny rules and default allow should result in redundant allow rules
+
+  - name: sanity_np14-deny-allow-pass-games-default-deny # deny and pass are redundant (2 rules)
+    sanity:
+    - np14-deny-allow-pass-games-default-deny
+    expected: 2
+
+  - name: sanity_np14-deny-allow-pass-games-default-allow # allow are redundant (4 rules)
+    sanity:
+    - np14-deny-allow-pass-games-default-allow
+    expected: 4
+
+  - name: np14_default_allow_real_superset
+    twoWayContainment:
+    - np14-deny-allow-pass-games-default-allow
+    - np14-deny-allow-pass-games-default-deny
+    expected: 1
+
+  - name: np14_default_allow_default_deny_interference
+    pairwiseInterferes:
+    - np14-deny-allow-pass-games-default-allow
+    - np14-deny-allow-pass-games-default-deny
+    expected: 1
+
+# additional games with the same cfgs as 14, only without the pass; only deny is redundant in both
+
+  - name: sanity_np15-deny-allow-withoutpass-games-default-deny # deny and pass are redundant (2 rules)
+    sanity:
+    - np15-deny-allow-withoutpass-games-default-deny
+    expected: 1
+
+  - name: sanity_np15-deny-allow-withoutpass-games-default-allow # allow are redundant (4 rules)
+    sanity:
+    - np15-deny-allow-withoutpass-games-default-allow
+    expected: 1
+
+  - name: np15_cfgs_deny_real_subset
+    twoWayContainment:
+    - np15-deny-allow-withoutpass-games-default-deny
+    - np15-deny-allow-withoutpass-games-default-allow
+    expected: 2
+
+  - name: np14_default_deny_equiv_np15_default_deny
+    twoWayContainment:
+    - np15-deny-allow-withoutpass-games-default-deny
+    - np14-deny-allow-pass-games-default-deny
+    expected: 3
+
+# pass adds connections when default allow
+  - name: np14_default_allow_supset_np15_default_allow
+    twoWayContainment:
+    - np14-deny-allow-pass-games-default-allow
+    - np15-deny-allow-withoutpass-games-default-allow
+    expected: 1
+
+  - name: interference_with_communication_from_outside
+    pairwiseInterferes:
+    - np1_cnc-fe-only-ingress
+    - np4_cnc-ntsgin-policy-partly-within-namespace
+    expected: 1

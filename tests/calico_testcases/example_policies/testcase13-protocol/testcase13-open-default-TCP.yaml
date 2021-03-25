@@ -1,0 +1,19 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase1-networkpolicy-open-default-namespace
+  namespace: default
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: all()
+  egress:
+  - action: Allow
+    protocol: UDPLite
+    destination:
+      selector: all()

@@ -1,0 +1,19 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase19-policy-cnc-ntsgin-egress-ingress-within-namespace-partly-allow
+  namespace: cnc-ntsgin
+spec:
+  order: 10
+  types:
+  - Egress
+  - Ingress
+  egress:
+  - action: Allow
+    destination:
+      selector: app == 'cnc-batch'
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: app == 'cnc-evaluation-service'

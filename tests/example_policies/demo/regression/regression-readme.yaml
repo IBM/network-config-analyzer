@@ -1,0 +1,9 @@
+### a good practice in regression is to have the containment and the equivilence tests on both versions. 
+
+### The regression-withIpBlock-old.yaml policy is contained in the regression-withIpBlock-new.yaml since the latter added ipBlocks and ports to the egress rule
+### This should be verified with the twoWaysContainment test
+
+### regression-podSelector-old.yaml enables certain communication without restricting the ports for this communication.
+### regression-podSelector-new.yaml should restrict the communication only to specific ports 53 and 54
+### But due to a typo - redundant dash - it actually opens the communication on these ports to all.
+### Thus, while the new policy should be contained in the old one it contains it; the test reveals the mistake.

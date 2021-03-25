@@ -1,0 +1,15 @@
+# enables communication between all the pods that are part of the "cnc-evaluation-service" app
+
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase22-1-global-cnc-evaluation-service-by-misatke-also-outside
+spec:
+  selector: app == 'cnc-evaluation-service'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow

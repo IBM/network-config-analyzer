@@ -1,0 +1,42 @@
+namespaceList: ../../../example_podlist/ns_list.json
+podList: ../../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: old1
+    networkPolicyList:
+      - regression-withIpBlock-old.yaml
+    expected_warnings: 0
+
+  - name: new1
+    networkPolicyList:
+      - regression-withIpBlock-new.yaml
+    expected_warnings: 0
+
+  - name: old2
+    networkPolicyList:
+      - regression-podSelector-old.yaml
+    expected_warnings: 0
+
+  - name: new2
+    networkPolicyList:
+      - regression-podSelector-new.yaml
+    expected_warnings: 0
+
+queries:
+### more ipBlocks and ports were added to new egress; thus new should contain old
+  - name: contained_old1_in_new1
+    twoWayContainment:
+      - new1
+      - old1
+    expected: 1
+
+
+### ports restriction was added to new2; thus old should contain new; due to a typo old is contained in new
+  - name: containment_new2_and_old2
+    twoWayContainment:
+      - new2
+      - old2
+    expected: 1
+
+
+

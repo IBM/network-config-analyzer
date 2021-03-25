@@ -1,0 +1,32 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase19-20-deny-allow-games
+  namespace: cnc-fe
+spec:
+  types:
+  - Ingress
+  - Egress
+  egress:
+  - action: Allow
+  ingress:
+  - action: Allow
+    source:
+      selector: app == 'cnc-feedback-service'
+  - action: Allow
+    source:
+      selector: app == 'cnc-recommendation-service'
+  - action: Allow
+    source:
+      selector: app == 'helm'
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: app == 'nlp-nusk-deployment'
+  - action: Allow
+    source:
+      selector: app == 'cnc-evaluation-service'
+# This pass contains all previous rules; thus default deny should make the 'deny' redundant and default 'allow' should make the allow redundant
+  - action: Pass
+    source:
+      selector: has(app)

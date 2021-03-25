@@ -1,0 +1,24 @@
+### ingress rule with multiple items of "podSelector" and with ports specified
+### The semantic is (pod_selector1 or pod_selector2) and (ports)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-with-multiple-podSelector-and-ports
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+      - podSelector: 
+          matchExpressions: 
+            - key: app
+              operator: Exists
+      ports: 
+        - port: 53
+        - port: 54
+

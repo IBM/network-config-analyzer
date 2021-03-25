@@ -1,0 +1,137 @@
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-contains-deny-of-allow-and-deny1
+  namespace: kube-system
+spec:
+  order: 2
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/2
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 128.0.0.0/3
+
+---
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-contains-allow-of-allow-and-deny1
+  namespace: kube-system
+spec:
+  order: 3
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0
+      - 4.0.1.0
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/2
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-allow-and-deny1-contained-different-rules
+  namespace: kube-system
+spec:
+  order: 10
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0
+      - 4.0.0.0
+      - 0.2.3.0/5
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/3
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-allow-and-deny2-deny-not-contained
+  namespace: kube-system
+spec:
+  order: 15
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0
+      - 4.0.0.0
+      - 0.2.3.0/5
+      - 255.255.0.5
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/3
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-allow-and-deny4-allow-not-cotained
+  namespace: kube-system
+spec:
+  order: 20
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0
+      - 4.0.0.0
+      - 0.2.3.0/5
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 128.0.0.0/2

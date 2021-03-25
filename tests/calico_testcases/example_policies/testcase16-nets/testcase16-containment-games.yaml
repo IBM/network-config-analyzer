@@ -1,0 +1,141 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-Allow-ingress-All-egress-TCP
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow
+    protocol: TCP
+---
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-simple-all-range
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/0
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-nets-almost-all-range
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0
+      - 4.0.0.0
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/0
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-nets-almost-all-range-smaller
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/2
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/0
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-not-nets-list
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      notNets:
+      - 0.0.0.5
+      - 0.0.5.0
+      - 0.5.0.0
+      - 5.0.0.0
+  - action: Deny #should be redundant
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.5/4
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-nets-list
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.4
+      - 0.0.4.0
+      - 0.4.0.0
+      - 4.0.0.0
+  - action: Deny #should be redundant
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.4/4

@@ -1,0 +1,56 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: local_np
+    networkPolicyList:
+      - testcase2tag-networkpolicy.yaml
+      - ../testcase1/testcase1-open-default.yaml
+    expected_warnings: 0
+
+  - name: global_np
+    networkPolicyList:
+      - testcase2tag-global-networkpolicy.yaml
+      - ../testcase1/testcase1-open-default.yaml
+    expected_warnings: 0
+
+queries:
+  - name: no_emptiness
+    emptiness:
+      - local_np
+      - global_np
+    expected: 0
+
+  - name: no_vacuous
+    vacuity:
+      - local_np
+      - global_np
+    expected: 0
+
+  - name: redundancy_all
+    redundancy:
+      - local_np
+      - global_np
+    expected: 0
+
+  - name: local_does_not_contain_global
+    containment:
+      - local_np
+      - global_np
+    expected: 0
+  - name: global_contain_local
+    containment:
+      - global_np
+      - local_np
+    expected: 1
+
+  - name: global_interferes_local
+    interferes:
+      - local_np
+      - global_np
+    expected: 1
+  - name: local_no_interferes_global
+    interferes:
+      - global_np
+      - local_np
+    expected: 0

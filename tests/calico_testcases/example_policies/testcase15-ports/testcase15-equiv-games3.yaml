@@ -1,0 +1,261 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-new-simple-enable-TCP-101-104-from-301
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Deny
+    protocol: TCP
+    source:
+      ports:
+      - 151
+      selector: all()  
+  - action: Allow
+    protocol: TCP
+    source:
+      ports:
+      - 100:200
+      selector: all()  
+    destination:
+      ports:
+      - 101:104
+      - 301:65536
+      selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-new-messy-enable-TCP-101-104-from-301-src-no-151
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    source:
+      ports:
+      - 100:150
+      selector: all()  
+    destination:
+      ports:
+      - 101:104
+      - 301:65536
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    source:
+      ports:
+      - 152:200
+      selector: all()  
+    destination:
+      ports:
+      - 101:104
+      - 301:65536
+      selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-new-messy-enable-TCP-101-104-from-301-src-151
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    source:
+      ports:
+      - 100:150
+      selector: all()  
+    destination:
+      ports:
+      - 101:104
+      - 301:65536
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    source:
+      ports:
+      - 151:200
+      selector: all()  
+    destination:
+      ports:
+      - 101:104
+      - 301:65536
+      selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-new-simple-rectangle-test-1
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    source:
+      notPorts:
+      - 100:200
+      selector: all()  
+    destination:
+      notPorts:
+      - 100:200
+      selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-new-simple-rectangle-test-2
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    source:
+      notPorts:
+      - 100:300
+      selector: all()  
+    destination:
+      notPorts:
+      - 100:300
+      selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-new-simple-rectangle-test-3
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    source:
+      notPorts:
+      - 100:300
+      selector: all()  
+    destination:
+      notPorts:
+      - 100:300
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    source:
+      ports:
+      - 100:300
+      selector: all()  
+    destination:
+      ports:
+      - 100:300
+      selector: all()      
+--- 
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-new-simple-rectangle-test-4
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    source:
+      notPorts:
+      - 100:300
+      selector: all()  
+    destination:
+      notPorts:
+      - 100:300
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    source:
+      ports:
+      - 100:300
+      selector: all()  
+    destination:
+      selector: all()    
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: all()    
+    destination:
+      ports:
+      - 100:300
+      selector: all()          
+---       
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-new-simple-rectangle-test-5
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+
+  egress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: all()
+    destination:
+      selector: all()
+---

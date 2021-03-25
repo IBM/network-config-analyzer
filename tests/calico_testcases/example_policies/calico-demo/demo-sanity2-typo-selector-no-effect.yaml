@@ -1,0 +1,28 @@
+### This network policy demonstrates the ability of our sanity checks to detect security breach caused by a simple typo.
+### The problem is detected by the parser warnings, specifically, a selector that by a seems to be mistake selects all pods, and thus has no effect
+
+### The policy is supposed to enable specific inbound traffic for pods with app other than helm
+### Issue is that the selector contains a simple typo - 'helmm' in the context of 'not in label'
+### This has a catastrophic outcome - of all pods being selected, and this communication enabled to all of the pods in the cluster
+
+
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: sanity2-selector-typo
+spec:
+  selector: app not in {'helmm'}
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 158.85.156.21/32
+        - 169.46.89.150/32
+        - 10.98.29.142/32
+        - 10.142.188.25/32
+        - 10.121.169.71/32
+

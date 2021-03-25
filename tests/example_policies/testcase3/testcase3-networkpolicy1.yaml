@@ -1,0 +1,24 @@
+
+### First policy. meant to allow traffic from namespace default to namespace kube-system through ports 53 with UDP and TCP
+### It has a (common) typo, as a result of which traffic to kube-system is allow for all through ports 53 with UDP and TCP
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traffic-from-default-to-kube-system-on-53-with-typo
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: defaultNameSpace  
+    - ports:      # the typo is here
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+ 

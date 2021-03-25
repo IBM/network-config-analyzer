@@ -1,0 +1,138 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np_vacuous
+    networkPolicyList:
+      - testcase1-empty-policy.yaml
+    expected_warnings: 5
+
+  - name: np_globalEmpty
+    networkPolicyList:
+      - testcase1-empty-globalNetworkpolicy.yaml
+    expected_warnings: 0
+
+  - name: np_equiv_local_within_kube-system
+    networkPolicyList:
+      - testcase1-equiv-networkpolicy.yaml
+    expected_warnings: 0
+
+  - name: np_equiv_local
+    networkPolicyList:
+      - testcase1-equiv-networkpolicy.yaml
+      - testcase1-open-default.yaml
+    expected_warnings: 0
+
+  - name: np_different_protocol_local
+    networkPolicyList:
+      - testcase1-different-protocol-nonequiv.yaml
+      - testcase1-open-default.yaml
+    expected_warnings: 0
+
+  - name: np_nonequiv_local
+    networkPolicyList:
+      - testcase1-nonequiv-networkpolicy.yaml
+      - testcase1-open-default.yaml
+    expected_warnings: 0
+
+  - name: np_equiv_global
+    networkPolicyList:
+      - testcase1-equiv-global-networkpolicy.yaml
+      - testcase1-open-default.yaml
+    expected_warnings: 0
+
+  - name: np_various_policies
+    networkPolicyList:
+      - testcase1-equiv-global-networkpolicy.yaml
+      - testcase1-open-default.yaml
+      - testcase1-nonequiv-networkpolicy.yaml
+      - testcase1-equiv-networkpolicy.yaml
+    expected_warnings: 0
+
+  - name: np_for_disjointness
+    networkPolicyList:
+      - testcase1-for-disjointness.yaml
+    expected_warnings: 0
+
+queries:
+  - name: vacuous_policy
+    vacuity:
+      - np_globalEmpty
+    expected: 1
+
+  - name: non_vacous_policies
+    vacuity:
+      - np_equiv_local
+      - np_nonequiv_local
+      - np_equiv_global
+      - np_equiv_local
+      - np_different_protocol_local
+    expected: 0
+
+  - name: policies_not_empty
+    emptiness:
+      - np_equiv_local
+      - np_nonequiv_local
+      - np_equiv_global
+      - np_equiv_local
+      - np_different_protocol_local
+    expected: 0
+
+  - name: redundancy_all
+    redundancy:
+      - np_equiv_local
+      - np_nonequiv_local
+      - np_equiv_global
+    expected: 0
+
+  - name: equiv_local_and_global
+    equivalence:
+      - np_equiv_local
+      - np_equiv_global
+    expected: 0
+
+  - name: equiv_local_global_do_not_interfere
+    pairwiseInterferes:
+      - np_equiv_local
+      - np_equiv_global
+    expected: 0
+
+  - name: nonequiv_localsNetworkPolicies
+    equivalence:
+      - np_equiv_local
+      - np_nonequiv_local
+    expected: 1
+
+  - name: localsNetworkPolicies_contained_not_interfere
+    interferes:
+      - np_equiv_local
+      - np_nonequiv_local
+    expected: 1
+
+  - name: localsNetworkPolicies_contain_does_interfere
+    interferes:
+      - np_nonequiv_local
+      - np_equiv_local
+    expected: 0
+
+  - name: non_equiv_local_and_global_different_protocol
+    equivalence:
+      - np_equiv_global
+      - np_different_protocol_local
+    expected: 1
+
+  - name: non_equiv_locals_different_protocol
+    equivalence:
+      - np_equiv_local
+      - np_different_protocol_local
+    expected: 1
+
+  - name: disjointness_various_policies
+    disjointness:
+      - np_various_policies
+    expected: 3
+
+  - name: disjointness_holds
+    disjointness:
+    - np_for_disjointness
+    expected: 2

@@ -1,0 +1,89 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: equiv-ranges-writing-games
+    networkPolicyList:
+      - testcase16-different-ranges-writing-equiv.yaml
+    expected_warnings: 0
+
+  - name: equiv-ranges-containment-games
+    networkPolicyList:
+      - testcase16-containment-games.yaml
+    expected_warnings: 0
+
+queries:
+  - name: no_empty_policies
+    emptiness:
+      - equiv-ranges-writing-games
+      - equiv-ranges-containment-games
+    expected: 0
+
+  - name: non_vacous_policies
+    vacuity:
+      - equiv-ranges-writing-games
+      - equiv-ranges-containment-games
+    expected: 0
+
+  - name: equiv_all_range1  # all policies are identical
+    equivalence:
+      - equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+      - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+    expected: 0
+
+# containment games
+  - name: contained_all_ranges_not_specifiying
+    twoWayContainment:
+      - equiv-ranges-containment-games/kube-system/testcase16-Allow-ingress-All-egress-TCP
+      - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
+    expected: 1
+
+  - name: no_equiv_all_range_with_almost_all_with_deny
+    equivalence:
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range
+      - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
+    expected: 1
+
+  - name: contain_equiv_almost_all_range_and_smaller
+    twoWayContainment:
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller
+    expected: 1
+
+  - name: contaiment1
+    containment:
+      - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller
+    expected: 2
+
+  - name: contaiment_nets_not_nets_games
+    twoWayContainment:
+      - equiv-ranges-containment-games/kube-system/testcase16-not-nets-list
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-list
+    expected: 1
+
+# Deny rules are redundant, as well as ingress rule
+# the latter is since it is within namespace and egress communication is enabled only to external nets
+  - name: redundancy_nets_notNets_games
+    redundancy:
+    - equiv-ranges-containment-games/kube-system/testcase16-not-nets-list
+    - equiv-ranges-containment-games/kube-system/testcase16-nets-list
+    expected: 2
+
+  - name: contained_no_fields_all_range
+    containment:
+      - equiv-ranges-containment-games/kube-system/testcase16-Allow-ingress-All-egress-TCP
+      - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
+    expected: 1
+
+  - name: no_contained_all_range_no_field
+    containment:
+      - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
+      - equiv-ranges-containment-games/kube-system/testcase16-Allow-ingress-All-egress-TCP
+    expected: 0

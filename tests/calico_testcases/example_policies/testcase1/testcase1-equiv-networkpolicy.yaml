@@ -1,0 +1,22 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase1-equiv-networkpolicy
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      namespaceSelector: unique-label == 'defaultNameSpace'
+  - action: Allow
+    source:
+      selector: app  == 'keepalived-watcher'
+  egress:
+  - action: Allow
+    destination:
+      selector: app  == 'keepalived-watcher'

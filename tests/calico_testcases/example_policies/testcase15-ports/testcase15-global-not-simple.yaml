@@ -1,0 +1,95 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase15-global-ports-not-simple-match-ingress-egress # match on ports 101-104 TCP
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 100:250
+    source:
+      selector: all()
+
+  egress:
+  - action: Deny
+    protocol: UDP
+    destination:
+      ports:
+      - 10:300
+      selector: all()
+  - action: Deny
+    protocol: TCP
+    destination:
+      ports:
+      - 1:100
+      - 105:200
+  - action: Allow
+    protocol: TCP
+    destination:
+      notPorts:
+      - 100:300
+      selector: all()
+  - action: Deny
+    protocol: TCP
+    destination:
+      notPorts:
+      - 100:104
+  - action: Allow
+    protocol: TCP
+    destination:
+      notPorts:
+      - 600
+      selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase15-global-ports-not-simple-mismatch-ingress-egress
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      ports:
+      - 80
+      - 100:250
+    source:
+      selector: all()
+
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      ports:
+      - 1:200
+  - action: Allow
+    protocol: UDP
+    destination:
+      notPorts:
+      - 1:300
+      selector: all()
+  - action: Deny
+    protocol: TCP
+    destination:
+      notPorts:
+      - 201:250
+  - action: Allow
+    protocol: UDP
+    destination:
+      notPorts:
+      - 50:500
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    destination:
+      notPorts:
+      - 201:250
+      selector: all()

@@ -1,0 +1,40 @@
+
+### Demonstrates the risk that can be result from a small typo: if in notIn there is a typo in the key, all pods will be selected (since one should most probably add "exist" for the label)
+### The following example contains two policies for defining ingress rules into kube-system. 
+### The first one has a typo as result of which all ingress traffic into the namespace will be enabled; thus the second is redundant
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-with-typo-notin
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchExpressions: 
+            - key: app
+              operator: NotIn
+              values:
+                - helmm
+
+
+###  Enables ingress from tier frontend; this will be redundant since the above policy enables all ingress by mistake
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-ingress-specific-pods
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend

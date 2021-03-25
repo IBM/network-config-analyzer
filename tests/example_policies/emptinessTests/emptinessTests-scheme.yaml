@@ -1,0 +1,41 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - emptinessTests-networkpolicy1.yaml
+    expected_warnings: 5
+    
+queries:
+  - name: vacuous_policy
+    vacuity:
+      - np1/kube-system/enable-ingress-with-typo-in-isolatedpods
+    expected: 1
+  - name: non_vacuous_policies
+    vacuity:
+      - np1/kube-system/isolate-kube-system-specific-pods
+      - np1/kube-system/enable-ingress-with-typo-in-ingress-rule-podSelector
+      - np1/kube-system/enable-egress-with-typo-in-egress-rule-podSelector
+      - np1
+    expected: 0
+  - name: emptiness
+    emptiness:
+      - np1
+    expected: 3
+  - name: redundancy
+    redundancy:
+      - np1
+    expected: 4
+  - name: compare_specific_policies
+    equivalence:
+      - np1/kube-system/isolate-kube-system-specific-pods
+      - np1/kube-system/enable-ingress-with-typo-in-isolatedpods
+      - np1/kube-system/enable-ingress-with-typo-in-ingress-rule-podSelector
+      - np1/kube-system/enable-egress-with-typo-in-egress-rule-podSelector
+    expected: 5
+
+  - name: sanity_all
+    sanity:
+      - np1
+    expected: 6

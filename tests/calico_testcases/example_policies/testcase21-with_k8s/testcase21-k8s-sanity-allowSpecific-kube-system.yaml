@@ -1,0 +1,27 @@
+
+### Demonstration of a policy with emptiness issues - that at real life could be a result of a typo or a confusment
+
+### The first policy isolates all pods in namespace kube-system which has a app label which is not helm and a has a tier label.
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: isolate-kube-system-specific-pods
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchExpressions:
+          - key: tier
+            operator: Exists
+  egress:
+    - to:
+      - podSelector: {}
+
+
+        

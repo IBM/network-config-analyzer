@@ -1,0 +1,14 @@
+ 
+
+### problem: since only a random witness of the policies being not equiv is given, this example is not good in demonstrating the point below
+### this is demonstrated by policy6
+
+### The two files in this folder demonstrates that combining two policies can easily result in a policy different than intended
+
+### The policy in the first file enables access to namesapce default from all pods that have a kube-system with app not in file-plugin, keepalived-watcher
+### This rule must be kept for the relevant policies.
+### Over time, a requirement was added that namespace default should also be accessed by pods in namespace kube-system with "tier" "frontend"; and it was implicit that these must not have kube-system as above
+### The second contains a policy that enables access to namespace default to pods in namespace kube-system with "tier" "frontend" as above
+###   Problem is that there is a pod in namespace kube-system with "tier" "frontend" and also with app keepalived-watcher
+
+### Thus, comparing the first file to the first file and the second file should reveal that these pods can access namespace default

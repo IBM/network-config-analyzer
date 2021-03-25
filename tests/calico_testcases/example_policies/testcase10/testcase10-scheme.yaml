@@ -1,0 +1,77 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np_global
+    networkPolicyList:
+      - testcase10-global-networkpolicies.yaml
+    expected_warnings: 0
+
+  - name: np_local
+    networkPolicyList:
+      - testcase10-local-networkpolicies.yaml
+    expected_warnings: 0
+
+queries:
+  - name: vacuous_policy
+    vacuity:
+      - np_global/testcase10-global-onlyTypes
+    expected: 1
+
+  - name: no_vacuous
+    vacuity:
+      - np_global
+      - np_global/testcase10-global-no-egress-rule
+      - np_global/testcase10-global-no-ingress-rule
+      - np_global/testcase10-global-allowAll
+      - np_local/kube-system/testcase10-allowAll-kube-system
+      - np_local/default/testcase10-allowAll-default
+    expected: 0
+
+  - name: no_emptiness
+    emptiness:
+      - np_global/testcase10-global-allowAll
+      - np_local/kube-system/testcase10-allowAll-kube-system
+      - np_local/default/testcase10-allowAll-default
+      - np_global/testcase10-global-onlyTypes
+      - np_global/testcase10-global-no-egress-rule
+      - np_global/testcase10-global-no-ingress-rule
+    expected: 0
+
+  - name: locals_allowall_not_equiv
+    equivalence:
+      - np_local/kube-system/testcase10-allowAll-kube-system
+      - np_local/default/testcase10-allowAll-default
+    expected: 1
+
+  - name: no_redundancy
+    redundancy:
+      - np_global/testcase10-global-allowAll
+      - np_global/testcase10-global-onlyTypes
+      - np_local/kube-system/testcase10-allowAll-kube-system
+      - np_local/default/testcase10-allowAll-default
+      - np_global/testcase10-global-no-egress-rule
+      - np_global/testcase10-global-no-ingress-rule
+#      - np_global/testcase10-global-allowAllRules-noTypes #error message
+    expected: 0
+
+  - name: has_redundancy
+    redundancy:
+      - np_global
+    expected: 4
+
+  - name: all_contained_in_globalAllowAll
+    containment:
+      - np_global/testcase10-global-allowAll
+      - np_global/testcase10-global-onlyTypes
+      - np_global/testcase10-global-no-egress-rule
+      - np_global/testcase10-global-no-ingress-rule
+      - np_local/kube-system/testcase10-allowAll-kube-system
+      - np_local/default/testcase10-allowAll-default
+    expected: 5
+
+  - name: globalAllowAll_notcontained_localAllowAll-kube-system
+    containment:
+      - np_local/kube-system/testcase10-allowAll-kube-system
+      - np_global/testcase10-global-allowAll
+    expected: 0

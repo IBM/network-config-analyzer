@@ -1,0 +1,14 @@
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: testcase21-k8s-emptyPodeSelector
+  namespace: default 
+spec:
+  podSelector:
+    matchLabels:
+      app: no_exist_app_label
+  policyTypes:
+    - Ingress
+    - Egress
+

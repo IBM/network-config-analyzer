@@ -1,0 +1,14 @@
+namespaceList: ../../example_workload_resources/
+podList: ../../example_workload_resources/
+
+networkPolicyLists:
+  - name: workload_resources_captured
+    networkPolicyList:
+      - workload-test-networkpolicy.yaml
+    expected_warnings: 0
+
+queries:
+  - name: all-captured
+    allCaptured:
+      - workload_resources_captured
+    expected: 43

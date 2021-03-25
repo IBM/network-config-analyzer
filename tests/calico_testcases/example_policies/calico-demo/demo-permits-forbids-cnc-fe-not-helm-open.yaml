@@ -1,0 +1,20 @@
+# enables communication between all the pods that are part of the "cnc-evaluation-service" app
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase22-cnc-fe-not-helm-open
+  namespace: cnc-fe
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: app != 'helm'
+      namespaceSelector: all()
+  egress:
+  - action: Allow
+    destination:
+      selector: app != 'helm'
+      namespaceSelector: all()

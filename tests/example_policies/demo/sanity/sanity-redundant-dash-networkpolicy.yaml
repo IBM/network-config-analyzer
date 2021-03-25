@@ -1,0 +1,19 @@
+### The policy is meant to enable traffic within kube-system from specific pods through all ports
+### It has a (common) typo of redundant dash, as a result of which traffic is open to all
+### as a result of the typo, the policy is vacuous
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traffic-from-vendor-system-to-kube-system-on-all-ports-with-typo
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace
+    - ports: {}     # the typo is here

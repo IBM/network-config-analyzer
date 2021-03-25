@@ -1,0 +1,69 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: allowAll-Calico
+    networkPolicyList:
+      - testcase21-Calico-allowAll-globalNetworkpolicy.yaml
+    expected_warnings: 0
+
+  - name: emptyPodSelector-k8s
+    networkPolicyList:
+      - testcase21-k8s-emptyPodSelector.yaml
+    expected_warnings: 1
+
+  - name: allowSpecific-kubs-system-all-other-Calico
+    networkPolicyList:
+      - testcase21-Calico-allowAll-globalNetworkpolicy.yaml
+      - testcase21-Calico-allowSpecific-kube-system.yaml
+    expected_warnings: 0
+
+  - name: allowSpecific-kubs-system-all-other-k8s
+    networkPolicyList:
+      - testcase21-k8s-sanity-allowSpecific-kube-system.yaml
+    expected_warnings: 0
+
+queries:
+  - name: sanity_allowAll-Calico
+    sanity:
+    - allowAll-Calico
+    expected: 0
+
+  - name: sanity_emptyPodSelector-k8s
+    sanity:
+    - emptyPodSelector-k8s
+    expected: 2
+
+  - name: sanity_allowSpecific-kubs-system-all-other-Calico
+    sanity:
+    - allowSpecific-kubs-system-all-other-Calico
+    expected: 0
+
+  - name: sanity_allowSpecific-kubs-system-all-other-k8s
+    sanity:
+    - allowSpecific-kubs-system-all-other-k8s
+    expected: 0
+
+  - name: equiv_allowAll_Calico_k8s
+    twoWayContainment:
+    - emptyPodSelector-k8s
+    - allowAll-Calico
+    expected: 3
+
+  - name: superset_empty_k8s_allowSpecific_kube-system_Calico
+    twoWayContainment:
+    - allowSpecific-kubs-system-all-other-Calico
+    - emptyPodSelector-k8s
+    expected: 2
+
+  - name: superset_allowAll_Calico_allowSpecific_kube-system_k8s
+    twoWayContainment:
+    - allowAll-Calico
+    - allowSpecific-kubs-system-all-other-k8s
+    expected: 1
+
+  - name: equiv_allowSpecific_kube-system-all-other_Calico_k8s
+    twoWayContainment:
+    - allowSpecific-kubs-system-all-other-Calico
+    - allowSpecific-kubs-system-all-other-k8s
+    expected: 3

@@ -1,0 +1,44 @@
+namespaceList: ../../../example_podlist/ns_list.json
+podList: ../../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: sanity-label-mistake
+    networkPolicyList:
+      - sanity-label-mistake-networkpolicy.yaml
+    expected_warnings: 2
+
+  - name: sanity-typoNotIn
+    networkPolicyList:
+      - sanity-typoNotIn-networkpolicy.yaml
+    expected_warnings: 1
+
+  - name: sanity-redundant-dash
+    networkPolicyList:
+      - sanity-redundant-dash-networkpolicy.yaml
+    expected_warnings: 0
+
+  - name: sanity-misconception-podSelector-namespaceSelector
+    networkPolicyList:
+      - sanity-misconception-podSelector-namespaceSelector.yaml
+    expected_warnings: 0
+
+queries:
+  - name: emptiness_test_on_label_mistake
+    emptiness:
+      - sanity-label-mistake
+    expected: 1
+
+  - name: redundancy_test_on_typoNotIn
+    redundancy:
+      - sanity-typoNotIn
+    expected: 1
+
+  - name: vacuity_test_on_redundant-dash-typo
+    vacuity:
+      - sanity-redundant-dash
+    expected: 1
+
+  - name: redundancy_test_on_misconception_podSelector-namespaceSelector
+    redundancy:
+      - sanity-misconception-podSelector-namespaceSelector
+    expected: 2

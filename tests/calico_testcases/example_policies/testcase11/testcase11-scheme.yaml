@@ -1,0 +1,138 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np_allowFirstDefaultDeny
+    networkPolicyList:
+      - testcase11-allowFirstDefaultDeny.yaml
+    expected_warnings: 0
+
+  - name: np_denyFirstDefaultDeny
+    networkPolicyList:
+      - testcase11-denyFirstDefaultDeny.yaml
+    expected_warnings: 0
+
+  - name: np_allowFirstDefaultAllow
+    networkPolicyList:
+      - testcase11-allowFirstDefaultAllow.yaml
+    expected_warnings: 0
+
+  - name: np_denyFirstDefaultAllow
+    networkPolicyList:
+      - testcase11-denyFirstDefaultAllow.yaml
+    expected_warnings: 0
+
+  - name: np_denyFirstAlsoEgressDefaultAllow
+    networkPolicyList:
+      - testcase11-denyFirstAlsoEgressDefaultAllow.yaml
+    expected_warnings: 0
+
+  - name: np_denyFirstAlsoEgressDefaultDeny
+    networkPolicyList:
+      - testcase11-denyFirstAlsoEgressDefaultDeny.yaml
+    expected_warnings: 0
+
+queries:
+  - name: nonEmpty_all_policies
+    emptiness:
+    - np_allowFirstDefaultDeny
+    - np_denyFirstDefaultDeny
+    - np_allowFirstDefaultAllow
+    - np_denyFirstDefaultAllow
+    - np_denyFirstAlsoEgressDefaultAllow
+    - np_denyFirstAlsoEgressDefaultDeny
+    expected: 0
+
+  - name: nonVacuous_policies
+    vacuity:
+    - np_allowFirstDefaultDeny
+    - np_denyFirstDefaultDeny
+    - np_allowFirstDefaultAllow
+    - np_denyFirstDefaultAllow
+    - np_denyFirstAlsoEgressDefaultAllow
+    expected: 0
+
+  - name: vacuous_policies
+    vacuity:
+    - np_denyFirstAlsoEgressDefaultDeny
+    expected: 1
+
+  - name: redundantDenyPolicyInAllowFirstDefaultDeny
+    redundancy:
+    - np_allowFirstDefaultDeny
+    expected: 1
+
+  - name: redundantPoliciesInDenyFirstAlsoEgressDefaultAllow
+    redundancy:
+    - np_denyFirstAlsoEgressDefaultAllow
+    expected: 3
+
+  - name: redundantPolicyInDenyFirstAlsoEgressDefaultDeny
+    redundancy:
+    - np_denyFirstAlsoEgressDefaultDeny
+    expected: 2
+
+  - name: redundantDenyInAllowFirstDefaultDeny
+    redundancy:
+    - np_allowFirstDefaultDeny
+    expected: 1
+
+  - name: redundantAllowInDenyFirstDefaultAllow
+    redundancy:
+    - np_denyFirstDefaultAllow
+    expected: 2
+
+  - name: policiesNoRedundancy
+    redundancy:
+    - np_denyFirstDefaultDeny
+    - np_allowFirstDefaultAllow
+    expected: 0
+
+
+  - name: nonEquiv_defaultDeny_policies
+    equivalence:
+    - np_allowFirstDefaultDeny
+    - np_denyFirstDefaultDeny
+    expected: 1
+
+  - name: allowFirst_contain_DenyFirst_defaultDeny
+    containment:
+    - np_allowFirstDefaultDeny
+    - np_denyFirstDefaultDeny
+    expected: 1
+
+  - name: nonEquiv_defaultAllow_policies
+    equivalence:
+    - np_allowFirstDefaultAllow
+    - np_denyFirstDefaultAllow
+    expected: 1
+
+  - name: allowFirst_contain_DenyFirst_defaultAllow
+    containment:
+    - np_allowFirstDefaultAllow
+    - np_denyFirstDefaultAllow
+    expected: 1
+
+  - name: nonEquiv_allowFirst_policies
+    equivalence:
+    - np_allowFirstDefaultAllow
+    - np_allowFirstDefaultDeny
+    expected: 1
+
+  - name: defaultAllow_contains_defaultDeny_allowFirst
+    containment:
+    - np_allowFirstDefaultAllow
+    - np_allowFirstDefaultDeny
+    expected: 1
+
+  - name: nonEquiv_denyFirst_policies
+    equivalence:
+    - np_denyFirstDefaultAllow
+    - np_denyFirstDefaultDeny
+    expected: 1
+
+  - name: defaultAllow_contains_defaultDeny_denyFirst
+    containment:
+    - np_denyFirstDefaultAllow
+    - np_denyFirstDefaultDeny
+    expected: 1

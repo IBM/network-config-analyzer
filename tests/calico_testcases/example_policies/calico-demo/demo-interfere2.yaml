@@ -1,0 +1,26 @@
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: interferes1
+  namespace: cnc-ntsgin
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: app == 'cnc-analytics'
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 158.85.156.21/32
+        - 169.46.89.150/32
+  egress:
+  - action: Allow
+    source:
+      selector: all()
+
+---

@@ -1,0 +1,16 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase19-9-1-specific-ingress-with-policies-based-apply-labels
+  namespace: cnc-fe
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      namespaceSelector: all()
+      selector: has(for-apply-labels-testing)
+

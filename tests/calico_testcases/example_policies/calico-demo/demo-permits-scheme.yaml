@@ -1,0 +1,34 @@
+# A case in which permits can detect problems is demonstrated:
+# A policy enables traffic between all pods of product compare-of-comply
+# It was believed that all pods in cnc-fe belongs to that product
+# but this is not the case due to a pod with "offering": "compare-and-comply" instead of "product": "compare-and-comply"
+
+namespaceList: ../../example_podlist/ns_list_wdc.json
+podList: ../../example_podlist/wdc_wep2.json
+
+networkPolicyLists:
+  - name: np_cnc-fe-not-helm-open
+    networkPolicyList:
+      - demo-permits-forbids-cnc-fe-not-helm-open.yaml
+    expected_warnings: 0
+
+  - name: np_product-compare-and-comply
+    networkPolicyList:
+      - demo-permits-forbids-deny-all-profiles.yaml
+      - demo-permits-forbids-traffic-between-compare-and-comply.yaml
+    expected_warnings: 0
+
+queries:
+  - name: sanity
+    sanity:
+    - np_product-compare-and-comply
+    expected: 0
+
+# It was believed that all pods in cnc-fe has product compare-and-comply
+# but this is not the case due to a pod with "offering": "compare-and-comply"
+  - name: compare-and-comply-believed-but-not-permit-all-cnc-fe
+    permits:
+    - np_product-compare-and-comply
+    - np_cnc-fe-not-helm-open
+    expected: 1
+

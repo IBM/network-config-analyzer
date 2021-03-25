@@ -1,0 +1,17 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase19-8-1-cnc-fe-specific-ingress-with-policies
+  namespace: cnc-fe
+spec:
+  order: 1
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      namespaceSelector: bigapp/namespace == 'acc-research'
+  - action: Allow
+    source:
+      namespaceSelector:  bigapp/namespace == 'operia-benchmark'

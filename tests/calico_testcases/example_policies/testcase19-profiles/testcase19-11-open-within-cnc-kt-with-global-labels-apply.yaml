@@ -1,0 +1,14 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase19-11-global-open-within-cnc-kt-with-labels
+spec:
+  order: 10
+  selector: for-cnc-kt-via-lables-to-apply == 'yes'
+  types:
+  - Egress
+  - Ingress
+  egress:
+  - action: Allow
+  ingress:
+  - action: Allow

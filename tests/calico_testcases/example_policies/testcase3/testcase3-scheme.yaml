@@ -1,0 +1,60 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np_onlyAllow
+    networkPolicyList:
+      - testcase3-networkpolicy-onlyAllow.yaml
+    expected_warnings: 0
+
+  - name: np_SupsetAllowFirst
+    networkPolicyList:
+      - testcase3-networkpolicy-firstAllowSuperSet.yaml
+    expected_warnings: 0
+
+  - name: np_SubsetDenyFirst
+    networkPolicyList:
+      - testcase3-networkpolicy-FirstDenySubset.yaml
+    expected_warnings: 0
+
+queries:
+  - name: no_vacuous
+    vacuity:
+      - np_SupsetAllowFirst
+      - np_SubsetDenyFirst
+      - np_onlyAllow
+    expected: 0
+
+  - name: no_emptiness
+    emptiness:
+      - np_SupsetAllowFirst
+      - np_SubsetDenyFirst
+      - np_onlyAllow
+    expected: 0
+
+  - name: redundant_deny_rule
+    redundancy:
+      - np_SupsetAllowFirst
+    expected: 1
+
+  - name: no_redundancy
+    redundancy:
+      - np_SubsetDenyFirst
+      - np_onlyAllow
+    expected: 0
+
+  - name: supAllow_and_subDeny_not_equiv
+    equivalence:
+      - np_SupsetAllowFirst
+      - np_SubsetDenyFirst
+    expected: 1
+  - name: onlyAllow_and_supAllowFirst_equiv
+    equivalence:
+      - np_onlyAllow
+      - np_SupsetAllowFirst
+    expected: 0
+  - name: supAllowFirst_contains_subsetDenyFirst
+    containment:
+      - np_SupsetAllowFirst
+      - np_SubsetDenyFirst
+    expected: 1

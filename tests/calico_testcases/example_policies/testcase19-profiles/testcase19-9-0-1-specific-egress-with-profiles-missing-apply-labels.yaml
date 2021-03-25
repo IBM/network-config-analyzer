@@ -1,0 +1,361 @@
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.operia-benchmark
+spec:
+  types:
+  - Ingress
+  - Egress
+  labelsToApply:
+    for-apply-labels-testing: 'yes'
+  egress:
+  - action: Allow
+    destination:
+       namespaceSelector: bigapp/namespace == 'cnc-fe'
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.acc-research
+spec:
+  types:
+  - Ingress
+  - Egress
+  egress:
+  - action: Allow
+    destination:
+       namespaceSelector: bigapp/namespace == 'cnc-fe'
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cap-agent.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-kt.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.vtngc-data.default
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-clntn-mgmt.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cap-agent.default
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.acc-research.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cap-unauth.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-tooling.default
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-clntn-mgmt.default
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.chaos-testing.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.ctighs-va
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-ntsgin.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-ntsgin
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-nlp.default
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.blue-umbrella.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-nlp.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cap-agent
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-fe.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-tooling
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-ntsgin.default
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-nlp
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.ctighs.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.ctighs-va.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.blue-umbrella
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-fe
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-pdf-tool
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-fe.default
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-clntn-mgmt
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cnc-kt
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.chaos-testing
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-kt.default
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.cap-unauth
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.vtngc-data
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-pdf-tool.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.cnc-tooling.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: ksa.operia-benchmark.helm-tiller
+spec:
+  types:
+  - Ingress
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  name: kns.ctighs
+spec:
+  types:
+  - Ingress
+  - Egress

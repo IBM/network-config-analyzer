@@ -1,0 +1,18 @@
+ ## Second policy - enables access to pods in kube-system with tier frontend can be accessed only by pods from namespace vendor-system
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-from-vendor-system-to-isolated-by-tier
+  namespace: kube-system
+spec:
+  podSelector: 
+    matchLabels:
+      tier: frontend
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector: 
+          matchLabels:
+            unique-label: vendor-systemNameSpace

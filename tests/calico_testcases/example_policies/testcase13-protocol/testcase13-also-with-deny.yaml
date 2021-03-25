@@ -1,0 +1,67 @@
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: onlyAllow-TCP
+  namespace: kube-system
+spec:
+  selector: has(tier)
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(app)
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: FirstDenySubset-UDP
+  namespace: kube-system
+spec:
+  selector: has(tier)
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Deny
+    protocol: UDP
+    source:
+      selector: app in {'file-plugin', 'storage-watcher'}
+  - action: Allow
+    protocol: 6 #(TCP)
+    source:
+      selector: has(app)
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: allow-all-deny-all-different-protocols
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: ICMP
+  - action: Deny
+    protocol: UDPLite
+  egress:
+  - action: Allow
+    protocol: 1 #(ICMP)
+  - action: Deny
+    protocol: UDPLite

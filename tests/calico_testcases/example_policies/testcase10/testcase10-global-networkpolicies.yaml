@@ -1,0 +1,58 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase10-global-allowAll
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase10-global-onlyTypes
+spec:
+  types:
+  - Ingress
+  - Egress
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase10-global-no-egress-rule
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase10-global-no-ingress-rule
+spec:
+  types:
+  - Ingress
+  - Egress
+  egress:
+  - action: Allow
+
+#---
+#apiVersion: projectcalico.org/v3
+#kind: GlobalNetworkPolicy
+#metadata:
+#  name: testcase10-global-allowAllRules-noTypes
+#spec:
+#  types:
+#  ingress:
+#  - action: Allow
+#  egress:
+#  - action: Allow

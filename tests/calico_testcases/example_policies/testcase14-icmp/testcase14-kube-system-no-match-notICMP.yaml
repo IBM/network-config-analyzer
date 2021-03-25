@@ -1,0 +1,26 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: kube-system-not-matching-notICMP-single-rule
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: ICMP
+    notICMP:
+      type: 204
+      code: 54
+    source:
+      selector: !has(app)
+  egress:
+  - action: Allow
+    protocol: ICMP
+    icmp:
+      type: 204
+      code: 54
+    destination:
+      selector: !has(app)

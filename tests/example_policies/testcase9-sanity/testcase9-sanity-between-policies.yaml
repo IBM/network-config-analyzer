@@ -1,0 +1,143 @@
+
+# for sanity checks
+
+# 1. This policy just isolates pods with app other than helm and with tier
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: isolate-kube-system-specific-pods
+  namespace: kube-system 
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+    - Egress
+
+### 2. Same captured pods as above.
+### Enable ingress from namespace default; this is written with a typo in selecting the isolated pods
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-ingress-with-typo-in-isolatedpods
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: ti
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace
+
+
+### 3.  Same captured pods as above. Enable ingress from namespace default without the typo
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-ingress-from-default
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace
+
+
+### 5.  Captured pods strictly contained those above. Enable ingress from namespace default
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: supset-captured-pods-enable-ingress-from-default
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: vendor-systemNameSpace
+
+### 4.  Same captured pods as above. Enable ingress within namespace
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-ingress-within-namespace
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector: {}
+
+### 4.  Same captured pods as above. Enable ingress within part of the namespace
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-ingress-within-subset-namespace
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchExpressions:
+          - key: app
+            operator: Exists

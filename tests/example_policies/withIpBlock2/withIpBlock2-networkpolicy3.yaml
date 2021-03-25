@@ -1,0 +1,114 @@
+ 
+ ### The first two policies below are equiv, written slightly different
+ ### Both enables access from all pods in kube-system with tier frontend to the high addresses except certain on ports 53 and 54
+ ### the last policy enables only one port and thus is contained
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+    - Egress
+  egress: 
+    - to:
+      - ipBlock:
+          cidr: 128.0.0.0/1     # High addresses
+          except:
+            - 172.21.0.0/16     # Kube Service CIDR Range
+            - 172.30.0.0/16     # Kube Cluster CIDR Range
+      ports:
+        - port: 53
+        - port: 54
+
+
+---
+### same policy as before, writen in 4 parts
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-in-4-parts-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-with-redundant
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+    - Egress
+  egress: 
+    - to:
+      - ipBlock:
+          cidr: 128.0.0.0/2     # first half of above destinations
+          except:
+            - 172.21.0.0/16     # Kube Service CIDR Range
+            - 172.30.0.0/16     # Kube Cluster CIDR Range
+      ports:
+        - port: 53
+    - to:
+      - ipBlock:
+          cidr: 128.0.0.0/2     # first half of above destinations
+          except:
+            - 172.21.0.0/16     # Kube Service CIDR Range
+            - 172.30.0.0/16     # Kube Cluster CIDR Range
+      ports:
+        - port: 54
+    - to:         # redundant rule
+      - ipBlock:
+          cidr: 128.0.0.0/5     # redundant
+          except:
+            - 172.21.0.0/16     # Kube Service CIDR Range
+            - 172.30.0.0/16     # Kube Cluster CIDR Range
+      ports:
+        - port: 54
+
+    - to:
+      - ipBlock:
+          cidr: 192.0.0.0/2     # second half of above destinations
+      ports:
+        - port: 53
+    - to:
+      - ipBlock:
+          cidr: 192.0.0.0/2     # second half of above destinations
+      ports:
+        - port: 54
+
+---
+### a subset of the above policies, enabling only one port
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-ports-53-partly-54
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+    - Egress
+  egress: 
+    - to:
+      - ipBlock:
+          cidr: 128.0.0.0/2     # first half of above destinations
+          except:
+            - 172.21.0.0/16     # Kube Service CIDR Range
+            - 172.30.0.0/16     # Kube Cluster CIDR Range
+      ports:
+        - port: 53
+    - to:
+      - ipBlock:
+          cidr: 128.0.0.0/2     # first half of above destinations
+          except:
+            - 172.21.0.0/16     # Kube Service CIDR Range
+            - 172.30.0.0/16     # Kube Cluster CIDR Range
+      ports:
+        - port: 54
+
+    - to:
+      - ipBlock:
+          cidr: 192.0.0.0/2     # second half of above destinations
+      ports:
+        - port: 53

@@ -1,0 +1,10 @@
+### This folder contains 3 network policies
+### They all define traffic within the namespace kube-system. 
+### The possible app in the namespace are file-plugin, keepalived-watcher, kube-fluentd, storage-watcher, helm and vpn
+### Traffic is allowed within the namespace only to pods with app defined and in {kube-fluentd, storage-watcher, helm, vpn}
+
+### The first network policy implements the above correctly by allowing ingress to pods in {kube-fluentd, storage-watcher, helm, vpn}
+### The second policy tries to implement the above by allowing ingress to pods notin {file-plugin, keepalived-watcher}.
+###     However, this is wrong since there are pods for which app is not defined (k8s-app is defined instead) and traffic will also be allowed into these
+### The last policy corrects the mistake by adding a requiremnt that there is a lable app
+

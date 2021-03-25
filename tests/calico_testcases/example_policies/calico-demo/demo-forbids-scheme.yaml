@@ -1,0 +1,67 @@
+# Two cases in which forbids can detect problems are demonstrated:
+# 1. A network policy enables communication between all the pods of a certain application, cnc-evaluation-service
+#    forbids is used to verify that this does not open communication to certain namespaces that should not involve the application and for which communication in non-desirable,
+#    and also to the outside world.
+#    The check reveals that by mistake communication was left open to the outside world
+# 2. It is verified for a certain network policy that communication through certain unsecured ports is forbidden.
+#    the check reveals that in the network policy above these ports were not blacklistsed.
+
+
+namespaceList: ../../example_podlist/ns_list_wdc.json
+podList: ../../example_podlist/wdc_wep2.json
+
+
+networkPolicyLists:
+  - name: np_cnc-kt-open
+    networkPolicyList:
+      - demo-permits-forbids-cnc-kt-open.yaml
+    expected_warnings: 0
+
+  - name: np_cnc-nlp-open
+    networkPolicyList:
+      - demo-permits-forbids-cnc-nlp-open.yaml
+    expected_warnings: 0
+
+  - name: np_global-to-from-outside
+    networkPolicyList:
+      - demo-permits-forbids-global-to-from-outside.yaml
+
+  - name: np_global-blacklist-ports
+    networkPolicyList:
+      - demo-permits-forbids-global-blacklist-ports.yaml
+
+  - name: np_traffic-between-cnc-evaluation-service-mistake-outside
+    networkPolicyList:
+      - demo-permits-forbids-deny-all-profiles.yaml
+      - demo-permits-forbids-traffic-between-cnc-evaluation-service-also-out.yaml
+    expected_warnings: 0
+
+  - name: np_traffic-between-cnc-evaluation-service-no-outside
+    networkPolicyList:
+      - demo-permits-forbids-deny-all-profiles.yaml
+      - demo-permits-forbids-traffic-between-cnc-evaluation-service-no-out.yaml
+    expected_warnings: 0
+
+
+
+queries:
+  - name: sanity
+    sanity:
+    - np_traffic-between-cnc-evaluation-service-mistake-outside
+    - np_traffic-between-cnc-evaluation-service-no-outside
+    expected: 0
+
+  - name: cnc-evaluation-service-with-mistake-no-ns-cnc-kt-cnc-nlp-no-outside
+    forbids:
+    - np_traffic-between-cnc-evaluation-service-mistake-outside
+    - np_cnc-kt-open
+    - np_cnc-nlp-open
+    - np_global-to-from-outside
+    expected: 1
+
+  - name: cnc-evaluation-service-did-not-blacklist-ports
+    forbids:
+    - np_traffic-between-cnc-evaluation-service-no-outside
+    - np_global-blacklist-ports
+    expected: 1
+

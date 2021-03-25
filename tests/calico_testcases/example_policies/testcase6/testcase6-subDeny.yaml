@@ -1,0 +1,21 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase6-subDeny
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: all()
+  egress:
+  - action: Deny
+    destination:
+      selector: app in {'vpn', 'keepalived-watcher'}
+  - action: Allow
+    destination:
+      selector: has(tier)

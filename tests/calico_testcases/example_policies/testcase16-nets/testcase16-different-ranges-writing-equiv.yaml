@@ -1,0 +1,189 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-simple-all-range
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+      - 0.0.0.0/0
+  egress:
+  - action: Allow
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-nets-all-range-partition2-nets
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 0.0.0.0/1     # All destinations first half
+  - action: Allow
+    protocol: TCP
+    source:
+        nets:
+        - 128.0.0.0/1     # All destinations second half
+  egress:
+  - action: Allow
+
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-nets-all-range-partitioned-4-with-nets
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 0.0.0.0/2     # All destinations first 1/4
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 64.0.0.0/2     # All destinations second 1/4
+  - action: Allow
+    protocol: TCP
+    source:
+        nets:
+        - 128.0.0.0/2     # All destinations third 1/4
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 192.0.0.0/2     # All destinations last 1/4
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-nets-all-range-partition2-notNets
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      notNets:
+        - 0.0.0.0/1     # All destinations second half
+  - action: Allow
+    protocol: TCP
+    source:
+        notNets:
+        - 128.0.0.0/1     # All destinations first half
+  egress:
+  - action: Allow
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-nets-all-range-partition2-nets-notNets
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 0.0.0.0/1     # All destinations first half
+  - action: Allow
+    protocol: TCP
+    source:
+        notNets:
+        - 0.0.0.0/1     # All destinations second half
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-nets-all-range-partitioned-4-net-notNets
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      notNets:
+        - 0.0.0.0/2     # All destinations first 1/4
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 0.0.0.0/2     # All destinations 3/4
+
+  egress:
+  - action: Allow
+
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase16-all-range-with-nets-notNets-single-ips
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      notNets:
+        - 0.0.0.0
+        - 23.0.0.1
+        - 1.0.1.0
+        - 0.0.0.7
+        - 1.0.0.90
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 0.0.0.0/1     # All destinations first 1/2
+
+  egress:
+  - action: Allow

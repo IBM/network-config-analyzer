@@ -1,0 +1,50 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np-policies-sanity
+    networkPolicyList:
+      - testcase9-sanity-between-policies.yaml
+    expected_warnings: 1
+
+  - name: np-rules-sanity
+    networkPolicyList:
+      - testcase9-sanity-between-rules.yaml
+    expected_warnings: 0
+
+  - name: np-vacuous-policy
+    networkPolicyList:
+    - testcase9-vacuous-policy.yaml
+    expected_warnings: 0
+
+queries:
+  - name: vacuous_policies
+    vacuity:
+      - np-policies-sanity/kube-system/enable-ingress-with-typo-in-isolatedpods
+      - np-vacuous-policy
+    expected: 2
+
+  - name: non_vacuous_policies
+    vacuity:
+      - np-policies-sanity/kube-system/isolate-kube-system-specific-pods
+      - np-policies-sanity/kube-system/enable-ingress-from-default
+      - np-policies-sanity/kube-system/supset-captured-pods-enable-ingress-from-default
+      - np-policies-sanity/kube-system/enable-ingress-within-namespace
+      - np-rules-sanity
+    expected: 0
+
+  - name: emptiness
+    emptiness:
+      - np-policies-sanity
+      - np-rules-sanity
+    expected: 1
+
+  - name: sanity_np-policies-sanity
+    sanity:
+      - np-policies-sanity
+    expected: 3
+
+  - name: sanity_np-rules-sanity
+    sanity:
+      - np-rules-sanity
+    expected: 5

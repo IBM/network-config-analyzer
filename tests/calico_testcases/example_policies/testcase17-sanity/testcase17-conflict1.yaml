@@ -1,0 +1,51 @@
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-contains-deny-of-allow-and-deny1
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0/2
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 128.0.0.0/3
+
+---
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase17-contains-allow-of-allow-and-deny1
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - 0.0.0.0
+      - 4.0.1.0
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - 60.0.0.0/5

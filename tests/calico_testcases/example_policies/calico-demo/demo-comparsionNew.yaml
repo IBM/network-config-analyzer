@@ -1,0 +1,31 @@
+### The file and the file demo-comparsionNew.yaml in this folder demonstrates the ability to monitor changes with nca, using the twoWayContainment test.
+### A good practice would be to execute the test to track changes in the policies
+
+### The second file is an extension of the first one - and this extension was done since a new appliciation, was added.
+### As expected the second file contains the first one
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: new
+  namespace: cnc-ntsgin
+spec:
+  selector: app in {'cnc-ntsgin', 'cnc-analytics', 'cnc-batch', 'cnc-component-mesh-dashboard', 'cnc-component-mesh-dashboard', 'cnc-customization-service'}
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: all()
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 10.98.29.142/32
+        - 10.142.188.25/32
+        - 10.121.169.71/32
+  egress:
+  - action: Allow
+    source:
+      selector: all()

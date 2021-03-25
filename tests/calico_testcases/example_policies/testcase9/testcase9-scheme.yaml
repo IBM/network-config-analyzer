@@ -1,0 +1,26 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - testcase9-networkpolicy.yaml
+    expected_warnings: 0
+
+queries:
+  - name: non_vacuous
+    vacuity:
+      - np1/default/testcase9-ingress-empty-selector
+    expected: 0
+
+  - name: empty_selector_not_equiv_selector_all
+    equivalence:
+      - np1/default/testcase9-ingress-all-selector
+      - np1/default/testcase9-ingress-empty-selector
+    expected: 1
+
+  - name: empty_selector_contains_selector_all
+    containment:
+      - np1/default/testcase9-ingress-empty-selector
+      - np1/default/testcase9-ingress-all-selector
+    expected: 1

@@ -1,0 +1,8 @@
+### Currently it is not possible to allow traffic to specific pods in another namespace
+### This is demonstrated by semantic diff of the two policies in this folder
+
+### The first of which is a wrong (but somehow expected) implementation of allowing traffic into default namespace only from pods with label tier=frontend in the vendor-system namespace
+### The second allows traffic into default from (all pods in) the vendor-system namespace
+
+### Since the podSelector in the first policy refers to pods which do not exist in the default namespace, the two policies are actually equivalent
+### An equivalence check will reveal that the first policy does not behave as expected

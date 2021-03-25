@@ -1,0 +1,11 @@
+### The policies have a mistake - and actually it allows all, not as intended and as explained below
+### The mistake is that [] selects all pods; the source of the mistake is that right after ingress/egress [] means "select nothing"
+### Thus, the policies are equiv, but since they both allow unlimited traffic within the name space, and not from the should be reasons
+### This mistake was revealed by our redundancy check
+
+
+### This folder contains 2 files, each containing two network policies
+### the policies in the first file are equiv to the policies in the second one
+
+### namespace default, for which the policies are defined, contains pods with app=skydive (only), some with tier=agent and some with tier=analyzer  
+### Communication is allowed within the namespace for app=skydive only from tier=analyzer to tier=agent

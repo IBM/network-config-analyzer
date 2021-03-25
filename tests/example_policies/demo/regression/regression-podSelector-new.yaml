@@ -1,0 +1,27 @@
+### This "new" policy defines traffic within the namespace kube-system, restricting incoming traffic from specific pods
+### it should adds restriction - allowing communication only on specific ports. 
+### But due to a typo - redundant dash - it actually opens the communication on these ports to all
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-no-ports-restriction
+  namespace: kube-system 
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector: 
+          matchExpressions:
+            - key: app
+              operator: NotIn
+              values:
+                - file-plugin
+                - keepalived-watcher
+            - key: app
+              operator: Exists
+    - ports:
+      - port: 53
+      - port: 54

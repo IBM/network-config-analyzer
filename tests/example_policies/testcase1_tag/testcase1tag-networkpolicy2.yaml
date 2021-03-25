@@ -1,0 +1,47 @@
+
+### namespace default contains (only) pods with app=skydive (only), some with tier=agent and some with tier=analyzer  
+### Communication is allowed within the namespace only from tier=analyzer to tier=agent (and app=skydive in both from and to)
+
+#### This policy isolates pods of namespace=default with app=skydive, and within the namespace (default) allows all incoming traffic (ingress) while denying all outgoing traffic (egress) 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-deny-egress-within-namespace
+  namespace: default 
+spec:
+  podSelector:
+    matchLabels:
+      app: skydive
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: 
+    - from:
+      - podSelector: {}
+  egress:
+    - to:
+      - podSelector: 
+          matchLabels:
+            no_exist_label: no_exist_name
+ 
+---
+### This policies allow traffic from tier=analyzer to tier=agent via ingress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-agent-to-analyzer-via-egress
+  namespace: default 
+spec:
+  podSelector:
+    matchLabels:
+      app: skydive
+      tier: analyzer
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: skydive
+            tier: agent
