@@ -2,6 +2,8 @@
 Our project welcomes external contributions. If you have an itch, please feel
 free to scratch it.
 
+### This md is under construction. For now, please refer to the information in README.md.
+
 To contribute code or documentation, please submit a **FIXME** [pull request](https://github.com/ibm/repo-template/pulls).
 
 A good way to familiarize yourself with the codebase and contribution process is
