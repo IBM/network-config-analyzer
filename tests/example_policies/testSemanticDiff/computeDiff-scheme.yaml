@@ -1,0 +1,63 @@
+namespaceList: ../../example_podlist/bank_ns_list.json
+podList: ../../example_podlist/bank_pod_list.json
+
+networkPolicyLists:
+  - name: old1
+    networkPolicyList:
+      - old1.yaml
+    expected_warnings: 0
+
+  - name: old2
+    networkPolicyList:
+      - old2.yaml
+    expected_warnings: 0
+
+  - name: old3
+    networkPolicyList:
+      - old3.yaml
+    expected_warnings: 0
+
+  - name: new1
+    networkPolicyList:
+      - new1.yaml
+    expected_warnings: 0
+
+  - name: new1a
+    networkPolicyList:
+      - new1a.yaml
+    expected_warnings: 0
+
+  - name: new2
+    networkPolicyList:
+      - new2.yaml
+    expected_warnings: 0
+
+  - name: new3
+    networkPolicyList:
+      - new3.yaml
+    expected_warnings: 0
+
+queries:
+  - name: semantic_diff_old1_new1
+    semanticDiff:
+      - new1
+      - old1
+    expected: 1
+
+  - name: semantic_diff_old1_new1a
+    semanticDiff:
+      - new1a
+      - old1
+    expected: 1
+
+  - name: semantic_diff_old2_new2
+    semanticDiff:
+      - new2
+      - old2
+    expected: 1
+
+  - name: semantic_diff_old3_new3
+    semanticDiff:
+      - new3
+      - old3
+    expected: 0
