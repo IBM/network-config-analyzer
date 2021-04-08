@@ -8,8 +8,8 @@ from ruamel.yaml import YAML
 from PeerContainer import PeerContainer
 from GenericYamlParser import GenericYamlParser
 from NetworkConfig import NetworkConfig
-from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEquivalenceQuery, SanityQuery, \
-    ContainmentQuery, RedundancyQuery, InterferesQuery, EmptinessQuery, VacuityQuery, DisjointnessQuery, \
+from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEquivalenceQuery, SemanticDiffQuery, \
+    SanityQuery, ContainmentQuery, RedundancyQuery, InterferesQuery, EmptinessQuery, VacuityQuery, DisjointnessQuery, \
     IntersectsQuery, TwoWayContainmentQuery, AllCapturedQuery
 
 
@@ -140,7 +140,7 @@ class SchemeRunner(GenericYamlParser):
         """
         if not query_array:
             self.warning('No queries to run\n')
-        allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'containment': 0, 'redundancy': 0,
+        allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0, 'redundancy': 0,
                             'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0, 'sanity': 0,
                             'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0, 'expected': 0,
                             'allCaptured': 0}
@@ -189,6 +189,22 @@ class SchemeRunner(GenericYamlParser):
                 if not full_result.bool_result and full_result.output_explanation:
                     print(full_result.output_explanation)
         if full_result.bool_result or not full_result.output_explanation:
+            print()
+        return total_res
+
+    def _run_semantic_diff(self, configs_array):
+        total_res = 0
+        full_result = QueryAnswer()
+        for ind1 in range(len(configs_array) - 1):
+            config1 = configs_array[ind1]
+            for ind2 in range(ind1 + 1, len(configs_array)):
+                config2 = configs_array[ind2]
+                full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2)).exec()
+                print(full_result.output_result)
+                total_res += not full_result.bool_result
+                if not full_result.bool_result:
+                    print(full_result.output_explanation, '\n')
+        if full_result.bool_result:
             print()
         return total_res
 
