@@ -153,9 +153,10 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A ConnectionSet representing the allowed connections by this element (protocols X port numbers)
         :rtype: ConnectionSet
         """
-        self.check_keys_are_legal(port, 'port', {'port': 0, 'protocol': 0})
+        self.check_keys_are_legal(port, 'port', {'port': 0, 'endPort': 0, 'protocol': 0})
         port_id = port.get('port')
         protocol = port.get('protocol')
+        endport_id = port.get('endPort')
         if not protocol:
             protocol = 'TCP'
         if protocol not in ['TCP', 'UDP', 'SCTP']:
@@ -163,8 +164,17 @@ class K8sPolicyYamlParser(GenericYamlParser):
 
         res = ConnectionSet()
         dest_port_set = PortSet(port_id is None)
-        if port_id:
+        if port_id and endport_id:
+            if isinstance(port_id, str):
+                self.syntax_error("If Port is a string (named port) EndPort cannot be specified", port)
+            if port_id > endport_id:
+                self.syntax_error("endPort must be equal or bigger than port", port)
+            dest_port_set.add_port_range(port_id, endport_id)
+        elif port_id:
             dest_port_set.add_port(port_id)
+        elif endport_id:
+            self.syntax_error("If an EndPort is specified a Port must also be specified", port)
+
         res.add_connections(protocol, PortSetPair(PortSet(True), dest_port_set))  # K8s doesn't reason about src ports
 
         return res
