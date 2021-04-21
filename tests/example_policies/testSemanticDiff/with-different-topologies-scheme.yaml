@@ -1,17 +1,20 @@
 namespaceList: ../../example_podlist/ns_list.json
 podList: ../../example_podlist/pods_list.json
 
-networkConfigList:
+# testing with networkPolicyLists (for backward compatibility)
+# can use only global namespaceList and podList resources
+networkPolicyLists:
   - name: no_policy
     networkPolicyList: []
     expected_warnings: 0
 
   - name: policy
-    namespaceList: tests/example_podlist/ns_list.json
     networkPolicyList:
       - policy_common.yaml
     expected_warnings: 3
 
+# testing of networkConfigList - allows to define different network topologies
+networkConfigList:
   - name: config_1
     # no namespaceList and podList, hence use the global resources above
     networkPolicyList:
@@ -19,23 +22,23 @@ networkConfigList:
     expected_warnings: 3
 
   - name: config_2
-    # expected to be the same as 'config_1' above
-    podList: tests/example_podlist/pods_list.json
+    # expected to be the same as 'config' above
+    podList: ../tests/example_podlist/pods_list.json
     networkPolicyList:
       - policy_common.yaml
     expected_warnings: 3
 
   - name: config_a
-    namespaceList: tests/different_topologies/ns_list_a.json
-    podList: tests/different_topologies/pods_list_a.json
+    namespaceList: ../tests/different_topologies/ns_list_a.json
+    podList: ../tests/different_topologies/pods_list_a.json
     networkPolicyList:
       - policy_common.yaml
       - policy_a.yaml
     expected_warnings: 0
 
   - name: config_b
-    namespaceList: tests/different_topologies/ns_list_b.json
-    podList: tests/different_topologies/pods_list_b.json
+    namespaceList: ../tests/different_topologies/ns_list_b.json
+    podList: ../tests/different_topologies/pods_list_b.json
     networkPolicyList:
       - policy_common.yaml
       - policy_b.yaml
