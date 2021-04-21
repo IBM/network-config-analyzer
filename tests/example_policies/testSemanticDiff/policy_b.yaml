@@ -1,0 +1,17 @@
+# UI -> Command
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: policy-b
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: app-2
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: bNameSpace

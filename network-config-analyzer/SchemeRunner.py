@@ -47,29 +47,33 @@ class SchemeRunner(GenericYamlParser):
             return input_file
         return given_path
 
-    def _add_config(self, config_entry, peer_container):
+    def _add_config(self, config_entry):
         """
         Produces a NetworkConfig object for a given entry in the scheme file.
         Increases self.global_res if the number of warnings in the config does not match the expected number.
         :param dict config_entry: The scheme file entry
-        :param PeerContainer peer_container: The network topology of the cluster
         :return: A matching NetworkConfig object
         :rtype: NetworkConfig
         """
-        self.check_keys_are_legal(config_entry, 'networkPolicyList', {'name': 1, 'networkPolicyList': 1,
-                                                                      'expected_warnings': 0})
+        self.check_keys_are_legal(config_entry, 'networkPolicyList', {'name': 1, 'namespaceList': 0, 'podList': 0,
+                                                                      'networkPolicyList': 1, 'expected_warnings': 0})
         config_name = config_entry['name']
         if config_name in self.network_configs:
             self.syntax_error(f'networkPolicyList {config_name} already exists', config_entry)
+
+        ns_list = config_entry.get('namespaceList', self._get_input_file(self.scheme.get('namespaceList', 'k8s')))
+        pod_list = config_entry.get('podList', self._get_input_file(self.scheme.get('podList', 'k8s')))
+        peer_container = PeerContainer(ns_list, pod_list)
+
         entry_list = config_entry['networkPolicyList']
         for idx, entry in enumerate(entry_list):
             entry_list[idx] = self._get_input_file(entry)
         network_config = NetworkConfig(config_name, peer_container, entry_list)
-
         if not network_config.policies:
             self.warning(f'networkPolicyList {network_config.name} contains no networkPolicies',
                          config_entry['networkPolicyList'])
         self.network_configs[network_config.name] = network_config
+
         expected_warnings = config_entry.get('expected_warnings')
         if expected_warnings is not None:
             warnings_found = network_config.get_num_findings()
@@ -103,14 +107,14 @@ class SchemeRunner(GenericYamlParser):
         :return: The number of queries with unexpected result + number of configs with unexpected number of warnings
         :rtype: int
         """
-        allowed_keys = {'networkPolicyLists': 1, 'namespaceList': 0, 'podList': 0, 'queries': 0}
+        allowed_keys = {'networkConfigList': 0, 'networkPolicyLists': 0, 'namespaceList': 0, 'podList': 0, 'queries': 0}
         self.check_keys_are_legal(self.scheme, 'scheme', allowed_keys)
-        pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
-        ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
-        peer_container = PeerContainer(ns_list, pod_list)
 
-        for config_entry in self.scheme['networkPolicyLists']:
-            self._add_config(config_entry, peer_container)
+        for config_entry in self.scheme.get('networkConfigList', []):
+            self._add_config(config_entry)
+
+        for config_entry in self.scheme.get('networkPolicyLists', []):
+            self._add_config(config_entry)
 
         self.run_queries(self.scheme.get('queries', []))
         return self.global_res
