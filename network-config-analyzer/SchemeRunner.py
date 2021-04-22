@@ -47,11 +47,12 @@ class SchemeRunner(GenericYamlParser):
             return input_file
         return given_path
 
-    def _add_config(self, config_entry):
+    def _add_config(self, config_entry, peer_container_global):
         """
         Produces a NetworkConfig object for a given entry in the scheme file.
         Increases self.global_res if the number of warnings in the config does not match the expected number.
         :param dict config_entry: The scheme file entry
+        :param PeerContainer peer_container_global: The global network topology
         :return: A matching NetworkConfig object
         :rtype: NetworkConfig
         """
@@ -61,9 +62,16 @@ class SchemeRunner(GenericYamlParser):
         if config_name in self.network_configs:
             self.syntax_error(f'networkPolicyList {config_name} already exists', config_entry)
 
-        ns_list = config_entry.get('namespaceList', self._get_input_file(self.scheme.get('namespaceList', 'k8s')))
-        pod_list = config_entry.get('podList', self._get_input_file(self.scheme.get('podList', 'k8s')))
-        peer_container = PeerContainer(ns_list, pod_list)
+        ns_list = config_entry.get('namespaceList')
+        pod_list = config_entry.get('podList')
+        if ns_list or pod_list:  # a local resource file exist
+            if not ns_list:  # use global resource file
+                ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
+            if not pod_list:  # use global resource file
+                pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
+            peer_container = PeerContainer(ns_list, pod_list)
+        else:
+            peer_container = peer_container_global
 
         entry_list = config_entry['networkPolicyList']
         for idx, entry in enumerate(entry_list):
@@ -110,11 +118,16 @@ class SchemeRunner(GenericYamlParser):
         allowed_keys = {'networkConfigList': 0, 'networkPolicyLists': 0, 'namespaceList': 0, 'podList': 0, 'queries': 0}
         self.check_keys_are_legal(self.scheme, 'scheme', allowed_keys)
 
+        # global resource files
+        pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
+        ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
+        peer_container = PeerContainer(ns_list, pod_list)
+
         for config_entry in self.scheme.get('networkConfigList', []):
-            self._add_config(config_entry)
+            self._add_config(config_entry, peer_container)
 
         for config_entry in self.scheme.get('networkPolicyLists', []):
-            self._add_config(config_entry)
+            self._add_config(config_entry, peer_container)
 
         self.run_queries(self.scheme.get('queries', []))
         return self.global_res
