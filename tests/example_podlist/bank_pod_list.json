@@ -9,9 +9,9 @@
     {
       "metadata": {
         "name": "bank-ui",
-        "generateName": "cognetive-agents-",
+        "generateName": "cog-agents-",
         "namespace": "demo",
-        "selfLink": "/api/v1/namespaces/default/pods/cognetive-agents-d54st",
+        "selfLink": "/api/v1/namespaces/default/pods/cog-agents-d54st",
         "uid": "14282859-301f-11e8-865c-52075433990e",
         "resourceVersion": "2820503",
         "creationTimestamp": "2018-03-25T11:24:27Z",
@@ -22,13 +22,13 @@
           "tier": "agent"
         },
         "annotations": {
-          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"DaemonSet\",\"namespace\":\"default\",\"name\":\"cognetive-agents\",\"uid\":\"14265cc3-301f-11e8-865c-52075433990e\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"508656\"}}\n"
+          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"DaemonSet\",\"namespace\":\"default\",\"name\":\"cog-agents\",\"uid\":\"14265cc3-301f-11e8-865c-52075433990e\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"508656\"}}\n"
         },
         "ownerReferences": [
           {
             "apiVersion": "extensions/v1beta1",
             "kind": "DaemonSet",
-            "name": "cognetive-agents",
+            "name": "cog-agents",
             "uid": "14265cc3-301f-11e8-865c-52075433990e",
             "controller": true,
             "blockOwnerDeletion": true
@@ -212,9 +212,9 @@
     {
       "metadata": {
         "name": "account-query",
-        "generateName": "cognetive-agents-",
+        "generateName": "cog-agents-",
         "namespace": "demo",
-        "selfLink": "/api/v1/namespaces/default/pods/cognetive-agents-js4qc",
+        "selfLink": "/api/v1/namespaces/default/pods/cog-agents-js4qc",
         "uid": "14279eb3-301f-11e8-865c-52075433990e",
         "resourceVersion": "2820601",
         "creationTimestamp": "2018-03-25T11:24:27Z",
@@ -225,13 +225,13 @@
           "app": "account-query-selector"
         },
         "annotations": {
-          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"DaemonSet\",\"namespace\":\"default\",\"name\":\"cognetive-agents\",\"uid\":\"14265cc3-301f-11e8-865c-52075433990e\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"508656\"}}\n"
+          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"DaemonSet\",\"namespace\":\"default\",\"name\":\"cog-agents\",\"uid\":\"14265cc3-301f-11e8-865c-52075433990e\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"508656\"}}\n"
         },
         "ownerReferences": [
           {
             "apiVersion": "extensions/v1beta1",
             "kind": "DaemonSet",
-            "name": "cognetive-agents",
+            "name": "cog-agents",
             "uid": "14265cc3-301f-11e8-865c-52075433990e",
             "controller": true,
             "blockOwnerDeletion": true
@@ -415,9 +415,9 @@
     {
       "metadata": {
         "name": "account-command",
-        "generateName": "cognetive-agents-",
+        "generateName": "cog-agents-",
         "namespace": "demo",
-        "selfLink": "/api/v1/namespaces/default/pods/cognetive-agents-js4qc",
+        "selfLink": "/api/v1/namespaces/default/pods/cog-agents-js4qc",
         "uid": "14279eb3-301f-11e8-865c-52075433990e",
         "resourceVersion": "2820601",
         "creationTimestamp": "2018-03-25T11:24:27Z",
@@ -428,13 +428,13 @@
           "app": "account-command-selector"
         },
         "annotations": {
-          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"DaemonSet\",\"namespace\":\"default\",\"name\":\"cognetive-agents\",\"uid\":\"14265cc3-301f-11e8-865c-52075433990e\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"508656\"}}\n"
+          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"DaemonSet\",\"namespace\":\"default\",\"name\":\"cog-agents\",\"uid\":\"14265cc3-301f-11e8-865c-52075433990e\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"508656\"}}\n"
         },
         "ownerReferences": [
           {
             "apiVersion": "extensions/v1beta1",
             "kind": "DaemonSet",
-            "name": "cognetive-agents",
+            "name": "cog-agents",
             "uid": "14265cc3-301f-11e8-865c-52075433990e",
             "controller": true,
             "blockOwnerDeletion": true
