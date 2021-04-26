@@ -1,7 +1,7 @@
 namespaceList: ../../example_podlist/bank_ns_list.json
 podList: ../../example_podlist/bank_pod_list.json
 
-networkPolicyLists:
+networkConfigList:
   - name: old1
     networkPolicyList:
       - old1.yaml

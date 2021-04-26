@@ -1,7 +1,7 @@
 namespaceList: ../../example_podlist/ns_list.json
 podList: ../../example_podlist/pods_list.json
 
-networkPolicyLists:
+networkConfigList:
   - name: np1
     networkPolicyList:
       - namedPorts-policy1.yaml

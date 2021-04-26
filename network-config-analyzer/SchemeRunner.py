@@ -115,7 +115,7 @@ class SchemeRunner(GenericYamlParser):
         :return: The number of queries with unexpected result + number of configs with unexpected number of warnings
         :rtype: int
         """
-        allowed_keys = {'networkConfigList': 0, 'networkPolicyLists': 0, 'namespaceList': 0, 'podList': 0, 'queries': 0}
+        allowed_keys = {'networkConfigList': 1, 'namespaceList': 0, 'podList': 0, 'queries': 0}
         self.check_keys_are_legal(self.scheme, 'scheme', allowed_keys)
 
         # global resource files
@@ -124,9 +124,6 @@ class SchemeRunner(GenericYamlParser):
         peer_container = PeerContainer(ns_list, pod_list)
 
         for config_entry in self.scheme.get('networkConfigList', []):
-            self._add_config(config_entry, peer_container)
-
-        for config_entry in self.scheme.get('networkPolicyLists', []):
             self._add_config(config_entry, peer_container)
 
         self.run_queries(self.scheme.get('queries', []))

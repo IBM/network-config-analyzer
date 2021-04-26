@@ -1,12 +1,12 @@
 ## Scheme file format
 A scheme file is a yaml file, specifying what should be checked.
-It should contain at least the `networkPolicyLists` and the `queries` fields.
+It should contain at least the `networkConfigList` and the `queries` fields.
 
 | Field | Description | Value | Default |
 |-------|-------------|-------|---------|
 |namespaceList|A yaml/json file containing a list of namespaces in the cluster|file|Cluster namespaces|
 |podList|A json yaml/file containing a list of pods in the cluster|file|Cluster pods|
-|networkPolicyLists|Sets of NetworkPolicy to reason about|list of [NetworkPolicyList](#NetworkPolicyListobject) objects|
+|networkConfigList|A set of network configurations and policies to reason about|configuration files and list of [NetworkPolicyList](#NetworkPolicyListobject) objects|
 |queries|Queries for the tool to run|list of [Query](#queryobject) objects|
 
 ### <a name="NetworkPolicyListobject"></a>NetworkPolicyList object

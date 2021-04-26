@@ -1,7 +1,7 @@
 namespaceList: ../../example_workload_resources/
 podList: ../../example_workload_resources/
 
-networkPolicyLists:
+networkConfigList:
   - name: workload_resources_captured
     networkPolicyList:
       - workload-test-networkpolicy.yaml
