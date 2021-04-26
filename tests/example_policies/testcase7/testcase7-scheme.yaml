@@ -50,3 +50,8 @@ queries:
       - np2
       - np1
     expected: 0
+  - name: connectivity_map
+    connectivityMap:
+      - np1
+      - np2
+    expected: 0

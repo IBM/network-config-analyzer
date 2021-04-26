@@ -26,6 +26,16 @@ class ConnectionSet:
             return self.allow_all == other.allow_all and self.allowed_protocols == other.allowed_protocols
         return NotImplemented
 
+    def __lt__(self, other):
+        if self.allow_all:
+            return False
+        if other.allow_all:
+            return True
+        return len(self.allowed_protocols) < len(other.allowed_protocols)
+
+    def __hash__(self):
+        return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
+
     def __str__(self):
         if self.allow_all:
             return "All connections"

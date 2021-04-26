@@ -6,7 +6,9 @@
 from dataclasses import dataclass
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
+from ConnectionSet import ConnectionSet
 from Peer import PeerSet, IpBlock
+from ConnectivityGraph import ConnectivityGraph
 
 
 @dataclass
@@ -408,6 +410,26 @@ class SanityQuery(NetworkConfigQuery):
             output_result = f'NetworkConfig {self.config.name} failed sanity check:'
         return QueryAnswer(bool_result=(issues_counter == 0), output_result=output_result,
                            output_explanation=policies_issue + rules_issues, numerical_result=issues_counter)
+
+
+class ConnectivityMapQuery(NetworkConfigQuery):
+    """
+    Print the connectivity graph in the form of firewall rules
+    """
+    def exec(self):
+        peers_to_compare = self.config.peer_container.get_all_peers_group()
+        peers_to_compare |= self.config.get_referenced_ip_blocks()
+        conn_graph = ConnectivityGraph()
+        for peer1 in peers_to_compare:
+            for peer2 in peers_to_compare:
+                if peer1 == peer2:
+                    conn_graph.add_edge(peer1, peer2, ConnectionSet(True))  # cannot restrict pod's connection to itself
+                else:
+                    _, conns, _ = self.config.allowed_connections(peer1, peer2)
+                    conn_graph.add_edge(peer1, peer2, conns)
+
+        conn_graph.output_as_firewall_rules()
+        return QueryAnswer(True)
 
 
 class TwoNetworkConfigsQuery:

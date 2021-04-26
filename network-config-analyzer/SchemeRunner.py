@@ -10,7 +10,7 @@ from GenericYamlParser import GenericYamlParser
 from NetworkConfig import NetworkConfig
 from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEquivalenceQuery, SanityQuery, \
     ContainmentQuery, RedundancyQuery, InterferesQuery, EmptinessQuery, VacuityQuery, DisjointnessQuery, \
-    IntersectsQuery, TwoWayContainmentQuery, AllCapturedQuery
+    IntersectsQuery, TwoWayContainmentQuery, AllCapturedQuery, ConnectivityMapQuery
 
 
 class SchemeRunner(GenericYamlParser):
@@ -143,7 +143,7 @@ class SchemeRunner(GenericYamlParser):
         allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'containment': 0, 'redundancy': 0,
                             'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0, 'sanity': 0,
                             'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0, 'expected': 0,
-                            'allCaptured': 0}
+                            'allCaptured': 0, 'connectivityMap': 0}
         for query in query_array:
             res = 0
             self.check_keys_are_legal(query, 'query', allowed_elements)
@@ -361,3 +361,10 @@ class SchemeRunner(GenericYamlParser):
                 print()
         print()
         return res
+
+    def _run_connectivity_map(self, configs_array):
+        for config in configs_array:
+            full_result = ConnectivityMapQuery(self._get_config(config)).exec()
+            print(full_result.output_result)
+        print()
+        return 0
