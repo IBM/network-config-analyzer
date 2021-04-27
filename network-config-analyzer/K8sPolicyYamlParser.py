@@ -173,7 +173,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         elif port_id:
             dest_port_set.add_port(port_id)
         elif endport_id:
-            self.syntax_error("If an EndPort is specified a Port must also be specified", port)
+            self.syntax_error('endPort cannot be specified without Port being specified', port)
 
         res.add_connections(protocol, PortSetPair(PortSet(True), dest_port_set))  # K8s doesn't reason about src ports
 
