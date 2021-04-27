@@ -168,7 +168,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             if isinstance(port_id, str):
                 self.syntax_error("If Port is a string (named port) EndPort cannot be specified", port)
             if port_id > endport_id:
-                self.syntax_error("endPort must be equal or bigger than port", port)
+                self.syntax_error('endPort must be equal or larger than port', port)
             dest_port_set.add_port_range(port_id, endport_id)
         elif port_id:
             dest_port_set.add_port(port_id)
