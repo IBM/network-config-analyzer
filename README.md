@@ -13,30 +13,30 @@ See an example scheme file [here](tests/example_policies/testcase1/testcase1-sch
 
 #### Running without a scheme file
 Various predefined queries can be performed without providing a scheme file, using the following command line configurations.
-- `--sanity <NetworkConfig set>` \
-Running several sanity checks on the given set of NetworkConfigs
-- `--equiv <NetworkConfig set> [--base_np_list <NetworkConfig set>]`\
-Semantically comparing two sets of NetworkConfig sets to decide whether they allow exactly the same traffic
-- `--interferes <NetworkConfig set> [--base_np_list <NetworkConfig set>]`\
-Checking whether the base set of NetworkConfigs interferes with the given set of NetworkConfigs
+- `--sanity <NetworkPolicy set>` \
+Running several sanity checks on the given set of NetworkPolicies
+- `--equiv <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Semantically comparing two sets of NetworkPolicy sets to decide whether they allow exactly the same traffic
+- `--interferes <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Checking whether the base set of NetworkPolicies interferes with the given set of NetworkPolicies
 (allows more traffic between relevant endpoints)
-- `--permits <NetworkConfig set> [--base_np_list <NetworkConfig set>]`\
-Checking whether the base set of NetworkConfigs permits the traffic explicitly specified in the given set of NetworkConfigs
-- `--forbids <NetworkConfig set> [--base_np_list <NetworkConfig set>]`\
-Checking whether the base set of NetworkConfigs forbids the traffic explicitly specified in the given set of NetworkConfigs
+- `--permits <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Checking whether the base set of NetworkPolicies permits the traffic explicitly specified in the given set of NetworkPolicies
+- `--forbids <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Checking whether the base set of NetworkPolicies forbids the traffic explicitly specified in the given set of NetworkPolicies
 
-`<NetworkConfig set>` should be one of:
-- a path to a yaml/json file defining NetworkConfigs
-- a path to a directory with files containing NetworkConfigs
-- a url of a GHE repository/dir/file with NetworkConfigs
-- The string `k8s`, instructing the tool to take all NetworkConfigs from a Kubernetes cluster (using `kubectl`)
-- The string `calico`, instructing the tool to take all NetworkConfigs from a Calico cluster (using `calicoctl`)
+`<NetworkPolicy set>` should be one of:
+- a path to a yaml/json file defining NetworkPolicies
+- a path to a directory with files containing NetworkPolicies
+- a url of a GHE repository/dir/file with NetworkPolicies
+- The string `k8s`, instructing the tool to take all NetworkPolicies from a Kubernetes cluster (using `kubectl`)
+- The string `calico`, instructing the tool to take all NetworkPolicies from a Calico cluster (using `calicoctl`)
 
 Running with no command-line options at all is like running `nca.py --sanity k8s`.
 
 #### Additional command-line switches:
 - `--base_np_list`\
-The set of NetworkConfigs to compare against in `--equiv` and `--interferes` (default: `k8s`)
+The set of NetworkPolicies to compare against in `--equiv` and `--interferes` (default: `k8s`)
 - `--ns_list <path to file or 'k8s'>`\
 Allows specifying a file to take the list of namespaces from (default: the result of `kubectl get namespaces`)
 - `--pod_list <path to a file, 'calico' or 'k8s'>`\
