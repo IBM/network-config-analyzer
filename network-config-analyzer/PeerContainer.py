@@ -332,7 +332,6 @@ class PeerContainer:
             for container in pod_containers:
                 for port in container.get('ports', []):
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
-            print(f'adding {pod}')
             self._add_peer(pod)
 
     def add_eps_from_list(self, ep_list):

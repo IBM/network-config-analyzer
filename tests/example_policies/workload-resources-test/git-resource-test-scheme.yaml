@@ -11,4 +11,4 @@ queries:
   - name: all-captured
     allCaptured:
       - workload_resources_captured
-    expected: 43
+    expected: 44
