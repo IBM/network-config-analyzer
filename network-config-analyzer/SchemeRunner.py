@@ -56,8 +56,8 @@ class SchemeRunner(GenericYamlParser):
         :return: A matching NetworkConfig object
         :rtype: NetworkConfig
         """
-        self.check_keys_are_legal(config_entry, 'networkPolicyList', {'name': 1, 'namespaceList': 0, 'podList': 0,
-                                                                      'networkPolicyList': 1, 'expected_warnings': 0})
+        self.check_keys_are_legal(config_entry, 'networkConfig', {'name': 1, 'namespaceList': 0, 'podList': 0,
+                                                                  'networkPolicyList': 1, 'expected_warnings': 0})
         config_name = config_entry['name']
         if config_name in self.network_configs:
             self.syntax_error(f'networkPolicyList {config_name} already exists', config_entry)
