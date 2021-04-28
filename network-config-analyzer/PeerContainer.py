@@ -306,7 +306,6 @@ class PeerContainer:
         :param workload_resource: A workload resource object
         :return: None
         """
-        print(workload_resource)
         metadata = workload_resource.get('metadata', {})
         workload_name = metadata.get('name', '')
         pod_namespace = self.get_namespace(metadata.get('namespace', 'default'))
@@ -333,7 +332,7 @@ class PeerContainer:
             for container in pod_containers:
                 for port in container.get('ports', []):
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
-
+            print(f'adding {pod}')
             self._add_peer(pod)
 
     def add_eps_from_list(self, ep_list):
