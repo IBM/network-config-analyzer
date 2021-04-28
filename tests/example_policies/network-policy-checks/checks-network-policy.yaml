@@ -1,0 +1,601 @@
+#first test, no apiVersion
+#second test, empty value
+#apiVersion:
+#third test - wrong type
+#apiVersion:
+#  - networking.k8s.io/v1
+# 4th test - wrong values
+#apiVersion: k8sV1
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api_version_tests
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+#first test - existence , no kind specified
+#2nd test - wrong value
+#kind: ConfigMap
+#3rd test - wrong type
+#kind:
+#  - NetworkPolicy
+kind: NetworkPolicy
+metadata:
+  name: kind_tests
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+#1st test, no metadata section
+#2nd wrong type (with - before each field):
+#metadata:
+#  - name: metadata-test
+#  - namespace: kube-system
+#3 wrong keys
+#metadata:
+#  name: general-metadata-test
+#  namespaceSelector: {}
+#4 empty/null/{}
+metadata:
+   name: general-metadata-test
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: general_spec_test
+  namespace: kube-system
+#1st test, no spec section
+#2nd test, wrong type
+#spec:
+#  - podSelector: {}
+#  - policyTypes:
+#    - Ingress
+#    - Egress
+#  - ingress:
+#    - from:
+#      - namespaceSelector: {}
+#        podSelector: {}
+#  - egress:
+#    - to:
+#      - namespaceSelector: {}
+#        podSelector: {}
+#3rd test, wrong keys
+#spec:
+#  name: general_spec_test
+#  namespace: kube-system
+#4 spec is empty
+#spec:
+#5 spec is null
+#spec: null
+#6 spec is {}
+#spec: {}
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  #1 name does not exist
+  #2 name is a dict/array/number
+  #name:
+  # - metadata-fields-test
+  #name: []
+  #name: 5
+  #3 name is empty
+  #name:
+  #4 name is null
+  #name: null
+  name: metadata-fields-test
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: metadata-namespace-test
+  #1, wrong type:
+  #namespace:
+  # - kube-system
+  #namespace: 5
+  #namespace: {}
+  #namespace: []
+  #2, null/empty
+  #namespace: null
+  #namespace:
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spec-podSelector-test
+  namespace: kube-system-dummy-to-ignore
+spec:
+  #1, podSelector does not exist
+  #2, empty == {}  / 0 - behaves as expected ( all pods in the namespace are selected)
+  #podSelector: {}
+  #3, null , no value - behaves as expected, matches no objects
+  #podSelector: null
+  #podSelector:
+  #4 wrong type:
+  #podSelector: spec-podSelector-test
+  #podSelector: 6
+  #podSelector:
+  #  - matchLabels:
+  #      role: db
+  #5 wrong keys:
+  #podSelector:
+  #  from:
+  #        namespaceSelector: { }
+  #        podSelector: {}
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spec-policyTypes-test
+  namespace: kube-system-dummy-to-ignore
+spec:
+  podSelector: {}
+  #1, doesn't exist/ policies not specified (empty/[]/null) - behaves as expected, we get a warning only
+  #policyTypes:
+  #2 exists with wrong values
+  #policyTypes:
+  #  - ingress, egress
+  #policyTypes:
+  #  - inger
+  #3 , wrong type
+  #policyTypes: ingress
+  #policyTypes:
+  #  ingress
+  #  egress
+  #4, exists with ingress only but there is an egress section :
+  #policyTypes:
+   # - Ingress
+  #5, exists with egress only but there is an ingress section :
+  #policyTypes:
+  #  - Egress
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector: { }
+          podSelector: { }
+  egress:
+    - to:
+        - namespaceSelector: { }
+          podSelector: { }
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spec_egress_tests
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  #1, wrong keys
+  #egress:
+  #  - from:
+  #      - namespaceSelector: { }
+  #        podSelector: { }
+  #2, wrong type
+  #egress:
+  #   to:
+  #      - namespaceSelector: { }
+  #        podSelector: { }
+  #egress: null
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spec_ingress_tests
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+  #1, wrong keys
+  #ingress:
+  #  - to:
+  #      - namespaceSelector: { }
+  #        podSelector: { }
+  #2, wrong type
+  #ingress:
+  #   from:
+  #      - namespaceSelector: { }
+  #        podSelector: { }
+  #ingress: null
+  ingress: []
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: podSelector-matchLabels-test
+spec:
+  podSelector:
+    #1, wrong type (array instead of dict) / string
+    #matchLabels:
+    #  - app: skydive
+    #matchLabels: app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: podSelector-matchExpressions-test
+  namespace: kube-system
+spec:
+  podSelector:
+    #1, wrong keys
+   # matchExpressions:
+    #  - key: app
+    #    operator: NotIn
+    #    value:  # values is the right key
+    #      - helm
+    #2, wrong type
+    #matchExpressions:
+    #   key: app
+    #   operator: Exists
+    #matchExpressions: key
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: matchExp-key-tests
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      #1, wrong type
+      #- key:
+      #    - app
+      #- key : 0
+      #2, existence test , it must be when we have a requirement
+      #  operator: NotIn
+      #  values:
+      #    - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: matchExpressions-operator-tests
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        #1, wrong type
+        #operator:
+        #  - NotIn
+        # wrong value
+        #operator:
+        #  from
+        operator:
+          NotIn
+        values:
+          - helm
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: matchExpressions-values-tests
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        values:
+          - helm
+        #1. type:
+        #values:
+        #  helm
+        #2. non-empty values with operator DoesNotExist/Exists
+      - key: tier
+        operator: Exists
+        #values:
+        #  - helm
+        #3. empty values with In/NotIn
+      #- key: app
+      #  operator: In
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: egrees_or_ingress_ports_tests
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+      #1, wrong keys:
+      #ports:
+      #  - podSelector: {}
+      #2, wrong type
+      #ports: #5
+      # port: tbd
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              unique-label: dummy
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: egrees_or_ingress_peer_tests
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: frontend
+    #1, wrong keys
+    #- from:
+    #    - port: 44134
+    #2, wrong type:
+    #- from:
+    #    podSelector:
+    #        matchLabels:
+    #          tier: frontend
+
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: port_number_or_name_tests
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+      ports:
+        - port: 53
+          protocol: UDP
+      #1, wrong type - no error raises
+      #- port:
+      #    - tbd
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ports-protocol-tests
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+      ports:
+      - port: 44134
+        #1, wrong value
+        #protocol: HTTP
+        #2 wrong type
+        #protocol:
+        #  - TCP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipBlock-test
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      #1, wrong keys
+        - ipBlock:
+           cidr: 0.0.0.0/0
+          #include:
+           except:
+             - 10.0.0.0/8
+      #2 with podSelector
+      #  podSelector:
+      #    matchLabels:
+      #      tier: frontend
+    -  ports:
+        - port: 53
+          protocol: UDP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipBlock-fields-test
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - ipBlock:
+          cidr: 10.0.0.0
+          #1. wrong patterns
+          #cidr: 10.0.0
+          #except:
+          #- 10.0.0.
+      ports:
+        - port: 53
+          protocol: UDP
+
+
+
