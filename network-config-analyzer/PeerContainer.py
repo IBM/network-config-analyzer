@@ -306,6 +306,7 @@ class PeerContainer:
         :param workload_resource: A workload resource object
         :return: None
         """
+        print(workload_resource)
         metadata = workload_resource.get('metadata', {})
         workload_name = metadata.get('name', '')
         pod_namespace = self.get_namespace(metadata.get('namespace', 'default'))
