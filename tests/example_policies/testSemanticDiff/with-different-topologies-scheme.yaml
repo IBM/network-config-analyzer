@@ -10,7 +10,7 @@ networkConfigList:
 
   - name: config_2
     # expected to be the same as 'config_1' above
-    podList: ../tests/example_podlist/pods_list.json
+    podList: tests/example_podlist/pods_list.json
     networkPolicyList:
       - policy_common.yaml
     expected_warnings: 3
