@@ -2,12 +2,6 @@ namespaceList: ../../example_podlist/ns_list.json
 podList: ../../example_podlist/pods_list.json
 
 networkConfigList:
-  - name: policy
-    namespaceList: ../tests/example_podlist/ns_list.json
-    networkPolicyList:
-      - policy_common.yaml
-    expected_warnings: 3
-
   - name: config_1
     # no namespaceList and podList, hence use the global resources above
     networkPolicyList:
@@ -26,5 +20,4 @@ queries:
     semanticDiff:
       - config_1
       - config_2
-      - policy
     expected: 0

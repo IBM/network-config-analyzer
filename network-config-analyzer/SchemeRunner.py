@@ -69,7 +69,7 @@ class SchemeRunner(GenericYamlParser):
                 ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
             if not pod_list:  # use global resource file
                 pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
-            peer_container = PeerContainer(ns_list, pod_list)
+            peer_container = PeerContainer(ns_list, pod_list, config_name)
         else:
             peer_container = peer_container_global
 
