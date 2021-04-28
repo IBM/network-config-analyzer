@@ -677,6 +677,7 @@ class AllCapturedQuery(NetworkConfigQuery):
     """
     def exec(self):
         existing_pods = self.config.peer_container.get_all_peers_group()
+        print(f'existing pods: {existing_pods}')
 
         if not self.config:
             return QueryAnswer(bool_result=False,
@@ -699,6 +700,7 @@ class AllCapturedQuery(NetworkConfigQuery):
             resources = ', '.join(e for e in uncaptured_ingress_resources)
             full_explanation += f'These workload resources are not captured by any policy that affects ingress: {resources}\n'
         if uncaptured_egress_pods:
+            print(f'uncaptured_egress_pods: {uncaptured_egress_pods}')
             uncaptured_egress_resources = set(pod.workload_name for pod in uncaptured_egress_pods)  # no duplicate resources in the set
             res += len(uncaptured_egress_resources)
             resources = ', '.join(e for e in uncaptured_egress_resources)
