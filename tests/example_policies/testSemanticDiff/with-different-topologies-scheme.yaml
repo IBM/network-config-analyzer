@@ -2,6 +2,16 @@ namespaceList: ../../example_podlist/ns_list.json
 podList: ../../example_podlist/pods_list.json
 
 networkConfigList:
+  - name: no_policy
+    networkPolicyList: []
+    expected_warnings: 0
+
+  - name: policy
+    namespaceList: tests/example_podlist/ns_list.json
+    networkPolicyList:
+      - policy_common.yaml
+    expected_warnings: 3
+
   - name: config_1
     # no namespaceList and podList, hence use the global resources above
     networkPolicyList:
@@ -15,9 +25,39 @@ networkConfigList:
       - policy_common.yaml
     expected_warnings: 3
 
+  - name: config_a
+    namespaceList: tests/different_topologies/ns_list_a.json
+    podList: tests/different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_common.yaml
+      - policy_a.yaml
+    expected_warnings: 0
+
+  - name: config_b
+    namespaceList: tests/different_topologies/ns_list_b.json
+    podList: tests/different_topologies/pods_list_b.json
+    networkPolicyList:
+      - policy_common.yaml
+      - policy_b.yaml
+    expected_warnings: 0
+
 queries:
   - name: semantic_diff_same_topologies
     semanticDiff:
       - config_1
       - config_2
+      - policy
     expected: 0
+
+  - name: semantic_diff_no_policy
+    semanticDiff:
+      - config_1
+      - no_policy
+    expected: 0
+
+  - name: semantic_diff_other_topologies
+    semanticDiff:
+      - config_1
+      - config_a
+      - config_b
+    expected: 3
