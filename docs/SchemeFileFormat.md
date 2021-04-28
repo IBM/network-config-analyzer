@@ -4,13 +4,13 @@ It should contain at least the `networkConfigList` and the `queries` fields.
 
 | Field | Description | Value | Default |
 |-------|-------------|-------|---------|
-|namespaceList|A global list of namespaces in the cluster|directory, git-repo or yaml/json file|Cluster namespaces|
-|podList|A global list of pods in the cluster|directory, git-repo or yaml/json file|Cluster pods|
+|namespaceList|A globally-scoped list of namespaces in the cluster|directory, git-repo or yaml/json file|Cluster namespaces|
+|podList|A globally-scoped list of pods in the cluster|directory, git-repo or yaml/json file|Cluster pods|
 |networkConfigList|A list of network configurations and policies to reason about|list of [NetworkConfig](#NetworkConfigobject) objects|
 |queries|Queries for the tool to run|list of [Query](#queryobject) objects|
 
 ### <a name="NetworkConfigobject"></a>NetworkConfig object
-Each NetworkConfig object represents a specific network configuration (and possibly Calico's GlobalNetworkPolicy and Profile objects).
+Each NetworkConfig object represents a specific network configuration.
 It should contain at least the `name` and the `networkPolicyList` fields.
 
 | Field | Description | Value | Default |
