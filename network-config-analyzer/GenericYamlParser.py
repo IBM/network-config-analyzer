@@ -52,6 +52,9 @@ class GenericYamlParser:
         :return: None
         :raises SyntaxError: if some of the keys are not allowed/missing
         """
+        if dict_to_check:
+            if not isinstance(dict_to_check, dict):
+                self.syntax_error('type of ' + dict_name + 'is not a map', dict_to_check)
         for key, code in allowed_entries.items():
             if code == 1 and key not in dict_to_check:
                 self.syntax_error(f'{dict_name} must have a {key} entry', dict_to_check)
