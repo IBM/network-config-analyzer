@@ -2,7 +2,7 @@ namespaceList: ../../example_podlist/ns_list_wdc.json
 podList: ../../example_podlist/wdc_wep.json
 
 
-networkPolicyLists:
+networkConfigList:
 ### basic equiv test between profile and policy
 
   - name: np1_cnc-fe-only-ingress

@@ -1,7 +1,7 @@
 namespaceList: ../../example_podlist/ns_list_for_testcase10.json
 podList: ../../example_podlist/pods_list.json
 
-networkPolicyLists:
+networkConfigList:
   - name: np
     networkPolicyList:
       - testcase10-networkpolicy.yaml
