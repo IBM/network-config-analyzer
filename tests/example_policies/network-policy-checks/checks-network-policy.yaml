@@ -227,21 +227,22 @@ metadata:
   namespace: kube-system-dummy-to-ignore
 spec:
   podSelector: {}
-  #1, doesn't exist/ policies not specified (empty/[]/null) - behaves as expected, we get a warning only
+  #1, doesn't exist  - behaves as expected, we get a warning only
+  # (empty/[]/null) - error , if exists : Valid options are ["Ingress"], ["Egress"], or ["Ingress", "Egress"].
   #policyTypes:
   #2 exists with wrong values
   #policyTypes:
-  #  - ingress, egress
+  #  - Ingress, Egress
   #policyTypes:
   #  - inger
   #3 , wrong type
-  #policyTypes: ingress
+  #policyTypes: Ingress
   #policyTypes:
-  #  ingress
-  #  egress
+  #  Ingress
+  #  Egress
   #4, exists with ingress only but there is an egress section :
   #policyTypes:
-   # - Ingress
+  #  - Ingress
   #5, exists with egress only but there is an ingress section :
   #policyTypes:
   #  - Egress
@@ -618,11 +619,11 @@ spec:
           protocol: UDP
           #1 wrong type
           #endPort: UDP
-          #2 port is named, but end prot exists:
+          #2 port is named, but end port exists:
           #endPort: 60
           #3 port does not exist but endPort does
           #endPort: 60
-          #4 endport is < port
+          #4 endPort is < port
           #endPort: 50
 
 ---
@@ -644,5 +645,3 @@ spec:
     -  ports: [] #  passes because it will be considered a new rule, ingress is an array of rules
     -  ports: # if we remove the - here , it will fail , since it will considered as duplicated keys in same rule
        from:
-
-
