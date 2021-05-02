@@ -1,8 +1,41 @@
-# UI -> Command
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: policy-b
+  name: policy-joint
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: app-2
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: app-1
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: policy-b-disjoint
+  namespace: namespace-b
+spec:
+  podSelector:
+    matchLabels:
+      app: app-b3
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: app-b4
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: policy-b-cross
   namespace: default
 spec:
   podSelector:
