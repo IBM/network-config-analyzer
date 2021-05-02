@@ -1,7 +1,7 @@
 namespaceList: ../../example_podlist/ns_list_wdc.json
 podList: ../../example_podlist/wdc_wep.json
 
-networkPolicyLists:
+networkConfigList:
   - name: np-interfere1
     networkPolicyList:
       - demo-interfere1.yaml

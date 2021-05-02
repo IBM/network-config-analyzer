@@ -1,7 +1,7 @@
 namespaceList: https://github.com/IBM/network-config-analyzer/tree/master/tests/example_workload_resources/
 podList: https://github.com/IBM/network-config-analyzer/tree/master/tests/example_workload_resources/
 
-networkPolicyLists:
+networkConfigList:
   - name: workload_resources_captured
     networkPolicyList:
       - workload-test-networkpolicy.yaml
@@ -11,4 +11,4 @@ queries:
   - name: all-captured
     allCaptured:
       - workload_resources_captured
-    expected: 43
+    expected: 44

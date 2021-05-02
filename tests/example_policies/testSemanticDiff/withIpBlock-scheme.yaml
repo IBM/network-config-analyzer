@@ -1,0 +1,45 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: np1
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy1.yaml
+    expected_warnings: 0
+
+  - name: np2
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy2.yaml
+    expected_warnings: 0
+
+  - name: np3
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy3.yaml
+    expected_warnings: 0
+
+  - name: np4
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy4.yaml
+    expected_warnings: 0
+
+queries:
+  - name: semantic_diff_ipblocks_equivalence
+    semanticDiff:
+      - np1
+      - np2
+      - np3
+    expected: 2
+  - name: semantic_diff_ipblocks__np4_with_itself
+    semanticDiff:
+      - np4
+      - np4
+  - name: semantic_diff_ipblocks__np1_np4
+    semanticDiff:
+      - np1
+      - np4
+    expected: 1
+  - name: semantic_diff_ipblocks_npq_np2
+    semanticDiff:
+      - np1
+      - np2
+    expected: 1
