@@ -8,8 +8,8 @@ from ruamel.yaml import YAML
 from PeerContainer import PeerContainer
 from GenericYamlParser import GenericYamlParser
 from NetworkConfig import NetworkConfig
-from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEquivalenceQuery, SanityQuery, \
-    ContainmentQuery, RedundancyQuery, InterferesQuery, EmptinessQuery, VacuityQuery, DisjointnessQuery, \
+from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEquivalenceQuery, SemanticDiffQuery, \
+    SanityQuery, ContainmentQuery, RedundancyQuery, InterferesQuery, EmptinessQuery, VacuityQuery, DisjointnessQuery, \
     IntersectsQuery, TwoWayContainmentQuery, AllCapturedQuery
 
 
@@ -47,29 +47,41 @@ class SchemeRunner(GenericYamlParser):
             return input_file
         return given_path
 
-    def _add_config(self, config_entry, peer_container):
+    def _add_config(self, config_entry, peer_container_global):
         """
         Produces a NetworkConfig object for a given entry in the scheme file.
         Increases self.global_res if the number of warnings in the config does not match the expected number.
         :param dict config_entry: The scheme file entry
-        :param PeerContainer peer_container: The network topology of the cluster
+        :param PeerContainer peer_container_global: The global network topology
         :return: A matching NetworkConfig object
         :rtype: NetworkConfig
         """
-        self.check_keys_are_legal(config_entry, 'networkPolicyList', {'name': 1, 'networkPolicyList': 1,
-                                                                      'expected_warnings': 0})
+        self.check_keys_are_legal(config_entry, 'networkConfig', {'name': 1, 'namespaceList': 0, 'podList': 0,
+                                                                  'networkPolicyList': 1, 'expected_warnings': 0})
         config_name = config_entry['name']
         if config_name in self.network_configs:
             self.syntax_error(f'networkPolicyList {config_name} already exists', config_entry)
+
+        ns_list = config_entry.get('namespaceList')
+        pod_list = config_entry.get('podList')
+        if ns_list or pod_list:  # a local resource file exist
+            if not ns_list:  # use global resource file
+                ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
+            if not pod_list:  # use global resource file
+                pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
+            peer_container = PeerContainer(ns_list, pod_list, config_name)
+        else:
+            peer_container = peer_container_global
+
         entry_list = config_entry['networkPolicyList']
         for idx, entry in enumerate(entry_list):
             entry_list[idx] = self._get_input_file(entry)
         network_config = NetworkConfig(config_name, peer_container, entry_list)
-
         if not network_config.policies:
             self.warning(f'networkPolicyList {network_config.name} contains no networkPolicies',
                          config_entry['networkPolicyList'])
         self.network_configs[network_config.name] = network_config
+
         expected_warnings = config_entry.get('expected_warnings')
         if expected_warnings is not None:
             warnings_found = network_config.get_num_findings()
@@ -103,13 +115,15 @@ class SchemeRunner(GenericYamlParser):
         :return: The number of queries with unexpected result + number of configs with unexpected number of warnings
         :rtype: int
         """
-        allowed_keys = {'networkPolicyLists': 1, 'namespaceList': 0, 'podList': 0, 'queries': 0}
+        allowed_keys = {'networkConfigList': 1, 'namespaceList': 0, 'podList': 0, 'queries': 0}
         self.check_keys_are_legal(self.scheme, 'scheme', allowed_keys)
+
+        # global resource files
         pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
         ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
         peer_container = PeerContainer(ns_list, pod_list)
 
-        for config_entry in self.scheme['networkPolicyLists']:
+        for config_entry in self.scheme.get('networkConfigList', []):
             self._add_config(config_entry, peer_container)
 
         self.run_queries(self.scheme.get('queries', []))
@@ -140,7 +154,7 @@ class SchemeRunner(GenericYamlParser):
         """
         if not query_array:
             self.warning('No queries to run\n')
-        allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'containment': 0, 'redundancy': 0,
+        allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0, 'redundancy': 0,
                             'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0, 'sanity': 0,
                             'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0, 'expected': 0,
                             'allCaptured': 0}
@@ -189,6 +203,22 @@ class SchemeRunner(GenericYamlParser):
                 if not full_result.bool_result and full_result.output_explanation:
                     print(full_result.output_explanation)
         if full_result.bool_result or not full_result.output_explanation:
+            print()
+        return total_res
+
+    def _run_semantic_diff(self, configs_array):
+        total_res = 0
+        full_result = QueryAnswer()
+        for ind1 in range(len(configs_array) - 1):
+            config1 = configs_array[ind1]
+            for ind2 in range(ind1 + 1, len(configs_array)):
+                config2 = configs_array[ind2]
+                full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2)).exec()
+                print(full_result.output_result)
+                total_res += not full_result.bool_result
+                if not full_result.bool_result:
+                    print(full_result.output_explanation, '\n')
+        if full_result.bool_result:
             print()
         return total_res
 

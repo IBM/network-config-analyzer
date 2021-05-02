@@ -11,7 +11,7 @@ namespaceList: ../../example_podlist/ns_list_wdc.json
 podList: ../../example_podlist/wdc_wep2.json
 
 
-networkPolicyLists:
+networkConfigList:
   - name: np_cnc-kt-open
     networkPolicyList:
       - demo-permits-forbids-cnc-kt-open.yaml
