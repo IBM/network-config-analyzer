@@ -63,7 +63,7 @@
       "kind": "Pod",
       "metadata": {
         "name": "pod-b3",
-        "namespace": "default",
+        "namespace": "namespace-b",
         "labels": {
           "app": "app-b3"
         },

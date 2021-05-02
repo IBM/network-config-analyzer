@@ -63,7 +63,7 @@
       "kind": "Pod",
       "metadata": {
         "name": "pod-a3",
-        "namespace": "default",
+        "namespace": "namespace-a",
         "labels": {
           "app": "app-a3"
         },
