@@ -4,6 +4,7 @@
 #
 
 from dataclasses import dataclass
+import itertools
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
 from ConnectionSet import ConnectionSet
@@ -425,7 +426,7 @@ class TwoNetworkConfigsQuery:
         self.name1 = config1.name
         self.name2 = config2.name
 
-    def can_compare(self, check_same_policies=False):
+    def is_identical_topologies(self, check_same_policies=False):
         if self.config1.peer_container != self.config2.peer_container:
             return QueryAnswer(False, 'The two NetworkPolicy sets are not defined over the same set of endpoints, '
                                       'and are thus not comparable.')
@@ -491,7 +492,7 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
     Check whether config1 and config2 allow exactly the same set of connections.
     """
     def exec(self):
-        query_answer = self.can_compare(True)
+        query_answer = self.is_identical_topologies(True)
         if query_answer.output_result:
             return query_answer
 
@@ -510,6 +511,7 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
                     return QueryAnswer(False, self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.',
                                        explanation)
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
+
 
 class SemanticDiffQuery(TwoNetworkConfigsQuery):
     """
@@ -555,25 +557,72 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         return result
 
     def exec(self):
-        query_answer = self.can_compare(True)
-        if query_answer.output_result:
-            return query_answer
+        query_answer = self.is_identical_topologies(True)
+        if query_answer.bool_result and query_answer.output_result:  # identical configurations (same topologies and policies)
+            return query_answer  # nothing to do
 
-        print("Executing semantic diff")
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
-        peers_to_compare |= self.disjoint_ip_blocks()
+        #peers_to_compare |= self.disjoint_ip_blocks()
+        old_peers = self.config1.peer_container.get_all_peers_group()
+        new_peers = self.config2.peer_container.get_all_peers_group()
+        intersected_peers = old_peers & new_peers
+        removed_peers = old_peers - intersected_peers
+        added_peers = new_peers - intersected_peers
+
+        if old_peers == new_peers:
+            print("Semantic-diff of two network-configurations with identical topologies")
+        else:
+            print("Semantic-diff of two network-configurations with different topologies")
+
+        # a) find lost connections between removed peers
+        lost_conns_a = []
+        for pair in itertools.permutations(removed_peers, 2):
+            _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
+            lost_conns_a.append(
+                SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
+
+        # b) lost connections between removed peers and intersected peers
+        lost_conns_b = []
+        for pair in itertools.product(removed_peers, intersected_peers):
+            _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
+            lost_conns_b.append(
+                SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
+
+            _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
+            lost_conns_b.append(
+                SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
+
+        # c) lost/new connections between intersected peers (due to changes in policies and labels of pods/namespaces)
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
-        all_diffs = []
-        for pod1 in peers_to_compare:
-            for pod2 in peers_to_compare if pod1 in captured_pods else captured_pods:
+        captured_pods &= intersected_peers
+        diff_conns_c = []
+        for pod1 in intersected_peers:
+            for pod2 in intersected_peers if pod1 in captured_pods else captured_pods:
                 if pod1 == pod2:
                     continue
-                _, new_conns, _ = self.config1.allowed_connections(pod1, pod2)
-                _, old_conns, _ = self.config2.allowed_connections(pod1, pod2)
+                _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
+                _, new_conns, _ = self.config2.allowed_connections(pod1, pod2)
                 if new_conns != old_conns:
-                    all_diffs.append(SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns-new_conns, new_conns-old_conns))
+                    diff_conns_c.append(SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns-new_conns, new_conns-old_conns))
 
-        if len(all_diffs) > 0:
+        # d) new connections between intersected peers and added peers
+        new_conns_d = []
+        for pair in itertools.product(intersected_peers, added_peers):
+            _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
+            new_conns_d.append(
+                SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
+
+            _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
+            new_conns_d.append(
+                SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
+
+        # e) new connections between added peers
+        new_conns_e = []
+        for pair in itertools.permutations(added_peers, 2):
+            _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
+            new_conns_e.append(
+                SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
+
+        if len(diff_conns_c) > 0:
             # Initialized with the 3 protocols supported by k8s
             # This implementation is not suitable for Calico!
             added = {}
@@ -584,7 +633,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             added['All connections'] = []
             removed['All connections'] = []
             # Hash diffs: protocol-> port ranges-> list of (from endpoint, to endpoint) tuples
-            for entry in all_diffs:
+            for entry in diff_conns_c:
                 if entry.added.allow_all:
                     added['All connections'].append((entry.from_ep, entry.to_ep))
                 else:
@@ -614,12 +663,13 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
         return QueryAnswer(True, f'{self.name1} and {self.name2} are semantically equivalent.')
 
+
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
     """
     Checks whether the two configs have exactly the same set of policies (same names and same semantics)
     """
     def exec(self):
-        query_answer = self.can_compare(True)
+        query_answer = self.is_identical_topologies(True)
         if query_answer.output_result:
             return query_answer
 
@@ -653,7 +703,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     Checking whether the connections allowed by config1 are contained in those allowed by config2
     """
     def exec(self, only_captured=False):
-        query_answer = self.can_compare(True)
+        query_answer = self.is_identical_topologies(True)
         if query_answer.output_result:
             return query_answer
 
@@ -684,7 +734,7 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
     Checks containment in both sides (whether config1 is contained in config2 and vice versa)
     """
     def exec(self):
-        query_answer = self.can_compare()
+        query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer
 
@@ -720,7 +770,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
     Checking whether config2 extends config1's allowed connection for Pods captured by policies in config1
     """
     def exec(self):
-        query_answer = self.can_compare()
+        query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer
 
@@ -748,7 +798,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
     Checking whether both configs allow the same connection between any pair of peers
     """
     def exec(self, only_captured):
-        query_answer = self.can_compare()
+        query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer
 
