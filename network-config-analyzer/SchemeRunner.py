@@ -394,7 +394,8 @@ class SchemeRunner(GenericYamlParser):
 
     def _run_connectivity_map(self, configs_array):
         for config in configs_array:
-            full_result = ConnectivityMapQuery(self._get_config(config)).exec()
+            run_in_test_mode = 'fw_rules_tests' in self.yaml_file_name
+            full_result = ConnectivityMapQuery(self._get_config(config)).exec(run_in_test_mode)
             print(full_result.output_result)
         print()
         return 0

@@ -107,12 +107,20 @@ class PortSetPair:
     def __bool__(self):
         return bool(self.rectangles) or bool(self.named_ports)
 
+    def get_simplified_str(self):
+        if len(self.rectangles.layers) == 1:
+            src_ports = self.rectangles.layers[0][0]
+            dst_ports = self.rectangles.layers[0][1]
+            if src_ports == CanonicalIntervalSet.Interval(1, 65536):
+                return str(dst_ports)
+        return str(self.rectangles)
+
     def __str__(self):
         if not self.rectangles:
             if self.named_ports:
                 return 'some named ports'
             return 'no ports'
-        return str(self.rectangles)
+        return self.get_simplified_str()
 
     def __eq__(self, other):
         if isinstance(other, PortSetPair):

@@ -7,13 +7,15 @@ import sys
 from os import path
 from PeerContainer import PeerContainer
 from NetworkConfig import NetworkConfig
-from NetworkConfigQuery import SanityQuery, ContainmentQuery, InterferesQuery, IntersectsQuery, TwoWayContainmentQuery
+from NetworkConfigQuery import SanityQuery, ContainmentQuery, InterferesQuery, IntersectsQuery, TwoWayContainmentQuery, \
+    ConnectivityMapQuery
 
 
 class BaseExecuter:
     """
     Base class for query executers
     """
+
     def __init__(self, ns_list='', pod_list=''):
         self.peer_container = PeerContainer(ns_list, pod_list)
 
@@ -22,6 +24,7 @@ class SanityExecute(BaseExecuter):
     """
     Class for executing sanity check
     """
+
     def __init__(self, np_list_location, ns_list='', pod_list=''):
         super().__init__(ns_list, pod_list)
         self.network_config = NetworkConfig(np_list_location, self.peer_container, [np_list_location])
@@ -40,6 +43,7 @@ class EquivalenceExecute(BaseExecuter):
     """
     Class for executing equivalence check
     """
+
     def __init__(self, np1_list_location, np2_list_location, ns_list='', pod_list=''):
         super().__init__(ns_list, pod_list)
         self.network_config1 = NetworkConfig(np1_list_location, self.peer_container, [np1_list_location])
@@ -54,10 +58,26 @@ class EquivalenceExecute(BaseExecuter):
         return full_result.numerical_result
 
 
+class ConnectivityMapExecute(BaseExecuter):
+    def __init__(self, np_list_location, ns_list='', pod_list=''):
+        super().__init__(ns_list, pod_list)
+        self.network_config = NetworkConfig(np_list_location, self.peer_container, [np_list_location])
+
+    def execute(self):
+        print()
+        sanity_res = ConnectivityMapQuery(self.network_config).exec(False)
+        print(sanity_res.output_result)
+        if not sanity_res.bool_result:
+            print(sanity_res.output_explanation)
+        print()
+        return not sanity_res.bool_result
+
+
 class InterferesExecute(BaseExecuter):
     """
     Class for executing interference check
     """
+
     def __init__(self, exclusive_network_policy_location_or_name, base_np_location, ns_list='', pod_list=''):
         super().__init__(ns_list, pod_list)
         self.base_np_config = NetworkConfig(base_np_location, self.peer_container, [base_np_location])
@@ -95,6 +115,7 @@ class ForbidsExecuter(BaseExecuter):
     """
     Class for executing Forbids query
     """
+
     def __init__(self, policies_to_forbid, base_np_location, ns_list='', pod_list=''):
         super().__init__(ns_list, pod_list)
         self.base_config = NetworkConfig(base_np_location, self.peer_container, [base_np_location])
@@ -119,6 +140,7 @@ class PermitsExecuter(BaseExecuter):
     """
     Class for executing Permits query
     """
+
     def __init__(self, policies_to_permit, base_np_location, ns_list='', pod_list=''):
         super().__init__(ns_list, pod_list)
         self.base_config = NetworkConfig(base_np_location, self.peer_container, [base_np_location])

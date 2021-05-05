@@ -1,0 +1,8 @@
+
+connection: All connections
+option1_len:3
+option2_len:2
+convergence_iteration_1:2
+convergence_iteration_2:2
+equiv1:True
+equiv2:True

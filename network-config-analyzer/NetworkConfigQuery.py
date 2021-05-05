@@ -2,13 +2,14 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+import sys
 from dataclasses import dataclass
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
 from ConnectionSet import ConnectionSet
-from Peer import PeerSet, IpBlock
 from ConnectivityGraph import ConnectivityGraph
+from Peer import PeerSet, IpBlock
+
 
 
 @dataclass
@@ -416,10 +417,19 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     """
     Print the connectivity graph in the form of firewall rules
     """
-    def exec(self):
+    def exec(self, run_in_test_mode):
         peers_to_compare = self.config.peer_container.get_all_peers_group()
-        peers_to_compare |= self.config.get_referenced_ip_blocks()
-        conn_graph = ConnectivityGraph()
+        ref_ip_blocks = self.config.get_referenced_ip_blocks()
+        peers_to_compare |= ref_ip_blocks
+        # add the complement of ref_ip_blocks
+        complement = IpBlock('0.0.0.0/0')
+        for ip in ref_ip_blocks:
+            complement -= ip
+        complement_peer_set = PeerSet()
+        complement_peer_set |= complement.split()
+        peers_to_compare |= complement_peer_set
+
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.name, self.config.allowed_labels, run_in_test_mode)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if peer1 == peer2:

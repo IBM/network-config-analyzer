@@ -36,6 +36,25 @@ class ConnectionSet:
     def __hash__(self):
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
 
+    def get_connections_list(self):
+        res = []
+        if self.allow_all:
+            res.append(str(self))
+            return res
+        if not self.allowed_protocols:
+            res.append(str(self))
+            return res
+        for protocol in [6, 17, 132]:
+
+            if protocol in self.allowed_protocols:
+                protocol_text = self.protocol_number_to_name(protocol)
+                properties = self.allowed_protocols[protocol]
+                if not isinstance(properties, bool):
+                    ports_list = str(properties).split(',')
+                    protocol_obj = {'Protocol': protocol_text, 'Ports': ports_list}
+                    res.append(protocol_obj)
+        return res
+
     def __str__(self):
         if self.allow_all:
             return "All connections"
@@ -58,6 +77,13 @@ class ConnectionSet:
             if idx > 0:
                 protocol_text += ', '
             protocol_text += self.protocol_number_to_name(protocol)
+
+            # add properties:
+            properties = self.allowed_protocols[protocol]
+            properties_text = ''
+            if not isinstance(properties, bool):
+                properties_text = ', ' + str(properties)
+            protocol_text += properties_text
         return protocol_text
 
     def __and__(self, other):
@@ -361,7 +387,7 @@ class ConnectionSet:
         for protocol, properties in self.allowed_protocols.items():
             if protocol not in other.allowed_protocols:
                 return self_name + ' allows communication using protocol ' + self.protocol_number_to_name(protocol) + \
-                        ' while ' + other_name + ' does not.'
+                       ' while ' + other_name + ' does not.'
             other_properties = other.allowed_protocols[protocol]
             if properties != other_properties:
                 return self.protocol_number_to_name(protocol) + ' protocol - ' + \
@@ -370,6 +396,6 @@ class ConnectionSet:
         for protocol in other.allowed_protocols:
             if protocol not in self.allowed_protocols:
                 return other_name + ' allows communication using protocol ' + self.protocol_number_to_name(protocol) + \
-                        ' while ' + self_name + ' does not.'
+                       ' while ' + self_name + ' does not.'
 
         return 'No diff.'

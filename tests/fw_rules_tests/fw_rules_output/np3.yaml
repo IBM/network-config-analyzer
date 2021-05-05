@@ -1,0 +1,40 @@
+- src_ip_block:
+  - 0.0.0.0/0
+  dst_ns:
+  - default
+  dst_pods:
+  - '*'
+  connection:
+  - All connections
+- src_ns:
+  - default
+  - kube-system-new
+  src_pods:
+  - '*'
+  dst_ns:
+  - default
+  dst_pods:
+  - '*'
+  connection:
+  - All connections
+- src_ns:
+  - default
+  - kube-system-new
+  src_pods:
+  - '*'
+  dst_ip_block:
+  - 0.0.0.0/0
+  connection:
+  - All connections
+- src_ns:
+  - default
+  src_pods:
+  - '*'
+  dst_ns:
+  - kube-system-new
+  dst_pods:
+  - '*'
+  connection:
+  - Protocol: TCP
+    Ports:
+    - 85-90

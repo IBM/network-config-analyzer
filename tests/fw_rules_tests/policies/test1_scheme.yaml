@@ -1,0 +1,17 @@
+namespaceList: ../podlist/ns_list.json
+podList: ../podlist/pods_list.json
+
+
+networkConfigList:
+
+
+  - name: np1
+    networkPolicyList:
+      - test1-networkpolicy.yaml
+    expected_warnings: 0
+
+queries:
+  - name: connectivity_map
+    connectivityMap:
+      - np1
+    expected: 0

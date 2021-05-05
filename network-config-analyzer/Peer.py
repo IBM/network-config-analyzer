@@ -127,6 +127,7 @@ class Pod(ClusterEP):
         """
         super().__init__(name)
         self.namespace = namespace
+        self.owner_name = owner_name
 
         if not owner_name:  # no owner
             self.workload_name = f'{namespace.name}/{name}(Pod)'
@@ -188,6 +189,14 @@ class IpBlock(Peer, CanonicalIntervalSet):
                 ipn.address_exclude(exception_n)  # TODO: use exception_n.subnet_of(self.cidr) (Python 3.7 only)
                 hole = CanonicalIntervalSet.Interval(exception_n.network_address, exception_n.broadcast_address)
                 self.add_hole(hole)
+
+    def copy(self):
+        res = IpBlock()
+        res.interval_set = self.interval_set.copy()
+        return res
+
+
+
 
     @staticmethod
     def get_all_ips_block():

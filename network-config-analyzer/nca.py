@@ -8,7 +8,7 @@ import sys
 import time
 import os
 from SchemeRunner import SchemeRunner
-from ExecutionAssist import SanityExecute, EquivalenceExecute, InterferesExecute, ForbidsExecuter, PermitsExecuter
+from ExecutionAssist import SanityExecute, EquivalenceExecute, InterferesExecute, ForbidsExecuter, PermitsExecuter, ConnectivityMapExecute
 from RESTServer import RestServer
 
 
@@ -80,6 +80,9 @@ def run_args(args):
     if args.permits:
         return PermitsExecuter(args.permits, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
 
+    if args.connectivity:
+        return ConnectivityMapExecute(args.connectivity or 'k8s', args.ns_list, args.pod_list).execute()
+
     if args.scheme:
         return SchemeRunner(args.scheme).run_scheme()
 
@@ -104,6 +107,8 @@ def nca_main(argv=None):
                                      help='A YAML scheme file, describing verification goals')
     manual_or_automatic.add_argument('--sanity', type=_ghe_or_k8s_or_calico_or_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for sanity checking')
+    manual_or_automatic.add_argument('--connectivity', type=_ghe_or_k8s_or_calico_or_valid_path,
+                                     help = 'Network policies (file/dir/GHE url/cluster-type) for connectivity map')
     manual_or_automatic.add_argument('--equiv', type=_ghe_or_k8s_or_calico_or_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for equivalence checking')
     manual_or_automatic.add_argument('--interferes', type=str, help='Network policies '

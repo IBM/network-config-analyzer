@@ -25,6 +25,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = peer_container.get_namespace('default')  # value to be replaced if the netpol has ns defined
+        self.allowed_labels = set()
 
     def parse_label_selector_requirement(self, requirement, namespace_selector):
         """
@@ -75,16 +76,31 @@ class K8sPolicyYamlParser(GenericYamlParser):
         res = self.peer_container.get_all_peers_group()
         match_labels = label_selector.get('matchLabels', label_selector.get('match_labels'))
         if match_labels:
+            keys_set = set()
             for key, val in match_labels.items():
                 if namespace_selector:
                     res &= self.peer_container.get_namespace_pods_with_label(key, [val])
                 else:
                     res &= self.peer_container.get_peers_with_label(key, [val])
+                keys_set.add(key)
+            if len(keys_set) == 1:
+                self.allowed_labels.add(list(keys_set)[0])
+            else:
+                self.allowed_labels.add('_AND_' + ':'.join(k for k in keys_set))
+
+
 
         match_expressions = label_selector.get('matchExpressions', label_selector.get('match_expressions'))
         if match_expressions:
+            keys_set = set()
             for requirement in match_expressions:
                 res &= self.parse_label_selector_requirement(requirement, namespace_selector)
+                key = requirement['key']
+                keys_set.add(key)
+            if len(keys_set) == 1:
+                self.allowed_labels.add(list(keys_set)[0])
+            else:
+                self.allowed_labels.add('_AND_' + ':'.join(k for k in keys_set))
 
         if not res:
             if namespace_selector:

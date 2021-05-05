@@ -49,6 +49,7 @@ class NetworkConfig:
         self.profiles = {}
         self.referenced_ip_blocks = None
         self.type = config_type or NetworkConfig.ConfigType.Unknown
+        self.allowed_labels = set()
         peer_container.clear_pods_extra_labels()
         for entry in entry_list or []:
             self.add_policies_from_entry(entry)
@@ -140,6 +141,7 @@ class NetworkConfig:
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
+                self.allowed_labels.update(parsed_element.allowed_labels)
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())

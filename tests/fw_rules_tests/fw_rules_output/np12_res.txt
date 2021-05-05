@@ -1,0 +1,15 @@
+
+connection: All connections
+option1_len:3
+option2_len:3
+convergence_iteration_1:3
+convergence_iteration_2:3
+equiv1:True
+equiv2:True
+connection: Protocols: UDP, 53, TCP, 53
+option1_len:1
+option2_len:1
+convergence_iteration_1:2
+convergence_iteration_2:2
+equiv1:True
+equiv2:True

@@ -1,0 +1,43 @@
+### This policies allow traffic from tier=analyzer to tier=agent via ingress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-agent-to-analyzer-via-ingress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: skydive
+      tier: agent
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: skydive
+            tier: analyzer
+
+---
+### This policies allow traffic from tier=analyzer to tier=agent via ingress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-agent-to-analyzer-via-egress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: skydive
+      tier: analyzer
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: skydive
+            tier: agent
+

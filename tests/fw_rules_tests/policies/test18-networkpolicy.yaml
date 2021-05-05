@@ -1,0 +1,74 @@
+ ## Second policy - enables access to pods in kube-system-new with tier frontend can be accessed only by pods from namespace vendor-system-new
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-from-many_ipBlocks-to-isolated-by-tier
+  namespace: kube-system-new
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 49.50.0.0/32
+    - ipBlock:
+        cidr: 49.50.0.2/32
+
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-default
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ibm-system-new
+  namespace: ibm-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-dummy
+  namespace: kube-system-new-dummy-to-ignore
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+
+#apiVersion: networking.k8s.io/v1
+#kind: NetworkPolicy
+#metadata:
+#  name: deny-all-kube-system-new
+#  namespace: kube-system-new
+#spec:
+#  podSelector: {}
+#  policyTypes:
+#  - Ingress
+#  - Egress
+
+#---

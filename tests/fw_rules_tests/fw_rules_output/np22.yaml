@@ -1,0 +1,10 @@
+- src_ns:
+  - default
+  src_pods:
+  - test in (A,B)
+  dst_ns:
+  - default
+  dst_pods:
+  - app in (skydive)
+  connection:
+  - All connections
