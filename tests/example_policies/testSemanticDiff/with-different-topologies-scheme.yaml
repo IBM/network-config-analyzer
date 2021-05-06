@@ -3,26 +3,15 @@ podList: ../../example_podlist/pods_list.json
 
 networkConfigList:
   - name: no_policy
-    networkPolicyList: []
+    # no namespaceList and podList, hence use the global resources above
+    networkPolicyList: [ ]
     expected_warnings: 0
 
   - name: policy
+    # should be equivalent to 'no_policy' above
     namespaceList: tests/example_podlist/ns_list.json
     networkPolicyList:
       - policy_a.yaml
-    expected_warnings: 3
-
-  - name: config_1
-    # no namespaceList and podList, hence use the global resources above
-    networkPolicyList:
-      - policy_a.yaml
-    expected_warnings: 3
-
-  - name: config_2
-    # expected to be the same as 'config_1' above
-    podList: tests/example_podlist/pods_list.json
-    networkPolicyList:
-      - policy_b.yaml
     expected_warnings: 3
 
   - name: config_a
@@ -33,29 +22,38 @@ networkConfigList:
     expected_warnings: 0
 
   - name: config_b
-    namespaceList: tests/different_topologies/ns_list_b.json
+    namespaceList: tests/different_topologies/ns_list_a.json
     podList: tests/different_topologies/pods_list_b.json
     networkPolicyList:
       - policy_b.yaml
     expected_warnings: 0
 
+  - name: old1
+    networkPolicyList:
+      - old1.yaml
+    expected_warnings: 8
+
 queries:
-#  - name: semantic_diff_same_topologies
-#    semanticDiff:
-#      - config_1
-#      - config_2
-#      - policy
-#    expected: 0
-
-#  - name: semantic_diff_no_policy
-#    semanticDiff:
-#      - config_1
-#      - no_policy
-#    expected: 0
-
-  - name: semantic_diff_other_topologies
+  - name: semantic_diff_identical
     semanticDiff:
-#      - config_1
+      - no_policy
+      - policy
+    expected: 0
+
+  - name: semantic_diff_a_to_b
+    semanticDiff:
       - config_a
       - config_b
-    expected: 3
+    expected: 1
+
+  - name: semantic_diff_b_to_a
+    semanticDiff:
+      - config_b
+      - config_a
+    expected: 1
+
+  - name: semantic_diff_disjoint_old1_config_a
+    semanticDiff:
+      - old1
+      - config_a
+    expected: 1
