@@ -62,10 +62,10 @@
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {
-        "name": "pod-a3",
-        "namespace": "namespace-a",
+        "name": "pod-3",
+        "namespace": "default",
         "labels": {
-          "app": "app-a3"
+          "app": "app-3"
         },
         "ownerReferences": [
           {
@@ -90,10 +90,10 @@
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {
-        "name": "pod-a4",
-        "namespace": "namespace-a",
+        "name": "pod-4",
+        "namespace": "default",
         "labels": {
-          "app": "app-a4"
+          "app": "app-4"
         },
         "ownerReferences": [
           {

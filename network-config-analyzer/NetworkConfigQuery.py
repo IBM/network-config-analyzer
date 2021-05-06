@@ -543,58 +543,42 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         result = ""
         for single in diff_list:
             if diff_list[single]:
-                if single == 'All connections':
-                    if len(diff_list[single]) > 3:
-                        diff_list[single] = diff_list[single][0:3]
-                        diff_list[single].append("...")
-                else:
-                    for key in diff_list[single]:
-                        if len(diff_list[single][key]) > 3:
-                            diff_list[single][key] = diff_list[single][key][0:3]
-                            diff_list[single][key].append("...")
                 result += "- " + single + str(diff_list[single]) + "\n"
                 result = result.replace('{', ' ').replace('}', ' ').replace('\'', '')
         return result
 
-    def exec(self):
-        query_answer = self.is_identical_topologies(True)
-        if query_answer.bool_result and query_answer.output_result:  # identical configurations (same topologies and policies)
-            return query_answer  # nothing to do
-
-        #peers_to_compare |= self.disjoint_ip_blocks()
+    def compute_diff(self):
+        all_diff = {}
+        # peers_to_compare |= self.disjoint_ip_blocks()
         old_peers = self.config1.peer_container.get_all_peers_group()
         new_peers = self.config2.peer_container.get_all_peers_group()
         intersected_peers = old_peers & new_peers
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
 
-        if old_peers == new_peers:
-            print("Semantic-diff of two network-configurations with identical topologies")
-        else:
-            print("Semantic-diff of two network-configurations with different topologies")
-
-        # a) find lost connections between removed peers
-        lost_conns_a = []
+        key = 'Lost connections between removed peers'
+        all_diff[key] = []
         for pair in itertools.permutations(removed_peers, 2):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            lost_conns_a.append(
+            all_diff[key].append(
                 SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
 
-        # b) lost connections between removed peers and intersected peers
-        lost_conns_b = []
+        key = 'Lost connections between removed peers and intersected peers'
+        all_diff[key] = []
         for pair in itertools.product(removed_peers, intersected_peers):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            lost_conns_b.append(
+            all_diff[key].append(
                 SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
 
             _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
-            lost_conns_b.append(
+            all_diff[key].append(
                 SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
 
-        # c) lost/new connections between intersected peers (due to changes in policies and labels of pods/namespaces)
+        # lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
+        key = 'Changed connections between intersected peers'
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         captured_pods &= intersected_peers
-        diff_conns_c = []
+        all_diff[key] = []
         for pod1 in intersected_peers:
             for pod2 in intersected_peers if pod1 in captured_pods else captured_pods:
                 if pod1 == pod2:
@@ -602,63 +586,90 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
                 _, new_conns, _ = self.config2.allowed_connections(pod1, pod2)
                 if new_conns != old_conns:
-                    diff_conns_c.append(SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns-new_conns, new_conns-old_conns))
+                    all_diff[key].append(
+                        SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns - new_conns, new_conns - old_conns))
 
-        # d) new connections between intersected peers and added peers
-        new_conns_d = []
+        key = 'New connections between intersected peers and added peers'
+        all_diff[key] = []
         for pair in itertools.product(intersected_peers, added_peers):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            new_conns_d.append(
+            all_diff[key].append(
                 SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
 
             _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
-            new_conns_d.append(
+            all_diff[key].append(
                 SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
 
-        # e) new connections between added peers
-        new_conns_e = []
+        key = 'New connections between added peers'
+        all_diff[key] = []
         for pair in itertools.permutations(added_peers, 2):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            new_conns_e.append(
+            all_diff[key].append(
                 SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
 
-        if len(diff_conns_c) > 0:
-            # Initialized with the 3 protocols supported by k8s
-            # This implementation is not suitable for Calico!
-            added = {}
-            removed = {}
-            for protocol in [6, 17, 132]:
-                added[ConnectionSet.protocol_number_to_name(protocol)] = {}
-                removed[ConnectionSet.protocol_number_to_name(protocol)] = {}
-            added['All connections'] = []
-            removed['All connections'] = []
-            # Hash diffs: protocol-> port ranges-> list of (from endpoint, to endpoint) tuples
-            for entry in diff_conns_c:
-                if entry.added.allow_all:
-                    added['All connections'].append((entry.from_ep, entry.to_ep))
-                else:
-                    for protocol in entry.added.allowed_protocols:
-                        if not ConnectionSet.protocol_supports_ports(protocol):
-                            continue
-                        protocol_name = ConnectionSet.protocol_number_to_name(protocol)
-                        port_range = str(entry.added.allowed_protocols[protocol])
-                        if port_range not in added[protocol_name]:
-                            added[protocol_name][port_range] = []
-                        added[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
-                if entry.removed.allow_all:
-                    removed['All connections'].append((entry.from_ep, entry.to_ep))
-                else:
-                    for protocol in entry.removed.allowed_protocols:
-                        if not ConnectionSet.protocol_supports_ports(protocol):
-                            continue
-                        protocol_name = ConnectionSet.protocol_number_to_name(protocol)
-                        port_range = str(entry.removed.allowed_protocols[protocol])
-                        if port_range not in removed[protocol_name]:
-                            removed[protocol_name][port_range] = []
-                        removed[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
-            explanation = f'Added connections:\n{self.pretty_print_diff(added)}\n'
-            explanation += f'Removed connections:\n{self.pretty_print_diff(removed)}\n'
+        return all_diff
 
+    def produce_diff_message(self, all_diff):
+        explanation = ''
+        for key in all_diff.keys():
+            if len(all_diff[key]) > 0:
+                explanation += f'{key}:\n'
+                # Initialized with the 3 protocols supported by k8s
+                # This implementation is not suitable for Calico!
+                added = {}
+                removed = {}
+                for protocol in [6, 17, 132]:
+                    added[ConnectionSet.protocol_number_to_name(protocol)] = {}
+                    removed[ConnectionSet.protocol_number_to_name(protocol)] = {}
+                added['All connections'] = []
+                removed['All connections'] = []
+                is_added = False
+                is_removed = False
+                # Hash diffs: protocol-> port ranges-> list of (from endpoint, to endpoint) tuples
+                for entry in all_diff[key]:
+                    if entry.added:
+                        is_added = True
+                        if entry.added.allow_all:
+                            added['All connections'].append((entry.from_ep, entry.to_ep))
+                        else:
+                            for protocol in entry.added.allowed_protocols:
+                                if not ConnectionSet.protocol_supports_ports(protocol):
+                                    continue
+                                protocol_name = ConnectionSet.protocol_number_to_name(protocol)
+                                port_range = str(entry.added.allowed_protocols[protocol])
+                                if port_range not in added[protocol_name]:
+                                    added[protocol_name][port_range] = []
+                                added[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
+
+                    if entry.removed:
+                        is_removed = True
+                        if entry.removed.allow_all:
+                            removed['All connections'].append((entry.from_ep, entry.to_ep))
+                        else:
+                            for protocol in entry.removed.allowed_protocols:
+                                if not ConnectionSet.protocol_supports_ports(protocol):
+                                    continue
+                                protocol_name = ConnectionSet.protocol_number_to_name(protocol)
+                                port_range = str(entry.removed.allowed_protocols[protocol])
+                                if port_range not in removed[protocol_name]:
+                                    removed[protocol_name][port_range] = []
+                                removed[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
+                if is_added:
+                    explanation += f'Added connections:\n{self.pretty_print_diff(added)}\n'
+                if is_removed:
+                    explanation += f'Removed connections:\n{self.pretty_print_diff(removed)}\n'
+
+        return explanation
+
+    def exec(self):
+        query_answer = self.is_identical_topologies(True)
+        if query_answer.bool_result and query_answer.output_result:
+            return query_answer  # nothing to do - identical configurations (same topologies and policies)
+
+        all_diff = self.compute_diff()
+
+        explanation = self.produce_diff_message(all_diff)
+        if explanation:
             return QueryAnswer(False, f'{self.name1} and {self.name2} are not semantically equivalent.', explanation)
 
         return QueryAnswer(True, f'{self.name1} and {self.name2} are semantically equivalent.')
