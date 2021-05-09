@@ -6,7 +6,7 @@ from ConnectionSet import ConnectionSet
 
 class LabelExpr:
     """
-        This is the class for representing label expressions
+    class for representing label expressions
     """
 
     def __init__(self, key: str, values):  # values is of type set(str)
@@ -47,7 +47,7 @@ class FWRuleElement:
     Every fw-rule element (src,dst) has a ns-level info
     """
 
-    def __init__(self, ns_info):  # ns_info is of type list[K8sNamespace]
+    def __init__(self, ns_info):  # ns_info is of type set[K8sNamespace]
         self.ns_info = ns_info
 
     def get_pods_yaml_obj(self):
@@ -172,6 +172,9 @@ class PodLabelsElement(FWRuleElement):
 
 # TODO: should it be a sub-type of FWRuleElement?
 class IPBlockElement(FWRuleElement):
+    """
+    Class for ip-block element in a fw-rule
+    """
     def __init__(self, element: IpBlock):
         super().__init__(set())  # no ns for ip-block
         self.element = element
@@ -209,6 +212,9 @@ class IPBlockElement(FWRuleElement):
 
 
 class FWRule:
+    """
+    Class for holding a fw-rule: src, dst, connection-set
+    """
     def __init__(self, src: FWRuleElement, dst: FWRuleElement, conn: ConnectionSet):
         self.src = src
         self.dst = dst

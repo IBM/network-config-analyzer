@@ -2,7 +2,6 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-import sys
 from dataclasses import dataclass
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy

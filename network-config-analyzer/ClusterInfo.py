@@ -4,6 +4,13 @@ from Peer import IpBlock
 
 
 class ClusterInfo:
+    """
+        This is a class for holding cluster info, to be used for computation of fw-rules
+        ns_dict: a map from ns to its set of pods
+        pods_labels_map: a map from pods-labels (label, value) to its set of pods
+        allowed_labels: the set of label keys that appear in the policy yaml file, which can be used for grouping in
+        fw-rules computation
+    """
     def __init__(self, all_peers, allowed_labels):
         self.all_peers = all_peers
         self.ns_dict = defaultdict(list)  # map from ns to set of pods
@@ -27,9 +34,14 @@ class ClusterInfo:
 
         return
 
-    # extend pod-labels-map with (key,"NO_LABEL_VALUE") for the set of pods without this label
+    # TODO: add documentation
     def add_update_pods_labels_map_with_invalid_val(self, all_pods):
-        allowed_labels_flattened = self.get_allowed_labels_flattened()
+        """
+        Updating the pods_labels_map with (key,"NO_LABEL_VALUE") for the set of pods without this label
+        :param all_pods: A set of all pods in the cluster
+        :return: None
+        """
+        allowed_labels_flattened = self._get_allowed_labels_flattened()
         all_keys = set([key for (key, val) in self.pods_labels_map.keys()])
         all_keys = all_keys.intersection(allowed_labels_flattened)
         invalid_val = 'NO_LABEL_VALUE'
@@ -44,8 +56,11 @@ class ClusterInfo:
             self.pods_labels_map[(key, invalid_val)] = set(pods_without_key_set_ns_restricted)
         return
 
-    # add to pods_labels_map the 'and' labels from allowed labels, to allow grouping of 'and' between labels
     def add_update_pods_labels_map_with_required_conjunction_labels(self):
+        """
+        Updating the pods_labels_map with 'and' labels from allowed labels, to allow grouping of 'and' between labels
+        :return: None
+        """
         required_conjunction_labels = [k for k in self.allowed_labels if k.startswith('_AND_')]
         for key in required_conjunction_labels:
             key_labels = (key.split('_AND_')[1]).split(':')
@@ -66,10 +81,19 @@ class ClusterInfo:
         return
 
     def get_values_set_for_key(self, key):
+        """
+        Get the set of all possible values per label key in the cluster
+        :param key: a label key of type string
+        :return: A set of values, of type set(string)
+        """
         values = set([v for (k, v) in self.pods_labels_map.keys() if k == key])
         return values
 
-    def get_allowed_labels_flattened(self):
+    def _get_allowed_labels_flattened(self):
+        """
+        Given the set of allowed labels, convert the _AND_ labels into their components separately
+        :return: A set of allowed labels after this conversion.
+        """
         res = set()
         for key in self.allowed_labels:
             if key.startswith('_AND_'):
