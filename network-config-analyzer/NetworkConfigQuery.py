@@ -559,6 +559,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         old_peers = self.config1.peer_container.get_all_peers_group()
         new_peers = self.config2.peer_container.get_all_peers_group()
         intersected_peers = old_peers & new_peers
+        intersected_peers |= self.disjoint_ip_blocks()
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
 
