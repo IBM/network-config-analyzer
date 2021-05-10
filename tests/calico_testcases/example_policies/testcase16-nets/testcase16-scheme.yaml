@@ -1,7 +1,7 @@
 namespaceList: ../../example_podlist/ns_list.json
 podList: ../../example_podlist/pods_list.json
 
-networkPolicyLists:
+networkConfigList:
   - name: equiv-ranges-writing-games
     networkPolicyList:
       - testcase16-different-ranges-writing-equiv.yaml

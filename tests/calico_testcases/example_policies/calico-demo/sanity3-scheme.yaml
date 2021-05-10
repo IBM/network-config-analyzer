@@ -1,7 +1,7 @@
 namespaceList: ../../example_podlist/ns_list_wdc.json
 podList: ../../example_podlist/wdc_wep.json
 
-networkPolicyLists:
+networkConfigList:
   - name: np_redundacy
     networkPolicyList:
       - demo-sanity3-redundancy.yaml
