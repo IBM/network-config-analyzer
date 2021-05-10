@@ -515,7 +515,12 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
 
 class SemanticDiffQuery(TwoNetworkConfigsQuery):
     """
-    Produces a report of newly allowed and newly denied connections
+    Produces a report of changed connections (also for the case of two configurations of different network topologies):
+    1. lost connections between removed peers
+    2. lost connections between removed peers and intersected peers
+    3. lost/new connections between intersected peers (due to changes in policies and labels of pods/namespaces)
+    4. new connections between intersected peers and added peers
+    5. new connections between added peers
     """
     class SingleDiff:
         """
@@ -549,6 +554,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     def compute_diff(self):
         all_diff = {}
+        #  TODO: is the line below required?
         # peers_to_compare |= self.disjoint_ip_blocks()
         old_peers = self.config1.peer_container.get_all_peers_group()
         new_peers = self.config2.peer_container.get_all_peers_group()
