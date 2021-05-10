@@ -350,7 +350,7 @@ class PeerContainer:
             return
 
         kind = ep_list.get('kind')
-        if kind == 'PodList':
+        if kind in ['PodList', 'List']:  # 'List' for the case of live cluster
             for endpoint in ep_list.get('items', []):
                 self._add_pod_from_yaml(endpoint)
         elif kind in ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob', 'ReplicationController']:
@@ -358,14 +358,11 @@ class PeerContainer:
         else:
             is_calico_wep = kind == 'WorkloadEndpointList'
             is_calico_hep = kind == 'HostEndpointList'
-            is_k8s_pod = kind == 'List'
             for endpoint in ep_list.get('items', []):
                 if is_calico_wep:
                     self._add_wep_from_yaml(endpoint)
                 elif is_calico_hep:
                     self._add_hep_from_yaml(endpoint)
-                elif is_k8s_pod:
-                    self._add_pod_from_yaml(endpoint)
 
     def delete_all_peers(self):
         self.peer_set.clear()

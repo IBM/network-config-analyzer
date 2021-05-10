@@ -511,6 +511,7 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
                                        explanation)
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
 
+
 class SemanticDiffQuery(TwoNetworkConfigsQuery):
     """
     Produces a report of newly allowed and newly denied connections
@@ -612,6 +613,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
             return QueryAnswer(False, 'Base branch and analyzed commit are not semantically equivalent.', explanation)
         return QueryAnswer(True, 'Base branch and analyzed commit are semantically equivalent.')
+
 
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
     """
