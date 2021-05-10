@@ -1,7 +1,7 @@
 namespaceList: ../../example_podlist/ns_list_wdc.json
 podList: ../../example_podlist/wdc_wep.json
 
-networkPolicyLists:
+networkConfigList:
   - name: typo_selector_globalPolicy
     networkPolicyList:
       - demo-sanity2-typo-selector-no-effect.yaml
