@@ -554,12 +554,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     def compute_diff(self):
         all_diff = {}
-        #  TODO: is the line below required?
-        # peers_to_compare |= self.disjoint_ip_blocks()
         old_peers = self.config1.peer_container.get_all_peers_group()
         new_peers = self.config2.peer_container.get_all_peers_group()
         intersected_peers = old_peers & new_peers
-        intersected_peers |= self.disjoint_ip_blocks()
+        intersected_peers |= self.disjoint_ip_blocks()  # TODO: explain why this is required
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
 
