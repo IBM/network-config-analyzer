@@ -170,21 +170,23 @@ class K8sPolicyYamlParser(GenericYamlParser):
 
         res = ConnectionSet()
         dest_port_set = PortSet(port_id is None)
-        if port_id:
+        if port_id and end_port_num:
+            if isinstance(port_id, str):
+                self.syntax_error('endPort cannot be defined if the port field is defined '
+                                  'as a named (string) port', port)
+            if not isinstance(port_id, int) and not isinstance(end_port_num, int):
+                self.syntax_error('type of port or endPort is not numerical in NetworkPolicyPort', port)
+            if port_id > end_port_num:
+                self.syntax_error('endPort must be equal or greater than port', port)
+            dest_port_set.add_port_range(port_id, end_port_num)
+        elif port_id:
             if not isinstance(port_id, str) and not isinstance(port_id, int):
                 self.syntax_error('type of port is not numerical or named (string) in NetworkPolicyPort', port)
             dest_port_set.add_port(port_id)
+        elif end_port_num:
+            self.syntax_error('endPort cannot be defined if the port field is not defined ', port)
+
         res.add_connections(protocol, PortSetPair(PortSet(True), dest_port_set))  # K8s doesn't reason about src ports
-
-        if end_port_num:
-            if not port_id or isinstance(port_id, str):
-                self.syntax_error('endPort cannot be defined if the port field is not defined '
-                                  'or if the port field is defined as a named (string) port', port)
-            if not isinstance(end_port_num, int):
-                self.syntax_error('type of endPort is not numerical in NetworkPolicyPort', port)
-            if port_id > end_port_num:
-                self.syntax_error('endPort must be equal or greater than port', port)
-
         return res
 
     def parse_ingress_egress_rule(self, rule, peer_array_key):
