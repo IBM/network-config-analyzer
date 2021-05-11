@@ -62,8 +62,8 @@ class SchemeRunner(GenericYamlParser):
         if config_name in self.network_configs:
             self.syntax_error(f'networkPolicyList {config_name} already exists', config_entry)
 
-        ns_list = config_entry.get('namespaceList')
-        pod_list = config_entry.get('podList')
+        ns_list = self._get_input_file(config_entry.get('namespaceList'))
+        pod_list = self._get_input_file(config_entry.get('podList'))
         if ns_list or pod_list:  # a local resource file exist
             if not ns_list:  # use global resource file
                 ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
