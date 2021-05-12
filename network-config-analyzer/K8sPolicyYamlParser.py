@@ -174,7 +174,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             if isinstance(port_id, str):
                 self.syntax_error('endPort cannot be defined if the port field is defined '
                                   'as a named (string) port', port)
-            if not isinstance(port_id, int) and not isinstance(end_port_num, int):
+            if not isinstance(port_id, int) or not isinstance(end_port_num, int):
                 self.syntax_error('type of port or endPort is not numerical in NetworkPolicyPort', port)
             if port_id > end_port_num:
                 self.syntax_error('endPort must be equal or greater than port', port)
