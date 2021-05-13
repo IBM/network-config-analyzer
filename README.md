@@ -1,4 +1,4 @@
-# Network Config Analyzer
+# Network Config Analyze
 An analyzer for Network Policies and other connectivity-configuration resources
 
 ---
