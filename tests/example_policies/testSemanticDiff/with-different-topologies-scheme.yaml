@@ -33,6 +33,32 @@ networkConfigList:
       - old1.yaml
     expected_warnings: 8
 
+  - name: np1
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy1.yaml
+    expected_warnings: 0
+
+  - name: np2
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy2.yaml
+    expected_warnings: 0
+
+  - name: config_a_with_ipBlock
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_a.yaml
+      - policy_a_ipBlock.yaml
+    expected_warnings: 0
+
+  - name: config_b_with_ipBlock
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_b.json
+    networkPolicyList:
+      - policy_b.yaml
+      - policy_b_ipBlock.yaml
+    expected_warnings: 0
+
 queries:
   - name: semantic_diff_identical
     semanticDiff:
@@ -56,4 +82,16 @@ queries:
     semanticDiff:
       - old1
       - config_a
+    expected: 1
+
+  - name: semantic_diff_np1_np2
+    semanticDiff:
+      - np1
+      - np2
+    expected: 1
+
+  - name: semantic_diff_a_to_b_with_ipBlock
+    semanticDiff:
+      - config_a_with_ipBlock
+      - config_b_with_ipBlock
     expected: 1
