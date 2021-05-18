@@ -29,17 +29,17 @@ queries:
       - np2
       - np3
     expected: 2
-  - name: semantic_diff_ipblocks__np4_with_itself
+  - name: semantic_diff_ipblocks_np4_with_itself
     semanticDiff:
       - np4
       - np4
     expected: 0
-  - name: semantic_diff_ipblocks__np1_np4
+  - name: semantic_diff_ipblocks_np1_np4
     semanticDiff:
       - np1
       - np4
     expected: 1
-  - name: semantic_diff_ipblocks_npq_np2
+  - name: semantic_diff_ipblocks_np1_np2
     semanticDiff:
       - np1
       - np2

@@ -22,7 +22,7 @@ networkConfigList:
     expected_warnings: 0
 
   - name: config_b
-    namespaceList: ../../different_topologies/ns_list_a.json
+    namespaceList: ../../different_topologies/ns_list_b.json
     podList: ../../different_topologies/pods_list_b.json
     networkPolicyList:
       - policy_b.yaml
@@ -52,7 +52,7 @@ networkConfigList:
     expected_warnings: 0
 
   - name: config_b_with_ipBlock
-    namespaceList: ../../different_topologies/ns_list_a.json
+    namespaceList: ../../different_topologies/ns_list_b.json
     podList: ../../different_topologies/pods_list_b.json
     networkPolicyList:
       - policy_b.yaml
@@ -64,7 +64,7 @@ queries:
     semanticDiff:
       - no_policy
       - policy
-    expected: 0
+    expected: 1
 
   - name: semantic_diff_a_to_b
     semanticDiff:

@@ -93,7 +93,7 @@
         "name": "pod-6",
         "namespace": "default",
         "labels": {
-          "app": "app-56"
+          "app": "app-6"
         },
         "ownerReferences": [
           {
