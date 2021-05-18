@@ -589,32 +589,37 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         all_diff[key] = []
         for pair in itertools.permutations(removed_peers, 2):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
+            if str(lost_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
 
         # 1.2. lost connections between removed peers and old ipBlock peers
         key = 'Lost connections between removed peers and old ipBlock peers'
         all_diff[key] = []
         for pair in itertools.product(removed_peers, disjoint_ip_blocks):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
+            if str(lost_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
 
             _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
+            if str(lost_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
 
         # 2.1. lost connections between removed peers and intersected peers
         key = 'Lost connections between removed peers and persistent peers'
         all_diff[key] = []
         for pair in itertools.product(removed_peers, intersected_peers):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
+            if str(lost_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
 
             _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
+            if str(lost_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
 
         # 3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
         key = 'Changed connections between persistent peers'
@@ -636,57 +641,62 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         """
         key = 'Changed connections between persistent peers and ipBlock peers'
         all_diff[key] = []
-        for pair in itertools.product(intersected_peers, disjoint_ip_blocks):
-            _, old_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            if new_conns != old_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], old_conns - new_conns, new_conns - old_conns))
-
-            _, old_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
-            _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
-            if new_conns != old_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], old_conns - new_conns, new_conns - old_conns))
+        peers = intersected_peers | disjoint_ip_blocks
+        for pod1 in peers:
+            for pod2 in peers if pod1 in captured_pods else captured_pods:
+                if pod1 == pod2:
+                    continue
+                _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
+                _, new_conns, _ = self.config2.allowed_connections(pod1, pod2)
+                if new_conns != old_conns:
+                    all_diff[key].append(
+                        SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns - new_conns, new_conns - old_conns))
 
         # 4.1. new connections between intersected peers and added peers
         key = 'New connections between persistent peers and added peers'
         all_diff[key] = []
         for pair in itertools.product(intersected_peers, added_peers):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
+            if str(new_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
 
             _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
+            if str(new_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
 
         # 5.1. new connections between added peers
         key = 'New connections between added peers'
         all_diff[key] = []
         for pair in itertools.permutations(added_peers, 2):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
+            if str(new_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
 
         # 5.2. new connections between added peers and new ipBlock peers
         key = 'New connections between added peers and new ipBlock peers'
         all_diff[key] = []
         for pair in itertools.product(added_peers, disjoint_ip_blocks):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
+            if str(new_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
 
             _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
-            all_diff[key].append(
-                SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
+            if str(new_conns) != 'No connections':
+                all_diff[key].append(
+                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
 
         return all_diff
 
     def produce_diff_message(self, all_diff):
+        res = 0
         explanation = ''
         for key in all_diff.keys():
             if len(all_diff[key]) > 0:
+                res += len(all_diff[key])
                 explanation += f'{key}:\n'
                 # Initialized with the 3 protocols supported by k8s
                 # This implementation is not suitable for Calico!
@@ -733,7 +743,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 if is_removed:
                     explanation += f'Removed connections:\n{self.pretty_print_diff(removed)}\n'
 
-        return explanation
+        return res, explanation
 
     def exec(self):
         query_answer = self.is_identical_topologies(True)
@@ -742,11 +752,17 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
         all_diff = self.compute_diff()
 
-        explanation = self.produce_diff_message(all_diff)
-        if explanation:
-            return QueryAnswer(False, f'{self.name1} and {self.name2} are not semantically equivalent.', explanation)
+        res, explanation = self.produce_diff_message(all_diff)
+        if res > 0:
+            return QueryAnswer(bool_result=False,
+                               output_result=f'{self.name1} and {self.name2} are not semantically equivalent.',
+                               output_explanation=explanation,
+                               numerical_result=res)
 
-        return QueryAnswer(True, f'{self.name1} and {self.name2} are semantically equivalent.')
+        return QueryAnswer(bool_result=True,
+                           output_result=f'{self.name1} and {self.name2} are semantically equivalent.',
+                           output_explanation=explanation,
+                           numerical_result=res)
 
 
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
