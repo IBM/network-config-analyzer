@@ -101,6 +101,9 @@ class NetworkPolicy:
             return NetworkPolicy.PolicyType.Unknown
 
         policy_type = NetworkPolicy.PolicyType.Unknown
+        if not isinstance(kind, str):
+            return policy_type
+
         if kind.endswith('List'):
             policy_type = NetworkPolicy.PolicyType.List
         elif 'calico' in api_version:
