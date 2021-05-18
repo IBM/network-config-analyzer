@@ -9,7 +9,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: api_version_tests
+  name: api-version-tests
   namespace: kube-system
 spec:
   podSelector: {}
@@ -35,7 +35,7 @@ apiVersion: networking.k8s.io/v1
 #  - NetworkPolicy
 kind: NetworkPolicy
 metadata:
-  name: kind_tests
+  name: kind-tests
   namespace: kube-system
 spec:
   podSelector: {}
@@ -84,7 +84,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: general_spec_test
+  name: general-spec-test
   namespace: kube-system
 #1st test, no spec section
 #2nd test, wrong type
@@ -103,7 +103,7 @@ metadata:
 #        podSelector: {}
 #3rd test, wrong keys
 #spec:
-#  name: general_spec_test
+#  name: general-spec-test
 #  namespace: kube-system
 #4 spec is empty
 #spec:
@@ -186,7 +186,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: spec-podSelector-test
+  name: spec-podselector-test
   namespace: kube-system-dummy-to-ignore
 spec:
   #1, podSelector does not exist
@@ -223,7 +223,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: spec-policyTypes-test
+  name: spec-policytypes-test
   namespace: kube-system-dummy-to-ignore
 spec:
   podSelector: {}
@@ -262,7 +262,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: spec_egress_tests
+  name: spec-egress-tests
   namespace: kube-system
 spec:
   podSelector: {}
@@ -290,7 +290,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: spec_ingress_tests
+  name: spec-ingress-tests
   namespace: kube-system
 spec:
   podSelector: {}
@@ -318,9 +318,9 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: podSelector-matchLabels-test
+  name: podselector-matchlabels-test
 spec:
-  podSelector:
+  podSelector: {}
     #1, wrong type (array instead of dict) / string
     #matchLabels:
     #  - app: skydive
@@ -340,10 +340,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: podSelector-matchExpressions-test
+  name: podselector-matchexpressions-test
   namespace: kube-system
 spec:
-  podSelector:
+  podSelector: {}
     #1, wrong keys
    # matchExpressions:
     #  - key: app
@@ -362,7 +362,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: matchExp-key-tests
+  name: matchexp-key-tests
   namespace: kube-system
 spec:
   podSelector:
@@ -386,7 +386,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: matchExpressions-operator-tests
+  name: matchexpressions-operator-tests
   namespace: kube-system
 spec:
   podSelector:
@@ -414,7 +414,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: matchExpressions-values-tests
+  name: matchexpressions-values-tests
   namespace: kube-system
 spec:
   podSelector:
@@ -441,7 +441,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: egrees_or_ingress_ports_tests
+  name: egrees-or-ingress-ports-tests
   namespace: kube-system
 spec:
   podSelector:
@@ -475,7 +475,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: egrees_or_ingress_peer_tests
+  name: egrees-or-ingress-peer-tests
   namespace: kube-system
 spec:
   podSelector:
@@ -502,7 +502,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: port_number_or_name_tests
+  name: port-number-or-name-tests
   namespace: kube-system
 spec:
   podSelector:
@@ -551,7 +551,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: ipBlock-test
+  name: ipblock-test
   namespace: kube-system
 spec:
   podSelector:
@@ -578,7 +578,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: ipBlock-fields-test
+  name: ipblock-fields-test
   namespace: kube-system
 spec:
   podSelector:
