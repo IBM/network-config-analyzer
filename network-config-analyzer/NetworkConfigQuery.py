@@ -641,9 +641,9 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         """
         key = 'Changed connections between persistent peers and ipBlock peers'
         all_diff[key] = []
-        peers = intersected_peers | disjoint_ip_blocks
+        peers = captured_pods | disjoint_ip_blocks
         for pod1 in peers:
-            for pod2 in peers if pod1 in captured_pods else captured_pods:
+            for pod2 in disjoint_ip_blocks if pod1 in captured_pods else captured_pods:
                 if pod1 == pod2:
                     continue
                 _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
@@ -696,7 +696,6 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         explanation = ''
         for key in all_diff.keys():
             if len(all_diff[key]) > 0:
-                res += len(all_diff[key])
                 explanation += f'{key}:\n'
                 # Initialized with the 3 protocols supported by k8s
                 # This implementation is not suitable for Calico!
@@ -715,6 +714,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         is_added = True
                         if entry.added.allow_all:
                             added['All connections'].append((entry.from_ep, entry.to_ep))
+                            res += 1
                         else:
                             for protocol in entry.added.allowed_protocols:
                                 if not ConnectionSet.protocol_supports_ports(protocol):
@@ -724,11 +724,13 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                                 if port_range not in added[protocol_name]:
                                     added[protocol_name][port_range] = []
                                 added[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
+                                res += 1
 
                     if entry.removed:
                         is_removed = True
                         if entry.removed.allow_all:
                             removed['All connections'].append((entry.from_ep, entry.to_ep))
+                            res += 1
                         else:
                             for protocol in entry.removed.allowed_protocols:
                                 if not ConnectionSet.protocol_supports_ports(protocol):
@@ -738,6 +740,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                                 if port_range not in removed[protocol_name]:
                                     removed[protocol_name][port_range] = []
                                 removed[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
+                                res += 1
                 if is_added:
                     explanation += f'Added connections:\n{self.pretty_print_diff(added)}\n'
                 if is_removed:
