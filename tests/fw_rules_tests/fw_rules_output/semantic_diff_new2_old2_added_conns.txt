@@ -1,0 +1,1 @@
+src_ns: [demo] src_pods: [bank-ui] dst_ns: [demo] dst_pods: [account-command] conn: TCP 8082,UDP 9091,

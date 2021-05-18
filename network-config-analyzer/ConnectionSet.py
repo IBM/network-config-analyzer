@@ -55,11 +55,28 @@ class ConnectionSet:
                     res.append(protocol_obj)
         return res
 
+    def get_connections_str(self):
+        if self.allow_all:
+            return "All connections"
+        if not self.allowed_protocols:
+            return 'No connections'
+        res = ''
+        # TODO: extend to calico protocols as well
+        # include only protocols supported in k8s policies :
+        for protocol in [6, 17, 132]:
+            if protocol in self.allowed_protocols:
+                protocol_text = self.protocol_number_to_name(protocol)
+                properties = self.allowed_protocols[protocol]
+                if not isinstance(properties, bool):
+                    res += protocol_text + ' ' + str(properties) + ','
+        return res
+
     def __str__(self):
         if self.allow_all:
             return "All connections"
         if not self.allowed_protocols:
             return 'No connections'
+
         if len(self.allowed_protocols) == 1:
             protocol_num = next(iter(self.allowed_protocols))
             protocol_text = 'Protocol: ' + self.protocol_number_to_name(protocol_num)

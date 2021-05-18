@@ -1,0 +1,126 @@
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.5/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.17/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.7/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 11.0.0.0/8
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 0.0.0.0/5
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.1/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ns:
+  - kube-system
+  dst_pods:
+  - tier in (NO_LABEL_VALUE,not_frontend_for_demo)
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.11/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 172.31.0.0/16
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ns:
+  - vendor-system
+  - default
+  - kube-system-dummy-to-ignore
+  dst_pods:
+  - '*'
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.15/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.3/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.9/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 49.50.0.13/32
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (frontend)
+  dst_ip_block:
+  - 172.22.0.0/15
+  connection:
+  - All connections

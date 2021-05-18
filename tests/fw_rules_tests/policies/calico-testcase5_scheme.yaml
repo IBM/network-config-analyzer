@@ -1,0 +1,24 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+
+networkConfigList:
+  - name: np_allowFirst
+    networkPolicyList:
+      - calico-testcase5-allowFirst.yaml
+    expected_warnings: 0
+
+  - name: np_denyFirst
+    networkPolicyList:
+      - calico-testcase5-denyFirst.yaml
+    expected_warnings: 0
+
+
+queries:
+  - name: connectivity_map
+    connectivityMap:
+      - np_allowFirst
+    expected: 0
+  - name: connectivity_map
+    connectivityMap:
+      - np_denyFirst
+    expected: 0

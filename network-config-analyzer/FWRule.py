@@ -237,7 +237,7 @@ class FWRule:
     def __str__(self):
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = str(self.conn)
+        conn_str = self.conn.get_connections_str() #str(self.conn)
         return src_str + dst_str + ' conn: ' + conn_str
 
     def __hash__(self):

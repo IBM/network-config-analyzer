@@ -60,6 +60,7 @@ class ConnectivityGraph:
             # currently skip "no connections"
             if not connections.allow_all and not connections.allowed_protocols:
                 continue
+            # TODO: figure out why we have pairs with (ip,ip) ?
             peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
             peer_pairs_in_containing_connections = cs_containment_map[connections]
             minimize_cs = MinimizeCsFwRules(peer_pairs_filtered, connections,

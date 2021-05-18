@@ -10,8 +10,8 @@
   connection:
   - All connections
 - src_ns:
-  - dlaas
   - ibm-system-new
+  - dlaas
   src_pods:
   - '*'
   dst_ns:

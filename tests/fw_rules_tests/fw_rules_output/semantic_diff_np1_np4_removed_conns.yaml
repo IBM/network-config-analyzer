@@ -1,0 +1,90 @@
+- src_ns:
+  - vendor-system
+  - default
+  - kube-system-dummy-to-ignore
+  src_pods:
+  - '*'
+  dst_ns:
+  - kube-system
+  dst_pods:
+  - tier in (frontend)
+  connection:
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - tier in (NO_LABEL_VALUE,not_frontend_for_demo)
+  dst_ns:
+  - kube-system
+  dst_pods:
+  - tier in (frontend)
+  connection:
+  - All connections
+- src_ip_block:
+  - 11.0.0.0/8
+  dst_ns:
+  - kube-system
+  dst_pods:
+  - tier in (frontend)
+  connection:
+  - Protocol: TCP
+    Ports:
+    - 1-65536
+  - Protocol: UDP
+    Ports:
+    - 1-52
+    - 54-65536
+  - Protocol: SCTP
+    Ports:
+    - 1-65536
+- src_ip_block:
+  - 172.31.0.0/16
+  dst_ns:
+  - kube-system
+  dst_pods:
+  - tier in (frontend)
+  connection:
+  - Protocol: TCP
+    Ports:
+    - 1-65536
+  - Protocol: UDP
+    Ports:
+    - 1-52
+    - 54-65536
+  - Protocol: SCTP
+    Ports:
+    - 1-65536
+- src_ip_block:
+  - 172.22.0.0/15
+  dst_ns:
+  - kube-system
+  dst_pods:
+  - tier in (frontend)
+  connection:
+  - Protocol: TCP
+    Ports:
+    - 1-65536
+  - Protocol: UDP
+    Ports:
+    - 1-52
+    - 54-65536
+  - Protocol: SCTP
+    Ports:
+    - 1-65536
+- src_ip_block:
+  - 0.0.0.0/5
+  dst_ns:
+  - kube-system
+  dst_pods:
+  - tier in (frontend)
+  connection:
+  - Protocol: TCP
+    Ports:
+    - 1-65536
+  - Protocol: UDP
+    Ports:
+    - 1-52
+    - 54-65536
+  - Protocol: SCTP
+    Ports:
+    - 1-65536

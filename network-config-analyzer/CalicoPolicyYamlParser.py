@@ -29,6 +29,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = None
+        self.allowed_labels = set()
 
     def _parse_selector_expr(self, expr, origin_map, namespace=None, is_namespace_selector=False):
         """
@@ -50,6 +51,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         has_match = has_re.match(expr)
         if has_match:
             label = has_match.group(2)
+            self.allowed_labels.add(label)
             if is_namespace_selector:
                 return self.peer_container.get_namespace_pods_with_key(label, has_match.group(1) == '!')
             return self.peer_container.get_peers_with_key(namespace, label, has_match.group(1) == '!')
@@ -60,6 +62,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if key_val_match:
             key = key_val_match.group(1)
             val = key_val_match.group(3)
+            self.allowed_labels.add(key)
             if is_namespace_selector:
                 return self.peer_container.get_namespace_pods_with_label(key, [val], key_val_match.group(1) == '!')
             return self.peer_container.get_peers_with_label(key, [val], key_val_match.group(2) == '!', namespace)
@@ -70,6 +73,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if in_match:
             key = in_match.group(1)
             values = re.findall("'([\\w.\\-/]*)'", expr)
+            self.allowed_labels.add(key)
             if is_namespace_selector:
                 return self.peer_container.get_namespace_pods_with_label(key, values, in_match.group(2) is not None)
             return self.peer_container.get_peers_with_label(key, values, in_match.group(2) is not None, namespace)

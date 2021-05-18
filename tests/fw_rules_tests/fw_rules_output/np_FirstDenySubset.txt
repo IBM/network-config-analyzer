@@ -1,0 +1,1 @@
+src_ns: [kube-system] src_pods: [app in (helm,keepalived-watcher,vpn)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,

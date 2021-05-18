@@ -1,0 +1,23 @@
+# TODO: in the pods-list, make sure that label "tier" does not belong to pod "kube-fluentd-h6rjg"
+# TODO: improve the result fw-rule, into the desired results: has(app) & has(tier) -> has(tier)
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase3-networkpolicy-onlyAllow
+  namespace: kube-system
+spec:
+  selector: has(tier)
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(app)
+  egress:
+  - action: Allow
+    destination:
+      selector: all()
+

@@ -1,0 +1,15 @@
+
+connection: All connections
+option1_len:0
+option2_len:0
+convergence_iteration_1:0
+convergence_iteration_2:0
+equiv1:True
+equiv2:True
+connection: Protocol: TCP, 1-65536
+option1_len:1
+option2_len:1
+convergence_iteration_1:3
+convergence_iteration_2:4
+equiv1:True
+equiv2:True

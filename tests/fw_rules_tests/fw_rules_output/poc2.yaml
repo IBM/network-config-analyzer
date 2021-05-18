@@ -11,17 +11,31 @@
     Ports:
     - '53'
 - src_ns:
-  - default
+  - kube-system
   src_pods:
-  - app in (cartservice)
+  - '*'
   dst_ns:
-  - default
+  - kube-system
   dst_pods:
-  - default/redis-cart-1
+  - '*'
   connection:
-  - Protocol: TCP
-    Ports:
-    - '6379'
+  - All connections
+- src_ns:
+  - kube-system
+  src_pods:
+  - '*'
+  dst_ip_block:
+  - 0.0.0.0/0
+  connection:
+  - All connections
+- src_ip_block:
+  - 0.0.0.0/0
+  dst_ns:
+  - kube-system
+  dst_pods:
+  - '*'
+  connection:
+  - All connections
 - src_ns:
   - default
   src_pods:
@@ -37,18 +51,6 @@
 - src_ns:
   - default
   src_pods:
-  - app in (checkoutservice,frontend)
-  dst_ns:
-  - default
-  dst_pods:
-  - default/currencyservice-1
-  connection:
-  - Protocol: TCP
-    Ports:
-    - '7000'
-- src_ns:
-  - default
-  src_pods:
   - app in (checkoutservice,frontend,recommendationservice)
   dst_ns:
   - default
@@ -58,88 +60,6 @@
   - Protocol: TCP
     Ports:
     - '3550'
-- src_ns:
-  - default
-  src_pods:
-  - app in (checkoutservice,frontend)
-  dst_ns:
-  - default
-  dst_pods:
-  - default/shippingservice-1
-  connection:
-  - Protocol: TCP
-    Ports:
-    - '50051'
-- src_ns:
-  - default
-  src_pods:
-  - app in (checkoutservice)
-  dst_ns:
-  - default
-  dst_pods:
-  - default/paymentservice-1
-  connection:
-  - Protocol: TCP
-    Ports:
-    - '50051'
-- src_ns:
-  - default
-  src_pods:
-  - app in (frontend)
-  dst_ns:
-  - default
-  dst_pods:
-  - default/adservice-1
-  connection:
-  - Protocol: TCP
-    Ports:
-    - '9555'
-- src_ns:
-  - default
-  src_pods:
-  - app in (frontend)
-  dst_ns:
-  - default
-  dst_pods:
-  - default/checkoutservice-1
-  connection:
-  - Protocol: TCP
-    Ports:
-    - '5050'
-- src_ip_block:
-  - 0.0.0.0/0
-  dst_ns:
-  - default
-  dst_pods:
-  - default/frontend-1
-  connection:
-  - Protocol: TCP
-    Ports:
-    - '8080'
-- src_ns:
-  - default
-  src_pods:
-  - app in (checkoutservice)
-  dst_ns:
-  - default
-  dst_pods:
-  - default/emailservice-1
-  connection:
-  - Protocol: TCP
-    Ports:
-    - '8080'
-- src_ns:
-  - default
-  src_pods:
-  - app in (frontend)
-  dst_ns:
-  - default
-  dst_pods:
-  - default/recommendationservice-1
-  connection:
-  - Protocol: TCP
-    Ports:
-    - '8080'
 - src_ns:
   - kube-system
   src_pods:
@@ -155,7 +75,7 @@
 - src_ns:
   - default
   src_pods:
-  - app in (loadgenerator)
+  - default/loadgenerator-1
   dst_ns:
   - default
   dst_pods:
@@ -164,3 +84,109 @@
   - Protocol: TCP
     Ports:
     - '8080'
+- src_ns:
+  - default
+  src_pods:
+  - default/checkoutservice-1
+  dst_ns:
+  - default
+  dst_pods:
+  - default/emailservice-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '8080'
+- src_ip_block:
+  - 0.0.0.0/0
+  dst_ns:
+  - default
+  dst_pods:
+  - default/frontend-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '8080'
+- src_ns:
+  - default
+  src_pods:
+  - default/frontend-1
+  dst_ns:
+  - default
+  dst_pods:
+  - default/recommendationservice-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '8080'
+- src_ns:
+  - default
+  src_pods:
+  - app in (checkoutservice,frontend)
+  dst_ns:
+  - default
+  dst_pods:
+  - default/shippingservice-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '50051'
+- src_ns:
+  - default
+  src_pods:
+  - default/checkoutservice-1
+  dst_ns:
+  - default
+  dst_pods:
+  - default/paymentservice-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '50051'
+- src_ns:
+  - default
+  src_pods:
+  - default/cartservice-1
+  dst_ns:
+  - default
+  dst_pods:
+  - default/redis-cart-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '6379'
+- src_ns:
+  - default
+  src_pods:
+  - default/frontend-1
+  dst_ns:
+  - default
+  dst_pods:
+  - default/checkoutservice-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '5050'
+- src_ns:
+  - default
+  src_pods:
+  - default/frontend-1
+  dst_ns:
+  - default
+  dst_pods:
+  - default/adservice-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '9555'
+- src_ns:
+  - default
+  src_pods:
+  - app in (checkoutservice,frontend)
+  dst_ns:
+  - default
+  dst_pods:
+  - default/currencyservice-1
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '7000'

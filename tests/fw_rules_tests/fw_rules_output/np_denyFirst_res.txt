@@ -1,0 +1,15 @@
+
+connection: All connections
+option1_len:2
+option2_len:2
+convergence_iteration_1:3
+convergence_iteration_2:2
+equiv1:True
+equiv2:True
+connection: Protocols: ICMP, [0-254] => [0-255];, 2, 3, 4, 5, 7, ...
+option1_len:1
+option2_len:1
+convergence_iteration_1:2
+convergence_iteration_2:2
+equiv1:True
+equiv2:True

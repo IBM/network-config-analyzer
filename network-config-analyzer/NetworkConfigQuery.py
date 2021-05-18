@@ -604,6 +604,20 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                     all_diffs.append(SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns-new_conns, new_conns-old_conns))
 
         if len(all_diffs) > 0:
+            allowed_labels = self.config1.allowed_labels.union(self.config2.allowed_labels)
+            config_name_combined = self.config1.name + '_' + self.config2.name
+            added_conns_name = 'semantic_diff_' + config_name_combined + '_added_conns'
+            removed_conns_name = 'semantic_diff_' + config_name_combined + '_removed_conns'
+            conn_graph_added_conns = ConnectivityGraph(peers_to_compare, added_conns_name, allowed_labels, False)
+            conn_graph_removed_conns = ConnectivityGraph(peers_to_compare, removed_conns_name, allowed_labels, False)
+            for diff in all_diffs:
+                #add_edge(self, source_peer, dest_peer, connections)
+                conn_graph_added_conns.add_edge(diff.from_ep, diff.to_ep, diff.added )
+                conn_graph_removed_conns.add_edge(diff.from_ep, diff.to_ep, diff.removed)
+            print('added connections as fw rules:')
+            conn_graph_added_conns.output_as_firewall_rules()
+            print('removed connections as fw rules:')
+            conn_graph_removed_conns.output_as_firewall_rules()
             # Initialized with the 3 protocols supported by k8s
             # This implementation is not suitable for Calico!
             added = {}

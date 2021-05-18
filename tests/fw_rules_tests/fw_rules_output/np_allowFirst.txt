@@ -1,0 +1,2 @@
+src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections

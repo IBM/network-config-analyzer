@@ -1,0 +1,18 @@
+- src_ns:
+  - demo
+  src_pods:
+  - demo/bank-ui-1234
+  dst_ns:
+  - demo
+  dst_pods:
+  - demo/account-command-1234
+  connection:
+  - Protocol: TCP
+    Ports:
+    - '8080'
+  - Protocol: UDP
+    Ports:
+    - '9090'
+  - Protocol: SCTP
+    Ports:
+    - '7070'

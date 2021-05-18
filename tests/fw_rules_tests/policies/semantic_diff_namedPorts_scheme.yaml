@@ -1,0 +1,40 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: np1_named_ports
+    networkPolicyList:
+      - namedPorts-policy1.yaml
+    expected_warnings: 0
+
+  - name: np2_named_ports
+    networkPolicyList:
+      - namedPorts-policy2.yaml
+    expected_warnings: 0
+
+  - name: np3_named_ports
+    networkPolicyList:
+      - namedPorts-policy3.yaml
+    expected_warnings: 0
+
+  - name: np4_named_ports
+    networkPolicyList:
+      - namedPorts-policy4.yaml
+    expected_warnings: 0
+
+  - name: np5_named_ports # just for warnings
+    networkPolicyList:
+      - namedPorts-policy5.yaml
+    expected_warnings: 5
+
+queries:
+  - name: semantic_diff_named_ports_np1_and_np2
+    semanticDiff:
+      - np1_named_ports
+      - np2_named_ports
+    expected: 1
+  - name: semantic_diff_named_ports_np3_and_np4
+    semanticDiff:
+      - np3_named_ports
+      - np4_named_ports
+    expected: 0
