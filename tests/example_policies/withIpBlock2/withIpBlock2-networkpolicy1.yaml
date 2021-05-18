@@ -4,7 +4,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-to-kube-system-from-ipBlock-all-addresses
+  name: enable-to-kube-system-from-ipblock-all-addresses
   namespace: kube-system
 spec:
   podSelector: {}
@@ -20,7 +20,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-to-kube-system-from-ipBlock-all-addresses-with-redundancy
+  name: enable-to-kube-system-from-ipblock-all-addresses-with-redundancy
   namespace: kube-system
 spec:
   podSelector: {}
@@ -40,7 +40,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-to-kube-system-from-ipBlock-lower-addresses-half
+  name: enable-to-kube-system-from-ipblock-lower-addresses-half
   namespace: kube-system
 spec:
   podSelector: {}
@@ -57,7 +57,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-to-kube-system-from-ipBlock-all-seperated-to-2
+  name: enable-to-kube-system-from-ipblock-all-seperated-to-2
   namespace: kube-system
 spec:
   podSelector: {}
