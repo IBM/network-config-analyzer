@@ -13,7 +13,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: ingress-with-podSelector-typo-in-ports
+  name: ingress-with-podselector-typo-in-ports
   namespace: kube-system
 spec:
   podSelector: {}

@@ -36,12 +36,12 @@ queries:
 
   - name: sanity_allow-all-between-kube-system-some-other-namespaces-with-podSelector
     sanity:
-      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podSelector
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podselector
     expected: 0
 
   - name: sanity_allow-all-between-kube-system-default-with-podSelector
     sanity:
-      - np/kube-system/allow-all-between-kube-system-default-with-podSelector
+      - np/kube-system/allow-all-between-kube-system-default-with-podselector
     expected: 0
 
 
@@ -66,12 +66,12 @@ queries:
   - name: kube-system-with-some-namespaces-supset-with-podSelector
     twoWayContainment:
       - np/kube-system/allow-all-between-kube-system-some-other-namespaces
-      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podSelector
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podselector
     expected: 1
 
   - name: kube-system-with-some-namespaces-podSelector-equiv-default-podSelector
     twoWayContainment:
-      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podSelector
-      - np/kube-system/allow-all-between-kube-system-default-with-podSelector
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podselector
+      - np/kube-system/allow-all-between-kube-system-default-with-podselector
     expected: 3
 

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import re
 import Peer
 from ConnectionSet import ConnectionSet
 from PortSet import PortSet, PortSetPair
@@ -34,19 +35,16 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A PeerSet containing the peers that satisfy the requirement
         :rtype: Peer.PeerSet
         """
-        self.check_keys_are_legal(requirement, 'LabelSelectorRequirement', {'key': 1, 'operator': 1, 'values': 0},
+        self.check_keys_are_legal(requirement, 'LabelSelectorRequirement', {'key': [1, str], 'operator': [1, str],
+                                                                            'values': [0, list]},
                                   {'operator': ['In', 'NotIn', 'Exists', 'DoesNotExist']})
         key = requirement['key']
-        if not isinstance(key, str):
-            self.syntax_error('type of key field is not a string in LabelSelectorRequirement', requirement)
         operator = requirement['operator']
 
         if operator in ['In', 'NotIn']:
             values = requirement.get('values')
             if not values:
                 self.syntax_error('A requirement with In/NotIn operator but without values', requirement)
-            if not isinstance(values, list):
-                self.syntax_error('type of values field is not an array in LabelSelectorRequirement', requirement)
             if namespace_selector:
                 return self.peer_container.get_namespace_pods_with_label(key, values, operator == 'NotIn')
             return self.peer_container.get_peers_with_label(key, values, operator == 'NotIn')
@@ -72,24 +70,20 @@ class K8sPolicyYamlParser(GenericYamlParser):
             return Peer.PeerSet()  # A None value means the selector selects nothing
         if not label_selector:  # empty
             return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
-        allowed_elements = {'matchLabels': 0, 'match_labels': 0, 'matchExpressions': 0, 'match_expressions': 0}
+        allowed_elements = {'matchLabels': [0, dict], 'matchExpressions': [0, list]}
         self.check_keys_are_legal(label_selector, 'pod/namespace selector', allowed_elements)
 
         res = self.peer_container.get_all_peers_group()
-        match_labels = label_selector.get('matchLabels', label_selector.get('match_labels'))
+        match_labels = label_selector.get('matchLabels')
         if match_labels:
-            if not isinstance(match_labels, dict):
-                self.syntax_error('type of matchLabels is not a map in LabelSelector', label_selector)
             for key, val in match_labels.items():
                 if namespace_selector:
                     res &= self.peer_container.get_namespace_pods_with_label(key, [val])
                 else:
                     res &= self.peer_container.get_peers_with_label(key, [val])
 
-        match_expressions = label_selector.get('matchExpressions', label_selector.get('match_expressions'))
+        match_expressions = label_selector.get('matchExpressions')
         if match_expressions:
-            if not isinstance(match_expressions, list):
-                self.syntax_error('type of matchExpressions is not an array in LabelSelector', label_selector)
             for requirement in match_expressions:
                 res &= self.parse_label_selector_requirement(requirement, namespace_selector)
 
@@ -112,7 +106,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A PeerSet containing the relevant IP ranges
         :rtype: Peer.PeerSet
         """
-        self.check_keys_are_legal(block, 'ipBlock', {'cidr': 1, 'except': 0})
+        self.check_keys_are_legal(block, 'ipBlock', {'cidr': [1, str], 'except': [0, list]})
         res = Peer.PeerSet()
         res.add(Peer.IpBlock(block['cidr'], block.get('except')))
         return res
@@ -124,28 +118,27 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A PeerSet object containing the set of peers defined by the selectors/ipblocks
         :rtype: Peer.PeerSet
         """
-        allowed_elements = {'podSelector': 0, 'pod_selector': 0, 'namespaceSelector': 0, 'namespace_selector': 0,
-                            'ipBlock': 0, 'ip_block': 0}
+        allowed_elements = {'podSelector': [0, dict], 'namespaceSelector': [0, dict], 'ipBlock': [0, dict]}
         self.check_keys_are_legal(peer, 'NetworkPolicyPeer', allowed_elements)
 
-        pod_selector = peer.get('podSelector', peer.get('pod_selector', 'not_present'))
-        ns_selector = peer.get('namespaceSelector', peer.get('namespace_selector', 'not_present'))
-        ip_block = peer.get('ipBlock', peer.get('ip_block'))
+        pod_selector = peer.get('podSelector')
+        ns_selector = peer.get('namespaceSelector')
+        ip_block = peer.get('ipBlock')
 
-        if pod_selector == 'not_present' and ns_selector == 'not_present' and ip_block is None:
+        if pod_selector is None and ns_selector is None and ip_block is None:
             self.syntax_error('A NetworkPolicyPeer must have at least one field', peer)
 
         if ip_block is not None:
-            if pod_selector != 'not_present' or ns_selector != 'not_present':
+            if pod_selector is not None or ns_selector is not None:
                 self.syntax_error('If ipBlock is set then neither of podSelector or namespaceSelector can be', peer)
             return self.parse_ip_block(ip_block)
 
-        if ns_selector != 'not_present':
+        if ns_selector is not None:
             res = self.parse_label_selector(ns_selector, True)
         else:
             res = self.peer_container.get_namespace_pods(self.namespace)
 
-        if pod_selector != 'not_present':
+        if pod_selector is not None:
             selected_pods = self.parse_label_selector(pod_selector) & res
             if pod_selector and selected_pods == res:
                 self.warning('A podSelector selects all pods in the current namespace; it should better be removed.',
@@ -160,7 +153,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A ConnectionSet representing the allowed connections by this element (protocols X port numbers)
         :rtype: ConnectionSet
         """
-        self.check_keys_are_legal(port, 'NetworkPolicyPort', {'port': 0, 'protocol': 0, 'endPort': 0},
+        self.check_keys_are_legal(port, 'NetworkPolicyPort', {'port': 0, 'protocol': [0, str], 'endPort': [0, int]},
                                   {'protocol': ['TCP', 'UDP', 'SCTP']})
         port_id = port.get('port')
         protocol = port.get('protocol')
@@ -170,18 +163,22 @@ class K8sPolicyYamlParser(GenericYamlParser):
 
         res = ConnectionSet()
         dest_port_set = PortSet(port_id is None)
-        if port_id and end_port_num:
+        if port_id is not None and end_port_num is not None:
             if isinstance(port_id, str):
                 self.syntax_error('endPort cannot be defined if the port field is defined '
                                   'as a named (string) port', port)
-            if not isinstance(port_id, int) or not isinstance(end_port_num, int):
-                self.syntax_error('type of port or endPort is not numerical in NetworkPolicyPort', port)
+            if not isinstance(port_id, int):
+                self.syntax_error('type of port is not numerical in NetworkPolicyPort', port)
+            if not (1 <= port_id <= 65535 and 1 <= end_port_num <= 65535):
+                self.syntax_error('port/endPort must be between 1 and 65535')
             if port_id > end_port_num:
                 self.syntax_error('endPort must be equal or greater than port', port)
             dest_port_set.add_port_range(port_id, end_port_num)
-        elif port_id:
+        elif port_id is not None:
             if not isinstance(port_id, str) and not isinstance(port_id, int):
                 self.syntax_error('type of port is not numerical or named (string) in NetworkPolicyPort', port)
+            if isinstance(port_id, int) and not 1 <= port_id <= 65535:
+                self.syntax_error('port must be between 1 and 65535')
             dest_port_set.add_port(port_id)
         elif end_port_num:
             self.syntax_error('endPort cannot be defined if the port field is not defined ', port)
@@ -197,24 +194,19 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A K8sPolicyRule with the proper PeerSet and ConnectionSet
         :rtype: K8sPolicyRule
         """
-        self.check_keys_are_legal(rule, 'ingress/egress rule', {peer_array_key: 0, '_' + peer_array_key: 0, 'ports': 0})
-        peer_array = rule.get(peer_array_key, rule.get('_' + peer_array_key))
+        self.check_keys_are_legal(rule, 'ingress/egress rule', {peer_array_key: [0, list], 'ports': [0, list]})
+        peer_array = rule.get(peer_array_key, [])
         if peer_array:
-            if not isinstance(peer_array, list):
-                self.syntax_error('type of ' + peer_array_key +
-                                  ' rule is not an array in egress/ingress of NetworkPolicy', rule)
             res_pods = Peer.PeerSet()
             for peer in peer_array:
                 res_pods |= self.parse_peer(peer)
         else:
             res_pods = self.peer_container.get_all_peers_group(True)
 
-        ports_array = rule.get('ports', None)
+        ports_array = rule.get('ports', [])
         if ports_array:
-            if not isinstance(ports_array, list):
-                self.syntax_error('type of ports is not an array in egress/ingress rule of NetworkPolicy', ports_array)
             res_ports = ConnectionSet()
-            for port in rule.get('ports', []):
+            for port in ports_array:
                 res_ports |= self.parse_port(port)
         else:
             res_ports = ConnectionSet(True)
@@ -281,43 +273,42 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: a K8sNetworkPolicy object with proper PeerSets and ConnectionSets
         :rtype: K8sNetworkPolicy
         """
-        if not isinstance(self.policy, dict):
+        if not isinstance(self.policy, dict):  # we don't get here
             self.syntax_error('type of Top ds is not a map')
         if self.policy.get('kind') != 'NetworkPolicy':
             return None  # Not a NetworkPolicy object
-        api_version = self.policy.get('apiVersion', self.policy.get('api_version'))
-        if not api_version:  # when apiVersion doesn't exist/ has empty value we don't get here
-            self.syntax_error('An object with no specified apiVersion', self.policy)
-        if not isinstance(api_version, str):
-            self.syntax_error('type of apiVersion is not a string in NetworkPolicy', self.policy)
+        self.check_keys_are_legal(self.policy, 'NetworkPolicy', {'kind': [1, str], 'metadata': [1, dict],
+                                                                 'spec': [0, dict], 'apiVersion': [1, str]},
+                                  {'apiVersion': ['networking.k8s.io/v1', 'extensions/v1beta1']})
+        api_version = self.policy.get('apiVersion')
         if 'k8s' not in api_version and api_version != 'extensions/v1beta1':
             return None  # apiVersion is not properly set
-        self.check_keys_are_legal(self.policy, 'networkPolicy', {'kind': 1, 'metadata': 1, 'spec': 1, 'apiVersion': 0,
-                                                                 'api_version': 0},
-                                  {'apiVersion': ['networking.k8s.io/v1', 'extensions/v1beta1']})
 
         policy_metadata = self.policy['metadata']
-        allowed_metadata_keys = {'name': 1, 'namespace': 0, 'annotations': 0, 'clusterName': 0, 'creationTimestamp': 0,
-                                 'deletionGracePeriodSeconds': 0, 'deletionTimestamp': 0, 'finalizers': 0,
-                                 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
+        allowed_metadata_keys = {'name': [1, str], 'namespace': [0, str], 'annotations': 0, 'clusterName': 0,
+                                 'creationTimestamp': 0, 'deletionGracePeriodSeconds': 0, 'deletionTimestamp': 0,
+                                 'finalizers': 0, 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
                                  'ownerReferences': 0, 'resourceVersion': 0, 'selfLink': 0, 'uid': 0}
-        self.check_keys_are_legal(policy_metadata, 'network policy metadata', allowed_metadata_keys)
-        if not isinstance(policy_metadata['name'], str):
-            self.syntax_error('type of name is not a string in metadata of NetworkPolicy', policy_metadata['name'])
-        if 'namespace' in policy_metadata:
-            if not isinstance(policy_metadata['namespace'], str):
-                self.syntax_error('type of namespace is not a string in metadata of NetworkPolicy',
-                                  policy_metadata['namespace'])
+        self.check_keys_are_legal(policy_metadata, 'metadata', allowed_metadata_keys)
+        pattern = r"[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
+        if re.fullmatch(pattern, policy_metadata['name']) is None:
+            self.syntax_error('a metadata name must consist of lower case alphanumeric characters, '
+                              '"-" or ".", and must start and end with an alphanumeric character', self.policy)
+        if 'namespace' in policy_metadata and policy_metadata['namespace'] is not None:
             self.namespace = self.peer_container.get_namespace(policy_metadata['namespace'])
         res_policy = K8sNetworkPolicy(policy_metadata['name'], self.namespace)
 
+        if 'spec' not in self.policy or self.policy['spec'] is None:
+            self.warning('spec is missing or null in NetworkPolicy ' + res_policy.full_name())
+            return res_policy
+
         policy_spec = self.policy['spec']
-        allowed_spec_keys = {'podSelector': 0, 'pod_selector': 0, 'ingress': 0, 'egress': 0,
-                             'policyTypes': 0, 'policy_types': 0}
-        self.check_keys_are_legal(policy_spec, 'network policy spec', allowed_spec_keys,
+        allowed_spec_keys = {'podSelector': [1, dict], 'ingress': [0, list], 'egress': [0, list],
+                             'policyTypes': [0, list]}
+        self.check_keys_are_legal(policy_spec, 'spec', allowed_spec_keys,
                                   {'policyTypes': [['Ingress'], ['Egress'], ['Ingress', 'Egress']]})
 
-        policy_types = policy_spec.get('policyTypes', policy_spec.get('policy_types', []))
+        policy_types = policy_spec.get('policyTypes', [])
         if not policy_types:
             self.warning('policyTypes is missing/empty in the spec of ' + res_policy.full_name(), policy_spec)
 
@@ -329,25 +320,19 @@ class K8sPolicyYamlParser(GenericYamlParser):
         if not res_policy.affects_egress and policy_spec.get('egress') is not None:
             self.syntax_error('A NetworkPolicy with egress field but no "Egress" in its policyTypes', policy_spec)
 
-        pod_selector = policy_spec.get('podSelector', policy_spec.get('pod_selector', 'not_present'))
-        if pod_selector == 'not_present':
-            self.syntax_error('podSelector is missing in the spec of ' + res_policy.full_name(), policy_spec)
+        pod_selector = policy_spec.get('podSelector')
         res_policy.selected_peers = self.parse_label_selector(pod_selector)
         res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
 
         ingress_rules = policy_spec.get('ingress', [])
-        if not isinstance(ingress_rules, list):
-            self.syntax_error('type of ingress rules is not an array in spec of ' +
-                              res_policy.full_name(), policy_spec)
-        for ingress_rule in ingress_rules:
-            res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule, res_policy.selected_peers))
+        if ingress_rules:
+            for ingress_rule in ingress_rules:
+                res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule, res_policy.selected_peers))
 
         egress_rules = policy_spec.get('egress', [])
-        if not isinstance(egress_rules, list):
-            self.syntax_error('type of egress rules is not an array in spec of ' +
-                              res_policy.full_name(), policy_spec)
-        for egress_rule in egress_rules:
-            res_policy.add_egress_rule(self.parse_egress_rule(egress_rule))
+        if egress_rules:
+            for egress_rule in egress_rules:
+                res_policy.add_egress_rule(self.parse_egress_rule(egress_rule))
 
         res_policy.findings = self.warning_msgs
         return res_policy
