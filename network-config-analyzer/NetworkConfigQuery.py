@@ -520,6 +520,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
     """
     Produces a report of changed connections (also for the case of two configurations of different network topologies)
     """
+
+    @dataclass
     class SingleDiff:
         """
         Representing a single diff between a pair of eps
@@ -541,14 +543,15 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         """
         pretty printing the results of semantic diff
         :param diff_list:
-        :return:
+        :return: A diff message
+        :rtype: str
         """
         result = ""
         for single in diff_list:
             if diff_list[single]:
                 result += "- " + single + str(diff_list[single]) + "\n"
-                result = result.replace('{', ' ').replace('}', ' ').replace('\'', '')
-        return result
+
+        return result.replace('{', ' ').replace('}', ' ').replace('\'', '')
 
     def compute_diff(self):
         """
@@ -570,6 +573,9 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         5.2. new connections between added peers and new ipBlock peers
 
         Some of the section might be empty and can be dropped.
+
+        :return: A dictionary with lists of all various diffs
+        :rtype: dict
         """
         all_diff = {}
         old_peers = self.config1.peer_container.get_all_peers_group()
@@ -692,6 +698,13 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         return all_diff
 
     def produce_diff_message(self, all_diff):
+        """
+        pretty printing the results of semantic diff
+        :param all_diff: A dictionary with all computed diffs
+        :returns:
+            res (int) - number of diffs
+            explanation (str) - a diff message
+        """
         res = 0
         explanation = ''
         for key in all_diff.keys():

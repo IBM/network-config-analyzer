@@ -154,10 +154,10 @@ class SchemeRunner(GenericYamlParser):
         """
         if not query_array:
             self.warning('No queries to run\n')
-        allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0, 'redundancy': 0,
-                            'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0, 'sanity': 0,
-                            'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0, 'expected': 0,
-                            'allCaptured': 0}
+        allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0,
+                            'redundancy': 0, 'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0,
+                            'sanity': 0, 'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0,
+                            'expected': 0, 'allCaptured': 0}
         for query in query_array:
             res = 0
             self.check_keys_are_legal(query, 'query', allowed_elements)
