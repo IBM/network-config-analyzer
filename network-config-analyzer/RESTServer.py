@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from flask import Flask, request
+from flask import Flask, request, escape
 from flask.views import MethodView
 from PeerContainer import PeerContainer
 from NetworkConfig import NetworkConfig
@@ -49,7 +49,7 @@ class NamespacesResource(NCAResource):
 class NamespaceResource(NCAResource):
     def get(self, ns_name):
         if ns_name not in self.peer_container.get_namespaces().keys():
-            return f'Namespace {ns_name} does not exist', 404
+            return f'Namespace {escape(ns_name)} does not exist', 404
         # ns = self.peer_container.get_namespace(ns_name)
         return {ns_name:  'OK'}
 
@@ -109,24 +109,24 @@ class PolicySetsResource(NCAResource):
 class PolicySetResource(NCAResource):
     def get(self, config_name):
         if config_name not in self.policy_sets_map:
-            return f'policy_set {config_name} does not exist', 404
+            return f'policy_set {escape(config_name)} does not exist', 404
 
         config = self.policy_sets_map[config_name]
         policies_array = [policy for policy in config.policies.keys()]
         profiles_array = [profile for profile in config.profiles.keys()]
-        return {'name': config_name, 'policies': policies_array, 'profiles': profiles_array}
+        return {'name': escape(config_name), 'policies': policies_array, 'profiles': profiles_array}
 
     def delete(self, config_name):
         if config_name not in self.policy_sets_map:
-            return f'policy_set {config_name} does not exist', 404
+            return f'policy_set {escape(config_name)} does not exist', 404
         del self.policy_sets_map[config_name]
-        return 'Successfully deleted policy_set ' + config_name, 200
+        return f'Successfully deleted policy_set {escape(config_name)}', 200
 
 
 class PolicySetFindings(NCAResource):
     def get(self, config_name):
         if config_name not in self.policy_sets_map:
-            return f'policy_set {config_name} does not exist', 404
+            return f'policy_set {escape(config_name)} does not exist', 404
 
         config = self.policy_sets_map[config_name]
         policies_array = {}
@@ -135,7 +135,7 @@ class PolicySetFindings(NCAResource):
         profiles_array = {}
         for profile in config.profiles.values():
             profiles_array[profile.full_name()] = profile.findings
-        return {'name': config_name, 'policies': policies_array, 'profiles': profiles_array}
+        return {'name': escape(config_name), 'policies': policies_array, 'profiles': profiles_array}
 
 
 class RestServer:
