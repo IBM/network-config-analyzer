@@ -29,7 +29,7 @@ class GitScanner:
         if url.endswith('/'):
             url = url[:-1]
         parsed_url = urlparse(url)
-        if url.startswith('https://github.com'):
+        if parsed_url.hostname == 'github.com':
             ghe_base_url = 'https://api.github.com'
         else:
             ghe_base_url = parsed_url.scheme + '://' + parsed_url.hostname + '/api/v3'
