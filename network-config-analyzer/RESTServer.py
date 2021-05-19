@@ -4,13 +4,13 @@
 #
 
 from flask import Flask, request
-from flask_restful import Resource, Api, abort
+from flask.views import MethodView
 from PeerContainer import PeerContainer
 from NetworkConfig import NetworkConfig
 from NetworkConfigQuery import SanityQuery
 
 
-class NCAResource(Resource):
+class NCAResource(MethodView):
     def __init__(self, policy_sets_map, peer_container):
         # type: (dict, PeerContainer) -> None
         self.policy_sets_map = policy_sets_map
@@ -28,20 +28,20 @@ class AllResource(NCAResource):
 class NamespaceListResource(NCAResource):
     def post(self):
         if not request.is_json:
-            abort(400, message='Badly formed json in POST request')
+            return 'Badly formed json in POST request', 400
         json_data = request.get_json()
         self.peer_container.set_namespaces(json_data)
-        return '{} namespaces loaded.'.format(len(self.peer_container.get_namespaces())), 201
+        return f'{len(self.peer_container.get_namespaces())} namespaces loaded.', 201
 
 
 class NamespacesResource(NCAResource):
     def get(self):
         namespaces = self.peer_container.get_namespaces()
-        return {'namespaces': [namespaces.keys()]}
+        return {'namespaces': [key for key in namespaces.keys()]}
 
     def delete(self):
         if self.peer_container.get_num_peers() > 0:
-            abort(405, message='Delete all pods first')
+            return 'Delete all pods first', 405
         self.peer_container.delete_all_namespaces()
         return 'Successfully deleted all namespaces', 200
 
@@ -49,7 +49,7 @@ class NamespacesResource(NCAResource):
 class NamespaceResource(NCAResource):
     def get(self, ns_name):
         if ns_name not in self.peer_container.get_namespaces().keys():
-            abort(404, message='Namespace {} does not exist'.format(ns_name))
+            return f'Namespace {ns_name} does not exist', 404
         # ns = self.peer_container.get_namespace(ns_name)
         return {ns_name:  'OK'}
 
@@ -57,10 +57,10 @@ class NamespaceResource(NCAResource):
 class PodListResource(NCAResource):
     def post(self):
         if not request.is_json:
-            abort(400, message='Badly formed json in POST request')
+            return 'Badly formed json in POST request', 400
         json_data = request.get_json()
         self.peer_container.add_eps_from_list(json_data)
-        return '{} pods loaded.'.format(len(self.peer_container.get_all_peers_group())), 201
+        return f'{len(self.peer_container.get_all_peers_group())} pods loaded.', 201
 
 
 class PodsResource(NCAResource):
@@ -70,18 +70,18 @@ class PodsResource(NCAResource):
 
     def delete(self):
         if self.policy_sets_map:
-            abort(405, message='Delete all policy_sets first')
+            return 'Delete all policy_sets first', 405
         self.peer_container.delete_all_peers()
         return 'Successfully deleted all pods', 200
 
 
 class PolicySetsResource(NCAResource):
     def get(self):
-        return {'policy_sets': [self.policy_sets_map.keys()]}
+        return {'policy_sets': [policy_set for policy_set in self.policy_sets_map.keys()]}
 
     def post(self):
         if not request.is_json:
-            abort(400, message='Badly formed json in POST request')
+            return 'Badly formed json in POST request', 400
 
         set_num = 0
         while True:
@@ -95,12 +95,11 @@ class PolicySetsResource(NCAResource):
             entry = 'buffer: ' + request.get_data().decode("utf-8")
             network_config = NetworkConfig(new_policy_set, self.peer_container, [entry])
         except Exception:
-            abort(400, message='Badly formed policy list')
-            return
+            return 'Badly formed policy list', 400
 
         SanityQuery(network_config).exec()
         self.policy_sets_map[new_policy_set] = network_config
-        return new_policy_set + ' (' + str(len(network_config.policies)) + ' policies)', 201
+        return f'{new_policy_set} ({len(network_config.policies)} policies)', 201
 
     def delete(self):
         self.policy_sets_map.clear()
@@ -110,16 +109,16 @@ class PolicySetsResource(NCAResource):
 class PolicySetResource(NCAResource):
     def get(self, config_name):
         if config_name not in self.policy_sets_map:
-            abort(404, message='policy_set {} does not exist'.format(config_name))
+            return f'policy_set {config_name} does not exist', 404
 
         config = self.policy_sets_map[config_name]
-        policies_array = [config.policies.keys()]
-        profiles_array = [config.profiles.keys()]
+        policies_array = [policy for policy in config.policies.keys()]
+        profiles_array = [profile for profile in config.profiles.keys()]
         return {'name': config_name, 'policies': policies_array, 'profiles': profiles_array}
 
     def delete(self, config_name):
         if config_name not in self.policy_sets_map:
-            abort(404, message='policy_set {} does not exist'.format(config_name))
+            return f'policy_set {config_name} does not exist', 404
         del self.policy_sets_map[config_name]
         return 'Successfully deleted policy_set ' + config_name, 200
 
@@ -127,7 +126,7 @@ class PolicySetResource(NCAResource):
 class PolicySetFindings(NCAResource):
     def get(self, config_name):
         if config_name not in self.policy_sets_map:
-            abort(404, message='policy_set {} does not exist'.format(config_name))
+            return f'policy_set {config_name} does not exist', 404
 
         config = self.policy_sets_map[config_name]
         policies_array = {}
@@ -136,26 +135,27 @@ class PolicySetFindings(NCAResource):
         profiles_array = {}
         for profile in config.profiles.values():
             profiles_array[profile.full_name()] = profile.findings
-        return {'name': config_name, 'policies': policies_array, 'profiles': profiles_array,
-                'global_findings': config.findings}
+        return {'name': config_name, 'policies': policies_array, 'profiles': profiles_array}
 
 
 class RestServer:
     def __init__(self, ns_list, pod_list):
         self.app = Flask(__name__)
-        self.api = Api(self.app)
         self.policy_sets_map = {}
         self.peer_container = PeerContainer(ns_list, pod_list)
-        args_map = {'peer_container': self.peer_container, 'policy_sets_map': self.policy_sets_map}
-        self.api.add_resource(AllResource, '/all', resource_class_kwargs=args_map)
-        self.api.add_resource(NamespacesResource, '/namespaces', resource_class_kwargs=args_map)
-        self.api.add_resource(NamespaceResource, '/namespaces/<ns_name>', resource_class_kwargs=args_map)
-        self.api.add_resource(NamespaceListResource, '/namespace_list', resource_class_kwargs=args_map)
-        self.api.add_resource(PodsResource, '/pods', resource_class_kwargs=args_map)
-        self.api.add_resource(PodListResource, '/pod_list', resource_class_kwargs=args_map)
-        self.api.add_resource(PolicySetsResource, '/policy_sets', resource_class_kwargs=args_map)
-        self.api.add_resource(PolicySetResource, '/policy_sets/<config_name>', resource_class_kwargs=args_map)
-        self.api.add_resource(PolicySetFindings, '/policy_sets/<config_name>/findings', resource_class_kwargs=args_map)
+        self.add_url_rule('/all', AllResource, 'all')
+        self.add_url_rule('/namespaces', NamespacesResource, 'namespaces')
+        self.add_url_rule('/namespaces/<ns_name>', NamespaceResource, 'namespace')
+        self.add_url_rule('/namespace_list', NamespaceListResource, 'namespace_list')
+        self.add_url_rule('/pods', PodsResource, 'pods')
+        self.add_url_rule('/pod_list', PodListResource, 'pod_list')
+        self.add_url_rule('/policy_sets', PolicySetsResource, 'policy_sets')
+        self.add_url_rule('/policy_sets/<config_name>', PolicySetResource, 'policy_set')
+        self.add_url_rule('/policy_sets/<config_name>/findings', PolicySetFindings, 'findings')
+
+    def add_url_rule(self, path, class_type, name):
+        self.app.add_url_rule(path, view_func=class_type.as_view(name, policy_sets_map=self.policy_sets_map,
+                                                                 peer_container=self.peer_container))
 
     def run(self):
         return self.app.run(host='0.0.0.0')
