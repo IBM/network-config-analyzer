@@ -74,7 +74,7 @@ class GenericYamlParser:
                     self.syntax_error(f'{key} is not yet supported inside {dict_name}', dict_to_check)
                 value = dict_to_check.get(key)
                 if code == 1 and value is None:
-                    self.syntax_error(f'mandatory {key} entry can not be null in {dict_name}', dict_to_check)
+                    self.syntax_error(f'mandatory {key} value can not be null in {dict_name}', dict_to_check)
                 if value_type is not None:
                     if value == 0 and not value_type == int:
                         self.syntax_error(f'type of {key} is not {value_type} in {dict_name}',
