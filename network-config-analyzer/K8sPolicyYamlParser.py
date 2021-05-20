@@ -290,6 +290,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
                                  'finalizers': 0, 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
                                  'ownerReferences': 0, 'resourceVersion': 0, 'selfLink': 0, 'uid': 0}
         self.check_keys_are_legal(policy_metadata, 'metadata', allowed_metadata_keys)
+        if len(policy_metadata['name']) > 253:
+            self.syntax_error('a metadata name must contain no more than 253 characters', self.policy)
         pattern = r"[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
         if re.fullmatch(pattern, policy_metadata['name']) is None:
             self.syntax_error('a metadata name must consist of lower case alphanumeric characters, '
