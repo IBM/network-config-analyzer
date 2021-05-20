@@ -27,6 +27,34 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.peer_container = peer_container
         self.namespace = peer_container.get_namespace('default')  # value to be replaced if the netpol has ns defined
 
+    def check_dns_subdomain_name(self, key, value):
+        """
+        checking validity of the resource name
+        :param key: The key name
+        :param value : The value assigned for the key
+        :return: None
+        """
+        if len(value) > 253:
+            self.syntax_error(f'a {key} value must be no more than 253 characters', self.policy)
+        pattern = r"[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
+        if re.fullmatch(pattern, value) is None:
+            self.syntax_error(f'a {key} value must consist of lower case alphanumeric characters, '
+                              '"-" or ".", and must start and end with an alphanumeric character', self.policy)
+
+    def check_dns_label_names(self, key, value):
+        """
+        checking validity of the label values
+        :param key: The key name
+        :param value : The value assigned for the key
+        :return: None
+        """
+        if len(value) > 63:
+            self.syntax_error(f'a {key} value must be no more than 63 characters', self.policy)
+        pattern = r"[a-z0-9]([-a-z0-9]*[a-z0-9])?"
+        if re.fullmatch(pattern, value) is None:
+            self.syntax_error(f'a {key} value must consist of lower case alphanumeric characters or "-",'
+                              ' and must start and end with an alphanumeric character', self.policy)
+
     def parse_label_selector_requirement(self, requirement, namespace_selector):
         """
         Parse a LabelSelectorRequirement element
@@ -290,13 +318,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
                                  'finalizers': 0, 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
                                  'ownerReferences': 0, 'resourceVersion': 0, 'selfLink': 0, 'uid': 0}
         self.check_keys_are_legal(policy_metadata, 'metadata', allowed_metadata_keys)
-        if len(policy_metadata['name']) > 253:
-            self.syntax_error('a metadata name must contain no more than 253 characters', self.policy)
-        pattern = r"[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
-        if re.fullmatch(pattern, policy_metadata['name']) is None:
-            self.syntax_error('a metadata name must consist of lower case alphanumeric characters, '
-                              '"-" or ".", and must start and end with an alphanumeric character', self.policy)
+        self.check_dns_subdomain_name('metadata name', policy_metadata['name'])
         if 'namespace' in policy_metadata and policy_metadata['namespace'] is not None:
+            self.check_dns_label_names('metadata namespace', policy_metadata['namespace'])
             self.namespace = self.peer_container.get_namespace(policy_metadata['namespace'])
         res_policy = K8sNetworkPolicy(policy_metadata['name'], self.namespace)
 
