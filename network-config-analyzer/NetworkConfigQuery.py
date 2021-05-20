@@ -542,7 +542,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
     def pretty_print_diff(diff_list):
         """
         pretty printing the results of semantic diff
-        :param diff_list:
+        :param diff_list: A dictionary of computed diffs
         :return: A diff message
         :rtype: str
         """
@@ -558,19 +558,19 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         Compute changed connections as following:
 
         1.1. lost connections between removed peers
-        1.2. lost connections between removed peers and old ipBlock peers
+        1.2. lost connections between removed peers and old ipBlocks
 
         2.1. lost connections between removed peers and intersected peers
 
         3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
-        3.2  lost connections between intersected peers and removed ipBlock peers
+        3.2  lost connections between intersected peers and removed ipBlocks
         3.3  lost/new connections between intersected peers and intersected pBlock peers due to changes in policies and labels of pods/namespaces
-        3.4  new connections between intersected peers and added ipBlock peers
+        3.4  new connections between intersected peers and added ipBlocks
 
         4.1. new connections between intersected peers and added peers
 
         5.1. new connections between added peers
-        5.2. new connections between added peers and new ipBlock peers
+        5.2. new connections between added peers and new ipBlocks
 
         Some of the section might be empty and can be dropped.
 
@@ -595,21 +595,21 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         all_diff[key] = []
         for pair in itertools.permutations(removed_peers, 2):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            if str(lost_conns) != 'No connections':
+            if lost_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
 
-        # 1.2. lost connections between removed peers and old ipBlock peers
-        key = 'Lost connections between removed peers and old ipBlock peers'
+        # 1.2. lost connections between removed peers and old ipBlocks
+        key = 'Lost connections between removed peers and old ipBlocks'
         all_diff[key] = []
         for pair in itertools.product(removed_peers, disjoint_ip_blocks):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            if str(lost_conns) != 'No connections':
+            if lost_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
 
             _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
-            if str(lost_conns) != 'No connections':
+            if lost_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
 
@@ -618,12 +618,12 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         all_diff[key] = []
         for pair in itertools.product(removed_peers, intersected_peers):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
-            if str(lost_conns) != 'No connections':
+            if lost_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
 
             _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
-            if str(lost_conns) != 'No connections':
+            if lost_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
 
@@ -641,11 +641,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns - new_conns, new_conns - old_conns))
 
         """
-        3.2  lost connections between intersected peers and removed ipBlock peers
-        3.3  lost/new connections between intersected peers and intersected ipBlock peers due to changes in policies and labels of pods/namespaces
-        3.4  new connections between intersected peers and added ipBlock peers
+        3.2  lost connections between intersected peers and removed ipBlocks
+        3.3  lost/new connections between intersected peers and intersected ipBlocks due to changes in policies and labels of pods/namespaces
+        3.4  new connections between intersected peers and added ipBlocks
         """
-        key = 'Changed connections between persistent peers and ipBlock peers'
+        key = 'Changed connections between persistent peers and ipBlocks'
         all_diff[key] = []
         peers = captured_pods | disjoint_ip_blocks
         for pod1 in peers:
@@ -663,12 +663,12 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         all_diff[key] = []
         for pair in itertools.product(intersected_peers, added_peers):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            if str(new_conns) != 'No connections':
+            if new_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
 
             _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
-            if str(new_conns) != 'No connections':
+            if new_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
 
@@ -677,21 +677,21 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         all_diff[key] = []
         for pair in itertools.permutations(added_peers, 2):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            if str(new_conns) != 'No connections':
+            if new_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
 
-        # 5.2. new connections between added peers and new ipBlock peers
-        key = 'New connections between added peers and new ipBlock peers'
+        # 5.2. new connections between added peers and new ipBlocks
+        key = 'New connections between added peers and new ipBlocks'
         all_diff[key] = []
         for pair in itertools.product(added_peers, disjoint_ip_blocks):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
-            if str(new_conns) != 'No connections':
+            if new_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
 
             _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
-            if str(new_conns) != 'No connections':
+            if new_conns:
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
 
@@ -702,8 +702,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         pretty printing the results of semantic diff
         :param all_diff: A dictionary with all computed diffs
         :returns:
-            res (int) - number of diffs
-            explanation (str) - a diff message
+            res (int): number of diffs
+            explanation (str): a diff message
         """
         res = 0
         explanation = ''

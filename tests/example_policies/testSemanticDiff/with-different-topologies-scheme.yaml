@@ -70,19 +70,19 @@ queries:
     semanticDiff:
       - config_a
       - config_b
-    expected: 26
+    expected: 36
 
   - name: semantic_diff_b_to_a
     semanticDiff:
       - config_b
       - config_a
-    expected: 26
+    expected: 36
 
   - name: semantic_diff_disjoint_old1_config_a
     semanticDiff:
       - old1
       - config_a
-    expected: 887
+    expected: 896
 
   - name: semantic_diff_np1_np2
     semanticDiff:
@@ -94,4 +94,4 @@ queries:
     semanticDiff:
       - config_a_with_ipBlock
       - config_b_with_ipBlock
-    expected: 59
+    expected: 69
