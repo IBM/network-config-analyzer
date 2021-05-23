@@ -27,33 +27,78 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.peer_container = peer_container
         self.namespace = peer_container.get_namespace('default')  # value to be replaced if the netpol has ns defined
 
-    def check_dns_subdomain_name(self, key, value):
+    def check_dns_subdomain_name(self, value, key_container):
         """
         checking validity of the resource name
-        :param key: The key name
         :param value : The value assigned for the key
+        :param key_container : where the key appears
         :return: None
         """
         if len(value) > 253:
-            self.syntax_error(f'a {key} value must be no more than 253 characters', self.policy)
+            self.syntax_error(f'invalid subdomain name : "{value}", DNS subdomain name must '
+                              f'be no more than 253 characters', key_container)
         pattern = r"[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*"
         if re.fullmatch(pattern, value) is None:
-            self.syntax_error(f'a {key} value must consist of lower case alphanumeric characters, '
-                              '"-" or ".", and must start and end with an alphanumeric character', self.policy)
+            self.syntax_error(f'invalid DNS subdomain name : "{value}", it must consist of lower case alphanumeric '
+                              f'characters, "-" or ".", and must start and end with an alphanumeric character',
+                              key_container)
 
-    def check_dns_label_names(self, key, value):
+    def check_dns_label_names(self, value, key_container):
         """
         checking validity of the label values
-        :param key: The key name
         :param value : The value assigned for the key
+        :param key_container : where the key appears
         :return: None
         """
         if len(value) > 63:
-            self.syntax_error(f'a {key} value must be no more than 63 characters', self.policy)
+            self.syntax_error(f'invalid label: "{value}" ,DNS label name must be no more than 63 characters',
+                              key_container)
         pattern = r"[a-z0-9]([-a-z0-9]*[a-z0-9])?"
         if re.fullmatch(pattern, value) is None:
-            self.syntax_error(f'a {key} value must consist of lower case alphanumeric characters or "-",'
-                              ' and must start and end with an alphanumeric character', self.policy)
+            self.syntax_error(f'invalid DNS label : "{value}", it must consist of lower case alphanumeric characters '
+                              f'or "-", and must start and end with an alphanumeric character', key_container)
+
+    def check_label_key_syntax(self, key_label, key_container):
+        """
+        checking validity of the label's key
+        :param key_label: The key name
+        :param key_container : The label selector's part where the key appears
+        :return: None
+        """
+        if key_label.count('/') > 1:
+            self.syntax_error(f'Invalid key "{key_label}", a valid label key may have two segments: '
+                              f'an optional prefix and name, separated by a slash (/).', key_container)
+        if key_label.count('/') == 1:
+            prefix = key_label.split('/')[0]
+            if not prefix:
+                self.syntax_error(f'invalid key "{key_label}", prefix part must be non-empty', key_container)
+            self.check_dns_subdomain_name(prefix, key_container)
+            name = key_label.split('/')[1]
+        else:
+            name = key_label
+        if not name:
+            self.syntax_error(f'invalid key "{key_label}", name segment is required in label key', key_container)
+        if len(name) > 63:
+            self.syntax_error(f'invalid key "{key_label}", a label key name must be no more than 63 characters',
+                              key_container)
+        pattern = r"([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]"
+        if re.fullmatch(pattern, key_label) is None:
+            self.syntax_error(f'invalid key "{key_label}", a label key name part must consist of alphanumeric '
+                              f'characters, "-", "_" or ".", and must start and end with an alphanumeric character',
+                              key_container)
+
+    def check_label_value_syntax(self, val, key, key_container):
+        if val is None:
+            self.syntax_error(f'value label of "{key}" can not be null', key_container)
+        if val:
+            if len(val) > 63:
+                self.syntax_error(f'invalid value in "{key}: {val}", a label value must be no more than 63 characters',
+                                  key_container)
+            pattern = r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?"
+            if re.fullmatch(pattern, val) is None:
+                self.syntax_error(f'invalid value in "{key}: {val}", value label must be an empty string or consist'
+                                  f' of alphanumeric characters, "-", "_" or ".", and must start and end with an '
+                                  f'alphanumeric character ', key_container)
 
     def parse_label_selector_requirement(self, requirement, namespace_selector):
         """
@@ -68,7 +113,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                                   {'operator': ['In', 'NotIn', 'Exists', 'DoesNotExist']})
         key = requirement['key']
         operator = requirement['operator']
-
+        self.check_label_key_syntax(key, requirement)
         if operator in ['In', 'NotIn']:
             values = requirement.get('values')
             if not values:
@@ -105,6 +150,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         match_labels = label_selector.get('matchLabels')
         if match_labels:
             for key, val in match_labels.items():
+                self.check_label_key_syntax(key, match_labels)
+                self.check_label_value_syntax(val, key, match_labels)
                 if namespace_selector:
                     res &= self.peer_container.get_namespace_pods_with_label(key, [val])
                 else:
@@ -207,6 +254,13 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 self.syntax_error('type of port is not numerical or named (string) in NetworkPolicyPort', port)
             if isinstance(port_id, int) and not 1 <= port_id <= 65535:
                 self.syntax_error('port must be between 1 and 65535')
+            if isinstance(port_id, str):
+                if len(port_id) > 15:
+                    self.syntax_error('port name  must be no more than 15 characters', port)
+                if re.fullmatch(r"[a-z0-9]([-a-z0-9]*[a-z0-9])?", port_id) is None:
+                    self.syntax_error('port name should contain only lowercase alphanumeric characters or "-", '
+                                      'and start and end with alphanumeric characters', port)
+
             dest_port_set.add_port(port_id)
         elif end_port_num:
             self.syntax_error('endPort cannot be defined if the port field is not defined ', port)
@@ -318,9 +372,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
                                  'finalizers': 0, 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
                                  'ownerReferences': 0, 'resourceVersion': 0, 'selfLink': 0, 'uid': 0}
         self.check_keys_are_legal(policy_metadata, 'metadata', allowed_metadata_keys)
-        self.check_dns_subdomain_name('metadata name', policy_metadata['name'])
+        self.check_dns_subdomain_name(policy_metadata['name'], policy_metadata)
         if 'namespace' in policy_metadata and policy_metadata['namespace'] is not None:
-            self.check_dns_label_names('metadata namespace', policy_metadata['namespace'])
+            self.check_dns_label_names(policy_metadata['namespace'], policy_metadata)
             self.namespace = self.peer_container.get_namespace(policy_metadata['namespace'])
         res_policy = K8sNetworkPolicy(policy_metadata['name'], self.namespace)
 
