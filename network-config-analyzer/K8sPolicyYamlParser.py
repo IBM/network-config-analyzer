@@ -374,7 +374,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.check_keys_are_legal(policy_metadata, 'metadata', allowed_metadata_keys)
         self.check_dns_subdomain_name(policy_metadata['name'], policy_metadata)
         if 'namespace' in policy_metadata and policy_metadata['namespace'] is not None:
-            self.check_dns_label_names(policy_metadata['namespace'], policy_metadata)
+            self.check_dns_label_name(policy_metadata['namespace'], policy_metadata)
             self.namespace = self.peer_container.get_namespace(policy_metadata['namespace'])
         res_policy = K8sNetworkPolicy(policy_metadata['name'], self.namespace)
 
