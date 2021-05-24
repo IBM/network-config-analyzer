@@ -43,9 +43,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
                               f'characters, "-" or ".", and must start and end with an alphanumeric character',
                               key_container)
 
-    def check_dns_label_names(self, value, key_container):
+    def check_dns_label_name(self, value, key_container):
         """
-        checking validity of the label values
+        checking validity of the label name
         :param value : The value assigned for the key
         :param key_container : where the key appears
         :return: None
