@@ -38,7 +38,7 @@ queries:
     semanticDiff:
       - np1
       - np4
-    expected: 36160
+    expected: 36208
   - name: semantic_diff_ipblocks_np1_np2
     semanticDiff:
       - np1

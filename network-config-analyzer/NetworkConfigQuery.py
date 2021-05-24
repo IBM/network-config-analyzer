@@ -241,7 +241,7 @@ class SanityQuery(NetworkConfigQuery):
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
             pods_to_compare = self.config.peer_container.get_all_peers_group()
-            pods_to_compare |= TwoNetworkConfigsQuery(self.config, config_with_other_policy).disjoint_ip_blocks()
+            pods_to_compare |= TwoNetworkConfigsQuery(self.config, config_with_other_policy).disjoint_referenced_ip_blocks()
             for pod1 in pods_to_compare:
                 for pod2 in pods_to_compare:
                     if isinstance(pod1, IpBlock) and isinstance(pod2, IpBlock):
@@ -459,20 +459,21 @@ class TwoNetworkConfigsQuery:
         non_overlapping_interval_list += interval.split()
         non_overlapping_interval_list += to_add
 
-    def disjoint_ip_blocks(self):
+    def disjoint_ip_blocks(self, ip_blocks1, ip_blocks2):
         """
-        Takes all (atomic) ip-ranges in the policies of both configs and returns a new set of ip-ranges where
+        Takes all (atomic) ip-ranges in both ip-blocks and returns a new set of ip-ranges where
         each ip-range is:
-        1. a subset of an ip-range in either config AND
-        2. cannot be partially intersected by an ip-range in either config AND
+        1. a subset of an ip-range in either ip-blocks AND
+        2. cannot be partially intersected by an ip-range in either ip-blocks AND
         3. is maximal (extending the range to either side will violate either 1 or 2)
+        :param ip_blocks1: A set of ip blocks
+        :param ip_blocks2: A set of ip blocks
         :return: A set of ip ranges as specified above
         :rtype: PeerSet
         """
-
         # deepcopy is required since add_interval_to_list() changes the 'interval' argument
-        ip_blocks_set = copy.deepcopy(self.config1.get_referenced_ip_blocks())
-        ip_blocks_set |= copy.deepcopy(self.config2.get_referenced_ip_blocks())
+        ip_blocks_set = copy.deepcopy(ip_blocks1)
+        ip_blocks_set |= copy.deepcopy(ip_blocks2)
         ip_blocks = sorted(ip_blocks_set, key=IpBlock.ip_count)
 
         # making sure the resulting list does not contain overlapping ipBlocks
@@ -489,6 +490,14 @@ class TwoNetworkConfigsQuery:
 
         return res
 
+    def disjoint_referenced_ip_blocks(self):
+        """
+        Returns disjoint ip-blocks in the policies of both configs
+        :return: A set of disjoint ip-blocks
+        :rtype: PeerSet
+        """
+        return self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), self.config2.get_referenced_ip_blocks())
+
 
 class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
     """
@@ -500,7 +509,7 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
             return query_answer
 
         peers_to_compare = self.config1.peer_container.get_all_peers_group()
-        peers_to_compare |= self.disjoint_ip_blocks()
+        peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
@@ -586,9 +595,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
 
-        # compute 3 disjoint sets that cover all referenced ipBlock-peers in old
-        # and new configurations: removed-peers, intersected-peers, added-peers
-        disjoint_ip_blocks = self.disjoint_ip_blocks()
+        all_ip_blocks = PeerSet()
+        all_ip_blocks.add(IpBlock.get_all_ips_block())
+        old_ip_blocks = self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), all_ip_blocks)
+        new_ip_blocks = self.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(), all_ip_blocks)
 
         # 1.1. lost connections between removed peers
         key = 'Lost connections between removed peers'
@@ -602,7 +612,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 1.2. lost connections between removed peers and old ipBlocks
         key = 'Lost connections between removed peers and old ipBlocks'
         all_diff[key] = []
-        for pair in itertools.product(removed_peers, disjoint_ip_blocks):
+        for pair in itertools.product(removed_peers, old_ip_blocks):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
                 all_diff[key].append(
@@ -647,11 +657,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         """
         key = 'Changed connections between persistent peers and ipBlocks'
         all_diff[key] = []
+        disjoint_ip_blocks = self.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks)
         peers = captured_pods | disjoint_ip_blocks
         for pod1 in peers:
             for pod2 in disjoint_ip_blocks if pod1 in captured_pods else captured_pods:
-                if pod1 == pod2:
-                    continue
                 _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
                 _, new_conns, _ = self.config2.allowed_connections(pod1, pod2)
                 if new_conns != old_conns:
@@ -684,7 +693,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 5.2. new connections between added peers and new ipBlocks
         key = 'New connections between added peers and new ipBlocks'
         all_diff[key] = []
-        for pair in itertools.product(added_peers, disjoint_ip_blocks):
+        for pair in itertools.product(added_peers, new_ip_blocks):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
                 all_diff[key].append(
@@ -825,7 +834,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
             return query_answer
 
         peers_to_compare = self.config1.peer_container.get_all_peers_group()
-        peers_to_compare |= self.disjoint_ip_blocks()
+        peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
@@ -892,7 +901,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
             return query_answer
 
         peers_to_compare = self.config1.peer_container.get_all_peers_group()
-        peers_to_compare |= self.disjoint_ip_blocks()
+        peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
@@ -920,7 +929,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
             return query_answer
 
         peers_to_compare = self.config1.peer_container.get_all_peers_group()
-        peers_to_compare |= self.disjoint_ip_blocks()
+        peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:

@@ -94,4 +94,4 @@ queries:
     semanticDiff:
       - config_a_with_ipBlock
       - config_b_with_ipBlock
-    expected: 69
+    expected: 81

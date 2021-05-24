@@ -12,6 +12,6 @@ spec:
   ingress:
     - from:
       - ipBlock:
-          cidr: 0.0.0.0/0     # All destinations
+          cidr: 10.0.0.0/8
           except:
-          - 10.0.0.0/8
+          - 10.10.0.0/16
