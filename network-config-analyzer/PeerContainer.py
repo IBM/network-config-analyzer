@@ -321,7 +321,7 @@ class PeerContainer:
         ipb = IpBlock(name=name, namespace=namespace, is_global=is_global)
         labels = metadata.get('labels', {})
         if not labels:
-            print('NetworkSet ', name, ' should have labels', file=stderr)
+            print(f'NetworkSet {name} should have labels', file=stderr)
         for key, val in labels.items():
             ipb.set_label(key, val)
         cidrs = spec.get('nets')
