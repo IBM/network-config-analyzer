@@ -164,7 +164,7 @@ class Pod(ClusterEP):
 
     def canonical_form(self):
         # two pods are isomorphic if they have the same namespace and have the same set of labels and profiles
-        return self.namespace.name + super().canonical_form()
+        return self.namespace.name + '_' + self.workload_name + '_' + super().canonical_form()
 
     def add_named_port(self, name, port_num, protocol, warn=False):
         warn = self.namespace.name != 'kube-system'  # suppress warnings which the user cannot avoid

@@ -16,8 +16,8 @@ spec:
       - ipBlock:
           cidr: 0.0.0.0/0     # All destinations
           except:
-          - 10.0.0.0/9        # SL Internal
-          - 10.128.0.0/9        # SL Internal
+          - 10.0.0.0/9
+          - 10.128.0.0/9
           - 172.21.0.0/16     # Kube Service CIDR Range
           - 172.30.0.0/16     # Kube Cluster CIDR Range
       ports:

@@ -6,6 +6,7 @@
 from dataclasses import dataclass
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
+from ConnectionSet import ConnectionSet
 from Peer import PeerSet, IpBlock
 
 
@@ -509,6 +510,109 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
                     return QueryAnswer(False, self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.',
                                        explanation)
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
+
+
+class SemanticDiffQuery(TwoNetworkConfigsQuery):
+    """
+    Produces a report of newly allowed and newly denied connections
+    """
+    class SingleDiff:
+        """
+        Representing a single diff between a pair of eps
+        """
+        def __init__(self, from_ep, to_ep, removed, added):
+            self.from_ep = from_ep
+            self.to_ep = to_ep
+            self.removed = removed
+            self.added = added
+
+        def __str__(self):
+            res = "\n" + str(self.from_ep) + " -> " + str(self.to_ep) + ":\n"
+            res += "\tRemoved: " + str(self.removed) + "\n"
+            res += "\tAdded: " + str(self.added)
+            return res
+
+    @staticmethod
+    def pretty_print_diff(diff_list):
+        """
+        pretty printing the results of semantic diff
+        :param diff_list:
+        :return:
+        """
+        result = ""
+        for single in diff_list:
+            if diff_list[single]:
+                if single == 'All connections':
+                    if len(diff_list[single]) > 3:
+                        diff_list[single] = diff_list[single][0:3]
+                        diff_list[single].append("...")
+                else:
+                    for key in diff_list[single]:
+                        if len(diff_list[single][key]) > 3:
+                            diff_list[single][key] = diff_list[single][key][0:3]
+                            diff_list[single][key].append("...")
+                result += "- " + single + str(diff_list[single]) + "\n"
+                result = result.replace('{', ' ').replace('}', ' ').replace('\'', '')
+        return result
+
+    def exec(self):
+        query_answer = self.can_compare(True)
+        if query_answer.output_result:
+            return query_answer
+
+        print("Executing semantic diff")
+        peers_to_compare = self.config1.peer_container.get_all_peers_group()
+        peers_to_compare |= self.disjoint_ip_blocks()
+        captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
+        all_diffs = []
+        for pod1 in peers_to_compare:
+            for pod2 in peers_to_compare if pod1 in captured_pods else captured_pods:
+                if pod1 == pod2:
+                    continue
+                _, new_conns, _ = self.config1.allowed_connections(pod1, pod2)
+                _, old_conns, _ = self.config2.allowed_connections(pod1, pod2)
+                if new_conns != old_conns:
+                    all_diffs.append(SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns-new_conns, new_conns-old_conns))
+
+        if len(all_diffs) > 0:
+            # Initialized with the 3 protocols supported by k8s
+            # This implementation is not suitable for Calico!
+            added = {}
+            removed = {}
+            for protocol in [6, 17, 132]:
+                added[ConnectionSet.protocol_number_to_name(protocol)] = {}
+                removed[ConnectionSet.protocol_number_to_name(protocol)] = {}
+            added['All connections'] = []
+            removed['All connections'] = []
+            # Hash diffs: protocol-> port ranges-> list of (from endpoint, to endpoint) tuples
+            for entry in all_diffs:
+                if entry.added.allow_all:
+                    added['All connections'].append((entry.from_ep, entry.to_ep))
+                else:
+                    for protocol in entry.added.allowed_protocols:
+                        if not ConnectionSet.protocol_supports_ports(protocol):
+                            continue
+                        protocol_name = ConnectionSet.protocol_number_to_name(protocol)
+                        port_range = str(entry.added.allowed_protocols[protocol])
+                        if port_range not in added[protocol_name]:
+                            added[protocol_name][port_range] = []
+                        added[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
+                if entry.removed.allow_all:
+                    removed['All connections'].append((entry.from_ep, entry.to_ep))
+                else:
+                    for protocol in entry.removed.allowed_protocols:
+                        if not ConnectionSet.protocol_supports_ports(protocol):
+                            continue
+                        protocol_name = ConnectionSet.protocol_number_to_name(protocol)
+                        port_range = str(entry.removed.allowed_protocols[protocol])
+                        if port_range not in removed[protocol_name]:
+                            removed[protocol_name][port_range] = []
+                        removed[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
+            explanation = f'Added connections:\n{self.pretty_print_diff(added)}\n'
+            explanation += f'Removed connections:\n{self.pretty_print_diff(removed)}\n'
+
+            return QueryAnswer(False, 'Base branch and analyzed commit are not semantically equivalent.', explanation)
+        return QueryAnswer(True, 'Base branch and analyzed commit are semantically equivalent.')
 
 
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):

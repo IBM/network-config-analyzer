@@ -19,14 +19,14 @@ class PeerContainer:
     This class holds a representation of the network topology: the set of eps and how they are partitioned to namespaces
     It also provides various services to build the topology from files and to filter the eps by labels and by namespaces
     """
-    def __init__(self, ns_resources=None, peer_resources=None):
+    def __init__(self, ns_resources=None, peer_resources=None, config_name='global'):
         self.peer_set = PeerSet()
         self.namespaces = {}  # mapping from namespace name to the actual K8sNamespace object
         self.representative_peers = {}
         if ns_resources:
             self._set_namespace_list(ns_resources)
         if peer_resources:
-            self._set_peer_list(peer_resources)
+            self._set_peer_list(peer_resources, config_name)
 
     def __eq__(self, other):
         if isinstance(other, PeerContainer):
@@ -115,13 +115,14 @@ class PeerContainer:
             ns_code = yaml.load(yaml_file, Loader=yaml.SafeLoader)
             self.set_namespaces(ns_code)
 
-    def _set_peer_list(self, peer_resources):
+    def _set_peer_list(self, peer_resources, config_name):
         """
         Populates the set of peers in the container from one of the following resources:
          - git path of yaml file or a directory with yamls
          - local file (yaml or json) or a local directory containing yamls
          - query of the cluster
         :param str peer_resources: The peer resource to be used. If set to 'k8s'/'calico', will query the cluster using kubectl/calicoctl
+        :param srt config_name: The config name
         :return: None
         """
         # load from git
@@ -157,7 +158,7 @@ class PeerContainer:
             peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
             self.add_eps_from_list(peer_code)
 
-        print('Cluster has', self.get_num_peers(), 'non-isomorphic endpoints,', self.get_num_namespaces(), 'namespaces')
+        print(config_name, 'cluster has', self.get_num_peers(), 'non-isomorphic endpoints,', self.get_num_namespaces(), 'namespaces')
 
     def _set_namespace_list_from_github(self, url):
         """
@@ -379,7 +380,7 @@ class PeerContainer:
             return
 
         kind = ep_list.get('kind')
-        if kind == 'PodList':
+        if kind in ['PodList', 'List']:  # 'List' for the case of live cluster
             for endpoint in ep_list.get('items', []):
                 self._add_pod_from_yaml(endpoint)
         elif kind in ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob', 'ReplicationController']:
