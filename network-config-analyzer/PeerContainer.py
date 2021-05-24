@@ -313,6 +313,7 @@ class PeerContainer:
         name = metadata.get('name', '')
         if name == '':
             print('NetworkSet must have a name', file=stderr)
+            return
         if is_global:
             namespace = None
         else:
