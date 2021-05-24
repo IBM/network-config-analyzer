@@ -324,7 +324,7 @@ class PeerContainer:
             print(f'NetworkSet {name} should have labels', file=stderr)
         for key, val in labels.items():
             ipb.set_label(key, val)
-        cidrs = spec.get('nets')
+        cidrs = spec.get('nets', {})
         for cidr in cidrs:
             ipb.add_cidr(cidr)
         self._add_peer(ipb)
