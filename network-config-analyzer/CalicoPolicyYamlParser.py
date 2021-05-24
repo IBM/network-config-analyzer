@@ -479,7 +479,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             return None
         is_profile = (kind == 'Profile')
 
-        api_version = self.policy.get('apiVersion', self.policy.get('api_version', ''))
+        api_version = self.policy.get('apiVersion', self.policy.get('api_version'))
         if not api_version:
             self.syntax_error('An object with no specified apiVersion', self.policy)
         if 'calico' not in api_version:

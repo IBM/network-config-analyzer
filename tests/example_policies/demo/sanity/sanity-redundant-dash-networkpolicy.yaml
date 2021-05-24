@@ -16,4 +16,4 @@ spec:
       - namespaceSelector:
           matchLabels:
             unique-label: vendor-systemNameSpace
-    - ports: {}     # the typo is here
+    - ports: []    # the typo is here
