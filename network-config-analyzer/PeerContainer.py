@@ -149,7 +149,7 @@ class PeerContainer:
 
         # load from live cluster
         elif peer_resources == 'calico':
-            for peer_type in ['wep', 'hep']:
+            for peer_type in ['wep', 'hep', 'networkset', 'globalnetworkset']:
                 peer_code = yaml.load(CmdlineRunner.get_calico_resources(peer_type), Loader=yaml.SafeLoader)
                 self.add_eps_from_list(peer_code)
         elif not peer_resources or peer_resources == 'k8s':
@@ -299,6 +299,35 @@ class PeerContainer:
 
         self._add_peer(hep)
 
+    def _add_networkset_from_yaml(self, networkset_object):
+        """
+        Add a Calico NetworkSet to the container based on the given resource instance
+        :param dict networkset_object: The networkSet object to add
+        :return: None
+        """
+        kind = networkset_object.get('kind')
+        is_global = kind == 'GlobalNetworkSet'
+        metadata = networkset_object.get('metadata', {})
+        spec = networkset_object.get('spec', {})
+        name = metadata.get('name', '')
+        if name == '':
+            print('NetworkSet must have a name', file=stderr)
+        if is_global:
+            namespace = None
+        else:
+            namespace_name = metadata.get('namespace', 'default')
+            namespace = self.get_namespace(namespace_name)
+        ipb = IpBlock(name=name, namespace=namespace, is_global=is_global)
+        labels = metadata.get('labels', {})
+        if not labels:
+            print('NetworkSet ', name, ' should have labels', file=stderr)
+        for key, val in labels.items():
+            ipb.set_label(key, val)
+        cidrs = spec.get('nets')
+        for cidr in cidrs:
+            ipb.add_cidr(cidr)
+        self._add_peer(ipb)
+
     def _add_pod_from_workload_yaml(self, workload_resource):
         """
         Add K8s Pods to the container based on the given workload resource
@@ -355,7 +384,7 @@ class PeerContainer:
                 self._add_pod_from_yaml(endpoint)
         elif kind in ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob', 'ReplicationController']:
             self._add_pod_from_workload_yaml(ep_list)
-        else:
+        elif kind in ['WorkloadEndpointList', 'HostEndpointList']:
             is_calico_wep = kind == 'WorkloadEndpointList'
             is_calico_hep = kind == 'HostEndpointList'
             for endpoint in ep_list.get('items', []):
@@ -363,6 +392,13 @@ class PeerContainer:
                     self._add_wep_from_yaml(endpoint)
                 elif is_calico_hep:
                     self._add_hep_from_yaml(endpoint)
+        elif kind in ['NetworkSetList', 'GlobalNetworkSetList']:
+            for networkset in ep_list.get('items', []):
+                self._add_networkset_from_yaml(networkset)
+        elif kind in ['NetworkSet', 'GlobalNetworkSet']:
+            self._add_networkset_from_yaml(ep_list)
+        else:
+            print(kind, ' is not supported ', file=stderr)
 
     def delete_all_peers(self):
         self.peer_set.clear()
@@ -392,7 +428,7 @@ class PeerContainer:
         for peer in self.peer_set:
             # Note: It seems as if the semantics of NotIn is "either key does not exist, or its value is not in values"
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-            if namespace is not None and (not isinstance(peer, Pod) or peer.namespace != namespace):
+            if namespace is not None and peer.namespace != namespace:
                 continue
             if (peer.labels.get(key) in values or peer.extra_labels.get(key) in values) ^ not_in:
                 res.add(peer)
@@ -408,7 +444,7 @@ class PeerContainer:
         """
         res = PeerSet()
         for peer in self.peer_set:
-            if namespace is not None and (not isinstance(peer, Pod) or peer.namespace != namespace):
+            if namespace is not None and peer.namespace != namespace:
                 continue
             if (key in peer.labels or key in peer.extra_labels) ^ does_not_exist:
                 res.add(peer)
@@ -424,7 +460,7 @@ class PeerContainer:
         """
         res = PeerSet()
         for peer in self.peer_set:
-            if not isinstance(peer, Pod):
+            if peer.namespace is None:
                 continue
             # Note: It seems as if the semantics of NotIn is "either key does not exist, or its value is not in values"
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
@@ -441,7 +477,7 @@ class PeerContainer:
         """
         res = PeerSet()
         for peer in self.peer_set:
-            if not isinstance(peer, Pod):
+            if peer.namespace is None:
                 continue
             if (key in peer.namespace.labels) ^ does_not_exist:
                 res.add(peer)
@@ -457,7 +493,7 @@ class PeerContainer:
             return self.get_all_peers_group()
         res = PeerSet()
         for peer in self.peer_set:
-            if isinstance(peer, Pod) and peer.namespace == namespace:
+            if peer.namespace == namespace:
                 res.add(peer)
         return res
 
@@ -470,25 +506,37 @@ class PeerContainer:
         """
         res = PeerSet()
         for peer in self.peer_set:
-            if first_profile_only:
-                if peer.get_first_profile_name() == profile_name:
-                    res.add(peer)
-            else:
-                if profile_name in peer.profiles:
-                    res.add(peer)
+            if peer.has_profiles():
+                if first_profile_only:
+                    if peer.get_first_profile_name() == profile_name:
+                        res.add(peer)
+                else:
+                    if profile_name in peer.profiles:
+                        res.add(peer)
         return res
 
-    def get_all_peers_group(self, add_external_ips=False, include_heps=True):
+    def get_all_peers_group(self, add_external_ips=False, include_globals=True):
         """
         Return all peers known in the system
         :param bool add_external_ips: Whether to also add the full range of ips
-        :param bool include_heps: Whether to include HostEndpoints
+        :param bool include_globals: Whether to include global peers
         :return PeerSet: The required set of peers
         """
         res = PeerSet()
         for peer in self.peer_set:
-            if include_heps or not isinstance(peer, HostEP):
+            if include_globals or not peer.is_global_peer():
                 res.add(peer)
         if add_external_ips:
             res.add(IpBlock.get_all_ips_block())
+        return res
+
+    def get_all_global_peers(self):
+        """
+        Return all global peers known in the system
+        :return PeerSet: The required set of peers
+        """
+        res = PeerSet()
+        for peer in self.peer_set:
+            if peer.is_global_peer():
+                res.add(peer)
         return res

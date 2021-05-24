@@ -1,0 +1,46 @@
+namespaceList: ../../example_podlist/ns_list_wdc.json
+podList: ../../example_podlist/hep_and_wep.json
+#podList: calico
+
+networkPolicyLists:
+  - name: np1
+    networkPolicyList:
+      - testcase23-networkpolicy-allow-nets.yaml
+      - testcase23-profiles.yaml
+    expected_warnings: 0
+  - name: np2
+    networkPolicyList:
+      - testcase23-networkpolicy-networkset.yaml
+      - testcase23-profiles.yaml
+    expected_warnings: 0
+  - name: np-gan
+    networkPolicyList:
+      - testcase23-networkpolicy-global-allow-nets.yaml
+      - testcase23-profiles.yaml
+    expected_warnings: 0
+  - name: np-gnws
+    networkPolicyList:
+      - testcase23-networkpolicy-globalnetworkset.yaml
+      - testcase23-profiles.yaml
+    expected_warnings: 0
+
+queries:
+  - name: no_vacuous
+    vacuity:
+      - np1
+      - np2
+      - np-gan
+      - np-gnws
+    expected: 0
+
+  - name: equivalence
+    equivalence:
+      - np1
+      - np2
+    expected: 0
+
+  - name: equivalence2
+    equivalence:
+      - np-gan
+      - np-gnws
+    expected: 0

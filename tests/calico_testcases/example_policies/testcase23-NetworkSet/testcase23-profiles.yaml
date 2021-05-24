@@ -1,0 +1,504 @@
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: kns.default
+  resourceVersion: "13197659"
+  uid: c27d8d35-fd63-11e8-b63c-0617c669bcdb
+spec:
+  egress:
+  - action: Allow
+    destination: {}
+    source: {}
+  ingress:
+  - action: Allow
+    destination: {}
+    source: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: kns.vendor-cert-store
+  resourceVersion: "13197662"
+  uid: c2806c23-fd63-11e8-b63c-0617c669bcdb
+spec:
+  egress:
+  - action: Allow
+    destination: {}
+    source: {}
+  ingress:
+  - action: Allow
+    destination: {}
+    source: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: kns.vendor-system
+  resourceVersion: "13197650"
+  uid: c274aba6-fd63-11e8-b63c-0617c669bcdb
+spec:
+  egress:
+  - action: Allow
+    destination: {}
+    source: {}
+  ingress:
+  - action: Allow
+    destination: {}
+    source: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: kns.kube-public
+  resourceVersion: "13197653"
+  uid: c278149b-fd63-11e8-b63c-0617c669bcdb
+spec:
+  egress:
+  - action: Allow
+    destination: {}
+    source: {}
+  ingress:
+  - action: Allow
+    destination: {}
+    source: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: kns.kube-system
+  resourceVersion: "13197656"
+  uid: c27ad18c-fd63-11e8-b63c-0617c669bcdb
+spec:
+  egress:
+  - action: Allow
+    destination: {}
+    source: {}
+  ingress:
+  - action: Allow
+    destination: {}
+    source: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.default.default
+  resourceVersion: "16619907"
+  uid: c28aa30a-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.vendor-cert-store.default
+  resourceVersion: "16619920"
+  uid: c2ba91f0-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.vendor-system.default
+  resourceVersion: "16619900"
+  uid: c28eca23-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-12T11:19:54Z
+  name: ksa.vendor-system.cloud-provider-lb
+  resourceVersion: "13344159"
+  uid: d972ddd9-fdff-11e8-8862-0692417c0f85
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.vendor-system.kube-fluentd
+  resourceVersion: "16619928"
+  uid: c291e2e8-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-public.default
+  resourceVersion: "16619926"
+  uid: c2deecba-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.attachdetach-controller
+  resourceVersion: "16619919"
+  uid: c2dc30a4-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.calico-kube-controllers
+  resourceVersion: "16619915"
+  uid: c2b7be23-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.calico-node
+  resourceVersion: "16619921"
+  uid: c2b1aa9b-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.certificate-controller
+  resourceVersion: "16619908"
+  uid: c2bd4dfb-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.clusterrole-aggregation-controller
+  resourceVersion: "16619898"
+  uid: c297a2db-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-12T11:16:30Z
+  name: ksa.kube-system.coredns
+  resourceVersion: "13343342"
+  uid: 60493b43-fdff-11e8-8862-0692417c0f85
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+    pcsa.kubernetes.io/cluster-service: "true"
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-12T11:16:32Z
+  name: ksa.kube-system.coredns-autoscaler
+  resourceVersion: "13343371"
+  uid: 610c9a2a-fdff-11e8-8862-0692417c0f85
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.cronjob-controller
+  resourceVersion: "16619924"
+  uid: c2e4e1fd-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.daemon-set-controller
+  resourceVersion: "16619922"
+  uid: c2a8a6d1-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.default
+  resourceVersion: "16619897"
+  uid: c29a9f4c-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.deployment-controller
+  resourceVersion: "16619894"
+  uid: c2c889dc-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.disruption-controller
+  resourceVersion: "16619895"
+  uid: c2c31147-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.endpoint-controller
+  resourceVersion: "16619902"
+  uid: c2d12f60-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-12T11:11:56Z
+  name: ksa.kube-system.expand-controller
+  resourceVersion: "16619903"
+  uid: bc852048-fdfe-11e8-955c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.generic-garbage-collector
+  resourceVersion: "16619901"
+  uid: c2e831f7-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.horizontal-pod-autoscaler
+  resourceVersion: "16619911"
+  uid: c2a5919d-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.file-plugin
+  resourceVersion: "13344149"
+  uid: c2774918-fd63-11e8-b63c-0617c669bcdb
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+    pcsa.kubernetes.io/cluster-service: "true"
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.ingress
+  resourceVersion: "16619923"
+  uid: c2850892-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.keepalived-watcher
+  resourceVersion: "13197704"
+  uid: c2d6c580-fd63-11e8-b63c-0617c669bcdb
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+    pcsa.kubernetes.io/cluster-service: "true"
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.kube-fluentd
+  resourceVersion: "16619910"
+  uid: c29d5dd7-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.job-controller
+  resourceVersion: "16619899"
+  uid: c2ce8812-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.kube-dns
+  resourceVersion: "13197692"
+  uid: c2b47118-fd63-11e8-b63c-0617c669bcdb
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+    pcsa.kubernetes.io/cluster-service: "true"
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.kube-dns-autoscaler
+  resourceVersion: "13197655"
+  uid: c27a1c9e-fd63-11e8-b63c-0617c669bcdb
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.kubernetes-dashboard
+  resourceVersion: "13197700"
+  uid: c2cbae99-fd63-11e8-b63c-0617c669bcdb
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+    pcsa.k8s-app: kubernetes-dashboard
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-12T11:19:43Z
+  name: ksa.kube-system.metrics-server
+  resourceVersion: "13343986"
+  uid: d355813c-fdff-11e8-8862-0692417c0f85
+spec:
+  labelsToApply:
+    pcsa.addonmanager.kubernetes.io/mode: Reconcile
+    pcsa.kubernetes.io/cluster-service: "true"
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.namespace-controller
+  resourceVersion: "16619916"
+  uid: c27ccdfb-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.node-controller
+  resourceVersion: "16619918"
+  uid: c2a2b84c-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.persistent-volume-binder
+  resourceVersion: "16619913"
+  uid: c2d97034-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.pod-garbage-collector
+  resourceVersion: "16619925"
+  uid: c2e22e59-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.pv-protection-controller
+  resourceVersion: "16619914"
+  uid: c27fb4b2-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.pvc-protection-controller
+  resourceVersion: "16619927"
+  uid: c2a00cd7-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.replicaset-controller
+  resourceVersion: "16619906"
+  uid: c2c5d668-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.replication-controller
+  resourceVersion: "16619905"
+  uid: c287c8b0-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.resourcequota-controller
+  resourceVersion: "16619896"
+  uid: c294e49a-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.service-account-controller
+  resourceVersion: "16619917"
+  uid: c2c0120c-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.service-controller
+  resourceVersion: "16619909"
+  uid: c2ab579a-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.statefulset-controller
+  resourceVersion: "16619912"
+  uid: c2d4104b-fd63-11e8-b63c-0617c669bcdb
+spec: {}
+---
+apiVersion: projectcalico.org/v3
+kind: Profile
+metadata:
+  creationTimestamp: 2018-12-11T16:42:34Z
+  name: ksa.kube-system.ttl-controller
+  resourceVersion: "16619904"
+  uid: c282537f-fd63-11e8-b63c-0617c669bcdb
+spec: {}

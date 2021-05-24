@@ -1,0 +1,23 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase23-networkpolicy-networkset
+  namespace: kube-system
+spec:
+  selector: has(tier)
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: role == 'db5'
+      namespaceSelector: global()
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      selector: role == 'db5'
+      namespaceSelector: global()
+
