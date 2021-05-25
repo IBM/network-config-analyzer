@@ -62,6 +62,8 @@ class ConnectionSet:
             return 'No connections'
         res = ''
         # TODO: extend to calico protocols as well
+        # https://docs.projectcalico.org/reference/resources/profile#rule
+        # calico protocols: protocol 	Positive protocol match. 	TCP, UDP, ICMP, ICMPv6, SCTP, UDPLite, 1-255 	string | integer
         # include only protocols supported in k8s policies :
         for protocol in [6, 17, 132]:
             if protocol in self.allowed_protocols:

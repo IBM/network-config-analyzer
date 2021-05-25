@@ -17,6 +17,7 @@ class SchemeRunner(GenericYamlParser):
     """
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
+
     def __init__(self, scheme_file_name):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
@@ -154,10 +155,11 @@ class SchemeRunner(GenericYamlParser):
         """
         if not query_array:
             self.warning('No queries to run\n')
-        allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0, 'redundancy': 0,
+        allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0,
+                            'redundancy': 0,
                             'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0, 'sanity': 0,
                             'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0, 'expected': 0,
-                            'allCaptured': 0, 'connectivityMap': 0}
+                            'allCaptured': 0, 'connectivityMap': 0, 'fw_rules_configuration': 0}
         for query in query_array:
             res = 0
             self.check_keys_are_legal(query, 'query', allowed_elements)
@@ -165,8 +167,14 @@ class SchemeRunner(GenericYamlParser):
             print('Running query', query_name)
 
             for query_key in query.keys():
-                if query_key not in ['name', 'expected']:
-                    res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key])
+                if query_key not in ['name', 'expected', 'fw_rules_configuration']:
+                    if query_key != 'connectivityMap':
+                        res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key])
+                    else:
+                        fw_rules_configuration = query[
+                            'fw_rules_configuration'] if 'fw_rules_configuration' in query else None
+                        res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key],
+                                                                                                   fw_rules_configuration)
 
             if 'expected' in query:
                 expected = query['expected']
@@ -177,9 +185,9 @@ class SchemeRunner(GenericYamlParser):
     def _run_equivalence(self, configs_array):
         total_res = 0
         full_result = QueryAnswer()
-        for ind1 in range(len(configs_array)-1):
+        for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
-            for ind2 in range(ind1+1, len(configs_array)):
+            for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
                 full_result = SemanticEquivalenceQuery(self._get_config(config1), self._get_config(config2)).exec()
                 print(full_result.output_result)
@@ -193,9 +201,9 @@ class SchemeRunner(GenericYamlParser):
     def _run_strong_equivalence(self, configs_array):
         total_res = 0
         full_result = QueryAnswer()
-        for ind1 in range(len(configs_array)-1):
+        for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
-            for ind2 in range(ind1+1, len(configs_array)):
+            for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
                 full_result = StrongEquivalenceQuery(self._get_config(config1), self._get_config(config2)).exec()
                 total_res += not full_result.bool_result
@@ -330,9 +338,9 @@ class SchemeRunner(GenericYamlParser):
 
     def _run_two_way_containment(self, configs_array):
         total_res = 0
-        for ind1 in range(len(configs_array)-1):
+        for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
-            for ind2 in range(ind1+1, len(configs_array)):
+            for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
                 full_result = TwoWayContainmentQuery(self._get_config(config1), self._get_config(config2)).exec()
                 print(full_result.output_result)
@@ -392,10 +400,16 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_connectivity_map(self, configs_array):
+    def _run_connectivity_map(self, configs_array, fw_rules_configuration):
+        res = 0
         for config in configs_array:
-            run_in_test_mode = 'fw_rules_tests' in self.yaml_file_name
-            full_result = ConnectivityMapQuery(self._get_config(config)).exec(run_in_test_mode)
+            # run_in_test_mode = 'fw_rules_tests' in self.yaml_file_name
+            full_result = ConnectivityMapQuery(self._get_config(config)).exec(fw_rules_configuration)
+            res += full_result.numerical_result
             print(full_result.output_result)
+            if not full_result.bool_result:
+                print(full_result.output_explanation)
+                print()
+            # print(full_result.output_result)
         print()
-        return 0
+        return res

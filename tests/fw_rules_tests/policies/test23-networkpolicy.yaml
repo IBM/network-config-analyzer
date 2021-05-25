@@ -1,0 +1,106 @@
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p1
+  namespace: default
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - skydive
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchExpressions:
+            - key: test
+              operator: In
+              values:
+                - A
+                - B
+      ports:
+        - port: 53
+          protocol: UDP
+    - from:
+      - podSelector:
+          matchExpressions:
+            - key: test
+              operator: In
+              values:
+                - C
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p2
+  namespace: default
+spec:
+  podSelector:
+    matchExpressions:
+      - key: test
+        operator: In
+        values:
+          - A
+          - B
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - skydive
+      ports:
+        - port: 53
+          protocol: UDP
+
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p3
+  namespace: default
+spec:
+  podSelector:
+    matchExpressions:
+      - key: test
+        operator: In
+        values:
+          - C
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - skydive
+
+
+---
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-default
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+

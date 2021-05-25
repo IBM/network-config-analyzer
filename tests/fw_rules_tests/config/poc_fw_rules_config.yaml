@@ -1,0 +1,8 @@
+run_in_test_mode: False
+max_iter: 9
+filter_system_ns: True
+expected_fw_rules_dir: 'fw_rules_output'
+override_result_file: True
+create_output_files: True
+#expected_fw_rules_txt: 'poc1.txt'
+#expected_fw_rules_yaml: 'poc1.yaml'

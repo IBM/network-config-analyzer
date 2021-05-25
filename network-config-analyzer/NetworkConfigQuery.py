@@ -10,7 +10,6 @@ from ConnectivityGraph import ConnectivityGraph
 from Peer import PeerSet, IpBlock
 
 
-
 @dataclass
 class QueryAnswer:
     """
@@ -26,6 +25,7 @@ class NetworkConfigQuery:
     """
     A base class for queries that inspect only a single network config
     """
+
     def __init__(self, config):
         """
         :param NetworkConfig config: The config to query
@@ -37,6 +37,7 @@ class DisjointnessQuery(NetworkConfigQuery):
     """
     Check whether no two policy in the config capture the same peer
     """
+
     def exec(self):
         non_disjoint_explanation_list = []
         for policy1 in self.config.sorted_policies:
@@ -64,6 +65,7 @@ class EmptinessQuery(NetworkConfigQuery):
     """
     Check if any policy or one of its rules captures an empty set of peers
     """
+
     def exec(self):
         res = 0
         full_explanation_list = []
@@ -88,6 +90,7 @@ class VacuityQuery(NetworkConfigQuery):
     """
     Check if the set of policies changes the cluster's default behavior
     """
+
     def exec(self):
         vacuous_config = self.config.clone_without_policies('vacuousConfig')
         vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config).exec()
@@ -107,6 +110,7 @@ class RedundancyQuery(NetworkConfigQuery):
     """
     Check if any of the policies can be removed without changing cluster connectivity. Same for each rule in each policy
     """
+
     def redundant_policies(self):
         res = 0
         redundancies = []
@@ -139,14 +143,14 @@ class RedundancyQuery(NetworkConfigQuery):
             config_with_modified_policy.add_policy(modified_policy)
             equiv_result = SemanticEquivalenceQuery(self.config, config_with_modified_policy).exec()
             if equiv_result.bool_result:
-                redundancy = f'Ingress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant '\
+                redundancy = f'Ingress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
                 redundancies.append(redundancy)
                 redundant_ingress_rules.append(rule_index)
         for rule_index, egress_rule in enumerate(policy.egress_rules, start=1):
             modified_policy = policy.clone_without_rule(egress_rule, False)
             if len(modified_policy.egress_rules) < len(policy.egress_rules) - 1:
-                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant '\
+                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
                 redundancies.append(redundancy)
                 redundant_egress_rules.append(rule_index)
@@ -154,7 +158,7 @@ class RedundancyQuery(NetworkConfigQuery):
             config_with_modified_policy = self.config.clone_without_policy(policy)
             config_with_modified_policy.add_policy(modified_policy)
             if SemanticEquivalenceQuery(self.config, config_with_modified_policy).exec().bool_result:
-                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant '\
+                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
                 redundant_egress_rules.append(rule_index)
                 redundancies.append(redundancy)
@@ -168,7 +172,7 @@ class RedundancyQuery(NetworkConfigQuery):
         for policy in self.config.policies.values():
             if policy.full_name() in redundant_policies:  # we skip checking rules if the whole policy is redundant
                 continue
-            _, _,  rules_redundancy_explanation = \
+            _, _, rules_redundancy_explanation = \
                 self.find_redundant_rules(policy)
             res += len(rules_redundancy_explanation)
             redundancies += rules_redundancy_explanation
@@ -183,6 +187,7 @@ class SanityQuery(NetworkConfigQuery):
     """
     Perform various queries to check the network config sanity. Checks vacuity, redundancy and emptiness
     """
+
     def has_conflicting_policies_with_same_order(self):
         if len(self.config.sorted_policies) <= 1:
             return False, ''
@@ -372,7 +377,7 @@ class SanityQuery(NetworkConfigQuery):
             empty_rules_explanation, empty_ingress_rules_list, empty_egress_rules_list = policy.has_empty_rules('')
             if empty_rules_explanation:
                 issues_counter += len(empty_rules_explanation)
-                rules_issues += '\n'.join(empty_rules_explanation)+'\n'
+                rules_issues += '\n'.join(empty_rules_explanation) + '\n'
                 policy.findings += empty_rules_explanation
 
             if is_config_vacuous_res.bool_result:
@@ -385,9 +390,9 @@ class SanityQuery(NetworkConfigQuery):
                 policy.add_finding(redundancy_full_text)
                 continue
 
-            redundant_ingress_rules, redundant_egress_rules,  _ = \
+            redundant_ingress_rules, redundant_egress_rules, _ = \
                 RedundancyQuery(self.config).find_redundant_rules(policy)
-            for rule_index in range(1, len(policy.ingress_rules)+1):
+            for rule_index in range(1, len(policy.ingress_rules) + 1):
                 if rule_index in empty_ingress_rules_list:
                     continue
                 if rule_index in redundant_ingress_rules:
@@ -395,7 +400,7 @@ class SanityQuery(NetworkConfigQuery):
                     redundancy_text = self.redundant_rule_text(policy, rule_index, True)
                     rules_issues += redundancy_text
                     policy.add_finding(redundancy_text)
-            for rule_index in range(1, len(policy.egress_rules)+1):
+            for rule_index in range(1, len(policy.egress_rules) + 1):
                 if rule_index in empty_egress_rules_list:
                     continue
                 if rule_index in redundant_egress_rules:
@@ -416,7 +421,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     """
     Print the connectivity graph in the form of firewall rules
     """
-    def exec(self, run_in_test_mode):
+
+    def exec(self, fw_rules_configuration):
         peers_to_compare = self.config.peer_container.get_all_peers_group()
         ref_ip_blocks = self.config.get_referenced_ip_blocks()
         peers_to_compare |= ref_ip_blocks
@@ -428,7 +434,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         complement_peer_set |= complement.split()
         peers_to_compare |= complement_peer_set
 
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.name, self.config.allowed_labels, run_in_test_mode)
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.name, self.config.allowed_labels,
+                                       fw_rules_configuration)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if peer1 == peer2:
@@ -437,7 +444,15 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     _, conns, _ = self.config.allowed_connections(peer1, peer2)
                     conn_graph.add_edge(peer1, peer2, conns)
 
-        conn_graph.output_as_firewall_rules()
+        txt_comparison, yaml_comparison, _ = conn_graph.output_as_firewall_rules()
+        if not txt_comparison:
+            output_res = f'Network configuration {self.config.name} has unexpected fw-rules in txt format'
+            return QueryAnswer(bool_result=False, output_result=output_res, output_explanation='',
+                               numerical_result=1)
+        elif not yaml_comparison:
+            output_res = f'Network configuration {self.config.name} has unexpected fw-rules in yaml format'
+            return QueryAnswer(bool_result=False, output_result=output_res, output_explanation='',
+                               numerical_result=1)
         return QueryAnswer(True)
 
 
@@ -445,6 +460,7 @@ class TwoNetworkConfigsQuery:
     """
     A base class for queries that inspect two network configs
     """
+
     def __init__(self, config1, config2):
         """
         :param NetworkConfig config1: First config to query
@@ -520,6 +536,7 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
     """
     Check whether config1 and config2 allow exactly the same set of connections.
     """
+
     def exec(self):
         query_answer = self.can_compare(True)
         if query_answer.output_result:
@@ -535,20 +552,23 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
                 _, conns1, _ = self.config1.allowed_connections(peer1, peer2)
                 _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
                 if conns1 != conns2:
-                    explanation = f'Allowed connections from {peer1} to {peer2} are different\n' +\
+                    explanation = f'Allowed connections from {peer1} to {peer2} are different\n' + \
                                   conns1.print_diff(conns2, self.name1, self.name2)
                     return QueryAnswer(False, self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.',
                                        explanation)
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
 
+
 class SemanticDiffQuery(TwoNetworkConfigsQuery):
     """
     Produces a report of newly allowed and newly denied connections
     """
+
     class SingleDiff:
         """
         Representing a single diff between a pair of eps
         """
+
         def __init__(self, from_ep, to_ep, removed, added):
             self.from_ep = from_ep
             self.to_ep = to_ep
@@ -584,6 +604,17 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 result = result.replace('{', ' ').replace('}', ' ').replace('\'', '')
         return result
 
+    @staticmethod
+    def prinf_diff(fw_rules_map):
+        result = ""
+        all_connections = set(fw_rules_map.keys())
+        for connection in all_connections:
+            connection_rules = fw_rules_map[connection]
+            for rule in connection_rules:
+                rule_str = str(rule) + '\n'
+                result += rule_str
+        return result
+
     def exec(self):
         query_answer = self.can_compare(True)
         if query_answer.output_result:
@@ -601,23 +632,27 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 _, new_conns, _ = self.config1.allowed_connections(pod1, pod2)
                 _, old_conns, _ = self.config2.allowed_connections(pod1, pod2)
                 if new_conns != old_conns:
-                    all_diffs.append(SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns-new_conns, new_conns-old_conns))
+                    all_diffs.append(
+                        SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns - new_conns, new_conns - old_conns))
 
         if len(all_diffs) > 0:
             allowed_labels = self.config1.allowed_labels.union(self.config2.allowed_labels)
             config_name_combined = self.config1.name + '_' + self.config2.name
             added_conns_name = 'semantic_diff_' + config_name_combined + '_added_conns'
             removed_conns_name = 'semantic_diff_' + config_name_combined + '_removed_conns'
-            conn_graph_added_conns = ConnectivityGraph(peers_to_compare, added_conns_name, allowed_labels, False)
-            conn_graph_removed_conns = ConnectivityGraph(peers_to_compare, removed_conns_name, allowed_labels, False)
+            conn_graph_added_conns = ConnectivityGraph(peers_to_compare, added_conns_name, allowed_labels, 'config/semantic_diff_fw_rules_config.yaml')
+            conn_graph_removed_conns = ConnectivityGraph(peers_to_compare, removed_conns_name, allowed_labels, 'config/semantic_diff_fw_rules_config.yaml')
             for diff in all_diffs:
-                #add_edge(self, source_peer, dest_peer, connections)
-                conn_graph_added_conns.add_edge(diff.from_ep, diff.to_ep, diff.added )
+                # add_edge(self, source_peer, dest_peer, connections)
+                conn_graph_added_conns.add_edge(diff.from_ep, diff.to_ep, diff.added)
                 conn_graph_removed_conns.add_edge(diff.from_ep, diff.to_ep, diff.removed)
-            print('added connections as fw rules:')
-            conn_graph_added_conns.output_as_firewall_rules()
-            print('removed connections as fw rules:')
-            conn_graph_removed_conns.output_as_firewall_rules()
+            # print('added connections as fw rules:')
+            _, _, added = conn_graph_added_conns.output_as_firewall_rules(False)
+            # print('removed connections as fw rules:')
+            _, _, removed = conn_graph_removed_conns.output_as_firewall_rules(False)
+            explanation = f'Added connections:\n{self.prinf_diff(added)}\n'
+            explanation += f'Removed connections:\n{self.prinf_diff(removed)}\n'
+            '''
             # Initialized with the 3 protocols supported by k8s
             # This implementation is not suitable for Calico!
             added = {}
@@ -653,15 +688,18 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         removed[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
             explanation = f'Added connections:\n{self.pretty_print_diff(added)}\n'
             explanation += f'Removed connections:\n{self.pretty_print_diff(removed)}\n'
+            '''
 
             return QueryAnswer(False, f'{self.name1} and {self.name2} are not semantically equivalent.', explanation)
 
         return QueryAnswer(True, f'{self.name1} and {self.name2} are semantically equivalent.')
 
+
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
     """
     Checks whether the two configs have exactly the same set of policies (same names and same semantics)
     """
+
     def exec(self):
         query_answer = self.can_compare(True)
         if query_answer.output_result:
@@ -672,11 +710,11 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
         policies_1_minus_2 = policies1.difference(policies2)
         policies_2_minus_1 = policies2.difference(policies1)
         if policies_1_minus_2:
-            output_result = self.name1 + ' contains a network policy named ' + policies_1_minus_2.pop() + ', but '\
+            output_result = self.name1 + ' contains a network policy named ' + policies_1_minus_2.pop() + ', but ' \
                             + self.name2 + ' does not'
             return QueryAnswer(False, output_result)
         if policies_2_minus_1:
-            output_result = self.name2 + ' contains a network policy named ' + policies_2_minus_1.pop() + ', but '\
+            output_result = self.name2 + ' contains a network policy named ' + policies_2_minus_1.pop() + ', but ' \
                             + self.name1 + ' does not'
             return QueryAnswer(False, output_result)
 
@@ -685,7 +723,7 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
             single_policy_config2 = self.config2.clone_with_just_one_policy(policy.full_name())
             full_result = SemanticEquivalenceQuery(single_policy_config1, single_policy_config2).exec()
             if not full_result.bool_result:
-                output_result = policy.full_name() + ' is not equivalent in ' + self.name1 +\
+                output_result = policy.full_name() + ' is not equivalent in ' + self.name1 + \
                                 ' and in ' + self.name2
                 return QueryAnswer(False, output_result, full_result.output_explanation)
 
@@ -696,6 +734,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     """
     Checking whether the connections allowed by config1 are contained in those allowed by config2
     """
+
     def exec(self, only_captured=False):
         query_answer = self.can_compare(True)
         if query_answer.output_result:
@@ -727,6 +766,7 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
     """
     Checks containment in both sides (whether config1 is contained in config2 and vice versa)
     """
+
     def exec(self):
         query_answer = self.can_compare()
         if query_answer.output_result:
@@ -763,6 +803,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
     """
     Checking whether config2 extends config1's allowed connection for Pods captured by policies in config1
     """
+
     def exec(self):
         query_answer = self.can_compare()
         if query_answer.output_result:
@@ -781,7 +822,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                 captured2, conns2, _ = self.config2.allowed_connections(peer1, peer2, True)
                 if captured2 and not conns2.contained_in(conns1):
                     output_explanation = f'{self.name2} extends the allowed connections from {peer1} to {peer2}\n' + \
-                        conns2.print_diff(conns1, self.name2, self.name1)
+                                         conns2.print_diff(conns1, self.name2, self.name1)
                     return QueryAnswer(True, self.name2 + ' interferes with ' + self.name1, output_explanation)
 
         return QueryAnswer(False, self.name2 + ' does not interfere with ' + self.name1)
@@ -791,6 +832,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
     """
     Checking whether both configs allow the same connection between any pair of peers
     """
+
     def exec(self, only_captured):
         query_answer = self.can_compare()
         if query_answer.output_result:
@@ -822,6 +864,7 @@ class AllCapturedQuery(NetworkConfigQuery):
     """
     Check that all pods are captured
     """
+
     def exec(self):
         existing_pods = self.config.peer_container.get_all_peers_group()
 
@@ -841,12 +884,14 @@ class AllCapturedQuery(NetworkConfigQuery):
         full_explanation = ''
         res = 0
         if uncaptured_ingress_pods:
-            uncaptured_ingress_resources = set(pod.workload_name for pod in uncaptured_ingress_pods)  # no duplicate resources in the set
+            uncaptured_ingress_resources = set(
+                pod.workload_name for pod in uncaptured_ingress_pods)  # no duplicate resources in the set
             res += len(uncaptured_ingress_resources)
             resources = ', '.join(e for e in uncaptured_ingress_resources)
             full_explanation += f'These workload resources are not captured by any policy that affects ingress: {resources}\n'
         if uncaptured_egress_pods:
-            uncaptured_egress_resources = set(pod.workload_name for pod in uncaptured_egress_pods)  # no duplicate resources in the set
+            uncaptured_egress_resources = set(
+                pod.workload_name for pod in uncaptured_egress_pods)  # no duplicate resources in the set
             res += len(uncaptured_egress_resources)
             resources = ', '.join(e for e in uncaptured_egress_resources)
             full_explanation += f'These workload resources are not captured by any policy that affects egress: {resources}\n'

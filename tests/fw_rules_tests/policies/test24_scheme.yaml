@@ -1,0 +1,17 @@
+namespaceList: ../podlist/ns_list.json
+#podList: ../../example_podlist/pods_list.json
+podList: ../podlist/pods_list_8.json
+
+networkConfigList:
+
+
+  - name: np24
+    networkPolicyList:
+      - test24-networkpolicy.yaml
+    expected_warnings: 0
+
+queries:
+  - name: connectivity_map
+    connectivityMap:
+      - np24
+    expected: 0

@@ -1,0 +1,22 @@
+- src_ns:
+  - default
+  src_pods:
+  - '*'
+  dst_ns:
+  - default
+  dst_pods:
+  - app in (skydive)
+  connection:
+  - Protocol: UDP
+    Ports:
+    - '53'
+- src_ns:
+  - default
+  src_pods:
+  - default/cognetive-agents-d54st
+  dst_ns:
+  - default
+  dst_pods:
+  - app in (skydive)
+  connection:
+  - All connections

@@ -4,6 +4,8 @@ from K8sNamespace import K8sNamespace
 from ConnectionSet import ConnectionSet
 from FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
 from Peer import IpBlock, Pod
+from deepdiff import DeepDiff
+from pathlib import Path
 
 
 # TODO: rename file or split to two files..
@@ -16,13 +18,13 @@ class MinimizeCsFwRules:
                  peer_pairs_in_containing_connections,
                  cluster_info,
                  allowed_labels,
-                 run_in_test_mode):
+                 config):
         self.peer_pairs = peer_pairs
         self.connections = connections
         self.peer_pairs_in_containing_connections = peer_pairs_in_containing_connections
         self.cluster_info = cluster_info
         self.allowed_labels = allowed_labels
-        self.run_in_test_mode = run_in_test_mode
+        self.config = config
         self.ns_pairs = []
         self.peer_pairs_with_partial_ns_expr = []
         self.peer_pairs_without_ns_expr = []
@@ -31,8 +33,8 @@ class MinimizeCsFwRules:
         self.minimized_rules_set = []
         # create the fw rules per given connection and its peer_pairs
         self.create_fw_rules()
-        if self.run_in_test_mode:
-            self.print_minimized_firewall_rules()
+        if self.config.run_in_test_mode:
+            self.print_firewall_rules(self.minimized_rules_set)
             self.print_results_info()
 
     def create_fw_rules(self):
@@ -48,10 +50,16 @@ class MinimizeCsFwRules:
 
     def compute_covered_peer_pairs_union(self):
         covered_peer_pairs_union = set(self.peer_pairs).union(set(self.peer_pairs_in_containing_connections))
+
         all_pods_set = set([src for (src, dst) in self.peer_pairs if isinstance(src, Pod)]).union(
             set([dst for (src, dst) in self.peer_pairs if isinstance(dst, Pod)]))
         for pod in all_pods_set:
-            covered_peer_pairs_union.add((pod, pod))
+            if not self.config.use_pod_representative:
+                covered_peer_pairs_union.add((pod, pod))
+            else:
+                if len(self.cluster_info.map_pods_to_owner_rep[pod.owner_name]) ==1:
+                    covered_peer_pairs_union.add((pod, pod))
+
         self.covered_peer_pairs_union = covered_peer_pairs_union
         return
 
@@ -98,13 +106,13 @@ class MinimizeCsFwRules:
         print('----------------')
         return
 
-    def print_minimized_firewall_rules(self):
+    def print_firewall_rules(self, rules):
         print('-------------------')
         print('rules for connections: ' + str(self.connections))
-        for rule in self.minimized_rules_set:
+        for rule in rules:
             # filter out rule of a pod to itslef
-            if rule.is_rule_trivial():
-                continue
+            #if rule.is_rule_trivial():
+            #    continue
             print(rule)
 
     def get_src_dest_pairs_from_fw_rules(self, rules):
@@ -243,7 +251,10 @@ class MinimizeCsFwRules:
 
     # remove trivial pairs to avoid creating them a fw-rule directly
     def remove_trivial_rules_from_peer_pairs_without_ns_expr(self):
-        trivial_pairs = set([(src, dst) for (src, dst) in self.peer_pairs_without_ns_expr if src == dst])
+        if not self.config.use_pod_representative:
+            trivial_pairs = set([(src, dst) for (src, dst) in self.peer_pairs_without_ns_expr if src == dst])
+        else:
+            trivial_pairs = set([(src, dst) for (src, dst) in self.peer_pairs_without_ns_expr if src == dst and len(self.cluster_info.map_pods_to_owner_rep[src.owner_name]) ==1] )
         self.peer_pairs_without_ns_expr = set(self.peer_pairs_without_ns_expr) - trivial_pairs
         return
 
@@ -288,8 +299,10 @@ class MinimizeCsFwRules:
         chosen_rep:  a list of tuples (key,values,ns) -- as the chosen representation for grouping the pods.
         remaining_pods: set of pods from pods_list that are not included in the grouping result
         """
-        # print('get_pods_grouping_by_labels:')
-        # print('pods_list')
+        if self.config.debug:
+            print('get_pods_grouping_by_labels:')
+            print('pods_list: ' + ','.join([str(pod) for pod in pods_list]))
+            print('extra_pods_list: ' + ','.join([str(pod) for pod in extra_pods_list]))
         all_pods_list = set(pods_list).union(set(extra_pods_list))
         allowed_labels = self.cluster_info.allowed_labels
         labels_rep_options = []
@@ -309,13 +322,23 @@ class MinimizeCsFwRules:
                     fully_covered_label_values.append(v)
                     pods_with_fully_covered_label_values.update(pods_with_label_val_from_pods_list)
             # TODO: is it OK to ignore label-grouping if only one pod is involved?
-            if len(fully_covered_label_values) > 0 and len(
-                    pods_with_fully_covered_label_values) > 1:  # ignore label-grouping if only one pod is involved
-                labels_rep_options.append((key, (fully_covered_label_values, pods_with_fully_covered_label_values)))
+            if self.config.group_by_label_single_pod:
+                if len(fully_covered_label_values) > 0 and len(
+                        pods_with_fully_covered_label_values) >= 1:  # don't ignore label-grouping if only one pod is involved
+                    labels_rep_options.append((key, (fully_covered_label_values, pods_with_fully_covered_label_values)))
+            else:
+                if len(fully_covered_label_values) > 0 and len(
+                        pods_with_fully_covered_label_values) > 1:  # ignore label-grouping if only one pod is involved
+                    labels_rep_options.append((key, (fully_covered_label_values, pods_with_fully_covered_label_values)))
 
         chosen_rep = []
         remaining_pods = set(pods_list).copy()
         sorted_rep_options = sorted(labels_rep_options, key=lambda x: len(x[1][1]), reverse=True)
+        if self.config.debug:
+            print('sorted rep options:')
+            for index in range(0, len(sorted_rep_options)):
+                (key, (label_vals, pods)) = sorted_rep_options[index]
+                print (key, label_vals)
         ns_info = {ns}
         # ns_info.add(ns)
         for (k, (vals, pods)) in sorted_rep_options:
@@ -375,7 +398,7 @@ class MinimizeCsFwRules:
     def create_initial_fw_rule(self, src, dst):
         src_elem = self.create_fw_elem(src)
         dst_elem = self.create_fw_elem(dst)
-        if self.run_in_test_mode:
+        if self.config.run_in_test_mode:
             assert src_elem is not None and dst_elem is not None
         return FWRule(src_elem, dst_elem, self.connections)
 
@@ -430,7 +453,7 @@ class MinimizeCsFwRules:
         # self.post_processing_fw_rules(option1)
         # self.post_processing_fw_rules(option2)
 
-        if self.run_in_test_mode:
+        if self.config.run_in_test_mode:
             equiv1 = self.check_peer_pairs_equivalence(option1)
             equiv2 = self.check_peer_pairs_equivalence(option2)
             assert equiv1
@@ -442,6 +465,12 @@ class MinimizeCsFwRules:
             self.results_info_per_option['convergence_iteration_2'] = convergence_iteration_2
             self.results_info_per_option['equiv1'] = equiv1
             self.results_info_per_option['equiv2'] = equiv2
+
+        if self.config.debug:
+            print('option 1 rules:')
+            self.print_firewall_rules(option1)
+            print('option 2 rules: ')
+            self.print_firewall_rules(option2)
 
         # choose the option with less fw-rules
         if len(option1) < len(option2):
@@ -475,25 +504,31 @@ class MinimizeCsFwRules:
             res.extend(self.get_ns_fw_rules_grouped_by_common_elem(src_first, ns_list, fixed_elem))
 
         if len(pod_and_pod_labels_elems) > 0:
-            set_for_grouping_pods = []
-            for e in pod_and_pod_labels_elems:
-                set_for_grouping_pods.extend(set(e.get_pods_set(self.cluster_info)))
+            # TODO: currently adding this due to example in test24, where single pod-labels elem is replaced by another grouping
+            if len(pod_and_pod_labels_elems) == 1 and isinstance(pod_and_pod_labels_elems[0], PodLabelsElement) :
+                elem = pod_and_pod_labels_elems[0]
+                fw_rule = FWRule(fixed_elem, elem, self.connections) if src_first else FWRule(elem, fixed_elem, self.connections)
+                res.append(fw_rule)
+            else:
+                set_for_grouping_pods = []
+                for e in pod_and_pod_labels_elems:
+                    set_for_grouping_pods.extend(set(e.get_pods_set(self.cluster_info)))
 
-            # allow borrowing pods for labels-grouping from covered_peer_pairs_union
-            fixed_elem_pods = fixed_elem.get_pods_set(self.cluster_info)
-            extra_pods_list = []
-            for p in fixed_elem_pods:
-                if src_first:
-                    pods_to_add = set([dst for (src, dst) in self.covered_peer_pairs_union if src == p])
-                else:
-                    pods_to_add = set([src for (src, dst) in self.covered_peer_pairs_union if dst == p])
-                extra_pods_list.append(pods_to_add)
-            extra_pods_list_common = []
-            if len(extra_pods_list) > 0:
-                extra_pods_list_common = set.intersection(*extra_pods_list)
+                # allow borrowing pods for labels-grouping from covered_peer_pairs_union
+                fixed_elem_pods = fixed_elem.get_pods_set(self.cluster_info)
+                extra_pods_list = []
+                for p in fixed_elem_pods:
+                    if src_first:
+                        pods_to_add = set([dst for (src, dst) in self.covered_peer_pairs_union if src == p])
+                    else:
+                        pods_to_add = set([src for (src, dst) in self.covered_peer_pairs_union if dst == p])
+                    extra_pods_list.append(pods_to_add)
+                extra_pods_list_common = []
+                if len(extra_pods_list) > 0:
+                    extra_pods_list_common = set.intersection(*extra_pods_list)
 
-            res.extend(self.get_pod_level_fw_rules_grouped_by_common_labels(src_first, set_for_grouping_pods,
-                                                                            fixed_elem, extra_pods_list_common))
+                res.extend(self.get_pod_level_fw_rules_grouped_by_common_labels(src_first, set_for_grouping_pods,
+                                                                                fixed_elem, extra_pods_list_common))
 
         if len(ip_block_elems) > 0:
             ip_block_union = ip_block_elems[0].element.copy()
@@ -529,15 +564,14 @@ class MinimizeCsFwRules:
             return [], 0
         fw_rules_after_merge = []
         count_fw_rules = dict()  # map number of fw-rules per iteration number
-        # TODO: do not hard-code max_iter
-        max_iter = 10
+        max_iter = self.config.max_iter
         convergence_iteration = max_iter
         for i in range(0, max_iter):
             count_fw_rules[i] = len(initial_fw_rules)
             if i > 1 and count_fw_rules[i] == count_fw_rules[i - 1]:
                 convergence_iteration = i
                 break
-            if i > 1 and self.run_in_test_mode:
+            if i > 1 and self.config.run_in_test_mode:
                 assert count_fw_rules[i - 1] > count_fw_rules[i], "Expecting fewer fw_rules after each merge iteration."
             src_first = (i % 2 == 0) if is_src_first else (i % 2 == 1)
             first_elem_set = set([f.src for f in initial_fw_rules]) if src_first else set(
@@ -553,6 +587,9 @@ class MinimizeCsFwRules:
             # prepare for next iteration
             initial_fw_rules = fw_rules_after_merge
             fw_rules_after_merge = []
+            if self.config.debug:
+                print('fw rules after iteration: ' + str(i))
+                self.print_firewall_rules(initial_fw_rules)
 
         return initial_fw_rules, convergence_iteration
 
@@ -561,14 +598,14 @@ class MinimizeCsFwRules:
 
 class MinimizeFWRules:
     """
-    This is class for minimizing and handling fw-rules globally for all connection sets
+    This is a class for minimizing and handling fw-rules globally for all connection sets
     """
 
-    def __init__(self, fw_rules_map, config_name, cluster_info, run_in_test_mode, results_map):
+    def __init__(self, fw_rules_map, config_name, cluster_info, config, results_map):
         self.fw_rules_map = fw_rules_map
         self.config_name = config_name
         self.cluster_info = cluster_info
-        self.run_in_test_mode = run_in_test_mode
+        self.config = config
         self.results_map = results_map
 
     # print to stdout the final fw rules (in txt format)
@@ -578,34 +615,89 @@ class MinimizeFWRules:
         output_rules = self.get_rules_str_values()
         print(''.join(line for line in output_rules))
 
+        '''
         if self.run_in_test_mode:
             comparison_to_ref = self.compare_final_rules_with_ref_file()
             print('comparison_to_ref: ' + str(comparison_to_ref))
             self.write_rules_to_yaml()
             self.write_results_to_file()
+        '''
 
-    def get_output_file_name(self, file_type):
-        if file_type == 'txt' or file_type == 'yaml':
-            return os.path.join('fw_rules_output', self.config_name + "." + file_type)
-        # return empty string for unknown file_type
-        return ''
+    # in case there is no results file for comparison, creating a default results file
+    def create_default_results_file(self, content, file_type):
+        Path(self.config.default_results_dir).mkdir(parents=True, exist_ok=True)
+        file_name = os.path.join(self.config.default_results_dir, self.config.default_res_file_name + "." + file_type)
+        if file_type == "txt":
+            self.write_txt_res_file(file_name, content)
+        elif file_type == "yaml":
+            self.write_yaml_res_file(file_name, content)
+        print('created default results file at: ' + file_name)
 
-    # for debug : text-based comparison of expected rules with actual rules
-    def compare_final_rules_with_ref_file(self):
-        file_name = self.get_output_file_name("txt")
-        if not os.path.isfile(file_name):
-            self.write_final_rules_to_file()
+        return
+
+    @staticmethod
+    def write_txt_res_file(file_name, content):
+        with open(file_name, 'a') as f:
+            for r in content:
+                f.write(r)
+        return
+
+    @staticmethod
+    def write_yaml_res_file(file_name, content):
+        with open(file_name, 'w') as f:
+            yaml.dump(content, f, default_flow_style=False, sort_keys=False)
+        return
+
+    def get_yaml_comparison_result(self):
+        actual_content = self.get_all_rules_yaml_obj()
+
+        file_name = self.config.expected_results_files['yaml']
+        if len(file_name) == 0 or not os.path.isfile(file_name):
+            # no comparison
+            print('warning: no comparison of yaml results, file name is: ' + file_name)
+            if self.config.create_output_files:
+                self.create_default_results_file(actual_content, 'yaml')
+            return True
 
         with open(file_name) as f:
-            content = f.readlines()
-        expected_content = self.get_rules_str_values()
-        res = set(content) == set(expected_content)
-        if not res:
-            # override file with new/current results:
-            os.remove(file_name)
-            self.write_final_rules_to_file()
+            expected_content = yaml.safe_load(f)
+
+        diff = DeepDiff(expected_content, actual_content, ignore_order=True)
+        res = (diff == {})
+        if not res and self.config.override_result_file:
             print('warning: overridden file with new results at: ' + str(file_name))
+            self.write_yaml_res_file(file_name, actual_content)
+
         return res
+
+    def get_txt_comparison_result(self):
+        actual_content = self.get_rules_str_values()
+
+        file_name = self.config.expected_results_files['txt']
+        if len(file_name) == 0 or not os.path.isfile(file_name):
+            # no comparison
+            print('warning: no comparison of txt results, file name is: ' + file_name)
+            if self.config.create_output_files:
+                self.create_default_results_file(actual_content, 'txt')
+            return True
+
+        with open(file_name) as f:
+            expected_content = f.readlines()
+
+        res = set(actual_content) == set(expected_content)
+        if not res and self.config.override_result_file:
+            print('warning: overridden file with new results at: ' + str(file_name))
+            os.remove(file_name)
+            self.write_txt_res_file(file_name, actual_content)
+        return res
+
+    def get_comparison_results(self):
+        txt_res = self.get_txt_comparison_result()
+        yaml_res = self.get_yaml_comparison_result()
+        return txt_res, yaml_res
+
+
+
 
     def get_rules_str_values(self):
         res = []
@@ -615,20 +707,14 @@ class MinimizeFWRules:
             for rule in connection_rules:
                 # if rule.is_rule_trivial():
                 #    continue
-                # if rule.should_rule_be_filtered_out():
-                #    continue
+                if self.config.filter_system_ns and rule.should_rule_be_filtered_out():
+                    continue
                 rule_str = str(rule) + '\n'
                 res.append(rule_str)
         # several rules can be mapped to the same str, since pods are mapped to owner name (example: semantic_diff_named_ports)
         return set(res)
 
-    def write_final_rules_to_file(self):
-        file_name = self.get_output_file_name("txt")
-        rules_str_values = self.get_rules_str_values()
-        with open(file_name, 'a') as the_file:
-            for r in rules_str_values:
-                the_file.write(r)
-        return
+
 
     def get_rule_yaml_obj(self, rule):
         src_ns_list = [str(ns) for ns in rule.src.ns_info]
@@ -659,16 +745,53 @@ class MinimizeFWRules:
                         'connection': conn_list}
         return rule_obj
 
-    def write_rules_to_yaml(self):
+    def get_all_rules_yaml_obj(self):
         rules = []
         all_connections = set(self.fw_rules_map.keys())
         for connection in all_connections:
             connection_rules = self.fw_rules_map[connection]
             for rule in connection_rules:
-                #if rule.should_rule_be_filtered_out():
-                #    continue
+                if self.config.filter_system_ns and rule.should_rule_be_filtered_out():
+                    continue
                 rule_obj = self.get_rule_yaml_obj(rule)
                 rules.append(rule_obj)
+        return rules
+
+    '''
+    def get_output_file_name(self, file_type):
+        if file_type == 'txt' or file_type == 'yaml':
+            return os.path.join('fw_rules_output', self.config_name + "." + file_type)
+        # return empty string for unknown file_type
+        return ''
+    
+    # for debug : text-based comparison of expected rules with actual rules
+    def compare_final_rules_with_ref_file(self):
+        file_name = self.get_output_file_name("txt")
+        if not os.path.isfile(file_name):
+            self.write_final_rules_to_file()
+
+        with open(file_name) as f:
+            content = f.readlines()
+        expected_content = self.get_rules_str_values()
+        res = set(content) == set(expected_content)
+        if not res:
+            # override file with new/current results:
+            os.remove(file_name)
+            self.write_final_rules_to_file()
+            print('warning: overridden file with new results at: ' + str(file_name))
+
+        return res
+    
+    def write_final_rules_to_file(self):
+        file_name = self.get_output_file_name("txt")
+        rules_str_values = self.get_rules_str_values()
+        with open(file_name, 'a') as the_file:
+            for r in rules_str_values:
+                the_file.write(r)
+        return
+    
+    def write_rules_to_yaml(self):
+        rules = self.get_all_rules_yaml_obj()
 
         output_file = self.get_output_file_name("yaml")
         if len(output_file) > 0:
@@ -691,3 +814,4 @@ class MinimizeFWRules:
             f.write('\n'.join(l for l in conn_obj_str_list))
         f.close()
         return
+    '''

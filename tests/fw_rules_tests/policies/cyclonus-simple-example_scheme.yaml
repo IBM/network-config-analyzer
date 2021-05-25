@@ -1,0 +1,22 @@
+namespaceList: ../podlist/cyclonus_ns_list.json
+podList: ../podlist/cyclonus_pod_list.json
+
+networkConfigList:
+
+
+  - name: cyclonus-simple-example
+    networkPolicyList:
+      - cyclonus-allow-all-egress-by-label.yaml
+      - cyclonus-allow-all-for-label.yaml
+      - cyclonus-allow-by-ip.yaml
+      - cyclonus-allow-label-to-label.yaml
+      - cyclonus-deny-all.yaml
+      - cyclonus-deny-all-egress.yaml
+      - cyclonus-deny-all-for-label.yaml
+    expected_warnings: 0
+
+queries:
+  - name: connectivity_map
+    connectivityMap:
+      - cyclonus-simple-example
+    expected: 0

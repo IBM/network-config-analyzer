@@ -65,7 +65,7 @@ class ConnectivityMapExecute(BaseExecuter):
 
     def execute(self):
         print()
-        sanity_res = ConnectivityMapQuery(self.network_config).exec(False)
+        sanity_res = ConnectivityMapQuery(self.network_config).exec(None)
         print(sanity_res.output_result)
         if not sanity_res.bool_result:
             print(sanity_res.output_explanation)
