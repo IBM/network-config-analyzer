@@ -380,7 +380,11 @@ class MinimizeCsFwRules:
         if isinstance(base_elem, Pod):
             return PodElement(base_elem)
         elif isinstance(base_elem, IpBlock):
-            return IPBlockElement(base_elem)
+            ip_blocks_list = base_elem.split()
+            if len(ip_blocks_list) == 1:
+                return IPBlockElement(base_elem)
+            else:
+                return [IPBlockElement(ip) for ip in ip_blocks_list]
         # a K8sNamespace instance
         elif isinstance(base_elem, K8sNamespace):
             return FWRuleElement([base_elem])
@@ -392,11 +396,18 @@ class MinimizeCsFwRules:
         dst_elem = self.create_fw_elem(dst)
         if self.config.run_in_test_mode:
             assert src_elem is not None and dst_elem is not None
-        return FWRule(src_elem, dst_elem, self.connections)
+        if isinstance(src_elem, list):
+            return [FWRule(src, dst_elem, self.connections) for src in src_elem]
+        if isinstance(dst_elem, list):
+            return [FWRule(src_elem, dst, self.connections) for dst in dst_elem]
+        return [FWRule(src_elem, dst_elem, self.connections)]
 
     # elems_list is a list of pairs (src,dst) , each of type: Pod/K8sNamespace/IpBlock
     def create_initial_fw_rules_from_base_elements_list(self, elems_list):
-        return [self.create_initial_fw_rule(src, dst) for (src, dst) in elems_list]
+        res = []
+        for (src, dst) in elems_list:
+            res.extend(self.create_initial_fw_rule(src, dst))
+        return res
 
     def create_all_initial_fw_rules(self):
         """

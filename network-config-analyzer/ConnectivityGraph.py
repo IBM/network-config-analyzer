@@ -46,6 +46,8 @@ class ConnectivityGraph:
         connections_sorted_by_size = [(conn, peer_pair) for conn, peer_pair in self.connections_to_peers.items()]
         connections_sorted_by_size.sort(reverse=True)
 
+        connections_sorted_by_size = self._merge_ip_blocks(connections_sorted_by_size)
+
         if self.config.run_in_test_mode:
             # print the original connectivity graph
             for connections, peer_pairs in connections_sorted_by_size:
@@ -111,14 +113,14 @@ class ConnectivityGraph:
                     cs_containment_map[conn] = cs_containment_map[conn].union(peer_pairs_filtered)
         return cs_containment_map
 
-    '''
-    def merge_ip_blocks(self, connections_sorted_by_size):
+    @staticmethod
+    def _merge_ip_blocks(connections_sorted_by_size):
         connections_sorted_by_size_new = []
         for connections, peer_pairs in connections_sorted_by_size:
             map_ip_blocks_per_dst = dict()
             map_ip_blocks_per_src = dict()
             merged_peer_pairs = []
-            for (src,dst) in peer_pairs:
+            for (src, dst) in peer_pairs:
                 if isinstance(src, IpBlock) and isinstance(dst, Pod):
                     if not dst in map_ip_blocks_per_dst:
                         map_ip_blocks_per_dst[dst] = src.copy()
@@ -130,55 +132,11 @@ class ConnectivityGraph:
                     else:
                         map_ip_blocks_per_src[src] |= dst
                 else:
-                    merged_peer_pairs.append((src,dst))
+                    merged_peer_pairs.append((src, dst))
             for (src, ip_block) in map_ip_blocks_per_src.items():
                 merged_peer_pairs.append((src, ip_block))
             for (dst, ip_block) in map_ip_blocks_per_dst.items():
                 merged_peer_pairs.append((ip_block, dst))
+            connections_sorted_by_size_new.append((connections, merged_peer_pairs))
 
-            connections_sorted_by_size_new.append((connections, merged_peer_pairs ))
-            print('merged peer pairs:')
-            for (src,dst) in merged_peer_pairs:
-                if isinstance(src, IpBlock) or isinstance(dst, IpBlock):
-                    print((src,dst))
-        return connections_sorted_by_size
-
-    
-    def _add_edge_with_ip_merge(self, source_peer, dest_peer, connections):
-        """
-        Adding a labeled edge to the graph with merge operation for ip-block
-        :param Peer source_peer: The source peer
-        :param Peer dest_peer: The dest peer
-        :param ConnectionSet connections: The allowed connections from source_peer to dest_peer
-        :return: True if edge was added with merge operation, False if edge was not added at all
-        """
-        if isinstance(source_peer, IpBlock) and isinstance(dest_peer, Pod):
-            ip_blocks_per_dest = [src for (src, dst) in self.connections_to_peers[connections] if
-                                  dst == dest_peer and isinstance(src, IpBlock)]
-            merge_possible, merge_result = self._merge_ip_blocks(source_peer, ip_blocks_per_dest)
-            if merge_possible:
-                self.connections_to_peers[connections] = list(
-                    set(self.connections_to_peers[connections]) - set([(ip, dest_peer) for ip in ip_blocks_per_dest]))
-                self.connections_to_peers[connections].extend([(ip, dest_peer) for ip in merge_result])
-                return True
-        elif isinstance(source_peer, Pod) and isinstance(dest_peer, IpBlock):
-            ip_blocks_per_src = [dst for (src, dst) in self.connections_to_peers[connections] if
-                                 src == source_peer and isinstance(dst, IpBlock)]
-            merge_possible, merge_result = self._merge_ip_blocks(dest_peer, ip_blocks_per_src)
-            if merge_possible:
-                self.connections_to_peers[connections] = list(
-                    set(self.connections_to_peers[connections]) - set([(source_peer, ip) for ip in ip_blocks_per_src]))
-                self.connections_to_peers[connections].extend([(source_peer, ip) for ip in merge_result])
-                return True
-        return False
-
-    @staticmethod
-    def _merge_ip_blocks(ip, ip_list):
-        merged_ip = ip.copy()
-        for ip in ip_list:
-            merged_ip |= ip
-        ip_intervals_list = merged_ip.split()
-        merge_success = len(ip_intervals_list) < len(ip_list) + 1
-        return merge_success, ip_intervals_list
-    '''
-
+        return connections_sorted_by_size_new
