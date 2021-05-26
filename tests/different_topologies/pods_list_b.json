@@ -6,6 +6,34 @@
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {
+        "name": "pod-0",
+        "namespace": "default",
+        "labels": {
+          "app": "app-0"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "cog-agents",
+            "uid": "14265cc3-301f-11e8-865c-52075433990e",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "containers": [
+          {
+            "ports": {}
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
         "name": "pod-1",
         "namespace": "default",
         "labels": {
@@ -62,10 +90,10 @@
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {
-        "name": "pod-b3",
+        "name": "pod-5",
         "namespace": "default",
         "labels": {
-          "app": "app-b3"
+          "app": "app-5"
         },
         "ownerReferences": [
           {
@@ -90,17 +118,17 @@
       "apiVersion": "v1",
       "kind": "Pod",
       "metadata": {
-        "name": "pod-b4",
-        "namespace": "namespace-b",
+        "name": "pod-6",
+        "namespace": "default",
         "labels": {
-          "app": "app-b4"
+          "app": "app-6"
         },
         "ownerReferences": [
           {
             "apiVersion": "extensions/v1beta1",
-            "kind": "ReplicaSet",
-            "name": "cog-local-analyzer-7d77fb55cc",
-            "uid": "13c04c1a-301f-11e8-865c-52075433990e",
+            "kind": "DaemonSet",
+            "name": "cog-agents",
+            "uid": "14265cc3-301f-11e8-865c-52075433990e",
             "controller": true,
             "blockOwnerDeletion": true
           }

@@ -92,10 +92,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.syntax_error('Missing selector', origin_map)
 
         expressions = label_selector.split('&&')  # TODO: also support || operator and combinations
-
-        res = self.peer_container.get_all_peers_group(include_heps=not namespace_selector)
-        for expr in expressions:
-            res &= self._parse_selector_expr(expr, origin_map, namespace, namespace_selector)
+        if namespace_selector and expressions == ['global()']:
+            res = self.peer_container.get_all_global_peers()
+        else:
+            res = self.peer_container.get_all_peers_group(include_globals=not namespace_selector)
+            for expr in expressions:
+                res &= self._parse_selector_expr(expr, origin_map, namespace, namespace_selector)
 
         selector_type = 'namespaceSelector' if namespace_selector else 'selector'
         if not res:

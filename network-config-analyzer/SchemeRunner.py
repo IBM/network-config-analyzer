@@ -62,8 +62,8 @@ class SchemeRunner(GenericYamlParser):
         if config_name in self.network_configs:
             self.syntax_error(f'networkPolicyList {config_name} already exists', config_entry)
 
-        ns_list = config_entry.get('namespaceList')
-        pod_list = config_entry.get('podList')
+        ns_list = self._get_input_file(config_entry.get('namespaceList'))
+        pod_list = self._get_input_file(config_entry.get('podList'))
         if ns_list or pod_list:  # a local resource file exist
             if not ns_list:  # use global resource file
                 ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
@@ -207,20 +207,18 @@ class SchemeRunner(GenericYamlParser):
         return total_res
 
     def _run_semantic_diff(self, configs_array):
-        total_res = 0
-        full_result = QueryAnswer()
+        res = 0
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
                 full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2)).exec()
                 print(full_result.output_result)
-                total_res += not full_result.bool_result
+                res += full_result.numerical_result
                 if not full_result.bool_result:
-                    print(full_result.output_explanation, '\n')
-        if full_result.bool_result:
-            print()
-        return total_res
+                    print(full_result.output_explanation)
+        print()
+        return res
 
     def _run_containment(self, configs_array):
         if len(configs_array) <= 1:
