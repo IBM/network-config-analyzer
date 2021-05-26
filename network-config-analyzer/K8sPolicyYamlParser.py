@@ -30,8 +30,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
     def check_dns_subdomain_name(self, value, key_container):
         """
         checking validity of the resource name
-        :param value : The value assigned for the key
-        :param key_container : where the key appears
+        :param string value : The value assigned for the key
+        :param dict key_container : where the key appears
         :return: None
         """
         if len(value) > 253:
@@ -46,8 +46,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
     def check_dns_label_name(self, value, key_container):
         """
         checking validity of the label name
-        :param value : The value assigned for the key
-        :param key_container : where the key appears
+        :param string value : The value assigned for the key
+        :param dict key_container : where the key appears
         :return: None
         """
         if len(value) > 63:
@@ -61,8 +61,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
     def check_label_key_syntax(self, key_label, key_container):
         """
         checking validity of the label's key
-        :param key_label: The key name
-        :param key_container : The label selector's part where the key appears
+        :param string key_label: The key name
+        :param dict key_container : The label selector's part where the key appears
         :return: None
         """
         if key_label.count('/') > 1:
@@ -88,6 +88,13 @@ class K8sPolicyYamlParser(GenericYamlParser):
                               key_container)
 
     def check_label_value_syntax(self, val, key, key_container):
+        """
+        checking validity of the label's value
+        :param string val : the value to be checked
+        :param string key: The key name which the value is assigned for
+        :param dict key_container : The label selector's part where the key: val appear
+        :return: None
+        """
         if val is None:
             self.syntax_error(f'value label of "{key}" can not be null', key_container)
         if val:
@@ -108,9 +115,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A PeerSet containing the peers that satisfy the requirement
         :rtype: Peer.PeerSet
         """
-        self.check_keys_are_legal(requirement, 'LabelSelectorRequirement', {'key': [1, str], 'operator': [1, str],
-                                                                            'values': [0, list]},
-                                  {'operator': ['In', 'NotIn', 'Exists', 'DoesNotExist']})
+        self.check_fields_validity(requirement, 'LabelSelectorRequirement', {'key': [1, str], 'operator': [1, str],
+                                                                             'values': [0, list]},
+                                   {'operator': ['In', 'NotIn', 'Exists', 'DoesNotExist']})
         key = requirement['key']
         operator = requirement['operator']
         self.check_label_key_syntax(key, requirement)
@@ -144,7 +151,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         if not label_selector:  # empty
             return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
         allowed_elements = {'matchLabels': [0, dict], 'matchExpressions': [0, list]}
-        self.check_keys_are_legal(label_selector, 'pod/namespace selector', allowed_elements)
+        self.check_fields_validity(label_selector, 'pod/namespace selector', allowed_elements)
 
         res = self.peer_container.get_all_peers_group()
         match_labels = label_selector.get('matchLabels')
@@ -181,7 +188,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A PeerSet containing the relevant IP ranges
         :rtype: Peer.PeerSet
         """
-        self.check_keys_are_legal(block, 'ipBlock', {'cidr': [1, str], 'except': [0, list]})
+        self.check_fields_validity(block, 'ipBlock', {'cidr': [1, str], 'except': [0, list]})
         res = Peer.PeerSet()
         res.add(Peer.IpBlock(block['cidr'], block.get('except')))
         return res
@@ -194,7 +201,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :rtype: Peer.PeerSet
         """
         allowed_elements = {'podSelector': [0, dict], 'namespaceSelector': [0, dict], 'ipBlock': [0, dict]}
-        self.check_keys_are_legal(peer, 'NetworkPolicyPeer', allowed_elements)
+        self.check_fields_validity(peer, 'NetworkPolicyPeer', allowed_elements)
 
         pod_selector = peer.get('podSelector')
         ns_selector = peer.get('namespaceSelector')
@@ -228,8 +235,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A ConnectionSet representing the allowed connections by this element (protocols X port numbers)
         :rtype: ConnectionSet
         """
-        self.check_keys_are_legal(port, 'NetworkPolicyPort', {'port': 0, 'protocol': [0, str], 'endPort': [0, int]},
-                                  {'protocol': ['TCP', 'UDP', 'SCTP']})
+        self.check_fields_validity(port, 'NetworkPolicyPort', {'port': 0, 'protocol': [0, str], 'endPort': [0, int]},
+                                   {'protocol': ['TCP', 'UDP', 'SCTP']})
         port_id = port.get('port')
         protocol = port.get('protocol')
         end_port_num = port.get('endPort')
@@ -276,7 +283,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: A K8sPolicyRule with the proper PeerSet and ConnectionSet
         :rtype: K8sPolicyRule
         """
-        self.check_keys_are_legal(rule, 'ingress/egress rule', {peer_array_key: [0, list], 'ports': [0, list]})
+        self.check_fields_validity(rule, 'ingress/egress rule', {peer_array_key: [0, list], 'ports': [0, list]})
         peer_array = rule.get(peer_array_key, [])
         if peer_array:
             res_pods = Peer.PeerSet()
@@ -359,19 +366,19 @@ class K8sPolicyYamlParser(GenericYamlParser):
             self.syntax_error('type of Top ds is not a map')
         if self.policy.get('kind') != 'NetworkPolicy':
             return None  # Not a NetworkPolicy object
-        self.check_keys_are_legal(self.policy, 'NetworkPolicy', {'kind': [1, str], 'metadata': [1, dict],
-                                                                 'spec': [0, dict], 'apiVersion': [1, str]},
-                                  {'apiVersion': ['networking.k8s.io/v1', 'extensions/v1beta1']})
         api_version = self.policy.get('apiVersion')
         if 'k8s' not in api_version and api_version != 'extensions/v1beta1':
             return None  # apiVersion is not properly set
+        self.check_fields_validity(self.policy, 'NetworkPolicy', {'kind': [1, str], 'metadata': [1, dict],
+                                                                  'spec': [0, dict], 'apiVersion': [1, str]},
+                                   {'apiVersion': ['networking.k8s.io/v1', 'extensions/v1beta1']})
 
         policy_metadata = self.policy['metadata']
         allowed_metadata_keys = {'name': [1, str], 'namespace': [0, str], 'annotations': 0, 'clusterName': 0,
                                  'creationTimestamp': 0, 'deletionGracePeriodSeconds': 0, 'deletionTimestamp': 0,
                                  'finalizers': 0, 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
                                  'ownerReferences': 0, 'resourceVersion': 0, 'selfLink': 0, 'uid': 0}
-        self.check_keys_are_legal(policy_metadata, 'metadata', allowed_metadata_keys)
+        self.check_fields_validity(policy_metadata, 'metadata', allowed_metadata_keys)
         self.check_dns_subdomain_name(policy_metadata['name'], policy_metadata)
         if 'namespace' in policy_metadata and policy_metadata['namespace'] is not None:
             self.check_dns_label_name(policy_metadata['namespace'], policy_metadata)
@@ -385,8 +392,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'podSelector': [1, dict], 'ingress': [0, list], 'egress': [0, list],
                              'policyTypes': [0, list]}
-        self.check_keys_are_legal(policy_spec, 'spec', allowed_spec_keys,
-                                  {'policyTypes': [['Ingress'], ['Egress'], ['Ingress', 'Egress']]})
+        self.check_fields_validity(policy_spec, 'spec', allowed_spec_keys,
+                                   {'policyTypes': [['Ingress'], ['Egress'], ['Ingress', 'Egress']]})
 
         policy_types = policy_spec.get('policyTypes', [])
         if not policy_types:

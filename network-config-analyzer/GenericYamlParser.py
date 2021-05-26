@@ -43,7 +43,7 @@ class GenericYamlParser:
         print(print_msg, file=stderr)
         self.warning_msgs.append(msg)
 
-    def check_keys_are_legal(self, dict_to_check, dict_name, allowed_keys, allowed_values=()):
+    def check_fields_validity(self, dict_to_check, dict_name, allowed_keys, allowed_values=None):
         """
         Check that all keys in dict_to_check are legal (appear in allowed_keys)
         if value type is specified for a key, it checks valid type of values too
@@ -76,13 +76,10 @@ class GenericYamlParser:
                 if code == 1 and value is None:
                     self.syntax_error(f'mandatory {key} value can not be null in {dict_name}', dict_to_check)
                 if value_type is not None:
-                    if value == 0 and not value_type == int:
-                        self.syntax_error(f'type of {key} is not {value_type} in {dict_name}',
-                                          dict_to_check)
                     if value is not None and not isinstance(value, value_type):
                         self.syntax_error(f'type of {key} is not {value_type} in {dict_name}',
                                           dict_to_check)
-                if key in allowed_values:
+                if allowed_values and key in allowed_values:
                     if value and value not in allowed_values[key]:
                         self.syntax_error(f'{key} has invalid value in {dict_name}')
 
