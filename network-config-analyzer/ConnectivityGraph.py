@@ -30,9 +30,8 @@ class ConnectivityGraph:
         :param ConnectionSet connections: The allowed connections from source_peer to dest_peer
         :return: None
         """
-        added_by_merge = self._add_edge_with_ip_merge(source_peer, dest_peer, connections)
-        if not added_by_merge:
-            self.connections_to_peers[connections].append((source_peer, dest_peer))
+
+        self.connections_to_peers[connections].append((source_peer, dest_peer))
 
     def output_as_firewall_rules(self, print_to_stdout=True):
         """
@@ -112,6 +111,39 @@ class ConnectivityGraph:
                     cs_containment_map[conn] = cs_containment_map[conn].union(peer_pairs_filtered)
         return cs_containment_map
 
+    '''
+    def merge_ip_blocks(self, connections_sorted_by_size):
+        connections_sorted_by_size_new = []
+        for connections, peer_pairs in connections_sorted_by_size:
+            map_ip_blocks_per_dst = dict()
+            map_ip_blocks_per_src = dict()
+            merged_peer_pairs = []
+            for (src,dst) in peer_pairs:
+                if isinstance(src, IpBlock) and isinstance(dst, Pod):
+                    if not dst in map_ip_blocks_per_dst:
+                        map_ip_blocks_per_dst[dst] = src.copy()
+                    else:
+                        map_ip_blocks_per_dst[dst] |= src
+                elif isinstance(dst, IpBlock) and isinstance(src, Pod):
+                    if not src in map_ip_blocks_per_src:
+                        map_ip_blocks_per_src[src] = dst.copy()
+                    else:
+                        map_ip_blocks_per_src[src] |= dst
+                else:
+                    merged_peer_pairs.append((src,dst))
+            for (src, ip_block) in map_ip_blocks_per_src.items():
+                merged_peer_pairs.append((src, ip_block))
+            for (dst, ip_block) in map_ip_blocks_per_dst.items():
+                merged_peer_pairs.append((ip_block, dst))
+
+            connections_sorted_by_size_new.append((connections, merged_peer_pairs ))
+            print('merged peer pairs:')
+            for (src,dst) in merged_peer_pairs:
+                if isinstance(src, IpBlock) or isinstance(dst, IpBlock):
+                    print((src,dst))
+        return connections_sorted_by_size
+
+    
     def _add_edge_with_ip_merge(self, source_peer, dest_peer, connections):
         """
         Adding a labeled edge to the graph with merge operation for ip-block
@@ -148,4 +180,5 @@ class ConnectivityGraph:
         ip_intervals_list = merged_ip.split()
         merge_success = len(ip_intervals_list) < len(ip_list) + 1
         return merge_success, ip_intervals_list
+    '''
 
