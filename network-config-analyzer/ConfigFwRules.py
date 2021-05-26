@@ -10,13 +10,12 @@ class ConfigFwRules:
         self.config_name = config_name
         self.attributes = ['run_in_test_mode', 'max_iter', 'filter_system_ns', 'expected_fw_rules_dir',
                            'override_result_file', 'create_output_files', 'expected_fw_rules_txt',
-                           'expected_fw_rules_yaml', 'debug', 'use_pod_owner_name', 'use_pod_representative', 'group_by_label_single_pod']
+                           'expected_fw_rules_yaml', 'debug', 'use_pod_owner_name', 'group_by_label_single_pod']
         # assign default config params
         self.max_iter = 10
         self.run_in_test_mode = False # runs some extra checks and assertions
         self.debug = False  # adds debug printing
         self.use_pod_owner_name = True  #currently inactive as a flag
-        self.use_pod_representative = False  #TODO: should remove this option?
         self.group_by_label_single_pod = False # TODO: should be an option?
         self.filter_system_ns = False
         self.override_result_file = True

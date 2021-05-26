@@ -54,12 +54,7 @@ class MinimizeCsFwRules:
         all_pods_set = set([src for (src, dst) in self.peer_pairs if isinstance(src, Pod)]).union(
             set([dst for (src, dst) in self.peer_pairs if isinstance(dst, Pod)]))
         for pod in all_pods_set:
-            if not self.config.use_pod_representative:
-                covered_peer_pairs_union.add((pod, pod))
-            else:
-                if len(self.cluster_info.map_pods_to_owner_rep[pod.owner_name]) ==1:
-                    covered_peer_pairs_union.add((pod, pod))
-
+            covered_peer_pairs_union.add((pod, pod))
         self.covered_peer_pairs_union = covered_peer_pairs_union
         return
 
@@ -251,10 +246,7 @@ class MinimizeCsFwRules:
 
     # remove trivial pairs to avoid creating them a fw-rule directly
     def remove_trivial_rules_from_peer_pairs_without_ns_expr(self):
-        if not self.config.use_pod_representative:
-            trivial_pairs = set([(src, dst) for (src, dst) in self.peer_pairs_without_ns_expr if src == dst])
-        else:
-            trivial_pairs = set([(src, dst) for (src, dst) in self.peer_pairs_without_ns_expr if src == dst and len(self.cluster_info.map_pods_to_owner_rep[src.owner_name]) ==1] )
+        trivial_pairs = set([(src, dst) for (src, dst) in self.peer_pairs_without_ns_expr if src == dst])
         self.peer_pairs_without_ns_expr = set(self.peer_pairs_without_ns_expr) - trivial_pairs
         return
 
@@ -418,6 +410,7 @@ class MinimizeCsFwRules:
             self.create_initial_fw_rules_from_base_elements_list(self.peer_pairs_with_partial_ns_expr))
         return initial_fw_rules
 
+    '''
     def simplify_fw_rule(self, rule, is_src_label_exp):
         pod = rule.dst.element if is_src_label_exp else rule.src.element
         pod_keys = set([key for (key, val) in pod.labels.items()])
@@ -436,6 +429,7 @@ class MinimizeCsFwRules:
                 self.simplify_fw_rule(rule, False)
             elif isinstance(rule.dst, PodElement) and isinstance(rule.src, PodLabelsElement):
                 self.simplify_fw_rule(rule, True)
+    '''
 
     def add_all_fw_rules(self):
         """

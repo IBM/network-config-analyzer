@@ -1,8 +1,6 @@
 import itertools
-import sys
 from collections import defaultdict
-from Peer import IpBlock, Pod
-from deepdiff import DeepDiff
+from Peer import IpBlock
 
 
 class ClusterInfo:
@@ -16,20 +14,7 @@ class ClusterInfo:
 
     def __init__(self, all_peers, allowed_labels, config):
         self.config = config
-        if config.use_pod_representative:
-            #TODO: do we want to group pods by owner?
-            all_peers_set, removed_peers, map_pods_to_owner_rep = self.group_pods_by_owner(all_peers)
-            self.all_peers = all_peers_set
-            self.removed_peers = removed_peers
-            self.map_pods_to_owner_rep = map_pods_to_owner_rep
-        else:
-            self.all_peers = all_peers
-            self.removed_peers = set()
-            self.map_pods_to_owner_rep = dict()
-        #print('orig all peers len: ' + str(len(all_peers)))
-        #print('all peers len: ' + str(len(self.all_peers)))
-        #print('removed peers len: ' + str(len(self.removed_peers)))
-        # sys.exit()
+        self.all_peers = all_peers
         self.ns_dict = defaultdict(list)  # map from ns to set of pods
         self.ns_labels_map = defaultdict(list)  # map from ns_labels to set of pods
         self.pods_labels_map = defaultdict(set)  # map from pods_labels to set of pods
@@ -48,10 +33,8 @@ class ClusterInfo:
 
         self.add_update_pods_labels_map_with_invalid_val(all_pods)
         self.add_update_pods_labels_map_with_required_conjunction_labels()
-
         return
 
-    # TODO: add documentation
     def add_update_pods_labels_map_with_invalid_val(self, all_pods):
         """
         Updating the pods_labels_map with (key,"NO_LABEL_VALUE") for the set of pods without this label
@@ -63,13 +46,19 @@ class ClusterInfo:
         all_keys = all_keys.intersection(allowed_labels_flattened)
         invalid_val = 'NO_LABEL_VALUE'
         for key in all_keys:
+            # get a list of pod sets per each label value
             pod_sets_with_key_val = [self.pods_labels_map[(k, v)] for (k, v) in self.pods_labels_map.keys() if
                                      k == key]
+            # get a union of all pods with any value for current label key
             pod_sets_with_key_val_union = set.union(*pod_sets_with_key_val)
+            # get a set of namespaces for which at least one pod in the ns has any value for current label key
             ns_context_options = set([pod.namespace for pod in pod_sets_with_key_val_union])
+            # get the set of pods that do not have current label key
             pods_without_key_set = all_pods - pod_sets_with_key_val_union
+            # get the set of pods that do not have current label key, only for namespaces where at least one pod in the ns has any value for current label key
             pods_without_key_set_ns_restricted = [pod for pod in pods_without_key_set if
                                                   pod.namespace in ns_context_options]
+            # add the pair (key, invalid_val) for pods_labels_map with pods from pods_without_key_set_ns_restricted
             self.pods_labels_map[(key, invalid_val)] = set(pods_without_key_set_ns_restricted)
         return
 
@@ -120,34 +109,3 @@ class ClusterInfo:
                 res.add(key)
         return res
 
-    def group_pods_by_owner(self, all_peers):
-        all_peers_set = set(all_peers)
-        removed_peers = set()
-        owners_map = dict()
-        map_pods_to_owner_rep = defaultdict(list)
-        for peer in all_peers:
-            if not isinstance(peer, Pod):
-                continue
-            if peer.owner_name in owners_map:
-                # remove peer from all_peers_set
-                all_peers_set.remove(peer)
-                removed_peers.add(peer)
-                map_pods_to_owner_rep[peer.owner_name].append(peer)
-                if self.config.run_in_test_mode:
-                    # make sure labels are the same for the removed peer
-                    rep_labels = owners_map[peer.owner_name].labels
-                    current_labels = peer.labels
-                    diff = DeepDiff(rep_labels, current_labels, ignore_order=True)
-                    res = (diff == {})
-                    print(peer.name)
-                    print(owners_map[peer.owner_name].name)
-                    print(diff)
-                    assert res
-            else:
-                # pick this pod as the representative of its owner
-                owners_map[peer.owner_name] = peer
-                map_pods_to_owner_rep[peer.owner_name].append(peer)
-
-        # print('owners_map keys:')
-        # print(owners_map.keys())
-        return all_peers_set, removed_peers, map_pods_to_owner_rep

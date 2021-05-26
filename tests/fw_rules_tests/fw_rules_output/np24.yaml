@@ -13,7 +13,7 @@
 - src_ns:
   - default
   src_pods:
-  - test in (C)
+  - default/cognetive-agents-d54st5
   dst_ns:
   - default
   dst_pods:

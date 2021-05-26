@@ -6,7 +6,6 @@ use_pod_owner_name: False
 expected_fw_rules_dir: 'fw_rules_output'
 override_result_file: True
 create_output_files: True
-use_pod_representative: False
 group_by_label_single_pod: False
 #expected_fw_rules_txt: 'poc1.txt'
 #expected_fw_rules_yaml: 'poc1.yaml'

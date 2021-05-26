@@ -37,10 +37,12 @@ class ConnectivityGraph:
     def output_as_firewall_rules(self, print_to_stdout=True):
         """
         Prints the graph as a set of firewall rules
-        :return: None
+        :param print_to_stdout: flag to indicate if fw-rules should be printed to stdout
+        :return: (txt_res, yaml_res, fw_rules_map)
+        txt_res: bool flag indicating if comparison to expected txt output did not fail
+        yaml_res: bool flag indicating if comparison to expected yaml output did not fail
+        fw_rules_map: map from each connection set to its list of firewall rules
         """
-        if self.config.use_pod_representative:
-            self.adjust_connections_by_pod_rep()
 
         connections_sorted_by_size = [(conn, peer_pair) for conn, peer_pair in self.connections_to_peers.items()]
         connections_sorted_by_size.sort(reverse=True)
@@ -57,7 +59,10 @@ class ConnectivityGraph:
         """
         Creates the set of minimized fw rules and prints to output
         :param list connections_sorted_by_size: the original connectivity graph in fw-rules format
-        :return: None
+        :param print_to_stdout: flag to indicate if fw-rules should be printed to stdout
+        :return: txt_res: bool flag indicating if comparison to expected txt output did not fail
+                yaml_res: bool flag indicating if comparison to expected yaml output did not fail
+                fw_rules_map: map from each connection set to its list of firewall rules
         """
         cs_containment_map = self._build_connections_containment_map(connections_sorted_by_size)
         fw_rules_map = defaultdict(list)
@@ -144,36 +149,3 @@ class ConnectivityGraph:
         merge_success = len(ip_intervals_list) < len(ip_list) + 1
         return merge_success, ip_intervals_list
 
-    def adjust_connections_by_pod_rep(self):
-
-        for conn in self.connections_to_peers.keys():
-            orig_conn_pairs = self.connections_to_peers[conn].copy()
-            self.connections_to_peers[conn] = [(src, dst) for (src, dst) in self.connections_to_peers[conn] if not (
-                    src in self.cluster_info.removed_peers or dst in self.cluster_info.removed_peers)]
-            # case 1: (x,x) in self.connections_to_peers[conn] where x represents deployment A : valid only if (1) size(A)=1 or (2) (x,y) in removed pairs where: {x,y} in A
-            # case 2: (x,x) not in self.connections_to_peers[conn] where x represents deployment A: valid if: (1) size(A)>1 and conn != all or (2)  (x,y) not in removed pairs where: {x,y} in A
-
-            pods_representatives = [x[0] for x in list(self.cluster_info.map_pods_to_owner_rep.values())]
-            for x in pods_representatives:
-                deployment_size = len(self.cluster_info.map_pods_to_owner_rep[x.owner_name])
-                if deployment_size > 1:
-                    y = self.cluster_info.map_pods_to_owner_rep[x.owner_name][1]
-                    # ( x,x) in  self.connections_to_peers[conn] iff (x,y) in orig_conn_pairs
-                    if (x, y) in orig_conn_pairs:
-                        # make sure (x,x) is in  self.connections_to_peers[conn]
-                        if (x, x) not in self.connections_to_peers[conn]:
-                            self.connections_to_peers[conn].append((x, x))
-                    else:
-                        # make sure (x,x) is not in  self.connections_to_peers[conn]
-                        if (x, x) in self.connections_to_peers[conn]:
-                            self.connections_to_peers[conn].remove((x, x))
-                else:
-                    # ( x,x) in  self.connections_to_peers[conn] iff conn = all_connections
-                    if conn.allow_all:
-                        if (x, x) not in self.connections_to_peers[conn]:
-                            self.connections_to_peers[conn].append((x, x))
-                    else:
-                        if (x, x) in self.connections_to_peers[conn]:
-                            self.connections_to_peers[conn].remove((x, x))
-
-        return

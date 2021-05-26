@@ -9,7 +9,7 @@ class LabelExpr:
     class for representing label expressions
     """
 
-    def __init__(self, key: str, values):  # values is of type set(str)
+    def __init__(self, key: str, values):
         self.key = key
         self.values = values
 
@@ -120,9 +120,7 @@ class PodElement(FWRuleElement):
 
     # return set of pods represented by this elem
     def get_pods_set(self, cluster_info):
-        res = set()
-        res.add(self.element)
-        return res
+        return {self.element}
 
 
 class PodLabelsElement(FWRuleElement):
@@ -131,7 +129,7 @@ class PodLabelsElement(FWRuleElement):
     """
 
     # TODO: is it possible to have such element with len(ns_info)>1? if not, should add support for such merge?
-    def __init__(self, element: LabelExpr, ns_info):  # ns_info: list[K8sNamespace]
+    def __init__(self, element: LabelExpr, ns_info):  # ns_info: set[K8sNamespace]
         super().__init__(ns_info)
         self.element = element
 
