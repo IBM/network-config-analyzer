@@ -4,7 +4,6 @@ from K8sNamespace import K8sNamespace
 from ConnectionSet import ConnectionSet
 from FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
 from Peer import IpBlock, Pod
-from deepdiff import DeepDiff
 from pathlib import Path
 
 
@@ -667,8 +666,7 @@ class MinimizeFWRules:
         with open(file_name) as f:
             expected_content = yaml.safe_load(f)
 
-        diff = DeepDiff(expected_content, actual_content, ignore_order=True)
-        res = (diff == {})
+        res = self.compare_yaml_output_rules(expected_content, actual_content)
         if not res and self.config.override_result_file:
             print('warning: overridden file with new results at: ' + str(file_name))
             self.write_yaml_res_file(file_name, actual_content)
@@ -718,6 +716,50 @@ class MinimizeFWRules:
                 res.append(rule_str)
         # several rules can be mapped to the same str, since pods are mapped to owner name (example: semantic_diff_named_ports)
         return set(res)
+
+
+    def convert_rule_obj_to_str(self, rule_obj):
+        res = ''
+        if 'src_ns' in rule_obj:
+            res += 'src_ns: ' + ','.join(ns for ns in sorted(rule_obj['src_ns'])) + ';'
+        if 'src_pods' in rule_obj:
+            res += 'src_pods: ' + ','.join(pod for pod in sorted(rule_obj['src_pods'])) + ';'
+        if 'src_ip_block' in rule_obj:
+            res += 'src_ip_block: ' + ','.join(ip for ip in sorted(rule_obj['src_ip_block'])) + ';'
+        if 'dst_ns' in rule_obj:
+            res += 'dst_ns: ' + ','.join(ns for ns in sorted(rule_obj['dst_ns'])) + ';'
+        if 'dst_pods' in rule_obj:
+            res += 'dst_pods: ' + ','.join(pod for pod in sorted(rule_obj['dst_pods'])) + ';'
+        if 'dst_ip_block' in rule_obj:
+            res += 'dst_ip_block: ' + ','.join(ip for ip in sorted(rule_obj['dst_ip_block'])) + ';'
+
+        if 'connection' in rule_obj:
+            res += 'connection: '
+            if rule_obj['connection'][0] == 'All connections':
+                res += 'All connections' + ';'
+            else:
+                for conn_obj in rule_obj['connection']:
+                    conn_str = ''
+                    if 'Protocol' in conn_obj:
+                        conn_str +=  'Protocol: ' + conn_obj['Protocol'] + ';'
+                    if 'Ports' in conn_obj:
+                        conn_str += 'Ports: ' + ','.join(str(ports) for ports in  conn_obj['Ports']) + ';'
+                    res += conn_str
+        return res
+
+    def compare_yaml_output_rules(self,expected, actual):
+        # create for each yaml obj rule its str. sort array entries
+        expected_str_list = []
+        actual_str_list = []
+        for rule_obj in expected:
+            res = self.convert_rule_obj_to_str(rule_obj)
+            expected_str_list.append(res)
+        for rule_obj in actual:
+            res = self.convert_rule_obj_to_str(rule_obj)
+            actual_str_list.append(res)
+        res = (set(expected_str_list) == set(actual_str_list))
+        # TODO: verify len of set equals to list (no two different objects mapped to the same str)
+        return res
 
 
 
