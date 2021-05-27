@@ -504,5 +504,121 @@
         }
       }
     ]
+  },
+  {
+    "kind": "NetworkSetList",
+    "apiVersion": "projectcalico.org/v3",
+    "metadata": {
+      "resourceVersion": "4880"
+    },
+    "items": [
+      {
+        "kind": "NetworkSet",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "testcase23-networkset",
+          "namespace": "kube-system",
+          "uid": "ebfa4f8d-00c9-4e2c-898b-f9894bb65c32",
+          "resourceVersion": "2562",
+          "creationTimestamp": "2021-05-04T08:05:03Z",
+          "labels": {
+            "role": "db3"
+          }
+        },
+        "spec": {
+          "nets": [
+            "198.51.100.0/28",
+            "203.0.113.0/24"
+          ]
+        }
+      },
+      {
+        "kind": "NetworkSet",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "testcase23-networkset2",
+          "uid": "6cf66afc-b064-40bb-a7fe-88228d003c03",
+          "resourceVersion": "4878",
+          "creationTimestamp": "2021-05-04T11:06:29Z",
+          "labels": {
+            "role": "db4"
+          }
+        },
+        "spec": {
+          "nets": [
+            "198.51.100.0/22",
+            "203.0.113.0/25"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "kind": "GlobalNetworkSetList",
+    "apiVersion": "projectcalico.org/v3",
+    "metadata": {
+      "resourceVersion": "4572"
+    },
+    "items": [
+      {
+        "kind": "GlobalNetworkSet",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "testcase23-globalnetworkset",
+          "uid": "538a04df-4829-41b6-820d-79ee7369ec75",
+          "resourceVersion": "4528",
+          "creationTimestamp": "2021-05-04T10:37:21Z",
+          "labels": {
+            "role": "db5"
+          }
+        },
+        "spec": {
+          "nets": [
+            "198.51.100.0/29",
+            "203.0.113.0/25"
+          ]
+        }
+      }
+    ]
+},
+  {
+    "kind": "NetworkSet",
+    "apiVersion": "projectcalico.org/v3",
+    "metadata": {
+      "name": "testcase23-networkset3",
+      "uid": "6cf66afc-b064-40bb-a7fe-88228d003c03",
+      "resourceVersion": "4878",
+      "creationTimestamp": "2021-05-04T11:06:29Z",
+      "namespace": "kube-system",
+      "labels": {
+        "role": "db"
+      }
+    },
+    "spec": {
+      "nets": [
+       "198.51.200.0/27",
+       "203.0.115.0/29"
+      ]
+    }
+  },
+  {
+    "kind": "GlobalNetworkSet",
+    "apiVersion": "projectcalico.org/v3",
+    "metadata": {
+      "name": "testcase23-globalnetworkset2",
+      "uid": "538a04df-4829-41b6-820d-79ee7369ec75",
+      "resourceVersion": "4528",
+      "creationTimestamp": "2021-05-04T10:37:21Z",
+      "labels": {
+        "role": "db2"
+      }
+    },
+    "spec": {
+      "nets": [
+        "198.51.100.0/29",
+        "203.0.113.0/25"
+      ]
+    }
   }
+
 ]

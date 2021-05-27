@@ -57,14 +57,14 @@ class SchemeRunner(GenericYamlParser):
         :return: A matching NetworkConfig object
         :rtype: NetworkConfig
         """
-        self.check_keys_are_legal(config_entry, 'networkConfig', {'name': 1, 'namespaceList': 0, 'podList': 0,
-                                                                  'networkPolicyList': 1, 'expected_warnings': 0})
+        self.check_fields_validity(config_entry, 'networkConfig', {'name': 1, 'namespaceList': 0, 'podList': 0,
+                                                                   'networkPolicyList': 1, 'expected_warnings': 0})
         config_name = config_entry['name']
         if config_name in self.network_configs:
             self.syntax_error(f'networkPolicyList {config_name} already exists', config_entry)
 
-        ns_list = config_entry.get('namespaceList')
-        pod_list = config_entry.get('podList')
+        ns_list = self._get_input_file(config_entry.get('namespaceList'))
+        pod_list = self._get_input_file(config_entry.get('podList'))
         if ns_list or pod_list:  # a local resource file exist
             if not ns_list:  # use global resource file
                 ns_list = self._get_input_file(self.scheme.get('namespaceList', 'k8s'))
@@ -117,7 +117,7 @@ class SchemeRunner(GenericYamlParser):
         :rtype: int
         """
         allowed_keys = {'networkConfigList': 1, 'namespaceList': 0, 'podList': 0, 'queries': 0}
-        self.check_keys_are_legal(self.scheme, 'scheme', allowed_keys)
+        self.check_fields_validity(self.scheme, 'scheme', allowed_keys)
 
         # global resource files
         pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
@@ -156,13 +156,14 @@ class SchemeRunner(GenericYamlParser):
         if not query_array:
             self.warning('No queries to run\n')
         allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0,
-                            'redundancy': 0,
-                            'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0, 'sanity': 0,
-                            'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0, 'expected': 0,
-                            'allCaptured': 0, 'connectivityMap': 0, 'fw_rules_configuration': 0}
+                            'redundancy': 0, 'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0,
+                            'sanity': 0, 'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0,
+                            'expected': 0, 'allCaptured': 0, 'connectivityMap': 0, 'fw_rules_configuration': 0,
+                            'allCaptured': 0}
+
         for query in query_array:
             res = 0
-            self.check_keys_are_legal(query, 'query', allowed_elements)
+            self.check_fields_validity(query, 'query', allowed_elements)
             query_name = query['name']
             print('Running query', query_name)
 
@@ -215,20 +216,18 @@ class SchemeRunner(GenericYamlParser):
         return total_res
 
     def _run_semantic_diff(self, configs_array):
-        total_res = 0
-        full_result = QueryAnswer()
+        res = 0
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
                 full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2)).exec()
                 print(full_result.output_result)
-                total_res += not full_result.bool_result
+                res += full_result.numerical_result
                 if not full_result.bool_result:
-                    print(full_result.output_explanation, '\n')
-        if full_result.bool_result:
-            print()
-        return total_res
+                    print(full_result.output_explanation)
+        print()
+        return res
 
     def _run_containment(self, configs_array):
         if len(configs_array) <= 1:

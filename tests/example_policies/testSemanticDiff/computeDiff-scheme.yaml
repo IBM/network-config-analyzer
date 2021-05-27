@@ -40,24 +40,24 @@ networkConfigList:
 queries:
   - name: semantic_diff_old1_new1
     semanticDiff:
-      - new1
       - old1
-    expected: 1
+      - new1
+    expected: 6
 
   - name: semantic_diff_old1_new1a
     semanticDiff:
-      - new1a
       - old1
-    expected: 1
+      - new1a
+    expected: 3
 
   - name: semantic_diff_old2_new2
     semanticDiff:
-      - new2
       - old2
-    expected: 1
+      - new2
+    expected: 5
 
   - name: semantic_diff_old3_new3
     semanticDiff:
-      - new3
       - old3
+      - new3
     expected: 0

@@ -6,7 +6,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
+  name: enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
   namespace: kube-system
 spec:
   podSelector:
@@ -31,7 +31,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-in-4-parts-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-with-redundant
+  name: enable-in-4-parts-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-with-redundant
   namespace: kube-system
 spec:
   podSelector:
@@ -81,7 +81,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-ports-53-partly-54
+  name: enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-ports-53-partly-54
   namespace: kube-system
 spec:
   podSelector:

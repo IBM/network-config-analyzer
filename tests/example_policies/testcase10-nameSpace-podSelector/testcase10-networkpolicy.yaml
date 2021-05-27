@@ -79,7 +79,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-all-between-kube-system-some-other-namespaces-with-podSelector
+  name: allow-all-between-kube-system-some-other-namespaces-with-podselector
   namespace: kube-system
 spec:
   podSelector: {}
@@ -109,7 +109,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-all-between-kube-system-default-with-podSelector
+  name: allow-all-between-kube-system-default-with-podselector
   namespace: kube-system
 spec:
   podSelector: {}

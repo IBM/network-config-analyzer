@@ -1,0 +1,27 @@
+
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase23-networkpolicy-allow_nets
+  namespace: kube-system
+spec:
+  selector: has(tier)
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      nets:
+        - 198.51.200.0/27
+        - 203.0.115.0/29
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+        - 198.51.200.0/27
+        - 203.0.115.0/29
+
