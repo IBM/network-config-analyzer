@@ -879,22 +879,22 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
             contained_2_in_1.output_result + ':\n\t' + contained_2_in_1.output_explanation
         if contained_1_in_2.bool_result and contained_2_in_1.bool_result:
             return QueryAnswer(bool_result=False,
-                               output_result=f'The two sets of NetworkPolicies {self.name1} and {self.name2} '
+                               output_result=f'The two sets of network configurations {self.name1} and {self.name2} '
                                              'are semantically equivalent.',
                                numerical_result=3)
         if not contained_1_in_2.bool_result and not contained_2_in_1.bool_result:
             output_explanation = explanation_not_contained_self_other + '\n' + explanation_not_contained_other_self
             return QueryAnswer(bool_result=False,
-                               output_result=f'Neither set of NetworkPolicies {self.name1} and {self.name2} '
+                               output_result=f'Neither set of network configurations {self.name1} and {self.name2} '
                                              'is contained in the other.',
                                output_explanation=output_explanation, numerical_result=0)
         if contained_1_in_2.bool_result:
             return QueryAnswer(bool_result=False,
-                               output_result=f'NetworkPolicy set {self.name1} is a proper subset of {self.name2}.',
+                               output_result=f'network configuration set {self.name1} is a proper subset of {self.name2}.',
                                output_explanation=explanation_not_contained_other_self, numerical_result=2)
         # (contained_2_in_1)
         return QueryAnswer(bool_result=False,
-                           output_result=f'NetworkPolicy set {self.name2} is a proper subset of {self.name1}.',
+                           output_result=f'network configuration set {self.name2} is a proper subset of {self.name1}.',
                            output_explanation=explanation_not_contained_self_other, numerical_result=1)
 
 
