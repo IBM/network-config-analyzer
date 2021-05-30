@@ -832,14 +832,10 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
 
         all_ip_blocks = PeerSet()
         all_ip_blocks.add(IpBlock.get_all_ips_block())
-        a = self.config1.get_referenced_ip_blocks()
         config1_ip_blocks = self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), all_ip_blocks)
         config2_ip_blocks = self.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(), all_ip_blocks)
         disjoint_ip_blocks = self.disjoint_ip_blocks(config1_ip_blocks, config2_ip_blocks)
 
-        #peers_to_compare = captured1_pods if only_captured else config1_peers
-        #peers_to_compare |= disjoint_ip_blocks
-        #for pair in itertools.permutations(peers_to_compare, 2):
         peers_to_compare = config1_peers | disjoint_ip_blocks
         for pair in itertools.permutations(peers_to_compare, 2):
             if only_captured and pair[0] not in captured1_pods and pair[1] not in captured1_pods:
