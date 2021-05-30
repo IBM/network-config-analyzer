@@ -1,0 +1,14 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: checks_policy
+    networkPolicyList:
+      - checks-network-policy.yaml
+    expected_warnings: 0
+
+queries:
+  - name: all-captured
+    allCaptured:
+      - checks_policy
+    expected: 4

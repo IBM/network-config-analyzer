@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: testcase21-k8s-emptyPodeSelector
+  name: testcase21-k8s-empty-podselector
   namespace: default 
 spec:
   podSelector:

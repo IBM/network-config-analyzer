@@ -59,7 +59,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-ingress-with-typo-in-ingress-rule-podSelector
+  name: enable-ingress-with-typo-in-ingress-rule-podselector
   namespace: kube-system 
 spec:
   podSelector:
@@ -86,7 +86,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-egress-with-typo-in-egress-rule-podSelector
+  name: enable-egress-with-typo-in-egress-rule-podselector
   namespace: kube-system 
 spec:
   podSelector:

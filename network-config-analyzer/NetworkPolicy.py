@@ -96,8 +96,10 @@ class NetworkPolicy:
             return NetworkPolicy.PolicyType.Unknown
 
         kind = policy.get('kind')
-        api_version = policy.get('apiVersion', policy.get('api_version', ''))
+        api_version = policy.get('apiVersion')
         if not kind or not api_version:
+            return NetworkPolicy.PolicyType.Unknown
+        if not isinstance(kind, str) or not isinstance(api_version, str):
             return NetworkPolicy.PolicyType.Unknown
 
         policy_type = NetworkPolicy.PolicyType.Unknown

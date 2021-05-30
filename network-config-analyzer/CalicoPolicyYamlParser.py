@@ -92,10 +92,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.syntax_error('Missing selector', origin_map)
 
         expressions = label_selector.split('&&')  # TODO: also support || operator and combinations
-
-        res = self.peer_container.get_all_peers_group(include_heps=not namespace_selector)
-        for expr in expressions:
-            res &= self._parse_selector_expr(expr, origin_map, namespace, namespace_selector)
+        if namespace_selector and expressions == ['global()']:
+            res = self.peer_container.get_all_global_peers()
+        else:
+            res = self.peer_container.get_all_peers_group(include_globals=not namespace_selector)
+            for expr in expressions:
+                res &= self._parse_selector_expr(expr, origin_map, namespace, namespace_selector)
 
         selector_type = 'namespaceSelector' if namespace_selector else 'selector'
         if not res:
@@ -236,7 +238,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         allowed_elements = {'nets': 0, 'notNets': 0, 'selector': 0, 'notSelector': 0,
                             'namespaceSelector': 0,  'ports': 0, 'notPorts': 0, 'serviceAccounts': 2}
-        self.check_keys_are_legal(entity_rule, 'network policy peer', allowed_elements)
+        self.check_fields_validity(entity_rule, 'network policy peer', allowed_elements)
 
         return self._get_rule_peers(entity_rule), self._get_rule_ports(entity_rule, protocol_supports_ports)
 
@@ -255,12 +257,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         allowed_keys = {'type': 0, 'code': 0}
         if icmp_data is not None:
-            self.check_keys_are_legal(icmp_data, 'ICMP', allowed_keys)
+            self.check_fields_validity(icmp_data, 'ICMP', allowed_keys)
             err = ICMPDataSet.check_code_type_validity(icmp_type, icmp_code)
             if err:
                 self.syntax_error(err, icmp_data)
         if not_icmp_data is not None:
-            self.check_keys_are_legal(not_icmp_data, 'notICMP', allowed_keys)
+            self.check_fields_validity(not_icmp_data, 'notICMP', allowed_keys)
             err = ICMPDataSet.check_code_type_validity(not_icmp_type, not_icmp_code)
             if err:
                 self.syntax_error(err, not_icmp_data)
@@ -314,7 +316,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         allowed_keys = {'action': 1, 'protocol': 0, 'notProtocol': 0, 'icmp': 0, 'notICMP': 0, 'ipVersion': 0,
                         'source': 0, 'destination': 0, 'http': 2}
-        self.check_keys_are_legal(rule, 'ingress/egress rule', allowed_keys)
+        self.check_fields_validity(rule, 'ingress/egress rule', allowed_keys)
 
         action = CalicoPolicyRule.action_str_to_action_type(rule['action'])
         if action is None:
@@ -428,7 +430,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         allowed_policy_keys = {'order': 0, 'selector': 0, 'ingress': 0, 'egress': 0, 'types': 0, 'labelsToApply': 0,
                                'doNotTrack': 2, 'preDNAT': 2, 'applyOnForward': 2}
-        self.check_keys_are_legal(policy_spec, 'network policy spec', allowed_policy_keys)
+        self.check_fields_validity(policy_spec, 'network policy spec', allowed_policy_keys)
 
         policy_types = policy_spec.get('types', [])
         if not is_profile and not policy_types:
@@ -479,15 +481,14 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             return None
         is_profile = (kind == 'Profile')
 
-        api_version = self.policy.get('apiVersion', self.policy.get('api_version', ''))
+        api_version = self.policy.get('apiVersion')
         if not api_version:
             self.syntax_error('An object with no specified apiVersion', self.policy)
         if 'calico' not in api_version:
             return None
         if api_version != 'projectcalico.org/v3':
             raise Exception('Unsupported apiVersion: ' + api_version)
-        self.check_keys_are_legal(self.policy, 'networkPolicy', {'kind': 1, 'metadata': 1, 'spec': 1,
-                                                                 'apiVersion': 0, 'api_version': 0})
+        self.check_fields_validity(self.policy, 'networkPolicy', {'kind': 1, 'metadata': 1, 'spec': 1, 'apiVersion': 1})
         metadata = self.policy['metadata']
         if 'name' not in metadata:
             self.syntax_error('NetworkPolicy has no name', metadata)

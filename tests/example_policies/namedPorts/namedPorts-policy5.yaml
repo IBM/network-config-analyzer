@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: test_named_ports_warnings
+  name: test-named-ports-warnings
   namespace: kube-system
 spec:
   podSelector:

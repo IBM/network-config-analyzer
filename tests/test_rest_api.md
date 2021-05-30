@@ -1,10 +1,8 @@
-```commandline
-python nca.py --daemon &
-cd tests/example_podlist
-curl -X POST -H "Content-Type: application/json" -d @ns_list.json localhost:5000/namespace_list
-curl -X POST -H "Content-Type: application/json" -d @pods_list.json localhost:5000/pod_list
-cd ../example_policies/testcase1
-curl -X POST -H "Content-Type: application/json" -d @testcase1-networkpolicy1.json localhost:5000/policy_sets
+```
+python network-config-analyzer/nca.py --daemon &
+curl -X POST -H "Content-Type: application/json" -d @tests/example_podlist/ns_list.json localhost:5000/namespace_list
+curl -X POST -H "Content-Type: application/json" -d @tests/example_podlist/pods_list.json localhost:5000/pod_list
+curl -X POST -H "Content-Type: application/json" -d @tests/example_policies/testcase1/testcase1-networkpolicy1.json localhost:5000/policy_sets
 curl localhost:5000/policy_sets/set_0/findings
 ```
 

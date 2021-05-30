@@ -57,35 +57,35 @@ queries:
 
   - name: compare_equiv_policies_all_addresses
     equivalence:
-      - np1/kube-system/enable-to-kube-system-from-ipBlock-all-addresses
-      - np1/kube-system/enable-to-kube-system-from-ipBlock-all-addresses-with-redundancy
-      - np1/kube-system/enable-to-kube-system-from-ipBlock-all-seperated-to-2
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses-with-redundancy
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-seperated-to-2
     expected: 0
 
 # The last two should be equiv
   - name: compare_equiv_policies_all_addresses_and_original
     equivalence:
-      - np1/kube-system/enable-to-kube-system-from-ipBlock-all-addresses
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-original
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-all-except-seperated-to-2
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses
+      - np2/kube-system/enable-to-kube-system-from-ipblock-original
+      - np2/kube-system/enable-to-kube-system-from-ipblock-all-except-seperated-to-2
     expected: 2
 
 # all should be equiv.
   - name: compare_equiv_policies_original_and_versions
     equivalence:
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-original
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-except-Kube-Cluster-written-differently
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-all-except-seperated-to-2
+      - np2/kube-system/enable-to-kube-system-from-ipblock-original
+      - np2/kube-system/enable-to-kube-system-from-ipblock-except-kube-cluster-written-differently
+      - np2/kube-system/enable-to-kube-system-from-ipblock-all-except-seperated-to-2
     expected: 0
 
 # none should be equiv
   - name: equiv_check_slighlty_different_policies
     equivalence:
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different3-port-added
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different4-port-reduced
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different3-port-added
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different4-port-reduced
     expected: 10
 
 # comparing against the same file, but taken from GHE
@@ -98,30 +98,30 @@ queries:
 # none should be redundant
   - name: redundancy_check_slighlty_different_policies
     redundancy:
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different3-port-added
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different4-port-reduced
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different3-port-added
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different4-port-reduced
     expected: 0
 
  # First 3 contain redundancy
   - name: redundancy_in_specific_policies
     redundancy:
-      - np1/kube-system/enable-to-kube-system-from-ipBlock-all-addresses-with-redundancy      # contains redundancy
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-original-with-redundancy-by-except # contains redundancy
-      - np3/kube-system/enable-in-4-parts-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-with-redundant # contains redundancy
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-original
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-except-Kube-Cluster-written-differently
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-all-except-seperated-to-2
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-except-half-Kube-Cluster
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses-with-redundancy      # contains redundancy
+      - np2/kube-system/enable-to-kube-system-from-ipblock-original-with-redundancy-by-except # contains redundancy
+      - np3/kube-system/enable-in-4-parts-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-with-redundant # contains redundancy
+      - np2/kube-system/enable-to-kube-system-from-ipblock-original
+      - np2/kube-system/enable-to-kube-system-from-ipblock-except-kube-cluster-written-differently
+      - np2/kube-system/enable-to-kube-system-from-ipblock-all-except-seperated-to-2
+      - np2/kube-system/enable-to-kube-system-from-ipblock-except-half-kube-cluster
     expected: 3
 
 # The two policies are equiv
   - name: compare_two_equiv_multiple_ports
     equivalence:
-      - np3/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
-      - np3/kube-system/enable-in-4-parts-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-with-redundant
+      - np3/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np3/kube-system/enable-in-4-parts-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-with-redundant
     expected: 0
 
 # All policies cfg contains redundancy
@@ -147,36 +147,36 @@ queries:
 # The first policy contains the second one
   - name: containment_specific_np2
     containment:
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-except-half-Kube-Cluster
-      - np2/kube-system/enable-to-kube-system-from-ipBlock-all-except-seperated-to-2
+      - np2/kube-system/enable-to-kube-system-from-ipblock-except-half-kube-cluster
+      - np2/kube-system/enable-to-kube-system-from-ipblock-all-except-seperated-to-2
     expected: 1
 
 # The first policy contains the second one
   - name: containment_specific_np3
     containment:
-      - np3/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
-      - np3/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-ports-53-partly-54
+      - np3/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np3/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-ports-53-partly-54
     expected: 1
 
 # The first policy contains the second one
   - name: containment_specific_np5_1
     containment:
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
     expected: 1
 
 
 # The first policy contains the second one
   - name: containment_specific_np5_2
     containment:
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
     expected: 1
 
 # The first policy contains the second one
   - name: containment_specific_np5_3
     containment:
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different3-port-added
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54
-      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipBlock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different3-port-added
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
     expected: 2
