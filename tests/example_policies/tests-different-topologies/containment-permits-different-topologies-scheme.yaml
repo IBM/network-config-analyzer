@@ -1,0 +1,50 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: config_a
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_a.yaml
+    expected_warnings: 0
+
+  - name: config_b
+    namespaceList: ../../different_topologies/ns_list_b.json
+    podList: ../../different_topologies/pods_list_b.json
+    networkPolicyList:
+      - policy_b.yaml
+    expected_warnings: 0
+
+  - name: np1
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy1.yaml
+    expected_warnings: 0
+
+  - name: np2
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy2.yaml
+    expected_warnings: 0
+
+  - name: config_a_with_ipBlock
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_a.yaml
+      - policy_a_ipBlock.yaml
+    expected_warnings: 0
+
+  - name: config_b_with_ipBlock
+    namespaceList: ../../different_topologies/ns_list_b.json
+    podList: ../../different_topologies/pods_list_b.json
+    networkPolicyList:
+      - policy_b.yaml
+      - policy_b_ipBlock.yaml
+    expected_warnings: 0
+
+queries:
+  - name: twoWayContainment_a_b
+    twoWayContainment:
+      - config_a
+      - config_b
+    expected: 0

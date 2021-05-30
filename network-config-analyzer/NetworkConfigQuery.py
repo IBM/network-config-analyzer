@@ -429,11 +429,11 @@ class TwoNetworkConfigsQuery:
 
     def is_identical_topologies(self, check_same_policies=False):
         if self.config1.peer_container != self.config2.peer_container:
-            return QueryAnswer(False, 'The two NetworkPolicy sets are not defined over the same set of endpoints, '
+            return QueryAnswer(False, 'The two configurations have different network topologies, '
                                       'and are thus not comparable.')
         if check_same_policies and self.config1.policies == self.config2.policies and \
                 self.config1.profiles == self.config2.profiles:
-            return QueryAnswer(True, f'{self.name1} and {self.name2} have exactly the same set of policies')
+            return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network topology and set of policies')
         return QueryAnswer(True)
 
     @staticmethod
@@ -824,26 +824,39 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     """
     def exec(self, only_captured=False):
         query_answer = self.is_identical_topologies(True)
-        if query_answer.output_result:
-            return query_answer
+        if query_answer.bool_result and query_answer.output_result:
+            return query_answer  # identical configurations (contained)
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
-        peers_to_compare |= self.disjoint_referenced_ip_blocks()
-        captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
-        for peer1 in peers_to_compare:
-            for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
-                if peer1 == peer2:
-                    continue
-                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2, only_captured)
-                if only_captured and not captured1:
-                    continue
-                _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
-                if not conns1.contained_in(conns2):
-                    output_result = f'{self.name1} is not contained in {self.name2}'
-                    output_explanation = f'Allowed connections from {peer1} to {peer2} in {self.name1} ' \
-                                         f'are not a subset of those in {self.name2}\n'
-                    output_explanation += conns1.print_diff(conns2, self.name1, self.name2)
-                    return QueryAnswer(False, output_result, output_explanation)
+        config1_peers = self.config1.peer_container.get_all_peers_group()
+        captured1_pods = self.config1.get_captured_pods()
+
+        all_ip_blocks = PeerSet()
+        all_ip_blocks.add(IpBlock.get_all_ips_block())
+        a = self.config1.get_referenced_ip_blocks()
+        config1_ip_blocks = self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), all_ip_blocks)
+        config2_ip_blocks = self.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(), all_ip_blocks)
+        disjoint_ip_blocks = self.disjoint_ip_blocks(config1_ip_blocks, config2_ip_blocks)
+
+        #peers_to_compare = captured1_pods if only_captured else config1_peers
+        #peers_to_compare |= disjoint_ip_blocks
+        #for pair in itertools.permutations(peers_to_compare, 2):
+        peers_to_compare = config1_peers | disjoint_ip_blocks
+        for pair in itertools.permutations(peers_to_compare, 2):
+            if only_captured and pair[0] not in captured1_pods and pair[1] not in captured1_pods:
+                continue
+            captured1, conns1, _ = self.config1.allowed_connections(pair[0], pair[1], only_captured)
+            # TODO: understand why next 'if only_captured and not captured1' is required, since anyhow we check
+            #  that one of the peers is in captured1_pods
+            #  without it we fail on some calico tests
+            if only_captured and not captured1:
+                continue
+            _, conns2, _ = self.config2.allowed_connections(pair[0], pair[1])
+            if not conns1.contained_in(conns2):
+                output_result = f'{self.name1} is not contained in {self.name2}'
+                output_explanation = f'Allowed connections from {pair[0]} to {pair[1]} in {self.name1} ' \
+                                     f'are not a subset of those in {self.name2}\n'
+                output_explanation += conns1.print_diff(conns2, self.name1, self.name2)
+                return QueryAnswer(False, output_result, output_explanation)
 
         output_result = self.name1 + ' is contained in ' + self.name2
         return QueryAnswer(True, output_result)
@@ -854,9 +867,9 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
     Checks containment in both sides (whether config1 is contained in config2 and vice versa)
     """
     def exec(self):
-        query_answer = self.is_identical_topologies()
-        if query_answer.output_result:
-            return query_answer
+        query_answer = self.is_identical_topologies(True)
+        if query_answer.bool_result and query_answer.output_result:
+            return query_answer  # identical configurations (contained)
 
         contained_1_in_2 = ContainmentQuery(self.config1, self.config2).exec()
         contained_2_in_1 = ContainmentQuery(self.config2, self.config1).exec()
@@ -866,13 +879,13 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
             contained_2_in_1.output_result + ':\n\t' + contained_2_in_1.output_explanation
         if contained_1_in_2.bool_result and contained_2_in_1.bool_result:
             return QueryAnswer(bool_result=False,
-                               output_result=f'The two sets of NetworkPolicies {self.name1} and {self.name2}'
+                               output_result=f'The two sets of NetworkPolicies {self.name1} and {self.name2} '
                                              'are semantically equivalent.',
                                numerical_result=3)
         if not contained_1_in_2.bool_result and not contained_2_in_1.bool_result:
             output_explanation = explanation_not_contained_self_other + '\n' + explanation_not_contained_other_self
             return QueryAnswer(bool_result=False,
-                               output_result=f'Neither set of NetworkPolicies {self.name1} and {self.name2}'
+                               output_result=f'Neither set of NetworkPolicies {self.name1} and {self.name2} '
                                              'is contained in the other.',
                                output_explanation=output_explanation, numerical_result=0)
         if contained_1_in_2.bool_result:
