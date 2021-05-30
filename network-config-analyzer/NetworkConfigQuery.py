@@ -648,9 +648,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                     all_diff[key].append(
                         SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns - new_conns, new_conns - old_conns))
 
-        """
-        3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels of pods/namespaces
-        """
+        # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels of pods/namespaces
         key = 'Changed connections between persistent peers and ipBlocks'
         all_diff[key] = []
         disjoint_ip_blocks = self.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks)

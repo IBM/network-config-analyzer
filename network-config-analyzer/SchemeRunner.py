@@ -4,6 +4,7 @@
 #
 
 from os import path
+import copy
 from ruamel.yaml import YAML
 from PeerContainer import PeerContainer
 from GenericYamlParser import GenericYamlParser
@@ -71,7 +72,8 @@ class SchemeRunner(GenericYamlParser):
                 pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
             peer_container = PeerContainer(ns_list, pod_list, config_name)
         else:
-            peer_container = peer_container_global
+            # deepcopy is required since NetworkConfig's constructor may change peer_container
+            peer_container = copy.deepcopy(peer_container_global)
 
         entry_list = config_entry['networkPolicyList']
         for idx, entry in enumerate(entry_list):
