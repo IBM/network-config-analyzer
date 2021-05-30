@@ -14,35 +14,11 @@ class Peer:
     """
     This is the base class for all network endpoints, both inside the relevant cluster and outside of it
     """
-    @staticmethod
-    def get_named_ports():
-        return {}
-
-
-class ClusterEP(Peer):
-    """
-    This is the base class for endpoints inside the given cluster
-    """
-    def __init__(self, name):
+    def __init__(self, name, namespace):
         self.name = name
+        self.namespace = namespace
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
-        self.named_ports = {}  # A map from port name to the port number and its protocol
-        self.profiles = []  # The set of attached profiles (Calico only)
-
-    def __eq__(self, other):
-        if isinstance(other, type(self)):
-            return self.full_name() == other.full_name()
-        return NotImplemented
-
-    def __str__(self):
-        return self.full_name()
-
-    def __hash__(self):
-        return hash(self.full_name())
-
-    def full_name(self):
-        return self.name
 
     def set_label(self, key, value):
         """
@@ -65,6 +41,40 @@ class ClusterEP(Peer):
     def clear_extra_labels(self):
         self.extra_labels.clear()
 
+    def has_profiles(self):
+        return False
+
+    def is_global_peer(self):
+        return False
+
+    @staticmethod
+    def get_named_ports():
+        return {}
+
+
+class ClusterEP(Peer):
+    """
+    This is the base class for endpoints inside the given cluster
+    """
+    def __init__(self, name, namespace=None):
+        super().__init__(name, namespace)
+        self.named_ports = {}  # A map from port name to the port number and its protocol
+        self.profiles = []  # The set of attached profiles (Calico only)
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.full_name() == other.full_name()
+        return NotImplemented
+
+    def __str__(self):
+        return self.full_name()
+
+    def __hash__(self):
+        return hash(self.full_name())
+
+    def full_name(self):
+        return self.name
+
     def add_named_port(self, name, port_num, protocol, warn=True):
         """
         Adds a named port which is defined for the endpoint
@@ -85,6 +95,9 @@ class ClusterEP(Peer):
 
     def add_profile(self, profile_name):
         self.profiles.append(profile_name)
+
+    def has_profiles(self):
+        return len(self.profiles) > 0
 
     def get_first_profile_name(self):
         """
@@ -125,8 +138,7 @@ class Pod(ClusterEP):
         :param str owner_name: The name of the Pod's owner
         :param str owner_kind: The kind of the Pod's owner
         """
-        super().__init__(name)
-        self.namespace = namespace
+        super().__init__(name, namespace)
 
         if not owner_name:  # no owner
             self.workload_name = f'{namespace.name}/{name}(Pod)'
@@ -164,30 +176,37 @@ class HostEP(ClusterEP):
     This class represents Calico's HostEndpoint resource
     """
 
+    def is_global_peer(self):
+        return True
+
 
 class IpBlock(Peer, CanonicalIntervalSet):
     """
     This class represents a set of ip ranges
     """
-    def __init__(self, cidr=None, exceptions=None, interval=None):
+    def __init__(self, cidr=None, exceptions=None, interval=None, name=None, namespace=None, is_global=False):
         """
         Constructs an IpBlock object. Use either cidr+exceptions or interval
         :param str cidr: a cidr-formatted string representing a range of ips to include in the range
         :param list[str] exceptions: a list of cidr-formatted strings to exclude from the ip range
         :param CanonicalIntervalSet.Interval interval: A range of ip addresses as an interval
         """
-        super().__init__()
+        Peer.__init__(self, name, namespace)
+        CanonicalIntervalSet.__init__(self)
+        self.is_global = is_global
         if interval:
             self.interval_set.append(interval)
         elif cidr:
-            ipn = ip_network(cidr, False)  # strict is False as k8s API shows an example CIDR where host bits are set
-            self.interval_set.append(CanonicalIntervalSet.Interval(ipn.network_address, ipn.broadcast_address))
-            for exception in exceptions or []:
-                exception_n = ip_network(exception, False)
-                # the following line has no effect - only used to raise an exception when exception_n is not within cidr
-                ipn.address_exclude(exception_n)  # TODO: use exception_n.subnet_of(self.cidr) (Python 3.7 only)
-                hole = CanonicalIntervalSet.Interval(exception_n.network_address, exception_n.broadcast_address)
-                self.add_hole(hole)
+            self.add_cidr(cidr, exceptions)
+
+    def is_global_peer(self):
+        return self.is_global
+
+    def canonical_form(self):
+        if self.namespace is None:
+            return self.name
+        else:
+            return self.namespace.name + '_' + self.name
 
     @staticmethod
     def get_all_ips_block():
@@ -216,6 +235,16 @@ class IpBlock(Peer, CanonicalIntervalSet):
         for ip_range in self:
             res += int(ip_range.end) - int(ip_range.start) + 1
         return res
+
+    def add_cidr(self, cidr, exceptions=None):
+        ipn = ip_network(cidr, False)  # strict is False as k8s API shows an example CIDR where host bits are set
+        self.add_interval(CanonicalIntervalSet.Interval(ipn.network_address, ipn.broadcast_address))
+        for exception in exceptions or []:
+            exception_n = ip_network(exception, False)
+            # the following line has no effect - only used to raise an exception when exception_n is not within cidr
+            ipn.address_exclude(exception_n)  # TODO: use exception_n.subnet_of(self.cidr) (Python 3.7 only)
+            hole = CanonicalIntervalSet.Interval(exception_n.network_address, exception_n.broadcast_address)
+            self.add_hole(hole)
 
 
 class PeerSet(set):

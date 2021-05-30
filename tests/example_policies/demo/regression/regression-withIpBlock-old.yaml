@@ -3,7 +3,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: enable-from-kube-system-tier-frontend-to-ipBlocs-old
+  name: enable-from-kube-system-tier-frontend-to-ipblocks-old
   namespace: kube-system
 spec:
   podSelector:

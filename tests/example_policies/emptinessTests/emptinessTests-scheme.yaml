@@ -15,8 +15,8 @@ queries:
   - name: non_vacuous_policies
     vacuity:
       - np1/kube-system/isolate-kube-system-specific-pods
-      - np1/kube-system/enable-ingress-with-typo-in-ingress-rule-podSelector
-      - np1/kube-system/enable-egress-with-typo-in-egress-rule-podSelector
+      - np1/kube-system/enable-ingress-with-typo-in-ingress-rule-podselector
+      - np1/kube-system/enable-egress-with-typo-in-egress-rule-podselector
       - np1
     expected: 0
   - name: emptiness
@@ -31,8 +31,8 @@ queries:
     equivalence:
       - np1/kube-system/isolate-kube-system-specific-pods
       - np1/kube-system/enable-ingress-with-typo-in-isolatedpods
-      - np1/kube-system/enable-ingress-with-typo-in-ingress-rule-podSelector
-      - np1/kube-system/enable-egress-with-typo-in-egress-rule-podSelector
+      - np1/kube-system/enable-ingress-with-typo-in-ingress-rule-podselector
+      - np1/kube-system/enable-egress-with-typo-in-egress-rule-podselector
     expected: 5
 
   - name: sanity_all

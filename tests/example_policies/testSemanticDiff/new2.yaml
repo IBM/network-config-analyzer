@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: UItoCommand
+  name: ui-to-command
   namespace: demo
 spec:
   podSelector:
