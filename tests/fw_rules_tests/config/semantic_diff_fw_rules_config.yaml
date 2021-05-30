@@ -4,8 +4,9 @@ max_iter: 9
 filter_system_ns: False
 use_pod_owner_name: False
 expected_fw_rules_dir: 'fw_rules_output'
-override_result_file: True
-create_output_files: True
-group_by_label_single_pod: False
+override_result_file: False
+create_output_files: False
+compare_output_files: False
+group_by_label_single_pod: True
 #expected_fw_rules_txt: 'poc1.txt'
 #expected_fw_rules_yaml: 'poc1.yaml'

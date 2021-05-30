@@ -87,7 +87,10 @@ class ConnectivityGraph:
         # print the result fw rules to stdout
         if print_to_stdout:
             minimize_fw_rules.print_final_fw_rules()
-        txt_res, yaml_res = minimize_fw_rules.get_comparison_results()
+        if self.config.compare_output_files:
+            txt_res, yaml_res = minimize_fw_rules.get_comparison_results()
+        else:
+            txt_res, yaml_res = True, True
         return txt_res, yaml_res, fw_rules_map
 
     @staticmethod

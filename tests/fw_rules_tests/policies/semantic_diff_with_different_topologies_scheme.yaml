@@ -1,0 +1,97 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+
+networkConfigList:
+  - name: no_policy
+    # no namespaceList and podList, hence use the global resources above
+    networkPolicyList: [ ]
+    expected_warnings: 0
+
+  - name: policy
+    # should be equivalent to 'no_policy' above
+    namespaceList: ../podlist/ns_list_orig.json
+    networkPolicyList:
+      - policy_a.yaml
+    expected_warnings: 3
+
+  - name: config_a
+    namespaceList: ../podlist/ns_list_a.json
+    podList: ../podlist/pods_list_a.json
+    networkPolicyList:
+      - policy_a.yaml
+    expected_warnings: 0
+
+  - name: config_b
+    namespaceList: ../podlist/ns_list_b.json
+    podList: ../podlist/pods_list_b.json
+    networkPolicyList:
+      - policy_b.yaml
+    expected_warnings: 0
+
+  - name: old1
+    networkPolicyList:
+      - old1.yaml
+    expected_warnings: 8
+
+  - name: np1
+    networkPolicyList:
+      - withIpBlock-networkpolicy1.yaml
+    expected_warnings: 0
+
+  - name: np2
+    networkPolicyList:
+      - withIpBlock-networkpolicy2.yaml
+    expected_warnings: 0
+
+  - name: config_a_with_ipBlock
+    namespaceList: ../podlist/ns_list_a.json
+    podList: ../podlist/pods_list_a.json
+    networkPolicyList:
+      - policy_a.yaml
+      - policy_a_ipBlock.yaml
+    expected_warnings: 0
+
+  - name: config_b_with_ipBlock
+    namespaceList: ../podlist/ns_list_b.json
+    podList: ../podlist/pods_list_b.json
+    networkPolicyList:
+      - policy_b.yaml
+      - policy_b_ipBlock.yaml
+    expected_warnings: 0
+
+queries:
+  - name: semantic_diff_identical
+    semanticDiff:
+      - no_policy
+      - policy
+    expected: 0
+
+  - name: semantic_diff_a_to_b
+    semanticDiff:
+      - config_a
+      - config_b
+    expected: 36
+
+  - name: semantic_diff_b_to_a
+    semanticDiff:
+      - config_b
+      - config_a
+    expected: 36
+
+  - name: semantic_diff_disjoint_old1_config_a
+    semanticDiff:
+      - old1
+      - config_a
+    expected: 838
+
+  - name: semantic_diff_np1_np2
+    semanticDiff:
+      - np1
+      - np2
+    expected: 64
+
+  - name: semantic_diff_a_to_b_with_ipBlock
+    semanticDiff:
+      - config_a_with_ipBlock
+      - config_b_with_ipBlock
+    expected: 81

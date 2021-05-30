@@ -611,7 +611,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         return result.replace('{', ' ').replace('}', ' ').replace('\'', '')
 
     @staticmethod
-    def prinf_diff(fw_rules_map):
+    def print_diff(fw_rules_map):
         result = ""
         all_connections = set(fw_rules_map.keys())
         for connection in all_connections:
@@ -644,15 +644,13 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         :rtype: dict
         """
         all_diff = {}
-        peer_set_per_key = dict()
+        ip_blocks_per_key = dict()
         old_peers = self.config1.peer_container.get_all_peers_group()
         new_peers = self.config2.peer_container.get_all_peers_group()
         intersected_peers = old_peers & new_peers
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
-
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
-
         all_ip_blocks = PeerSet()
         all_ip_blocks.add(IpBlock.get_all_ips_block())
         old_ip_blocks = self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), all_ip_blocks)
@@ -661,7 +659,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 1.1. lost connections between removed peers
         key = 'Lost connections between removed peers'
         all_diff[key] = []
-        peer_set_per_key[key] = removed_peers
+        ip_blocks_per_key[key] = PeerSet()
         for pair in itertools.permutations(removed_peers, 2):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
@@ -671,7 +669,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 1.2. lost connections between removed peers and ipBlocks
         key = 'Lost connections between removed peers and ipBlocks'
         all_diff[key] = []
-        peer_set_per_key[key] = removed_peers | old_ip_blocks
+        ip_blocks_per_key[key] = old_ip_blocks
         for pair in itertools.product(removed_peers, old_ip_blocks):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
@@ -686,7 +684,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 2.1. lost connections between removed peers and intersected peers
         key = 'Lost connections between removed peers and persistent peers'
         all_diff[key] = []
-        peer_set_per_key[key] = removed_peers | intersected_peers
+        ip_blocks_per_key[key] = PeerSet()
         for pair in itertools.product(removed_peers, intersected_peers):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
@@ -701,7 +699,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
         key = 'Changed connections between persistent peers'
         all_diff[key] = []
-        peer_set_per_key[key] = intersected_peers
+        ip_blocks_per_key[key] = PeerSet()
         for pod1 in intersected_peers:
             for pod2 in intersected_peers if pod1 in captured_pods else captured_pods:
                 if pod1 == pod2:
@@ -719,7 +717,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         all_diff[key] = []
         disjoint_ip_blocks = self.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks)
         peers = captured_pods | disjoint_ip_blocks
-        peer_set_per_key[key] = peers
+        ip_blocks_per_key[key] = disjoint_ip_blocks
         for pod1 in peers:
             for pod2 in disjoint_ip_blocks if pod1 in captured_pods else captured_pods:
                 _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
@@ -731,7 +729,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 4.1. new connections between intersected peers and added peers
         key = 'New connections between persistent peers and added peers'
         all_diff[key] = []
-        peer_set_per_key[key] = intersected_peers | added_peers
+        ip_blocks_per_key[key] = PeerSet()
         for pair in itertools.product(intersected_peers, added_peers):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
@@ -746,7 +744,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 5.1. new connections between added peers
         key = 'New connections between added peers'
         all_diff[key] = []
-        peer_set_per_key[key] = added_peers
+        ip_blocks_per_key[key] = PeerSet()
         for pair in itertools.permutations(added_peers, 2):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
@@ -756,7 +754,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 5.2. new connections between added peers and ipBlocks
         key = 'New connections between added peers and ipBlocks'
         all_diff[key] = []
-        peer_set_per_key[key] = added_peers | new_ip_blocks
+        ip_blocks_per_key[key] = new_ip_blocks
         for pair in itertools.product(added_peers, new_ip_blocks):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
@@ -768,24 +766,23 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 all_diff[key].append(
                     SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
 
-        return all_diff, peer_set_per_key
+        return all_diff, ip_blocks_per_key, old_peers, new_peers
 
-    def produce_fw_rules_diff_message(self, all_diff, peer_set_per_key):
+    def produce_fw_rules_diff_message(self, all_diff, ip_blocks_per_key, old_topology_peers, new_topology_peers):
         res = 0
         explanation = ''
         for key in all_diff.keys():
             if len(all_diff[key]) > 0:
                 explanation += f'{key}:\n'
-                # added = {}
-                # removed = {}
                 allowed_labels = self.config1.allowed_labels.union(self.config2.allowed_labels)
                 config_name_combined = self.config1.name + '_' + self.config2.name
                 added_conns_name = 'semantic_diff_' + config_name_combined + '_added_conns'
                 removed_conns_name = 'semantic_diff_' + config_name_combined + '_removed_conns'
-                peers_to_compare = peer_set_per_key[key]
-                conn_graph_added_conns = ConnectivityGraph(peers_to_compare, added_conns_name, allowed_labels,
+                peers_to_compare_added = new_topology_peers | ip_blocks_per_key[key]
+                peers_to_compare_removed = old_topology_peers | ip_blocks_per_key[key]
+                conn_graph_added_conns = ConnectivityGraph(peers_to_compare_added, added_conns_name, allowed_labels,
                                                            'config/semantic_diff_fw_rules_config.yaml')
-                conn_graph_removed_conns = ConnectivityGraph(peers_to_compare, removed_conns_name, allowed_labels,
+                conn_graph_removed_conns = ConnectivityGraph(peers_to_compare_removed, removed_conns_name, allowed_labels,
                                                              'config/semantic_diff_fw_rules_config.yaml')
                 is_added = False
                 is_removed = False
@@ -797,15 +794,15 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         is_removed = True
                         conn_graph_removed_conns.add_edge(entry.from_ep, entry.to_ep, entry.removed)
 
-                # print('added connections as fw rules:')
-                _, _, added = conn_graph_added_conns.output_as_firewall_rules(False)
-                # print('removed connections as fw rules:')
-                _, _, removed = conn_graph_removed_conns.output_as_firewall_rules(False)
-
                 if is_added:
-                    explanation += f'Added connections:\n{self.prinf_diff(added)}\n'
+                    _, _, added = conn_graph_added_conns.output_as_firewall_rules(False)
+                    explanation += f'Added connections (ref topology of config 2) :\n{self.print_diff(added)}\n'
+                    res += 1
                 if is_removed:
-                    explanation += f'Removed connections:\n{self.prinf_diff(removed)}\n'
+                    _, _, removed = conn_graph_removed_conns.output_as_firewall_rules(False)
+                    explanation += f'Removed connections (ref topology of config 1) :\n{self.print_diff(removed)}\n'
+                    res += 1
+
         return res, explanation
 
     def produce_diff_message(self, all_diff):
@@ -877,10 +874,12 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         if query_answer.bool_result and query_answer.output_result:
             return query_answer  # nothing to do - identical configurations (same topologies and policies)
 
-        all_diff, peer_set_per_key = self.compute_diff()
+        all_diff, ip_blocks_per_key, old_topology_peers, new_topology_peers = self.compute_diff()
 
-        res, explanation = self.produce_fw_rules_diff_message(all_diff, peer_set_per_key)
-        # res, explanation = self.produce_diff_message(all_diff)
+        _, explanation = self.produce_fw_rules_diff_message(all_diff, ip_blocks_per_key, old_topology_peers, new_topology_peers)
+        res, _ = self.produce_diff_message(all_diff)
+        #res, explanation = self.produce_diff_message(all_diff)
+
         if res > 0:
             return QueryAnswer(bool_result=False,
                                output_result=f'{self.name1} and {self.name2} are not semantically equivalent.',

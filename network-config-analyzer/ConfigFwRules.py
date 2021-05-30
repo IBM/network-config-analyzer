@@ -10,7 +10,7 @@ class ConfigFwRules:
         self.config_name = config_name
         self.attributes = ['run_in_test_mode', 'max_iter', 'filter_system_ns', 'expected_fw_rules_dir',
                            'override_result_file', 'create_output_files', 'expected_fw_rules_txt',
-                           'expected_fw_rules_yaml', 'debug', 'use_pod_owner_name', 'group_by_label_single_pod']
+                           'expected_fw_rules_yaml', 'debug', 'use_pod_owner_name', 'group_by_label_single_pod', 'compare_output_files']
         # assign default config params
         self.max_iter = 10
         self.run_in_test_mode = False # runs some extra checks and assertions
@@ -20,6 +20,7 @@ class ConfigFwRules:
         self.filter_system_ns = False
         self.override_result_file = True
         self.create_output_files = True
+        self.compare_output_files = True
         self.expected_fw_rules_txt = None
         self.expected_fw_rules_yaml = None
         self.expected_fw_rules_dir = None
