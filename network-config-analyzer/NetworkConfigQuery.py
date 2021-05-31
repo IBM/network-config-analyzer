@@ -894,6 +894,17 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
                            output_explanation=explanation_not_contained_self_other, numerical_result=1)
 
 
+class PermitsQuery(TwoNetworkConfigsQuery):
+    """
+    Checking whether the connections explicitly allowed by config1 are explicitly allowed by config2
+    """
+    def exec(self, only_captured=False):
+        query_answer = self.is_identical_topologies(True)
+        if query_answer.output_result:
+            return query_answer  # non-identical configurations are not comparable
+
+        return ContainmentQuery(self.config1, self.config2).exec(True)
+
 class InterferesQuery(TwoNetworkConfigsQuery):
     """
     Checking whether config2 extends config1's allowed connection for Pods captured by policies in config1

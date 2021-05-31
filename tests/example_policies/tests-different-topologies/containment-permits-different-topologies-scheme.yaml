@@ -93,3 +93,15 @@ queries:
       - np1
       - np2
     expected: 0
+
+  - name: permits_a_b
+    permits:
+      - config_a
+      - config_b
+    expected: 1
+
+  - name: permits_a_with_different_ipBlock_policies
+    permits:
+      - config_a_with_ipBlock
+      - config_a_with_b_ipBlock
+    expected: 0

@@ -11,7 +11,7 @@ from GenericYamlParser import GenericYamlParser
 from NetworkConfig import NetworkConfig
 from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEquivalenceQuery, SemanticDiffQuery, \
     SanityQuery, ContainmentQuery, RedundancyQuery, InterferesQuery, EmptinessQuery, VacuityQuery, DisjointnessQuery, \
-    IntersectsQuery, TwoWayContainmentQuery, AllCapturedQuery
+    IntersectsQuery, TwoWayContainmentQuery, PermitsQuery, AllCapturedQuery
 
 
 class SchemeRunner(GenericYamlParser):
@@ -368,7 +368,7 @@ class SchemeRunner(GenericYamlParser):
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
-            full_result = ContainmentQuery(self._get_config(config), base_config).exec(True)
+            full_result = PermitsQuery(self._get_config(config), base_config).exec(True)
             if not full_result.bool_result:
                 res += 1
                 print(configs_array[0] + ' does not permit connections specified in ' + config + ':')
