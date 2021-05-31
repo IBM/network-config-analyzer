@@ -2,6 +2,19 @@ namespaceList: ../../example_podlist/ns_list.json
 podList: ../../example_podlist/pods_list.json
 
 networkConfigList:
+  - name: no_policy
+    # no namespaceList and podList, hence use the global resources above
+    # TODO: a "bug" in _allowed_xgress_conns() in case of config with no policy, since policy-type is not identified as k8s
+    networkPolicyList: []
+    expected_warnings: 0
+
+  - name: policy
+    # should be equivalent to 'no_policy' above
+    namespaceList: ../../example_podlist/ns_list.json
+    networkPolicyList:
+      - policy_a.yaml
+    expected_warnings: 3
+
   - name: config_a
     namespaceList: ../../different_topologies/ns_list_a.json
     podList: ../../different_topologies/pods_list_a.json
@@ -42,9 +55,41 @@ networkConfigList:
       - policy_b_ipBlock.yaml
     expected_warnings: 0
 
+  - name: config_a_with_b_ipBlock
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_b.yaml
+      - policy_b_ipBlock.yaml
+    expected_warnings: 0
+
 queries:
+  - name: containment_identical
+    containment:
+      - no_policy
+      - policy
+    expected: 0
+
   - name: twoWayContainment_a_b
     twoWayContainment:
       - config_a
       - config_b
+    expected: 0
+
+  - name: twoWayContainment_a_b_with_ipBlock
+    twoWayContainment:
+      - config_a_with_ipBlock
+      - config_b_with_ipBlock
+    expected: 0
+
+  - name: twoWayContainment_a_with_different_ipBlock_policies
+    twoWayContainment:
+      - config_a_with_ipBlock
+      - config_a_with_b_ipBlock
+    expected: 0
+
+  - name: twoWayContainment_np1_np2
+    twoWayContainment:
+      - np1
+      - np2
     expected: 0
