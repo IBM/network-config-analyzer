@@ -33,7 +33,6 @@ class ClusterInfo:
 
         self.add_update_pods_labels_map_with_invalid_val(all_pods)
         self.add_update_pods_labels_map_with_required_conjunction_labels()
-        return
 
     def add_update_pods_labels_map_with_invalid_val(self, all_pods):
         """
@@ -60,31 +59,30 @@ class ClusterInfo:
                                                   pod.namespace in ns_context_options]
             # add the pair (key, invalid_val) for pods_labels_map with pods from pods_without_key_set_ns_restricted
             self.pods_labels_map[(key, invalid_val)] = set(pods_without_key_set_ns_restricted)
-        return
 
     def add_update_pods_labels_map_with_required_conjunction_labels(self):
         """
         Updating the pods_labels_map with 'and' labels from allowed labels, to allow grouping of 'and' between labels
         :return: None
         """
-        required_conjunction_labels = [k for k in self.allowed_labels if k.startswith('_AND_')]
+        required_conjunction_labels = [k for k in self.allowed_labels if ':' in k]
         for key in required_conjunction_labels:
-            key_labels = (key.split('_AND_')[1]).split(':')
+            key_labels = key.split(':')
             key_labels_values = [self.get_values_set_for_key(k) for k in key_labels]
             cartesian_product_values = list(itertools.product(*key_labels_values))
             # for each elem check how many pods exist
             for elem in cartesian_product_values:
-                flattened_elem_value = '_AND_' + ':'.join(v for v in elem)
+                # TODO: make sure ':' is not allowed in a label value
+                flattened_elem_value = ':'.join(v for v in elem)
                 pod_sets_per_combined_value = []
-                for index in range(0, len(key_labels)):
-                    current_key = key_labels[index]
-                    val_per_key = list(elem)[index]
+                elem_list = list(elem)
+                for index, current_key in enumerate(key_labels):
+                    val_per_key = elem_list[index]
                     pod_sets_per_combined_value.append(set(self.pods_labels_map[(current_key, val_per_key)]))
                 final_pod_set = set.intersection(*pod_sets_per_combined_value)
                 # add to pods_labels_map the combined value for the 'and' label, when pods exist
                 if len(final_pod_set) > 0:
                     self.pods_labels_map[(key, flattened_elem_value)] = final_pod_set
-        return
 
     def get_values_set_for_key(self, key):
         """
@@ -92,7 +90,7 @@ class ClusterInfo:
         :param key: a label key of type string
         :return: A set of values, of type set(string)
         """
-        values = set([v for (k, v) in self.pods_labels_map.keys() if k == key])
+        values = set(v for (k, v) in self.pods_labels_map.keys() if k == key)
         return values
 
     def _get_allowed_labels_flattened(self):
@@ -102,8 +100,8 @@ class ClusterInfo:
         """
         res = set()
         for key in self.allowed_labels:
-            if key.startswith('_AND_'):
-                key_labels = (key.split('_AND_')[1]).split(':')
+            if ':' in key:
+                key_labels = key.split(':')
                 res.update(key_labels)
             else:
                 res.add(key)

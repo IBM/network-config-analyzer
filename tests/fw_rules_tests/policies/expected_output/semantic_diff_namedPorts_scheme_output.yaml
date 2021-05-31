@@ -1,0 +1,56 @@
+- query: 'semantic_diff, config1: np1_named_ports, config2: np2_named_ports, key:
+    Changed connections between persistent peers (added)'
+  rules:
+  - src_ns:
+    - kube-system-dummy-to-ignore
+    - kube-system
+    - vendor-system
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-dummy-to-ignore
+    dst_pods:
+    - kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db-9s486
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '10054'
+  - src_ns:
+    - kube-system-dummy-to-ignore
+    - kube-system
+    - vendor-system
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-dummy-to-ignore
+    dst_pods:
+    - kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db-bbvts
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '10054'
+- query: 'semantic_diff, config1: np1_named_ports, config2: np2_named_ports, key:
+    Changed connections between persistent peers and ipBlocks (added)'
+  rules:
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system-dummy-to-ignore
+    dst_pods:
+    - kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db-9s486
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '10054'
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system-dummy-to-ignore
+    dst_pods:
+    - kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db-bbvts
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '10054'

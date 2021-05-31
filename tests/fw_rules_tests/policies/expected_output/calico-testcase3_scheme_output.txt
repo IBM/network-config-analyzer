@@ -1,0 +1,25 @@
+global cluster has 28 non-isomorphic endpoints, 8 namespaces
+Running query connectivity_map
+warning: no configuration file for fw rules, using default config file: fw_rules_config.yaml
+----------------------------------------------------------
+final fw rules for: connectivity_map, config: np_onlyAllow:
+src_ns: [kube-system] src_pods: [app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,
+
+
+
+Running query connectivity_map
+warning: no configuration file for fw rules, using default config file: fw_rules_config.yaml
+----------------------------------------------------------
+final fw rules for: connectivity_map, config: np_FirstDenySubset:
+src_ns: [kube-system] src_pods: [app in (helm,keepalived-watcher,vpn)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,
+
+
+
+Running query connectivity_map
+warning: no configuration file for fw rules, using default config file: fw_rules_config.yaml
+----------------------------------------------------------
+final fw rules for: connectivity_map, config: np_firstAllowSuperSet:
+src_ns: [kube-system] src_pods: [app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,
+
+
+

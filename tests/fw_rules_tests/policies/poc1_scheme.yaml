@@ -12,4 +12,4 @@ queries:
     connectivityMap:
       - poc1
     expected: 0
-    #fw_rules_configuration: config/fw_rules_config.yaml
+    #fw_rules_configuration: fw_rules_config.yaml

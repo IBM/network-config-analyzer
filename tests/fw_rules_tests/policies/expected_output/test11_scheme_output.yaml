@@ -1,0 +1,46 @@
+- query: 'connectivity_map, config: np11'
+  rules:
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    src_pods:
+    - '*'
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app in (skydive),tier in (analyzer),
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (skydive),tier in (agent),
+    connection:
+    - All connections

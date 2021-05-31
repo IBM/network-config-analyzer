@@ -17,16 +17,16 @@ class LabelExpr:
         # TODO: handle the string for 'NO_LABEL_VALUE' : app in NO_LABEL_VALUE => !app
         values_set = set(self.values)
         values_str = '(' + ','.join(v for v in sorted(list(values_set))) + ')'
-        if not self.key.startswith('_AND_'):
+        if ':' not in self.key:
             return self.key + ' in ' + values_str
         else:
-            key_labels = (self.key.split('_AND_')[1]).split(':')
+            key_labels = self.key.split(':')
             res = ''
             values_str_map = dict()
             # for key in key_labels:
             for index in range(0, len(key_labels)):
                 key = key_labels[index]
-                split_vals = [(val.split('_AND_')[1]).split(':') for val in self.values]
+                split_vals = [val.split(':') for val in self.values]
                 val_set = [v[index] for v in split_vals]
                 values_str = '(' + ','.join(v for v in sorted(list(val_set))) + ')'
                 values_str_map[key] = key + ' in ' + values_str
@@ -98,7 +98,7 @@ class PodElement(FWRuleElement):
         return [str(self.element)]
 
     def get_pod_str(self):
-        #return '[' + str(self.element) + ']'
+        # return '[' + str(self.element) + ']'
         return '[' + str(self.element.owner_name) + ']'
 
     def __str__(self):
@@ -173,6 +173,7 @@ class IPBlockElement(FWRuleElement):
     """
     Class for ip-block element in a fw-rule
     """
+
     def __init__(self, element: IpBlock):
         super().__init__(set())  # no ns for ip-block
         self.element = element
@@ -213,6 +214,7 @@ class FWRule:
     """
     Class for holding a fw-rule: src, dst, connection-set
     """
+
     def __init__(self, src: FWRuleElement, dst: FWRuleElement, conn: ConnectionSet):
         self.src = src
         self.dst = dst
@@ -235,7 +237,7 @@ class FWRule:
     def __str__(self):
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = self.conn.get_connections_str() #str(self.conn)
+        conn_str = self.conn.get_connections_str()  # str(self.conn)
         return src_str + dst_str + ' conn: ' + conn_str
 
     def __hash__(self):

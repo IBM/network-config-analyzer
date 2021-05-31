@@ -1,0 +1,14 @@
+global cluster has 7 non-isomorphic endpoints, 8 namespaces
+Running query connectivity_map
+warning: no configuration file for fw rules, using default config file: fw_rules_config.yaml
+----------------------------------------------------------
+final fw rules for: connectivity_map, config: np2:
+src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
+src ip block: 0.0.0.0/0 dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 53,UDP 53,
+src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
+src_ns: [default,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 53,UDP 53,
+src_ns: [ibm-system-new] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
+
+
+

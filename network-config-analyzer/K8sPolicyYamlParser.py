@@ -166,10 +166,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 else:
                     res &= self.peer_container.get_peers_with_label(key, [val])
                 keys_set.add(key)
-            if len(keys_set) == 1:
-                self.allowed_labels.add(list(keys_set)[0])
-            else:
-                self.allowed_labels.add('_AND_' + ':'.join(k for k in keys_set))
+            self.allowed_labels.add(':'.join(keys_set))
 
 
 
@@ -180,10 +177,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 res &= self.parse_label_selector_requirement(requirement, namespace_selector)
                 key = requirement['key']
                 keys_set.add(key)
-            if len(keys_set) == 1:
-                self.allowed_labels.add(list(keys_set)[0])
-            else:
-                self.allowed_labels.add('_AND_' + ':'.join(k for k in keys_set))
+            self.allowed_labels.add(':'.join(keys_set))
 
         if not res:
             if namespace_selector:

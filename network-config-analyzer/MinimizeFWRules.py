@@ -613,10 +613,13 @@ class MinimizeFWRules:
         self.results_map = results_map
 
     # print to stdout the final fw rules (in txt format)
-    def print_final_fw_rules(self):
+    def print_final_fw_rules(self, query_name):
         print('----------------------------------------------------------')
-        print('final_fw_rules: ')
-        output_rules = self.get_rules_str_values()
+        header = 'final fw rules'
+        if len(query_name) > 0:
+            header += ' for: ' + query_name
+        print(header + ':')
+        output_rules = sorted(list(self.get_rules_str_values()))
         print(''.join(line for line in output_rules))
 
         '''
@@ -626,6 +629,12 @@ class MinimizeFWRules:
             self.write_rules_to_yaml()
             self.write_results_to_file()
         '''
+
+    def create_output_yaml_file(self, query_name):
+        actual_content = self.get_all_rules_yaml_obj()
+        file_name = self.config.expected_fw_rules_yaml
+        query_content = [{'query': query_name, 'rules': actual_content}]
+        self.write_yaml_res_file(file_name, query_content)
 
     # in case there is no results file for comparison, creating a default results file
     def create_default_results_file(self, content, file_type):
@@ -648,14 +657,15 @@ class MinimizeFWRules:
 
     @staticmethod
     def write_yaml_res_file(file_name, content):
-        with open(file_name, 'w') as f:
+        with open(file_name, 'a') as f:
             yaml.dump(content, f, default_flow_style=False, sort_keys=False)
         return
 
     def get_yaml_comparison_result(self):
         actual_content = self.get_all_rules_yaml_obj()
 
-        file_name = self.config.expected_results_files['yaml']
+        #file_name = self.config.expected_results_files['yaml']
+        file_name = self.config.expected_fw_rules_yaml
         if len(file_name) == 0 or not os.path.isfile(file_name):
             # no comparison
             print('warning: no comparison of yaml results, file name is: ' + file_name)
@@ -667,9 +677,11 @@ class MinimizeFWRules:
             expected_content = yaml.safe_load(f)
 
         res = self.compare_yaml_output_rules(expected_content, actual_content)
-        if not res and self.config.override_result_file:
-            print('warning: overridden file with new results at: ' + str(file_name))
-            self.write_yaml_res_file(file_name, actual_content)
+        #if not res and self.config.override_result_file:
+        #    print('warning: overridden file with new results at: ' + str(file_name))
+        #    self.write_yaml_res_file(file_name, actual_content)
+        print('------------------------------------')
+        print('comparison result of yaml output: ' + str(res))
 
         return res
 
@@ -695,9 +707,9 @@ class MinimizeFWRules:
         return res
 
     def get_comparison_results(self):
-        txt_res = self.get_txt_comparison_result()
+        #txt_res = self.get_txt_comparison_result()
         yaml_res = self.get_yaml_comparison_result()
-        return txt_res, yaml_res
+        return yaml_res
 
 
 
@@ -862,3 +874,5 @@ class MinimizeFWRules:
         f.close()
         return
     '''
+
+

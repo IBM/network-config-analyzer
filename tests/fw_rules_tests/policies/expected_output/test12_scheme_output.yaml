@@ -1,0 +1,53 @@
+- query: 'connectivity_map, config: np12'
+  rules:
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '53'
+    - Protocol: UDP
+      Ports:
+      - '53'
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    - default
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections

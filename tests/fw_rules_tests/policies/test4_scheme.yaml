@@ -10,8 +10,19 @@ networkConfigList:
       - test4-networkpolicy.yaml
     expected_warnings: 0
 
+  - name: np3
+    networkPolicyList:
+      - test3-networkpolicy.yaml
+    expected_warnings: 0
+
 queries:
-  - name: connectivity_map
+  - name: connectivity_map_4
     connectivityMap:
       - np4
+      - np3
+    expected: 0
+
+  - name: connectivity_map_3
+    connectivityMap:
+      - np3
     expected: 0

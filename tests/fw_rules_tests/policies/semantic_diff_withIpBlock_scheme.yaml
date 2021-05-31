@@ -28,7 +28,7 @@ queries:
       - np1
       - np2
       - np3
-    expected: 2
+    expected: 128
   - name: semantic_diff_ipblocks__np4_with_itself
     semanticDiff:
       - np4
@@ -37,9 +37,9 @@ queries:
     semanticDiff:
       - np1
       - np4
-    expected: 1
+    expected: 1016
   - name: semantic_diff_ipblocks_npq_np2
     semanticDiff:
       - np1
       - np2
-    expected: 1
+    expected: 64

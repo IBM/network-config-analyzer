@@ -1,4 +1,5 @@
 import os
+import sys
 
 import yaml
 
@@ -35,8 +36,13 @@ class ConfigFwRules:
         if self.config_file is None:
             return
         #print(os.getcwd())
-        if os.path.exists(self.config_file):
-            with open(self.config_file) as f:
+        root_dir = os.getcwd().split("network-config-analyzer")[0]
+        config_files_dir = os.path.join(root_dir, "network-config-analyzer", "tests", "fw_rules_tests", "config")
+        config_file_path = os.path.join(config_files_dir, self.config_file )
+        #print(config_file_path)
+        if os.path.exists(config_file_path):
+            #print('found')
+            with open(config_file_path) as f:
                 config_data_map = yaml.safe_load(f)
                 for attr in self.attributes:
                     if attr in config_data_map:
@@ -44,6 +50,7 @@ class ConfigFwRules:
 
         else:
             print('fw-rules config file not found, using default config values')
+
         self._set_expected_results_files()
         return
 

@@ -1,0 +1,174 @@
+- query: 'connectivity_map_4, config: np4'
+  rules:
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    - default
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 85-90
+  - src_ns:
+    - ibm-system-new
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 80-90
+  - src_ns:
+    - kube-system-new-dummy-to-ignore
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 80-88
+- query: 'connectivity_map_4, config: np3'
+  rules:
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    - default
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 85-90
+- query: 'connectivity_map_3, config: np3'
+  rules:
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    - default
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 85-90

@@ -175,7 +175,7 @@ class SchemeRunner(GenericYamlParser):
                         fw_rules_configuration = query[
                             'fw_rules_configuration'] if 'fw_rules_configuration' in query else None
                         res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key],
-                                                                                                   fw_rules_configuration)
+                                                                                                   fw_rules_configuration, query_name)
 
             if 'expected' in query:
                 expected = query['expected']
@@ -399,6 +399,15 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
+    def _run_connectivity_map(self, configs_array, fw_rules_configuration, query_name):
+        for config in configs_array:
+            query_name_with_config = query_name + ', config: ' + config
+            full_result = ConnectivityMapQuery(self._get_config(config)).exec(fw_rules_configuration, query_name_with_config)
+            print(full_result.output_result)
+        print()
+        return 0
+
+    '''
     def _run_connectivity_map(self, configs_array, fw_rules_configuration):
         res = 0
         for config in configs_array:
@@ -412,3 +421,4 @@ class SchemeRunner(GenericYamlParser):
             # print(full_result.output_result)
         print()
         return res
+    '''
