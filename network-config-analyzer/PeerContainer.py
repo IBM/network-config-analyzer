@@ -105,7 +105,7 @@ class PeerContainer:
                 with open(path) as yaml_file:
                     code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
                     for ns_code in code:
-                        if ns_code and ns_code.get('kind') == 'NamespaceList':
+                        if isinstance(ns_code, dict) and ns_code.get('kind') == 'NamespaceList':
                             self.set_namespaces(ns_code)
 
         # load from live cluster
