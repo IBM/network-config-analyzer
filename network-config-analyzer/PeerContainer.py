@@ -72,7 +72,7 @@ class PeerContainer:
         :param dict ns_list: The NamespaceList resource
         :return: None
         """
-        if not ns_list:
+        if not isinstance(ns_list, dict):
             return
 
         for namespace in ns_list.get('items', []):
@@ -96,7 +96,7 @@ class PeerContainer:
             with open(ns_resources) as yaml_file:
                 code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
                 for ns_code in code:
-                    if yaml_file.name.endswith('json') or (ns_code and ns_code.get('kind') == 'NamespaceList'):
+                    if isinstance(ns_code, dict) and ns_code.get('kind') == 'NamespaceList':
                         self.set_namespaces(ns_code)
 
         # load from local directory
@@ -169,7 +169,7 @@ class PeerContainer:
         yaml_files = GitScanner(url).get_yamls_in_repo()
         for yaml_file in yaml_files:
             for resource in yaml_file.data:
-                if resource and resource.get('kind') == 'NamespaceList':
+                if isinstance(resource, dict) and resource.get('kind') == 'NamespaceList':
                     self.set_namespaces(resource)
 
     def _set_peer_list_from_github(self, url):
@@ -181,7 +181,7 @@ class PeerContainer:
         yaml_files = GitScanner(url).get_yamls_in_repo()
         for yaml_file in yaml_files:
             for resource in yaml_file.data:
-                if resource:
+                if isinstance(resource, dict):
                     kind = resource.get('kind')
                     if kind == 'PodList':
                         self.add_eps_from_list(resource)
