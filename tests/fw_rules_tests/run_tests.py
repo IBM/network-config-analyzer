@@ -239,6 +239,8 @@ def prepare_output_test(scheme_filename):
         Path(os.path.join(scheme_dir, expected_output_dir_name)).mkdir(parents=True, exist_ok=True)
         Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
         create_test_output(expected_output_file_path, scheme_filename, ['--scheme', scheme_filename])
+    elif not os.path.isdir(os.path.join(scheme_dir, actual_output_dir_name)):
+        Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
 
 
 def create_test_output(output_file, test_name, args):

@@ -32,7 +32,7 @@ queries:
     semanticDiff:
       - np1_named_ports
       - np2_named_ports
-    expected: 58
+    expected: 2
   - name: semantic_diff_named_ports_np3_and_np4
     semanticDiff:
       - np3_named_ports

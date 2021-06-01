@@ -42,19 +42,19 @@ queries:
     semanticDiff:
       - new1
       - old1
-    expected: 6
+    expected: 2
 
   - name: semantic_diff_old1_new1a
     semanticDiff:
       - new1a
       - old1
-    expected: 3
+    expected: 2
 
   - name: semantic_diff_old2_new2
     semanticDiff:
       - new2
       - old2
-    expected: 5
+    expected: 2
 
   - name: semantic_diff_old3_new3
     semanticDiff:

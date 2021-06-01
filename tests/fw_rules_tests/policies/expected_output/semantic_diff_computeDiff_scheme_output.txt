@@ -2,10 +2,10 @@ global cluster has 3 non-isomorphic endpoints, 2 namespaces
 Running query semantic_diff_old1_new1
 new1 and old1 are not semantically equivalent.
 Changed connections between persistent peers:
-Added connections (ref topology of config 2) :
+Added connections (based on topology from config: old1) :
 src_ns: [demo] src_pods: [app in (bank-ui-selector)] dst_ns: [demo] dst_pods: [app in (account-command-selector)] conn: TCP 1-8079,8081-9089,9091-65536,UDP 1-8079,8081-65536,SCTP 1-65536,
 
-Removed connections (ref topology of config 1) :
+Removed connections (based on topology from config: new1) :
 src_ns: [demo] src_pods: [app in (account-query-selector)] dst_ns: [demo] dst_pods: [app in (bank-ui-selector)] conn: TCP 1-8079,8081-65536,UDP 1-65536,SCTP 1-65536,
 
 
@@ -13,11 +13,11 @@ src_ns: [demo] src_pods: [app in (account-query-selector)] dst_ns: [demo] dst_po
 Running query semantic_diff_old1_new1a
 new1a and old1 are not semantically equivalent.
 Changed connections between persistent peers:
-Added connections (ref topology of config 2) :
+Added connections (based on topology from config: old1) :
 src_ns: [demo] src_pods: [app in (bank-ui-selector)] dst_ns: [demo] dst_pods: [app in (account-command-selector)] conn: All connections
 src_ns: [demo] src_pods: [app in (account-query-selector)] dst_ns: [demo] dst_pods: [app in (bank-ui-selector)] conn: TCP 8080,
 
-Removed connections (ref topology of config 1) :
+Removed connections (based on topology from config: new1a) :
 src_ns: [demo] src_pods: [app in (account-query-selector)] dst_ns: [demo] dst_pods: [app in (bank-ui-selector)] conn: UDP 8080,
 
 
@@ -25,10 +25,10 @@ src_ns: [demo] src_pods: [app in (account-query-selector)] dst_ns: [demo] dst_po
 Running query semantic_diff_old2_new2
 new2 and old2 are not semantically equivalent.
 Changed connections between persistent peers:
-Added connections (ref topology of config 2) :
+Added connections (based on topology from config: old2) :
 src_ns: [demo] src_pods: [app in (bank-ui-selector)] dst_ns: [demo] dst_pods: [app in (account-command-selector)] conn: TCP 8080,UDP 9090,SCTP 7070,
 
-Removed connections (ref topology of config 1) :
+Removed connections (based on topology from config: new2) :
 src_ns: [demo] src_pods: [app in (bank-ui-selector)] dst_ns: [demo] dst_pods: [app in (account-command-selector)] conn: TCP 8082,UDP 9091,
 
 
