@@ -52,12 +52,15 @@ class PeerContainer:
                 return
         raise Exception('Failed to locate Kubernetes configuration files')
 
-    def _add_namespace(self, ns_object):
+    def _add_namespace(self, ns_object, generic_list):
         """
         Adds a single namespace to the container
         :param dict ns_object: The Namespace resource to add
+        :param bool generic_list: When list has the generic kind 'List', we have to check the resource kind
         :return: None
         """
+        if generic_list and ns_object.get('kind') != 'Namespace':
+            return
         metadata = ns_object.get('metadata', {})
         ns_name = metadata.get('name', '')
         namespace = K8sNamespace(ns_name)
@@ -72,11 +75,11 @@ class PeerContainer:
         :param dict ns_list: The NamespaceList resource
         :return: None
         """
-        if not ns_list:
+        if not isinstance(ns_list, dict):
             return
 
         for namespace in ns_list.get('items', []):
-            self._add_namespace(namespace)
+            self._add_namespace(namespace, ns_list.get('kind') == 'List')
 
     def _set_namespace_list(self, ns_resources):
         """
@@ -84,7 +87,7 @@ class PeerContainer:
          - git path of yaml file or a directory with yamls
          - local file (yaml or json) or a local directory containing yamls
          - query of the cluster
-        :param str ns_resources: The namespace resource to be used. If set to 'k8s', will query the cluster using kubectl
+        :param str ns_resources: The namespace resource to be used. If set to 'k8s', will query cluster using kubectl
         :return: None
         """
         # load from git
@@ -96,7 +99,7 @@ class PeerContainer:
             with open(ns_resources) as yaml_file:
                 code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
                 for ns_code in code:
-                    if yaml_file.name.endswith('json') or (ns_code and ns_code.get('kind') == 'NamespaceList'):
+                    if isinstance(ns_code, dict) and ns_code.get('kind') in {'NamespaceList', 'List'}:
                         self.set_namespaces(ns_code)
 
         # load from local directory
@@ -105,7 +108,7 @@ class PeerContainer:
                 with open(path) as yaml_file:
                     code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
                     for ns_code in code:
-                        if ns_code and ns_code.get('kind') == 'NamespaceList':
+                        if isinstance(ns_code, dict) and ns_code.get('kind') in {'NamespaceList', 'List'}:
                             self.set_namespaces(ns_code)
 
         # load from live cluster
@@ -121,7 +124,7 @@ class PeerContainer:
          - git path of yaml file or a directory with yamls
          - local file (yaml or json) or a local directory containing yamls
          - query of the cluster
-        :param str peer_resources: The peer resource to be used. If set to 'k8s'/'calico', will query the cluster using kubectl/calicoctl
+        :param str peer_resources: peer resource to use. If set to 'k8s'/'calico'  query cluster using kubectl/calicoctl
         :param srt config_name: The config name
         :return: None
         """
@@ -158,7 +161,8 @@ class PeerContainer:
             peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
             self.add_eps_from_list(peer_code)
 
-        print(config_name, 'cluster has', self.get_num_peers(), 'non-isomorphic endpoints,', self.get_num_namespaces(), 'namespaces')
+        print(f'{config_name}: cluster has {self.get_num_peers()} unique endpoints, '
+              '{self.get_num_namespaces()} namespaces')
 
     def _set_namespace_list_from_github(self, url):
         """
@@ -169,7 +173,7 @@ class PeerContainer:
         yaml_files = GitScanner(url).get_yamls_in_repo()
         for yaml_file in yaml_files:
             for resource in yaml_file.data:
-                if resource and resource.get('kind') == 'NamespaceList':
+                if isinstance(resource, dict) and resource.get('kind') in {'List', 'NamespaceList'}:
                     self.set_namespaces(resource)
 
     def _set_peer_list_from_github(self, url):
@@ -181,7 +185,7 @@ class PeerContainer:
         yaml_files = GitScanner(url).get_yamls_in_repo()
         for yaml_file in yaml_files:
             for resource in yaml_file.data:
-                if resource:
+                if isinstance(resource, dict):
                     kind = resource.get('kind')
                     if kind == 'PodList':
                         self.add_eps_from_list(resource)
@@ -384,7 +388,8 @@ class PeerContainer:
         if kind in ['PodList', 'List']:  # 'List' for the case of live cluster
             for endpoint in ep_list.get('items', []):
                 self._add_pod_from_yaml(endpoint)
-        elif kind in ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob', 'ReplicationController']:
+        elif kind in ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob',
+                      'ReplicationController']:
             self._add_pod_from_workload_yaml(ep_list)
         elif kind in ['WorkloadEndpointList', 'HostEndpointList']:
             is_calico_wep = kind == 'WorkloadEndpointList'
