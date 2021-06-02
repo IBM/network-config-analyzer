@@ -1,6 +1,5 @@
 global cluster has 5 non-isomorphic endpoints, 8 namespaces
 Running query connectivity_map
-warning: no configuration file for fw rules, using default config file: fw_rules_config.yaml
 ----------------------------------------------------------
 final fw rules for: connectivity_map, config: np22:
 src_ns: [default] src_pods: [test in (A,B)] dst_ns: [default] dst_pods: [app in (skydive)] conn: All connections

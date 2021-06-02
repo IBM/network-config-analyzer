@@ -12,8 +12,7 @@ class ClusterInfo:
         fw-rules computation
     """
 
-    def __init__(self, all_peers, allowed_labels, config):
-        self.config = config
+    def __init__(self, all_peers, allowed_labels):
         self.all_peers = all_peers
         self.ns_dict = defaultdict(list)  # map from ns to set of pods
         self.ns_labels_map = defaultdict(list)  # map from ns_labels to set of pods

@@ -1,10 +1,10 @@
 - query: 'connectivity_map, config: np15'
   rules:
   - src_ns:
-    - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    - kube-system-new
     - default
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    - ibm-system-new
     src_pods:
     - '*'
     dst_ip_block:
@@ -13,9 +13,19 @@
     - All connections
   - src_ns:
     - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    - kube-system-new
+    src_pods:
+    - ibm-cloud-provider-lb-app in (keepalived)
+    dst_ns:
     - default
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    - ibm-system-new
     src_pods:
     - '*'
     dst_ns:
@@ -32,16 +42,6 @@
     - ibm-system-new
     - kube-system-new-dummy-to-ignore
     - kube-system-new
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - ibm-system-new
-    src_pods:
-    - ibm-cloud-provider-lb-app in (keepalived)
-    dst_ns:
-    - default
     dst_pods:
     - '*'
     connection:

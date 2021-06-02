@@ -158,8 +158,7 @@ class SchemeRunner(GenericYamlParser):
         allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0,
                             'redundancy': 0, 'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0,
                             'sanity': 0, 'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0,
-                            'expected': 0, 'allCaptured': 0, 'connectivityMap': 0, 'fw_rules_configuration': 0,
-                            'allCaptured': 0}
+                            'expected': 0, 'allCaptured': 0, 'connectivityMap': 0, 'outputConfiguration': 0}
 
         for query in query_array:
             res = 0
@@ -168,14 +167,14 @@ class SchemeRunner(GenericYamlParser):
             print('Running query', query_name)
 
             for query_key in query.keys():
-                if query_key not in ['name', 'expected', 'fw_rules_configuration']:
+                if query_key not in ['name', 'expected', 'outputConfiguration']:
+                    output_configuration = self._get_input_file(query['outputConfiguration']) if 'outputConfiguration' in query else None
+
                     if query_key != 'connectivityMap':
-                        res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key])
+                        res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key], output_configuration)
                     else:
-                        fw_rules_configuration = query[
-                            'fw_rules_configuration'] if 'fw_rules_configuration' in query else None
                         res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key],
-                                                                                                   fw_rules_configuration, query_name)
+                                                                                                   output_configuration, query_name)
 
             if 'expected' in query:
                 expected = query['expected']
@@ -183,14 +182,14 @@ class SchemeRunner(GenericYamlParser):
                     self.warning(f'Unexpected result for query {query_name}: Expected {expected}, got {res}\n', query)
                     self.global_res += 1
 
-    def _run_equivalence(self, configs_array):
+    def _run_equivalence(self, configs_array, output_configuration):
         total_res = 0
         full_result = QueryAnswer()
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
-                full_result = SemanticEquivalenceQuery(self._get_config(config1), self._get_config(config2)).exec()
+                full_result = SemanticEquivalenceQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
                 print(full_result.output_result)
                 total_res += not full_result.bool_result
                 if not full_result.bool_result:
@@ -199,14 +198,14 @@ class SchemeRunner(GenericYamlParser):
             print()
         return total_res
 
-    def _run_strong_equivalence(self, configs_array):
+    def _run_strong_equivalence(self, configs_array, output_configuration):
         total_res = 0
         full_result = QueryAnswer()
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
-                full_result = StrongEquivalenceQuery(self._get_config(config1), self._get_config(config2)).exec()
+                full_result = StrongEquivalenceQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
                 total_res += not full_result.bool_result
                 print(full_result.output_result)
                 if not full_result.bool_result and full_result.output_explanation:
@@ -215,13 +214,13 @@ class SchemeRunner(GenericYamlParser):
             print()
         return total_res
 
-    def _run_semantic_diff(self, configs_array):
+    def _run_semantic_diff(self, configs_array, output_configuration):
         res = 0
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
-                full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2)).exec()
+                full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
                 print(full_result.output_result)
                 res += full_result.numerical_result
                 if not full_result.bool_result:
@@ -229,13 +228,13 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_containment(self, configs_array):
+    def _run_containment(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         res = 0
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
-            full_result = ContainmentQuery(self._get_config(config), base_config).exec()
+            full_result = ContainmentQuery(self._get_config(config), base_config, output_configuration).exec()
             res += full_result.bool_result
             if full_result.output_result:
                 print(full_result.output_result)
@@ -244,10 +243,10 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_redundancy(self, configs_array):
+    def _run_redundancy(self, configs_array, output_configuration):
         res = 0
         for config in configs_array:
-            full_result = RedundancyQuery(self._get_config(config)).exec()
+            full_result = RedundancyQuery(self._get_config(config), output_configuration).exec()
             if not full_result.bool_result:
                 print(full_result.output_result)
             else:
@@ -256,14 +255,14 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_interferes(self, configs_array):
+    def _run_interferes(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         res = 0
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
-            full_result = InterferesQuery(base_config, self._get_config(config)).exec()
+            full_result = InterferesQuery(base_config, self._get_config(config), output_configuration).exec()
             res += full_result.bool_result
             print(full_result.output_result)
             if full_result.bool_result:
@@ -273,7 +272,7 @@ class SchemeRunner(GenericYamlParser):
             print()
         return res
 
-    def _run_pairwise_interferes(self, configs_array):
+    def _run_pairwise_interferes(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         total_res = 0
@@ -281,7 +280,7 @@ class SchemeRunner(GenericYamlParser):
         for config1 in configs_array:
             for config2 in configs_array:
                 if config1 != config2:
-                    full_result = InterferesQuery(self._get_config(config1), self._get_config(config2)).exec()
+                    full_result = InterferesQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
                     total_res += full_result.bool_result
                     print(full_result.output_result)
                     if full_result.bool_result:
@@ -290,10 +289,10 @@ class SchemeRunner(GenericYamlParser):
             print()
         return total_res
 
-    def _run_emptiness(self, configs_array):
+    def _run_emptiness(self, configs_array, output_configuration):
         res = 0
         for config in configs_array:
-            full_result = EmptinessQuery(self._get_config(config)).exec()
+            full_result = EmptinessQuery(self._get_config(config), output_configuration).exec()
             if full_result.bool_result:
                 print(full_result.output_explanation)
             else:
@@ -302,19 +301,19 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_vacuity(self, configs_array):
+    def _run_vacuity(self, configs_array, output_configuration):
         res = 0
         for config in configs_array:
-            full_result = VacuityQuery(self._get_config(config)).exec()
+            full_result = VacuityQuery(self._get_config(config), output_configuration).exec()
             print(full_result.output_result)
             res += full_result.bool_result
         print()
         return res
 
-    def _run_sanity(self, configs_array):
+    def _run_sanity(self, configs_array, output_configuration):
         res = 0
         for config in configs_array:
-            full_result = SanityQuery(self._get_config(config)).exec()
+            full_result = SanityQuery(self._get_config(config), output_configuration).exec()
             res += full_result.numerical_result
             print(full_result.output_result)
             if not full_result.bool_result:
@@ -323,10 +322,10 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_disjointness(self, configs_array):
+    def _run_disjointness(self, configs_array, output_configuration):
         res = 0
         for config in configs_array:
-            full_result = DisjointnessQuery(self._get_config(config)).exec()
+            full_result = DisjointnessQuery(self._get_config(config), output_configuration).exec()
             res += full_result.numerical_result
             print(full_result.output_result)
             if not full_result.bool_result:
@@ -335,13 +334,13 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_two_way_containment(self, configs_array):
+    def _run_two_way_containment(self, configs_array, output_configuration):
         total_res = 0
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
-                full_result = TwoWayContainmentQuery(self._get_config(config1), self._get_config(config2)).exec()
+                full_result = TwoWayContainmentQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
                 print(full_result.output_result)
                 total_res += full_result.numerical_result
                 if full_result.numerical_result != 3:
@@ -349,14 +348,14 @@ class SchemeRunner(GenericYamlParser):
         print()
         return total_res
 
-    def _run_forbids(self, configs_array):
+    def _run_forbids(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         res = 0
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
-            full_result = IntersectsQuery(self._get_config(config), base_config).exec(True)
+            full_result = IntersectsQuery(self._get_config(config), base_config, output_configuration).exec(True)
             res += full_result.bool_result
             if full_result.bool_result:
                 print(configs_array[0] + ' does not forbid connections specified in ' + config + ':')
@@ -368,14 +367,14 @@ class SchemeRunner(GenericYamlParser):
             print()
         return res
 
-    def _run_permits(self, configs_array):
+    def _run_permits(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         res = 0
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
-            full_result = ContainmentQuery(self._get_config(config), base_config).exec(True)
+            full_result = ContainmentQuery(self._get_config(config), base_config, output_configuration).exec(True)
             if not full_result.bool_result:
                 res += 1
                 print(configs_array[0] + ' does not permit connections specified in ' + config + ':')
@@ -387,10 +386,10 @@ class SchemeRunner(GenericYamlParser):
             print()
         return res
 
-    def _run_all_captured(self, configs_array):
+    def _run_all_captured(self, configs_array, output_configuration):
         res = 0
         for config in configs_array:
-            full_result = AllCapturedQuery(self._get_config(config)).exec()
+            full_result = AllCapturedQuery(self._get_config(config), output_configuration).exec()
             res += full_result.numerical_result
             print(full_result.output_result)
             if not full_result.bool_result:
@@ -399,26 +398,10 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_connectivity_map(self, configs_array, fw_rules_configuration, query_name):
+    def _run_connectivity_map(self, configs_array, output_configuration, query_name):
         for config in configs_array:
             query_name_with_config = query_name + ', config: ' + config
-            full_result = ConnectivityMapQuery(self._get_config(config)).exec(fw_rules_configuration, query_name_with_config)
+            full_result = ConnectivityMapQuery(self._get_config(config), output_configuration).exec(query_name_with_config)
             print(full_result.output_result)
         print()
         return 0
-
-    '''
-    def _run_connectivity_map(self, configs_array, fw_rules_configuration):
-        res = 0
-        for config in configs_array:
-            # run_in_test_mode = 'fw_rules_tests' in self.yaml_file_name
-            full_result = ConnectivityMapQuery(self._get_config(config)).exec(fw_rules_configuration)
-            res += full_result.numerical_result
-            print(full_result.output_result)
-            if not full_result.bool_result:
-                print(full_result.output_explanation)
-                print()
-            # print(full_result.output_result)
-        print()
-        return res
-    '''

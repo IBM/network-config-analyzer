@@ -9,8 +9,8 @@
     connection:
     - All connections
   - src_ns:
-    - kube-system-new
     - default
+    - kube-system-new
     src_pods:
     - '*'
     dst_ns:
@@ -20,8 +20,8 @@
     connection:
     - All connections
   - src_ns:
-    - kube-system-new
     - default
+    - kube-system-new
     src_pods:
     - '*'
     dst_ip_block:

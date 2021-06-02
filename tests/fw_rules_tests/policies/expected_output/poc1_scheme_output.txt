@@ -1,6 +1,5 @@
 global cluster has 12 non-isomorphic endpoints, 1 namespaces
 Running query connectivity_map
-warning: no configuration file for fw rules, using default config file: fw_rules_config.yaml
 ----------------------------------------------------------
 final fw rules for: connectivity_map, config: poc1:
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080,

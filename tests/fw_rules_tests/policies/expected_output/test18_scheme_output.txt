@@ -1,6 +1,5 @@
 global cluster has 29 non-isomorphic endpoints, 8 namespaces
 Running query connectivity_map
-warning: no configuration file for fw rules, using default config file: fw_rules_config.yaml
 ----------------------------------------------------------
 final fw rules for: connectivity_map, config: np18:
 src ip block: 0.0.0.0/0 dst_ns: [kube-system-new] dst_pods: [*] conn: All connections

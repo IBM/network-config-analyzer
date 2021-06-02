@@ -21,8 +21,10 @@ queries:
       - np4
       - np3
     expected: 0
+    outputConfiguration: ../config/fw_rules_config.yaml
 
   - name: connectivity_map_3
     connectivityMap:
       - np3
     expected: 0
+    outputConfiguration: ../config/fw_rules_config.yaml

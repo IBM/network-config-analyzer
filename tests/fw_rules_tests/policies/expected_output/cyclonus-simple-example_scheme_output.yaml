@@ -1,21 +1,19 @@
 - query: 'connectivity_map, config: cyclonus-simple-example'
   rules:
-  - src_ns:
-    - y
-    src_pods:
-    - y/pod-a
-    dst_ns:
-    - y
-    dst_pods:
-    - y/pod-b
-    connection:
-    - All connections
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
     - y
     dst_pods:
     - y/pod-b
+    connection:
+    - All connections
+  - src_ns:
+    - y
+    src_pods:
+    - pod in (a,b)
+    dst_ip_block:
+    - 0.0.0.0/0
     connection:
     - All connections
   - src_ip_block:
@@ -29,8 +27,10 @@
   - src_ns:
     - y
     src_pods:
-    - pod in (a,b)
-    dst_ip_block:
-    - 0.0.0.0/0
+    - y/pod-a
+    dst_ns:
+    - y
+    dst_pods:
+    - y/pod-b
     connection:
     - All connections

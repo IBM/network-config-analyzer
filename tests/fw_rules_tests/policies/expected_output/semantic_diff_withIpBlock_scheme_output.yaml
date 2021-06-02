@@ -2,26 +2,6 @@
     persistent peers and ipBlocks (added)'
   rules:
   - src_ip_block:
-    - 172.22.0.0/15
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '53'
-  - src_ip_block:
-    - 172.31.0.0/16
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '53'
-  - src_ip_block:
     - 0.0.0.0/5
     dst_ns:
     - kube-system
@@ -33,6 +13,26 @@
       - '53'
   - src_ip_block:
     - 11.0.0.0/8
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.22.0.0/15
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.31.0.0/16
     dst_ns:
     - kube-system
     dst_pods:
@@ -45,26 +45,6 @@
     persistent peers and ipBlocks (removed)'
   rules:
   - src_ip_block:
-    - 172.22.0.0/15
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: UDP
-      Ports:
-      - '53'
-  - src_ip_block:
-    - 172.31.0.0/16
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: UDP
-      Ports:
-      - '53'
-  - src_ip_block:
     - 0.0.0.0/5
     dst_ns:
     - kube-system
@@ -76,6 +56,26 @@
       - '53'
   - src_ip_block:
     - 11.0.0.0/8
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: UDP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.22.0.0/15
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: UDP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.31.0.0/16
     dst_ns:
     - kube-system
     dst_pods:
@@ -88,26 +88,6 @@
     persistent peers and ipBlocks (added)'
   rules:
   - src_ip_block:
-    - 172.22.0.0/15
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '53'
-  - src_ip_block:
-    - 172.31.0.0/16
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '53'
-  - src_ip_block:
     - 0.0.0.0/5
     dst_ns:
     - kube-system
@@ -119,6 +99,26 @@
       - '53'
   - src_ip_block:
     - 11.0.0.0/8
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.22.0.0/15
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.31.0.0/16
     dst_ns:
     - kube-system
     dst_pods:
@@ -131,26 +131,6 @@
     persistent peers and ipBlocks (removed)'
   rules:
   - src_ip_block:
-    - 172.22.0.0/15
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: UDP
-      Ports:
-      - '53'
-  - src_ip_block:
-    - 172.31.0.0/16
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: UDP
-      Ports:
-      - '53'
-  - src_ip_block:
     - 0.0.0.0/5
     dst_ns:
     - kube-system
@@ -162,6 +142,26 @@
       - '53'
   - src_ip_block:
     - 11.0.0.0/8
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: UDP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.22.0.0/15
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: UDP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.31.0.0/16
     dst_ns:
     - kube-system
     dst_pods:
@@ -175,8 +175,8 @@
   rules:
   - src_ns:
     - default
-    - vendor-system
     - kube-system-dummy-to-ignore
+    - vendor-system
     src_pods:
     - '*'
     dst_ns:
@@ -203,9 +203,11 @@
     src_pods:
     - tier in (frontend)
     dst_ns:
-    - kube-system
+    - default
+    - kube-system-dummy-to-ignore
+    - vendor-system
     dst_pods:
-    - tier in (NO_LABEL_VALUE,not_frontend_for_demo)
+    - '*'
     connection:
     - All connections
   - src_ns:
@@ -213,16 +215,22 @@
     src_pods:
     - tier in (frontend)
     dst_ns:
-    - default
-    - vendor-system
-    - kube-system-dummy-to-ignore
+    - kube-system
     dst_pods:
-    - '*'
+    - tier in (NO_LABEL_VALUE,not_frontend_for_demo)
     connection:
     - All connections
 - query: 'semantic_diff, config1: np1, config2: np4, key: Changed connections between
     persistent peers and ipBlocks (added)'
   rules:
+  - src_ip_block:
+    - 172.21.0.0/16
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All connections
   - src_ip_block:
     - 172.30.0.0/16
     dst_ns:
@@ -239,48 +247,6 @@
     - tier in (frontend)
     connection:
     - All connections
-  - src_ip_block:
-    - 172.21.0.0/16
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - All connections
-  - src_ip_block:
-    - 172.22.0.0/15
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: TCP
-      Ports:
-      - 1-65536
-    - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65536
-    - Protocol: SCTP
-      Ports:
-      - 1-65536
-  - src_ip_block:
-    - 172.31.0.0/16
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: TCP
-      Ports:
-      - 1-65536
-    - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65536
-    - Protocol: SCTP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - 0.0.0.0/5
     dst_ns:
@@ -315,41 +281,43 @@
     - Protocol: SCTP
       Ports:
       - 1-65536
+  - src_ip_block:
+    - 172.22.0.0/15
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
+    - Protocol: UDP
+      Ports:
+      - 1-52
+      - 54-65536
+    - Protocol: SCTP
+      Ports:
+      - 1-65536
+  - src_ip_block:
+    - 172.31.0.0/16
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
+    - Protocol: UDP
+      Ports:
+      - 1-52
+      - 54-65536
+    - Protocol: SCTP
+      Ports:
+      - 1-65536
 - query: 'semantic_diff, config1: np1, config2: np4, key: Changed connections between
     persistent peers and ipBlocks (removed)'
   rules:
-  - src_ns:
-    - kube-system
-    src_pods:
-    - tier in (frontend)
-    dst_ip_block:
-    - 49.50.0.17/32
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
-    - tier in (frontend)
-    dst_ip_block:
-    - 49.50.0.5/32
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
-    - tier in (frontend)
-    dst_ip_block:
-    - 49.50.0.3/32
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
-    - tier in (frontend)
-    dst_ip_block:
-    - 49.50.0.9/32
-    connection:
-    - All connections
   - src_ns:
     - kube-system
     src_pods:
@@ -363,7 +331,23 @@
     src_pods:
     - tier in (frontend)
     dst_ip_block:
+    - 49.50.0.17/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
     - 49.50.0.15/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 0.0.0.0/3
     connection:
     - All connections
   - src_ns:
@@ -387,7 +371,7 @@
     src_pods:
     - tier in (frontend)
     dst_ip_block:
-    - 0.0.0.0/3
+    - 49.50.0.9/32
     connection:
     - All connections
   - src_ns:
@@ -398,29 +382,25 @@
     - 49.50.0.11/32
     connection:
     - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.3/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.5/32
+    connection:
+    - All connections
 - query: 'semantic_diff, config1: np1, config2: np2, key: Changed connections between
     persistent peers and ipBlocks (added)'
   rules:
-  - src_ip_block:
-    - 172.22.0.0/15
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '53'
-  - src_ip_block:
-    - 172.31.0.0/16
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '53'
   - src_ip_block:
     - 0.0.0.0/5
     dst_ns:
@@ -433,6 +413,26 @@
       - '53'
   - src_ip_block:
     - 11.0.0.0/8
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.22.0.0/15
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.31.0.0/16
     dst_ns:
     - kube-system
     dst_pods:
@@ -445,26 +445,6 @@
     persistent peers and ipBlocks (removed)'
   rules:
   - src_ip_block:
-    - 172.22.0.0/15
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: UDP
-      Ports:
-      - '53'
-  - src_ip_block:
-    - 172.31.0.0/16
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: UDP
-      Ports:
-      - '53'
-  - src_ip_block:
     - 0.0.0.0/5
     dst_ns:
     - kube-system
@@ -476,6 +456,26 @@
       - '53'
   - src_ip_block:
     - 11.0.0.0/8
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: UDP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.22.0.0/15
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - Protocol: UDP
+      Ports:
+      - '53'
+  - src_ip_block:
+    - 172.31.0.0/16
     dst_ns:
     - kube-system
     dst_pods:

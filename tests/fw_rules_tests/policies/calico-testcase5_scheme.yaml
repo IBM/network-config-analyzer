@@ -18,7 +18,9 @@ queries:
     connectivityMap:
       - np_allowFirst
     expected: 0
+    outputConfiguration: ../config/fw_rules_config.yaml
   - name: connectivity_map
     connectivityMap:
       - np_denyFirst
     expected: 0
+    outputConfiguration: ../config/fw_rules_config.yaml

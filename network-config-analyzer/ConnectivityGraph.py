@@ -1,6 +1,5 @@
 from collections import defaultdict
 from ClusterInfo import ClusterInfo
-from ConfigFwRules import ConfigFwRules
 from ConnectionSet import ConnectionSet
 from Peer import Peer, IpBlock, Pod
 from MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
@@ -12,13 +11,10 @@ class ConnectivityGraph:
     the labels on the edges are the allowed connections between two peers.
     """
 
-    def __init__(self, all_peers, config_name, allowed_labels, fw_rules_configuration, query_name):
+    def __init__(self, all_peers, config_name, allowed_labels, output_config, query_name):
         self.connections_to_peers = defaultdict(list)
-        if fw_rules_configuration is None:
-            fw_rules_configuration = 'fw_rules_config.yaml'
-            print('warning: no configuration file for fw rules, using default config file: ' + fw_rules_configuration)
-        self.config = ConfigFwRules(fw_rules_configuration, config_name)
-        self.cluster_info = ClusterInfo(all_peers, allowed_labels, self.config)
+        self.output_config = output_config
+        self.cluster_info = ClusterInfo(all_peers, allowed_labels)
         self.config_name = config_name
         self.query_name = query_name
         self.allowed_labels = allowed_labels
@@ -38,8 +34,7 @@ class ConnectivityGraph:
         """
         Prints the graph as a set of firewall rules
         :param print_to_stdout: flag to indicate if fw-rules should be printed to stdout
-        :return: (txt_res, yaml_res, fw_rules_map)
-        fw_rules_map: map from each connection set to its list of firewall rules
+        :return: minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
         """
 
         connections_sorted_by_size = list(self.connections_to_peers.items())
@@ -47,7 +42,7 @@ class ConnectivityGraph:
 
         connections_sorted_by_size = self._merge_ip_blocks(connections_sorted_by_size)
 
-        if self.config.run_in_test_mode:
+        if self.output_config.fwRulesRunInTestMode:
             # print the original connectivity graph
             for connections, peer_pairs in connections_sorted_by_size:
                 for src_peer, dst_peer in peer_pairs:
@@ -60,7 +55,7 @@ class ConnectivityGraph:
         Creates the set of minimized fw rules and prints to output
         :param list connections_sorted_by_size: the original connectivity graph in fw-rules format
         :param print_to_stdout: flag to indicate if fw-rules should be printed to stdout
-        :return:  fw_rules_map: map from each connection set to its list of firewall rules
+        :return:  minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
         """
         cs_containment_map = self._build_connections_containment_map(connections_sorted_by_size)
         fw_rules_map = defaultdict(list)
@@ -75,19 +70,19 @@ class ConnectivityGraph:
             peer_pairs_in_containing_connections = cs_containment_map[connections]
             minimize_cs = MinimizeCsFwRules(peer_pairs_filtered, connections,
                                             peer_pairs_in_containing_connections, self.cluster_info,
-                                            self.allowed_labels, self.config)
+                                            self.allowed_labels, self.output_config)
             fw_rules_map[connections] = minimize_cs.minimized_rules_set
             results_map[connections] = minimize_cs.results_info_per_option
 
-        minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.config_name, self.cluster_info, self.config,
+        minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.query_name, self.cluster_info, self.output_config,
                                             results_map)
         # print the result fw rules to stdout
         if print_to_stdout:
-            minimize_fw_rules.print_final_fw_rules(self.query_name)
-        create_output_yaml_file = self.config.expected_fw_rules_yaml is not None
+            minimize_fw_rules.print_final_fw_rules()
+        create_output_yaml_file = len(self.output_config.fwRulesYamlOutputPath) > 0
         if create_output_yaml_file and len(self.query_name) > 0:
-            minimize_fw_rules.create_output_yaml_file(self.query_name)
-        return fw_rules_map
+            minimize_fw_rules.create_output_yaml_file()
+        return minimize_fw_rules
 
     @staticmethod
     def _get_peer_pairs_filtered(peer_pairs):

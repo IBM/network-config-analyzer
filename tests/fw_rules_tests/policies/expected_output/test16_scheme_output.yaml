@@ -1,7 +1,7 @@
 - query: 'connectivity_map, config: np16'
   rules:
   - src_ip_block:
-    - 172.31.0.0/16
+    - 0.0.0.0/5
     dst_ns:
     - kube-system-new
     dst_pods:
@@ -31,7 +31,7 @@
       Ports:
       - '53'
   - src_ip_block:
-    - 0.0.0.0/5
+    - 172.31.0.0/16
     dst_ns:
     - kube-system-new
     dst_pods:
@@ -41,10 +41,10 @@
       Ports:
       - '53'
   - src_ns:
-    - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    - kube-system-new
     - default
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    - ibm-system-new
     src_pods:
     - '*'
     dst_ip_block:
@@ -52,16 +52,16 @@
     connection:
     - All connections
   - src_ns:
-    - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    - kube-system-new
     - default
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    - ibm-system-new
     src_pods:
     - '*'
     dst_ns:
+    - default
     - ibm-system-new
     - kube-system-new-dummy-to-ignore
-    - default
     dst_pods:
     - '*'
     connection:
@@ -69,18 +69,18 @@
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
+    - default
     - ibm-system-new
     - kube-system-new-dummy-to-ignore
-    - default
     dst_pods:
     - '*'
     connection:
     - All connections
   - src_ns:
-    - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    - kube-system-new
     - default
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    - ibm-system-new
     src_pods:
     - '*'
     dst_ns:

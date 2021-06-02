@@ -15,3 +15,4 @@ queries:
     connectivityMap:
       - np9
     expected: 0
+    outputConfiguration: ../config/fw_rules_config.yaml

@@ -1,6 +1,5 @@
 global cluster has 10 non-isomorphic endpoints, 8 namespaces
 Running query connectivity_map
-warning: no configuration file for fw rules, using default config file: fw_rules_config.yaml
 ----------------------------------------------------------
 final fw rules for: connectivity_map, config: np19:
 src_ns: [dlaas,ibm-system-new] src_pods: [*] dst_ns: [kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections

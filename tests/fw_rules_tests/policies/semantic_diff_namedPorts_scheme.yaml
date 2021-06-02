@@ -33,8 +33,10 @@ queries:
       - np1_named_ports
       - np2_named_ports
     expected: 2
+    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
   - name: semantic_diff_named_ports_np3_and_np4
     semanticDiff:
       - np3_named_ports
       - np4_named_ports
     expected: 0
+    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml

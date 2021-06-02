@@ -111,6 +111,7 @@ def compare_yaml_output_rules_main(expected, actual):
 
 
 def compare_yaml_output_files(output_filename, golden_filename):
+    print('Comparing yaml output file {0} to expected-results file {1}'.format(output_filename, golden_filename))
     with open(output_filename) as f:
         actual_content = yaml.safe_load(f)
     with open(golden_filename) as f:
@@ -163,7 +164,7 @@ def restore_config_files(scheme_filename):
         if config_file_name.endswith('yaml'):
             with open(config_file_path) as f:
                 config_data_map = yaml.safe_load(f)
-                del config_data_map['expected_fw_rules_yaml']
+                del config_data_map['fwRulesYamlOutputPath']
             with open(config_file_path, 'w') as f:
                 yaml.dump(config_data_map, f, default_flow_style=False, sort_keys=False)
 
@@ -198,7 +199,7 @@ def update_fw_rules_config_file_with_yaml_output_path(scheme_filename, yaml_outp
         if config_file_name.endswith('yaml'):
             with open(config_file_path) as f:
                 config_data_map = yaml.safe_load(f)
-                config_data_map['expected_fw_rules_yaml'] = yaml_output_file_path
+                config_data_map['fwRulesYamlOutputPath'] = yaml_output_file_path
             with open(config_file_path, 'w') as f:
                 yaml.dump(config_data_map, f, default_flow_style=False, sort_keys=False)
 
@@ -251,6 +252,22 @@ def create_test_output(output_file, test_name, args):
     return
 
 
+def run_simple_test(scheme_filename, args, all_results):
+    print('------------------------------------')
+    print('Running testcase', scheme_filename)
+    start_time = time()
+
+    res = nca_main(args)
+
+    test_res = (res != 0)
+    if test_res:
+        print('Testcase', scheme_filename, 'failed', file=sys.stderr)
+    else:
+        print('Testcase', scheme_filename, 'passed')
+    all_results[scheme_filename] = (test_res, time() - start_time)
+    return test_res
+
+
 def main():
     base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
     global_res = 0
@@ -263,6 +280,12 @@ def main():
         run_all_tests = True
     else:
         run_all_tests = False
+
+    output_comparison = input("run with output comparison? [txt output redirected to file, yaml output created] (y or n):")
+    if output_comparison == 'y':
+        compare_output = True
+    else:
+        compare_output = False
 
     my_files = []
 
@@ -278,8 +301,12 @@ def main():
     for scheme_filename in my_files:
         # print(scheme_filename)
         # print(os.path.basename(scheme_filename).replace(".yaml", ""))
-        prepare_output_test(scheme_filename)
-        global_res += run_output_test(scheme_filename, ['--scheme', scheme_filename], all_results)
+        if compare_output:
+            prepare_output_test(scheme_filename)
+            global_res += run_output_test(scheme_filename, ['--scheme', scheme_filename], all_results)
+        else:
+            global_res += run_simple_test(scheme_filename, ['--scheme', scheme_filename], all_results)
+            
 
     print('\n\nSummary\n-------')
     total_time = 0.

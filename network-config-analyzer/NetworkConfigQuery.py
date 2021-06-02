@@ -9,6 +9,7 @@ from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
 from ConnectionSet import ConnectionSet
 from ConnectivityGraph import ConnectivityGraph
+from OutputConfiguration import OutputConfiguration
 from Peer import PeerSet, IpBlock
 
 
@@ -23,15 +24,29 @@ class QueryAnswer:
     numerical_result: int = 0
 
 
-class NetworkConfigQuery:
+class BaseNetworkQuery:
+    """
+    A base class for NetworkConfigQuery and TwoNetworkConfigsQuery, with common output configuration logic:
+    Per query in a scheme file, the field outputConfiguration is optional, and if exists should contain a string
+    with a relative path for a yaml output configuration file
+    Thus, every network query has a corresponding  output_config object of type OutputConfiguration
+    """
+    def __init__(self, output_config_file):
+        self.output_config_file = output_config_file
+        # parse output config file if exists, otherwise use default output config values
+        self.output_config = OutputConfiguration(output_config_file)
+
+
+class NetworkConfigQuery(BaseNetworkQuery):
     """
     A base class for queries that inspect only a single network config
     """
 
-    def __init__(self, config):
+    def __init__(self, config, output_config_file=None):
         """
         :param NetworkConfig config: The config to query
         """
+        super().__init__(output_config_file)
         self.config = config
 
 
@@ -95,6 +110,8 @@ class VacuityQuery(NetworkConfigQuery):
 
     def exec(self):
         vacuous_config = self.config.clone_without_policies('vacuousConfig')
+        # TODO: for query that uses other queries -- should it send the other queries its self.output_config_file? (may depend on logic and context of output config)
+        #vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config, self.output_config_file).exec()
         vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config).exec()
         if not vacuous_res.bool_result:
             return QueryAnswer(vacuous_res.bool_result,
@@ -425,7 +442,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     Print the connectivity graph in the form of firewall rules
     """
 
-    def exec(self, fw_rules_configuration=None, query_name=''):
+    def exec(self, query_name=''):
         peers_to_compare = self.config.peer_container.get_all_peers_group()
         ref_ip_blocks = self.config.get_referenced_ip_blocks()
         peers_to_compare |= ref_ip_blocks
@@ -438,7 +455,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         peers_to_compare |= complement_peer_set
 
         conn_graph = ConnectivityGraph(peers_to_compare, self.config.name, self.config.allowed_labels,
-                                       fw_rules_configuration, query_name)
+                                       self.output_config, query_name)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if peer1 == peer2:
@@ -462,16 +479,17 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         return QueryAnswer(True)
 
 
-class TwoNetworkConfigsQuery:
+class TwoNetworkConfigsQuery(BaseNetworkQuery):
     """
     A base class for queries that inspect two network configs
     """
 
-    def __init__(self, config1, config2):
+    def __init__(self, config1, config2, output_config_file=None):
         """
         :param NetworkConfig config1: First config to query
         :param NetworkConfig config2: Second config to query
         """
+        super().__init__(output_config_file)
         self.config1 = config1
         self.config2 = config2
         self.name1 = config1.name
@@ -614,20 +632,15 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         return result.replace('{', ' ').replace('}', ' ').replace('\'', '')
 
     @staticmethod
-    def print_diff_as_fw_rules(fw_rules_map):
+    def print_diff_as_fw_rules(minimize_fw_rules):
         """
         printing the results of semantic diff in fw-rules format (per key category)
-        :param fw_rules_map: the fw-rules from semantic-diff computation
+        :param minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
         :return: A diff message
         :rtype: str
         """
-        result = ""
-        all_connections = set(fw_rules_map.keys())
-        for connection in all_connections:
-            connection_rules = fw_rules_map[connection]
-            for rule in connection_rules:
-                rule_str = str(rule) + '\n'
-                result += rule_str
+        output_rules = sorted(list(minimize_fw_rules.get_rules_str_values()))
+        result = (''.join(line for line in output_rules))
         return result
 
     def compute_diff(self):
@@ -805,11 +818,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 peers_to_compare_added = new_topology_peers | ip_blocks_per_key[key]
                 peers_to_compare_removed = old_topology_peers | ip_blocks_per_key[key]
                 conn_graph_added_conns = ConnectivityGraph(peers_to_compare_added, '', allowed_labels,
-                                                           'semantic_diff_fw_rules_config.yaml',
+                                                           self.output_config,
                                                            query_name + ' (added)')
                 conn_graph_removed_conns = ConnectivityGraph(peers_to_compare_removed, '',
                                                              allowed_labels,
-                                                             'semantic_diff_fw_rules_config.yaml',
+                                                             self.output_config,
                                                              query_name + ' (removed)')
                 old_topology_config_name = self.config1.name
                 new_topology_config_name = self.config2.name

@@ -19,6 +19,27 @@
     connection:
     - All connections
   - src_ns:
+    - default
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    - ibm-system-new
+    src_pods:
+    - '*'
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (skydive),tier in (agent),
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (skydive),tier in (agent),
+    connection:
+    - All connections
+  - src_ns:
     - ibm-system-new
     - kube-system-new-dummy-to-ignore
     - kube-system-new
@@ -52,26 +73,5 @@
     - kube-system-new
     dst_pods:
     - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    - kube-system-new
-    - default
-    src_pods:
-    - '*'
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (skydive),tier in (agent),
-    connection:
-    - All connections
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (skydive),tier in (agent),
     connection:
     - All connections

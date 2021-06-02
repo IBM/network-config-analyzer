@@ -17,3 +17,4 @@ queries:
     connectivityMap:
       - np2
     expected: 0
+    outputConfiguration: ../config/fw_rules_config.yaml

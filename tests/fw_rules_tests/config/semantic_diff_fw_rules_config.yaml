@@ -1,10 +1,4 @@
-debug: false
-run_in_test_mode: false
-max_iter: 9
-filter_system_ns: false
-use_pod_owner_name: false
-expected_fw_rules_dir: fw_rules_output
-override_result_file: false
-create_output_files: false
-compare_output_files: false
-group_by_label_single_pod: true
+fwRulesRunInTestMode: false
+fwRulesMaxIter: 9
+fwRulesFilterSystemNs: false
+fwRulesGroupByLabelSinglePod: true
