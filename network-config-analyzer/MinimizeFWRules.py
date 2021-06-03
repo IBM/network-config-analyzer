@@ -59,12 +59,10 @@ class MinimizeCsFwRules:
     def compute_covered_peer_pairs_union(self):
         covered_peer_pairs_union = set(self.peer_pairs).union(set(self.peer_pairs_in_containing_connections))
 
-        all_pods_set = set([src for (src, dst) in self.peer_pairs if isinstance(src, Pod)]).union(
-            set([dst for (src, dst) in self.peer_pairs if isinstance(dst, Pod)]))
+        all_pods_set = set(src for (src, dst) in self.peer_pairs if isinstance(src, Pod)) | set(dst for (src, dst) in self.peer_pairs if isinstance(dst, Pod))
         for pod in all_pods_set:
             covered_peer_pairs_union.add((pod, pod))
         self.covered_peer_pairs_union = covered_peer_pairs_union
-        return
 
     def _compute_basic_namespace_grouping(self):
         """
@@ -76,8 +74,8 @@ class MinimizeCsFwRules:
         :return: None
         """
         self.compute_covered_peer_pairs_union()
-        src_namespaces_set = set([src.namespace for (src, dest) in self.peer_pairs if isinstance(src, Pod)])
-        dst_namespaces_set = set([dest.namespace for (src, dest) in self.peer_pairs if isinstance(dest, Pod)])
+        src_namespaces_set = set(src.namespace for (src, dest) in self.peer_pairs if isinstance(src, Pod))
+        dst_namespaces_set = set(dest.namespace for (src, dest) in self.peer_pairs if isinstance(dest, Pod))
         # per relevant namespaces, compute which pairs of src-ns and dst-ns are covered by given peer-pairs
         for src_ns in src_namespaces_set:
             for dst_ns in dst_namespaces_set:
@@ -107,7 +105,6 @@ class MinimizeCsFwRules:
             val = self.results_info_per_option[key]
             print(str(key) + ':' + str(val))
         print('----------------')
-        return
 
     def _print_firewall_rules(self, rules):
         print('-------------------')
@@ -220,13 +217,13 @@ class MinimizeCsFwRules:
 
     def get_peer_pairs_product_for_ns_and_fixed_elem(self, is_pod_in_src, pod, ns):
         if is_pod_in_src:
-            return set([(pod, dst_pod) for dst_pod in self.cluster_info.ns_dict[ns]])
-        return set([(src_pod, pod) for src_pod in self.cluster_info.ns_dict[ns]])
+            return set((pod, dst_pod) for dst_pod in self.cluster_info.ns_dict[ns])
+        return set((src_pod, pod) for src_pod in self.cluster_info.ns_dict[ns])
 
     def get_ns_covered_in_one_dimension(self, is_src_fixed, fixed_elem):
         pods_set = self.get_pods_set_per_fixed_elem_from_peer_pairs(is_src_fixed, fixed_elem,
                                                                     self.peer_pairs_without_ns_expr)
-        ns_set = set([e.namespace for e in pods_set])
+        ns_set = set(e.namespace for e in pods_set)
         covered_ns_set = set()
         peer_pairs_product_union = set()
         for ns in ns_set:
@@ -242,21 +239,19 @@ class MinimizeCsFwRules:
         return covered_ns_set, peer_pairs_product_union
 
     def compute_ns_pairs_with_partial_ns_expr(self, is_src_ns):
-        pod_set = set([src for (src, _) in self.peer_pairs_without_ns_expr]) if not is_src_ns else set(
-            [dst for (_, dst) in self.peer_pairs_without_ns_expr])
+        pod_set = set(src for (src, _) in self.peer_pairs_without_ns_expr) if not is_src_ns else set(
+            dst for (_, dst) in self.peer_pairs_without_ns_expr)
         for pod in pod_set:
             covered_ns_set, peer_pairs_product_union = self.get_ns_covered_in_one_dimension(not is_src_ns, pod)
             for ns in covered_ns_set:
                 partial_ns_expr_pair = (pod, ns) if not is_src_ns else (ns, pod)
                 self.peer_pairs_with_partial_ns_expr.append(partial_ns_expr_pair)
             self.peer_pairs_without_ns_expr = set(self.peer_pairs_without_ns_expr) - peer_pairs_product_union
-        return
 
     # remove trivial pairs to avoid creating them a fw-rule directly
     def remove_trivial_rules_from_peer_pairs_without_ns_expr(self):
-        trivial_pairs = set([(src, dst) for (src, dst) in self.peer_pairs_without_ns_expr if src == dst])
+        trivial_pairs = set((src, dst) for (src, dst) in self.peer_pairs_without_ns_expr if src == dst)
         self.peer_pairs_without_ns_expr = set(self.peer_pairs_without_ns_expr) - trivial_pairs
-        return
 
     def get_ns_fw_rules_grouped_by_common_elem(self, is_src_fixed, ns_list, fixed_elem):
         # currently no grouping of ns-list by labels of namespaces
@@ -277,7 +272,7 @@ class MinimizeCsFwRules:
         res_chosen_rep: a list of tuples (key,values,ns) -- as the chosen representation for grouping the pods.
         res_remaining_pods: set of pods from pods_list that are not included in the grouping result (could not be grouped).
         """
-        ns_context_options = set([pod.namespace for pod in pods_list])
+        ns_context_options = set(pod.namespace for pod in pods_list)
         res_chosen_rep = []
         res_remaining_pods = set()
         # grouping by pod-labels per each namespace separately
@@ -492,7 +487,7 @@ class MinimizeCsFwRules:
 
     def get_ns_set_from_elements_list(self, elems_list):
         ns_set_list = [f.ns_info for f in elems_list]
-        return set([ns for ns_set in ns_set_list for ns in ns_set])
+        return set(ns for ns_set in ns_set_list for ns in ns_set)
 
     def get_grouping_result(self, fixed_elem, set_for_grouping_elems, src_first):
         """
@@ -505,7 +500,7 @@ class MinimizeCsFwRules:
         res = []
         fw_rule_elem_type = type(FWRuleElement([]))
         # partition set_for_grouping_elems into: (1) ns_elems, (2) pod_and_pod_labels_elems, (3) ip_block_elems
-        ns_elems = set([elem for elem in set_for_grouping_elems if type(elem) == fw_rule_elem_type])
+        ns_elems = set(elem for elem in set_for_grouping_elems if type(elem) == fw_rule_elem_type)
         pod_and_pod_labels_elems = [elem for elem in set_for_grouping_elems if
                                     isinstance(elem, PodElement) or isinstance(elem, PodLabelsElement)]
 
@@ -532,9 +527,9 @@ class MinimizeCsFwRules:
                 extra_pods_list = []
                 for p in fixed_elem_pods:
                     if src_first:
-                        pods_to_add = set([dst for (src, dst) in self.covered_peer_pairs_union if src == p])
+                        pods_to_add = set(dst for (src, dst) in self.covered_peer_pairs_union if src == p)
                     else:
-                        pods_to_add = set([src for (src, dst) in self.covered_peer_pairs_union if dst == p])
+                        pods_to_add = set(src for (src, dst) in self.covered_peer_pairs_union if dst == p)
                     extra_pods_list.append(pods_to_add)
                 extra_pods_list_common = []
                 if len(extra_pods_list) > 0:
@@ -587,14 +582,13 @@ class MinimizeCsFwRules:
             if i > 1 and self.output_config.fwRulesRunInTestMode:
                 assert count_fw_rules[i - 1] > count_fw_rules[i], "Expecting fewer fw_rules after each merge iteration."
             src_first = (i % 2 == 0) if is_src_first else (i % 2 == 1)
-            first_elem_set = set([f.src for f in initial_fw_rules]) if src_first else set(
-                [f.dst for f in initial_fw_rules])
+            first_elem_set = set(f.src for f in initial_fw_rules) if src_first else set(f.dst for f in initial_fw_rules)
             for elem in first_elem_set:
                 if src_first:
                     # TODO: equals or contained in?
-                    set_for_grouping_elems = set([f.dst for f in initial_fw_rules if f.src == elem])
+                    set_for_grouping_elems = set(f.dst for f in initial_fw_rules if f.src == elem)
                 else:
-                    set_for_grouping_elems = set([f.src for f in initial_fw_rules if f.dst == elem])
+                    set_for_grouping_elems = set(f.src for f in initial_fw_rules if f.dst == elem)
                 res = self.get_grouping_result(elem, set_for_grouping_elems, src_first)
                 fw_rules_after_merge.extend(res)
             # prepare for next iteration
