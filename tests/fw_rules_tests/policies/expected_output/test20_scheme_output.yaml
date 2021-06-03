@@ -1,23 +1,23 @@
 - query: 'connectivity_map, config: np20'
   rules:
   - src_ns:
-    - kube-system-new-dummy-to-ignore
+    - default
     src_pods:
     - '*'
     dst_ns:
-    - dlaas
+    - kube-system-new
     - ibm-system-new
     dst_pods:
     - '*'
     connection:
     - All connections
   - src_ns:
-    - default
+    - kube-system-new-dummy-to-ignore
     src_pods:
     - '*'
     dst_ns:
+    - dlaas
     - ibm-system-new
-    - kube-system-new
     dst_pods:
     - '*'
     connection:

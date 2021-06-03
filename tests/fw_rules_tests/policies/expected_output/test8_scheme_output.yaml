@@ -1,6 +1,31 @@
 - query: 'connectivity_map, config: np8'
   rules:
   - src_ns:
+    - kube-system-new-dummy-to-ignore
+    - default
+    - kube-system-new
+    - ibm-system-new
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new-dummy-to-ignore
+    - default
+    - ibm-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system-new-dummy-to-ignore
+    - default
+    - ibm-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
     - kube-system-new
     src_pods:
     - app in (helm,ibm-kube-fluentd,ibm-storage-watcher,vpn)
@@ -11,35 +36,10 @@
     connection:
     - All connections
   - src_ns:
-    - ibm-system-new
-    - default
     - kube-system-new-dummy-to-ignore
+    - default
     - kube-system-new
-    src_pods:
-    - '*'
-    dst_ns:
     - ibm-system-new
-    - default
-    - kube-system-new-dummy-to-ignore
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - ibm-system-new
-    - default
-    - kube-system-new-dummy-to-ignore
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - ibm-system-new
-    - default
-    - kube-system-new-dummy-to-ignore
-    - kube-system-new
     src_pods:
     - '*'
     dst_ip_block:

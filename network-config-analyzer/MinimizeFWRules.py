@@ -10,7 +10,7 @@ from pathlib import Path
 # TODO: rename file or split to two files..
 class MinimizeCsFwRules:
     """
-    This is a class for minimizing fw-rules within a specific connection set
+    This is a class for minimizing fw-rules within a specific connection-set
     """
 
     def __init__(self, peer_pairs, connections, peer_pairs_in_containing_connections, cluster_info, allowed_labels,
@@ -20,9 +20,10 @@ class MinimizeCsFwRules:
         :param peer_pairs: pairs of peers (src,dst) for which communication is allowed over the given connections
         :param connections: the allowed connections for the given peer pairs, of type ConnectionSet
         :param peer_pairs_in_containing_connections:
-        :param cluster_info:
-        :param allowed_labels:
-        :param output_config:
+        :param cluster_info:  an object of type ClusterInfo, with relevant cluster topology info
+        :param allowed_labels: a set of label keys (set[str]) that appear in one of the policy yaml files.
+                          using this set to determine which label can be used for grouping pods in fw-rules computation
+        :param output_config: an OutputConfiguration object
         """
         self.peer_pairs = peer_pairs
         self.connections = connections
@@ -36,23 +37,24 @@ class MinimizeCsFwRules:
         self.peer_pairs_without_ns_expr = []
         self.covered_peer_pairs_union = set()
         self.results_info_per_option = dict()
-        self.minimized_rules_set = []
-        # create the fw rules per given connection and its peer_pairs
-        self.create_fw_rules()
-        if self.output_config.fwRulesRunInTestMode:
-            self.print_firewall_rules(self.minimized_rules_set)
-            self.print_results_info()
+        self.minimized_rules_set = []  # holds the computation result of minimized fw-rules
 
-    def create_fw_rules(self):
+        # create the fw rules per given connection and its peer_pairs
+        self._create_fw_rules()
+        if self.output_config.fwRulesRunInTestMode:
+            self._print_firewall_rules(self.minimized_rules_set)
+            self._print_results_info()
+
+    def _create_fw_rules(self):
         """
-        The main function for creating the set of fw-rules for a given connection set
+        The main function for creating the minimized set of fw-rules for a given connection set
         :return: None
         """
         # partition peer_pairs to ns_pairs, peer_pairs_with_partial_ns_expr, peer_pairs_without_ns_expr
-        self.compute_basic_namespace_grouping()
+        self._compute_basic_namespace_grouping()
 
         # add all fw-rules:
-        self.add_all_fw_rules()
+        self._add_all_fw_rules()
 
     def compute_covered_peer_pairs_union(self):
         covered_peer_pairs_union = set(self.peer_pairs).union(set(self.peer_pairs_in_containing_connections))
@@ -64,7 +66,7 @@ class MinimizeCsFwRules:
         self.covered_peer_pairs_union = covered_peer_pairs_union
         return
 
-    def compute_basic_namespace_grouping(self):
+    def _compute_basic_namespace_grouping(self):
         """
         computation of peer_pairs with possible grouping by namespaces.
         Results are at:
@@ -98,7 +100,7 @@ class MinimizeCsFwRules:
     def get_peer_pairs_with_ip_blocks(peer_pairs_list):
         return [(src, dst) for (src, dst) in peer_pairs_list if isinstance(src, IpBlock) or isinstance(dst, IpBlock)]
 
-    def print_results_info(self):
+    def _print_results_info(self):
         print('----------------')
         print('results_info_per_option: ')
         for key in self.results_info_per_option:
@@ -107,7 +109,7 @@ class MinimizeCsFwRules:
         print('----------------')
         return
 
-    def print_firewall_rules(self, rules):
+    def _print_firewall_rules(self, rules):
         print('-------------------')
         print('rules for connections: ' + str(self.connections))
         for rule in rules:
@@ -231,7 +233,7 @@ class MinimizeCsFwRules:
             peer_pairs_product = self.get_peer_pairs_product_for_ns_and_fixed_elem(is_src_fixed, fixed_elem, ns)
             if peer_pairs_product.issubset(self.covered_peer_pairs_union):
                 covered_ns_set.add(ns)
-                peer_pairs_product_union.update(peer_pairs_product)
+                peer_pairs_product_union |= peer_pairs_product
             # else:
             #    print('get_ns_covered_in_one_dimension could not group by ns following:')
             #    print('pod: ' + str(fixed_elem) + ' ns: ' + str(ns))
@@ -284,7 +286,7 @@ class MinimizeCsFwRules:
             extra_pods_list_per_ns = set(extra_pods_list).intersection(self.cluster_info.ns_dict[ns])
             chosen_rep, remaining_pods = self.get_pods_grouping_by_labels(pods_list_per_ns, ns, extra_pods_list_per_ns)
             res_chosen_rep.extend(chosen_rep)
-            res_remaining_pods.update(remaining_pods)
+            res_remaining_pods |= remaining_pods
         return res_chosen_rep, res_remaining_pods
 
     def get_pods_grouping_by_labels(self, pods_list, ns, extra_pods_list):
@@ -301,7 +303,7 @@ class MinimizeCsFwRules:
             print('get_pods_grouping_by_labels:')
             print('pods_list: ' + ','.join([str(pod) for pod in pods_list]))
             print('extra_pods_list: ' + ','.join([str(pod) for pod in extra_pods_list]))
-        all_pods_list = set(pods_list).union(set(extra_pods_list))
+        all_pods_list = set(pods_list) | set(extra_pods_list)
         allowed_labels = self.cluster_info.allowed_labels
         labels_rep_options = []
         for key in allowed_labels:
@@ -309,16 +311,15 @@ class MinimizeCsFwRules:
             fully_covered_label_values = []
             pods_with_fully_covered_label_values = set()
             for v in values_for_key:
-                all_pods_per_label_val = set(self.cluster_info.pods_labels_map[(key, v)]).intersection(
-                    self.cluster_info.ns_dict[ns])
+                all_pods_per_label_val = self.cluster_info.pods_labels_map[(key, v)] & self.cluster_info.ns_dict[ns]
                 if len(all_pods_per_label_val) == 0:
                     continue
-                pods_with_label_val_from_pods_list = all_pods_per_label_val.intersection(set(all_pods_list))
-                pods_with_label_val_from_original_pods_list = all_pods_per_label_val.intersection(set(pods_list))
+                pods_with_label_val_from_pods_list = all_pods_per_label_val & all_pods_list
+                pods_with_label_val_from_original_pods_list = all_pods_per_label_val & set(pods_list)
                 if all_pods_per_label_val == pods_with_label_val_from_pods_list and len(
                         pods_with_label_val_from_original_pods_list) > 0:
                     fully_covered_label_values.append(v)
-                    pods_with_fully_covered_label_values.update(pods_with_label_val_from_pods_list)
+                    pods_with_fully_covered_label_values |= pods_with_label_val_from_pods_list
             # TODO: is it OK to ignore label-grouping if only one pod is involved?
             if self.output_config.fwRulesGroupByLabelSinglePod:
                 if len(fully_covered_label_values) > 0 and len(
@@ -448,7 +449,7 @@ class MinimizeCsFwRules:
                 self.simplify_fw_rule(rule, True)
     '''
 
-    def add_all_fw_rules(self):
+    def _add_all_fw_rules(self):
         """
         Computation of fw-rules, following the ns-grouping of peer_pairs.
         Results are at: self.minimized_rules_set
@@ -479,9 +480,9 @@ class MinimizeCsFwRules:
 
         if self.output_config.fwRulesDebug:
             print('option 1 rules:')
-            self.print_firewall_rules(option1)
+            self._print_firewall_rules(option1)
             print('option 2 rules: ')
-            self.print_firewall_rules(option2)
+            self._print_firewall_rules(option2)
 
         # choose the option with less fw-rules
         if len(option1) < len(option2):
@@ -601,7 +602,7 @@ class MinimizeCsFwRules:
             fw_rules_after_merge = []
             if self.output_config.fwRulesDebug:
                 print('fw rules after iteration: ' + str(i))
-                self.print_firewall_rules(initial_fw_rules)
+                self._print_firewall_rules(initial_fw_rules)
 
         return initial_fw_rules, convergence_iteration
 

@@ -118,7 +118,7 @@ class FWRuleElement:
         """
         res = set()
         for ns in self.ns_info:
-            res.update(cluster_info.ns_dict[ns])
+            res |= cluster_info.ns_dict[ns]
         return res
 
 
@@ -240,9 +240,8 @@ class PodLabelsElement(FWRuleElement):
         key = self.element.key
         values = self.element.values
         for v in values:
-            pods_with_label_val = cluster_info.pods_labels_map[(key, v)]
-            pods_with_label_val_in_ns = set(pods_with_label_val).intersection(ns_pods)
-            res.update(pods_with_label_val_in_ns)
+            pods_with_label_val_in_ns = cluster_info.pods_labels_map[(key, v)] & ns_pods
+            res |= pods_with_label_val_in_ns
         return res
 
 

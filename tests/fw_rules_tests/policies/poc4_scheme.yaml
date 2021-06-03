@@ -1,0 +1,29 @@
+namespaceList: ../podlist/poc_ns_list.json
+#added kube-system deployments, including the kube-dns deployment (NOT the only one in kube-system)
+podList: ../podlist/kubernetes-manifests-new1.yaml
+#podList: ../../example_podlist/kubernetes-manifests.yaml
+
+networkConfigList:
+  - name: poc3
+    networkPolicyList:
+      - microservices-netpols.yaml
+    expected_warnings: 0
+
+  - name: poc4
+    networkPolicyList:
+      - microservices-netpols-new.yaml
+    expected_warnings: 0
+
+queries:
+  - name: connectivity_map
+    connectivityMap:
+      - poc4
+    expected: 0
+    outputConfiguration: ../config/poc_fw_rules_config.yaml
+
+  - name: semantic_diff_poc4_poc3
+    semanticDiff:
+      - poc3
+      - poc4
+    expected: 1
+    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml

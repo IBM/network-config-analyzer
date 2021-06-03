@@ -53,6 +53,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         has_match = has_re.match(expr)
         if has_match:
             label = has_match.group(2)
+            # TODO: currently misses ANDing of keys
             self.allowed_labels.add(label)
             if is_namespace_selector:
                 return self.peer_container.get_namespace_pods_with_key(label, has_match.group(1) == '!')

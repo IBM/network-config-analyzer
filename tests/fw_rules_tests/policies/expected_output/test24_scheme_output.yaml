@@ -15,7 +15,7 @@
   - src_ns:
     - default
     src_pods:
-    - default/cognetive-agents-d54st5
+    - cognetive-agents-C
     dst_ns:
     - default
     dst_pods:

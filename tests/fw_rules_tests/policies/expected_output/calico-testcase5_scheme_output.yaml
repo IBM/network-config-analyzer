@@ -38,18 +38,18 @@
   - src_ns:
     - kube-system
     src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
     - app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)
     dst_ns:
     - kube-system
     dst_pods:
     - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
     connection:
     - All connections

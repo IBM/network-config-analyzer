@@ -14,6 +14,8 @@ class ClusterInfo:
                           using this set to determine which label can be used for grouping pods in fw-rules computation
     """
 
+    invalid_val = '#NO_LABEL_VALUE'
+
     def __init__(self, all_peers, allowed_labels):
         """
         Create a ClusterInfo object
@@ -50,9 +52,8 @@ class ClusterInfo:
         :return: None
         """
         allowed_labels_flattened = self._get_allowed_labels_flattened()
-        all_keys = set([key for (key, val) in self.pods_labels_map.keys()])
+        all_keys = set(key for (key, val) in self.pods_labels_map.keys())
         all_keys = all_keys.intersection(allowed_labels_flattened)
-        invalid_val = 'NO_LABEL_VALUE'
         for key in all_keys:
             # get a list of pod sets per each label value
             pod_sets_with_key_val = [self.pods_labels_map[(k, v)] for (k, v) in self.pods_labels_map.keys() if
@@ -60,7 +61,7 @@ class ClusterInfo:
             # get a union of all pods with any value for current label key
             pod_sets_with_key_val_union = set.union(*pod_sets_with_key_val)
             # get a set of namespaces for which at least one pod in the ns has any value for current label key
-            ns_context_options = set([pod.namespace for pod in pod_sets_with_key_val_union])
+            ns_context_options = set(pod.namespace for pod in pod_sets_with_key_val_union)
             # get the set of pods that do not have current label key
             pods_without_key_set = all_pods - pod_sets_with_key_val_union
             # get the set of pods that do not have current label key, only for namespaces where at least one pod in
@@ -68,7 +69,7 @@ class ClusterInfo:
             pods_without_key_set_ns_restricted = [pod for pod in pods_without_key_set if
                                                   pod.namespace in ns_context_options]
             # add the pair (key, invalid_val) for pods_labels_map with pods from pods_without_key_set_ns_restricted
-            self.pods_labels_map[(key, invalid_val)] = set(pods_without_key_set_ns_restricted)
+            self.pods_labels_map[(key, ClusterInfo.invalid_val)] = set(pods_without_key_set_ns_restricted)
 
     def add_update_pods_labels_map_with_required_conjunction_labels(self):
         """
@@ -111,8 +112,8 @@ class ClusterInfo:
         res = set()
         for key in self.allowed_labels:
             if ':' in key:
-                key_labels = key.split(':')
-                res.update(key_labels)
+                key_labels = set(key.split(':'))
+                res |= key_labels
             else:
                 res.add(key)
         return res
