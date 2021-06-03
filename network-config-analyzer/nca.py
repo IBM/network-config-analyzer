@@ -8,7 +8,8 @@ import sys
 import time
 import os
 from SchemeRunner import SchemeRunner
-from ExecutionAssist import SanityExecute, EquivalenceExecute, InterferesExecute, ForbidsExecuter, PermitsExecuter, ConnectivityMapExecute
+from ExecutionAssist import SanityExecute, EquivalenceExecute, InterferesExecute, ForbidsExecuter, PermitsExecuter, \
+    ConnectivityMapExecute, SemanticDiffExecute
 from RESTServer import RestServer
 
 
@@ -83,6 +84,9 @@ def run_args(args):
     if args.connectivity:
         return ConnectivityMapExecute(args.connectivity or 'k8s', args.ns_list, args.pod_list).execute()
 
+    if args.semantic_diff:
+        return SemanticDiffExecute(args.semantic_diff, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+
     if args.scheme:
         return SchemeRunner(args.scheme).run_scheme()
 
@@ -109,6 +113,8 @@ def nca_main(argv=None):
                                      help='Network policies (file/dir/GHE url/cluster-type) for sanity checking')
     manual_or_automatic.add_argument('--connectivity', type=_ghe_or_k8s_or_calico_or_valid_path,
                                      help = 'Network policies (file/dir/GHE url/cluster-type) for connectivity map')
+    manual_or_automatic.add_argument('--semantic_diff', type=_ghe_or_k8s_or_calico_or_valid_path,
+                                     help='Network policies (file/dir/GHE url/cluster-type) for semantic-diff')
     manual_or_automatic.add_argument('--equiv', type=_ghe_or_k8s_or_calico_or_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for equivalence checking')
     manual_or_automatic.add_argument('--interferes', type=str, help='Network policies '

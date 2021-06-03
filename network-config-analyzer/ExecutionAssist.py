@@ -8,7 +8,7 @@ from os import path
 from PeerContainer import PeerContainer
 from NetworkConfig import NetworkConfig
 from NetworkConfigQuery import SanityQuery, ContainmentQuery, InterferesQuery, IntersectsQuery, TwoWayContainmentQuery, \
-    ConnectivityMapQuery
+    ConnectivityMapQuery, SemanticDiffQuery
 
 
 class BaseExecuter:
@@ -71,6 +71,24 @@ class ConnectivityMapExecute(BaseExecuter):
             print(res.output_explanation)
         print()
         return not res.bool_result
+
+
+class SemanticDiffExecute(BaseExecuter):
+    """
+    Class for executing semantic diff
+    """
+
+    def __init__(self, np1_list_location, np2_list_location, ns_list='', pod_list=''):
+        super().__init__(ns_list, pod_list)
+        self.network_config1 = NetworkConfig(np1_list_location, self.peer_container, [np1_list_location])
+        self.network_config2 = NetworkConfig(np2_list_location, self.peer_container, [np2_list_location])
+
+    def execute(self):
+        print()
+        full_result = SemanticDiffQuery(self.network_config1, self.network_config2).exec()
+        print(full_result.output_result)
+        print(full_result.output_explanation, '\n')
+        return full_result.numerical_result
 
 
 class InterferesExecute(BaseExecuter):
