@@ -433,8 +433,8 @@ class TwoNetworkConfigsQuery:
                                       'and thus are not comparable')
         if check_same_policies and self.config1.policies == self.config2.policies and \
                 self.config1.profiles == self.config2.profiles:
-            return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network'
-                                     f'topology and the same set of policies')
+            return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network '
+                                     'topology and the same set of policies')
         return QueryAnswer(True)
 
     @staticmethod
