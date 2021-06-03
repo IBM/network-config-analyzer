@@ -20,12 +20,15 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    def __init__(self, scheme_file_name,  output_format='txt', output_path=''):
+    def __init__(self, scheme_file_name,  output_format=None, output_path=None):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
-        self.output_config_dict = {'fwRulesOutputFormat': output_format if output_format is not None else 'txt',
-                                   'outputPath': output_path}
+        self.output_config_dict = dict()
+        if output_format is not None:
+            self.output_config_dict['fwRulesOutputFormat'] = output_format
+        if output_path is not None:
+            self.output_config_dict['outputPath'] = output_path
 
         with open(scheme_file_name) as scheme_file:
             yaml = YAML()
