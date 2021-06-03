@@ -6,7 +6,7 @@ networkConfigList:
     # no namespaceList and podList, hence use the global resources above
     # TODO: a "bug" in _allowed_xgress_conns() in case of config with no policy, since policy-type is not identified as k8s
     networkPolicyList: []
-    expected_warnings: 0
+    expected_warnings: 1
 
   - name: policy
     # should be equivalent to 'no_policy' above
@@ -14,6 +14,12 @@ networkConfigList:
     networkPolicyList:
       - policy_a.yaml
     expected_warnings: 3
+
+  - name: config_a_no_policy
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList: []
+    expected_warnings: 1
 
   - name: config_a
     namespaceList: ../../different_topologies/ns_list_a.json
@@ -63,23 +69,30 @@ networkConfigList:
       - policy_b_ipBlock.yaml
     expected_warnings: 0
 
+  - name: config_a_with_policy_b1
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_b1.yaml
+    expected_warnings: 0
+
 queries:
   - name: containment_identical
     containment:
       - no_policy
       - policy
-    expected: 0
+    expected: 1
+
+  - name: twoWayContainment_a_no_policy
+    twoWayContainment:
+      - config_a_no_policy
+      - config_a
+    expected: 1
 
   - name: twoWayContainment_a_b
     twoWayContainment:
       - config_a
       - config_b
-    expected: 0
-
-  - name: twoWayContainment_a_b_with_ipBlock
-    twoWayContainment:
-      - config_a_with_ipBlock
-      - config_b_with_ipBlock
     expected: 0
 
   - name: twoWayContainment_a_with_different_ipBlock_policies
@@ -98,10 +111,17 @@ queries:
     permits:
       - config_a
       - config_b
-    expected: 1
+    expected: 0
 
   - name: permits_a_with_different_ipBlock_policies
     permits:
       - config_a_with_ipBlock
       - config_a_with_b_ipBlock
     expected: 0
+
+  - name: permits_aa_with_ab
+    permits:
+      - config_a
+      - config_a_with_policy_b1
+    expected: 1
+

@@ -353,11 +353,6 @@ class NetworkConfig:
         :return: A triplet: whether any policy captured the pods, the allowed connections, the denied connections
         :rtype: bool, ConnectionSet, ConnectionSet
         """
-        if (not isinstance(to_peer, Peer.IpBlock) and to_peer not in self.peer_container.peer_set) or \
-                (not isinstance(from_peer, Peer.IpBlock) and from_peer not in self.peer_container.peer_set):
-            # a pod that doesn't belong to the network topology, hence returning empty ConnectionSets
-            return False, ConnectionSet(), ConnectionSet()
-
         if isinstance(to_peer, Peer.IpBlock):
             ingress_conns = PolicyConnections(False, ConnectionSet(True))
         else:

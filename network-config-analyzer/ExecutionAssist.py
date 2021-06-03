@@ -131,7 +131,7 @@ class PermitsExecuter(BaseExecuter):
         print()
         full_result = ContainmentQuery(self.permit_config, self.base_config).exec(True)
         if not full_result.bool_result:
-            print(f'{self.base_config.name} does not permit connections specified in {self.permit_config.name}:')
+            print(f'{self.base_config.name} does not explicitly permit connections specified in {self.permit_config.name}:')
             print(full_result.output_explanation)
         else:
             print(f'{self.base_config.name} permits all connections specified in {self.permit_config.name}')

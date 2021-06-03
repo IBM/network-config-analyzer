@@ -368,16 +368,18 @@ class SchemeRunner(GenericYamlParser):
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
-            full_result = PermitsQuery(self._get_config(config), base_config).exec(True)
+            full_result = PermitsQuery(self._get_config(config), base_config).exec()
             if not full_result.bool_result:
-                res += 1
-                print(configs_array[0] + ' does not permit connections specified in ' + config + ':')
-                print(full_result.output_explanation, '\n')
+                if not full_result.output_explanation:
+                    print(full_result.output_result)
+                else:
+                    res += 1
+                    print(configs_array[0] + ' does not explicitly permit connections specified in ' + config + ':')
+                    print(full_result.output_explanation, '\n')
             else:
-                print(configs_array[0] + ' permits all connections specified in ' + config)
+                print(configs_array[0] + ' permits all connections explicitly specified in ' + config)
 
-        if full_result.bool_result:
-            print()
+        print()
         return res
 
     def _run_all_captured(self, configs_array):
