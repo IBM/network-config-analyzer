@@ -1,4 +1,7 @@
+import io
 import os
+import sys
+
 import yaml
 from K8sNamespace import K8sNamespace
 from ConnectionSet import ConnectionSet
@@ -59,7 +62,8 @@ class MinimizeCsFwRules:
     def compute_covered_peer_pairs_union(self):
         covered_peer_pairs_union = set(self.peer_pairs).union(set(self.peer_pairs_in_containing_connections))
 
-        all_pods_set = set(src for (src, dst) in self.peer_pairs if isinstance(src, Pod)) | set(dst for (src, dst) in self.peer_pairs if isinstance(dst, Pod))
+        all_pods_set = set(src for (src, dst) in self.peer_pairs if isinstance(src, Pod)) | set(
+            dst for (src, dst) in self.peer_pairs if isinstance(dst, Pod))
         for pod in all_pods_set:
             covered_peer_pairs_union.add((pod, pod))
         self.covered_peer_pairs_union = covered_peer_pairs_union
@@ -615,29 +619,56 @@ class MinimizeFWRules:
         self.output_config = output_config
         self.results_map = results_map
 
-    # print to stdout the final fw rules (in txt format)
     def print_final_fw_rules(self):
+        output = self.get_fw_rules_in_required_format()
+        self.output_config.print_query_output(output)
+        '''
         print('----------------------------------------------------------')
         header = 'final fw rules'
         if len(self.query_name) > 0:
             header += ' for: ' + self.query_name
-        print(header + ':')
-        output_rules = sorted(list(self.get_rules_str_values()))
-        print(''.join(line for line in output_rules))
+        # print(header + ':')
+        if self.output_config.fwRulesOutputFormat == 'txt':
+            output_rules = sorted(list(self.get_rules_str_values()))
+            txt_content = header + '\n' + ''.join(line for line in output_rules)
+            self.output_config.print_query_output(txt_content, 'txt')
 
-        '''
-        if self.run_in_test_mode:
-            comparison_to_ref = self.compare_final_rules_with_ref_file()
-            print('comparison_to_ref: ' + str(comparison_to_ref))
-            self.write_rules_to_yaml()
-            self.write_results_to_file()
+        elif self.output_config.fwRulesOutputFormat == 'yaml':
+            actual_content = self._get_all_rules_yaml_obj()
+            yaml_query_content = [{'query': self.query_name, 'rules': actual_content}]
+            self.output_config.print_query_output(yaml_query_content, 'yaml')
+
+        else:
+            print(f'error: unexpected fwRulesOutputFormat in output configuration value [should be txt or yaml],  '
+                  f'value is: {self.output_config.fwRulesOutputFormat}')
         '''
 
+    def get_fw_rules_in_required_format(self, add_txt_header=True):
+        res = ''
+        if self.output_config.fwRulesOutputFormat == 'txt':
+            output_rules = sorted(list(self.get_rules_str_values()))
+            res = ''.join(line for line in output_rules)
+            if add_txt_header:
+                res = f'final fw rules for query: {self.query_name}:\n' + res
+        elif self.output_config.fwRulesOutputFormat == 'yaml':
+            actual_content = self._get_all_rules_yaml_obj()
+            yaml_query_content = [{'query': self.query_name, 'rules': actual_content}]
+            # res = yaml.dump_all(yaml_query_content)
+            f = io.StringIO()
+            yaml.dump(yaml_query_content, f, default_flow_style=False, sort_keys=False)
+            res = f.getvalue()
+        else:
+            print(f'error: unexpected fwRulesOutputFormat in output configuration value [should be txt or yaml],  '
+                  f'value is: {self.output_config.fwRulesOutputFormat}')
+        return res
+
+    '''
     def create_output_yaml_file(self):
         actual_content = self._get_all_rules_yaml_obj()
         file_name = self.output_config.fwRulesYamlOutputPath
         query_content = [{'query': self.query_name, 'rules': actual_content}]
         self._write_yaml_res_file(file_name, query_content)
+    '''
 
     def get_rules_str_values(self):
         res = []

@@ -21,14 +21,14 @@ queries:
     connectivityMap:
       - np_onlyAllow
     expected: 0
-    outputConfiguration: ../config/fw_rules_config.yaml
+
   - name: connectivity_map
     connectivityMap:
       - np_FirstDenySubset
     expected: 0
-    outputConfiguration: ../config/fw_rules_config.yaml
+
   - name: connectivity_map
     connectivityMap:
       - np_firstAllowSuperSet
     expected: 0
-    outputConfiguration: ../config/fw_rules_config.yaml
+

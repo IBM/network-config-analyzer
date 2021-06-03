@@ -29,22 +29,22 @@ queries:
       - np2
       - np3
     expected: 4
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
+
   - name: semantic_diff_ipblocks__np4_with_itself
     semanticDiff:
       - np4
       - np4
     expected: 0
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
+
   - name: semantic_diff_ipblocks__np1_np4
     semanticDiff:
       - np1
       - np4
     expected: 4
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
+
   - name: semantic_diff_ipblocks_npq_np2
     semanticDiff:
       - np1
       - np2
     expected: 2
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
+

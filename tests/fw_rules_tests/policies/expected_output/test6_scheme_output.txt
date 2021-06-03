@@ -1,11 +1,5 @@
-global: cluster has 29 unique endpoints, {self.get_num_namespaces()} namespaces
-Running query connectivity_map
-----------------------------------------------------------
-final fw rules for: connectivity_map, config: np6:
+final fw rules for query: connectivity_map, config: np6:
 src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [kube-system-new] src_pods: [app in (helm,ibm-kube-fluentd,ibm-storage-watcher,vpn)] dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
-
-
-

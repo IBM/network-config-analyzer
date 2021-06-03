@@ -1,8 +1,8 @@
 - query: 'connectivity_map, config: np21'
   rules:
   - src_ns:
-    - kube-system-new
     - ibm-system-new
+    - kube-system-new
     src_pods:
     - '*'
     dst_ns:
@@ -12,8 +12,8 @@
     connection:
     - All connections
   - src_ns:
-    - dlaas
     - ibm-system-new
+    - dlaas
     src_pods:
     - '*'
     dst_ns:

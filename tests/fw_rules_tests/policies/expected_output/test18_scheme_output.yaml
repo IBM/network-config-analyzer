@@ -1,5 +1,13 @@
 - query: 'connectivity_map, config: np18'
   rules:
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
   - src_ns:
     - kube-system-new
     src_pods:
@@ -16,14 +24,6 @@
     - tier in (#NO_LABEL_VALUE,not_frontend_for_demo)
     dst_ip_block:
     - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - kube-system-new
-    dst_pods:
-    - '*'
     connection:
     - All connections
   - src_ns:

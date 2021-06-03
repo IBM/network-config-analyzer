@@ -5,6 +5,8 @@
 
 import sys
 from os import path
+
+from OutputConfiguration import OutputConfiguration
 from PeerContainer import PeerContainer
 from NetworkConfig import NetworkConfig
 from NetworkConfigQuery import SanityQuery, ContainmentQuery, InterferesQuery, IntersectsQuery, TwoWayContainmentQuery, \
@@ -16,8 +18,12 @@ class BaseExecuter:
     Base class for query executers
     """
 
-    def __init__(self, ns_list='', pod_list=''):
+    def __init__(self, ns_list='', pod_list='', output_format=None, output_path=None):
         self.peer_container = PeerContainer(ns_list, pod_list)
+        output_config_dict = {'fwRulesOutputFormat': output_format if output_format is not None else 'txt',
+                              'outputPath': output_path}
+        # create output config based on command line arguments
+        self.output_config = OutputConfiguration(output_config_dict)
 
 
 class SanityExecute(BaseExecuter):
@@ -59,13 +65,13 @@ class EquivalenceExecute(BaseExecuter):
 
 
 class ConnectivityMapExecute(BaseExecuter):
-    def __init__(self, np_list_location, ns_list='', pod_list=''):
-        super().__init__(ns_list, pod_list)
+    def __init__(self, np_list_location, ns_list='', pod_list='', output_format='txt', output_path=''):
+        super().__init__(ns_list, pod_list, output_format, output_path)
         self.network_config = NetworkConfig(np_list_location, self.peer_container, [np_list_location])
 
     def execute(self):
         print()
-        res = ConnectivityMapQuery(self.network_config).exec()
+        res = ConnectivityMapQuery(self.network_config, self.output_config).exec()
         print(res.output_result)
         if not res.bool_result:
             print(res.output_explanation)
@@ -78,14 +84,15 @@ class SemanticDiffExecute(BaseExecuter):
     Class for executing semantic diff
     """
 
-    def __init__(self, np1_list_location, np2_list_location, ns_list='', pod_list=''):
-        super().__init__(ns_list, pod_list)
+    def __init__(self, np1_list_location, np2_list_location, ns_list='', pod_list='', output_format='txt',
+                 output_path=''):
+        super().__init__(ns_list, pod_list, output_format, output_path)
         self.network_config1 = NetworkConfig(np1_list_location, self.peer_container, [np1_list_location])
         self.network_config2 = NetworkConfig(np2_list_location, self.peer_container, [np2_list_location])
 
     def execute(self):
         print()
-        full_result = SemanticDiffQuery(self.network_config1, self.network_config2).exec()
+        full_result = SemanticDiffQuery(self.network_config1, self.network_config2, self.output_config).exec()
         print(full_result.output_result)
         print(full_result.output_explanation, '\n')
         return full_result.numerical_result

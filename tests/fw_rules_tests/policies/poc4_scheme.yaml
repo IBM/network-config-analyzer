@@ -19,11 +19,9 @@ queries:
     connectivityMap:
       - poc4
     expected: 0
-    outputConfiguration: ../config/poc_fw_rules_config.yaml
 
   - name: semantic_diff_poc4_poc3
     semanticDiff:
       - poc3
       - poc4
     expected: 1
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml

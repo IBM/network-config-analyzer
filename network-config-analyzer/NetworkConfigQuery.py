@@ -27,15 +27,13 @@ class QueryAnswer:
 class BaseNetworkQuery:
     """
     A base class for NetworkConfigQuery and TwoNetworkConfigsQuery, with common output configuration logic:
-    Per query in a scheme file, the field outputConfiguration is optional, and if exists should contain a string
-    with a relative path for a yaml output configuration file
+    Per query in a scheme file, the field outputConfiguration is optional, and if exists should contain a dict
+    with relevant fields and values
     Thus, every network query has a corresponding  output_config object of type OutputConfiguration
     """
 
-    def __init__(self, output_config_file):
-        self.output_config_file = output_config_file
-        # parse output config file if exists, otherwise use default output config values
-        self.output_config = OutputConfiguration(output_config_file)
+    def __init__(self, output_config_obj):
+        self.output_config = output_config_obj if output_config_obj is not None else OutputConfiguration()
 
 
 class NetworkConfigQuery(BaseNetworkQuery):
@@ -43,11 +41,11 @@ class NetworkConfigQuery(BaseNetworkQuery):
     A base class for queries that inspect only a single network config
     """
 
-    def __init__(self, config, output_config_file=None):
+    def __init__(self, config, output_config_obj=None):
         """
         :param NetworkConfig config: The config to query
         """
-        super().__init__(output_config_file)
+        super().__init__(output_config_obj)
         self.config = config
 
 
@@ -473,12 +471,12 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
     A base class for queries that inspect two network configs
     """
 
-    def __init__(self, config1, config2, output_config_file=None):
+    def __init__(self, config1, config2, output_config_obj=None):
         """
         :param NetworkConfig config1: First config to query
         :param NetworkConfig config2: Second config to query
         """
-        super().__init__(output_config_file)
+        super().__init__(output_config_obj)
         self.config1 = config1
         self.config2 = config2
         self.name1 = config1.name
@@ -628,8 +626,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         :return: A diff message
         :rtype: str
         """
-        output_rules = sorted(list(minimize_fw_rules.get_rules_str_values()))
-        result = (''.join(line for line in output_rules))
+
+        result = minimize_fw_rules.get_fw_rules_in_required_format(False)
         return result
 
     def compute_diff(self):
@@ -797,6 +795,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             res (int): number of categories with diffs
             explanation (str): a diff message
         """
+        # currently printing conmputed fw rules separately only if an output path is configured. (in any case printing to stdout the query result and explanation)
+        print_computed_fw_rules_separately = self.output_config.outputPath is not None
         res = 0
         explanation = ''
         for key in all_diff.keys():
@@ -827,11 +827,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                         conn_graph_removed_conns.add_edge(entry.from_ep, entry.to_ep, entry.removed)
 
                 if is_added:
-                    added = conn_graph_added_conns.output_as_firewall_rules(False)
+                    added = conn_graph_added_conns.output_as_firewall_rules(print_computed_fw_rules_separately)
                     explanation += f'Added connections (based on topology from config: {new_topology_config_name}) :\n{self.print_diff_as_fw_rules(added)}\n'
                     res += 1
                 if is_removed:
-                    removed = conn_graph_removed_conns.output_as_firewall_rules(False)
+                    removed = conn_graph_removed_conns.output_as_firewall_rules(print_computed_fw_rules_separately)
                     explanation += f'Removed connections (based on topology from config: {old_topology_config_name}) :\n{self.print_diff_as_fw_rules(removed)}\n'
                     res += 1
 

@@ -5,6 +5,8 @@
 
 from os import path
 from ruamel.yaml import YAML
+
+from OutputConfiguration import OutputConfiguration
 from PeerContainer import PeerContainer
 from GenericYamlParser import GenericYamlParser
 from NetworkConfig import NetworkConfig
@@ -18,10 +20,12 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    def __init__(self, scheme_file_name):
+    def __init__(self, scheme_file_name,  output_format='txt', output_path=''):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
+        self.output_config_dict = {'fwRulesOutputFormat': output_format if output_format is not None else 'txt',
+                                   'outputPath': output_path}
 
         with open(scheme_file_name) as scheme_file:
             yaml = YAML()
@@ -168,13 +172,19 @@ class SchemeRunner(GenericYamlParser):
 
             for query_key in query.keys():
                 if query_key not in ['name', 'expected', 'outputConfiguration']:
-                    output_configuration = self._get_input_file(query['outputConfiguration']) if 'outputConfiguration' in query else None
-
-                    if query_key != 'connectivityMap':
-                        res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key], output_configuration)
+                    output_configuration_dict = query['outputConfiguration'] if 'outputConfiguration' in query else None
+                    if output_configuration_dict is None:
+                        output_configuration_dict = self.output_config_dict
                     else:
-                        res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key],
-                                                                                                   output_configuration, query_name)
+                        # output config from cli-args overrides config from scheme file (if both exist)
+                        for (key,val) in self.output_config_dict.items():
+                            if val is not None:
+                                output_configuration_dict[key] = val
+
+                    output_config_obj = OutputConfiguration(output_configuration_dict)
+                    output_config_obj.queryName = query_name
+                    
+                    res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key], output_config_obj)
 
             if 'expected' in query:
                 expected = query['expected']
@@ -398,9 +408,9 @@ class SchemeRunner(GenericYamlParser):
         print()
         return res
 
-    def _run_connectivity_map(self, configs_array, output_configuration, query_name):
+    def _run_connectivity_map(self, configs_array, output_configuration):
         for config in configs_array:
-            query_name_with_config = query_name + ', config: ' + config
+            query_name_with_config = output_configuration.queryName + ', config: ' + config
             full_result = ConnectivityMapQuery(self._get_config(config), output_configuration).exec(query_name_with_config)
             print(full_result.output_result)
         print()

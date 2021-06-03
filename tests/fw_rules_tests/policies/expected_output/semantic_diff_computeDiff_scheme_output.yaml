@@ -4,11 +4,11 @@
   - src_ns:
     - demo
     src_pods:
-    - app in (bank-ui-selector)
+    - bank-ui
     dst_ns:
     - demo
     dst_pods:
-    - app in (account-command-selector)
+    - account-command
     connection:
     - Protocol: TCP
       Ports:
@@ -28,11 +28,11 @@
   - src_ns:
     - demo
     src_pods:
-    - app in (account-query-selector)
+    - account-query
     dst_ns:
     - demo
     dst_pods:
-    - app in (bank-ui-selector)
+    - bank-ui
     connection:
     - Protocol: TCP
       Ports:
@@ -50,21 +50,21 @@
   - src_ns:
     - demo
     src_pods:
-    - app in (bank-ui-selector)
+    - bank-ui
     dst_ns:
     - demo
     dst_pods:
-    - app in (account-command-selector)
+    - account-command
     connection:
     - All connections
   - src_ns:
     - demo
     src_pods:
-    - app in (account-query-selector)
+    - account-query
     dst_ns:
     - demo
     dst_pods:
-    - app in (bank-ui-selector)
+    - bank-ui
     connection:
     - Protocol: TCP
       Ports:
@@ -75,11 +75,11 @@
   - src_ns:
     - demo
     src_pods:
-    - app in (account-query-selector)
+    - account-query
     dst_ns:
     - demo
     dst_pods:
-    - app in (bank-ui-selector)
+    - bank-ui
     connection:
     - Protocol: UDP
       Ports:
@@ -90,11 +90,11 @@
   - src_ns:
     - demo
     src_pods:
-    - app in (bank-ui-selector)
+    - bank-ui
     dst_ns:
     - demo
     dst_pods:
-    - app in (account-command-selector)
+    - account-command
     connection:
     - Protocol: TCP
       Ports:
@@ -111,11 +111,11 @@
   - src_ns:
     - demo
     src_pods:
-    - app in (bank-ui-selector)
+    - bank-ui
     dst_ns:
     - demo
     dst_pods:
-    - app in (account-command-selector)
+    - account-command
     connection:
     - Protocol: TCP
       Ports:

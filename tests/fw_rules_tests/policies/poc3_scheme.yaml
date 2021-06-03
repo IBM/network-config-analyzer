@@ -14,4 +14,10 @@ queries:
     connectivityMap:
       - poc3
     expected: 0
-    outputConfiguration: ../config/poc_fw_rules_config.yaml
+    #outputConfiguration:
+    #  fwRulesRunInTestMode: false
+    #  fwRulesMaxIter: 9
+    #  fwRulesFilterSystemNs: true
+    #  fwRulesOutputFormat: 'yaml'
+    #  outputPath: './my_output.yaml'
+

@@ -1,17 +1,7 @@
 - query: 'connectivity_map, config: np16'
   rules:
   - src_ip_block:
-    - 172.31.0.0/16
-    dst_ns:
-    - kube-system-new
-    dst_pods:
-    - tier in (frontend)
-    connection:
-    - Protocol: UDP
-      Ports:
-      - '53'
-  - src_ip_block:
-    - 172.22.0.0/15
+    - 0.0.0.0/5
     dst_ns:
     - kube-system-new
     dst_pods:
@@ -31,7 +21,7 @@
       Ports:
       - '53'
   - src_ip_block:
-    - 0.0.0.0/5
+    - 172.22.0.0/15
     dst_ns:
     - kube-system-new
     dst_pods:
@@ -40,31 +30,16 @@
     - Protocol: UDP
       Ports:
       - '53'
-  - src_ns:
-    - kube-system-new-dummy-to-ignore
-    - default
-    - kube-system-new
-    - ibm-system-new
-    src_pods:
-    - '*'
-    dst_ns:
-    - kube-system-new-dummy-to-ignore
-    - default
-    - ibm-system-new
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
   - src_ip_block:
-    - 0.0.0.0/0
+    - 172.31.0.0/16
     dst_ns:
-    - kube-system-new-dummy-to-ignore
-    - default
-    - ibm-system-new
+    - kube-system-new
     dst_pods:
-    - '*'
+    - tier in (frontend)
     connection:
-    - All connections
+    - Protocol: UDP
+      Ports:
+      - '53'
   - src_ns:
     - kube-system-new-dummy-to-ignore
     - default
@@ -95,5 +70,30 @@
     - kube-system-new
     dst_pods:
     - tier in (#NO_LABEL_VALUE,not_frontend_for_demo)
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system-new-dummy-to-ignore
+    - default
+    - kube-system-new
+    - ibm-system-new
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new-dummy-to-ignore
+    - default
+    - ibm-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system-new-dummy-to-ignore
+    - default
+    - ibm-system-new
+    dst_pods:
+    - '*'
     connection:
     - All connections

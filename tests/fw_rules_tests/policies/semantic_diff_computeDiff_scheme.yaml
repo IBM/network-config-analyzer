@@ -43,25 +43,31 @@ queries:
       - new1
       - old1
     expected: 2
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
+    #outputConfiguration:
+    #  fwRulesOutputFormat: 'yaml'
+    #  #outputPath: './my_output.yaml'
 
   - name: semantic_diff_old1_new1a
     semanticDiff:
       - new1a
       - old1
     expected: 2
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
+    #outputConfiguration:
+    #  fwRulesOutputFormat: 'yaml'
+    #  outputPath: './my_output.yaml'
 
   - name: semantic_diff_old2_new2
     semanticDiff:
       - new2
       - old2
-    expected: 2
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
+    #outputConfiguration:
+    #  fwRulesOutputFormat: 'txt'
+    #  outputPath: './my_output.txt'
 
   - name: semantic_diff_old3_new3
     semanticDiff:
       - new3
       - old3
     expected: 0
-    outputConfiguration: ../config/semantic_diff_fw_rules_config.yaml
+    #outputConfiguration:
+    #  fwRulesOutputFormat: 'txt'

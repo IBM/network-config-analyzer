@@ -1,7 +1,4 @@
-global: cluster has 12 unique endpoints, {self.get_num_namespaces()} namespaces
-Running query connectivity_map
-----------------------------------------------------------
-final fw rules for: connectivity_map, config: poc1:
+final fw rules for query: connectivity_map, config: poc1:
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080,
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070,
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000,
@@ -14,6 +11,3 @@ src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] c
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP 5050,
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP 8080,
 src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080,
-
-
-

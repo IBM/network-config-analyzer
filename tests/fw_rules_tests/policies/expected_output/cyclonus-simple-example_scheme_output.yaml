@@ -3,9 +3,11 @@
   - src_ns:
     - y
     src_pods:
-    - pod in (a,b)
-    dst_ip_block:
-    - 0.0.0.0/0
+    - a
+    dst_ns:
+    - y
+    dst_pods:
+    - b
     connection:
     - All connections
   - src_ip_block:
@@ -19,11 +21,9 @@
   - src_ns:
     - y
     src_pods:
-    - a
-    dst_ns:
-    - y
-    dst_pods:
-    - b
+    - pod in (a,b)
+    dst_ip_block:
+    - 0.0.0.0/0
     connection:
     - All connections
   - src_ip_block:

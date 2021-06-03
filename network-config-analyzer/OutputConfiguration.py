@@ -1,36 +1,51 @@
 import os
+
 import yaml
 
 
 class OutputConfiguration:
-    def __init__(self, output_config_file):
-        self.output_config_file = output_config_file
-        self.attributes = ['fwRulesRunInTestMode', 'fwRulesDebug', 'fwRulesGroupByLabelSinglePod',
-                           'fwRulesFilterSystemNs', 'fw_rules_max_iter', 'fwRulesYamlOutputPath']
+    """
+    a class to handle output configuration per query
+    """
+    def __init__(self, output_config_dict=None):
 
+        self.attributes = ['fwRulesRunInTestMode', 'fwRulesDebug', 'fwRulesGroupByLabelSinglePod',
+                           'fwRulesFilterSystemNs', 'fwRulesMaxIter', 'fwRulesOutputFormat', 'outputPath']
+        self.output_config_dict = output_config_dict
         # assign default values for each config attribute
         self.fwRulesRunInTestMode = False
         self.fwRulesDebug = False
         self.fwRulesGroupByLabelSinglePod = False
         self.fwRulesFilterSystemNs = False
         self.fwRulesMaxIter = 10
-        self.fwRulesYamlOutputPath = ''
+        self.fwRulesOutputFormat = 'txt'
+        self.outputPath = None
+        self.queryName = ''
 
-        # get values from output config file if exists
-        if self.output_config_file is not None:
-            if os.path.exists(self.output_config_file):
-                self._parse_output_config_file()
-            else:
-                print(
-                    f'warning: could not find outputConfiguration path at: {self.output_config_file}, using the default '
-                    f'output configuration instead ')
-        #else:
-        #    print('using default output config values, as output_config_file is None ')
+        # get values from output_config_dict if exists
+        if self.output_config_dict is not None:
+            for (key, val) in output_config_dict.items():
+                if key in self.attributes:
+                    # print('setting pair in config: ' + str(key) + ' , ' + str(val))
+                    setattr(self, key, val)
 
-    def _parse_output_config_file(self):
-        #print(f'using file: {self.output_config_file} for output config values ')
-        with open(self.output_config_file) as f:
-            config_data_map = yaml.safe_load(f)
-            for attr in self.attributes:
-                if attr in config_data_map:
-                    setattr(self, attr, config_data_map[attr])
+    def print_query_output(self, output):
+        """
+        print query's output according to query's output config.
+        currently only supported/used for connectivity query and for semantic-diff query.
+        using only the fw-rules output to be redirected to file if outputPath is configured .
+        :param output: string
+        :return: None
+        """
+        if self.outputPath is not None:
+            # print output to a file
+            try:
+                f = open(self.outputPath, "a")
+                f.write(output)
+                f.close()
+            except FileNotFoundError:
+                print(f"FileNotFoundError: configured outputPath is: {self.outputPath}")
+        else:
+            # print output to stdout
+            print(output)
+

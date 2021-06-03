@@ -5,8 +5,8 @@
     src_pods:
     - '*'
     dst_ns:
-    - kube-system-new
     - ibm-system-new
+    - kube-system-new
     dst_pods:
     - '*'
     connection:
@@ -16,8 +16,8 @@
     src_pods:
     - '*'
     dst_ns:
-    - dlaas
     - ibm-system-new
+    - dlaas
     dst_pods:
     - '*'
     connection:

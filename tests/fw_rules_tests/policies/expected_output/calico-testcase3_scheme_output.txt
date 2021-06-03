@@ -1,22 +1,6 @@
-global: cluster has 28 unique endpoints, {self.get_num_namespaces()} namespaces
-Running query connectivity_map
-----------------------------------------------------------
-final fw rules for: connectivity_map, config: np_onlyAllow:
+final fw rules for query: connectivity_map, config: np_onlyAllow:
 src_ns: [kube-system] src_pods: [app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,
-
-
-
-Running query connectivity_map
-----------------------------------------------------------
-final fw rules for: connectivity_map, config: np_FirstDenySubset:
+final fw rules for query: connectivity_map, config: np_FirstDenySubset:
 src_ns: [kube-system] src_pods: [app in (helm,keepalived-watcher,vpn)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,
-
-
-
-Running query connectivity_map
-----------------------------------------------------------
-final fw rules for: connectivity_map, config: np_firstAllowSuperSet:
+final fw rules for query: connectivity_map, config: np_firstAllowSuperSet:
 src_ns: [kube-system] src_pods: [app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,
-
-
-

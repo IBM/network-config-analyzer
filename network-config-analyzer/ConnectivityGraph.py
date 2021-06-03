@@ -84,13 +84,10 @@ class ConnectivityGraph:
 
         minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.query_name, self.cluster_info, self.output_config,
                                             results_map)
-        # print the result fw rules to stdout
+        # print the result fw rules according to output config
         if print_to_stdout:
             minimize_fw_rules.print_final_fw_rules()
-        # create a yaml output file of fw-rules if required
-        create_output_yaml_file = len(self.output_config.fwRulesYamlOutputPath) > 0
-        if create_output_yaml_file and len(self.query_name) > 0:
-            minimize_fw_rules.create_output_yaml_file()
+
         return minimize_fw_rules
 
     @staticmethod
