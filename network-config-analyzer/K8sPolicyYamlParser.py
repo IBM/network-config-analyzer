@@ -16,6 +16,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
     """
     A parser for k8s NetworkPolicy objects
     """
+
     def __init__(self, policy, peer_container, policy_file_name=''):
         """
         :param dict policy: The policy object as provided by the yaml parser
@@ -167,8 +168,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
                     res &= self.peer_container.get_peers_with_label(key, [val])
                 keys_set.add(key)
             self.allowed_labels.add(':'.join(keys_set))
-
-
 
         match_expressions = label_selector.get('matchExpressions')
         if match_expressions:

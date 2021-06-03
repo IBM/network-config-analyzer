@@ -11,7 +11,7 @@
       Ports:
       - '53'
   - src_ip_block:
-    - 11.0.0.0/8
+    - 172.22.0.0/15
     dst_ns:
     - kube-system-new
     dst_pods:
@@ -21,7 +21,7 @@
       Ports:
       - '53'
   - src_ip_block:
-    - 172.22.0.0/15
+    - 11.0.0.0/8
     dst_ns:
     - kube-system-new
     dst_pods:
@@ -41,59 +41,59 @@
       Ports:
       - '53'
   - src_ns:
-    - default
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
     - ibm-system-new
+    - default
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - tier in (NO_LABEL_VALUE,not_frontend_for_demo)
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - tier in (NO_LABEL_VALUE,not_frontend_for_demo)
+    connection:
+    - All connections
+  - src_ns:
+    - ibm-system-new
+    - default
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    src_pods:
+    - '*'
+    dst_ns:
+    - ibm-system-new
+    - default
+    - kube-system-new-dummy-to-ignore
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - ibm-system-new
+    - default
+    - kube-system-new-dummy-to-ignore
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - ibm-system-new
+    - default
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
     src_pods:
     - '*'
     dst_ip_block:
     - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
-    - ibm-system-new
-    src_pods:
-    - '*'
-    dst_ns:
-    - default
-    - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
-    - ibm-system-new
-    src_pods:
-    - '*'
-    dst_ns:
-    - kube-system-new
-    dst_pods:
-    - tier in (NO_LABEL_VALUE,not_frontend_for_demo)
-    connection:
-    - All connections
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - kube-system-new
-    dst_pods:
-    - tier in (NO_LABEL_VALUE,not_frontend_for_demo)
     connection:
     - All connections

@@ -1,9 +1,9 @@
-global cluster has 28 non-isomorphic endpoints, 8 namespaces
-policy cluster has 28 non-isomorphic endpoints, 8 namespaces
-config_a cluster has 5 non-isomorphic endpoints, 2 namespaces
-config_b cluster has 5 non-isomorphic endpoints, 2 namespaces
-config_a_with_ipBlock cluster has 5 non-isomorphic endpoints, 2 namespaces
-config_b_with_ipBlock cluster has 5 non-isomorphic endpoints, 2 namespaces
+global: cluster has 28 unique endpoints, {self.get_num_namespaces()} namespaces
+policy: cluster has 28 unique endpoints, {self.get_num_namespaces()} namespaces
+config_a: cluster has 5 unique endpoints, {self.get_num_namespaces()} namespaces
+config_b: cluster has 5 unique endpoints, {self.get_num_namespaces()} namespaces
+config_a_with_ipBlock: cluster has 5 unique endpoints, {self.get_num_namespaces()} namespaces
+config_b_with_ipBlock: cluster has 5 unique endpoints, {self.get_num_namespaces()} namespaces
 Running query semantic_diff_identical
 no_policy and policy are semantically equivalent.
 

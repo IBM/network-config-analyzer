@@ -11,11 +11,18 @@ class ConnectivityGraph:
     the labels on the edges are the allowed connections between two peers.
     """
 
-    def __init__(self, all_peers, config_name, allowed_labels, output_config, query_name):
+    def __init__(self, all_peers, allowed_labels, output_config, query_name):
+        """
+        Create a ConnectivityGraph object
+        :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
+        :param allowed_labels: the set of allowed labels to be used in generated fw-rules, extracted from policy yamls
+        :param output_config: OutputConfiguration object
+        :param query_name: name of the query (str)
+        """
+        # connections_to_peers holds the connectivity graph
         self.connections_to_peers = defaultdict(list)
         self.output_config = output_config
         self.cluster_info = ClusterInfo(all_peers, allowed_labels)
-        self.config_name = config_name
         self.query_name = query_name
         self.allowed_labels = allowed_labels
 
@@ -32,7 +39,7 @@ class ConnectivityGraph:
 
     def output_as_firewall_rules(self, print_to_stdout=True):
         """
-        Prints the graph as a set of firewall rules
+        Prints the graph as a set of minimized firewall rules
         :param print_to_stdout: flag to indicate if fw-rules should be printed to stdout
         :return: minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
         """
@@ -48,6 +55,7 @@ class ConnectivityGraph:
                 for src_peer, dst_peer in peer_pairs:
                     print(f'src: {src_peer}, dest: {dst_peer}, allowed conns: {connections}')
             print('======================================================')
+        # create and print the minimized firewall rules
         return self._minimize_firewall_rules(connections_sorted_by_size, print_to_stdout)
 
     def _minimize_firewall_rules(self, connections_sorted_by_size, print_to_stdout):
@@ -79,6 +87,7 @@ class ConnectivityGraph:
         # print the result fw rules to stdout
         if print_to_stdout:
             minimize_fw_rules.print_final_fw_rules()
+        # create a yaml output file of fw-rules if required
         create_output_yaml_file = len(self.output_config.fwRulesYamlOutputPath) > 0
         if create_output_yaml_file and len(self.query_name) > 0:
             minimize_fw_rules.create_output_yaml_file()
@@ -109,6 +118,15 @@ class ConnectivityGraph:
 
     @staticmethod
     def _merge_ip_blocks(connections_sorted_by_size):
+        """
+        Given an input connectivity graph, merge ip-blocks for peer-pairs when possible. e.g. if (pod_x ,
+        0.0.0.0-49.49.255.255) and ) and (pod_x, 49.50.0.0-255.255.255.255) are in connections_sorted_by_size[conn],
+        then in the output result, only (pod_x, 0.0.0.0-255.255.255.255) will be in: connections_sorted_by_size[conn]
+
+        :param connections_sorted_by_size:  the original connectivity graph : a list of tuples (connection set ,
+        peer_pairs), where peer_pairs is a list of (src,dst) tuples :return: connections_sorted_by_size_new : a new
+        connectivity graph with merged ip-blocks
+        """
         connections_sorted_by_size_new = []
         for connections, peer_pairs in connections_sorted_by_size:
             map_ip_blocks_per_dst = dict()

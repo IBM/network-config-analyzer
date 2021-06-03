@@ -31,6 +31,7 @@ class BaseNetworkQuery:
     with a relative path for a yaml output configuration file
     Thus, every network query has a corresponding  output_config object of type OutputConfiguration
     """
+
     def __init__(self, output_config_file):
         self.output_config_file = output_config_file
         # parse output config file if exists, otherwise use default output config values
@@ -111,7 +112,7 @@ class VacuityQuery(NetworkConfigQuery):
     def exec(self):
         vacuous_config = self.config.clone_without_policies('vacuousConfig')
         # TODO: for query that uses other queries -- should it send the other queries its self.output_config_file? (may depend on logic and context of output config)
-        #vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config, self.output_config_file).exec()
+        # vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config, self.output_config_file).exec()
         vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config).exec()
         if not vacuous_res.bool_result:
             return QueryAnswer(vacuous_res.bool_result,
@@ -454,8 +455,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         complement_peer_set |= complement.split()
         peers_to_compare |= complement_peer_set
 
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.name, self.config.allowed_labels,
-                                       self.output_config, query_name)
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, query_name)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if peer1 == peer2:
@@ -465,17 +465,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     conn_graph.add_edge(peer1, peer2, conns)
 
         conn_graph.output_as_firewall_rules()
-        '''
-        txt_comparison, yaml_comparison, _ = conn_graph.output_as_firewall_rules()
-        if not txt_comparison:
-            output_res = f'Network configuration {self.config.name} has unexpected fw-rules in txt format'
-            return QueryAnswer(bool_result=False, output_result=output_res, output_explanation='',
-                               numerical_result=1)
-        elif not yaml_comparison:
-            output_res = f'Network configuration {self.config.name} has unexpected fw-rules in yaml format'
-            return QueryAnswer(bool_result=False, output_result=output_res, output_explanation='',
-                               numerical_result=1)
-        '''
         return QueryAnswer(True)
 
 
@@ -815,15 +804,16 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 explanation += f'{key}:\n'
                 allowed_labels = self.config1.allowed_labels.union(self.config2.allowed_labels)
                 query_name = 'semantic_diff, config1: ' + self.config1.name + ', config2: ' + self.config2.name + ', key: ' + key
+                query_name_added = query_name + ' (added)'
+                query_name_removed = query_name + ' (removed)'
                 peers_to_compare_added = new_topology_peers | ip_blocks_per_key[key]
                 peers_to_compare_removed = old_topology_peers | ip_blocks_per_key[key]
-                conn_graph_added_conns = ConnectivityGraph(peers_to_compare_added, '', allowed_labels,
-                                                           self.output_config,
-                                                           query_name + ' (added)')
-                conn_graph_removed_conns = ConnectivityGraph(peers_to_compare_removed, '',
-                                                             allowed_labels,
+                conn_graph_added_conns = ConnectivityGraph(peers_to_compare_added, allowed_labels, self.output_config,
+                                                           query_name_added)
+                conn_graph_removed_conns = ConnectivityGraph(peers_to_compare_removed, allowed_labels,
                                                              self.output_config,
-                                                             query_name + ' (removed)')
+                                                             query_name_removed)
+
                 old_topology_config_name = self.config1.name
                 new_topology_config_name = self.config2.name
                 is_added = False

@@ -6,31 +6,41 @@ from Peer import IpBlock
 class ClusterInfo:
     """
         This is a class for holding cluster info, to be used for computation of fw-rules
-        ns_dict: a map from ns to its set of pods
-        pods_labels_map: a map from pods-labels (label, value) to its set of pods
-        allowed_labels: the set of label keys that appear in the policy yaml file, which can be used for grouping in
-        fw-rules computation
+        class members:
+        * all_peers: the set of topology all peers (Pod and IpBlock), of type: PeerSet
+        * ns_dict: a map from ns (K8sNamespace) to its set of pods (set[Pod])
+        * pods_labels_map: a map from label-value pairs: (label, value),  to their set of pods (set[Pod])
+        * allowed_labels: a set of label keys (set[str]) that appear in one of the policy yaml files.
+                          using this set to determine which label can be used for grouping pods in fw-rules computation
     """
 
     def __init__(self, all_peers, allowed_labels):
+        """
+        Create a ClusterInfo object
+        :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
+        :param allowed_labels: the set of allowed labels to be used in generated fw-rules, extracted from policy yamls
+        """
         self.all_peers = all_peers
-        self.ns_dict = defaultdict(list)  # map from ns to set of pods
-        self.ns_labels_map = defaultdict(list)  # map from ns_labels to set of pods
-        self.pods_labels_map = defaultdict(set)  # map from pods_labels to set of pods
         self.allowed_labels = allowed_labels
+        self.ns_dict = defaultdict(set)  # map from ns to set of pods
+        self.pods_labels_map = defaultdict(set)  # map from (label,value) pairs to set of pods
 
         all_pods = set()
         for peer in self.all_peers:
             if isinstance(peer, IpBlock):
                 continue
             all_pods.add(peer)
-            self.ns_dict[peer.namespace].append(peer)
-            for ns_label in peer.namespace.labels.items():
-                self.ns_labels_map[ns_label].append(peer)
+            self.ns_dict[peer.namespace].add(peer)
             for pod_labels in peer.labels.items():
                 self.pods_labels_map[pod_labels].add(peer)
 
+        # update pods_labels_map with (key,"NO_LABEL_VALUE") for any key in allowed_labels
         self.add_update_pods_labels_map_with_invalid_val(all_pods)
+
+        # update pods_labels_map with 'and' labels from allowed labels e.g: if 'app:role' is in allowed labels,
+        # and pod_x has : app=frontend, role=dev, then: adding to pods_labels_map the entry: ('app:role',
+        # 'frontend:dev') with pod_x contained in its mapped set. this way we can group a set of pods with common
+        # labels values for a combination of multiple labels, in a fw-rule
         self.add_update_pods_labels_map_with_required_conjunction_labels()
 
     def add_update_pods_labels_map_with_invalid_val(self, all_pods):
@@ -53,7 +63,8 @@ class ClusterInfo:
             ns_context_options = set([pod.namespace for pod in pod_sets_with_key_val_union])
             # get the set of pods that do not have current label key
             pods_without_key_set = all_pods - pod_sets_with_key_val_union
-            # get the set of pods that do not have current label key, only for namespaces where at least one pod in the ns has any value for current label key
+            # get the set of pods that do not have current label key, only for namespaces where at least one pod in
+            # the ns has any value for current label key
             pods_without_key_set_ns_restricted = [pod for pod in pods_without_key_set if
                                                   pod.namespace in ns_context_options]
             # add the pair (key, invalid_val) for pods_labels_map with pods from pods_without_key_set_ns_restricted
@@ -94,7 +105,7 @@ class ClusterInfo:
 
     def _get_allowed_labels_flattened(self):
         """
-        Given the set of allowed labels, convert the _AND_ labels into their components separately
+        Given the set of allowed labels, convert the 'and' labels into their components separately
         :return: A set of allowed labels after this conversion.
         """
         res = set()

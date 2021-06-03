@@ -65,12 +65,12 @@ class ConnectivityMapExecute(BaseExecuter):
 
     def execute(self):
         print()
-        sanity_res = ConnectivityMapQuery(self.network_config).exec()
-        print(sanity_res.output_result)
-        if not sanity_res.bool_result:
-            print(sanity_res.output_explanation)
+        res = ConnectivityMapQuery(self.network_config).exec()
+        print(res.output_result)
+        if not res.bool_result:
+            print(res.output_explanation)
         print()
-        return not sanity_res.bool_result
+        return not res.bool_result
 
 
 class InterferesExecute(BaseExecuter):

@@ -6,24 +6,6 @@
     - kube-system-new
     src_pods:
     - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
-    - app in (skydive),tier in (analyzer),
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - ibm-system-new
-    - kube-system-new-dummy-to-ignore
-    - kube-system-new
-    src_pods:
-    - '*'
     dst_ns:
     - default
     dst_pods:
@@ -67,11 +49,29 @@
     src_pods:
     - app in (skydive),tier in (analyzer),
     dst_ns:
-    - default
     - ibm-system-new
+    - default
     - kube-system-new-dummy-to-ignore
     - kube-system-new
     dst_pods:
     - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    - kube-system-new
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app in (skydive),tier in (analyzer),
+    dst_ip_block:
+    - 0.0.0.0/0
     connection:
     - All connections

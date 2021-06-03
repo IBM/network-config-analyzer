@@ -1,4 +1,4 @@
-global cluster has 29 non-isomorphic endpoints, 8 namespaces
+global: cluster has 29 unique endpoints, {self.get_num_namespaces()} namespaces
 Running query connectivity_map
 ----------------------------------------------------------
 final fw rules for: connectivity_map, config: np9:

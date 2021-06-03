@@ -2,10 +2,10 @@
     Changed connections between persistent peers (added)'
   rules:
   - src_ns:
-    - kube-system-dummy-to-ignore
-    - default
     - kube-system
+    - default
     - vendor-system
+    - kube-system-dummy-to-ignore
     src_pods:
     - '*'
     dst_ns:
@@ -17,10 +17,10 @@
       Ports:
       - '10054'
   - src_ns:
-    - kube-system-dummy-to-ignore
-    - default
     - kube-system
+    - default
     - vendor-system
+    - kube-system-dummy-to-ignore
     src_pods:
     - '*'
     dst_ns:

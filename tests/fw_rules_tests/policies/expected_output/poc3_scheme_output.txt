@@ -1,4 +1,4 @@
-global cluster has 15 non-isomorphic endpoints, 2 namespaces
+global: cluster has 15 unique endpoints, {self.get_num_namespaces()} namespaces
 Running query connectivity_map
 ----------------------------------------------------------
 final fw rules for: connectivity_map, config: poc3:

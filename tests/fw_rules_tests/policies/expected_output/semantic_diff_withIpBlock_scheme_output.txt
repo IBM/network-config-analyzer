@@ -1,4 +1,4 @@
-global cluster has 29 non-isomorphic endpoints, 8 namespaces
+global: cluster has 29 unique endpoints, {self.get_num_namespaces()} namespaces
 Running query semantic_diff_ipblocks_equivalence
 np1 and np2 are not semantically equivalent.
 Changed connections between persistent peers and ipBlocks:

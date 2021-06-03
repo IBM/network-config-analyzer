@@ -13,17 +13,24 @@ class MinimizeCsFwRules:
     This is a class for minimizing fw-rules within a specific connection set
     """
 
-    def __init__(self, peer_pairs, connections: ConnectionSet,
-                 peer_pairs_in_containing_connections,
-                 cluster_info,
-                 allowed_labels,
+    def __init__(self, peer_pairs, connections, peer_pairs_in_containing_connections, cluster_info, allowed_labels,
                  output_config):
+        """
+        create an object of MinimizeCsFwRules
+        :param peer_pairs: pairs of peers (src,dst) for which communication is allowed over the given connections
+        :param connections: the allowed connections for the given peer pairs, of type ConnectionSet
+        :param peer_pairs_in_containing_connections:
+        :param cluster_info:
+        :param allowed_labels:
+        :param output_config:
+        """
         self.peer_pairs = peer_pairs
         self.connections = connections
         self.peer_pairs_in_containing_connections = peer_pairs_in_containing_connections
         self.cluster_info = cluster_info
         self.allowed_labels = allowed_labels
         self.output_config = output_config
+
         self.ns_pairs = []
         self.peer_pairs_with_partial_ns_expr = []
         self.peer_pairs_without_ns_expr = []
@@ -273,8 +280,8 @@ class MinimizeCsFwRules:
         res_remaining_pods = set()
         # grouping by pod-labels per each namespace separately
         for ns in ns_context_options:
-            pods_list_per_ns = set(pods_list).intersection(set(self.cluster_info.ns_dict[ns]))
-            extra_pods_list_per_ns = set(extra_pods_list).intersection(set(self.cluster_info.ns_dict[ns]))
+            pods_list_per_ns = set(pods_list).intersection(self.cluster_info.ns_dict[ns])
+            extra_pods_list_per_ns = set(extra_pods_list).intersection(self.cluster_info.ns_dict[ns])
             chosen_rep, remaining_pods = self.get_pods_grouping_by_labels(pods_list_per_ns, ns, extra_pods_list_per_ns)
             res_chosen_rep.extend(chosen_rep)
             res_remaining_pods.update(remaining_pods)
@@ -303,7 +310,7 @@ class MinimizeCsFwRules:
             pods_with_fully_covered_label_values = set()
             for v in values_for_key:
                 all_pods_per_label_val = set(self.cluster_info.pods_labels_map[(key, v)]).intersection(
-                    set(self.cluster_info.ns_dict[ns]))
+                    self.cluster_info.ns_dict[ns])
                 if len(all_pods_per_label_val) == 0:
                     continue
                 pods_with_label_val_from_pods_list = all_pods_per_label_val.intersection(set(all_pods_list))
@@ -698,8 +705,6 @@ class MinimizeFWRules:
                         'dst_ip_block': dst_ip_block_list,
                         'connection': conn_list}
         return rule_obj
-
-
 
     '''
     @staticmethod

@@ -1,4 +1,4 @@
-global cluster has 3 non-isomorphic endpoints, 2 namespaces
+global: cluster has 3 unique endpoints, {self.get_num_namespaces()} namespaces
 Running query semantic_diff_old1_new1
 new1 and old1 are not semantically equivalent.
 Changed connections between persistent peers:

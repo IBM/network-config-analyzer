@@ -29,6 +29,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = None
+        # TODO: handle labels expressions and 'and' between labels expressions correctly
+        # collecting labels used in calico network policy for fw-rules computation
         self.allowed_labels = set()
 
     def _parse_selector_expr(self, expr, origin_map, namespace=None, is_namespace_selector=False):
