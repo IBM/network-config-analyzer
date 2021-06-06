@@ -1,7 +1,9 @@
 final fw rules for query: connectivity_map, config: np_allowFirst:
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
+
 final fw rules for query: connectivity_map, config: np_denyFirst:
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_pods: [*] conn: UDP 1-65536,SCTP 1-65536,
+

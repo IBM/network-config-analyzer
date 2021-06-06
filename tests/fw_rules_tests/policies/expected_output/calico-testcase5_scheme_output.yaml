@@ -3,6 +3,14 @@
   - src_ns:
     - kube-system
     src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
     - tier in (frontend)
     dst_ns:
     - kube-system
@@ -10,14 +18,7 @@
     - '*'
     connection:
     - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
+
 - query: 'connectivity_map, config: np_denyFirst'
   rules:
   - src_ns:
@@ -53,3 +54,4 @@
     - '*'
     connection:
     - All connections
+

@@ -1,13 +1,9 @@
 import io
-import os
-import sys
-
 import yaml
 from K8sNamespace import K8sNamespace
-from ConnectionSet import ConnectionSet
 from FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
 from Peer import IpBlock, Pod
-from pathlib import Path
+
 
 
 # TODO: rename file or split to two files..
@@ -619,38 +615,14 @@ class MinimizeFWRules:
         self.output_config = output_config
         self.results_map = results_map
 
-    def print_final_fw_rules(self):
-        output = self.get_fw_rules_in_required_format()
-        self.output_config.print_query_output(output)
-        '''
-        print('----------------------------------------------------------')
-        header = 'final fw rules'
-        if len(self.query_name) > 0:
-            header += ' for: ' + self.query_name
-        # print(header + ':')
-        if self.output_config.fwRulesOutputFormat == 'txt':
-            output_rules = sorted(list(self.get_rules_str_values()))
-            txt_content = header + '\n' + ''.join(line for line in output_rules)
-            self.output_config.print_query_output(txt_content, 'txt')
-
-        elif self.output_config.fwRulesOutputFormat == 'yaml':
-            actual_content = self._get_all_rules_yaml_obj()
-            yaml_query_content = [{'query': self.query_name, 'rules': actual_content}]
-            self.output_config.print_query_output(yaml_query_content, 'yaml')
-
-        else:
-            print(f'error: unexpected fwRulesOutputFormat in output configuration value [should be txt or yaml],  '
-                  f'value is: {self.output_config.fwRulesOutputFormat}')
-        '''
-
     def get_fw_rules_in_required_format(self, add_txt_header=True):
         res = ''
-        if self.output_config.fwRulesOutputFormat == 'txt':
-            output_rules = sorted(list(self.get_rules_str_values()))
+        if self.output_config.outputFormat == 'txt':
+            output_rules = sorted(list(self._get_rules_str_values()))
             res = ''.join(line for line in output_rules)
             if add_txt_header:
                 res = f'final fw rules for query: {self.query_name}:\n' + res
-        elif self.output_config.fwRulesOutputFormat == 'yaml':
+        elif self.output_config.outputFormat == 'yaml':
             actual_content = self._get_all_rules_yaml_obj()
             yaml_query_content = [{'query': self.query_name, 'rules': actual_content}]
             # res = yaml.dump_all(yaml_query_content)
@@ -658,26 +630,16 @@ class MinimizeFWRules:
             yaml.dump(yaml_query_content, f, default_flow_style=False, sort_keys=False)
             res = f.getvalue()
         else:
-            print(f'error: unexpected fwRulesOutputFormat in output configuration value [should be txt or yaml],  '
-                  f'value is: {self.output_config.fwRulesOutputFormat}')
+            print(f'error: unexpected outputFormat in output configuration value [should be txt or yaml],  '
+                  f'value is: {self.output_config.outputFormat}')
         return res
 
-    '''
-    def create_output_yaml_file(self):
-        actual_content = self._get_all_rules_yaml_obj()
-        file_name = self.output_config.fwRulesYamlOutputPath
-        query_content = [{'query': self.query_name, 'rules': actual_content}]
-        self._write_yaml_res_file(file_name, query_content)
-    '''
-
-    def get_rules_str_values(self):
+    def _get_rules_str_values(self):
         res = []
         all_connections = set(self.fw_rules_map.keys())
         for connection in all_connections:
             connection_rules = self.fw_rules_map[connection]
             for rule in connection_rules:
-                # if rule.is_rule_trivial():
-                #    continue
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
                 rule_str = str(rule) + '\n'
@@ -685,220 +647,14 @@ class MinimizeFWRules:
         # several rules can be mapped to the same str, since pods are mapped to owner name (example: semantic_diff_named_ports)
         return set(res)
 
-    @staticmethod
-    def _write_yaml_res_file(file_name, content):
-        with open(file_name, 'a') as f:
-            yaml.dump(content, f, default_flow_style=False, sort_keys=False)
-
     def _get_all_rules_yaml_obj(self):
         rules = []
-        all_connections = set(self.fw_rules_map.keys())
+        all_connections = sorted(self.fw_rules_map.keys())
         for connection in all_connections:
-            connection_rules = self.fw_rules_map[connection]
+            connection_rules = sorted(self.fw_rules_map[connection])
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                rule_obj = self._get_rule_yaml_obj(rule)
+                rule_obj = rule.get_rule_yaml_obj()
                 rules.append(rule_obj)
         return rules
-
-    @staticmethod
-    def _get_rule_yaml_obj(rule):
-        src_ns_list = [str(ns) for ns in rule.src.ns_info]
-        dst_ns_list = [str(ns) for ns in rule.dst.ns_info]
-        src_pods_list = rule.src.get_pods_yaml_obj() if not isinstance(rule.src, IPBlockElement) else None
-        dst_pods_list = rule.dst.get_pods_yaml_obj() if not isinstance(rule.dst, IPBlockElement) else None
-        src_ip_block_list = rule.src.get_ip_cidr_list() if isinstance(rule.src, IPBlockElement) else None
-        dst_ip_block_list = rule.dst.get_ip_cidr_list() if isinstance(rule.dst, IPBlockElement) else None
-        conn_list = rule.conn.get_connections_list()
-
-        rule_obj = {}
-        if src_ip_block_list is None and dst_ip_block_list is None:
-            rule_obj = {'src_ns': src_ns_list,
-                        'src_pods': src_pods_list,
-                        'dst_ns': dst_ns_list,
-                        'dst_pods': dst_pods_list,
-                        'connection': conn_list}
-        elif src_ip_block_list is not None:
-            rule_obj = {'src_ip_block': src_ip_block_list,
-                        'dst_ns': dst_ns_list,
-                        'dst_pods': dst_pods_list,
-                        'connection': conn_list}
-
-        elif dst_ip_block_list is not None:
-            rule_obj = {'src_ns': src_ns_list,
-                        'src_pods': src_pods_list,
-                        'dst_ip_block': dst_ip_block_list,
-                        'connection': conn_list}
-        return rule_obj
-
-    '''
-    @staticmethod
-    def convert_rule_obj_to_str(rule_obj):
-        res = ''
-        if 'src_ns' in rule_obj:
-            res += 'src_ns: ' + ','.join(ns for ns in sorted(rule_obj['src_ns'])) + ';'
-        if 'src_pods' in rule_obj:
-            res += 'src_pods: ' + ','.join(pod for pod in sorted(rule_obj['src_pods'])) + ';'
-        if 'src_ip_block' in rule_obj:
-            res += 'src_ip_block: ' + ','.join(ip for ip in sorted(rule_obj['src_ip_block'])) + ';'
-        if 'dst_ns' in rule_obj:
-            res += 'dst_ns: ' + ','.join(ns for ns in sorted(rule_obj['dst_ns'])) + ';'
-        if 'dst_pods' in rule_obj:
-            res += 'dst_pods: ' + ','.join(pod for pod in sorted(rule_obj['dst_pods'])) + ';'
-        if 'dst_ip_block' in rule_obj:
-            res += 'dst_ip_block: ' + ','.join(ip for ip in sorted(rule_obj['dst_ip_block'])) + ';'
-
-        if 'connection' in rule_obj:
-            res += 'connection: '
-            if rule_obj['connection'][0] == 'All connections':
-                res += 'All connections' + ';'
-            else:
-                for conn_obj in rule_obj['connection']:
-                    conn_str = ''
-                    if 'Protocol' in conn_obj:
-                        conn_str += 'Protocol: ' + conn_obj['Protocol'] + ';'
-                    if 'Ports' in conn_obj:
-                        conn_str += 'Ports: ' + ','.join(str(ports) for ports in conn_obj['Ports']) + ';'
-                    res += conn_str
-        return res
-    
-    def compare_yaml_output_rules(self, expected, actual):
-        # create for each yaml obj rule its str. sort array entries
-        expected_str_list = []
-        actual_str_list = []
-        for rule_obj in expected:
-            res = self.convert_rule_obj_to_str(rule_obj)
-            expected_str_list.append(res)
-        for rule_obj in actual:
-            res = self.convert_rule_obj_to_str(rule_obj)
-            actual_str_list.append(res)
-        res = (set(expected_str_list) == set(actual_str_list))
-        # TODO: verify len of set equals to list (no two different objects mapped to the same str)
-        return res
-    
-    @staticmethod
-    def write_txt_res_file(file_name, content):
-        with open(file_name, 'a') as f:
-            for r in content:
-                f.write(r)
-        return
-
-    def get_yaml_comparison_result(self):
-        actual_content = self.get_all_rules_yaml_obj()
-
-        # file_name = self.config.expected_results_files['yaml']
-        file_name = self.config.expected_fw_rules_yaml
-        if len(file_name) == 0 or not os.path.isfile(file_name):
-            # no comparison
-            print('warning: no comparison of yaml results, file name is: ' + file_name)
-            if self.config.create_output_files:
-                self.create_default_results_file(actual_content, 'yaml')
-            return True
-
-        with open(file_name) as f:
-            expected_content = yaml.safe_load(f)
-
-        res = self.compare_yaml_output_rules(expected_content, actual_content)
-        # if not res and self.config.override_result_file:
-        #    print('warning: overridden file with new results at: ' + str(file_name))
-        #    self.write_yaml_res_file(file_name, actual_content)
-        print('------------------------------------')
-        print('comparison result of yaml output: ' + str(res))
-
-        return res
-
-    def get_txt_comparison_result(self):
-        actual_content = self.get_rules_str_values()
-
-        file_name = self.config.expected_results_files['txt']
-        if len(file_name) == 0 or not os.path.isfile(file_name):
-            # no comparison
-            print('warning: no comparison of txt results, file name is: ' + file_name)
-            if self.config.create_output_files:
-                self.create_default_results_file(actual_content, 'txt')
-            return True
-
-        with open(file_name) as f:
-            expected_content = f.readlines()
-
-        res = set(actual_content) == set(expected_content)
-        if not res and self.config.override_result_file:
-            print('warning: overridden file with new results at: ' + str(file_name))
-            os.remove(file_name)
-            self.write_txt_res_file(file_name, actual_content)
-        return res
-
-    def get_comparison_results(self):
-        # txt_res = self.get_txt_comparison_result()
-        yaml_res = self.get_yaml_comparison_result()
-        return yaml_res
-
-    
-    # in case there is no results file for comparison, creating a default results file
-    def create_default_results_file(self, content, file_type):
-        Path(self.config.default_results_dir).mkdir(parents=True, exist_ok=True)
-        file_name = os.path.join(self.config.default_results_dir, self.config.default_res_file_name + "." + file_type)
-        if file_type == "txt":
-            self.write_txt_res_file(file_name, content)
-        elif file_type == "yaml":
-            self.write_yaml_res_file(file_name, content)
-        print('created default results file at: ' + file_name)
-    
-    def get_output_file_name(self, file_type):
-        if file_type == 'txt' or file_type == 'yaml':
-            return os.path.join('fw_rules_output', self.config_name + "." + file_type)
-        # return empty string for unknown file_type
-        return ''
-    
-    # for debug : text-based comparison of expected rules with actual rules
-    def compare_final_rules_with_ref_file(self):
-        file_name = self.get_output_file_name("txt")
-        if not os.path.isfile(file_name):
-            self.write_final_rules_to_file()
-
-        with open(file_name) as f:
-            content = f.readlines()
-        expected_content = self.get_rules_str_values()
-        res = set(content) == set(expected_content)
-        if not res:
-            # override file with new/current results:
-            os.remove(file_name)
-            self.write_final_rules_to_file()
-            print('warning: overridden file with new results at: ' + str(file_name))
-
-        return res
-    
-    def write_final_rules_to_file(self):
-        file_name = self.get_output_file_name("txt")
-        rules_str_values = self.get_rules_str_values()
-        with open(file_name, 'a') as the_file:
-            for r in rules_str_values:
-                the_file.write(r)
-        return
-    
-    def write_rules_to_yaml(self):
-        rules = self.get_all_rules_yaml_obj()
-
-        output_file = self.get_output_file_name("yaml")
-        if len(output_file) > 0:
-            with open(output_file, 'w') as f:
-                # yaml.dump(rules, f, default_flow_style=False)
-                yaml.dump(rules, f, default_flow_style=False, sort_keys=False)
-                print(f'\nFirewall rules were successfully written to {output_file}')
-        else:
-            print(yaml.dump_all(rules))
-
-    def write_results_to_file(self):
-        res_file_name = os.path.join('fw_rules_output', self.config_name + "_res.txt")
-        f = open(res_file_name, "w")
-        for conn in self.results_map.keys():
-            conn_obj = self.results_map[conn]
-            conn_obj_str_list = []
-            for key in conn_obj:
-                conn_obj_str_list.append(str(key) + ':' + str(conn_obj[key]))
-            f.write('\nconnection: ' + str(conn) + '\n')
-            f.write('\n'.join(l for l in conn_obj_str_list))
-        f.close()
-        return
-    '''

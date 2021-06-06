@@ -3,121 +3,8 @@ import os
 from fnmatch import fnmatch
 from os import path
 from time import time
-
-import yaml
-
 from nca import nca_main
 from pathlib import Path
-
-
-def run_output_test(test_name, args, all_results):
-    actual_output_dir_name = "actual_output"
-    expected_output_dir_name = "expected_output"
-    yaml_output_file_name = os.path.basename(test_name).replace(".yaml", "_output.yaml")
-    scheme_dir = os.path.dirname(test_name)
-    actual_yaml_output_file_path = os.path.join(scheme_dir, actual_output_dir_name, yaml_output_file_name)
-    update_fw_rules_config_file_with_yaml_output_path(test_name, actual_yaml_output_file_path)
-    expected_yaml_output_file_path = os.path.join(scheme_dir, expected_output_dir_name, yaml_output_file_name)
-    if os.path.isfile(actual_yaml_output_file_path):
-        os.remove(actual_yaml_output_file_path)
-
-    print('------------------------------------')
-    print('Running testcase', test_name)
-    scheme_dir = os.path.dirname(test_name)
-
-    output_file_name = os.path.basename(test_name).replace(".yaml", "_output.txt")
-    actual_output_file_path = os.path.join(scheme_dir, actual_output_dir_name, output_file_name)
-    expected_output_file_path = os.path.join(scheme_dir, expected_output_dir_name, output_file_name)
-    start_time = time()
-
-    create_test_output(actual_output_file_path, test_name, args)
-
-    test_failure_list = []
-    yaml_comparison = compare_yaml_output_files(actual_yaml_output_file_path, expected_yaml_output_file_path)
-    if not yaml_comparison:
-        test_failure_list.append('yaml')
-    txt_comparison = compare_files(actual_output_file_path, expected_output_file_path)
-    if not txt_comparison:
-        test_failure_list.append('txt')
-    test_passed = txt_comparison and yaml_comparison
-    test_failure_str = str(test_failure_list)
-
-    test_res = not test_passed
-    if test_res:
-        print('Testcase', test_name, 'failed at: ', test_failure_str, file=sys.stderr)
-    else:
-        print('Testcase', test_name, 'passed')
-    all_results[test_name] = (test_res, time() - start_time)
-
-    test_files_cleanup(test_name)
-    if test_passed:
-        delete_actual_output_file(test_name)
-    return test_res
-
-
-def convert_rule_obj_to_str(rule_obj):
-    res = ''
-    if 'src_ns' in rule_obj:
-        res += 'src_ns: ' + ','.join(ns for ns in sorted(rule_obj['src_ns'])) + ';'
-    if 'src_pods' in rule_obj:
-        res += 'src_pods: ' + ','.join(pod for pod in sorted(rule_obj['src_pods'])) + ';'
-    if 'src_ip_block' in rule_obj:
-        res += 'src_ip_block: ' + ','.join(ip for ip in sorted(rule_obj['src_ip_block'])) + ';'
-    if 'dst_ns' in rule_obj:
-        res += 'dst_ns: ' + ','.join(ns for ns in sorted(rule_obj['dst_ns'])) + ';'
-    if 'dst_pods' in rule_obj:
-        res += 'dst_pods: ' + ','.join(pod for pod in sorted(rule_obj['dst_pods'])) + ';'
-    if 'dst_ip_block' in rule_obj:
-        res += 'dst_ip_block: ' + ','.join(ip for ip in sorted(rule_obj['dst_ip_block'])) + ';'
-
-    if 'connection' in rule_obj:
-        res += 'connection: '
-        if rule_obj['connection'][0] == 'All connections':
-            res += 'All connections' + ';'
-        else:
-            for conn_obj in rule_obj['connection']:
-                conn_str = ''
-                if 'Protocol' in conn_obj:
-                    conn_str += 'Protocol: ' + conn_obj['Protocol'] + ';'
-                if 'Ports' in conn_obj:
-                    conn_str += 'Ports: ' + ','.join(str(ports) for ports in conn_obj['Ports']) + ';'
-                res += conn_str
-    return res
-
-
-def compare_yaml_output_rules(expected, actual):
-    expected_str_list = []
-    actual_str_list = []
-    for rule_obj in expected:
-        res = convert_rule_obj_to_str(rule_obj)
-        expected_str_list.append(res)
-    for rule_obj in actual:
-        res = convert_rule_obj_to_str(rule_obj)
-        actual_str_list.append(res)
-    res = (set(expected_str_list) == set(actual_str_list))
-    return res
-
-
-def compare_yaml_output_rules_main(expected, actual):
-    if len(expected) != len(actual):
-        return False
-    for index, expected_query_entry in enumerate(expected):
-        actual_query_entry = actual[index]
-        if expected_query_entry['query'] != actual_query_entry['query']:
-            return False
-        if not compare_yaml_output_rules(expected_query_entry['rules'], actual_query_entry['rules']):
-            return False
-    return True
-
-
-def compare_yaml_output_files(output_filename, golden_filename):
-    print('Comparing yaml output file {0} to expected-results file {1}'.format(output_filename, golden_filename))
-    with open(output_filename) as f:
-        actual_content = yaml.safe_load(f)
-    with open(golden_filename) as f:
-        expected_content = yaml.safe_load(f)
-    res = compare_yaml_output_rules_main(expected_content, actual_content)
-    return res
 
 
 def compare_files(output_filename, golden_filename):
@@ -150,111 +37,9 @@ def compare_files(output_filename, golden_filename):
     return True
 
 
-# a function to delete files of actual output that exactly match the expected output
-def test_files_cleanup(scheme_filename):
-    restore_config_files(scheme_filename)
-    return
-
-
-def restore_config_files(scheme_filename):
-    root_dir = scheme_filename.split("network-config-analyzer")[0]
-    config_files_dir = os.path.join(root_dir, "network-config-analyzer", "tests", "fw_rules_tests", "config")
-    for config_file_name in os.listdir(config_files_dir):
-        config_file_path = os.path.join(config_files_dir, config_file_name)
-        if config_file_name.endswith('yaml'):
-            with open(config_file_path) as f:
-                config_data_map = yaml.safe_load(f)
-                del config_data_map['fwRulesYamlOutputPath']
-            with open(config_file_path, 'w') as f:
-                yaml.dump(config_data_map, f, default_flow_style=False, sort_keys=False)
-
-
-def update_fw_rules_config_file_with_yaml_output_path(scheme_filename, yaml_output_file_path):
-    root_dir = scheme_filename.split("network-config-analyzer")[0]
-    config_files_dir = os.path.join(root_dir, "network-config-analyzer", "tests", "fw_rules_tests", "config")
-    '''
-    # TODO: support also config file that is not default, and appears in the scheme file
-    default_config_file_name = "fw_rules_config.yaml"
-    if 'semantic_diff' in scheme_filename:
-        default_config_file_name = "semantic_diff_fw_rules_config.yaml"
-    config_file_path = os.path.join(config_files_dir, default_config_file_name)
-
-    config_files_from_scheme = []
-    with open(scheme_filename) as f:
-        scheme_file_yaml_content = yaml.safe_load(f)
-        if 'queries' in scheme_file_yaml_content:
-            for query in scheme_file_yaml_content['queries']:
-                if 'fw_rules_configuration' in query:
-                    config_files_from_scheme.append(query['fw_rules_configuration'])
-    config_file_path_from_scheme = []
-    for config_name in config_files_from_scheme:
-        full_path = os.path.join( config_files_dir ,os.path.basename(config_name))
-        config_file_path_from_scheme.append(full_path)
-
-
-    # add to config file: expected_fw_rules_yaml: yaml_output_file_path
-    '''
-    for config_file_name in os.listdir(config_files_dir):
-        config_file_path = os.path.join(config_files_dir, config_file_name)
-        if config_file_name.endswith('yaml'):
-            with open(config_file_path) as f:
-                config_data_map = yaml.safe_load(f)
-                config_data_map['fwRulesYamlOutputPath'] = yaml_output_file_path
-            with open(config_file_path, 'w') as f:
-                yaml.dump(config_data_map, f, default_flow_style=False, sort_keys=False)
-
-    return
-
-
-def delete_actual_output_file(scheme_filename):
-    output_file_name = os.path.basename(scheme_filename).replace(".yaml", "_output.txt")
-    actual_output_dir_name = "actual_output"
-    scheme_dir = os.path.dirname(scheme_filename)
-    actual_output_file_path = os.path.join(scheme_dir, actual_output_dir_name, output_file_name)
-    yaml_output_file_name = os.path.basename(scheme_filename).replace(".yaml", "_output.yaml")
-    actual_yaml_output_file_path = os.path.join(scheme_dir, actual_output_dir_name, yaml_output_file_name)
-    os.remove(actual_output_file_path)
-    os.remove(actual_yaml_output_file_path)
-
-
-# a function to prepare new test output
-def prepare_output_test(scheme_filename):
-    # print('prepare_output_test')
-    output_file_name = os.path.basename(scheme_filename).replace(".yaml", "_output.txt")
-    scheme_dir = os.path.dirname(scheme_filename)
-    expected_output_dir_name = "expected_output"
-    actual_output_dir_name = "actual_output"
-    expected_output_file_path = os.path.join(scheme_dir, expected_output_dir_name, output_file_name)
-    actual_output_file_path = os.path.join(scheme_dir, actual_output_dir_name, output_file_name)
-
-    should_run = False
-    # prepare expected yaml output in case it does not exist:
-    yaml_output_file_name = os.path.basename(scheme_filename).replace(".yaml", "_output.yaml")
-    expected_yaml_output_file_path = os.path.join(scheme_dir, expected_output_dir_name, yaml_output_file_name)
-    if not os.path.isfile(expected_yaml_output_file_path):
-        update_fw_rules_config_file_with_yaml_output_path(scheme_filename, expected_yaml_output_file_path)
-        should_run = True
-    # print('should_run: ' + str(should_run))
-    # prepare expected txt output in case it does not exist:
-    if not os.path.isfile(expected_output_file_path) or should_run:
-        Path(os.path.join(scheme_dir, expected_output_dir_name)).mkdir(parents=True, exist_ok=True)
-        Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
-        create_test_output(expected_output_file_path, scheme_filename, ['--scheme', scheme_filename])
-    elif not os.path.isdir(os.path.join(scheme_dir, actual_output_dir_name)):
-        Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
-
-
-def create_test_output(output_file, test_name, args):
-    orig_stdout = sys.stdout
-    sys.stdout = open(output_file, 'w')
-    nca_main(args)
-    sys.stdout = orig_stdout
-    return
-
-
 def run_simple_test(scheme_filename, args, all_results):
     print('------------------------------------')
-    print('Running testcase', scheme_filename)
+    print('Running testcase', scheme_filename, args)
     start_time = time()
 
     res = nca_main(args)
@@ -279,7 +64,8 @@ def run_new_output_test(scheme_filename, args, all_results, file_type):
     if file_type == 'yaml':
         actual_output_file_path = get_output_path(scheme_filename, True, 'yaml')
         expected_output_file_path = get_output_path(scheme_filename, False, 'yaml')
-        yaml_comparison = compare_yaml_output_files(actual_output_file_path, expected_output_file_path)
+        # yaml_comparison = compare_yaml_output_files(actual_output_file_path, expected_output_file_path)
+        yaml_comparison = compare_files(actual_output_file_path, expected_output_file_path)
         if not yaml_comparison:
             test_failure_list.append('yaml')
         test_passed = yaml_comparison
@@ -333,8 +119,8 @@ def prepare_new_test_if_required(scheme_filename):
         Path(os.path.join(scheme_dir, expected_output_dir_name)).mkdir(parents=True, exist_ok=True)
         Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
         # run the test and create the expected results files
-        args = ['--scheme', scheme_filename, '--fw_rules_format', 'txt',
-                                              '--fw_rules_output_path', expected_txt_output_file_path]
+        args = get_test_args(scheme_filename, 'txt', expected_txt_output_file_path)
+
         nca_main(args)
 
     expected_yaml_output_file_path = get_output_path(scheme_filename, False, 'yaml')
@@ -342,8 +128,8 @@ def prepare_new_test_if_required(scheme_filename):
         Path(os.path.join(scheme_dir, expected_output_dir_name)).mkdir(parents=True, exist_ok=True)
         Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
         # run the test and create the expected results files
-        args = ['--scheme', scheme_filename, '--fw_rules_format', 'yaml',
-                '--fw_rules_output_path', expected_yaml_output_file_path]
+        args = get_test_args(scheme_filename, 'yaml', expected_yaml_output_file_path)
+
         nca_main(args)
 
     if not os.path.isdir(os.path.join(scheme_dir, actual_output_dir_name)):
@@ -355,6 +141,20 @@ def prepare_new_test_if_required(scheme_filename):
         os.remove(actual_txt_output_file_path)
     if os.path.isfile(actual_yaml_output_file_path):
         os.remove(actual_yaml_output_file_path)
+
+
+def get_test_args(scheme_filename, output_format=None, output_path=None, test_mode=None):
+    res = ['--scheme', scheme_filename]
+    if output_format is not None:
+        res.append('--o')
+        res.append(output_format)
+    if output_path is not None:
+        res.append('--f')
+        res.append(output_path)
+    if test_mode is not None and test_mode:
+        res.append('--fw_rules_test_mode')
+        res.append(str(test_mode))
+    return res
 
 
 def main():
@@ -370,12 +170,16 @@ def main():
     else:
         run_all_tests = False
 
-    output_comparison = input(
-        "run with output comparison? [txt output redirected to file, yaml output created] (y or n):")
+    output_comparison = input("run with output comparison?  (y or n):")
     if output_comparison == 'y':
         compare_output = True
     else:
         compare_output = False
+
+    test_mode_flag = False
+    if not compare_output:
+        test_mode = input("run with test-mode flag?  (y or n):")
+        test_mode_flag = (test_mode == 'y')
 
     my_files = []
 
@@ -392,19 +196,16 @@ def main():
         # print(scheme_filename)
         # print(os.path.basename(scheme_filename).replace(".yaml", ""))
         if compare_output:
-            #prepare_output_test(scheme_filename)
             prepare_new_test_if_required(scheme_filename)
             txt_output_path = get_output_path(scheme_filename, True, 'txt')
             yaml_output_path = get_output_path(scheme_filename, True, 'yaml')
-            global_res += run_new_output_test(scheme_filename, ['--scheme', scheme_filename, '--fw_rules_format', 'txt',
-                                                                '--fw_rules_output_path', txt_output_path], all_results, 'txt')
-            global_res += run_new_output_test(scheme_filename, ['--scheme', scheme_filename, '--fw_rules_format', 'yaml',
-                                                                '--fw_rules_output_path', yaml_output_path], all_results, 'yaml')
-
-
-            # global_res += run_output_test(scheme_filename, ['--scheme', scheme_filename], all_results)
+            global_res += run_new_output_test(scheme_filename, get_test_args(scheme_filename, 'txt', txt_output_path),
+                                              all_results, 'txt')
+            global_res += run_new_output_test(scheme_filename, get_test_args(scheme_filename, 'yaml', yaml_output_path),
+                                              all_results, 'yaml')
         else:
-            global_res += run_simple_test(scheme_filename, ['--scheme', scheme_filename], all_results)
+            global_res += run_simple_test(scheme_filename, get_test_args(scheme_filename, None, None, test_mode_flag),
+                                          all_results)
 
     print('\n\nSummary\n-------')
     total_time = 0.

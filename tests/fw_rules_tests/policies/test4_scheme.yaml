@@ -22,7 +22,7 @@ queries:
       - np3
     expected: 0
     #outputConfiguration:
-    #  fwRulesOutputFormat: 'yaml'
+    #  outputFormat: 'yaml'
     #  outputPath: './my_output.yaml'
 
   - name: connectivity_map_3
@@ -30,5 +30,5 @@ queries:
       - np3
     expected: 0
     #outputConfiguration:
-    #  fwRulesOutputFormat: 'yaml'
+    #  outputFormat: 'yaml'
     #  outputPath: './my_output.yaml'

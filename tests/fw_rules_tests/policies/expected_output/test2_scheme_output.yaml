@@ -14,9 +14,9 @@
       Ports:
       - '53'
   - src_ns:
-    - kube-system-new-dummy-to-ignore
     - default
     - kube-system-new
+    - kube-system-new-dummy-to-ignore
     src_pods:
     - '*'
     dst_ns:
@@ -30,21 +30,21 @@
     - Protocol: UDP
       Ports:
       - '53'
-  - src_ns:
-    - ibm-system-new
-    src_pods:
-    - '*'
+  - src_ip_block:
+    - 0.0.0.0/0
     dst_ns:
-    - kube-system-new
+    - default
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
     dst_pods:
     - '*'
     connection:
     - All connections
   - src_ns:
-    - kube-system-new-dummy-to-ignore
     - default
     - ibm-system-new
     - kube-system-new
+    - kube-system-new-dummy-to-ignore
     src_pods:
     - '*'
     dst_ip_block:
@@ -52,27 +52,28 @@
     connection:
     - All connections
   - src_ns:
-    - kube-system-new-dummy-to-ignore
     - default
     - ibm-system-new
     - kube-system-new
+    - kube-system-new-dummy-to-ignore
     src_pods:
     - '*'
     dst_ns:
-    - kube-system-new-dummy-to-ignore
     - default
     - ibm-system-new
+    - kube-system-new-dummy-to-ignore
     dst_pods:
     - '*'
     connection:
     - All connections
-  - src_ip_block:
-    - 0.0.0.0/0
+  - src_ns:
+    - ibm-system-new
+    src_pods:
+    - '*'
     dst_ns:
-    - kube-system-new-dummy-to-ignore
-    - default
-    - ibm-system-new
+    - kube-system-new
     dst_pods:
     - '*'
     connection:
     - All connections
+

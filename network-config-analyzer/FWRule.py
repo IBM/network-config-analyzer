@@ -63,7 +63,7 @@ class FWRuleElement:
         """
         self.ns_info = ns_info
 
-    def get_pods_yaml_obj(self):
+    def get_elem_yaml_obj(self):
         """
         :return: list[string] for the field src_pods or dst_pods in representation for yaml object
         """
@@ -135,7 +135,7 @@ class PodElement(FWRuleElement):
         super().__init__([element.namespace])
         self.element = element
 
-    def get_pods_yaml_obj(self):
+    def get_elem_yaml_obj(self):
         """
         :return: list[string] for the field src_pods or dst_pods in representation for yaml object
         """
@@ -195,7 +195,7 @@ class PodLabelsElement(FWRuleElement):
         super().__init__(ns_info)
         self.element = element
 
-    def get_pods_yaml_obj(self):
+    def get_elem_yaml_obj(self):
         """
         :return: list[string] for the field src_pods or dst_pods in representation for yaml object
         """
@@ -265,7 +265,7 @@ class IPBlockElement(FWRuleElement):
         """
         return ''
 
-    def get_ip_cidr_list(self):
+    def get_elem_yaml_obj(self):
         """
         :return: list of strings of ip-blocks represented by this element
         """
@@ -282,7 +282,7 @@ class IPBlockElement(FWRuleElement):
         :return: string of the represented element
         """
         # return 'ip block: ' + str(self.element)
-        cidr_list = self.get_ip_cidr_list()
+        cidr_list = self.get_elem_yaml_obj()
         return 'ip block: ' + ','.join(str(cidr) for cidr in cidr_list)
 
     def get_elem_str(self, is_src):
@@ -350,6 +350,44 @@ class FWRule:
 
     def __hash__(self):
         return hash(str(self))
+
+    def __eq__(self, other):
+        return self.src == other.src and self.dst == other.dst and self.conn == other.conn
+
+    def __lt__(self, other):
+        return str(self) < str(other)
+
+    def get_rule_yaml_obj(self):
+        """
+        :return: a dict with content representing the fw-rule, for output in yaml format
+        """
+        src_ns_list = sorted([str(ns) for ns in self.src.ns_info])
+        dst_ns_list = sorted([str(ns) for ns in self.dst.ns_info])
+        src_pods_list = self.src.get_elem_yaml_obj() if not isinstance(self.src, IPBlockElement) else None
+        dst_pods_list = self.dst.get_elem_yaml_obj() if not isinstance(self.dst, IPBlockElement) else None
+        src_ip_block_list = sorted(self.src.get_elem_yaml_obj()) if isinstance(self.src, IPBlockElement) else None
+        dst_ip_block_list = sorted(self.dst.get_elem_yaml_obj()) if isinstance(self.dst, IPBlockElement) else None
+        conn_list = self.conn.get_connections_list()
+
+        rule_obj = {}
+        if src_ip_block_list is None and dst_ip_block_list is None:
+            rule_obj = {'src_ns': src_ns_list,
+                        'src_pods': src_pods_list,
+                        'dst_ns': dst_ns_list,
+                        'dst_pods': dst_pods_list,
+                        'connection': conn_list}
+        elif src_ip_block_list is not None:
+            rule_obj = {'src_ip_block': src_ip_block_list,
+                        'dst_ns': dst_ns_list,
+                        'dst_pods': dst_pods_list,
+                        'connection': conn_list}
+
+        elif dst_ip_block_list is not None:
+            rule_obj = {'src_ns': src_ns_list,
+                        'src_pods': src_pods_list,
+                        'dst_ip_block': dst_ip_block_list,
+                        'connection': conn_list}
+        return rule_obj
 
     '''
     def is_rule_trivial(self):

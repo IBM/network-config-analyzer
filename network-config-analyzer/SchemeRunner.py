@@ -20,15 +20,17 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    def __init__(self, scheme_file_name,  output_format=None, output_path=None):
+    def __init__(self, scheme_file_name, output_format=None, output_path=None, fw_rules_test_mode=None):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
-        self.output_config_dict = dict()
+        self.output_config_from_cli_args = dict()
         if output_format is not None:
-            self.output_config_dict['fwRulesOutputFormat'] = output_format
+            self.output_config_from_cli_args['outputFormat'] = output_format
         if output_path is not None:
-            self.output_config_dict['outputPath'] = output_path
+            self.output_config_from_cli_args['outputPath'] = output_path
+        if fw_rules_test_mode is not None:
+            self.output_config_from_cli_args['fwRulesRunInTestMode'] = True
 
         with open(scheme_file_name) as scheme_file:
             yaml = YAML()
@@ -153,6 +155,26 @@ class SchemeRunner(GenericYamlParser):
                 ret += letter
         return ret
 
+    def get_query_output_config_obj(self, query):
+        """
+        return an output config object based on scheme query and cli arguments
+        :param query: a query dict object from scheme file
+        :return: an OutputConfiguration object
+        """
+        # get output config from scheme if exists
+        output_configuration_dict = query['outputConfiguration'] if 'outputConfiguration' in query else None
+        if output_configuration_dict is None:
+            # get output config from cli args
+            output_configuration_dict = self.output_config_from_cli_args
+        else:
+            # output config from cli args overrides config from scheme file (if both exist)
+            for (key, val) in self.output_config_from_cli_args.items():
+                output_configuration_dict[key] = val
+
+        output_config_obj = OutputConfiguration(output_configuration_dict)
+        output_config_obj.queryName = query['name']
+        return output_config_obj
+
     def run_queries(self, query_array):
         """
         Run all queries specified in the scheme file.
@@ -172,23 +194,12 @@ class SchemeRunner(GenericYamlParser):
             self.check_fields_validity(query, 'query', allowed_elements)
             query_name = query['name']
             print('Running query', query_name)
+            output_config_obj = self.get_query_output_config_obj(query)
 
             for query_key in query.keys():
                 if query_key not in ['name', 'expected', 'outputConfiguration']:
-                    output_configuration_dict = query['outputConfiguration'] if 'outputConfiguration' in query else None
-                    if output_configuration_dict is None:
-                        output_configuration_dict = self.output_config_dict
-                    else:
-                        # output config from cli-args overrides config from scheme file (if both exist)
-                        for (key,val) in self.output_config_dict.items():
-                            if val is not None:
-                                output_configuration_dict[key] = val
-
-                    output_config_obj = OutputConfiguration(output_configuration_dict)
-                    output_config_obj.queryName = query_name
-                    
-                    res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key], output_config_obj)
-
+                    res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key],
+                                                                                               output_config_obj)
             if 'expected' in query:
                 expected = query['expected']
                 if res != expected:
@@ -197,224 +208,274 @@ class SchemeRunner(GenericYamlParser):
 
     def _run_equivalence(self, configs_array, output_configuration):
         total_res = 0
+        query_output = ''
         full_result = QueryAnswer()
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
-                full_result = SemanticEquivalenceQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
-                print(full_result.output_result)
+                full_result = SemanticEquivalenceQuery(self._get_config(config1), self._get_config(config2),
+                                                       output_configuration).exec()
+                query_output += full_result.output_result
                 total_res += not full_result.bool_result
                 if not full_result.bool_result:
-                    print(full_result.output_explanation, '\n')
+                    query_output += full_result.output_explanation + '\n'
         if full_result.bool_result:
-            print()
+            query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return total_res
 
     def _run_strong_equivalence(self, configs_array, output_configuration):
         total_res = 0
+        query_output = ''
         full_result = QueryAnswer()
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
-                full_result = StrongEquivalenceQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
+                full_result = StrongEquivalenceQuery(self._get_config(config1), self._get_config(config2),
+                                                     output_configuration).exec()
                 total_res += not full_result.bool_result
-                print(full_result.output_result)
+                query_output += full_result.output_result
                 if not full_result.bool_result and full_result.output_explanation:
-                    print(full_result.output_explanation)
+                    query_output += full_result.output_explanation
         if full_result.bool_result or not full_result.output_explanation:
-            print()
+            query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return total_res
 
     def _run_semantic_diff(self, configs_array, output_configuration):
         res = 0
+        query_output = ''
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
-                full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
-                print(full_result.output_result)
+                full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2),
+                                                output_configuration).exec()
+                # print(full_result.output_result)
+                if output_configuration.outputFormat == 'txt':
+                    query_output += full_result.output_result
                 res += full_result.numerical_result
                 if not full_result.bool_result:
-                    print(full_result.output_explanation)
-        print()
+                    query_output += full_result.output_explanation
+        # print()
+        #query_output += '\n'
+        output_configuration.print_query_output(query_output, True)
         return res
 
     def _run_containment(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         res = 0
+        query_output = ''
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
             full_result = ContainmentQuery(self._get_config(config), base_config, output_configuration).exec()
             res += full_result.bool_result
             if full_result.output_result:
-                print(full_result.output_result)
+                query_output += full_result.output_result
             if full_result.output_explanation:
-                print(full_result.output_explanation, '\n')
-        print()
+                query_output += full_result.output_explanation + '\n'
+        # print()
+        query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_redundancy(self, configs_array, output_configuration):
         res = 0
+        query_output = ''
         for config in configs_array:
             full_result = RedundancyQuery(self._get_config(config), output_configuration).exec()
             if not full_result.bool_result:
-                print(full_result.output_result)
+                query_output += full_result.output_result
             else:
-                print(full_result.output_explanation)
+                query_output += full_result.output_explanation
             res += full_result.numerical_result
-        print()
+        # print()
+        query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_interferes(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         res = 0
+        query_output = ''
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
             full_result = InterferesQuery(base_config, self._get_config(config), output_configuration).exec()
             res += full_result.bool_result
-            print(full_result.output_result)
+            query_output += full_result.output_result
             if full_result.bool_result:
-                print(full_result.output_explanation, '\n')
+                query_output += full_result.output_explanation + '\n'
 
         if not full_result.bool_result:
-            print()
+            query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_pairwise_interferes(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         total_res = 0
+        query_output = ''
         full_result = QueryAnswer()
         for config1 in configs_array:
             for config2 in configs_array:
                 if config1 != config2:
-                    full_result = InterferesQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
+                    full_result = InterferesQuery(self._get_config(config1), self._get_config(config2),
+                                                  output_configuration).exec()
                     total_res += full_result.bool_result
-                    print(full_result.output_result)
+                    query_output += full_result.output_result
                     if full_result.bool_result:
-                        print(full_result.output_explanation, '\n')
+                        query_output += full_result.output_explanation + '\n'
         if not full_result.bool_result:
-            print()
+            query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return total_res
 
     def _run_emptiness(self, configs_array, output_configuration):
         res = 0
+        query_output = ''
         for config in configs_array:
             full_result = EmptinessQuery(self._get_config(config), output_configuration).exec()
             if full_result.bool_result:
-                print(full_result.output_explanation)
+                query_output += full_result.output_explanation
             else:
-                print(full_result.output_result)
+                query_output += full_result.output_result
             res += full_result.numerical_result
-        print()
+        # print()
+        query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_vacuity(self, configs_array, output_configuration):
         res = 0
+        query_output = ''
         for config in configs_array:
             full_result = VacuityQuery(self._get_config(config), output_configuration).exec()
-            print(full_result.output_result)
+            query_output += full_result.output_result
             res += full_result.bool_result
-        print()
+        # print()
+        query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_sanity(self, configs_array, output_configuration):
         res = 0
+        query_output = ''
         for config in configs_array:
             full_result = SanityQuery(self._get_config(config), output_configuration).exec()
             res += full_result.numerical_result
-            print(full_result.output_result)
+            query_output += full_result.output_result
             if not full_result.bool_result:
-                print(full_result.output_explanation)
-                print()
-        print()
+                query_output += full_result.output_explanation
+                query_output += '\n'
+        # print()
+        query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_disjointness(self, configs_array, output_configuration):
         res = 0
+        query_output = ''
         for config in configs_array:
             full_result = DisjointnessQuery(self._get_config(config), output_configuration).exec()
             res += full_result.numerical_result
-            print(full_result.output_result)
+            query_output += full_result.output_result
             if not full_result.bool_result:
-                print(full_result.output_explanation)
-            print()
-        print()
+                query_output += full_result.output_explanation
+            query_output += '\n'
+        # print()
+        query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_two_way_containment(self, configs_array, output_configuration):
         total_res = 0
+        query_output = ''
         for ind1 in range(len(configs_array) - 1):
             config1 = configs_array[ind1]
             for ind2 in range(ind1 + 1, len(configs_array)):
                 config2 = configs_array[ind2]
-                full_result = TwoWayContainmentQuery(self._get_config(config1), self._get_config(config2), output_configuration).exec()
-                print(full_result.output_result)
+                full_result = TwoWayContainmentQuery(self._get_config(config1), self._get_config(config2),
+                                                     output_configuration).exec()
+                query_output += full_result.output_result
                 total_res += full_result.numerical_result
                 if full_result.numerical_result != 3:
-                    print(full_result.output_explanation, '\n')
-        print()
+                    query_output += full_result.output_explanation + '\n'
+        query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return total_res
 
     def _run_forbids(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         res = 0
+        query_output = ''
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
             full_result = IntersectsQuery(self._get_config(config), base_config, output_configuration).exec(True)
             res += full_result.bool_result
             if full_result.bool_result:
-                print(configs_array[0] + ' does not forbid connections specified in ' + config + ':')
-                print(full_result.output_explanation, '\n')
+                query_output += configs_array[0] + ' does not forbid connections specified in ' + config + ':'
+                query_output += full_result.output_explanation + '\n'
             else:
-                print(configs_array[0] + ' forbids connections specified in ' + config)
+                query_output += configs_array[0] + ' forbids connections specified in ' + config
 
         if not full_result.bool_result:
-            print()
+            query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_permits(self, configs_array, output_configuration):
         if len(configs_array) <= 1:
             return 0
         res = 0
+        query_output = ''
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
             full_result = ContainmentQuery(self._get_config(config), base_config, output_configuration).exec(True)
             if not full_result.bool_result:
                 res += 1
-                print(configs_array[0] + ' does not permit connections specified in ' + config + ':')
-                print(full_result.output_explanation, '\n')
+                query_output += configs_array[0] + ' does not permit connections specified in ' + config + ':\n'
+                query_output += full_result.output_explanation + '\n'
             else:
-                print(configs_array[0] + ' permits all connections specified in ' + config)
+                query_output += configs_array[0] + ' permits all connections specified in ' + config
 
         if full_result.bool_result:
-            print()
+            query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_all_captured(self, configs_array, output_configuration):
         res = 0
+        query_output = ''
         for config in configs_array:
             full_result = AllCapturedQuery(self._get_config(config), output_configuration).exec()
             res += full_result.numerical_result
-            print(full_result.output_result)
+            query_output += full_result.output_result
             if not full_result.bool_result:
-                print(full_result.output_explanation)
-                print()
-        print()
+                query_output += full_result.output_explanation + '\n'
+                # print()
+        # print()
+        query_output += '\n'
+        output_configuration.print_query_output(query_output)
         return res
 
     def _run_connectivity_map(self, configs_array, output_configuration):
+        query_output = ''
         for config in configs_array:
             query_name_with_config = output_configuration.queryName + ', config: ' + config
-            full_result = ConnectivityMapQuery(self._get_config(config), output_configuration).exec(query_name_with_config)
-            print(full_result.output_result)
-        print()
+            full_result = ConnectivityMapQuery(self._get_config(config), output_configuration).exec(
+                query_name_with_config)
+            query_output += full_result.output_explanation
+            #query_output += full_result.output_result
+        # print()
+        query_output += '\n'
+        output_configuration.print_query_output(query_output, True)
         return 0

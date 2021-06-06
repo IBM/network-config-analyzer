@@ -50,16 +50,6 @@
   - src_ns:
     - demo
     src_pods:
-    - bank-ui
-    dst_ns:
-    - demo
-    dst_pods:
-    - account-command
-    connection:
-    - All connections
-  - src_ns:
-    - demo
-    src_pods:
     - account-query
     dst_ns:
     - demo
@@ -69,6 +59,16 @@
     - Protocol: TCP
       Ports:
       - '8080'
+  - src_ns:
+    - demo
+    src_pods:
+    - bank-ui
+    dst_ns:
+    - demo
+    dst_pods:
+    - account-command
+    connection:
+    - All connections
 - query: 'semantic_diff, config1: new1a, config2: old1, key: Changed connections between
     persistent peers (removed)'
   rules:

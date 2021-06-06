@@ -70,27 +70,27 @@ def run_args(args):
     :rtype: int
     """
     if args.equiv:
-        return EquivalenceExecute(args.equiv, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return EquivalenceExecute(args.equiv, args.base_np_list or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
     if args.interferes:
-        return InterferesExecute(args.interferes, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return InterferesExecute(args.interferes, args.base_np_list or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
     if args.forbids:
-        return ForbidsExecuter(args.forbids, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return ForbidsExecuter(args.forbids, args.base_np_list or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
     if args.permits:
-        return PermitsExecuter(args.permits, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return PermitsExecuter(args.permits, args.base_np_list or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
     if args.connectivity:
-        return ConnectivityMapExecute(args.connectivity or 'k8s', args.ns_list, args.pod_list, args.fw_rules_format, args.fw_rules_output_path).execute()
+        return ConnectivityMapExecute(args.connectivity or 'k8s', args.ns_list, args.pod_list, args.o, args.f).execute()
 
     if args.semantic_diff:
-        return SemanticDiffExecute(args.semantic_diff, args.base_np_list or 'k8s', args.ns_list, args.pod_list, args.fw_rules_format, args.fw_rules_output_path).execute()
+        return SemanticDiffExecute(args.semantic_diff, args.base_np_list or 'k8s', args.ns_list, args.pod_list, args.o, args.f).execute()
 
     if args.scheme:
-        return SchemeRunner(args.scheme, args.fw_rules_format, args.fw_rules_output_path).run_scheme()
+        return SchemeRunner(args.scheme, args.o, args.f, args.fw_rules_test_mode).run_scheme()
 
-    return SanityExecute(args.sanity or 'k8s', args.ns_list, args.pod_list).execute()
+    return SanityExecute(args.sanity or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
 
 def nca_main(argv=None):
@@ -131,8 +131,10 @@ def nca_main(argv=None):
     parser.add_argument('--pod_list', type=_ghe_or_k8s_or_calico_or_valid_path,
                         help='A file/cluster-type to read pod list from')
     parser.add_argument('--ghe_token', type=str, help='A valid token to access a GHE repository')
-    parser.add_argument('--fw_rules_format', type=str, help='output format for fw rules (txt or yaml)')
-    parser.add_argument('--fw_rules_output_path', type=str, help='output path for fw rules')
+    parser.add_argument('--o', type=str, help='output format for this query (txt or yaml)')
+    parser.add_argument('--f', type=str, help='file output path for this query')
+    parser.add_argument('--fw_rules_test_mode', type=str, help='run fw rules in test mode')
+
     args = parser.parse_args(argv)
 
     if args.ghe_token:

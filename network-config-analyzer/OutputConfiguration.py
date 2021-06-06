@@ -1,7 +1,5 @@
 import os
 
-import yaml
-
 
 class OutputConfiguration:
     """
@@ -10,7 +8,7 @@ class OutputConfiguration:
     def __init__(self, output_config_dict=None):
 
         self.attributes = ['fwRulesRunInTestMode', 'fwRulesDebug', 'fwRulesGroupByLabelSinglePod',
-                           'fwRulesFilterSystemNs', 'fwRulesMaxIter', 'fwRulesOutputFormat', 'outputPath']
+                           'fwRulesFilterSystemNs', 'fwRulesMaxIter', 'outputFormat', 'outputPath']
         self.output_config_dict = output_config_dict
         # assign default values for each config attribute
         self.fwRulesRunInTestMode = False
@@ -18,7 +16,7 @@ class OutputConfiguration:
         self.fwRulesGroupByLabelSinglePod = False
         self.fwRulesFilterSystemNs = False
         self.fwRulesMaxIter = 10
-        self.fwRulesOutputFormat = 'txt'
+        self.outputFormat = 'txt'
         self.outputPath = None
         self.queryName = ''
 
@@ -29,20 +27,23 @@ class OutputConfiguration:
                     # print('setting pair in config: ' + str(key) + ' , ' + str(val))
                     setattr(self, key, val)
 
-    def print_query_output(self, output):
+    def print_query_output(self, output, yaml_supported=False):
         """
-        print query's output according to query's output config.
-        currently only supported/used for connectivity query and for semantic-diff query.
-        using only the fw-rules output to be redirected to file if outputPath is configured .
+        print accumulated query's output according to query's output config (in required format, to file or stdout)
+        :param yaml_supported: bool flag indicating if query supports yaml output format
         :param output: string
         :return: None
         """
+        if not yaml_supported and self.outputFormat == 'yaml':
+            print('yaml output format is not supported for this query')
+            return
         if self.outputPath is not None:
             # print output to a file
             try:
                 f = open(self.outputPath, "a")
                 f.write(output)
                 f.close()
+                print(f'wrote query output to: {self.outputPath}')
             except FileNotFoundError:
                 print(f"FileNotFoundError: configured outputPath is: {self.outputPath}")
         else:

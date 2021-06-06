@@ -162,7 +162,7 @@ class PeerContainer:
             self.add_eps_from_list(peer_code)
 
         print(f'{config_name}: cluster has {self.get_num_peers()} unique endpoints, '
-              '{self.get_num_namespaces()} namespaces')
+              f'{self.get_num_namespaces()} namespaces')
 
     def _set_namespace_list_from_github(self, url):
         """

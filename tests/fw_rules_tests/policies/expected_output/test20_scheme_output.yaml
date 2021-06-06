@@ -16,9 +16,10 @@
     src_pods:
     - '*'
     dst_ns:
-    - ibm-system-new
     - dlaas
+    - ibm-system-new
     dst_pods:
     - '*'
     connection:
     - All connections
+

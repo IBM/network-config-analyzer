@@ -37,10 +37,9 @@ class ConnectivityGraph:
 
         self.connections_to_peers[connections].append((source_peer, dest_peer))
 
-    def output_as_firewall_rules(self, print_to_stdout=True):
+    def get_minimized_firewall_rules(self):
         """
-        Prints the graph as a set of minimized firewall rules
-        :param print_to_stdout: flag to indicate if fw-rules should be printed to stdout
+        computes and returns minimized firewall rules from original connectivity graph
         :return: minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
         """
 
@@ -55,14 +54,13 @@ class ConnectivityGraph:
                 for src_peer, dst_peer in peer_pairs:
                     print(f'src: {src_peer}, dest: {dst_peer}, allowed conns: {connections}')
             print('======================================================')
-        # create and print the minimized firewall rules
-        return self._minimize_firewall_rules(connections_sorted_by_size, print_to_stdout)
+        # compute the minimized firewall rules
+        return self._minimize_firewall_rules(connections_sorted_by_size)
 
-    def _minimize_firewall_rules(self, connections_sorted_by_size, print_to_stdout):
+    def _minimize_firewall_rules(self, connections_sorted_by_size):
         """
         Creates the set of minimized fw rules and prints to output
         :param list connections_sorted_by_size: the original connectivity graph in fw-rules format
-        :param print_to_stdout: flag to indicate if fw-rules should be printed to stdout
         :return:  minimize_fw_rules: an object of type MinimizeFWRules holding the minimized fw-rules
         """
         cs_containment_map = self._build_connections_containment_map(connections_sorted_by_size)
@@ -84,10 +82,6 @@ class ConnectivityGraph:
 
         minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.query_name, self.cluster_info, self.output_config,
                                             results_map)
-        # print the result fw rules according to output config
-        if print_to_stdout:
-            minimize_fw_rules.print_final_fw_rules()
-
         return minimize_fw_rules
 
     @staticmethod
@@ -120,9 +114,9 @@ class ConnectivityGraph:
         0.0.0.0-49.49.255.255) and ) and (pod_x, 49.50.0.0-255.255.255.255) are in connections_sorted_by_size[conn],
         then in the output result, only (pod_x, 0.0.0.0-255.255.255.255) will be in: connections_sorted_by_size[conn]
 
-        :param connections_sorted_by_size:  the original connectivity graph : a list of tuples (connection set ,
-        peer_pairs), where peer_pairs is a list of (src,dst) tuples :return: connections_sorted_by_size_new : a new
-        connectivity graph with merged ip-blocks
+        :param connections_sorted_by_size:  the original connectivity graph : a list of tuples
+               (connection set ,  peer_pairs), where peer_pairs is a list of (src,dst) tuples
+        :return: connections_sorted_by_size_new : a new connectivity graph with merged ip-blocks
         """
         connections_sorted_by_size_new = []
         for connections, peer_pairs in connections_sorted_by_size:

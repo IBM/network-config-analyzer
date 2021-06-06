@@ -4,21 +4,21 @@
   - src_ns:
     - default
     src_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - cog-agents
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - cog-local-analyzer-7d77fb55cc
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - cog-local-analyzer-7d77fb55cc
     dst_ns:
     - default
     dst_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - cog-agents
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Lost connections
@@ -117,21 +117,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-5,app-6)
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-0,app-1)
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
     - app in (app-0,app-1,app-2)
     dst_ns:
     - default
     dst_pods:
     - app in (app-5,app-6)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app in (app-5,app-6)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-0,app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: New connections
@@ -160,20 +160,20 @@
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: New connections
     between added peers and ipBlocks (added)'
   rules:
-  - src_ns:
-    - default
-    src_pods:
-    - app in (app-5,app-6)
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
     - default
     dst_pods:
     - app in (app-5,app-6)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app in (app-5,app-6)
+    dst_ip_block:
+    - 0.0.0.0/0
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Lost connections
@@ -202,14 +202,6 @@
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Lost connections
     between removed peers and ipBlocks (removed)'
   rules:
-  - src_ns:
-    - default
-    src_pods:
-    - app in (app-5,app-6)
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -218,19 +210,17 @@
     - app in (app-5,app-6)
     connection:
     - All connections
-- query: 'semantic_diff, config1: config_b, config2: config_a, key: Lost connections
-    between removed peers and persistent peers (removed)'
-  rules:
   - src_ns:
     - default
     src_pods:
     - app in (app-5,app-6)
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-0,app-1)
+    dst_ip_block:
+    - 0.0.0.0/0
     connection:
     - All connections
+- query: 'semantic_diff, config1: config_b, config2: config_a, key: Lost connections
+    between removed peers and persistent peers (removed)'
+  rules:
   - src_ns:
     - default
     src_pods:
@@ -239,6 +229,16 @@
     - default
     dst_pods:
     - app in (app-5,app-6)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app in (app-5,app-6)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-0,app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Changed connections
@@ -318,21 +318,21 @@
   - src_ns:
     - default
     src_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - cog-agents
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - cog-local-analyzer-7d77fb55cc
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - cog-local-analyzer-7d77fb55cc
     dst_ns:
     - default
     dst_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - cog-agents
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: New connections
@@ -358,15 +358,15 @@
     removed peers (removed)'
   rules:
   - src_ns:
-    - vendor-system
     - default
     - kube-system
+    - vendor-system
     src_pods:
     - '*'
     dst_ns:
-    - vendor-system
     - default
     - kube-system
+    - vendor-system
     dst_pods:
     - '*'
     connection:
@@ -374,6 +374,16 @@
 - query: 'semantic_diff, config1: old1, config2: config_a, key: Lost connections between
     removed peers and ipBlocks (removed)'
   rules:
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - default
+    - kube-system
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
   - src_ns:
     - default
     - kube-system
@@ -384,19 +394,19 @@
     - 0.0.0.0/0
     connection:
     - All connections
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - vendor-system
-    - default
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
 - query: 'semantic_diff, config1: old1, config2: config_a, key: New connections between
     added peers (added)'
   rules:
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-0,app-2,app-3,app-4)
+    connection:
+    - All connections
   - src_ns:
     - default
     src_pods:
@@ -407,33 +417,23 @@
     - '*'
     connection:
     - All connections
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-0,app-2,app-3,app-4)
-    connection:
-    - All connections
 - query: 'semantic_diff, config1: old1, config2: config_a, key: New connections between
     added peers and ipBlocks (added)'
   rules:
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
     - default
     dst_pods:
     - app in (app-0,app-2,app-3,app-4)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
     connection:
     - All connections
 - query: 'semantic_diff, config1: np1, config2: np2, key: Changed connections between
@@ -528,21 +528,21 @@
   - src_ns:
     - default
     src_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - cog-agents
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - cog-local-analyzer-7d77fb55cc
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - cog-local-analyzer-7d77fb55cc
     dst_ns:
     - default
     dst_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - cog-agents
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -617,6 +617,14 @@
     key: Changed connections between persistent peers and ipBlocks (added)'
   rules:
   - src_ip_block:
+    - 0.0.0.0/5
+    dst_ns:
+    - default
+    dst_pods:
+    - cog-agents
+    connection:
+    - All connections
+  - src_ip_block:
     - 10.10.0.0/16
     dst_ns:
     - default
@@ -632,41 +640,9 @@
     - cog-agents
     connection:
     - All connections
-  - src_ip_block:
-    - 0.0.0.0/5
-    dst_ns:
-    - default
-    dst_pods:
-    - cog-agents
-    connection:
-    - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
     key: Changed connections between persistent peers and ipBlocks (removed)'
   rules:
-  - src_ip_block:
-    - 10.11.0.0/16
-    dst_ns:
-    - default
-    dst_pods:
-    - cog-agents
-    connection:
-    - All connections
-  - src_ip_block:
-    - 11.0.0.0/8
-    dst_ns:
-    - default
-    dst_pods:
-    - cog-agents
-    connection:
-    - All connections
-  - src_ip_block:
-    - 0.0.0.0/5
-    dst_ns:
-    - default
-    dst_pods:
-    - cog-agents
-    connection:
-    - All connections
   - src_ip_block:
     - 10.0.0.0/13
     dst_ns:
@@ -701,19 +677,33 @@
     - Protocol: SCTP
       Ports:
       - 1-65536
-- query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
-    key: New connections between persistent peers and added peers (added)'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - app in (app-5,app-6)
+  - src_ip_block:
+    - 0.0.0.0/5
     dst_ns:
     - default
     dst_pods:
-    - app in (app-0,app-1)
+    - cog-agents
     connection:
     - All connections
+  - src_ip_block:
+    - 10.11.0.0/16
+    dst_ns:
+    - default
+    dst_pods:
+    - cog-agents
+    connection:
+    - All connections
+  - src_ip_block:
+    - 11.0.0.0/8
+    dst_ns:
+    - default
+    dst_pods:
+    - cog-agents
+    connection:
+    - All connections
+- query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
+    key: New connections between persistent peers and added peers (added)'
+  rules:
   - src_ns:
     - default
     src_pods:
@@ -722,6 +712,16 @@
     - default
     dst_pods:
     - app in (app-5,app-6)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app in (app-5,app-6)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-0,app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -750,19 +750,19 @@
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
     key: New connections between added peers and ipBlocks (added)'
   rules:
-  - src_ns:
-    - default
-    src_pods:
-    - app in (app-5,app-6)
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
     - default
     dst_pods:
     - app in (app-5,app-6)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app in (app-5,app-6)
+    dst_ip_block:
+    - 0.0.0.0/0
     connection:
     - All connections

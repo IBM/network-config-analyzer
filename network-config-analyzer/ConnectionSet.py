@@ -31,7 +31,9 @@ class ConnectionSet:
             return False
         if other.allow_all:
             return True
-        return len(self.allowed_protocols) < len(other.allowed_protocols)
+        if len(self.allowed_protocols) != len(other.allowed_protocols):
+            return len(self.allowed_protocols) < len(other.allowed_protocols)
+        return str(self) < str(other)
 
     def __hash__(self):
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
@@ -50,7 +52,7 @@ class ConnectionSet:
                 protocol_text = self.protocol_number_to_name(protocol)
                 properties = self.allowed_protocols[protocol]
                 if not isinstance(properties, bool):
-                    ports_list = str(properties).split(',')
+                    ports_list = sorted(str(properties).split(','))
                     protocol_obj = {'Protocol': protocol_text, 'Ports': ports_list}
                     res.append(protocol_obj)
         return res

@@ -12,6 +12,78 @@
     - Protocol: TCP
       Ports:
       - '3550'
+  - src_ns:
+    - default
+    src_pods:
+    - app in (checkoutservice,frontend)
+    dst_ns:
+    - default
+    dst_pods:
+    - shippingservice
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '50051'
+  - src_ns:
+    - default
+    src_pods:
+    - checkoutservice
+    dst_ns:
+    - default
+    dst_pods:
+    - paymentservice
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '50051'
+  - src_ns:
+    - default
+    src_pods:
+    - frontend
+    dst_ns:
+    - default
+    dst_pods:
+    - checkoutservice
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '5050'
+  - src_ns:
+    - default
+    src_pods:
+    - cartservice
+    dst_ns:
+    - default
+    dst_pods:
+    - redis-cart
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '6379'
+  - src_ns:
+    - default
+    src_pods:
+    - app in (checkoutservice,frontend)
+    dst_ns:
+    - default
+    dst_pods:
+    - currencyservice
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '7000'
+  - src_ns:
+    - default
+    src_pods:
+    - app in (checkoutservice,frontend)
+    dst_ns:
+    - default
+    dst_pods:
+    - cartservice
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '7070'
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -61,54 +133,6 @@
   - src_ns:
     - default
     src_pods:
-    - checkoutservice
-    dst_ns:
-    - default
-    dst_pods:
-    - paymentservice
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '50051'
-  - src_ns:
-    - default
-    src_pods:
-    - app in (checkoutservice,frontend)
-    dst_ns:
-    - default
-    dst_pods:
-    - shippingservice
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '50051'
-  - src_ns:
-    - default
-    src_pods:
-    - app in (checkoutservice,frontend)
-    dst_ns:
-    - default
-    dst_pods:
-    - cartservice
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '7070'
-  - src_ns:
-    - default
-    src_pods:
-    - frontend
-    dst_ns:
-    - default
-    dst_pods:
-    - checkoutservice
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '5050'
-  - src_ns:
-    - default
-    src_pods:
     - frontend
     dst_ns:
     - default
@@ -118,27 +142,4 @@
     - Protocol: TCP
       Ports:
       - '9555'
-  - src_ns:
-    - default
-    src_pods:
-    - cartservice
-    dst_ns:
-    - default
-    dst_pods:
-    - redis-cart
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '6379'
-  - src_ns:
-    - default
-    src_pods:
-    - app in (checkoutservice,frontend)
-    dst_ns:
-    - default
-    dst_pods:
-    - currencyservice
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '7000'
+

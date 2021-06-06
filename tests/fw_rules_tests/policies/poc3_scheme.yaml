@@ -14,10 +14,13 @@ queries:
     connectivityMap:
       - poc3
     expected: 0
-    #outputConfiguration:
+    outputConfiguration:
+      fwRulesFilterSystemNs: true
+      #outputFormat: 'yaml'
+      #outputPath: './my_output.yaml'
     #  fwRulesRunInTestMode: false
     #  fwRulesMaxIter: 9
     #  fwRulesFilterSystemNs: true
-    #  fwRulesOutputFormat: 'yaml'
+    #  outputFormat: 'yaml'
     #  outputPath: './my_output.yaml'
 

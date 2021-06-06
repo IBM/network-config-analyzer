@@ -1,3 +1,4 @@
 final fw rules for query: connectivity_map, config: np19:
 src_ns: [dlaas,ibm-system-new] src_pods: [*] dst_ns: [kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [ibm-system-new,kube-system-new] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All connections
+

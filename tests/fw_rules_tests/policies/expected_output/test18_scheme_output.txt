@@ -4,3 +4,4 @@ src_ns: [kube-system-new] src_pods: [tier in (#NO_LABEL_VALUE,not_frontend_for_d
 src_ns: [kube-system-new] src_pods: [tier in (#NO_LABEL_VALUE,not_frontend_for_demo)] dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
 src_ns: [kube-system-new] src_pods: [tier in (frontend)] dst ip block: 49.50.0.0/32 conn: All connections
 src_ns: [kube-system-new] src_pods: [tier in (frontend)] dst ip block: 49.50.0.2/32 conn: All connections
+

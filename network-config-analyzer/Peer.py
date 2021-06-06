@@ -210,7 +210,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
             return self.namespace.name + '_' + self.name
 
     def copy(self):
-        res = IpBlock()
+        res = IpBlock(name=self.name, namespace=self.namespace, is_global=self.is_global)
         res.interval_set = self.interval_set.copy()
         return res
 
