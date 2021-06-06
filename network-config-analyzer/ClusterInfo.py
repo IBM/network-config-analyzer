@@ -83,7 +83,6 @@ class ClusterInfo:
             cartesian_product_values = list(itertools.product(*key_labels_values))
             # for each elem check how many pods exist
             for elem in cartesian_product_values:
-                # TODO: make sure ':' is not allowed in a label value
                 flattened_elem_value = ':'.join(v for v in elem)
                 pod_sets_per_combined_value = []
                 elem_list = list(elem)

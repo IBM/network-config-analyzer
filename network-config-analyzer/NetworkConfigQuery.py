@@ -109,8 +109,6 @@ class VacuityQuery(NetworkConfigQuery):
 
     def exec(self):
         vacuous_config = self.config.clone_without_policies('vacuousConfig')
-        # TODO: for query that uses other queries -- should it send the other queries its self.output_config_file? (may depend on logic and context of output config)
-        # vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config, self.output_config_file).exec()
         vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config).exec()
         if not vacuous_res.bool_result:
             return QueryAnswer(vacuous_res.bool_result,
@@ -602,7 +600,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             conn = list(conn_graph.connections_to_peers.keys())[0]
             # if (src,dst) has a new connection, should not consider (src,dst) with "no connections" as removed
             # connections. also we currently do not create fw-rules for "no connections"
-            if not conn.allow_all and not conn.allowed_protocols:  # conn is "no connections":
+            if not conn:  # conn is "no connections":
                 return False
         return True
 

@@ -13,6 +13,7 @@ class ConnectionSet:
     """
     _protocol_number_to_name_dict = {1: 'ICMP', 6: 'TCP', 17: 'UDP', 58: 'ICMPv6', 132: 'SCTP', 135: 'UDPLite'}
     _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
+    _port_supporting_protocols = [6, 17, 132]
 
     def __init__(self, allow_all=False):
         self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
@@ -39,6 +40,11 @@ class ConnectionSet:
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
 
     def get_connections_list(self):
+        """
+        return list with yaml representation of the connection set, to be used at fw-rules representation in yaml
+        :return: list
+        """
+
         res = []
         if self.allow_all:
             res.append(str(self))
@@ -46,18 +52,23 @@ class ConnectionSet:
         if not self.allowed_protocols:
             res.append(str(self))
             return res
-        for protocol in [6, 17, 132]:
+        for protocol in ConnectionSet._port_supporting_protocols:
 
             if protocol in self.allowed_protocols:
                 protocol_text = self.protocol_number_to_name(protocol)
                 properties = self.allowed_protocols[protocol]
                 if not isinstance(properties, bool):
-                    ports_list = sorted(str(properties).split(','))
+                    ports_list = properties.get_properties_list()
+                    #ports_list = sorted(str(properties).split(','))
                     protocol_obj = {'Protocol': protocol_text, 'Ports': ports_list}
                     res.append(protocol_obj)
         return res
 
     def get_connections_str(self):
+        """
+        return a string representation of the connection set, to be used at fw-rules representation in txt
+        :return: string
+        """
         if self.allow_all:
             return "All connections"
         if not self.allowed_protocols:
@@ -300,7 +311,7 @@ class ConnectionSet:
         :return: Whether the given protocol has ports
         :rtype: bool
         """
-        return protocol in {6, 17, 132}
+        return protocol in ConnectionSet._port_supporting_protocols
 
     @staticmethod
     def protocol_is_icmp(protocol):

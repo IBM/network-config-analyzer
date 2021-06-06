@@ -1,7 +1,7 @@
 from collections import defaultdict
 from ClusterInfo import ClusterInfo
 from ConnectionSet import ConnectionSet
-from Peer import Peer, IpBlock, Pod
+from Peer import Peer, IpBlock, ClusterEP
 from MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 
 
@@ -69,7 +69,7 @@ class ConnectivityGraph:
         # build fw_rules_map: per connection - a set of its minimized fw rules
         for connections, peer_pairs in connections_sorted_by_size:
             # currently skip "no connections"
-            if not connections.allow_all and not connections.allowed_protocols:
+            if not connections:
                 continue
             # TODO: figure out why we have pairs with (ip,ip) ?
             peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
@@ -77,7 +77,7 @@ class ConnectivityGraph:
             minimize_cs = MinimizeCsFwRules(peer_pairs_filtered, connections,
                                             peer_pairs_in_containing_connections, self.cluster_info,
                                             self.allowed_labels, self.output_config)
-            fw_rules_map[connections] = minimize_cs.minimized_rules_set
+            fw_rules_map[connections] = minimize_cs.minimized_fw_rules
             results_map[connections] = minimize_cs.results_info_per_option
 
         minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.query_name, self.cluster_info, self.output_config,
@@ -89,9 +89,9 @@ class ConnectivityGraph:
         """
         Filters out peer pairs where both src and dst are IpBlock
         :param list peer_pairs: the peer pairs to filter
-        :return: a filtered list of peer pairs
+        :return: a filtered set of peer pairs
         """
-        return [(src, dst) for (src, dst) in peer_pairs if not (isinstance(src, IpBlock) and isinstance(dst, IpBlock))]
+        return set((src, dst) for (src, dst) in peer_pairs if not (isinstance(src, IpBlock) and isinstance(dst, IpBlock)))
 
     def _build_connections_containment_map(self, connections_sorted_by_size):
         """
@@ -104,7 +104,7 @@ class ConnectivityGraph:
             for (other_conn, peer_pairs) in connections_sorted_by_size:
                 if other_conn != conn and conn.contained_in(other_conn):
                     peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
-                    cs_containment_map[conn] = cs_containment_map[conn].union(peer_pairs_filtered)
+                    cs_containment_map[conn] |= peer_pairs_filtered
         return cs_containment_map
 
     @staticmethod
@@ -124,12 +124,12 @@ class ConnectivityGraph:
             map_ip_blocks_per_src = dict()
             merged_peer_pairs = []
             for (src, dst) in peer_pairs:
-                if isinstance(src, IpBlock) and isinstance(dst, Pod):
+                if isinstance(src, IpBlock) and isinstance(dst, ClusterEP):
                     if dst not in map_ip_blocks_per_dst:
                         map_ip_blocks_per_dst[dst] = src.copy()
                     else:
                         map_ip_blocks_per_dst[dst] |= src
-                elif isinstance(dst, IpBlock) and isinstance(src, Pod):
+                elif isinstance(dst, IpBlock) and isinstance(src, ClusterEP):
                     if src not in map_ip_blocks_per_src:
                         map_ip_blocks_per_src[src] = dst.copy()
                     else:

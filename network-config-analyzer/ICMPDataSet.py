@@ -23,6 +23,9 @@ class ICMPDataSet(CanonicalHyperCubeSet):
             return 'no types'
         return super().__str__()
 
+    def get_properties_list(self):
+        return [str(self)]
+
     def copy(self):
         new_copy = copy.copy(self)
         return new_copy

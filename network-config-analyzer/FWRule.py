@@ -1,8 +1,5 @@
 import ipaddress
 
-from Peer import Pod, IpBlock
-from ConnectionSet import ConnectionSet
-
 
 class LabelExpr:
     """
@@ -44,7 +41,7 @@ class LabelExpr:
         return res
 
     def __eq__(self, other):
-        return self.key == other.key and set(self.values) == set(other.values)
+        return self.key == other.key and self.values == other.values
 
     def __hash__(self):
         return hash(str(self))
@@ -87,7 +84,7 @@ class FWRuleElement:
         """
         :return: string of the represented element
         """
-        return 'ns: ' + self.get_ns_str() + ', pods: ' + self.get_pod_str()
+        return f'ns: {self.get_ns_str()}, pods: {self.get_pod_str()}'
 
     def get_elem_str(self, is_src):
         """
@@ -103,7 +100,7 @@ class FWRuleElement:
         return hash(str(self))
 
     def __eq__(self, other):
-        return set(self.ns_info) == set(other.ns_info)
+        return self.ns_info == other.ns_info
 
     def is_system_ns(self):
         """
@@ -132,7 +129,7 @@ class PodElement(FWRuleElement):
         Create a PodElement object
         :param element: the element of type Pod
         """
-        super().__init__([element.namespace])
+        super().__init__({element.namespace})
         self.element = element
 
     def get_elem_yaml_obj(self):
@@ -145,14 +142,13 @@ class PodElement(FWRuleElement):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
         """
-        # return '[' + str(self.element) + ']'
-        return '[' + str(self.element.owner_name) + ']'
+        return f'[{self.element.owner_name}]'
 
     def __str__(self):
         """
         :return: string of the represented element
         """
-        return 'ns: ' + self.get_ns_str() + ', pods: ' + self.get_pod_str()
+        return f'ns: {self.get_ns_str()}, pods: {self.get_pod_str()}'
 
     def get_elem_str(self, is_src):
         """
@@ -169,8 +165,7 @@ class PodElement(FWRuleElement):
 
     # TODO: should compare to other types as well, and make the comparison based on actual pods set?
     def __eq__(self, other):
-        return isinstance(other, PodElement) and self.element == other.element and set(self.ns_info) == set(
-            other.ns_info)
+        return isinstance(other, PodElement) and self.element == other.element and super().__eq__(other)
 
     def get_pods_set(self, cluster_info):
         """
@@ -205,13 +200,13 @@ class PodLabelsElement(FWRuleElement):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
         """
-        return '[' + str(self.element) + ']'
+        return f'[{self.element}]'
 
     def __str__(self):
         """
         :return: string of the represented element
         """
-        return 'ns: ' + self.get_ns_str() + ', pods: ' + self.get_pod_str()
+        return f'ns: {self.get_ns_str()}, pods: {self.get_pod_str()}'
 
     def get_elem_str(self, is_src):
         """
@@ -227,8 +222,7 @@ class PodLabelsElement(FWRuleElement):
         return hash(str(self))
 
     def __eq__(self, other):
-        return isinstance(other, PodLabelsElement) and self.element == other.element and set(self.ns_info) == set(
-            other.ns_info)
+        return isinstance(other, PodLabelsElement) and self.element == other.element and super().__eq__(other)
 
     def get_pods_set(self, cluster_info):
         """
@@ -298,7 +292,7 @@ class IPBlockElement(FWRuleElement):
         return hash(str(self))
 
     def __eq__(self, other):
-        return isinstance(other, IPBlockElement) and self.element == other.element
+        return isinstance(other, IPBlockElement) and self.element == other.element and super().__eq__(other)
 
     def get_pods_set(self, cluster_info):
         """

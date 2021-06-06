@@ -11,6 +11,7 @@ class PortSet:
     """
     A class for holding a set of ports, including support for (included and excluded) named ports
     """
+
     def __init__(self, all_ports=False):
         # type: (bool) -> None
         self.port_set = CanonicalIntervalSet()
@@ -82,6 +83,7 @@ class PortSetPair:
     """
     A class for holding a set of rectangles, each defined over a range of source ports X a range of target ports
     """
+
     def __init__(self, source_ports=PortSet(), dest_ports=PortSet()):
         """
         This will create all rectangles made of a range in source_ports and a range in dest_ports
@@ -121,6 +123,9 @@ class PortSetPair:
                 return 'some named ports'
             return 'no ports'
         return self.get_simplified_str()
+
+    def get_properties_list(self):
+        return sorted(str(self).split(','))
 
     def __eq__(self, other):
         if isinstance(other, PortSetPair):
