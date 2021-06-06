@@ -404,8 +404,6 @@ class PeerContainer:
                 self._add_networkset_from_yaml(networkset)
         elif kind in ['NetworkSet', 'GlobalNetworkSet']:
             self._add_networkset_from_yaml(ep_list)
-        else:
-            print(kind, ' is not supported ', file=stderr)
 
     def delete_all_peers(self):
         self.peer_set.clear()
