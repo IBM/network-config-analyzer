@@ -11,7 +11,7 @@ class ConnectivityGraph:
     the labels on the edges are the allowed connections between two peers.
     """
 
-    def __init__(self, all_peers, allowed_labels, output_config, query_name):
+    def __init__(self, all_peers, allowed_labels, output_config, query_name, is_k8s_config):
         """
         Create a ConnectivityGraph object
         :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
@@ -22,7 +22,7 @@ class ConnectivityGraph:
         # connections_to_peers holds the connectivity graph
         self.connections_to_peers = defaultdict(list)
         self.output_config = output_config
-        self.cluster_info = ClusterInfo(all_peers, allowed_labels)
+        self.cluster_info = ClusterInfo(all_peers, allowed_labels, is_k8s_config)
         self.query_name = query_name
         self.allowed_labels = allowed_labels
 

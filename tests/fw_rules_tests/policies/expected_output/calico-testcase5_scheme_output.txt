@@ -5,5 +5,5 @@ src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_p
 final fw rules for query: connectivity_map, config: np_denyFirst:
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_pods: [*] conn: UDP 1-65536,SCTP 1-65536,
+src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_pods: [*] conn: ICMP [0-254] => [0-255];,UDP 1-65536,ICMPv6 [0-254] => [0-255];,SCTP 1-65536,UDPLite,protocols numbers: 2-5,7-16,18-57,59-131,133-134,136-255
 

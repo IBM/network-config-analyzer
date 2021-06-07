@@ -339,8 +339,19 @@ class FWRule:
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = self.conn.get_connections_str()  # str(self.conn)
+        conn_str = str(self.conn)  # self.conn.get_connections_str()
         return src_str + dst_str + ' conn: ' + conn_str
+
+    def get_rule_str(self, is_k8s_config):
+        """
+        :param is_k8s_config: bool flag indicating if network policy is k8s or not
+        :return: a string representation of the fw-rule, for output in txt format
+        """
+        src_str = self.src.get_elem_str(True)
+        dst_str = self.dst.get_elem_str(False)
+        conn_str = self.conn.get_connections_str(is_k8s_config)  # str(self.conn)
+        return src_str + dst_str + ' conn: ' + conn_str
+
 
     def __hash__(self):
         return hash(str(self))
@@ -351,9 +362,10 @@ class FWRule:
     def __lt__(self, other):
         return str(self) < str(other)
 
-    def get_rule_yaml_obj(self):
+    def get_rule_yaml_obj(self, is_k8s_config):
         """
-        :return: a dict with content representing the fw-rule, for output in yaml format
+        :param is_k8s_config: bool flag indicating if network policy is k8s or not
+        :return:  a dict with content representing the fw-rule, for output in yaml format
         """
         src_ns_list = sorted([str(ns) for ns in self.src.ns_info])
         dst_ns_list = sorted([str(ns) for ns in self.dst.ns_info])
@@ -361,7 +373,7 @@ class FWRule:
         dst_pods_list = self.dst.get_elem_yaml_obj() if not isinstance(self.dst, IPBlockElement) else None
         src_ip_block_list = sorted(self.src.get_elem_yaml_obj()) if isinstance(self.src, IPBlockElement) else None
         dst_ip_block_list = sorted(self.dst.get_elem_yaml_obj()) if isinstance(self.dst, IPBlockElement) else None
-        conn_list = self.conn.get_connections_list()
+        conn_list = self.conn.get_connections_list(is_k8s_config)
 
         rule_obj = {}
         if src_ip_block_list is None and dst_ip_block_list is None:

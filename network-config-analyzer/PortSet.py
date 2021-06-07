@@ -124,8 +124,8 @@ class PortSetPair:
             return 'no ports'
         return self.get_simplified_str()
 
-    def get_properties_list(self):
-        return sorted(str(self).split(','))
+    def get_properties_obj(self):
+        return {'Ports': sorted(str(self).split(','))}
 
     def __eq__(self, other):
         if isinstance(other, PortSetPair):

@@ -2,7 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+from CanonicalIntervalSet import CanonicalIntervalSet
 from PortSet import PortSet, PortSetPair
 from ICMPDataSet import ICMPDataSet
 
@@ -13,7 +13,8 @@ class ConnectionSet:
     """
     _protocol_number_to_name_dict = {1: 'ICMP', 6: 'TCP', 17: 'UDP', 58: 'ICMPv6', 132: 'SCTP', 135: 'UDPLite'}
     _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
-    _port_supporting_protocols = [6, 17, 132]
+    _port_supporting_protocols = {6, 17, 132}
+    _icmp_protocols = {1, 58}
 
     def __init__(self, allow_all=False):
         self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
@@ -39,12 +40,11 @@ class ConnectionSet:
     def __hash__(self):
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
 
-    def get_connections_list(self):
+    def get_connections_list(self, is_k8s_config):
         """
-        return list with yaml representation of the connection set, to be used at fw-rules representation in yaml
-        :return: list
+        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        :return:  list with yaml representation of the connection set, to be used at fw-rules representation in yaml
         """
-
         res = []
         if self.allow_all:
             res.append(str(self))
@@ -52,38 +52,50 @@ class ConnectionSet:
         if not self.allowed_protocols:
             res.append(str(self))
             return res
-        for protocol in ConnectionSet._port_supporting_protocols:
-
-            if protocol in self.allowed_protocols:
-                protocol_text = self.protocol_number_to_name(protocol)
-                properties = self.allowed_protocols[protocol]
-                if not isinstance(properties, bool):
-                    ports_list = properties.get_properties_list()
-                    #ports_list = sorted(str(properties).split(','))
-                    protocol_obj = {'Protocol': protocol_text, 'Ports': ports_list}
-                    res.append(protocol_obj)
+        protocols_set = set(self.allowed_protocols.keys())
+        # in k8s policy - restrict allowed protocols only to protocols supported by it
+        if is_k8s_config:
+            protocols_set &= ConnectionSet._port_supporting_protocols
+        for protocol in sorted(list(protocols_set)):
+            protocol_text = self.protocol_number_to_name(protocol)
+            protocol_obj = {'Protocol': protocol_text}
+            properties = self.allowed_protocols[protocol]
+            if not isinstance(properties, bool):
+                properties_obj = properties.get_properties_obj()
+                for (k, v) in properties_obj.items():
+                    protocol_obj[k] = v
+            res.append(protocol_obj)
         return res
 
-    def get_connections_str(self):
+    def get_connections_str(self, is_k8s_config):
         """
-        return a string representation of the connection set, to be used at fw-rules representation in txt
-        :return: string
+        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        :return: a string representation of the connection set, to be used at fw-rules representation in txt
         """
+
         if self.allow_all:
             return "All connections"
         if not self.allowed_protocols:
             return 'No connections'
         res = ''
-        # TODO: extend to calico protocols as well
-        # https://docs.projectcalico.org/reference/resources/profile#rule
-        # calico protocols: protocol 	Positive protocol match. 	TCP, UDP, ICMP, ICMPv6, SCTP, UDPLite, 1-255 	string | integer
-        # include only protocols supported in k8s policies :
-        for protocol in [6, 17, 132]:
-            if protocol in self.allowed_protocols:
+        protocols_set = set(self.allowed_protocols.keys())
+        # in k8s policy - restrict allowed protocols only to protocols supported by it
+        if is_k8s_config:
+            protocols_set &= ConnectionSet._port_supporting_protocols
+        protocols_numbers = CanonicalIntervalSet()
+        for protocol in sorted(list(protocols_set)):
+            if protocol not in ConnectionSet._protocol_number_to_name_dict:
+                interval = CanonicalIntervalSet.Interval(protocol, protocol)
+                protocols_numbers.add_interval(interval)
+            else:
                 protocol_text = self.protocol_number_to_name(protocol)
                 properties = self.allowed_protocols[protocol]
                 if not isinstance(properties, bool):
                     res += protocol_text + ' ' + str(properties) + ','
+                else:
+                    res += protocol_text + ','
+        if protocols_numbers:
+            res += 'protocols numbers: ' + str(protocols_numbers)
         return res
 
     def __str__(self):
@@ -320,7 +332,7 @@ class ConnectionSet:
         :return: Whether the protocol is icmp or icmpv6
         :rtype: bool
         """
-        return protocol in {1, 58}
+        return protocol in ConnectionSet._icmp_protocols
 
     def add_connections(self, protocol, properties=True):
         """

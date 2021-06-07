@@ -16,7 +16,7 @@ class ClusterInfo:
 
     invalid_val = '#NO_LABEL_VALUE'
 
-    def __init__(self, all_peers, allowed_labels):
+    def __init__(self, all_peers, allowed_labels, is_k8s_config):
         """
         Create a ClusterInfo object
         :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
@@ -26,6 +26,7 @@ class ClusterInfo:
         self.allowed_labels = allowed_labels
         self.ns_dict = defaultdict(set)  # map from ns to set of pods
         self.pods_labels_map = defaultdict(set)  # map from (label,value) pairs to set of pods
+        self.is_k8s_config = is_k8s_config
 
         all_pods = set()
         for peer in self.all_peers:

@@ -451,7 +451,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         complement_peer_set |= complement.split()
         peers_to_compare |= complement_peer_set
 
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, query_name)
+        is_k8s_config = self.config.type == NetworkConfig.ConfigType.K8s
+
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, query_name, is_k8s_config)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if peer1 == peer2:
@@ -665,7 +667,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         topology_peers = new_peers | ip_blocks if is_added else old_peers | ip_blocks
         query_name_prefix = 'semantic_diff, config1: ' + self.config1.name + ', config2: ' + self.config2.name + ', key: ' + key
         query_name = query_name_prefix + ' (added)' if is_added else query_name_prefix + ' (removed)'
-        return ConnectivityGraph(topology_peers, allowed_labels, self.output_config, query_name)
+        is_k8s_config = self.config1.type == NetworkConfig.ConfigType.K8s
+        return ConnectivityGraph(topology_peers, allowed_labels, self.output_config, query_name, is_k8s_config)
 
     def compute_diff(self):
         """

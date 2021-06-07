@@ -722,7 +722,7 @@ class MinimizeFWRules:
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                rule_str = str(rule) + '\n'
+                rule_str = rule.get_rule_str(self.cluster_info.is_k8s_config) + '\n' # str(rule) + '\n'
                 res.append(rule_str)
         # several rules can be mapped to the same str, since pods are mapped to owner name (example: semantic_diff_named_ports)
         return set(res)
@@ -738,6 +738,6 @@ class MinimizeFWRules:
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                rule_obj = rule.get_rule_yaml_obj()
+                rule_obj = rule.get_rule_yaml_obj(self.cluster_info.is_k8s_config)
                 rules.append(rule_obj)
         return rules
