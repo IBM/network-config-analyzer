@@ -374,10 +374,10 @@ class SchemeRunner(GenericYamlParser):
                     print(full_result.output_result)
                 else:
                     res += 1
-                    print(configs_array[0] + ' does not explicitly permit connections specified in ' + config + ':')
+                    print(configs_array[0] + ' does not permit connections specified in ' + config + ':')
                     print(full_result.output_explanation, '\n')
             else:
-                print(configs_array[0] + ' permits all connections explicitly specified in ' + config)
+                print(configs_array[0] + ' permits all connections specified in ' + config)
 
         print()
         return res
