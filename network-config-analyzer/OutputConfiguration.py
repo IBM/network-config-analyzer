@@ -1,14 +1,14 @@
-import os
-
 
 class OutputConfiguration:
     """
     a class to handle output configuration per query
     """
+
     def __init__(self, output_config_dict=None):
 
         self.attributes = ['fwRulesRunInTestMode', 'fwRulesDebug', 'fwRulesGroupByLabelSinglePod',
-                           'fwRulesFilterSystemNs', 'fwRulesMaxIter', 'outputFormat', 'outputPath']
+                           'fwRulesFilterSystemNs', 'fwRulesMaxIter', 'fwRulesGeneralizeLabelExpr', 'outputFormat',
+                           'outputPath']
         self.output_config_dict = output_config_dict
         # assign default values for each config attribute
         self.fwRulesRunInTestMode = False
@@ -16,6 +16,7 @@ class OutputConfiguration:
         self.fwRulesGroupByLabelSinglePod = False
         self.fwRulesFilterSystemNs = False
         self.fwRulesMaxIter = 10
+        self.fwRulesGeneralizeLabelExpr = False  # TODO: should be identified by labels expr from policy
         self.outputFormat = 'txt'
         self.outputPath = None
         self.queryName = ''
@@ -49,4 +50,3 @@ class OutputConfiguration:
         else:
             # print output to stdout
             print(output)
-

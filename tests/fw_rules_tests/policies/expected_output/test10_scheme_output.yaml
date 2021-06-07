@@ -5,7 +5,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (skydive),tier in (agent),
+    - '{app in (skydive)} and {tier in (agent)}'
     connection:
     - All connections
   - src_ip_block:
@@ -28,13 +28,13 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (skydive),tier in (agent),
+    - '{app in (skydive)} and {tier in (agent)}'
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - app in (skydive),tier in (agent),
+    - '{app in (skydive)} and {tier in (agent)}'
     dst_ip_block:
     - 0.0.0.0/0
     connection:
@@ -42,7 +42,7 @@
   - src_ns:
     - default
     src_pods:
-    - app in (skydive),tier in (agent),
+    - '{app in (skydive)} and {tier in (agent)}'
     dst_ns:
     - ibm-system-new
     - kube-system-new

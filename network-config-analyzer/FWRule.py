@@ -1,5 +1,7 @@
 import ipaddress
 
+from ClusterInfo import ClusterInfo
+
 
 class LabelExpr:
     """
@@ -7,38 +9,78 @@ class LabelExpr:
     e.g. key = K, values = {v1, v2} => the label expression is: "K in (v1,v2)"
     """
 
-    def __init__(self, key, values):
+    def __init__(self, key, values, all_valid_values):
         """
         Create a LabelExpr object
         :param key: a label key of type string
         :param values: set of label values of type set[string]
+        :param all_valid_values: set of all valid values for this label key
         """
         self.key = key
         self.values = values
+        self.all_valid_values = all_valid_values
+
+    @staticmethod
+    def get_invalid_value_expr_str(k):
+        """
+       :param k:  a simple key label
+       :return: a string representing that a pod doesn't have this key label: !has(k)
+       """
+        return f'!has({k})'
+
+    @staticmethod
+    def get_all_valid_values_expr_str(k):
+        """
+        :param k:  a simple key label
+        :return: a string representing that a pod has this key label: has(k)
+        """
+        return f'has({k})'
+
+    @staticmethod
+    def get_valid_values_expr_str(k, values):
+        """
+        :param k: a simple key label
+        :param values: a set of simple values per given key (all are valid, not all values are covered)
+        :return: a string of the format "k in (v1,v2..)"
+        """
+        if len(values) == 0:
+            return ''
+        vals_str = ','.join(v for v in sorted(list(values)))
+        return f'{k} in ({vals_str})'
+
+    def get_values_expr_str(self, k, values):
+        """
+        Given a key and its set of values, return a representing string.
+        values may include invalid_val, which is represented by "!has(key)"
+        If all valid values are included, the expr is generalized to "has(key)"
+        :param k: a simple key label (without ":" of and labels)
+        :param values:  a set of simple values per given key
+        :return: a string representing this expr
+        """
+        expr_str_list = []
+        if ClusterInfo.invalid_val in values:
+            expr_str_list.append(self.get_invalid_value_expr_str(k))
+        valid_values = set(values) - {ClusterInfo.invalid_val}
+        if len(valid_values) > 0:
+            if valid_values == self.all_valid_values:
+                expr_str_list.append(self.get_all_valid_values_expr_str(k))
+            else:
+                expr_str_list.append(self.get_valid_values_expr_str(k, valid_values))
+        return " or ".join(e for e in sorted(expr_str_list))
 
     def __str__(self):
         """
         :return: string representing the label expression
         """
-        # TODO: handle the string for 'NO_LABEL_VALUE' : app in NO_LABEL_VALUE => !app
-        values_set = set(self.values)
-        values_str = '(' + ','.join(v for v in sorted(list(values_set))) + ')'
-        if ':' not in self.key:
-            return self.key + ' in ' + values_str
-        else:
-            key_labels = self.key.split(':')
-            res = ''
-            values_str_map = dict()
-            # for key in key_labels:
-            for index in range(0, len(key_labels)):
-                key = key_labels[index]
-                split_vals = [val.split(':') for val in self.values]
-                val_set = [v[index] for v in split_vals]
-                values_str = '(' + ','.join(v for v in sorted(list(val_set))) + ')'
-                values_str_map[key] = key + ' in ' + values_str
-            for key in sorted(key_labels):
-                res += values_str_map[key] + ','
-        return res
+        key_labels = self.key.split(':')
+        values_list_per_all_keys = [val.split(':') for val in self.values]
+        expr_str_list = []
+        for index, key in enumerate(key_labels):
+            values_list_per_key = [v[index] for v in values_list_per_all_keys]
+            expr_str = self.get_values_expr_str(key, values_list_per_key)
+            expr_str_list.append(expr_str)
+        expr_str_list = ["{" + e + "}" for e in expr_str_list] if len(expr_str_list) > 1 else expr_str_list
+        return ' and '.join(e for e in sorted(expr_str_list))
 
     def __eq__(self, other):
         return self.key == other.key and self.values == other.values
@@ -351,7 +393,6 @@ class FWRule:
         dst_str = self.dst.get_elem_str(False)
         conn_str = self.conn.get_connections_str(is_k8s_config)  # str(self.conn)
         return src_str + dst_str + ' conn: ' + conn_str
-
 
     def __hash__(self):
         return hash(str(self))

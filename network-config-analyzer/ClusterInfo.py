@@ -104,6 +104,17 @@ class ClusterInfo:
         values = set(v for (k, v) in self.pods_labels_map.keys() if k == key)
         return values
 
+    def get_valid_values_set_for_key_per_namespace(self, key, ns):
+        """
+        Get the set of all valid values per label key in the cluster for a specific namespace
+        :param key: a label key of type string
+        :param ns: a namespace of type K8sNamespace
+        :return:  A set of values, of type set(string)
+        """
+        all_values = self.get_values_set_for_key(key) - {ClusterInfo.invalid_val}
+        all_values_per_ns = set(v for v in all_values if ns in set(pod.namespace for pod in self.pods_labels_map[(key,v)] ))
+        return all_values_per_ns
+
     def _get_allowed_labels_flattened(self):
         """
         Given the set of allowed labels, convert the 'and' labels into their components separately

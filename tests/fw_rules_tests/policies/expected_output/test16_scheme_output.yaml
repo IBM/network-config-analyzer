@@ -55,7 +55,7 @@
     dst_ns:
     - kube-system-new
     dst_pods:
-    - tier in (#NO_LABEL_VALUE,not_frontend_for_demo)
+    - '!has(tier) or tier in (not_frontend_for_demo)'
     connection:
     - All connections
   - src_ns:
@@ -94,7 +94,7 @@
     dst_ns:
     - kube-system-new
     dst_pods:
-    - tier in (#NO_LABEL_VALUE,not_frontend_for_demo)
+    - '!has(tier) or tier in (not_frontend_for_demo)'
     connection:
     - All connections
 

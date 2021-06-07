@@ -27,11 +27,11 @@ src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)]
 np2 and np3 have exactly the same set of policiesnp4 and np4 have exactly the same set of policiesnp1 and np4 are not semantically equivalent.Changed connections between persistent peers:
 Added connections (based on topology from config: np4) :
 src_ns: [default,kube-system-dummy-to-ignore,vendor-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
-src_ns: [kube-system] src_pods: [tier in (#NO_LABEL_VALUE,not_frontend_for_demo)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
+src_ns: [kube-system] src_pods: [!has(tier) or tier in (not_frontend_for_demo)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
 
 Removed connections (based on topology from config: np1) :
 src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [default,kube-system-dummy-to-ignore,vendor-system] dst_pods: [*] conn: All connections
-src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_pods: [tier in (#NO_LABEL_VALUE,not_frontend_for_demo)] conn: All connections
+src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_pods: [!has(tier) or tier in (not_frontend_for_demo)] conn: All connections
 
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np4) :
