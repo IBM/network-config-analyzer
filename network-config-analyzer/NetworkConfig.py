@@ -332,8 +332,8 @@ class NetworkConfig:
                 pass_conns |= policy_conns.pass_conns
 
         if not policy_captured:
-            if self.type == NetworkConfig.ConfigType.K8s:
-                allowed_conns = ConnectionSet(True)  # default Allow-all ingress in k8s
+            if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Unknown]:
+                allowed_conns = ConnectionSet(True)  # default Allow-all ingress in k8s or in case of no policy
             else:
                 if only_captured:
                     allowed_conns = ConnectionSet()

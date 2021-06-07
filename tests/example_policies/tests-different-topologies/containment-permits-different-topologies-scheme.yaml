@@ -4,22 +4,21 @@ podList: ../../example_podlist/pods_list.json
 networkConfigList:
   - name: no_policy
     # no namespaceList and podList, hence use the global resources above
-    # TODO: a "bug" in _allowed_xgress_conns() in case of config with no policy, since policy-type is not identified as k8s
     networkPolicyList: []
-    expected_warnings: 1
+    expected_warnings: 0
 
   - name: policy
     # should be equivalent to 'no_policy' above
     namespaceList: ../../example_podlist/ns_list.json
     networkPolicyList:
-      - policy_a.yaml
-    expected_warnings: 3
+      - ../withIpBlock/withIpBlock-networkpolicy3.yaml
+    expected_warnings: 0
 
   - name: config_a_no_policy
     namespaceList: ../../different_topologies/ns_list_a.json
     podList: ../../different_topologies/pods_list_a.json
     networkPolicyList: []
-    expected_warnings: 1
+    expected_warnings: 0
 
   - name: config_a
     namespaceList: ../../different_topologies/ns_list_a.json
@@ -125,3 +124,8 @@ queries:
       - config_a_with_policy_b1
     expected: 1
 
+  - name: permits_a_no_policy
+    permits:
+      - config_a
+      - config_a_no_policy
+    expected: 0
