@@ -616,7 +616,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         line_header_txt = 'Added' if is_added else 'Removed'
         fw_rules = conn_graph.get_minimized_firewall_rules()
         fw_rules_output = fw_rules.get_fw_rules_in_required_format(False)
-        if self.output_config.outputFormat == 'txt':
+        if self.output_config['outputFormat'] == 'txt':
             explanation = f'{line_header_txt} connections (based on topology from config: {topology_config_name}) :\n{fw_rules_output}\n'
         else:
             explanation = fw_rules_output
@@ -640,7 +640,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             is_added = self.conn_graph_has_fw_rules(conn_graph_added_conns)
             is_removed = self.conn_graph_has_fw_rules(conn_graph_removed_conns)
 
-            if (is_added or is_removed) and self.output_config.outputFormat == 'txt':
+            if (is_added or is_removed) and self.output_config['outputFormat'] == 'txt':
                 explanation += f'{key}:\n'
 
             if is_added:

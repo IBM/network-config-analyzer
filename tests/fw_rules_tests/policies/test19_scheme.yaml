@@ -1,18 +1,14 @@
 namespaceList: ../podlist/ns_list_1.json
-#podList: ../../example_podlist/pods_list.json
 podList: ../podlist/pods_list_6.json
-
 networkConfigList:
-
-
-  - name: np19
-    networkPolicyList:
-      - test19-networkpolicy.yaml
-    expected_warnings: 0
-
+- name: np19
+  networkPolicyList:
+  - test19-networkpolicy.yaml
+  expected_warnings: 0
 queries:
-  - name: connectivity_map
-    connectivityMap:
-      - np19
-    expected: 0
-
+- name: connectivity_map
+  connectivityMap:
+  - np19
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

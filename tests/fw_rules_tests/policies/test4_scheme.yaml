@@ -1,34 +1,25 @@
 namespaceList: ../podlist/ns_list.json
-#podList: ../../example_podlist/pods_list.json
 podList: ../podlist/pods_list_4.json
-
 networkConfigList:
-
-
-  - name: np4
-    networkPolicyList:
-      - test4-networkpolicy.yaml
-    expected_warnings: 0
-
-  - name: np3
-    networkPolicyList:
-      - test3-networkpolicy.yaml
-    expected_warnings: 0
-
+- name: np4
+  networkPolicyList:
+  - test4-networkpolicy.yaml
+  expected_warnings: 0
+- name: np3
+  networkPolicyList:
+  - test3-networkpolicy.yaml
+  expected_warnings: 0
 queries:
-  - name: connectivity_map_4
-    connectivityMap:
-      - np4
-      - np3
-    expected: 0
-    #outputConfiguration:
-    #  outputFormat: 'yaml'
-    #  outputPath: './my_output.yaml'
-
-  - name: connectivity_map_3
-    connectivityMap:
-      - np3
-    expected: 0
-    #outputConfiguration:
-    #  outputFormat: 'yaml'
-    #  outputPath: './my_output.yaml'
+- name: connectivity_map_4
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+- name: connectivity_map_3
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

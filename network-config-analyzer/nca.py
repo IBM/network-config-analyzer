@@ -88,7 +88,7 @@ def run_args(args):
         return SemanticDiffExecute(args.semantic_diff, args.base_np_list or 'k8s', args.ns_list, args.pod_list, args.o, args.f).execute()
 
     if args.scheme:
-        return SchemeRunner(args.scheme, args.o, args.f, args.fw_rules_test_mode).run_scheme()
+        return SchemeRunner(args.scheme, args.o, args.f).run_scheme()
 
     return SanityExecute(args.sanity or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
@@ -131,9 +131,8 @@ def nca_main(argv=None):
     parser.add_argument('--pod_list', type=_ghe_or_k8s_or_calico_or_valid_path,
                         help='A file/cluster-type to read pod list from')
     parser.add_argument('--ghe_token', type=str, help='A valid token to access a GHE repository')
-    parser.add_argument('--o', type=str, help='output format for this query (txt or yaml)')
-    parser.add_argument('--f', type=str, help='file output path for this query')
-    parser.add_argument('--fw_rules_test_mode', type=str, help='run fw rules in test mode')
+    parser.add_argument('--o', type=str, help='Output format specification (txt or yaml). The default is txt.')
+    parser.add_argument('--f', type=str, help='A file path to which output is redirected')
 
     args = parser.parse_args(argv)
 

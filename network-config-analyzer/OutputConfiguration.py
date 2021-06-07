@@ -1,32 +1,21 @@
-
-class OutputConfiguration:
+class OutputConfiguration(dict):
     """
     a class to handle output configuration per query
     """
 
-    def __init__(self, output_config_dict=None):
+    def __init__(self, output_config_dict=None, query_name=''):
+        default_output_config = {'fwRulesRunInTestMode': False, 'fwRulesDebug': False,
+                                 'fwRulesGroupByLabelSinglePod': False, 'fwRulesFilterSystemNs': False,
+                                 'fwRulesMaxIter': 10, 'fwRulesGeneralizeLabelExpr': False, 'outputFormat': 'txt',
+                                 'outputPath': None}
+        super().__init__(default_output_config)
+        if output_config_dict is not None:
+            self.update(output_config_dict)
 
-        self.attributes = ['fwRulesRunInTestMode', 'fwRulesDebug', 'fwRulesGroupByLabelSinglePod',
-                           'fwRulesFilterSystemNs', 'fwRulesMaxIter', 'fwRulesGeneralizeLabelExpr', 'outputFormat',
-                           'outputPath']
-        self.output_config_dict = output_config_dict
-        # assign default values for each config attribute
-        self.fwRulesRunInTestMode = False
-        self.fwRulesDebug = False
-        self.fwRulesGroupByLabelSinglePod = False
-        self.fwRulesFilterSystemNs = False
-        self.fwRulesMaxIter = 10
-        self.fwRulesGeneralizeLabelExpr = False  # TODO: should be identified by labels expr from policy
-        self.outputFormat = 'txt'
-        self.outputPath = None
-        self.queryName = ''
+        self.queryName = query_name
 
-        # get values from output_config_dict if exists
-        if self.output_config_dict is not None:
-            for (key, val) in output_config_dict.items():
-                if key in self.attributes:
-                    # print('setting pair in config: ' + str(key) + ' , ' + str(val))
-                    setattr(self, key, val)
+    def __getattr__(self, name):
+        return (super().__getitem__(name)).value
 
     def print_query_output(self, output, yaml_supported=False):
         """
@@ -35,18 +24,18 @@ class OutputConfiguration:
         :param output: string
         :return: None
         """
-        if not yaml_supported and self.outputFormat == 'yaml':
+        if not yaml_supported and self['outputFormat'] == 'yaml':
             print('yaml output format is not supported for this query')
             return
-        if self.outputPath is not None:
+        path = self['outputPath']
+        if path is not None:
             # print output to a file
             try:
-                f = open(self.outputPath, "a")
-                f.write(output)
-                f.close()
-                print(f'wrote query output to: {self.outputPath}')
+                with open(path, "a") as f:
+                    f.write(output)
+                print(f'wrote query output to: {path}')
             except FileNotFoundError:
-                print(f"FileNotFoundError: configured outputPath is: {self.outputPath}")
+                print(f"FileNotFoundError: configured outputPath is: {path}")
         else:
             # print output to stdout
             print(output)

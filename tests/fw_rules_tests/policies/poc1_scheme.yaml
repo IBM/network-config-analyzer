@@ -1,15 +1,14 @@
 namespaceList: ../podlist/poc_ns_list.json
 podList: ../podlist/kubernetes-manifests.yaml
-
 networkConfigList:
-  - name: poc1
-    networkPolicyList:
-      - microservices-netpols.yaml
-    expected_warnings: 10
-
+- name: poc1
+  networkPolicyList:
+  - microservices-netpols.yaml
+  expected_warnings: 10
 queries:
-  - name: connectivity_map
-    connectivityMap:
-      - poc1
-    expected: 0
-
+- name: connectivity_map
+  connectivityMap:
+  - poc1
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

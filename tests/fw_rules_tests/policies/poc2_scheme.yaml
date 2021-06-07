@@ -1,17 +1,14 @@
 namespaceList: ../podlist/poc_ns_list.json
-#added the kube-dns deployment (the only one in kube-system)
 podList: ../podlist/kubernetes-manifests-new.yaml
-#podList: ../../example_podlist/kubernetes-manifests.yaml
-
 networkConfigList:
-  - name: poc2
-    networkPolicyList:
-      - microservices-netpols.yaml
-    expected_warnings: 0
-
+- name: poc2
+  networkPolicyList:
+  - microservices-netpols.yaml
+  expected_warnings: 0
 queries:
-  - name: connectivity_map
-    connectivityMap:
-      - poc2
-    expected: 0
-
+- name: connectivity_map
+  connectivityMap:
+  - poc2
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

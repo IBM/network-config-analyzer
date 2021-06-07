@@ -1,18 +1,14 @@
 namespaceList: ../podlist/ns_list.json
 podList: ../podlist/pods_list.json
-#podList: ../../example_podlist/pods_list_4.json
-
 networkConfigList:
-
-
-  - name: np7
-    networkPolicyList:
-      - test7-networkpolicy.yaml
-    expected_warnings: 0
-
+- name: np7
+  networkPolicyList:
+  - test7-networkpolicy.yaml
+  expected_warnings: 0
 queries:
-  - name: connectivity_map
-    connectivityMap:
-      - np7
-    expected: 0
-
+- name: connectivity_map
+  connectivityMap:
+  - np7
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

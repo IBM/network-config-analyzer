@@ -61,9 +61,7 @@ class ConnectionSet:
             protocol_obj = {'Protocol': protocol_text}
             properties = self.allowed_protocols[protocol]
             if not isinstance(properties, bool):
-                properties_obj = properties.get_properties_obj()
-                for (k, v) in properties_obj.items():
-                    protocol_obj[k] = v
+                protocol_obj.update(properties.get_properties_obj())
             res.append(protocol_obj)
         return res
 

@@ -3,6 +3,9 @@ import os
 from fnmatch import fnmatch
 from os import path
 from time import time
+
+import yaml
+
 from nca import nca_main
 from pathlib import Path
 
@@ -37,7 +40,24 @@ def compare_files(output_filename, golden_filename):
     return True
 
 
-def run_simple_test(scheme_filename, args, all_results):
+def update_test_mode_at_scheme_file(scheme_filename, add_test_mode):
+    with open(scheme_filename, 'r') as scheme_file:
+        scheme = yaml.safe_load(scheme_file)
+        for query in scheme['queries']:
+            if 'outputConfiguration' in query:
+                output_config = query['outputConfiguration']
+                output_config.update({'fwRulesRunInTestMode': add_test_mode})
+            else:
+                query.update({'outputConfiguration': {'fwRulesRunInTestMode': add_test_mode}})
+    with open(scheme_filename, 'w') as scheme_file:
+        yaml.dump(scheme, scheme_file, default_flow_style=False, sort_keys=False)
+
+
+
+
+def run_simple_test(scheme_filename, args, all_results, test_mode_flag):
+    if test_mode_flag:
+        update_test_mode_at_scheme_file(scheme_filename, True)
     print('------------------------------------')
     print('Running testcase', scheme_filename, args)
     start_time = time()
@@ -50,6 +70,9 @@ def run_simple_test(scheme_filename, args, all_results):
     else:
         print('Testcase', scheme_filename, 'passed')
     all_results[scheme_filename] = (test_res, time() - start_time)
+
+    if test_mode_flag:
+        update_test_mode_at_scheme_file(scheme_filename, False)
     return test_res
 
 
@@ -143,7 +166,7 @@ def prepare_new_test_if_required(scheme_filename):
         os.remove(actual_yaml_output_file_path)
 
 
-def get_test_args(scheme_filename, output_format=None, output_path=None, test_mode=None):
+def get_test_args(scheme_filename, output_format=None, output_path=None):
     res = ['--scheme', scheme_filename]
     if output_format is not None:
         res.append('--o')
@@ -151,9 +174,6 @@ def get_test_args(scheme_filename, output_format=None, output_path=None, test_mo
     if output_path is not None:
         res.append('--f')
         res.append(output_path)
-    if test_mode is not None and test_mode:
-        res.append('--fw_rules_test_mode')
-        res.append(str(test_mode))
     return res
 
 
@@ -204,8 +224,8 @@ def main():
             global_res += run_new_output_test(scheme_filename, get_test_args(scheme_filename, 'yaml', yaml_output_path),
                                               all_results, 'yaml')
         else:
-            global_res += run_simple_test(scheme_filename, get_test_args(scheme_filename, None, None, test_mode_flag),
-                                          all_results)
+            global_res += run_simple_test(scheme_filename, get_test_args(scheme_filename, None, None),
+                                          all_results, test_mode_flag)
 
     print('\n\nSummary\n-------')
     total_time = 0.

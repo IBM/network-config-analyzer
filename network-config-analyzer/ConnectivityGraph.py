@@ -48,7 +48,7 @@ class ConnectivityGraph:
 
         connections_sorted_by_size = self._merge_ip_blocks(connections_sorted_by_size)
 
-        if self.output_config.fwRulesRunInTestMode:
+        if self.output_config['fwRulesRunInTestMode']:
             # print the original connectivity graph
             for connections, peer_pairs in connections_sorted_by_size:
                 for src_peer, dst_peer in peer_pairs:

@@ -20,7 +20,7 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    def __init__(self, scheme_file_name, output_format=None, output_path=None, fw_rules_test_mode=None):
+    def __init__(self, scheme_file_name, output_format=None, output_path=None):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
@@ -29,8 +29,6 @@ class SchemeRunner(GenericYamlParser):
             self.output_config_from_cli_args['outputFormat'] = output_format
         if output_path is not None:
             self.output_config_from_cli_args['outputPath'] = output_path
-        if fw_rules_test_mode is not None:
-            self.output_config_from_cli_args['fwRulesRunInTestMode'] = True
 
         with open(scheme_file_name) as scheme_file:
             yaml = YAML()
@@ -161,18 +159,10 @@ class SchemeRunner(GenericYamlParser):
         :param query: a query dict object from scheme file
         :return: an OutputConfiguration object
         """
-        # get output config from scheme if exists
-        output_configuration_dict = query['outputConfiguration'] if 'outputConfiguration' in query else None
-        if output_configuration_dict is None:
-            # get output config from cli args
-            output_configuration_dict = self.output_config_from_cli_args
-        else:
-            # output config from cli args overrides config from scheme file (if both exist)
-            for (key, val) in self.output_config_from_cli_args.items():
-                output_configuration_dict[key] = val
-
-        output_config_obj = OutputConfiguration(output_configuration_dict)
-        output_config_obj.queryName = query['name']
+        output_configuration_dict = dict(query.get('outputConfiguration', {}))
+        # output config from cli args overrides config from scheme file (if both exist)
+        output_configuration_dict.update(self.output_config_from_cli_args)
+        output_config_obj = OutputConfiguration(output_configuration_dict, query['name'])
         return output_config_obj
 
     def run_queries(self, query_array):
@@ -254,7 +244,7 @@ class SchemeRunner(GenericYamlParser):
                 full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2),
                                                 output_configuration).exec()
                 # print(full_result.output_result)
-                if output_configuration.outputFormat == 'txt':
+                if output_configuration['outputFormat'] == 'txt':
                     query_output += full_result.output_result
                 res += full_result.numerical_result
                 if not full_result.bool_result:
