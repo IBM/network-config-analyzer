@@ -4,13 +4,14 @@
 #
 
 from os import path
+import copy
 from ruamel.yaml import YAML
 from PeerContainer import PeerContainer
 from GenericYamlParser import GenericYamlParser
 from NetworkConfig import NetworkConfig
 from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEquivalenceQuery, SemanticDiffQuery, \
     SanityQuery, ContainmentQuery, RedundancyQuery, InterferesQuery, EmptinessQuery, VacuityQuery, DisjointnessQuery, \
-    IntersectsQuery, TwoWayContainmentQuery, AllCapturedQuery
+    IntersectsQuery, TwoWayContainmentQuery, PermitsQuery, AllCapturedQuery
 
 
 class SchemeRunner(GenericYamlParser):
@@ -71,7 +72,8 @@ class SchemeRunner(GenericYamlParser):
                 pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
             peer_container = PeerContainer(ns_list, pod_list, config_name)
         else:
-            peer_container = peer_container_global
+            # deepcopy is required since NetworkConfig's constructor may change peer_container
+            peer_container = copy.deepcopy(peer_container_global)
 
         entry_list = config_entry['networkPolicyList']
         for idx, entry in enumerate(entry_list):
@@ -366,16 +368,18 @@ class SchemeRunner(GenericYamlParser):
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
-            full_result = ContainmentQuery(self._get_config(config), base_config).exec(True)
+            full_result = PermitsQuery(self._get_config(config), base_config).exec()
             if not full_result.bool_result:
-                res += 1
-                print(configs_array[0] + ' does not permit connections specified in ' + config + ':')
-                print(full_result.output_explanation, '\n')
+                if not full_result.output_explanation:
+                    print(full_result.output_result)
+                else:
+                    res += 1
+                    print(configs_array[0] + ' does not permit connections specified in ' + config + ':')
+                    print(full_result.output_explanation, '\n')
             else:
                 print(configs_array[0] + ' permits all connections specified in ' + config)
 
-        if full_result.bool_result:
-            print()
+        print()
         return res
 
     def _run_all_captured(self, configs_array):
