@@ -13,9 +13,10 @@ class OutputConfiguration(dict):
             self.update(output_config_dict)
 
         self.queryName = query_name
+        self.configName = ''
 
     def __getattr__(self, name):
-        return (super().__getitem__(name)).value
+        return super().__getitem__(name)
 
     def print_query_output(self, output, yaml_supported=False):
         """

@@ -43,7 +43,7 @@ class LabelExpr:
         :param values: a set of simple values per given key (all are valid, not all values are covered)
         :return: a string of the format "k in (v1,v2..)"
         """
-        if len(values) == 0:
+        if not values:
             return ''
         vals_str = ','.join(v for v in sorted(list(values)))
         return f'{k} in ({vals_str})'
@@ -60,8 +60,8 @@ class LabelExpr:
         expr_str_list = []
         if ClusterInfo.invalid_val in values:
             expr_str_list.append(self.get_invalid_value_expr_str(k))
-        valid_values = set(values) - {ClusterInfo.invalid_val}
-        if len(valid_values) > 0:
+        valid_values = values - {ClusterInfo.invalid_val}
+        if valid_values:
             if valid_values == self.all_valid_values:
                 expr_str_list.append(self.get_all_valid_values_expr_str(k))
             else:
@@ -76,8 +76,8 @@ class LabelExpr:
         values_list_per_all_keys = [val.split(':') for val in self.values]
         expr_str_list = []
         for index, key in enumerate(key_labels):
-            values_list_per_key = [v[index] for v in values_list_per_all_keys]
-            expr_str = self.get_values_expr_str(key, values_list_per_key)
+            values_set_per_key = set(v[index] for v in values_list_per_all_keys)
+            expr_str = self.get_values_expr_str(key, values_set_per_key)
             expr_str_list.append(expr_str)
         expr_str_list = ["{" + e + "}" for e in expr_str_list] if len(expr_str_list) > 1 else expr_str_list
         return ' and '.join(e for e in sorted(expr_str_list))

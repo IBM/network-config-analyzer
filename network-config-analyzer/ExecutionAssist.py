@@ -100,7 +100,7 @@ class SemanticDiffExecute(BaseExecuter):
         #print()
         query_output = '\n'
         full_result = SemanticDiffQuery(self.network_config1, self.network_config2, self.output_config).exec()
-        if self.output_config['outputFormat'] == 'txt':
+        if self.output_config.outputFormat == 'txt':
             query_output += full_result.output_result
         query_output += full_result.output_explanation + '\n'
         self.output_config.print_query_output(query_output, True)

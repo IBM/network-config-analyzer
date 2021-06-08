@@ -39,7 +39,7 @@ class MinimizeCsFwRules:
 
         # create the fw rules per given connection and its peer_pairs
         self._create_fw_rules()
-        if self.output_config['fwRulesRunInTestMode']:
+        if self.output_config.fwRulesRunInTestMode:
             self._print_firewall_rules(self.minimized_fw_rules)
             self._print_results_info()
 
@@ -242,7 +242,7 @@ class MinimizeCsFwRules:
         chosen_rep:  a list of tuples (key,values,ns) -- as the chosen representation for grouping the pods.
         remaining_pods: set of pods from pods_list that are not included in the grouping result
         """
-        if self.output_config['fwRulesDebug']:
+        if self.output_config.fwRulesDebug:
             print('get_pods_grouping_by_labels:')
             print('pods_list: ' + ','.join([str(pod) for pod in pods_set]))
             print('extra_pods_list: ' + ','.join([str(pod) for pod in extra_pods_set]))
@@ -257,22 +257,21 @@ class MinimizeCsFwRules:
             pods_with_fully_covered_label_values = set()
             for v in values_for_key:
                 all_pods_per_label_val = self.cluster_info.pods_labels_map[(key, v)] & self.cluster_info.ns_dict[ns]
-                if len(all_pods_per_label_val) == 0:
+                if not all_pods_per_label_val:
                     continue
                 pods_with_label_val_from_pods_list = all_pods_per_label_val & all_pods_set
                 pods_with_label_val_from_original_pods_list = all_pods_per_label_val & pods_set
                 # allow to "borrow" from extra_pods_set only if at least one pod is also in original pods_set
-                if all_pods_per_label_val == pods_with_label_val_from_pods_list and len(
-                        pods_with_label_val_from_original_pods_list) > 0:
+                if all_pods_per_label_val == pods_with_label_val_from_pods_list and pods_with_label_val_from_original_pods_list:
                     fully_covered_label_values |= {v}
                     pods_with_fully_covered_label_values |= pods_with_label_val_from_pods_list
             # TODO: is it OK to ignore label-grouping if only one pod is involved?
-            if self.output_config['fwRulesGroupByLabelSinglePod']:
-                if len(fully_covered_label_values) > 0 and len(
+            if self.output_config.fwRulesGroupByLabelSinglePod:
+                if fully_covered_label_values and len(
                         pods_with_fully_covered_label_values) >= 1:  # don't ignore label-grouping if only one pod is involved
                     labels_rep_options.append((key, (fully_covered_label_values, pods_with_fully_covered_label_values)))
             else:
-                if len(fully_covered_label_values) > 0 and len(
+                if fully_covered_label_values and len(
                         pods_with_fully_covered_label_values) > 1:  # ignore label-grouping if only one pod is involved
                     labels_rep_options.append((key, (fully_covered_label_values, pods_with_fully_covered_label_values)))
 
@@ -281,17 +280,16 @@ class MinimizeCsFwRules:
         # sort labels_rep_options by length of pods_with_fully_covered_label_values, to prefer label-grouping that
         # covers more pods
         sorted_rep_options = sorted(labels_rep_options, key=lambda x: len(x[1][1]), reverse=True)
-        if self.output_config['fwRulesDebug']:
+        if self.output_config.fwRulesDebug:
             print('sorted rep options:')
-            for index in range(0, len(sorted_rep_options)):
-                (key, (label_vals, pods)) = sorted_rep_options[index]
+            for (key, (label_vals, pods)) in sorted_rep_options:
                 print(key, label_vals)
         ns_info = {ns}
         for (k, (vals, pods)) in sorted_rep_options:
             if (pods & pods_set).issubset(remaining_pods):
                 chosen_rep.append((k, vals, ns_info))
                 remaining_pods -= pods
-            if len(remaining_pods) == 0:
+            if not remaining_pods:
                 break
         return chosen_rep, remaining_pods
 
@@ -309,7 +307,7 @@ class MinimizeCsFwRules:
         # (1) try grouping by pods-labels:
         chosen_rep, remaining_pods = self._get_pods_grouping_by_labels_main(pods_set, extra_pods_set)
         for (key, values, ns_info) in chosen_rep:
-            if self.output_config['fwRulesGeneralizeLabelExpr']:
+            if self.output_config.fwRulesGeneralizeLabelExpr:
                 all_labels_values_per_ns = [self.cluster_info.get_valid_values_set_for_key_per_namespace(key, ns) for ns in ns_info]
                 all_labels_values_per_ns_info = set.union(*all_labels_values_per_ns)
                 pod_label_expr = LabelExpr(key, set(values), all_labels_values_per_ns_info)
@@ -364,7 +362,7 @@ class MinimizeCsFwRules:
         """
         src_elem = self._create_fw_elem(src)
         dst_elem = self._create_fw_elem(dst)
-        if self.output_config['fwRulesRunInTestMode']:
+        if self.output_config.fwRulesRunInTestMode:
             assert src_elem is not None and dst_elem is not None
         if isinstance(src_elem, list):
             return [FWRule(src, dst_elem, self.connections) for src in src_elem]
@@ -413,7 +411,7 @@ class MinimizeCsFwRules:
         # self.post_processing_fw_rules(option1)
         # self.post_processing_fw_rules(option2)
 
-        if self.output_config['fwRulesRunInTestMode']:
+        if self.output_config.fwRulesRunInTestMode:
             equiv1 = self.check_peer_pairs_equivalence(option1)
             equiv2 = self.check_peer_pairs_equivalence(option2)
             assert equiv1
@@ -426,7 +424,7 @@ class MinimizeCsFwRules:
             self.results_info_per_option['equiv1'] = equiv1
             self.results_info_per_option['equiv2'] = equiv2
 
-        if self.output_config['fwRulesDebug']:
+        if self.output_config.fwRulesDebug:
             print('option 1 rules:')
             self._print_firewall_rules(option1)
             print('option 2 rules: ')
@@ -455,12 +453,12 @@ class MinimizeCsFwRules:
 
         ip_block_elems = [elem for elem in set_for_grouping_elems if isinstance(elem, IPBlockElement)]
 
-        if len(ns_elems) > 0:
+        if ns_elems:
             # grouping of ns elements is straight-forward
             ns_set = set.union(*(f.ns_info for f in ns_elems))
             res.extend(self.get_ns_fw_rules_grouped_by_common_elem(src_first, ns_set, fixed_elem))
 
-        if len(pod_and_pod_labels_elems) > 0:
+        if pod_and_pod_labels_elems:
             # grouping of pod and pod-labels elements
             # TODO: currently adding this due to example in test24, where single pod-labels elem is replaced by another grouping
             if len(pod_and_pod_labels_elems) == 1 and isinstance(pod_and_pod_labels_elems[0], PodLabelsElement):
@@ -488,13 +486,13 @@ class MinimizeCsFwRules:
                 # extra_pods_list_common is a set of pods that are paired with all pods in fixed_elem_pods within
                 # covered_peer_pairs_union
                 extra_pods_list_common = set()
-                if len(extra_pods_list) > 0:
+                if extra_pods_list:
                     extra_pods_list_common = set.intersection(*extra_pods_list)
 
                 res.extend(self._get_pod_level_fw_rules_grouped_by_common_labels(src_first, set_for_grouping_pods,
                                                                                  fixed_elem, extra_pods_list_common))
 
-        if len(ip_block_elems) > 0:
+        if ip_block_elems:
             # currently no grouping for ip blocks
             for elem in ip_block_elems:
                 if src_first:
@@ -525,18 +523,18 @@ class MinimizeCsFwRules:
         :return: a list of minimized fw-rules after merge process
         """
         initial_fw_rules = fw_rules.copy()
-        if len(initial_fw_rules) == 0:
+        if not initial_fw_rules:
             return [], 0
         fw_rules_after_merge = []
         count_fw_rules = dict()  # map number of fw-rules per iteration number
-        max_iter = self.output_config['fwRulesMaxIter']
+        max_iter = self.output_config.fwRulesMaxIter
         convergence_iteration = max_iter
         for i in range(0, max_iter):
             count_fw_rules[i] = len(initial_fw_rules)
             if i > 1 and count_fw_rules[i] == count_fw_rules[i - 1]:
                 convergence_iteration = i
                 break
-            if i > 1 and self.output_config['fwRulesRunInTestMode']:
+            if i > 1 and self.output_config.fwRulesRunInTestMode:
                 assert count_fw_rules[i - 1] > count_fw_rules[i], "Expecting fewer fw_rules after each merge iteration."
             # change the grouping target (src/dst) on each iteration
             src_first = (i % 2 == 0) if is_src_first else (i % 2 == 1)
@@ -552,7 +550,7 @@ class MinimizeCsFwRules:
             # prepare for next iteration
             initial_fw_rules = fw_rules_after_merge
             fw_rules_after_merge = []
-            if self.output_config['fwRulesDebug']:
+            if self.output_config.fwRulesDebug:
                 print('fw rules after iteration: ' + str(i))
                 self._print_firewall_rules(initial_fw_rules)
 
@@ -678,7 +676,7 @@ class MinimizeFWRules:
     This is a class for minimizing and handling fw-rules globally for all connection sets
     """
 
-    def __init__(self, fw_rules_map, query_name, cluster_info, output_config, results_map):
+    def __init__(self, fw_rules_map, cluster_info, output_config, results_map):
         """
         create n object of MinimizeFWRules
         :param fw_rules_map: a map from ConnectionSet to list[FWRule] - the list of minimized fw-rules per connection
@@ -688,7 +686,7 @@ class MinimizeFWRules:
         :param results_map: (temp, for debugging) a map from connection to results info
         """
         self.fw_rules_map = fw_rules_map
-        self.query_name = query_name
+        #self.query_name = query_name
         self.cluster_info = cluster_info
         self.output_config = output_config
         self.results_map = results_map
@@ -699,22 +697,25 @@ class MinimizeFWRules:
         :return: a string representing the computed minimized fw-rules (in txt or yaml format)
         """
         res = ''
-        format = self.output_config['outputFormat']
-        if format == 'txt':
+        query_name = self.output_config.queryName
+        if self.output_config.configName:
+            query_name += ', config: ' + self.output_config.configName
+        output_format = self.output_config.outputFormat
+        if output_format == 'txt':
             output_rules = sorted(list(self._get_rules_str_values()))
             res = ''.join(line for line in output_rules)
             if add_txt_header:
-                res = f'final fw rules for query: {self.query_name}:\n' + res
-        elif format == 'yaml':
+                res = f'final fw rules for query: {query_name}:\n' + res
+        elif output_format == 'yaml':
             actual_content = self._get_all_rules_yaml_obj()
-            yaml_query_content = [{'query': self.query_name, 'rules': actual_content}]
+            yaml_query_content = [{'query': query_name, 'rules': actual_content}]
             # res = yaml.dump_all(yaml_query_content)
             f = io.StringIO()
             yaml.dump(yaml_query_content, f, default_flow_style=False, sort_keys=False)
             res = f.getvalue()
         else:
             print(f'error: unexpected outputFormat in output configuration value [should be txt or yaml],  '
-                  f'value is: {format}')
+                  f'value is: {output_format}')
         return res
 
     def _get_rules_str_values(self):
@@ -726,7 +727,7 @@ class MinimizeFWRules:
         for connection in all_connections:
             connection_rules = self.fw_rules_map[connection]
             for rule in connection_rules:
-                if self.output_config['fwRulesFilterSystemNs'] and rule.should_rule_be_filtered_out():
+                if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
                 rule_str = rule.get_rule_str(self.cluster_info.is_k8s_config) + '\n' # str(rule) + '\n'
                 res.append(rule_str)
@@ -742,7 +743,7 @@ class MinimizeFWRules:
         for connection in all_connections:
             connection_rules = sorted(self.fw_rules_map[connection])
             for rule in connection_rules:
-                if self.output_config['fwRulesFilterSystemNs'] and rule.should_rule_be_filtered_out():
+                if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
                 rule_obj = rule.get_rule_yaml_obj(self.cluster_info.is_k8s_config)
                 rules.append(rule_obj)

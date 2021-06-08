@@ -439,7 +439,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     Print the connectivity graph in the form of firewall rules
     """
 
-    def exec(self, query_name=''):
+    def exec(self):
         peers_to_compare = self.config.peer_container.get_all_peers_group()
         ref_ip_blocks = self.config.get_referenced_ip_blocks()
         peers_to_compare |= ref_ip_blocks
@@ -453,7 +453,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         is_k8s_config = self.config.type == NetworkConfig.ConfigType.K8s
 
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, query_name, is_k8s_config)
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, is_k8s_config)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if peer1 == peer2:
@@ -589,24 +589,6 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
     Produces a report of changed connections (also for the case of two configurations of different network topologies)
     """
 
-    @staticmethod
-    def conn_graph_has_fw_rules(conn_graph):
-        """
-        :param conn_graph: a ConnectivityGraph object (with added/removed connections)
-        :return: bool flag indicating if the given conn_graph has fw_rules (and not considered empty)
-        """
-        if conn_graph is None:
-            return False
-        if len(conn_graph.connections_to_peers.items()) == 0:
-            return False
-        if len((conn_graph.connections_to_peers.items())) == 1:
-            conn = list(conn_graph.connections_to_peers.keys())[0]
-            # if (src,dst) has a new connection, should not consider (src,dst) with "no connections" as removed
-            # connections. also we currently do not create fw-rules for "no connections"
-            if not conn:  # conn is "no connections":
-                return False
-        return True
-
     def get_explanation_from_conn_graph(self, is_added, conn_graph):
         """
         :param is_added: a bool flag indicating if connections are added or removed
@@ -617,7 +599,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         line_header_txt = 'Added' if is_added else 'Removed'
         fw_rules = conn_graph.get_minimized_firewall_rules()
         fw_rules_output = fw_rules.get_fw_rules_in_required_format(False)
-        if self.output_config['outputFormat'] == 'txt':
+        if self.output_config.outputFormat == 'txt':
             explanation = f'{line_header_txt} connections (based on topology from config: {topology_config_name}) :\n{fw_rules_output}\n'
         else:
             explanation = fw_rules_output
@@ -638,10 +620,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         for key in keys_list:
             conn_graph_added_conns = conn_graph_added_per_key[key]
             conn_graph_removed_conns = conn_graph_removed_per_key[key]
-            is_added = self.conn_graph_has_fw_rules(conn_graph_added_conns)
-            is_removed = self.conn_graph_has_fw_rules(conn_graph_removed_conns)
+            is_added = conn_graph_added_conns is not None and conn_graph_added_conns.conn_graph_has_fw_rules()
+            is_removed = conn_graph_removed_conns is not None and conn_graph_removed_conns.conn_graph_has_fw_rules()
 
-            if (is_added or is_removed) and self.output_config['outputFormat'] == 'txt':
+            if (is_added or is_removed) and self.output_config.outputFormat == 'txt':
                 explanation += f'{key}:\n'
 
             if is_added:
@@ -668,8 +650,9 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         topology_peers = new_peers | ip_blocks if is_added else old_peers | ip_blocks
         query_name_prefix = 'semantic_diff, config1: ' + self.config1.name + ', config2: ' + self.config2.name + ', key: ' + key
         query_name = query_name_prefix + ' (added)' if is_added else query_name_prefix + ' (removed)'
+        output_config = OutputConfiguration(self.output_config, query_name)
         is_k8s_config = self.config1.type == NetworkConfig.ConfigType.K8s
-        return ConnectivityGraph(topology_peers, allowed_labels, self.output_config, query_name, is_k8s_config)
+        return ConnectivityGraph(topology_peers, allowed_labels, output_config, is_k8s_config)
 
     def compute_diff(self):
         """

@@ -247,7 +247,7 @@ class SchemeRunner(GenericYamlParser):
                 full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2),
                                                 output_configuration).exec()
                 # print(full_result.output_result)
-                if output_configuration['outputFormat'] == 'txt':
+                if output_configuration.outputFormat == 'txt':
                     query_output += full_result.output_result
                 res += full_result.numerical_result
                 if not full_result.bool_result:
@@ -465,11 +465,9 @@ class SchemeRunner(GenericYamlParser):
     def _run_connectivity_map(self, configs_array, output_configuration):
         query_output = ''
         for config in configs_array:
-            query_name_with_config = output_configuration.queryName + ', config: ' + config
-            full_result = ConnectivityMapQuery(self._get_config(config), output_configuration).exec(
-                query_name_with_config)
+            output_configuration.configName = config
+            full_result = ConnectivityMapQuery(self._get_config(config), output_configuration).exec()
             query_output += full_result.output_explanation
-            #query_output += full_result.output_result
         # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output, True)

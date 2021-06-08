@@ -26,6 +26,7 @@ class ClusterInfo:
         self.allowed_labels = allowed_labels
         self.ns_dict = defaultdict(set)  # map from ns to set of pods
         self.pods_labels_map = defaultdict(set)  # map from (label,value) pairs to set of pods
+        self.valid_label_values_per_ns = defaultdict(set)  # map from (label_key,ns) to set of all valid values
         self.is_k8s_config = is_k8s_config
 
         all_pods = set()
@@ -34,8 +35,9 @@ class ClusterInfo:
                 continue
             all_pods.add(peer)
             self.ns_dict[peer.namespace].add(peer)
-            for pod_labels in peer.labels.items():
-                self.pods_labels_map[pod_labels].add(peer)
+            for (k, v) in peer.labels.items():
+                self.pods_labels_map[(k, v)].add(peer)
+                self.valid_label_values_per_ns[(k, peer.namespace)].add(v)
 
         # update pods_labels_map with (key,"NO_LABEL_VALUE") for any key in allowed_labels
         self.add_update_pods_labels_map_with_invalid_val(all_pods)
@@ -111,9 +113,7 @@ class ClusterInfo:
         :param ns: a namespace of type K8sNamespace
         :return:  A set of values, of type set(string)
         """
-        all_values = self.get_values_set_for_key(key) - {ClusterInfo.invalid_val}
-        all_values_per_ns = set(v for v in all_values if ns in set(pod.namespace for pod in self.pods_labels_map[(key,v)] ))
-        return all_values_per_ns
+        return self.valid_label_values_per_ns[(key, ns)]
 
     def _get_allowed_labels_flattened(self):
         """
@@ -128,4 +128,3 @@ class ClusterInfo:
             else:
                 res.add(key)
         return res
-

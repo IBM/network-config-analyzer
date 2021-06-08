@@ -11,7 +11,7 @@ class ConnectivityGraph:
     the labels on the edges are the allowed connections between two peers.
     """
 
-    def __init__(self, all_peers, allowed_labels, output_config, query_name, is_k8s_config):
+    def __init__(self, all_peers, allowed_labels, output_config, is_k8s_config):
         """
         Create a ConnectivityGraph object
         :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
@@ -23,7 +23,6 @@ class ConnectivityGraph:
         self.connections_to_peers = defaultdict(list)
         self.output_config = output_config
         self.cluster_info = ClusterInfo(all_peers, allowed_labels, is_k8s_config)
-        self.query_name = query_name
         self.allowed_labels = allowed_labels
 
     def add_edge(self, source_peer, dest_peer, connections):
@@ -48,7 +47,7 @@ class ConnectivityGraph:
 
         connections_sorted_by_size = self._merge_ip_blocks(connections_sorted_by_size)
 
-        if self.output_config['fwRulesRunInTestMode']:
+        if self.output_config.fwRulesRunInTestMode:
             # print the original connectivity graph
             for connections, peer_pairs in connections_sorted_by_size:
                 for src_peer, dst_peer in peer_pairs:
@@ -80,7 +79,7 @@ class ConnectivityGraph:
             fw_rules_map[connections] = minimize_cs.minimized_fw_rules
             results_map[connections] = minimize_cs.results_info_per_option
 
-        minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.query_name, self.cluster_info, self.output_config,
+        minimize_fw_rules = MinimizeFWRules(fw_rules_map,  self.cluster_info, self.output_config,
                                             results_map)
         return minimize_fw_rules
 
@@ -143,3 +142,16 @@ class ConnectivityGraph:
             connections_sorted_by_size_new.append((connections, merged_peer_pairs))
 
         return connections_sorted_by_size_new
+
+    def conn_graph_has_fw_rules(self):
+        """
+        :return: bool flag indicating if the given conn_graph has fw_rules (and not considered empty)
+        """
+        if not self.connections_to_peers:
+            return False
+        if len((self.connections_to_peers.items())) == 1:
+            conn = list(self.connections_to_peers.keys())[0]
+            # we currently do not create fw-rules for "no connections"
+            if not conn:  # conn is "no connections":
+                return False
+        return True
