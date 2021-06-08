@@ -17,7 +17,6 @@ class ConnectivityGraph:
         :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
         :param allowed_labels: the set of allowed labels to be used in generated fw-rules, extracted from policy yamls
         :param output_config: OutputConfiguration object
-        :param query_name: name of the query (str)
         """
         # connections_to_peers holds the connectivity graph
         self.connections_to_peers = defaultdict(list)
@@ -65,6 +64,7 @@ class ConnectivityGraph:
         cs_containment_map = self._build_connections_containment_map(connections_sorted_by_size)
         fw_rules_map = defaultdict(list)
         results_map = dict()
+        minimize_cs = MinimizeCsFwRules(self.cluster_info, self.allowed_labels, self.output_config)
         # build fw_rules_map: per connection - a set of its minimized fw rules
         for connections, peer_pairs in connections_sorted_by_size:
             # currently skip "no connections"
@@ -73,13 +73,13 @@ class ConnectivityGraph:
             # TODO: figure out why we have pairs with (ip,ip) ?
             peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
             peer_pairs_in_containing_connections = cs_containment_map[connections]
-            minimize_cs = MinimizeCsFwRules(peer_pairs_filtered, connections,
-                                            peer_pairs_in_containing_connections, self.cluster_info,
-                                            self.allowed_labels, self.output_config)
-            fw_rules_map[connections] = minimize_cs.minimized_fw_rules
-            results_map[connections] = minimize_cs.results_info_per_option
+            fw_rules, results_per_info = minimize_cs.compute_minimized_fw_rules_per_connection(connections,
+                                                                                               peer_pairs_filtered,
+                                                                                               peer_pairs_in_containing_connections)
+            fw_rules_map[connections] = fw_rules
+            results_map[connections] = results_per_info
 
-        minimize_fw_rules = MinimizeFWRules(fw_rules_map,  self.cluster_info, self.output_config,
+        minimize_fw_rules = MinimizeFWRules(fw_rules_map, self.cluster_info, self.output_config,
                                             results_map)
         return minimize_fw_rules
 

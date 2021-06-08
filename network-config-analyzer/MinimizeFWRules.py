@@ -1,35 +1,33 @@
-import io
 import yaml
+
+from ConnectionSet import ConnectionSet
 from K8sNamespace import K8sNamespace
 from FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
 from Peer import IpBlock, ClusterEP
 
 
-# TODO: rename file or split to two files..
 class MinimizeCsFwRules:
     """
     This is a class for minimizing fw-rules within a specific connection-set
     """
 
-    def __init__(self, peer_pairs, connections, peer_pairs_in_containing_connections, cluster_info, allowed_labels,
-                 output_config):
+    def __init__(self, cluster_info, allowed_labels, output_config):
         """
         create an object of MinimizeCsFwRules
-        :param peer_pairs: (set) pairs of peers (src,dst) for which communication is allowed over the given connections
-        :param connections: the allowed connections for the given peer pairs, of type ConnectionSet
-        :param peer_pairs_in_containing_connections: (set) pairs of peers in connections that contain the current connection set
         :param cluster_info:  an object of type ClusterInfo, with relevant cluster topology info
         :param allowed_labels: a set of label keys (set[str]) that appear in one of the policy yaml files.
                           using this set to determine which label can be used for grouping pods in fw-rules computation
         :param output_config: an OutputConfiguration object
+
         """
-        self.peer_pairs = peer_pairs
-        self.connections = connections
-        self.peer_pairs_in_containing_connections = peer_pairs_in_containing_connections
+
         self.cluster_info = cluster_info
         self.allowed_labels = allowed_labels
         self.output_config = output_config
 
+        self.peer_pairs = set()
+        self.connections = ConnectionSet()
+        self.peer_pairs_in_containing_connections = set()
         self.ns_pairs = set()
         self.peer_pairs_with_partial_ns_expr = set()
         self.peer_pairs_without_ns_expr = set()
@@ -37,11 +35,42 @@ class MinimizeCsFwRules:
         self.results_info_per_option = dict()
         self.minimized_fw_rules = []  # holds the computation result of minimized fw-rules
 
-        # create the fw rules per given connection and its peer_pairs
+    def compute_minimized_fw_rules_per_connection(self, connections, peer_pairs, peer_pairs_in_containing_connections):
+        """
+        The main function for creating the minimized set of fw-rules for a given connection set
+
+        :param connections: the allowed connections for the given peer pairs, of type ConnectionSet
+        :param peer_pairs: (set) pairs of peers (src,dst) for which communication is allowed over the given connections
+        :param peer_pairs_in_containing_connections: (set) pairs of peers in connections that contain the current
+               connection set
+
+        class members used in computation of fw-rules:
+        self.ns_pairs : pairs of namespaces, grouped from peer_pairs and peer_pairs_in_containing_connections
+        self.peer_pairs_with_partial_ns_expr: pairs of (pod,ns) or (ns,pod), with ns-grouping for one dimension
+        self.peer_pairs_without_ns_expr: pairs of pods, with no possible ns-grouping
+        self.covered_peer_pairs_union: union (set) of all peer pairs for which communication is allowed in current
+                                      connection-set (but not necessarily only limited to current connection set)
+
+        :return:
+        minimized_fw_rules: a list of fw-rules (of type list[FWRule])
+        (results_info_per_option: for debugging, dict with some info about the computation)
+        """
+        self.peer_pairs = peer_pairs
+        self.connections = connections
+        self.peer_pairs_in_containing_connections = peer_pairs_in_containing_connections
+        self.ns_pairs = set()
+        self.peer_pairs_with_partial_ns_expr = set()
+        self.peer_pairs_without_ns_expr = set()
+        self.covered_peer_pairs_union = set()
+        self.results_info_per_option = dict()
+        self.minimized_fw_rules = []  # holds the computation result of minimized fw-rules
+
         self._create_fw_rules()
         if self.output_config.fwRulesRunInTestMode:
             self._print_firewall_rules(self.minimized_fw_rules)
             self._print_results_info()
+
+        return self.minimized_fw_rules, self.results_info_per_option
 
     def _create_fw_rules(self):
         """
@@ -57,10 +86,7 @@ class MinimizeCsFwRules:
     def _compute_basic_namespace_grouping(self):
         """
         computation of peer_pairs with possible grouping by namespaces.
-        Results are at:
-        self.ns_pairs : pairs of namespaces, grouped from peer_pairs and peer_pairs_in_containing_connections
-        self.peer_pairs_with_partial_ns_expr: pairs of (pod,ns) or (ns,pod), with ns-grouping for one dimension
-        self.peer_pairs_without_ns_expr: pairs of pods, with no possible ns-grouping
+        Results are at: ns_pairs, peer_pairs_with_partial_ns_expr, peer_pairs_without_ns_expr
         :return: None
         """
         self._compute_covered_peer_pairs_union()
@@ -93,8 +119,8 @@ class MinimizeCsFwRules:
         """
         covered_peer_pairs_union = self.peer_pairs | self.peer_pairs_in_containing_connections
 
-        all_pods_set = set(src for (src, dst) in self.peer_pairs if isinstance(src, ClusterEP)) | set(
-            dst for (src, dst) in self.peer_pairs if isinstance(dst, ClusterEP))
+        all_pods_set = set(src for (src, dst) in self.peer_pairs if isinstance(src, ClusterEP)) | \
+                       set(dst for (src, dst) in self.peer_pairs if isinstance(dst, ClusterEP))
         for pod in all_pods_set:
             covered_peer_pairs_union |= {(pod, pod)}
         self.covered_peer_pairs_union = covered_peer_pairs_union
@@ -157,11 +183,6 @@ class MinimizeCsFwRules:
             if peer_pairs_product.issubset(self.covered_peer_pairs_union):
                 covered_ns_set |= {ns}
                 peer_pairs_product_union |= peer_pairs_product
-            # else:
-            #    print('get_ns_covered_in_one_dimension could not group by ns following:')
-            #    print('pod: ' + str(fixed_elem) + ' ns: ' + str(ns))
-            #    missing_pods = [pod for pod in peer_pairs_product if pod not in self.covered_peer_pairs_union  ]
-            #    print('missing pairs: ' + ','.join(str(pod) for pod in  missing_pods))
         return covered_ns_set, peer_pairs_product_union
 
     def _compute_ns_pairs_with_partial_ns_expr(self, is_src_ns):
@@ -173,8 +194,8 @@ class MinimizeCsFwRules:
         """
         # pod_set is the set of pods in pairs of peer_pairs_without_ns_expr, within elem type (src/dst) which is not
         # in the grouping computation
-        pod_set = set(src for (src, _) in self.peer_pairs_without_ns_expr) if not is_src_ns else set(
-            dst for (_, dst) in self.peer_pairs_without_ns_expr)
+        pod_set = set(src for (src, _) in self.peer_pairs_without_ns_expr) if not is_src_ns else \
+            set(dst for (_, dst) in self.peer_pairs_without_ns_expr)
         # loop on fixed elements (not in the grouping computation)
         for pod in pod_set:
             covered_ns_set, peer_pairs_product_union = self._get_ns_covered_in_one_dimension(not is_src_ns, pod)
@@ -308,7 +329,8 @@ class MinimizeCsFwRules:
         chosen_rep, remaining_pods = self._get_pods_grouping_by_labels_main(pods_set, extra_pods_set)
         for (key, values, ns_info) in chosen_rep:
             if self.output_config.fwRulesGeneralizeLabelExpr:
-                all_labels_values_per_ns = [self.cluster_info.get_valid_values_set_for_key_per_namespace(key, ns) for ns in ns_info]
+                all_labels_values_per_ns = [self.cluster_info.get_valid_values_set_for_key_per_namespace(key, ns) for ns
+                                            in ns_info]
                 all_labels_values_per_ns_info = set.union(*all_labels_values_per_ns)
                 pod_label_expr = LabelExpr(key, set(values), all_labels_values_per_ns_info)
             else:
@@ -499,19 +521,6 @@ class MinimizeCsFwRules:
                     res.append(FWRule(fixed_elem, elem, self.connections))
                 else:
                     res.append(FWRule(elem, fixed_elem, self.connections))
-            '''
-            ip_block_union = ip_block_elems[0].element.copy()
-            # merged_ip_block = ip_block_elems[0]
-            for ip in ip_block_elems:
-                ip_block_union |= ip.element
-            ip_intervals_list = ip_block_union.split()
-            for ip in ip_intervals_list:
-                elem = IPBlockElement(ip)
-                if src_first:
-                    res.append(FWRule(fixed_elem, elem, self.connections))
-                else:
-                    res.append(FWRule(elem, fixed_elem, self.connections))
-            '''
 
         return res
 
@@ -680,13 +689,11 @@ class MinimizeFWRules:
         """
         create n object of MinimizeFWRules
         :param fw_rules_map: a map from ConnectionSet to list[FWRule] - the list of minimized fw-rules per connection
-        :param query_name: a string of the query name for which fw-rules are computed
         :param cluster_info: an object of type ClusterInfo
         :param output_config: an object of type OutputConiguration
         :param results_map: (temp, for debugging) a map from connection to results info
         """
         self.fw_rules_map = fw_rules_map
-        #self.query_name = query_name
         self.cluster_info = cluster_info
         self.output_config = output_config
         self.results_map = results_map
@@ -709,10 +716,7 @@ class MinimizeFWRules:
         elif output_format == 'yaml':
             actual_content = self._get_all_rules_yaml_obj()
             yaml_query_content = [{'query': query_name, 'rules': actual_content}]
-            # res = yaml.dump_all(yaml_query_content)
-            f = io.StringIO()
-            yaml.dump(yaml_query_content, f, default_flow_style=False, sort_keys=False)
-            res = f.getvalue()
+            res = yaml.dump(yaml_query_content, None, default_flow_style=False, sort_keys=False)
         else:
             print(f'error: unexpected outputFormat in output configuration value [should be txt or yaml],  '
                   f'value is: {output_format}')
@@ -729,7 +733,7 @@ class MinimizeFWRules:
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                rule_str = rule.get_rule_str(self.cluster_info.is_k8s_config) + '\n' # str(rule) + '\n'
+                rule_str = rule.get_rule_str(self.cluster_info.is_k8s_config) + '\n'
                 res.append(rule_str)
         # several rules can be mapped to the same str, since pods are mapped to owner name (example: semantic_diff_named_ports)
         return set(res)

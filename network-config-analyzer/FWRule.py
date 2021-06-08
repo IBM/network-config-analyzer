@@ -435,8 +435,3 @@ class FWRule:
                         'dst_ip_block': dst_ip_block_list,
                         'connection': conn_list}
         return rule_obj
-
-    '''
-    def is_rule_trivial(self):
-       return isinstance(self.src, PodElement) and isinstance(self.dst, PodElement) and self.src == self.dst
-    '''
