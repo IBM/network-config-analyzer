@@ -4,6 +4,7 @@
 #
 
 from os import path
+import copy
 from ruamel.yaml import YAML
 
 from OutputConfiguration import OutputConfiguration
@@ -12,7 +13,8 @@ from GenericYamlParser import GenericYamlParser
 from NetworkConfig import NetworkConfig
 from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEquivalenceQuery, SemanticDiffQuery, \
     SanityQuery, ContainmentQuery, RedundancyQuery, InterferesQuery, EmptinessQuery, VacuityQuery, DisjointnessQuery, \
-    IntersectsQuery, TwoWayContainmentQuery, AllCapturedQuery, ConnectivityMapQuery
+    IntersectsQuery, TwoWayContainmentQuery, PermitsQuery, AllCapturedQuery, ConnectivityMapQuery
+
 
 
 class SchemeRunner(GenericYamlParser):
@@ -79,7 +81,8 @@ class SchemeRunner(GenericYamlParser):
                 pod_list = self._get_input_file(self.scheme.get('podList', 'k8s'))
             peer_container = PeerContainer(ns_list, pod_list, config_name)
         else:
-            peer_container = peer_container_global
+            # deepcopy is required since NetworkConfig's constructor may change peer_container
+            peer_container = copy.deepcopy(peer_container_global)
 
         entry_list = config_entry['networkPolicyList']
         for idx, entry in enumerate(entry_list):
@@ -429,16 +432,18 @@ class SchemeRunner(GenericYamlParser):
         full_result = QueryAnswer()
         base_config = self._get_config(configs_array[0])
         for config in configs_array[1:]:
-            full_result = ContainmentQuery(self._get_config(config), base_config, output_configuration).exec(True)
+            full_result = PermitsQuery(self._get_config(config), base_config).exec()
             if not full_result.bool_result:
-                res += 1
-                query_output += configs_array[0] + ' does not permit connections specified in ' + config + ':\n'
-                query_output += full_result.output_explanation + '\n'
+                if not full_result.output_explanation:
+                    query_output += full_result.output_result
+                else:
+                    res += 1
+                    query_output += (configs_array[0] + ' does not permit connections specified in ' + config + ':')
+                    query_output += full_result.output_explanation + '\n'
             else:
-                query_output += configs_array[0] + ' permits all connections specified in ' + config
+                query_output +=  configs_array[0] + ' permits all connections specified in ' + config
 
-        if full_result.bool_result:
-            query_output += '\n'
+        query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
 
