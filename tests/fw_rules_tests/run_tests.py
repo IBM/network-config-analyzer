@@ -5,9 +5,12 @@ from os import path
 from time import time
 import argparse
 import yaml
-
-from nca import nca_main
 from pathlib import Path
+
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..'))
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
+from nca import nca_main
 
 
 def compare_files(output_filename, golden_filename):
@@ -79,7 +82,7 @@ def run_new_output_test(scheme_filename, args, all_results, file_type):
     print('Running testcase', scheme_filename)
     start_time = time()
 
-    res = nca_main(args)
+    nca_main(args)
 
     test_failure_list = []
     if file_type == 'yaml':
