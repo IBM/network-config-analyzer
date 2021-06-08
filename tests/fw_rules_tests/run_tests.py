@@ -3,7 +3,7 @@ import os
 from fnmatch import fnmatch
 from os import path
 from time import time
-
+import argparse
 import yaml
 
 from nca import nca_main
@@ -53,8 +53,6 @@ def update_test_mode_at_scheme_file(scheme_filename, add_test_mode):
         yaml.dump(scheme, scheme_file, default_flow_style=False, sort_keys=False)
 
 
-
-
 def run_simple_test(scheme_filename, args, all_results, test_mode_flag):
     if test_mode_flag:
         update_test_mode_at_scheme_file(scheme_filename, True)
@@ -87,7 +85,6 @@ def run_new_output_test(scheme_filename, args, all_results, file_type):
     if file_type == 'yaml':
         actual_output_file_path = get_output_path(scheme_filename, True, 'yaml')
         expected_output_file_path = get_output_path(scheme_filename, False, 'yaml')
-        # yaml_comparison = compare_yaml_output_files(actual_output_file_path, expected_output_file_path)
         yaml_comparison = compare_files(actual_output_file_path, expected_output_file_path)
         if not yaml_comparison:
             test_failure_list.append('yaml')
@@ -177,44 +174,49 @@ def get_test_args(scheme_filename, output_format=None, output_path=None):
     return res
 
 
-def main():
+def main(argv=None):
     base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
     global_res = 0
     all_results = {}
     print(base_dir)
 
-    test_prefix = input("Enter test name prefix (empty for all tests):")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--all", default=False, action="store_true",
+                        help="Run all fw-rules tests with output comparison")
+    args = parser.parse_args(argv)
 
-    if len(test_prefix) == 0:
+    if args.all:
         run_all_tests = True
-    else:
-        run_all_tests = False
-
-    output_comparison = input("run with output comparison?  (y or n):")
-    if output_comparison == 'y':
         compare_output = True
+        test_mode_flag = False
+        test_prefix = ''
     else:
-        compare_output = False
+        test_prefix = input("Enter test name prefix (empty for all tests):")
+        if not test_prefix:
+            run_all_tests = True
+        else:
+            run_all_tests = False
+        output_comparison = input("run with output comparison?  (y or n):")
+        if output_comparison == 'y':
+            compare_output = True
+        else:
+            compare_output = False
+        test_mode_flag = False
+        if not compare_output:
+            test_mode = input("run with test-mode flag?  (y or n):")
+            test_mode_flag = (test_mode == 'y')
 
-    test_mode_flag = False
-    if not compare_output:
-        test_mode = input("run with test-mode flag?  (y or n):")
-        test_mode_flag = (test_mode == 'y')
-
-    my_files = []
+    fw_rules_scheme_files = []
 
     for root, _, files in os.walk(base_dir):
         for file in files:
             if not fnmatch(file, '*_scheme.yaml'):
                 continue
             scheme_filename = os.path.join(root, file)
-            # print(scheme_filename)
             if run_all_tests or file.startswith(test_prefix):
-                my_files.append(scheme_filename)
+                fw_rules_scheme_files.append(scheme_filename)
 
-    for scheme_filename in my_files:
-        # print(scheme_filename)
-        # print(os.path.basename(scheme_filename).replace(".yaml", ""))
+    for scheme_filename in fw_rules_scheme_files:
         if compare_output:
             prepare_new_test_if_required(scheme_filename)
             txt_output_path = get_output_path(scheme_filename, True, 'txt')

@@ -37,3 +37,4 @@ jobs:
           GHE_TOKEN: ${{ github.token }}
         run: |
           python tests/run_all_tests.py
+          python tests/fw_rules_tests/run_tests.py --all
