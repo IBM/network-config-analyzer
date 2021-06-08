@@ -1,5 +1,6 @@
 import yaml
 
+from ClusterInfo import ClusterInfo
 from ConnectionSet import ConnectionSet
 from K8sNamespace import K8sNamespace
 from FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
@@ -234,12 +235,12 @@ class MinimizeCsFwRules:
     def _get_pods_grouping_by_labels_main(self, pods_set, extra_pods_set):
         """
         The main function to implement pods grouping by labels.
-        This function splits the pods into namespaces, anc per ns calls  get_pods_grouping_by_labels().
+        This function splits the pods into namespaces, and per ns calls  get_pods_grouping_by_labels().
         :param pods_set: the pods for grouping
         :param extra_pods_set: additional pods that can be used for grouping
         :return:
         res_chosen_rep: a list of tuples (key,values,ns) -- as the chosen representation for grouping the pods.
-        res_remaining_pods: set of pods from pods_list that are not included in the grouping result (could not be grouped).
+        res_remaining_pods: set of pods from pods_set that are not included in the grouping result (could not be grouped).
         """
         ns_context_options = set(pod.namespace for pod in pods_set)
         res_chosen_rep = []
@@ -269,15 +270,16 @@ class MinimizeCsFwRules:
             print('extra_pods_list: ' + ','.join([str(pod) for pod in extra_pods_set]))
         all_pods_set = pods_set | extra_pods_set
         allowed_labels = self.cluster_info.allowed_labels
+        pods_per_ns = self.cluster_info.ns_dict[ns]
         # labels_rep_options is a list of tuples (key, (values, pods-set)), where each tuple in this list is a valid
         # grouping of pods-set by "key in values"
         labels_rep_options = []
         for key in allowed_labels:
-            values_for_key = self.cluster_info.get_values_set_for_key(key)
+            values_for_key = self.cluster_info.get_all_values_set_for_key_per_namespace(key, ns)
             fully_covered_label_values = set()
             pods_with_fully_covered_label_values = set()
             for v in values_for_key:
-                all_pods_per_label_val = self.cluster_info.pods_labels_map[(key, v)] & self.cluster_info.ns_dict[ns]
+                all_pods_per_label_val = self.cluster_info.pods_labels_map[(key, v)] & pods_per_ns
                 if not all_pods_per_label_val:
                     continue
                 pods_with_label_val_from_pods_list = all_pods_per_label_val & all_pods_set
@@ -329,10 +331,8 @@ class MinimizeCsFwRules:
         chosen_rep, remaining_pods = self._get_pods_grouping_by_labels_main(pods_set, extra_pods_set)
         for (key, values, ns_info) in chosen_rep:
             if self.output_config.fwRulesGeneralizeLabelExpr:
-                all_labels_values_per_ns = [self.cluster_info.get_valid_values_set_for_key_per_namespace(key, ns) for ns
-                                            in ns_info]
-                all_labels_values_per_ns_info = set.union(*all_labels_values_per_ns)
-                pod_label_expr = LabelExpr(key, set(values), all_labels_values_per_ns_info)
+                map_simple_keys_to_all_values = self.cluster_info.get_map_of_simple_keys_to_all_values(key, ns_info)
+                pod_label_expr = LabelExpr(key, set(values), map_simple_keys_to_all_values)
             else:
                 pod_label_expr = LabelExpr(key, set(values), None)
             grouped_elem = PodLabelsElement(pod_label_expr, ns_info)
@@ -353,45 +353,6 @@ class MinimizeCsFwRules:
             res.append(fw_rule)
         return res
 
-    @staticmethod
-    def _create_fw_elem(base_elem):
-        """
-        create a fw-rule-elem from base-elem
-        :param base_elem: of type ClusterEP/IpBlock/K8sNamespace
-        :return: fw-rule-elem of type:  PodElement/IPBlockElement/list[IPBlockElement]/FWRuleElement
-        """
-        if isinstance(base_elem, ClusterEP):
-            return PodElement(base_elem)
-        elif isinstance(base_elem, IpBlock):
-            ip_blocks_list = base_elem.split()
-            if len(ip_blocks_list) == 1:
-                return IPBlockElement(base_elem)
-            else:
-                return [IPBlockElement(ip) for ip in ip_blocks_list]
-        # a K8sNamespace instance
-        elif isinstance(base_elem, K8sNamespace):
-            return FWRuleElement({base_elem})
-        # unknown base-elem type
-        return None
-
-    def _create_initial_fw_rule(self, src, dst):
-        """
-        create fw-rules from single pair of base elements (src,dst)
-        :param src: a base-element  of type: Pod/K8sNamespace/ IpBlock
-        :param dst: a base-element  of type: Pod/K8sNamespace/IpBlock
-        :return: list with created fw-rules
-        :rtype list[FWRule]
-        """
-        src_elem = self._create_fw_elem(src)
-        dst_elem = self._create_fw_elem(dst)
-        if self.output_config.fwRulesRunInTestMode:
-            assert src_elem is not None and dst_elem is not None
-        if isinstance(src_elem, list):
-            return [FWRule(src, dst_elem, self.connections) for src in src_elem]
-        if isinstance(dst_elem, list):
-            return [FWRule(src_elem, dst, self.connections) for dst in dst_elem]
-        return [FWRule(src_elem, dst_elem, self.connections)]
-
     def _create_initial_fw_rules_from_base_elements_list(self, base_elems_pairs):
         """
         creating initial fw-rules from base elements
@@ -401,7 +362,7 @@ class MinimizeCsFwRules:
         """
         res = []
         for (src, dst) in base_elems_pairs:
-            res.extend(self._create_initial_fw_rule(src, dst))
+            res.extend(FWRule.create_fw_rules_from_base_elements(src, dst, self.connections))
         return res
 
     def _create_all_initial_fw_rules(self):
@@ -425,6 +386,9 @@ class MinimizeCsFwRules:
         """
         # create initial fw-rules from ns_pairs, peer_pairs_with_partial_ns_expr, peer_pairs_without_ns_expr
         initial_fw_rules = self._create_all_initial_fw_rules()
+        # TODO: consider a higher resolution decision between option1 and option2 (per src,dst pair rather than per
+        #  all ConnectionSet pairs)
+
         # option1 - start computation when src is fixed at first iteration, and merge applies to dst
         option1, convergence_iteration_1 = self._create_merged_rules_set(True, initial_fw_rules)
         # option2 - start computation when dst is fixed at first iteration, and merge applies to src
@@ -454,9 +418,9 @@ class MinimizeCsFwRules:
 
         # choose the option with less fw-rules
         if len(option1) < len(option2):
-            self.minimized_fw_rules.extend(option1)
+            self.minimized_fw_rules = option1
             return
-        self.minimized_fw_rules.extend(option2)
+        self.minimized_fw_rules = option2
 
     def _get_grouping_result(self, fixed_elem, set_for_grouping_elems, src_first):
         """
@@ -467,13 +431,11 @@ class MinimizeCsFwRules:
         :return: A list of fw-rules after possible grouping operations
         """
         res = []
-        fw_rule_elem_type = type(FWRuleElement([]))
         # partition set_for_grouping_elems into: (1) ns_elems, (2) pod_and_pod_labels_elems, (3) ip_block_elems
-        ns_elems = set(elem for elem in set_for_grouping_elems if type(elem) == fw_rule_elem_type)
-        pod_and_pod_labels_elems = [elem for elem in set_for_grouping_elems if
-                                    isinstance(elem, PodElement) or isinstance(elem, PodLabelsElement)]
-
-        ip_block_elems = [elem for elem in set_for_grouping_elems if isinstance(elem, IPBlockElement)]
+        pod_and_pod_labels_elems = set(elem for elem in set_for_grouping_elems if
+                                       isinstance(elem, (PodElement, PodLabelsElement)))
+        ip_block_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, IPBlockElement))
+        ns_elems = set_for_grouping_elems - (pod_and_pod_labels_elems | ip_block_elems)
 
         if ns_elems:
             # grouping of ns elements is straight-forward
@@ -483,8 +445,8 @@ class MinimizeCsFwRules:
         if pod_and_pod_labels_elems:
             # grouping of pod and pod-labels elements
             # TODO: currently adding this due to example in test24, where single pod-labels elem is replaced by another grouping
-            if len(pod_and_pod_labels_elems) == 1 and isinstance(pod_and_pod_labels_elems[0], PodLabelsElement):
-                elem = pod_and_pod_labels_elems[0]
+            if len(pod_and_pod_labels_elems) == 1 and isinstance(list(pod_and_pod_labels_elems)[0], PodLabelsElement):
+                elem = list(pod_and_pod_labels_elems)[0]
                 fw_rule = FWRule(fixed_elem, elem, self.connections) if src_first else FWRule(elem, fixed_elem,
                                                                                               self.connections)
                 res.append(fw_rule)
@@ -534,11 +496,11 @@ class MinimizeCsFwRules:
         initial_fw_rules = fw_rules.copy()
         if not initial_fw_rules:
             return [], 0
-        fw_rules_after_merge = []
         count_fw_rules = dict()  # map number of fw-rules per iteration number
         max_iter = self.output_config.fwRulesMaxIter
         convergence_iteration = max_iter
         for i in range(0, max_iter):
+            fw_rules_after_merge = []
             count_fw_rules[i] = len(initial_fw_rules)
             if i > 1 and count_fw_rules[i] == count_fw_rules[i - 1]:
                 convergence_iteration = i
@@ -558,7 +520,6 @@ class MinimizeCsFwRules:
                 fw_rules_after_merge.extend(res)
             # prepare for next iteration
             initial_fw_rules = fw_rules_after_merge
-            fw_rules_after_merge = []
             if self.output_config.fwRulesDebug:
                 print('fw rules after iteration: ' + str(i))
                 self._print_firewall_rules(initial_fw_rules)

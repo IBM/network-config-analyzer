@@ -26,7 +26,7 @@ class ClusterInfo:
         self.allowed_labels = allowed_labels
         self.ns_dict = defaultdict(set)  # map from ns to set of pods
         self.pods_labels_map = defaultdict(set)  # map from (label,value) pairs to set of pods
-        self.valid_label_values_per_ns = defaultdict(set)  # map from (label_key,ns) to set of all valid values
+        self.all_label_values_per_ns = defaultdict(set)  # map from (label_key,ns) to set of all valid values
         self.is_k8s_config = is_k8s_config
 
         all_pods = set()
@@ -37,7 +37,7 @@ class ClusterInfo:
             self.ns_dict[peer.namespace].add(peer)
             for (k, v) in peer.labels.items():
                 self.pods_labels_map[(k, v)].add(peer)
-                self.valid_label_values_per_ns[(k, peer.namespace)].add(v)
+                self.all_label_values_per_ns[(k, peer.namespace)].add(v)
 
         # update pods_labels_map with (key,"NO_LABEL_VALUE") for any key in allowed_labels
         self.add_update_pods_labels_map_with_invalid_val(all_pods)
@@ -69,10 +69,11 @@ class ClusterInfo:
             pods_without_key_set = all_pods - pod_sets_with_key_val_union
             # get the set of pods that do not have current label key, only for namespaces where at least one pod in
             # the ns has any value for current label key
-            pods_without_key_set_ns_restricted = [pod for pod in pods_without_key_set if
-                                                  pod.namespace in ns_context_options]
+            pods_without_key_set_ns_restricted = set(pod for pod in pods_without_key_set if
+                                                     pod.namespace in ns_context_options)
             # add the pair (key, invalid_val) for pods_labels_map with pods from pods_without_key_set_ns_restricted
-            self.pods_labels_map[(key, ClusterInfo.invalid_val)] = set(pods_without_key_set_ns_restricted)
+            self.pods_labels_map[(key, ClusterInfo.invalid_val)] = pods_without_key_set_ns_restricted
+            self._update_all_label_values_per_ns(key, ClusterInfo.invalid_val, pods_without_key_set_ns_restricted)
 
     def add_update_pods_labels_map_with_required_conjunction_labels(self):
         """
@@ -94,8 +95,26 @@ class ClusterInfo:
                     pod_sets_per_combined_value.append(set(self.pods_labels_map[(current_key, val_per_key)]))
                 final_pod_set = set.intersection(*pod_sets_per_combined_value)
                 # add to pods_labels_map the combined value for the 'and' label, when pods exist
-                if len(final_pod_set) > 0:
+                if final_pod_set:
                     self.pods_labels_map[(key, flattened_elem_value)] = final_pod_set
+                    self._update_all_label_values_per_ns(key, flattened_elem_value, final_pod_set)
+
+    def _update_all_label_values_per_ns(self, key, value, pods_set):
+        """
+        When updating pods_labels_map (with invalid value or with "combined labels"),
+        should also update all_label_values_per_ns:
+        Given an update to pods_labels_map with (key,value) mapped to pods_set,
+        we should add 'value' to the sets mapped to the pairs (key, ns) , for each possible ns
+        according to pods_set namespaces.
+        :param key:  a label key of type string
+        :param value:  a label value key of type string
+        :param pods_set: A set of pods, of type set(Pods)
+        :return: None
+        """
+        actual_ns_set_for_added_pair = set(pod.namespace for pod in pods_set)
+        for ns in actual_ns_set_for_added_pair:
+            self.all_label_values_per_ns[(key, ns)].add(value)
+        return
 
     def get_values_set_for_key(self, key):
         """
@@ -106,14 +125,14 @@ class ClusterInfo:
         values = set(v for (k, v) in self.pods_labels_map.keys() if k == key)
         return values
 
-    def get_valid_values_set_for_key_per_namespace(self, key, ns):
+    def get_all_values_set_for_key_per_namespace(self, key, ns):
         """
-        Get the set of all valid values per label key in the cluster for a specific namespace
+        Get the set of all possible values per label key in the cluster for a specific namespace
         :param key: a label key of type string
         :param ns: a namespace of type K8sNamespace
         :return:  A set of values, of type set(string)
         """
-        return self.valid_label_values_per_ns[(key, ns)]
+        return self.all_label_values_per_ns[(key, ns)]
 
     def _get_allowed_labels_flattened(self):
         """
@@ -128,3 +147,19 @@ class ClusterInfo:
             else:
                 res.add(key)
         return res
+
+    def get_map_of_simple_keys_to_all_values(self, key, ns_set):
+        """
+        Given a key (which can possibly be complex with ":") and a set of namespaces, compute a mapping
+        from each simple key in key to its set of all possible values only from namespaces in ns_set
+        :param key:  a label key of type string
+        :param ns_set: a set of namespaces of type set[K8sNamespace]
+        :return: map_simple_key_to_all_values of type dict
+        """
+        map_simple_keys_to_all_values = dict()
+        simple_keys_list = key.split(':')
+        for simple_key in simple_keys_list:
+            all_labels_values_per_ns = [self.get_all_values_set_for_key_per_namespace(simple_key, ns) for ns in ns_set]
+            all_labels_values_per_ns_set = set.union(*all_labels_values_per_ns)
+            map_simple_keys_to_all_values[simple_key] = all_labels_values_per_ns_set
+        return map_simple_keys_to_all_values

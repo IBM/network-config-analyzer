@@ -1,6 +1,7 @@
 import ipaddress
-
 from ClusterInfo import ClusterInfo
+from K8sNamespace import K8sNamespace
+from Peer import ClusterEP, IpBlock
 
 
 class LabelExpr:
@@ -9,16 +10,17 @@ class LabelExpr:
     e.g. key = K, values = {v1, v2} => the label expression is: "K in (v1,v2)"
     """
 
-    def __init__(self, key, values, all_valid_values):
+    def __init__(self, key, values, map_simple_keys_to_all_values):
         """
         Create a LabelExpr object
-        :param key: a label key of type string
+        :param key: a label key of type string (can be a "complex" key with ":")
         :param values: set of label values of type set[string]
-        :param all_valid_values: set of all valid values for this label key
+        :param map_simple_keys_to_all_values: dict that maps all simple keys from key to their
+               sets of all possible values
         """
         self.key = key
         self.values = values
-        self.all_valid_values = all_valid_values
+        self.map_simple_keys_to_all_values = map_simple_keys_to_all_values
 
     @staticmethod
     def get_invalid_value_expr_str(k):
@@ -61,8 +63,10 @@ class LabelExpr:
         if ClusterInfo.invalid_val in values:
             expr_str_list.append(self.get_invalid_value_expr_str(k))
         valid_values = values - {ClusterInfo.invalid_val}
+        all_valid_values = self.map_simple_keys_to_all_values[k] - \
+                           {ClusterInfo.invalid_val} if self.map_simple_keys_to_all_values is not None else None
         if valid_values:
-            if valid_values == self.all_valid_values:
+            if valid_values == all_valid_values:
                 expr_str_list.append(self.get_all_valid_values_expr_str(k))
             else:
                 expr_str_list.append(self.get_valid_values_expr_str(k, valid_values))
@@ -159,6 +163,22 @@ class FWRuleElement:
         for ns in self.ns_info:
             res |= cluster_info.ns_dict[ns]
         return res
+
+    @staticmethod
+    def create_fw_elements_from_base_element(base_elem):
+        """
+        create a list of fw-rule-elements from base-element
+        :param base_elem: of type ClusterEP/IpBlock/K8sNamespace
+        :return: list fw-rule-elements of type:  list[PodElement]/list[IPBlockElement]/list[FWRuleElement]
+        """
+        if isinstance(base_elem, ClusterEP):
+            return [PodElement(base_elem)]
+        elif isinstance(base_elem, IpBlock):
+            return [IPBlockElement(ip) for ip in base_elem.split()]
+        elif isinstance(base_elem, K8sNamespace):
+            return [FWRuleElement({base_elem})]
+        # unknown base-elem type
+        return None
 
 
 class PodElement(FWRuleElement):
@@ -435,3 +455,19 @@ class FWRule:
                         'dst_ip_block': dst_ip_block_list,
                         'connection': conn_list}
         return rule_obj
+
+    @staticmethod
+    def create_fw_rules_from_base_elements(src, dst, connections):
+        """
+        create fw-rules from single pair of base elements (src,dst) and a given connection set
+        :param connections: the allowed connections from src to dst, of type ConnectionSet
+        :param src: a base-element  of type: ClusterEP/K8sNamespace/ IpBlock
+        :param dst: a base-element  of type: ClusterEP/K8sNamespace/IpBlock
+        :return: list with created fw-rules
+        :rtype list[FWRule]
+        """
+        src_elem = FWRuleElement.create_fw_elements_from_base_element(src)
+        dst_elem = FWRuleElement.create_fw_elements_from_base_element(dst)
+        if src_elem is None or dst_elem is None:
+            return []
+        return [FWRule(src, dst, connections) for src in src_elem for dst in dst_elem]
