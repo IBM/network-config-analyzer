@@ -10,7 +10,7 @@ class LabelExpr:
     e.g. key = K, values = {v1, v2} => the label expression is: "K in (v1,v2)"
     """
 
-    def __init__(self, key, values, map_simple_keys_to_all_values):
+    def __init__(self, key, values, map_simple_keys_to_all_values, all_values):
         """
         Create a LabelExpr object
         :param key: a label key of type string (can be a "complex" key with ":")
@@ -21,22 +21,23 @@ class LabelExpr:
         self.key = key
         self.values = values
         self.map_simple_keys_to_all_values = map_simple_keys_to_all_values
+        self.all_values = all_values
 
     @staticmethod
     def get_invalid_value_expr_str(k):
         """
-       :param k:  a simple key label
-       :return: a string representing that a pod doesn't have this key label: !has(k)
-       """
-        return f'!has({k})'
+        :param k:  a key label
+        :return: a string representing that a pod doesn't have this key label: !has(k)
+        """
+        return ' and '.join(f'!has({key})' for key in sorted(k.split(':')))
 
     @staticmethod
     def get_all_valid_values_expr_str(k):
         """
-        :param k:  a simple key label
+        :param k:  a key label
         :return: a string representing that a pod has this key label: has(k)
         """
-        return f'has({k})'
+        return ' and '.join(f'has({key})' for key in sorted(k.split(':')))
 
     @staticmethod
     def get_valid_values_expr_str(k, values):
@@ -50,7 +51,7 @@ class LabelExpr:
         vals_str = ','.join(v for v in sorted(list(values)))
         return f'{k} in ({vals_str})'
 
-    def get_values_expr_str(self, k, values):
+    def get_values_expr_str_per_simple_key(self, k, values):
         """
         Given a key and its set of values, return a representing string.
         values may include invalid_val, which is represented by "!has(key)"
@@ -76,12 +77,20 @@ class LabelExpr:
         """
         :return: string representing the label expression
         """
+        # reasoning of original key (possibly composed key)
+        all_valid_values = set(v for v in self.all_values if ClusterInfo.invalid_val not in v) if self.all_values else None
+        if self.values == all_valid_values:
+            # returns an expression of all valid values (e.g. has(app) and has(tier) )
+            return self.get_all_valid_values_expr_str(self.key)
+        # TODO: add also the option of all-invalid-values for a composed key (e.g. !has(pp) and ! has(tier)
+
+        # reasoning of simple keys separately
         key_labels = self.key.split(':')
         values_list_per_all_keys = [val.split(':') for val in self.values]
         expr_str_list = []
         for index, key in enumerate(key_labels):
             values_set_per_key = set(v[index] for v in values_list_per_all_keys)
-            expr_str = self.get_values_expr_str(key, values_set_per_key)
+            expr_str = self.get_values_expr_str_per_simple_key(key, values_set_per_key)
             expr_str_list.append(expr_str)
         expr_str_list = ["{" + e + "}" for e in expr_str_list] if len(expr_str_list) > 1 else expr_str_list
         return ' and '.join(e for e in sorted(expr_str_list))

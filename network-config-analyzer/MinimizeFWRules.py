@@ -275,7 +275,7 @@ class MinimizeCsFwRules:
         # grouping of pods-set by "key in values"
         labels_rep_options = []
         for key in allowed_labels:
-            values_for_key = self.cluster_info.get_all_values_set_for_key_per_namespace(key, ns)
+            values_for_key = self.cluster_info.get_all_values_set_for_key_per_namespace(key, {ns})
             fully_covered_label_values = set()
             pods_with_fully_covered_label_values = set()
             for v in values_for_key:
@@ -332,9 +332,10 @@ class MinimizeCsFwRules:
         for (key, values, ns_info) in chosen_rep:
             if self.output_config.fwRulesGeneralizeLabelExpr:
                 map_simple_keys_to_all_values = self.cluster_info.get_map_of_simple_keys_to_all_values(key, ns_info)
-                pod_label_expr = LabelExpr(key, set(values), map_simple_keys_to_all_values)
+                all_key_values = self.cluster_info.get_all_values_set_for_key_per_namespace(key, ns_info)
+                pod_label_expr = LabelExpr(key, set(values), map_simple_keys_to_all_values, all_key_values)
             else:
-                pod_label_expr = LabelExpr(key, set(values), None)
+                pod_label_expr = LabelExpr(key, set(values), None, None)
             grouped_elem = PodLabelsElement(pod_label_expr, ns_info)
             if is_src_fixed:
                 fw_rule = FWRule(fixed_elem, grouped_elem, self.connections)

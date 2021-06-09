@@ -125,14 +125,15 @@ class ClusterInfo:
         values = set(v for (k, v) in self.pods_labels_map.keys() if k == key)
         return values
 
-    def get_all_values_set_for_key_per_namespace(self, key, ns):
+    def get_all_values_set_for_key_per_namespace(self, key, ns_set):
         """
-        Get the set of all possible values per label key in the cluster for a specific namespace
+        Get the set of all possible values per label key in the cluster for a specific set of namespaces
         :param key: a label key of type string
-        :param ns: a namespace of type K8sNamespace
+        :param ns_set: a set of namespaces of type set[K8sNamespace]
         :return:  A set of values, of type set(string)
         """
-        return self.all_label_values_per_ns[(key, ns)]
+        all_labels_values_per_ns = [self.all_label_values_per_ns[(key, ns)] for ns in ns_set]
+        return set.union(*all_labels_values_per_ns)
 
     def _get_allowed_labels_flattened(self):
         """
@@ -159,7 +160,5 @@ class ClusterInfo:
         map_simple_keys_to_all_values = dict()
         simple_keys_list = key.split(':')
         for simple_key in simple_keys_list:
-            all_labels_values_per_ns = [self.get_all_values_set_for_key_per_namespace(simple_key, ns) for ns in ns_set]
-            all_labels_values_per_ns_set = set.union(*all_labels_values_per_ns)
-            map_simple_keys_to_all_values[simple_key] = all_labels_values_per_ns_set
+            map_simple_keys_to_all_values[simple_key] = self.get_all_values_set_for_key_per_namespace(simple_key, ns_set)
         return map_simple_keys_to_all_values
