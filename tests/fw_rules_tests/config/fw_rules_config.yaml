@@ -1,5 +1,0 @@
-fwRulesRunInTestMode: false
-fwRulesDebug: false
-fwRulesMaxIter: 9
-fwRulesFilterSystemNs: false
-fwRulesGroupByLabelSinglePod: false

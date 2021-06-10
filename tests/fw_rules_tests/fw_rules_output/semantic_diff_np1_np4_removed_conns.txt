@@ -1,6 +1,0 @@
-src_ns: [default,kube-system-dummy-to-ignore,vendor-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
-src_ns: [kube-system] src_pods: [tier in (NO_LABEL_VALUE,not_frontend_for_demo)] dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,

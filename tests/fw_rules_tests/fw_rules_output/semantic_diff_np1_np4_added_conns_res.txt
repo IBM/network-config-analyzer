@@ -1,8 +1,0 @@
-
-connection: All connections
-option1_len:15
-option2_len:15
-convergence_iteration_1:3
-convergence_iteration_2:3
-equiv1:True
-equiv2:True

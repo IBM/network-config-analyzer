@@ -1,1 +1,0 @@
-src_ns: [demo] src_pods: [account-query] dst_ns: [demo] dst_pods: [bank-ui] conn: UDP 8080,

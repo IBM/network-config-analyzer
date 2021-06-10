@@ -1,3 +1,0 @@
-fwRulesRunInTestMode: false
-fwRulesMaxIter: 9
-fwRulesFilterSystemNs: true

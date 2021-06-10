@@ -1,2 +1,0 @@
-src_ns: [kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [dlaas,ibm-system-new] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [*] dst_ns: [ibm-system-new,kube-system-new] dst_pods: [*] conn: All connections

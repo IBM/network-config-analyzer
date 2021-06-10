@@ -1,2 +1,0 @@
-src_ns: [default] src_pods: [cognetive-agents-C] dst_ns: [default] dst_pods: [app in (skydive)] conn: All connections
-src_ns: [default] src_pods: [common in (M)] dst_ns: [default] dst_pods: [app in (skydive)] conn: UDP 53,
