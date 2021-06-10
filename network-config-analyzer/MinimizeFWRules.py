@@ -1,10 +1,7 @@
 import yaml
-
-from ClusterInfo import ClusterInfo
 from ConnectionSet import ConnectionSet
-from K8sNamespace import K8sNamespace
 from FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
-from Peer import IpBlock, ClusterEP
+from Peer import IpBlock, ClusterEP, Pod, HostEP
 
 
 class MinimizeCsFwRules:
@@ -91,8 +88,9 @@ class MinimizeCsFwRules:
         :return: None
         """
         self._compute_covered_peer_pairs_union()
-        src_namespaces_set = set(src.namespace for (src, dest) in self.peer_pairs if isinstance(src, ClusterEP))
-        dst_namespaces_set = set(dest.namespace for (src, dest) in self.peer_pairs if isinstance(dest, ClusterEP))
+        # only Pod elements have namespaces (skipping IpBlocks and HostEPs)
+        src_namespaces_set = set(src.namespace for (src, dest) in self.peer_pairs if isinstance(src, Pod))
+        dst_namespaces_set = set(dest.namespace for (src, dest) in self.peer_pairs if isinstance(dest, Pod))
         # per relevant namespaces, compute which pairs of src-ns and dst-ns are covered by given peer-pairs
         for src_ns in src_namespaces_set:
             for dst_ns in dst_namespaces_set:
@@ -104,7 +102,9 @@ class MinimizeCsFwRules:
                     self.peer_pairs_without_ns_expr |= ns_product_pairs & self.peer_pairs
 
         # TODO: what about peer pairs with ip blocks from containing connections, not only peer_pairs for this connection?
-        self.peer_pairs_without_ns_expr |= self.get_peer_pairs_with_ip_blocks(self.peer_pairs)
+        pairs_with_elems_without_ns = set((src, dst) for (src, dst) in self.peer_pairs
+                                          if isinstance(src, (IpBlock, HostEP)) or isinstance(dst, (IpBlock, HostEP)))
+        self.peer_pairs_without_ns_expr |= pairs_with_elems_without_ns
         # compute pairs with src as pod/ip-block and dest as namespace
         self._compute_ns_pairs_with_partial_ns_expr(False)
         # compute pairs with src as pod/ip-block namespace dest as pod
@@ -127,15 +127,6 @@ class MinimizeCsFwRules:
         self.covered_peer_pairs_union = covered_peer_pairs_union
 
     @staticmethod
-    def get_peer_pairs_with_ip_blocks(peer_pairs_set):
-        """
-        :param peer_pairs_set: a set of peer pairs
-        :return: a new set of peer pairs contained in peer_pairs_set, where for each pair - one of its elements
-                (src/dst) is an IpBlock
-        """
-        return set((src, dst) for (src, dst) in peer_pairs_set if isinstance(src, IpBlock) or isinstance(dst, IpBlock))
-
-    @staticmethod
     def _get_pods_set_per_fixed_elem_from_peer_pairs(is_src_fixed, fixed_elem, peer_pairs_set):
         """
 
@@ -146,8 +137,8 @@ class MinimizeCsFwRules:
                 in peer_pairs_set
         """
         if is_src_fixed:
-            return set(dest for (src, dest) in peer_pairs_set if src == fixed_elem and isinstance(dest, ClusterEP))
-        return set(src for (src, dest) in peer_pairs_set if dest == fixed_elem and isinstance(src, ClusterEP))
+            return set(dest for (src, dest) in peer_pairs_set if src == fixed_elem and isinstance(dest, Pod))
+        return set(src for (src, dest) in peer_pairs_set if dest == fixed_elem and isinstance(src, Pod))
 
     def _get_peer_pairs_product_for_ns_and_fixed_elem(self, is_pod_in_src, pod, ns):
         """

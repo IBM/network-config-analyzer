@@ -1,0 +1,19 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  creationTimestamp: 2018-12-11T16:42:12Z
+  name: allow-all-outbound
+  resourceVersion: "13343167"
+  uid: b55c6f3b-fd63-11e8-86fb-a2ef5a666dfb
+spec:
+  order: 1900
+  selector: vendor.role in { 'worker_public', 'master_public' }
+  types:
+  - Egress
+  - Ingress
+  egress:
+  - action: Allow
+    destination:
+      selector: !has(vendor.role)
+  ingress:
+  - action: Allow

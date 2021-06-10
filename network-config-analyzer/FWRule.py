@@ -1,7 +1,7 @@
 import ipaddress
 from ClusterInfo import ClusterInfo
 from K8sNamespace import K8sNamespace
-from Peer import ClusterEP, IpBlock
+from Peer import ClusterEP, IpBlock, Pod
 
 
 class LabelExpr:
@@ -78,7 +78,8 @@ class LabelExpr:
         :return: string representing the label expression
         """
         # reasoning of original key (possibly composed key)
-        all_valid_values = set(v for v in self.all_values if ClusterInfo.invalid_val not in v) if self.all_values else None
+        all_valid_values = set(v for v in self.all_values if ClusterInfo.invalid_val not in v) \
+            if self.all_values else None
         if self.values == all_valid_values:
             # returns an expression of all valid values (e.g. has(app) and has(tier) )
             return self.get_all_valid_values_expr_str(self.key)
@@ -212,7 +213,8 @@ class PodElement(FWRuleElement):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
         """
-        return f'[{self.element.owner_name}]'
+        # using elem.owner_name for Pod elem, and elem.name for HostEP
+        return f'[{self.element.owner_name}]' if isinstance(self.element, Pod) else f'[{self.element.name}]'
 
     def __str__(self):
         """

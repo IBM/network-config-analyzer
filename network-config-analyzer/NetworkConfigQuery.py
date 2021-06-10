@@ -456,6 +456,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, is_k8s_config)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
+                if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
+                    continue  # skipping pairs with ip-blocks for both src and dst
                 if peer1 == peer2:
                     conn_graph.add_edge(peer1, peer2, ConnectionSet(True))  # cannot restrict pod's connection to itself
                 else:
