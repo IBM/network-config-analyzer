@@ -306,7 +306,7 @@ class MinimizeCsFwRules:
         if self.output_config.fwRulesDebug:
             print('sorted rep options:')
             for (key, (label_vals, pods)) in sorted_rep_options:
-                print(key, label_vals)
+                print(key, label_vals, len(pods))
         ns_info = {ns}
         for (k, (vals, pods)) in sorted_rep_options:
             if (pods & pods_set).issubset(remaining_pods):

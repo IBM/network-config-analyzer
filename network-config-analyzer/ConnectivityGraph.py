@@ -21,6 +21,8 @@ class ConnectivityGraph:
         # connections_to_peers holds the connectivity graph
         self.connections_to_peers = defaultdict(list)
         self.output_config = output_config
+        if self.output_config.fwRulesOverrideAllowedLabels:
+            allowed_labels = set(label for label in self.output_config.fwRulesOverrideAllowedLabels.split(','))
         self.cluster_info = ClusterInfo(all_peers, allowed_labels, is_k8s_config)
         self.allowed_labels = allowed_labels
 

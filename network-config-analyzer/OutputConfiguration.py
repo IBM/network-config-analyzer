@@ -7,7 +7,7 @@ class OutputConfiguration(dict):
         default_output_config = {'fwRulesRunInTestMode': False, 'fwRulesDebug': False,
                                  'fwRulesGroupByLabelSinglePod': False, 'fwRulesFilterSystemNs': False,
                                  'fwRulesMaxIter': 10, 'fwRulesGeneralizeLabelExpr': False, 'outputFormat': 'txt',
-                                 'outputPath': None}
+                                 'outputPath': None, 'fwRulesOverrideAllowedLabels': None}
         super().__init__(default_output_config)
         if output_config_dict is not None:
             self.update(output_config_dict)

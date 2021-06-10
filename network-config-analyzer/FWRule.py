@@ -82,7 +82,6 @@ class LabelExpr:
         if self.values == all_valid_values:
             # returns an expression of all valid values (e.g. has(app) and has(tier) )
             return self.get_all_valid_values_expr_str(self.key)
-        # TODO: add also the option of all-invalid-values for a composed key (e.g. !has(pp) and ! has(tier)
 
         # reasoning of simple keys separately
         key_labels = self.key.split(':')

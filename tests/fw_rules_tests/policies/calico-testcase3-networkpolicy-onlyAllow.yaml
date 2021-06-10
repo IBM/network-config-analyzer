@@ -1,5 +1,6 @@
 # TODO: in the pods-list, make sure that label "tier" does not belong to pod "kube-fluentd-h6rjg"
 # TODO: improve the result fw-rule, into the desired results: has(app) & has(tier) -> has(tier)
+# TODO: add a scheme file with query flag fwRulesOverrideAllowedLabels: app:tier,tier for testing 
 
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
