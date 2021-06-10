@@ -63,7 +63,7 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesOverrideAllowedLabels: app
-    fwRulesGegineralizeLabelExpr: true
+    fwRulesGeneralizeLabelExpr: true
 
 - name: test_tier_and_app_label
   connectivityMap:
