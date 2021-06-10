@@ -213,7 +213,7 @@ def main(argv=None):
 
     for root, _, files in os.walk(base_dir):
         for file in files:
-            if not fnmatch(file, '*_scheme.yaml'):
+            if not fnmatch(file, '*-scheme.yaml'):
                 continue
             scheme_filename = os.path.join(root, file)
             if run_all_tests or file.startswith(test_prefix):
