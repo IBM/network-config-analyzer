@@ -354,8 +354,10 @@ class PeerContainer:
             if parallelism == 0:
                 return  # paused job, no pods are generated
             replicas = parallelism
-        replicas = min(replicas, 2)  # We allow at most 2 peers from each equivalence group
+        if workload_resource.get('kind') == 'CronJob':
+            workload_spec = workload_spec.get('jobTemplate', {}).get('spec', {})
 
+        replicas = min(replicas, 2)  # We allow at most 2 peers from each equivalence group
         for pod_index in range(1, replicas+1):
             pod = Pod(f'{workload_name}-{pod_index}', pod_namespace, workload_name, workload_resource.get('kind'))
             pod_template = workload_spec.get('template', {})
