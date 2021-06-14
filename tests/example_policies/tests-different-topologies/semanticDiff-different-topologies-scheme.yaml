@@ -4,7 +4,7 @@ podList: ../../example_podlist/pods_list.json
 networkConfigList:
   - name: no_policy
     # no namespaceList and podList, hence use the global resources above
-    networkPolicyList: [ ]
+    networkPolicyList: []
     expected_warnings: 0
 
   - name: policy
