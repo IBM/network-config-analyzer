@@ -13,6 +13,7 @@ class ICMPDataSet(CanonicalHyperCubeSet):
     A class holding the set of allowed ICMP connections. Each such connection has a type and code properties.
     The class uses the CanonicalHyperCubeSet to compactly represent a set of (type,code) pairs.
     """
+
     def __init__(self, add_all=False):
         super().__init__(2)
         if add_all:
@@ -22,6 +23,10 @@ class ICMPDataSet(CanonicalHyperCubeSet):
         if not self:
             return 'no types'
         return super().__str__()
+
+    # TODO: imprvoe this properties obj representation
+    def get_properties_obj(self):
+        return {'Type/Code': [str(self)]}
 
     def copy(self):
         new_copy = copy.copy(self)

@@ -2,13 +2,14 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
 from dataclasses import dataclass
 import copy
 import itertools
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
 from ConnectionSet import ConnectionSet
+from ConnectivityGraph import ConnectivityGraph
+from OutputConfiguration import OutputConfiguration
 from Peer import PeerSet, IpBlock
 
 
@@ -23,14 +24,28 @@ class QueryAnswer:
     numerical_result: int = 0
 
 
-class NetworkConfigQuery:
+class BaseNetworkQuery:
+    """
+    A base class for NetworkConfigQuery and TwoNetworkConfigsQuery, with common output configuration logic:
+    Per query in a scheme file, the field outputConfiguration is optional, and if exists should contain a dict
+    with relevant fields and values
+    Thus, every network query has a corresponding  output_config object of type OutputConfiguration
+    """
+
+    def __init__(self, output_config_obj):
+        self.output_config = output_config_obj if output_config_obj is not None else OutputConfiguration()
+
+
+class NetworkConfigQuery(BaseNetworkQuery):
     """
     A base class for queries that inspect only a single network config
     """
-    def __init__(self, config):
+
+    def __init__(self, config, output_config_obj=None):
         """
         :param NetworkConfig config: The config to query
         """
+        super().__init__(output_config_obj)
         self.config = config
 
 
@@ -38,6 +53,7 @@ class DisjointnessQuery(NetworkConfigQuery):
     """
     Check whether no two policy in the config capture the same peer
     """
+
     def exec(self):
         non_disjoint_explanation_list = []
         for policy1 in self.config.sorted_policies:
@@ -65,6 +81,7 @@ class EmptinessQuery(NetworkConfigQuery):
     """
     Check if any policy or one of its rules captures an empty set of peers
     """
+
     def exec(self):
         res = 0
         full_explanation_list = []
@@ -89,6 +106,7 @@ class VacuityQuery(NetworkConfigQuery):
     """
     Check if the set of policies changes the cluster's default behavior
     """
+
     def exec(self):
         vacuous_config = self.config.clone_without_policies('vacuousConfig')
         vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config).exec()
@@ -108,6 +126,7 @@ class RedundancyQuery(NetworkConfigQuery):
     """
     Check if any of the policies can be removed without changing cluster connectivity. Same for each rule in each policy
     """
+
     def redundant_policies(self):
         res = 0
         redundancies = []
@@ -140,14 +159,14 @@ class RedundancyQuery(NetworkConfigQuery):
             config_with_modified_policy.add_policy(modified_policy)
             equiv_result = SemanticEquivalenceQuery(self.config, config_with_modified_policy).exec()
             if equiv_result.bool_result:
-                redundancy = f'Ingress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant '\
+                redundancy = f'Ingress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
                 redundancies.append(redundancy)
                 redundant_ingress_rules.append(rule_index)
         for rule_index, egress_rule in enumerate(policy.egress_rules, start=1):
             modified_policy = policy.clone_without_rule(egress_rule, False)
             if len(modified_policy.egress_rules) < len(policy.egress_rules) - 1:
-                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant '\
+                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
                 redundancies.append(redundancy)
                 redundant_egress_rules.append(rule_index)
@@ -155,7 +174,7 @@ class RedundancyQuery(NetworkConfigQuery):
             config_with_modified_policy = self.config.clone_without_policy(policy)
             config_with_modified_policy.add_policy(modified_policy)
             if SemanticEquivalenceQuery(self.config, config_with_modified_policy).exec().bool_result:
-                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant '\
+                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
                 redundant_egress_rules.append(rule_index)
                 redundancies.append(redundancy)
@@ -169,7 +188,7 @@ class RedundancyQuery(NetworkConfigQuery):
         for policy in self.config.policies.values():
             if policy.full_name() in redundant_policies:  # we skip checking rules if the whole policy is redundant
                 continue
-            _, _,  rules_redundancy_explanation = \
+            _, _, rules_redundancy_explanation = \
                 self.find_redundant_rules(policy)
             res += len(rules_redundancy_explanation)
             redundancies += rules_redundancy_explanation
@@ -184,6 +203,7 @@ class SanityQuery(NetworkConfigQuery):
     """
     Perform various queries to check the network config sanity. Checks vacuity, redundancy and emptiness
     """
+
     def has_conflicting_policies_with_same_order(self):
         if len(self.config.sorted_policies) <= 1:
             return False, ''
@@ -241,7 +261,8 @@ class SanityQuery(NetworkConfigQuery):
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
             pods_to_compare = self.config.peer_container.get_all_peers_group()
-            pods_to_compare |= TwoNetworkConfigsQuery(self.config, config_with_other_policy).disjoint_referenced_ip_blocks()
+            pods_to_compare |= TwoNetworkConfigsQuery(self.config,
+                                                      config_with_other_policy).disjoint_referenced_ip_blocks()
             for pod1 in pods_to_compare:
                 for pod2 in pods_to_compare:
                     if isinstance(pod1, IpBlock) and isinstance(pod2, IpBlock):
@@ -373,7 +394,7 @@ class SanityQuery(NetworkConfigQuery):
             empty_rules_explanation, empty_ingress_rules_list, empty_egress_rules_list = policy.has_empty_rules('')
             if empty_rules_explanation:
                 issues_counter += len(empty_rules_explanation)
-                rules_issues += '\n'.join(empty_rules_explanation)+'\n'
+                rules_issues += '\n'.join(empty_rules_explanation) + '\n'
                 policy.findings += empty_rules_explanation
 
             if is_config_vacuous_res.bool_result:
@@ -386,9 +407,9 @@ class SanityQuery(NetworkConfigQuery):
                 policy.add_finding(redundancy_full_text)
                 continue
 
-            redundant_ingress_rules, redundant_egress_rules,  _ = \
+            redundant_ingress_rules, redundant_egress_rules, _ = \
                 RedundancyQuery(self.config).find_redundant_rules(policy)
-            for rule_index in range(1, len(policy.ingress_rules)+1):
+            for rule_index in range(1, len(policy.ingress_rules) + 1):
                 if rule_index in empty_ingress_rules_list:
                     continue
                 if rule_index in redundant_ingress_rules:
@@ -396,7 +417,7 @@ class SanityQuery(NetworkConfigQuery):
                     redundancy_text = self.redundant_rule_text(policy, rule_index, True)
                     rules_issues += redundancy_text
                     policy.add_finding(redundancy_text)
-            for rule_index in range(1, len(policy.egress_rules)+1):
+            for rule_index in range(1, len(policy.egress_rules) + 1):
                 if rule_index in empty_egress_rules_list:
                     continue
                 if rule_index in redundant_egress_rules:
@@ -413,15 +434,53 @@ class SanityQuery(NetworkConfigQuery):
                            output_explanation=policies_issue + rules_issues, numerical_result=issues_counter)
 
 
-class TwoNetworkConfigsQuery:
+class ConnectivityMapQuery(NetworkConfigQuery):
+    """
+    Print the connectivity graph in the form of firewall rules
+    """
+
+    def exec(self):
+        peers_to_compare = self.config.peer_container.get_all_peers_group()
+        ref_ip_blocks = self.config.get_referenced_ip_blocks()
+        peers_to_compare |= ref_ip_blocks
+        # add the complement of ref_ip_blocks
+        complement = IpBlock('0.0.0.0/0')
+        for ip in ref_ip_blocks:
+            complement -= ip
+        complement_peer_set = PeerSet()
+        complement_peer_set |= complement.split()
+        peers_to_compare |= complement_peer_set
+
+        is_k8s_config = self.config.type == NetworkConfig.ConfigType.K8s
+
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, is_k8s_config)
+        for peer1 in peers_to_compare:
+            for peer2 in peers_to_compare:
+                if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
+                    continue  # skipping pairs with ip-blocks for both src and dst
+                if peer1 == peer2:
+                    conn_graph.add_edge(peer1, peer2, ConnectionSet(True))  # cannot restrict pod's connection to itself
+                else:
+                    _, conns, _ = self.config.allowed_connections(peer1, peer2)
+                    conn_graph.add_edge(peer1, peer2, conns)
+
+        fw_rules = conn_graph.get_minimized_firewall_rules()
+        res = QueryAnswer(True)
+        res.output_explanation = fw_rules.get_fw_rules_in_required_format()
+        return res
+
+
+class TwoNetworkConfigsQuery(BaseNetworkQuery):
     """
     A base class for queries that inspect two network configs
     """
-    def __init__(self, config1, config2):
+
+    def __init__(self, config1, config2, output_config_obj=None):
         """
         :param NetworkConfig config1: First config to query
         :param NetworkConfig config2: Second config to query
         """
+        super().__init__(output_config_obj)
         self.config1 = config1
         self.config2 = config2
         self.name1 = config1.name
@@ -504,6 +563,7 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
     """
     Check whether config1 and config2 allow exactly the same set of connections.
     """
+
     def exec(self):
         query_answer = self.is_identical_topologies(True)
         if query_answer.output_result:
@@ -519,7 +579,7 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
                 _, conns1, _ = self.config1.allowed_connections(peer1, peer2)
                 _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
                 if conns1 != conns2:
-                    explanation = f'Allowed connections from {peer1} to {peer2} are different\n' +\
+                    explanation = f'Allowed connections from {peer1} to {peer2} are different\n' + \
                                   conns1.print_diff(conns2, self.name1, self.name2)
                     return QueryAnswer(False, self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.',
                                        explanation)
@@ -531,114 +591,154 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
     Produces a report of changed connections (also for the case of two configurations of different network topologies)
     """
 
-    @dataclass
-    class SingleDiff:
+    def get_explanation_from_conn_graph(self, is_added, conn_graph):
         """
-        Representing a single diff between a pair of eps
+        :param is_added: a bool flag indicating if connections are added or removed
+        :param conn_graph:  a ConnectivityGraph with added/removed connections
+        :return: explanation (str) with fw-rules summarizing added/removed connections
         """
-        def __init__(self, from_ep, to_ep, removed, added):
-            self.from_ep = from_ep
-            self.to_ep = to_ep
-            self.removed = removed
-            self.added = added
+        topology_config_name = self.config2.name if is_added else self.config1.name
+        line_header_txt = 'Added' if is_added else 'Removed'
+        fw_rules = conn_graph.get_minimized_firewall_rules()
+        fw_rules_output = fw_rules.get_fw_rules_in_required_format(False)
+        if self.output_config.outputFormat == 'txt':
+            explanation = f'{line_header_txt} connections (based on topology from config: {topology_config_name}) :\n{fw_rules_output}\n'
+        else:
+            explanation = fw_rules_output
+        return explanation
 
-        def __str__(self):
-            res = "\n" + str(self.from_ep) + " -> " + str(self.to_ep) + ":\n"
-            res += "\tRemoved: " + str(self.removed) + "\n"
-            res += "\tAdded: " + str(self.added)
-            return res
-
-    @staticmethod
-    def pretty_print_diff(diff_list):
+    def get_results_for_computed_fw_rules(self, keys_list, conn_graph_removed_per_key, conn_graph_added_per_key):
         """
-        pretty printing the results of semantic diff
-        :param diff_list: A dictionary of computed diffs
-        :return: A diff message
-        :rtype: str
+        Compute accumulated explanation and res for all keys of changed connections categories
+        :param keys_list: the list of keys
+        :param conn_graph_removed_per_key: map from key to ConnectivityGraph of removed connections
+        :param conn_graph_added_per_key: map from key to ConnectivityGraph of added connections
+        :return:
+        res (int): number of categories with diffs
+        explanation (str): a diff message
         """
-        result = ""
-        for single in diff_list:
-            if diff_list[single]:
-                result += "- " + single + str(diff_list[single]) + "\n"
+        explanation = ''
+        res = 0
+        for key in keys_list:
+            conn_graph_added_conns = conn_graph_added_per_key[key]
+            conn_graph_removed_conns = conn_graph_removed_per_key[key]
+            is_added = conn_graph_added_conns is not None and conn_graph_added_conns.conn_graph_has_fw_rules()
+            is_removed = conn_graph_removed_conns is not None and conn_graph_removed_conns.conn_graph_has_fw_rules()
 
-        return result.replace('{', ' ').replace('}', ' ').replace('\'', '')
+            if (is_added or is_removed) and self.output_config.outputFormat == 'txt':
+                explanation += f'{key}:\n'
+
+            if is_added:
+                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns)
+                res += 1
+
+            if is_removed:
+                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns)
+                res += 1
+
+        return res, explanation
+
+    def get_conn_graph_changed_conns(self, key, ip_blocks, is_added):
+        """
+        create a ConnectivityGraph for chnged (added/removed) connections per given key
+        :param key: the key (category) of changed connections
+        :param ip_blocks: a PeerSet of ip-blocks to be added for the topology peers
+        :param is_added: a bool flag indicating if connections are added or removed
+        :return: a ConnectivityGraph object
+        """
+        old_peers = self.config1.peer_container.get_all_peers_group()
+        new_peers = self.config2.peer_container.get_all_peers_group()
+        allowed_labels = self.config1.allowed_labels.union(self.config2.allowed_labels)
+        topology_peers = new_peers | ip_blocks if is_added else old_peers | ip_blocks
+        query_name_prefix = 'semantic_diff, config1: ' + self.config1.name + ', config2: ' + self.config2.name + ', key: ' + key
+        query_name = query_name_prefix + ' (added)' if is_added else query_name_prefix + ' (removed)'
+        output_config = OutputConfiguration(self.output_config, query_name)
+        is_k8s_config = self.config1.type == NetworkConfig.ConfigType.K8s
+        return ConnectivityGraph(topology_peers, allowed_labels, output_config, is_k8s_config)
 
     def compute_diff(self):
         """
-        Compute changed connections as following:
+       Compute changed connections as following:
 
-        1.1. lost connections between removed peers
-        1.2. lost connections between removed peers and ipBlocks
+       1.1. lost connections between removed peers
+       1.2. lost connections between removed peers and ipBlocks
 
-        2.1. lost connections between removed peers and intersected peers
+       2.1. lost connections between removed peers and intersected peers
 
-        3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
-        3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels of pods/namespaces
+       3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
+       3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels of pods/namespaces
 
-        4.1. new connections between intersected peers and added peers
+       4.1. new connections between intersected peers and added peers
 
-        5.1. new connections between added peers
-        5.2. new connections between added peers and ipBlocks
+       5.1. new connections between added peers
+       5.2. new connections between added peers and ipBlocks
 
-        Some of the section might be empty and can be dropped.
+       Some of the section might be empty and can be dropped.
 
-        :return: A dictionary with lists of all various diffs
-        :rtype: dict
-        """
-        all_diff = {}
+       :return:
+        res (int): number of categories with diffs
+        explanation (str): a diff message
+
+       """
+
         old_peers = self.config1.peer_container.get_all_peers_group()
         new_peers = self.config2.peer_container.get_all_peers_group()
         intersected_peers = old_peers & new_peers
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
-
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
-
         all_ip_blocks = PeerSet()
         all_ip_blocks.add(IpBlock.get_all_ips_block())
         old_ip_blocks = self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), all_ip_blocks)
         new_ip_blocks = self.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(), all_ip_blocks)
 
+        conn_graph_removed_per_key = dict()
+        conn_graph_added_per_key = dict()
+        keys_list = []
+
         # 1.1. lost connections between removed peers
         key = 'Lost connections between removed peers'
-        all_diff[key] = []
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
+        conn_graph_added_per_key[key] = None
         for pair in itertools.permutations(removed_peers, 2):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
+                conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
         # 1.2. lost connections between removed peers and ipBlocks
         key = 'Lost connections between removed peers and ipBlocks'
-        all_diff[key] = []
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, old_ip_blocks, False)
+        conn_graph_added_per_key[key] = None
         for pair in itertools.product(removed_peers, old_ip_blocks):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
+                conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
             _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
             if lost_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
+                conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
 
         # 2.1. lost connections between removed peers and intersected peers
         key = 'Lost connections between removed peers and persistent peers'
-        all_diff[key] = []
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
+        conn_graph_added_per_key[key] = None
         for pair in itertools.product(removed_peers, intersected_peers):
             _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], lost_conns, None))
+                conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
             _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
             if lost_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], lost_conns, None))
+                conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
 
         # 3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
         key = 'Changed connections between persistent peers'
-        all_diff[key] = []
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         for pod1 in intersected_peers:
             for pod2 in intersected_peers if pod1 in captured_pods else captured_pods:
                 if pod1 == pod2:
@@ -646,133 +746,71 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
                 _, new_conns, _ = self.config2.allowed_connections(pod1, pod2)
                 if new_conns != old_conns:
-                    all_diff[key].append(
-                        SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns - new_conns, new_conns - old_conns))
+                    conn_graph_removed_per_key[key].add_edge(pod1, pod2, old_conns - new_conns)
+                    conn_graph_added_per_key[key].add_edge(pod1, pod2, new_conns - old_conns)
 
         # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels of pods/namespaces
         key = 'Changed connections between persistent peers and ipBlocks'
-        all_diff[key] = []
         disjoint_ip_blocks = self.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks)
         peers = captured_pods | disjoint_ip_blocks
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, False)
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, True)
         for pod1 in peers:
             for pod2 in disjoint_ip_blocks if pod1 in captured_pods else captured_pods:
                 _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
                 _, new_conns, _ = self.config2.allowed_connections(pod1, pod2)
                 if new_conns != old_conns:
-                    all_diff[key].append(
-                        SemanticDiffQuery.SingleDiff(pod1, pod2, old_conns - new_conns, new_conns - old_conns))
+                    conn_graph_removed_per_key[key].add_edge(pod1, pod2, old_conns - new_conns)
+                    conn_graph_added_per_key[key].add_edge(pod1, pod2, new_conns - old_conns)
 
         # 4.1. new connections between intersected peers and added peers
         key = 'New connections between persistent peers and added peers'
-        all_diff[key] = []
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = None
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         for pair in itertools.product(intersected_peers, added_peers):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
+                conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
             _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
             if new_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
+                conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
 
         # 5.1. new connections between added peers
         key = 'New connections between added peers'
-        all_diff[key] = []
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = None
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         for pair in itertools.permutations(added_peers, 2):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
+                conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
         # 5.2. new connections between added peers and ipBlocks
         key = 'New connections between added peers and ipBlocks'
-        all_diff[key] = []
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = None
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, new_ip_blocks, True)
+
         for pair in itertools.product(added_peers, new_ip_blocks):
             _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[0], pair[1], None, new_conns))
+                conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
             _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
             if new_conns:
-                all_diff[key].append(
-                    SemanticDiffQuery.SingleDiff(pair[1], pair[0], None, new_conns))
+                conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
 
-        return all_diff
-
-    def produce_diff_message(self, all_diff):
-        """
-        pretty printing the results of semantic diff
-        :param all_diff: A dictionary with all computed diffs
-        :returns:
-            res (int): number of diffs
-            explanation (str): a diff message
-        """
-        res = 0
-        explanation = ''
-        for key in all_diff.keys():
-            if len(all_diff[key]) > 0:
-                explanation += f'{key}:\n'
-                # Initialized with the 3 protocols supported by k8s
-                # This implementation is not suitable for Calico!
-                added = {}
-                removed = {}
-                for protocol in [6, 17, 132]:
-                    added[ConnectionSet.protocol_number_to_name(protocol)] = {}
-                    removed[ConnectionSet.protocol_number_to_name(protocol)] = {}
-                added['All connections'] = []
-                removed['All connections'] = []
-                is_added = False
-                is_removed = False
-                # Hash diffs: protocol-> port ranges-> list of (from endpoint, to endpoint) tuples
-                for entry in all_diff[key]:
-                    if entry.added:
-                        is_added = True
-                        if entry.added.allow_all:
-                            added['All connections'].append((entry.from_ep, entry.to_ep))
-                            res += 1
-                        else:
-                            for protocol in entry.added.allowed_protocols:
-                                if not ConnectionSet.protocol_supports_ports(protocol):
-                                    continue
-                                protocol_name = ConnectionSet.protocol_number_to_name(protocol)
-                                port_range = str(entry.added.allowed_protocols[protocol])
-                                if port_range not in added[protocol_name]:
-                                    added[protocol_name][port_range] = []
-                                added[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
-                                res += 1
-
-                    if entry.removed:
-                        is_removed = True
-                        if entry.removed.allow_all:
-                            removed['All connections'].append((entry.from_ep, entry.to_ep))
-                            res += 1
-                        else:
-                            for protocol in entry.removed.allowed_protocols:
-                                if not ConnectionSet.protocol_supports_ports(protocol):
-                                    continue
-                                protocol_name = ConnectionSet.protocol_number_to_name(protocol)
-                                port_range = str(entry.removed.allowed_protocols[protocol])
-                                if port_range not in removed[protocol_name]:
-                                    removed[protocol_name][port_range] = []
-                                removed[protocol_name][port_range].append((entry.from_ep, entry.to_ep))
-                                res += 1
-                if is_added:
-                    explanation += f'Added connections:\n{self.pretty_print_diff(added)}\n'
-                if is_removed:
-                    explanation += f'Removed connections:\n{self.pretty_print_diff(removed)}\n'
-
-        return res, explanation
+        return self.get_results_for_computed_fw_rules(keys_list, conn_graph_removed_per_key,
+                                                      conn_graph_added_per_key)
 
     def exec(self):
         query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
-            return query_answer  # nothing to do - identical configurations (same topologies and policies)
-
-        all_diff = self.compute_diff()
-
-        res, explanation = self.produce_diff_message(all_diff)
+            return query_answer
+        res, explanation = self.compute_diff()
         if res > 0:
             return QueryAnswer(bool_result=False,
                                output_result=f'{self.name1} and {self.name2} are not semantically equivalent.',
@@ -789,6 +827,7 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
     """
     Checks whether the two configs have exactly the same set of policies (same names and same semantics)
     """
+
     def exec(self):
         query_answer = self.is_identical_topologies(True)
         if query_answer.output_result:
@@ -799,11 +838,11 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
         policies_1_minus_2 = policies1.difference(policies2)
         policies_2_minus_1 = policies2.difference(policies1)
         if policies_1_minus_2:
-            output_result = self.name1 + ' contains a network policy named ' + policies_1_minus_2.pop() + ', but '\
+            output_result = self.name1 + ' contains a network policy named ' + policies_1_minus_2.pop() + ', but ' \
                             + self.name2 + ' does not'
             return QueryAnswer(False, output_result)
         if policies_2_minus_1:
-            output_result = self.name2 + ' contains a network policy named ' + policies_2_minus_1.pop() + ', but '\
+            output_result = self.name2 + ' contains a network policy named ' + policies_2_minus_1.pop() + ', but ' \
                             + self.name1 + ' does not'
             return QueryAnswer(False, output_result)
 
@@ -812,7 +851,7 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
             single_policy_config2 = self.config2.clone_with_just_one_policy(policy.full_name())
             full_result = SemanticEquivalenceQuery(single_policy_config1, single_policy_config2).exec()
             if not full_result.bool_result:
-                output_result = policy.full_name() + ' is not equivalent in ' + self.name1 +\
+                output_result = policy.full_name() + ' is not equivalent in ' + self.name1 + \
                                 ' and in ' + self.name2
                 return QueryAnswer(False, output_result, full_result.output_explanation)
 
@@ -823,6 +862,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     """
     Checking whether the connections allowed by config1 are contained in those allowed by config2
     """
+
     def exec(self, only_captured=False):
         config1_peers = self.config1.peer_container.get_all_peers_group()
         peers_in_config1_not_in_config2 = config1_peers - self.config2.peer_container.get_all_peers_group()
@@ -856,6 +896,7 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
     """
     Checks containment in both sides (whether config1 is contained in config2 and vice versa)
     """
+
     def exec(self):
         query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
@@ -903,6 +944,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
     """
     Checking whether config2 extends config1's allowed connection for Pods captured by policies in config1
     """
+
     def exec(self):
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
@@ -921,7 +963,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                 captured2, conns2, _ = self.config2.allowed_connections(peer1, peer2, True)
                 if captured2 and not conns2.contained_in(conns1):
                     output_explanation = f'{self.name2} extends the allowed connections from {peer1} to {peer2}\n' + \
-                        conns2.print_diff(conns1, self.name2, self.name1)
+                                         conns2.print_diff(conns1, self.name2, self.name1)
                     return QueryAnswer(True, self.name2 + ' interferes with ' + self.name1, output_explanation)
 
         return QueryAnswer(False, self.name2 + ' does not interfere with ' + self.name1)
@@ -931,6 +973,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
     """
     Checking whether both configs allow the same connection between any pair of peers
     """
+
     def exec(self, only_captured):
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
@@ -962,6 +1005,7 @@ class AllCapturedQuery(NetworkConfigQuery):
     """
     Check that all pods are captured
     """
+
     def exec(self):
         existing_pods = self.config.peer_container.get_all_peers_group()
 
@@ -981,12 +1025,14 @@ class AllCapturedQuery(NetworkConfigQuery):
         full_explanation = ''
         res = 0
         if uncaptured_ingress_pods:
-            uncaptured_ingress_resources = set(pod.workload_name for pod in uncaptured_ingress_pods)  # no duplicate resources in the set
+            uncaptured_ingress_resources = set(
+                pod.workload_name for pod in uncaptured_ingress_pods)  # no duplicate resources in the set
             res += len(uncaptured_ingress_resources)
             resources = ', '.join(e for e in uncaptured_ingress_resources)
             full_explanation += f'These workload resources are not captured by any policy that affects ingress: {resources}\n'
         if uncaptured_egress_pods:
-            uncaptured_egress_resources = set(pod.workload_name for pod in uncaptured_egress_pods)  # no duplicate resources in the set
+            uncaptured_egress_resources = set(
+                pod.workload_name for pod in uncaptured_egress_pods)  # no duplicate resources in the set
             res += len(uncaptured_egress_resources)
             resources = ', '.join(e for e in uncaptured_egress_resources)
             full_explanation += f'These workload resources are not captured by any policy that affects egress: {resources}\n'

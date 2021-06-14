@@ -47,6 +47,10 @@ A valid token to access a GHE repository
 Run NCA with given arguments every specified number of minutes
 - `--daemon`\
 Run NCA as a daemon. Send and receive data using a REST API.
+- `--o`\
+Output format specification (txt or yaml). The default is txt.
+- `--f`\
+A file path to which output is redirected.
 
 ## Installation
 ```commandline

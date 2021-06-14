@@ -8,7 +8,8 @@ import sys
 import time
 import os
 from SchemeRunner import SchemeRunner
-from ExecutionAssist import SanityExecute, EquivalenceExecute, InterferesExecute, ForbidsExecuter, PermitsExecuter
+from ExecutionAssist import SanityExecute, EquivalenceExecute, InterferesExecute, ForbidsExecuter, PermitsExecuter, \
+    ConnectivityMapExecute, SemanticDiffExecute
 from RESTServer import RestServer
 
 
@@ -69,21 +70,27 @@ def run_args(args):
     :rtype: int
     """
     if args.equiv:
-        return EquivalenceExecute(args.equiv, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return EquivalenceExecute(args.equiv, args.base_np_list or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
     if args.interferes:
-        return InterferesExecute(args.interferes, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return InterferesExecute(args.interferes, args.base_np_list or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
     if args.forbids:
-        return ForbidsExecuter(args.forbids, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return ForbidsExecuter(args.forbids, args.base_np_list or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
     if args.permits:
-        return PermitsExecuter(args.permits, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return PermitsExecuter(args.permits, args.base_np_list or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
+
+    if args.connectivity:
+        return ConnectivityMapExecute(args.connectivity or 'k8s', args.ns_list, args.pod_list, args.o, args.f).execute()
+
+    if args.semantic_diff:
+        return SemanticDiffExecute(args.semantic_diff, args.base_np_list or 'k8s', args.ns_list, args.pod_list, args.o, args.f).execute()
 
     if args.scheme:
-        return SchemeRunner(args.scheme).run_scheme()
+        return SchemeRunner(args.scheme, args.o, args.f).run_scheme()
 
-    return SanityExecute(args.sanity or 'k8s', args.ns_list, args.pod_list).execute()
+    return SanityExecute(args.sanity or 'k8s', args.ns_list, args.pod_list,  args.o, args.f).execute()
 
 
 def nca_main(argv=None):
@@ -104,6 +111,10 @@ def nca_main(argv=None):
                                      help='A YAML scheme file, describing verification goals')
     manual_or_automatic.add_argument('--sanity', type=_ghe_or_k8s_or_calico_or_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for sanity checking')
+    manual_or_automatic.add_argument('--connectivity', type=_ghe_or_k8s_or_calico_or_valid_path,
+                                     help = 'Network policies (file/dir/GHE url/cluster-type) for connectivity map')
+    manual_or_automatic.add_argument('--semantic_diff', type=_ghe_or_k8s_or_calico_or_valid_path,
+                                     help='Network policies (file/dir/GHE url/cluster-type) for semantic-diff')
     manual_or_automatic.add_argument('--equiv', type=_ghe_or_k8s_or_calico_or_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for equivalence checking')
     manual_or_automatic.add_argument('--interferes', type=str, help='Network policies '
@@ -120,6 +131,9 @@ def nca_main(argv=None):
     parser.add_argument('--pod_list', type=_ghe_or_k8s_or_calico_or_valid_path,
                         help='A file/cluster-type to read pod list from')
     parser.add_argument('--ghe_token', type=str, help='A valid token to access a GHE repository')
+    parser.add_argument('--o', type=str, help='Output format specification (txt or yaml). The default is txt.')
+    parser.add_argument('--f', type=str, help='A file path to which output is redirected')
+
     args = parser.parse_args(argv)
 
     if args.ghe_token:

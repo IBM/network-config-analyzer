@@ -1,0 +1,45 @@
+- query: 'connectivity_map, config: np_onlyAllow'
+  rules:
+  - src_ns:
+    - kube-system
+    src_pods:
+    - app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - has(tier)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
+
+- query: 'connectivity_map, config: np_FirstDenySubset'
+  rules:
+  - src_ns:
+    - kube-system
+    src_pods:
+    - app in (helm,keepalived-watcher,vpn)
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - has(tier)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
+
+- query: 'connectivity_map, config: np_firstAllowSuperSet'
+  rules:
+  - src_ns:
+    - kube-system
+    src_pods:
+    - app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - has(tier)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
+

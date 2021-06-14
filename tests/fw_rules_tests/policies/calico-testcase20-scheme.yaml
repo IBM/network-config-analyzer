@@ -1,0 +1,59 @@
+namespaceList: ../podlist/ns_list_wdc.json
+podList: ../podlist/hep_and_wep.json
+networkConfigList:
+- name: Eran_gnps
+  networkPolicyList:
+  - calico-testcase20-0-gnps.yaml
+  - calico-testcase20-profiles.yaml
+  expected_warnings: 1
+- name: np_1_globalEmpty_with_profiles
+  networkPolicyList:
+  - calico-testcase20-1-empty-globalNetworkpolicy.yaml
+  - calico-testcase20-profiles.yaml
+  expected_warnings: 0
+- name: np_2_outbound_hep_all_ep
+  networkPolicyList:
+  - calico-testcase20-2-outbound-hep-all-ep.yaml
+  - calico-testcase20-profiles.yaml
+  expected_warnings: 0
+- name: np_3_outbound_hep_to_wep
+  networkPolicyList:
+  - calico-testcase20-3-outbound-hep-only-to-wep.yaml
+  - calico-testcase20-profiles.yaml
+  expected_warnings: 0
+- name: np_4_outbound_all_namespaceSelector
+  networkPolicyList:
+  - calico-testcase20-4-outbound-hep-all-namespaceselector.yaml
+  - calico-testcase20-profiles.yaml
+  expected_warnings: 0
+queries:
+- name: Eran_gnps
+  connectivityMap:
+  - Eran_gnps
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+- name: np_1_globalEmpty_with_profiles
+  connectivityMap:
+  - np_1_globalEmpty_with_profiles
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+- name: np_2_all_outbound_hep
+  connectivityMap:
+  - np_2_outbound_hep_all_ep
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+- name: np_3_outbound_hep_to_wep
+  connectivityMap:
+  - np_3_outbound_hep_to_wep
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+- name: np_4_outbound_all_namespaceSelector
+  connectivityMap:
+  - np_4_outbound_all_namespaceSelector
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

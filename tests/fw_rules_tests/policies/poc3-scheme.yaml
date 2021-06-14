@@ -1,0 +1,15 @@
+namespaceList: ../podlist/poc_ns_list.json
+podList: ../podlist/kubernetes-manifests-new1.yaml
+networkConfigList:
+- name: poc3
+  networkPolicyList:
+  - microservices-netpols.yaml
+  expected_warnings: 0
+queries:
+- name: connectivity_map
+  connectivityMap:
+  - poc3
+  expected: 0
+  outputConfiguration:
+    fwRulesFilterSystemNs: true
+    fwRulesRunInTestMode: false

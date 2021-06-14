@@ -1,0 +1,175 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  creationTimestamp: 2018-12-11T16:42:12Z
+  name: allow-all-outbound
+  resourceVersion: "13343167"
+  uid: b55c6f3b-fd63-11e8-86fb-a2ef5a666dfb
+spec:
+  egress:
+  - action: Allow
+    destination: {}
+    source: {}
+  order: 1900
+  selector: vendor.role in { 'worker_public', 'master_public' }
+  types:
+  - Egress
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  creationTimestamp: 2018-12-11T16:42:12Z
+  name: allow-bigfix-port
+  resourceVersion: "13343258"
+  uid: b55dff49-fd63-11e8-86fb-a2ef5a666dfb
+spec:
+  ingress:
+  - action: Allow
+    destination:
+      ports:
+      - 52311
+    protocol: TCP
+    source: {}
+  - action: Allow
+    destination:
+      ports:
+      - 52311
+    protocol: UDP
+    source: {}
+  order: 1900
+  selector: vendor.role in { 'worker_public', 'master_public' }
+  types:
+  - Ingress
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  creationTimestamp: 2018-12-11T16:42:12Z
+  name: allow-icmp
+  resourceVersion: "13343174"
+  uid: b55f7605-fd63-11e8-86fb-a2ef5a666dfb
+spec:
+  ingress:
+  - action: Allow
+    destination: {}
+    protocol: ICMP
+    source: {}
+  order: 1500
+  selector: vendor.role in { 'worker_public', 'master_public' }
+  types:
+  - Ingress
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  creationTimestamp: 2018-12-11T16:42:12Z
+  name: allow-node-port-dnat
+  resourceVersion: "13343171"
+  uid: b560d5e5-fd63-11e8-86fb-a2ef5a666dfb
+spec:
+  ingress:
+  - action: Allow
+    destination:
+      nets:
+      - 172.30.0.0/16
+    source: {}
+  order: 1500
+  selector: vendor.role == 'worker_public'
+  types:
+  - Ingress
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  creationTimestamp: 2018-12-11T16:42:12Z
+  name: allow-sys-mgmt
+  resourceVersion: "13343177"
+  uid: b56247ab-fd63-11e8-86fb-a2ef5a666dfb
+spec:
+  ingress:
+  - action: Allow
+    destination: {}
+    source:
+      nets:
+      - 119.81.136.0/24
+      - 119.81.138.0/23
+      - 130.198.118.0/23
+      - 158.85.116.0/24
+      - 158.85.118.0/23
+      - 159.122.116.0/24
+      - 159.122.118.0/23
+      - 159.122.136.0/24
+      - 159.122.138.0/23
+      - 159.253.156.0/24
+      - 159.253.158.0/23
+      - 159.8.116.0/24
+      - 159.8.118.0/23
+      - 159.8.196.0/24
+      - 159.8.198.0/23
+      - 161.202.116.0/24
+      - 161.202.118.0/23
+      - 168.1.116.0/24
+      - 168.1.118.0/23
+      - 168.1.16.0/24
+      - 168.1.18.0/23
+      - 169.38.116.0/24
+      - 169.38.118.0/23
+      - 169.45.118.0/23
+      - 169.46.118.0/23
+      - 169.47.118.0/23
+      - 169.48.118.0/24
+      - 169.51.118.0/24
+      - 169.54.116.0/24
+      - 169.54.118.0/23
+      - 169.55.118.0/23
+      - 169.56.116.0/24
+      - 169.56.116.0/24
+      - 169.56.118.0/24
+      - 169.57.116.0/24
+      - 169.57.118.0/23
+      - 169.57.136.0/24
+      - 169.57.138.0/23
+      - 169.60.118.0/23
+      - 169.61.118.0/23
+      - 173.192.118.0/23
+      - 173.193.116.0/24
+      - 173.193.118.0/23
+      - 174.133.116.0/24
+      - 174.133.118.0/23
+      - 184.172.118.0/23
+      - 192.255.18.0/24
+      - 192.255.38.0/24
+      - 198.23.118.0/23
+      - 208.43.118.0/23
+      - 5.10.116.0/24
+      - 5.10.118.0/23
+      - 50.22.118.0/23
+      - 50.22.255.0/24
+      - 50.23.116.0/24
+      - 50.23.118.0/23
+      - 50.23.167.0/24
+      - 66.228.118.0/23
+      - 67.228.118.0/23
+      - 75.126.61.0/24
+  order: 1950
+  selector: vendor.role in { 'worker_public', 'master_public' }
+  types:
+  - Ingress
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  creationTimestamp: 2018-12-11T16:42:12Z
+  name: allow-vrrp
+  resourceVersion: "13343178"
+  uid: b563f021-fd63-11e8-86fb-a2ef5a666dfb
+spec:
+  ingress:
+  - action: Allow
+    destination: {}
+    protocol: 112
+    source: {}
+  order: 1500
+  selector: vendor.role == 'worker_public'
+  types:
+  - Ingress

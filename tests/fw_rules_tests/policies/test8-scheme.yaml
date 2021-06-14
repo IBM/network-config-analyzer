@@ -1,0 +1,14 @@
+namespaceList: ../podlist/ns_list.json
+podList: ../podlist/pods_list.json
+networkConfigList:
+- name: np8
+  networkPolicyList:
+  - test8-networkpolicy.yaml
+  expected_warnings: 0
+queries:
+- name: connectivity_map
+  connectivityMap:
+  - np8
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

@@ -11,6 +11,7 @@ class PortSet:
     """
     A class for holding a set of ports, including support for (included and excluded) named ports
     """
+
     def __init__(self, all_ports=False):
         # type: (bool) -> None
         self.port_set = CanonicalIntervalSet()
@@ -82,6 +83,7 @@ class PortSetPair:
     """
     A class for holding a set of rectangles, each defined over a range of source ports X a range of target ports
     """
+
     def __init__(self, source_ports=PortSet(), dest_ports=PortSet()):
         """
         This will create all rectangles made of a range in source_ports and a range in dest_ports
@@ -107,12 +109,23 @@ class PortSetPair:
     def __bool__(self):
         return bool(self.rectangles) or bool(self.named_ports)
 
+    def get_simplified_str(self):
+        if len(self.rectangles.layers) == 1:
+            src_ports = self.rectangles.layers[0][0]
+            dst_ports = self.rectangles.layers[0][1]
+            if src_ports == CanonicalIntervalSet.Interval(1, 65536):
+                return str(dst_ports)
+        return str(self.rectangles)
+
     def __str__(self):
         if not self.rectangles:
             if self.named_ports:
                 return 'some named ports'
             return 'no ports'
-        return str(self.rectangles)
+        return self.get_simplified_str()
+
+    def get_properties_obj(self):
+        return {'Ports': sorted(str(self).split(','))}
 
     def __eq__(self, other):
         if isinstance(other, PortSetPair):

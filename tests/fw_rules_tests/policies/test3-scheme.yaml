@@ -1,0 +1,14 @@
+namespaceList: ../podlist/ns_list.json
+podList: ../podlist/pods_list_3.json
+networkConfigList:
+- name: np3
+  networkPolicyList:
+  - test3-networkpolicy.yaml
+  expected_warnings: 0
+queries:
+- name: connectivity_map
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
