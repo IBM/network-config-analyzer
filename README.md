@@ -35,32 +35,41 @@ Checking whether the base set of NetworkPolicies forbids the traffic explicitly 
 Running with no command-line options at all is like running `nca.py --sanity k8s`.
 
 #### Additional command-line switches:
-- `--base_np_list`\
-The set of NetworkPolicies to compare against in `--equiv` and `--interferes` (default: `k8s`)
+- `--base_np_list <path to file or 'k8s'>`\
+  The set of NetworkPolicies to compare against in `--equiv` and `--interferes`\
+  *default:* The result of `kubectl get netpol -A`\
+  *shorthand:* `-b`
 - `--ns_list <path to file or 'k8s'>`\
-Allows specifying a file to take the list of namespaces from (default: the result of `kubectl get namespaces`)
+  Allows specifying a file to take the list of namespaces from\
+  *default:* the result of `kubectl get ns`\
+  *shorthand:* `-n`
 - `--pod_list <path to a file, 'calico' or 'k8s'>`\
-Allows specifying a file to take the list of pods/endpoints from (default: the result of `kubectl get pods --all-namespaces`)
+  Specifies where to take the list of pods/endpoints from\
+  *default:* the result of `kubectl get pods -A`\
+  *shorthand*: `-p`
 - `--ghe_token <token>`\
-A valid token to access a GHE repository
+  A valid token to access a GHE repository
 - `--period <minutes>`\
-Run NCA with given arguments every specified number of minutes
+  Run NCA with given arguments every specified number of minutes
 - `--daemon`\
-Run NCA as a daemon. Send and receive data using a REST API.
-- `--o`\
-Output format specification (txt or yaml). The default is txt.
-- `--f`\
-A file path to which output is redirected.
+  Run NCA as a daemon. Send and receive data using a REST API.
+- `--output_format <format>`\
+  Output format specification (txt or yaml).\
+  *default:* txt\
+  *shorthand:* `-o`
+- `--file_out <file name>`\
+  A file path to redirect output into.\
+  *shorthand* `-f`
 
 ## Installation
 ```commandline
-> git clone https://github.com/IBM/network-config-analyzer.git
-> cd network-config-analyzer
-> python3 -m venv venv
-> source venv/bin/activate
-> pip install -r requirements.txt
+git clone https://github.com/IBM/network-config-analyzer.git
+cd network-config-analyzer
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 
-> python network-config-analyzer/nca.py -h
+python network-config-analyzer/nca.py -h
 ```
 
 ## Supported platforms

@@ -169,10 +169,10 @@ def prepare_new_test_if_required(scheme_filename):
 def get_test_args(scheme_filename, output_format=None, output_path=None):
     res = ['--scheme', scheme_filename]
     if output_format is not None:
-        res.append('--o')
+        res.append('-o')
         res.append(output_format)
     if output_path is not None:
-        res.append('--f')
+        res.append('-f')
         res.append(output_path)
     return res
 
