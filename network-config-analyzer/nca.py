@@ -132,7 +132,7 @@ def nca_main(argv=None):
     parser.add_argument('--pod_list', '-p', type=_ghe_or_k8s_or_calico_or_valid_path,
                         help='A file/cluster-type to read pod list from')
     parser.add_argument('--ghe_token', type=str, help='A valid token to access a GHE repository')
-    parser.add_argument('--output_format', '-o', type=str,
+    parser.add_argument('--output_format', '-o', type=str, default='txt',
                         help='Output format specification (txt or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
 
