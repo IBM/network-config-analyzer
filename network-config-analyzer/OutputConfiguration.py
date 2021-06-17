@@ -1,3 +1,9 @@
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+
+
 class OutputConfiguration(dict):
     """
     a class to handle output configuration per query
