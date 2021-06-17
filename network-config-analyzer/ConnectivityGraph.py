@@ -1,3 +1,8 @@
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+
 from collections import defaultdict
 from ClusterInfo import ClusterInfo
 from ConnectionSet import ConnectionSet
