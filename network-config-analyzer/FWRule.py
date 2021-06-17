@@ -1,3 +1,8 @@
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+
 import ipaddress
 from ClusterInfo import ClusterInfo
 from K8sNamespace import K8sNamespace

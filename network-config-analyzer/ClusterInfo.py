@@ -1,3 +1,8 @@
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+
 import itertools
 from collections import defaultdict
 from Peer import IpBlock
