@@ -5,12 +5,12 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - testcase7-networkpolicy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2
     networkPolicyList:
       - testcase7-networkpolicy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: no_redunancy

@@ -5,22 +5,22 @@ networkConfigList:
   - name: np-superAllow
     networkPolicyList:
       - testcase6-superAllow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-subAllow
     networkPolicyList:
       - testcase6-subAllow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-superDeny
     networkPolicyList:
       - testcase6-superDeny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-subDeny
     networkPolicyList:
       - testcase6-subDeny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: supDeny_vacuous

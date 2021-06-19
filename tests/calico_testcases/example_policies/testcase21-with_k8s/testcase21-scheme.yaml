@@ -5,23 +5,23 @@ networkConfigList:
   - name: allowAll-Calico
     networkPolicyList:
       - testcase21-Calico-allowAll-globalNetworkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: emptyPodSelector-k8s
     networkPolicyList:
       - testcase21-k8s-emptyPodSelector.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
   - name: allowSpecific-kubs-system-all-other-Calico
     networkPolicyList:
       - testcase21-Calico-allowAll-globalNetworkpolicy.yaml
       - testcase21-Calico-allowSpecific-kube-system.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: allowSpecific-kubs-system-all-other-k8s
     networkPolicyList:
       - testcase21-k8s-sanity-allowSpecific-kube-system.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: sanity_allowAll-Calico

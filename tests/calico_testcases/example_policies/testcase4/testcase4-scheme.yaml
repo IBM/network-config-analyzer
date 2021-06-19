@@ -6,13 +6,13 @@ networkConfigList:
     networkPolicyList:
       - testcase4-global-networkpolicy1.yaml
       - ../testcase1/testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2
     networkPolicyList:
       - testcase4-global-networkpolicy1.yaml
       - ../testcase1/testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: policies_not_vacuous

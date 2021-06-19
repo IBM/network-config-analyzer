@@ -5,12 +5,12 @@ networkConfigList:
   - name: np-pod-based-policies
     networkPolicyList:
       - testcase18-pods-based-policies.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-ports-based
     networkPolicyList:
       - testcase18-ports-based-policies.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: policies_not_vacuous

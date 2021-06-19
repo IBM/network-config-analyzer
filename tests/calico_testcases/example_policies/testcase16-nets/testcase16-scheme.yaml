@@ -5,12 +5,12 @@ networkConfigList:
   - name: equiv-ranges-writing-games
     networkPolicyList:
       - testcase16-different-ranges-writing-equiv.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: equiv-ranges-containment-games
     networkPolicyList:
       - testcase16-containment-games.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: no_empty_policies

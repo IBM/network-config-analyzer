@@ -6,7 +6,7 @@ networkConfigList:
     networkPolicyList:
       - demo-sanity1-emptySelector.yaml
       - demo-allow-all-wdc-wep-profiles.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
 queries:
   - name: sanity_empty_selector

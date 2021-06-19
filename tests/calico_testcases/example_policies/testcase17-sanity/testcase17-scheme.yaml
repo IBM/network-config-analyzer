@@ -17,22 +17,22 @@ networkConfigList:
   - name: np_equiv_policy
     networkPolicyList:
       - testcase17-equiv-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_global_equiv
     networkPolicyList:
       - testcase17-equiv-global-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_equiv_policy_redundant_deny
     networkPolicyList:
       - testcase17-equiv-networkpolicy-redundant-denys.yaml
-    expected_warnings: 8
+    expectedWarnings: 8
 
   - name: np_equiv_policy_deny_last_with_difference
     networkPolicyList:
       - testcase17-equiv-networkpolicy-makes-different-last-denys.yaml
-    expected_warnings: 4
+    expectedWarnings: 4
 
   - name: np_with_redundant_policies
     networkPolicyList:
@@ -40,7 +40,7 @@ networkConfigList:
       - testcase17-equiv-networkpolicy.yaml
       - testcase17-nonequiv-networkpolicy.yaml
       - testcase17-equiv-global-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_with_redundant_policies_redundant_denys_version
     networkPolicyList:
@@ -48,7 +48,7 @@ networkConfigList:
       - testcase17-equiv-networkpolicy-redundant-denys.yaml
       - testcase17-nonequiv-networkpolicy.yaml
       - testcase17-equiv-global-networkpolicy.yaml
-    expected_warnings: 8
+    expectedWarnings: 8
 
   - name: np_with_redundant_policies_makes_a_diff_denys_version
     networkPolicyList:
@@ -56,32 +56,32 @@ networkConfigList:
       - testcase17-equiv-networkpolicy-makes-different-last-denys.yaml
       - testcase17-nonequiv-networkpolicy.yaml
       - testcase17-equiv-global-networkpolicy.yaml
-    expected_warnings: 4
+    expectedWarnings: 4
 
   - name: np_various-containment1
     networkPolicyList:
       - testcase17-various-containment-between-policies1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_various-containment2
     networkPolicyList:
       - testcase17-various-containment-between-policies2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_only_deny_containment
     networkPolicyList:
       - testcase17-containments-only-deny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_conflict1
     networkPolicyList:
       - testcase17-conflict1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_conflict2
     networkPolicyList:
       - testcase17-conflict2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: sanity_np_open_default

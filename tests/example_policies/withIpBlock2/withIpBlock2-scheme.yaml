@@ -5,32 +5,32 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - withIpBlock2-networkpolicy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2
     networkPolicyList:
       - withIpBlock2-networkpolicy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np3
     networkPolicyList:
       - withIpBlock2-networkpolicy3.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np4
     networkPolicyList:
       - withIpBlock2-networkpolicy4.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np5
     networkPolicyList:
       - withIpBlock2-networkpolicy5.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np5_from_ghe
     networkPolicyList:
       - https://github.com/IBM/network-config-analyzer/blob/master/tests/example_policies/withIpBlock2/withIpBlock2-networkpolicy5.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: no_emptiness

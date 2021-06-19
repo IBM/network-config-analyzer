@@ -5,22 +5,22 @@ networkConfigList:
   - name: old1
     networkPolicyList:
       - regression-withIpBlock-old.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: new1
     networkPolicyList:
       - regression-withIpBlock-new.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: old2
     networkPolicyList:
       - regression-podSelector-old.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: new2
     networkPolicyList:
       - regression-podSelector-new.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
 ### more ipBlocks and ports were added to new egress; thus new should contain old

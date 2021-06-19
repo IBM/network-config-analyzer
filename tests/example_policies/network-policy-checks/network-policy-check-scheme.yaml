@@ -5,7 +5,7 @@ networkConfigList:
   - name: checks_policy
     networkPolicyList:
       - checks-network-policy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: all-captured

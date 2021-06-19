@@ -5,32 +5,32 @@ networkConfigList:
   - name: np_allowFirstDefaultDeny
     networkPolicyList:
       - testcase11-allowFirstDefaultDeny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_denyFirstDefaultDeny
     networkPolicyList:
       - testcase11-denyFirstDefaultDeny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_allowFirstDefaultAllow
     networkPolicyList:
       - testcase11-allowFirstDefaultAllow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_denyFirstDefaultAllow
     networkPolicyList:
       - testcase11-denyFirstDefaultAllow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_denyFirstAlsoEgressDefaultAllow
     networkPolicyList:
       - testcase11-denyFirstAlsoEgressDefaultAllow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_denyFirstAlsoEgressDefaultDeny
     networkPolicyList:
       - testcase11-denyFirstAlsoEgressDefaultDeny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: nonEmpty_all_policies

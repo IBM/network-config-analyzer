@@ -7,22 +7,22 @@ networkConfigList:
     networkPolicyList:
       - testcase23-networkpolicy-allow-nets.yaml
       - testcase23-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
   - name: np2
     networkPolicyList:
       - testcase23-networkpolicy-networkset.yaml
       - testcase23-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
   - name: np-gan
     networkPolicyList:
       - testcase23-networkpolicy-global-allow-nets.yaml
       - testcase23-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
   - name: np-gnws
     networkPolicyList:
       - testcase23-networkpolicy-globalnetworkset.yaml
       - testcase23-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: no_vacuous

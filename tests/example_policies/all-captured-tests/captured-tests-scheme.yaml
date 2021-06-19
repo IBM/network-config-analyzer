@@ -4,18 +4,18 @@ podList: ../../example_podlist/pods_list.json
 networkConfigList:
   - name: no_policy
     networkPolicyList: []
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: some_captured
     networkPolicyList:
       - some-captured-tests-networkpolicy.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
   - name: all_captured
     networkPolicyList:
       - some-captured-tests-networkpolicy.yaml
       - other-captured-tests-networkpolicy.yaml
-    expected_warnings: 3
+    expectedWarnings: 3
 
 queries:
   - name: all-captured

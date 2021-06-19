@@ -9,20 +9,20 @@ networkConfigList:
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-1-cnc-fe-allow-ingress.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2_cnc-fe-only-ingress_policy_cnc_fe_egress
     networkPolicyList:
     - testcase19-0-deny-all-profiles.yaml
     - testcase19-1-cnc-fe-allow-ingress.yaml
     - testcase19-2-policy-cnc-fe-egress-allow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np3_cnc-fe-only-ingress_profile_cnc_fe_egress
     networkPolicyList:
     - testcase19-1-cnc-fe-allow-ingress.yaml
     - testcase19-3-profile-kns-cnc-fe-egress-allow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 ### games within policy, also with '2nd' profile (which should not be used)
 
@@ -31,25 +31,25 @@ networkConfigList:
     - testcase19-0-deny-all-profiles.yaml
     - testcase19-0-1-empty-policy.yaml
     - testcase19-4-policy-cnc-ntsgin-egress-ingress-within-namespace-partly-allow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np5_cnc-ntsgin-profiles-partly-within-namespace
     networkPolicyList:
     - testcase19-0-1-empty-policy.yaml
     - testcase19-5-profiles-cnc-ntsgin-egress-ingress-within-namespace-partly-allow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np6_cnc-ntsgin-2nd-profiles-within-namespace
     networkPolicyList:
     - testcase19-0-1-empty-policy.yaml
     - testcase19-6-2nd-profiles-cnc-ntsgin-egress-ingress-within-namespace-allow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np7_cnc-ntsgin-profiles-all-within-namespace
     networkPolicyList:
     - testcase19-0-1-empty-policy.yaml
     - testcase19-7-profiles-cnc-ntsgin-egress-ingress-within-namespace-all-allow.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 ## first set of tests of 'labels to apply", this set quit artificial with networkPolicy (non global)
 
@@ -57,31 +57,31 @@ networkConfigList:
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-8-1-specific-ingress-between-namespaces-with-policies.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np8-1-between-namespaces-namespaceSelector-and-profile
     networkPolicyList:
       - testcase19-8-0-specific-egress-between-namespaces-with-profiles.yaml
       - testcase19-8-1-specific-ingress-between-namespaces-with-policies.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np9-0-cnc-fe-between-namespaces-with-deny-all-profiles
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-9-1-specific-ingress-with-policies-based-apply-lables.yaml
-    expected_warnings: 2
+    expectedWarnings: 2
 
   - name: np9-0-cnc-fe-between-namespaces-missing-one-label-to-apply
     networkPolicyList:
       - testcase19-9-0-1-specific-egress-with-profiles-missing-apply-labels.yaml
       - testcase19-9-1-specific-ingress-with-policies-based-apply-lables.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np9-cnc-fe-between-namespaces-with-label-to-apply
     networkPolicyList:
       - testcase19-9-0-specific-egress-with-profiles-based-on-apply-labels.yaml
       - testcase19-9-1-specific-ingress-with-policies-based-apply-lables.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 # second test of 'labels to apply' - also using global policies
 
@@ -89,19 +89,19 @@ networkConfigList:
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-10-open-within-cnc-kt-with-policy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np11-global-without-label-to-apply
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-11-open-within-cnc-kt-with-global-labels-apply.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
   - name: np11-global-enable-with-label-to-apply
     networkPolicyList:
       - testcase19-11-0-profiles-with-apply-all-cnc-kt.yaml
       - testcase19-11-open-within-cnc-kt-with-global-labels-apply.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 ### policy with deny and allow rules, with games of "Deny all" vs. "Allow all" profiles.
 ### mainly to see what are the redundancies and that they are correct. Also to verify containment and equiv
@@ -110,25 +110,25 @@ networkConfigList:
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-12-deny-allow-ingress-namespaces-games-no-egress.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np12-deny-allow-games-no-egress-default-allow
     networkPolicyList:
       - testcase19-0-2-allow-all-profiles.yaml
       - testcase19-12-deny-allow-ingress-namespaces-games-no-egress.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np13-deny-allow-games-open-egress-default-deny
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-13-deny-allow-ingress-namespaces-games-open-egress.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np13-deny-allow-games-open-egress-default-allow
     networkPolicyList:
       - testcase19-0-2-allow-all-profiles.yaml
       - testcase19-13-deny-allow-ingress-namespaces-games-open-egress.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 ### games within namespace of allow-deny-pass
 ### there is one pass rule after all deny and allow rules, s.t. the pass rule contains the allow and deny rules
@@ -138,13 +138,13 @@ networkConfigList:
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-14-ingress-allow-deny-pass-games-within-namespace.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np14-deny-allow-pass-games-default-allow
     networkPolicyList:
       - testcase19-0-2-allow-all-profiles.yaml
       - testcase19-14-ingress-allow-deny-pass-games-within-namespace.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 ## and last two cfgs - same allow-deny games but without the pass
 
@@ -152,13 +152,13 @@ networkConfigList:
     networkPolicyList:
       - testcase19-0-deny-all-profiles.yaml
       - testcase19-15-ingress-allow-deny-witoutpass-games-within-namespace.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np15-deny-allow-withoutpass-games-default-allow
     networkPolicyList:
       - testcase19-0-2-allow-all-profiles.yaml
       - testcase19-15-ingress-allow-deny-witoutpass-games-within-namespace.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: non_empty

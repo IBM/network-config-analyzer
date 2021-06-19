@@ -6,7 +6,7 @@ networkConfigList:
     networkPolicyList:
       - demo-sanity2-typo-selector-no-effect.yaml
       - demo-allow-all-wdc-wep-profiles.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
 queries:
   - name: sanity_typo_selector_globalPolicy

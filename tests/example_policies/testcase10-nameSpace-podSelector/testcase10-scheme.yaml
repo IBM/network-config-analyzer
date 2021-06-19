@@ -5,7 +5,7 @@ networkConfigList:
   - name: np
     networkPolicyList:
       - testcase10-networkpolicy.yaml
-    expected_warnings: 2
+    expectedWarnings: 2
 
 
 queries:

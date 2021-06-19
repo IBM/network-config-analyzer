@@ -5,37 +5,37 @@ networkConfigList:
   - name: global-simple
     networkPolicyList:
       - testcase15-global-simple.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: global-not-simple
     networkPolicyList:
       - testcase15-global-not-simple.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: named-ports
     networkPolicyList:
       - testcase15-named-ports.yaml
-    expected_warnings: 10
+    expectedWarnings: 10
 
   - name: equiv-games1
     networkPolicyList:
       - testcase15-equiv-games1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: equiv-games2
     networkPolicyList:
       - testcase15-equiv-games2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
     
   - name: equiv-games3
     networkPolicyList:
       - testcase15-equiv-games3.yaml
-    expected_warnings: 0    
+    expectedWarnings: 0
     
   - name: named-ports-rectangles
     networkPolicyList:
       - testcase15-named-ports-rectangles.yaml
-    expected_warnings: 0    
+    expectedWarnings: 0
 
 queries:
   - name: no_empty_policies
