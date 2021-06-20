@@ -5,13 +5,36 @@
     --pod_list example_podlist/pods_list.json
   expected: 1
 
+- name: basic_connectivity
+  args: >
+    --connectivity example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+  expected: 0
+
+- name: basic_connectivity_yaml
+  args: >
+    --connectivity example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+    -o yaml
+  expected: 0
+
 - name: basic_equiv
   args: >
     --equiv example_policies/testcase7/testcase7-networkpolicy1.yaml
     --base_np_list example_policies/testcase7/testcase7-networkpolicy2.yaml
     --ns_list example_podlist/ns_list.json
     --pod_list example_podlist/pods_list.json
-  expected: 0
+  expected: 1
+
+- name: basic_semantic_diff
+  args: >
+    --semantic_diff example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_np_list example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+  expected: 1
 
 - name: basic_interferes
   args: >

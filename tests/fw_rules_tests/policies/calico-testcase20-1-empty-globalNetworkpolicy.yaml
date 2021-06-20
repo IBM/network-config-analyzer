@@ -1,0 +1,9 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase20-empty-globalNetworkpolicy
+spec:
+  types:
+  - Ingress
+  - Egress
+

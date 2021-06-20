@@ -2,7 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+from CanonicalIntervalSet import CanonicalIntervalSet
 from PortSet import PortSet, PortSetPair
 from ICMPDataSet import ICMPDataSet
 
@@ -13,6 +13,8 @@ class ConnectionSet:
     """
     _protocol_number_to_name_dict = {1: 'ICMP', 6: 'TCP', 17: 'UDP', 58: 'ICMPv6', 132: 'SCTP', 135: 'UDPLite'}
     _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
+    _port_supporting_protocols = {6, 17, 132}
+    _icmp_protocols = {1, 58}
 
     def __init__(self, allow_all=False):
         self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
@@ -26,11 +28,80 @@ class ConnectionSet:
             return self.allow_all == other.allow_all and self.allowed_protocols == other.allowed_protocols
         return NotImplemented
 
+    def __lt__(self, other):
+        if self.allow_all:
+            return False
+        if other.allow_all:
+            return True
+        if len(self.allowed_protocols) != len(other.allowed_protocols):
+            return len(self.allowed_protocols) < len(other.allowed_protocols)
+        return str(self) < str(other)
+
+    def __hash__(self):
+        return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
+
+    def get_connections_list(self, is_k8s_config):
+        """
+        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        :return:  list with yaml representation of the connection set, to be used at fw-rules representation in yaml
+        """
+        res = []
+        if self.allow_all:
+            res.append(str(self))
+            return res
+        if not self.allowed_protocols:
+            res.append(str(self))
+            return res
+        protocols_set = set(self.allowed_protocols.keys())
+        # in k8s policy - restrict allowed protocols only to protocols supported by it
+        if is_k8s_config:
+            protocols_set &= ConnectionSet._port_supporting_protocols
+        for protocol in sorted(list(protocols_set)):
+            protocol_text = self.protocol_number_to_name(protocol)
+            protocol_obj = {'Protocol': protocol_text}
+            properties = self.allowed_protocols[protocol]
+            if not isinstance(properties, bool):
+                protocol_obj.update(properties.get_properties_obj())
+            res.append(protocol_obj)
+        return res
+
+    def get_connections_str(self, is_k8s_config):
+        """
+        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        :return: a string representation of the connection set, to be used at fw-rules representation in txt
+        """
+
+        if self.allow_all:
+            return "All connections"
+        if not self.allowed_protocols:
+            return 'No connections'
+        res = ''
+        protocols_set = set(self.allowed_protocols.keys())
+        # in k8s policy - restrict allowed protocols only to protocols supported by it
+        if is_k8s_config:
+            protocols_set &= ConnectionSet._port_supporting_protocols
+        protocols_numbers = CanonicalIntervalSet()
+        for protocol in sorted(list(protocols_set)):
+            if protocol not in ConnectionSet._protocol_number_to_name_dict:
+                interval = CanonicalIntervalSet.Interval(protocol, protocol)
+                protocols_numbers.add_interval(interval)
+            else:
+                protocol_text = self.protocol_number_to_name(protocol)
+                properties = self.allowed_protocols[protocol]
+                if not isinstance(properties, bool):
+                    res += protocol_text + ' ' + str(properties) + ','
+                else:
+                    res += protocol_text + ','
+        if protocols_numbers:
+            res += 'protocols numbers: ' + str(protocols_numbers)
+        return res
+
     def __str__(self):
         if self.allow_all:
             return "All connections"
         if not self.allowed_protocols:
             return 'No connections'
+
         if len(self.allowed_protocols) == 1:
             protocol_num = next(iter(self.allowed_protocols))
             protocol_text = 'Protocol: ' + self.protocol_number_to_name(protocol_num)
@@ -48,6 +119,13 @@ class ConnectionSet:
             if idx > 0:
                 protocol_text += ', '
             protocol_text += self.protocol_number_to_name(protocol)
+
+            # add properties:
+            properties = self.allowed_protocols[protocol]
+            properties_text = ''
+            if not isinstance(properties, bool):
+                properties_text = ', ' + str(properties)
+            protocol_text += properties_text
         return protocol_text
 
     def __and__(self, other):
@@ -243,7 +321,7 @@ class ConnectionSet:
         :return: Whether the given protocol has ports
         :rtype: bool
         """
-        return protocol in {6, 17, 132}
+        return protocol in ConnectionSet._port_supporting_protocols
 
     @staticmethod
     def protocol_is_icmp(protocol):
@@ -252,7 +330,7 @@ class ConnectionSet:
         :return: Whether the protocol is icmp or icmpv6
         :rtype: bool
         """
-        return protocol in {1, 58}
+        return protocol in ConnectionSet._icmp_protocols
 
     def add_connections(self, protocol, properties=True):
         """
@@ -351,7 +429,7 @@ class ConnectionSet:
         for protocol, properties in self.allowed_protocols.items():
             if protocol not in other.allowed_protocols:
                 return self_name + ' allows communication using protocol ' + self.protocol_number_to_name(protocol) + \
-                        ' while ' + other_name + ' does not.'
+                       ' while ' + other_name + ' does not.'
             other_properties = other.allowed_protocols[protocol]
             if properties != other_properties:
                 return self.protocol_number_to_name(protocol) + ' protocol - ' + \
@@ -360,6 +438,6 @@ class ConnectionSet:
         for protocol in other.allowed_protocols:
             if protocol not in self.allowed_protocols:
                 return other_name + ' allows communication using protocol ' + self.protocol_number_to_name(protocol) + \
-                        ' while ' + self_name + ' does not.'
+                       ' while ' + self_name + ' does not.'
 
         return 'No diff.'

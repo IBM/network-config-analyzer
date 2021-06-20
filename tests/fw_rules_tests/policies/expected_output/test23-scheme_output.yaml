@@ -1,0 +1,25 @@
+- query: 'connectivity_map, config: np23'
+  rules:
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (skydive)
+    connection:
+    - Protocol: UDP
+      Ports:
+      - '53'
+  - src_ns:
+    - default
+    src_pods:
+    - cognetive-agents-C
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (skydive)
+    connection:
+    - All connections
+

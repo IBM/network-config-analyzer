@@ -1,0 +1,1266 @@
+{
+  "kind": "PodList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/pods",
+    "resourceVersion": "2996123"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "cognetive-agents-d54st",
+        "generateName": "cognetive-agents-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/cognetive-agents-d54st",
+        "uid": "14282859-301f-11e8-865c-52075433990e",
+        "resourceVersion": "2820503",
+        "creationTimestamp": "2018-03-25T11:24:27Z",
+        "labels": {
+          "app": "skydive",
+          "controller-revision-hash": "1317571478",
+          "pod-template-generation": "1",
+          "tier": "agent"
+        },
+        "annotations": {
+          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"DaemonSet\",\"namespace\":\"default\",\"name\":\"cognetive-agents\",\"uid\":\"14265cc3-301f-11e8-865c-52075433990e\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"508656\"}}\n"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "cognetive-agents",
+            "uid": "14265cc3-301f-11e8-865c-52075433990e",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "skydive-config",
+            "configMap": {
+              "name": "skydive-config",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "docker",
+            "hostPath": {
+              "path": "/var/run/docker.sock",
+              "type": ""
+            }
+          },
+          {
+            "name": "run",
+            "hostPath": {
+              "path": "/var/run/netns",
+              "type": ""
+            }
+          },
+          {
+            "name": "ovsdb",
+            "hostPath": {
+              "path": "/var/run/openvswitch/db.sock",
+              "type": ""
+            }
+          },
+          {
+            "name": "default-token-hszmd",
+            "secret": {
+              "secretName": "default-token-hszmd",
+              "defaultMode": 420
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "cognetive",
+            "image": "registry.ng.bluemix.net/demo_k8s/cognetive",
+            "command": [
+              "skydive",
+              "agent",
+              "-c",
+              "/config/skydive.yml"
+            ],
+            "resources": {
+              
+            },
+            "volumeMounts": [
+              {
+                "name": "skydive-config",
+                "mountPath": "/config"
+              },
+              {
+                "name": "docker",
+                "mountPath": "/var/run/docker.sock"
+              },
+              {
+                "name": "run",
+                "mountPath": "/host/run"
+              },
+              {
+                "name": "ovsdb",
+                "mountPath": "/var/run/openvswitch/db.sock"
+              },
+              {
+                "name": "default-token-hszmd",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "Always",
+            "securityContext": {
+              "privileged": true
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "10.186.164.174",
+        "hostNetwork": true,
+        "hostPID": true,
+        "securityContext": {
+          
+        },
+        "imagePullSecrets": [
+          {
+            "name": "bluemix-default-secret"
+          },
+          {
+            "name": "bluemix-default-secret-regional"
+          },
+          {
+            "name": "bluemix-default-secret-international"
+          }
+        ],
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "node.alpha.kubernetes.io/notReady",
+            "operator": "Exists",
+            "effect": "NoExecute"
+          },
+          {
+            "key": "node.alpha.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute"
+          },
+          {
+            "key": "node.kubernetes.io/disk-pressure",
+            "operator": "Exists",
+            "effect": "NoSchedule"
+          },
+          {
+            "key": "node.kubernetes.io/memory-pressure",
+            "operator": "Exists",
+            "effect": "NoSchedule"
+          }
+        ]
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-25T11:24:27Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-25T11:24:36Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-25T11:24:36Z"
+          }
+        ],
+        "hostIP": "10.186.164.174",
+        "podIP": "10.186.164.174",
+        "startTime": "2018-03-25T11:24:27Z",
+        "containerStatuses": [
+          {
+            "name": "cognetive",
+            "state": {
+              "running": {
+                "startedAt": "2018-03-25T11:24:36Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "registry.ng.bluemix.net/demo_k8s/cognetive:latest",
+            "imageID": "docker-pullable://registry.ng.bluemix.net/demo_k8s/cognetive@sha256:372e1d50ba8cf32859460bf3083d4f96887b5af737ffc96f53434dd1ad0a8fb4",
+            "containerID": "docker://1c0af4ca575d346faf48d507dfe0d67227d7a6c2ebde5d4a0674c7e8a2dee61e"
+          }
+        ],
+        "qosClass": "BestEffort"
+      }
+    },
+      {
+      "metadata": {
+        "name": "ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2",
+        "generateName": "ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-",
+        "namespace": "ibm-system-new",
+        "selfLink": "/api/v1/namespaces/ibm-system-new/pods/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2",
+        "uid": "1aafd6fb-7588-11e8-bd75-ce1115ac0d30",
+        "resourceVersion": "2911969",
+        "creationTimestamp": "2018-06-21T19:20:05Z",
+        "labels": {
+          "ibm-cloud-provider-ip": "169-60-164-10",
+          "ibm-cloud-provider-lb-app": "keepalived",
+          "ibm-cloud-provider-lb-name": "a8bba512021e211e8a8d432799206ac6",
+          "pod-template-hash": "175883757"
+        },
+        "annotations": {
+          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"ReplicaSet\",\"namespace\":\"ibm-system-new\",\"name\":\"ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c\",\"uid\":\"82429751-7587-11e8-82cc-fe87d4819862\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"2820115\"}}\n",
+          "kubernetes.io/psp": "ibm-privileged-psp"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c",
+            "uid": "82429751-7587-11e8-82cc-fe87d4819862",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "keepalived-status",
+            "hostPath": {
+              "path": "/tmp/keepalived",
+              "type": ""
+            }
+          },
+          {
+            "name": "default-token-cfzk4",
+            "secret": {
+              "secretName": "default-token-cfzk4",
+              "defaultMode": 420
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "ibm-cloud-provider-ip-169-60-164-10",
+            "image": "registry.ng.bluemix.net/armada-master/keepalived:115",
+            "env": [
+              {
+                "name": "VIRTUAL_IP",
+                "value": "169.60.164.10"
+              }
+            ],
+            "resources": {
+
+            },
+            "volumeMounts": [
+              {
+                "name": "keepalived-status",
+                "mountPath": "/status"
+              },
+              {
+                "name": "default-token-cfzk4",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "NET_ADMIN"
+                ]
+              },
+              "privileged": false
+            }
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "10.186.164.173",
+        "hostNetwork": true,
+        "securityContext": {
+
+        },
+        "imagePullSecrets": [
+          {
+            "name": "bluemix-default-secret"
+          },
+          {
+            "name": "bluemix-default-secret-regional"
+          },
+          {
+            "name": "bluemix-default-secret-international"
+          }
+        ],
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchExpressions": [
+                    {
+                      "key": "publicVLAN",
+                      "operator": "In",
+                      "values": [
+                        "2176535"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "podAntiAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": [
+              {
+                "labelSelector": {
+                  "matchLabels": {
+                    "ibm-cloud-provider-ip": "169-60-164-10",
+                    "ibm-cloud-provider-lb-name": "a8bba512021e211e8a8d432799206ac6"
+                  }
+                },
+                "topologyKey": "kubernetes.io/hostname"
+              }
+            ]
+          }
+        },
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "dedicated",
+            "value": "edge"
+          },
+          {
+            "key": "node.alpha.kubernetes.io/notReady",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.alpha.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ]
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-06-21T19:21:00Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-06-21T19:21:02Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-06-21T19:20:05Z"
+          }
+        ],
+        "hostIP": "10.186.164.173",
+        "podIP": "10.186.164.173",
+        "startTime": "2018-06-21T19:21:00Z",
+        "containerStatuses": [
+          {
+            "name": "ibm-cloud-provider-ip-169-60-164-10",
+            "state": {
+              "running": {
+                "startedAt": "2018-06-21T19:21:02Z"
+              }
+            },
+            "lastState": {
+
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "registry.ng.bluemix.net/armada-master/keepalived:115",
+            "imageID": "docker-pullable://registry.ng.bluemix.net/armada-master/keepalived@sha256:f21245307dd5d3bb287751c2582f33e78176caf4275c814af21f3fdb699ac431",
+            "containerID": "docker://54cf08592988801a055dc6fede11c17e8822c15a57b4013aa19e2dab6cefc66b"
+          }
+        ],
+        "qosClass": "BestEffort"
+      }
+    },
+      {
+      "metadata": {
+        "name": "calico-kube-controllers-7694668c77-t6slc",
+        "generateName": "calico-kube-controllers-7694668c77-",
+        "namespace": "kube-system-new-dummy-to-ignore",
+        "selfLink": "/api/v1/namespaces/kube-system-new/pods/calico-kube-controllers-7694668c77-t6slc",
+        "uid": "34bf3063-361a-11e8-865c-52075433990e",
+        "resourceVersion": "2820577",
+        "creationTimestamp": "2018-04-02T02:04:41Z",
+        "labels": {
+          "k8s-app": "calico-kube-controllers",
+          "pod-template-hash": "3250224733"
+        },
+        "annotations": {
+          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"ReplicaSet\",\"namespace\":\"kube-system-new\",\"name\":\"calico-kube-controllers-7694668c77\",\"uid\":\"bd0924a5-2134-11e8-a8d4-32799206ac60\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"708003\"}}\n"
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "calico-kube-controllers-7694668c77",
+            "uid": "bd0924a5-2134-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "etcd-certs",
+            "secret": {
+              "secretName": "calico-etcd-secrets",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "calico-kube-controllers-token-klzrl",
+            "secret": {
+              "secretName": "calico-kube-controllers-token-klzrl",
+              "defaultMode": 420
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "calico-kube-controllers",
+            "image": "registry.ng.bluemix.net/armada-master/kube-controllers:v1.0.2",
+            "env": [
+              {
+                "name": "ETCD_ENDPOINTS",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_endpoints"
+                  }
+                }
+              },
+              {
+                "name": "ETCD_CA_CERT_FILE",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_ca"
+                  }
+                }
+              },
+              {
+                "name": "ETCD_KEY_FILE",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_key"
+                  }
+                }
+              },
+              {
+                "name": "ETCD_CERT_FILE",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_cert"
+                  }
+                }
+              },
+              {
+                "name": "ENABLED_CONTROLLERS",
+                "value": "policy,profile,workloadendpoint"
+              }
+            ],
+            "resources": {
+
+            },
+            "volumeMounts": [
+              {
+                "name": "etcd-certs",
+                "mountPath": "/calico-secrets"
+              },
+              {
+                "name": "calico-kube-controllers-token-klzrl",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent"
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "calico-kube-controllers",
+        "serviceAccount": "calico-kube-controllers",
+        "nodeName": "10.186.164.166",
+        "hostNetwork": true,
+        "securityContext": {
+
+        },
+        "imagePullSecrets": [
+          {
+            "name": "bluemix-default-secret"
+          }
+        ],
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "operator": "Exists"
+          }
+        ]
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-04-02T02:04:41Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-06-21T19:21:26Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-04-02T02:04:41Z"
+          }
+        ],
+        "hostIP": "10.186.164.166",
+        "podIP": "10.186.164.166",
+        "startTime": "2018-04-02T02:04:41Z",
+        "containerStatuses": [
+          {
+            "name": "calico-kube-controllers",
+            "state": {
+              "running": {
+                "startedAt": "2018-06-21T19:21:26Z"
+              }
+            },
+            "lastState": {
+              "terminated": {
+                "exitCode": 2,
+                "reason": "Error",
+                "startedAt": "2018-04-02T02:04:45Z",
+                "finishedAt": "2018-06-21T19:21:24Z",
+                "containerID": "docker://2ec98edd1d702368dce790d1e5622a43d50e2b110ca4ff3db2961cfb8b88585a"
+              }
+            },
+            "ready": true,
+            "restartCount": 1,
+            "image": "registry.ng.bluemix.net/armada-master/kube-controllers:v1.0.2",
+            "imageID": "docker-pullable://registry.ng.bluemix.net/armada-master/kube-controllers@sha256:bfe5356fabed7e58cff34d3c44364479c3305b8b48617ec433b1012f7cdabf34",
+            "containerID": "docker://6f3a4809f97d3b435f42919d35dcdb712b4e4fda3bc2920d23e6d93ba40c2250"
+          }
+        ],
+        "qosClass": "BestEffort"
+      }
+    },
+
+
+
+    {
+      "metadata": {
+        "name": "calico-node-mgdlr",
+        "generateName": "calico-node-",
+        "namespace": "kube-system-new",
+        "selfLink": "/api/v1/namespaces/kube-system-new/pods/calico-node-mgdlr",
+        "uid": "c0cf5728-2135-11e8-a8d4-32799206ac60",
+        "resourceVersion": "2820591",
+        "creationTimestamp": "2018-03-06T11:58:58Z",
+        "labels": {
+          "controller-revision-hash": "3852388844",
+          "k8s-app": "calico-node",
+          "tier": "frontend",
+          "pod-template-generation": "1"
+        },
+        "annotations": {
+          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"DaemonSet\",\"namespace\":\"kube-system-new\",\"name\":\"calico-node\",\"uid\":\"bd04ac9e-2134-11e8-a8d4-32799206ac60\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"487\"}}\n",
+          "scheduler.alpha.kubernetes.io/critical-pod": ""
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "DaemonSet",
+            "name": "calico-node",
+            "uid": "bd04ac9e-2134-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "lib-modules",
+            "hostPath": {
+              "path": "/lib/modules",
+              "type": ""
+            }
+          },
+          {
+            "name": "var-run-calico",
+            "hostPath": {
+              "path": "/var/run/calico",
+              "type": ""
+            }
+          },
+          {
+            "name": "cni-bin-dir",
+            "hostPath": {
+              "path": "/opt/cni/bin",
+              "type": ""
+            }
+          },
+          {
+            "name": "cni-net-dir",
+            "hostPath": {
+              "path": "/etc/cni/net.d",
+              "type": ""
+            }
+          },
+          {
+            "name": "etcd-certs",
+            "secret": {
+              "secretName": "calico-etcd-secrets",
+              "defaultMode": 420
+            }
+          },
+          {
+            "name": "calico-node-token-t5mr4",
+            "secret": {
+              "secretName": "calico-node-token-t5mr4",
+              "defaultMode": 420
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "calico-node",
+            "image": "registry.ng.bluemix.net/armada-master/node:v2.6.5",
+            "env": [
+              {
+                "name": "ETCD_ENDPOINTS",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_endpoints"
+                  }
+                }
+              },
+              {
+                "name": "CALICO_NETWORKING_BACKEND",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "calico_backend"
+                  }
+                }
+              },
+              {
+                "name": "CLUSTER_TYPE",
+                "value": "k8s,bgp"
+              },
+              {
+                "name": "CALICO_DISABLE_FILE_LOGGING",
+                "value": "true"
+              },
+              {
+                "name": "FELIX_DEFAULTENDPOINTTOHOSTACTION",
+                "value": "ACCEPT"
+              },
+              {
+                "name": "FELIX_IPTABLESREFRESHINTERVAL",
+                "value": "60"
+              },
+              {
+                "name": "FELIX_PROMETHEUSMETRICSENABLED",
+                "value": "true"
+              },
+              {
+                "name": "FELIX_PROMETHEUSMETRICSPORT",
+                "value": "9091"
+              },
+              {
+                "name": "IP",
+                "value": "autodetect"
+              },
+              {
+                "name": "IP_AUTODETECTION_METHOD",
+                "value": "interface=(^bond0$|^eth0$|^ens6$)"
+              },
+              {
+                "name": "CALICO_IPV4POOL_CIDR",
+                "value": "172.30.0.0/16"
+              },
+              {
+                "name": "CALICO_IPV4POOL_IPIP",
+                "value": "cross-subnet"
+              },
+              {
+                "name": "CALICO_K8S_NODE_REF",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "spec.nodeName"
+                  }
+                }
+              },
+              {
+                "name": "FELIX_IPV6SUPPORT",
+                "value": "false"
+              },
+              {
+                "name": "FELIX_LOGSEVERITYSCREEN",
+                "value": "info"
+              },
+              {
+                "name": "FELIX_IPINIPMTU",
+                "value": "1480"
+              },
+              {
+                "name": "ETCD_CA_CERT_FILE",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_ca"
+                  }
+                }
+              },
+              {
+                "name": "ETCD_KEY_FILE",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_key"
+                  }
+                }
+              },
+              {
+                "name": "ETCD_CERT_FILE",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_cert"
+                  }
+                }
+              },
+              {
+                "name": "FELIX_HEALTHENABLED",
+                "value": "true"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "250m"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "lib-modules",
+                "readOnly": true,
+                "mountPath": "/lib/modules"
+              },
+              {
+                "name": "var-run-calico",
+                "mountPath": "/var/run/calico"
+              },
+              {
+                "name": "etcd-certs",
+                "mountPath": "/calico-secrets"
+              },
+              {
+                "name": "calico-node-token-t5mr4",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/liveness",
+                "port": 9099,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 10,
+              "timeoutSeconds": 1,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "failureThreshold": 6
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/readiness",
+                "port": 9099,
+                "scheme": "HTTP"
+              },
+              "timeoutSeconds": 1,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "failureThreshold": 3
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent",
+            "securityContext": {
+              "privileged": true
+            }
+          },
+          {
+            "name": "install-cni",
+            "image": "registry.ng.bluemix.net/armada-master/cni:v1.11.2",
+            "command": [
+              "/install-cni.sh"
+            ],
+            "env": [
+              {
+                "name": "ETCD_ENDPOINTS",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "etcd_endpoints"
+                  }
+                }
+              },
+              {
+                "name": "CNI_NETWORK_CONFIG",
+                "valueFrom": {
+                  "configMapKeyRef": {
+                    "name": "calico-config",
+                    "key": "cni_network_config"
+                  }
+                }
+              }
+            ],
+            "resources": {
+              
+            },
+            "volumeMounts": [
+              {
+                "name": "cni-bin-dir",
+                "mountPath": "/host/opt/cni/bin"
+              },
+              {
+                "name": "cni-net-dir",
+                "mountPath": "/host/etc/cni/net.d"
+              },
+              {
+                "name": "etcd-certs",
+                "mountPath": "/calico-secrets"
+              },
+              {
+                "name": "calico-node-token-t5mr4",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent"
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 0,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "calico-node",
+        "serviceAccount": "calico-node",
+        "nodeName": "10.186.164.166",
+        "hostNetwork": true,
+        "securityContext": {
+          
+        },
+        "imagePullSecrets": [
+          {
+            "name": "bluemix-default-secret"
+          }
+        ],
+        "affinity": {
+          "nodeAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": {
+              "nodeSelectorTerms": [
+                {
+                  "matchExpressions": [
+                    {
+                      "key": "ibmcloud.io/systemd-calico-node",
+                      "operator": "DoesNotExist"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "operator": "Exists"
+          },
+          {
+            "key": "node.alpha.kubernetes.io/notReady",
+            "operator": "Exists",
+            "effect": "NoExecute"
+          },
+          {
+            "key": "node.alpha.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute"
+          },
+          {
+            "key": "node.kubernetes.io/disk-pressure",
+            "operator": "Exists",
+            "effect": "NoSchedule"
+          },
+          {
+            "key": "node.kubernetes.io/memory-pressure",
+            "operator": "Exists",
+            "effect": "NoSchedule"
+          }
+        ]
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-06T11:59:03Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-07T13:40:19Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-06T12:00:46Z"
+          }
+        ],
+        "hostIP": "10.186.164.166",
+        "podIP": "10.186.164.166",
+        "startTime": "2018-03-06T11:59:03Z",
+        "containerStatuses": [
+          {
+            "name": "calico-node",
+            "state": {
+              "running": {
+                "startedAt": "2018-03-07T13:40:07Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "registry.ng.bluemix.net/armada-master/node:v2.6.5",
+            "imageID": "docker-pullable://registry.ng.bluemix.net/armada-master/node@sha256:d79a25b3ef899332f9de73536634c9a3ce3fa12b3e77e504cff1e2d2a8d536e6",
+            "containerID": "docker://766a63a0dc11532ef029a787710b9a27f2f7fccf54b01a1bd0a72fa6d31bfc48"
+          },
+          {
+            "name": "install-cni",
+            "state": {
+              "running": {
+                "startedAt": "2018-03-07T13:40:17Z"
+              }
+            },
+            "lastState": {
+              
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "registry.ng.bluemix.net/armada-master/cni:v1.11.2",
+            "imageID": "docker-pullable://registry.ng.bluemix.net/armada-master/cni@sha256:df0606795dc43a5f9f0823db26661a722107b93cfc88c1e20ba80bec45634023",
+            "containerID": "docker://fcfe6f1d63699268037b98d8ce7f8866ac974b48abe83e7eed7ae09634586208"
+          }
+        ],
+        "qosClass": "Burstable"
+      }
+    },
+     {
+      "metadata": {
+        "name": "heapster-7df8cb8c66-zxkk2",
+        "generateName": "heapster-7df8cb8c66-",
+        "namespace": "kube-system-new",
+        "selfLink": "/api/v1/namespaces/kube-system-new/pods/heapster-7df8cb8c66-zxkk2",
+        "uid": "5bf4c5d6-220b-11e8-a8d4-32799206ac60",
+        "resourceVersion": "2911965",
+        "creationTimestamp": "2018-03-07T13:28:01Z",
+        "labels": {
+          "pod-template-hash": "3894764722",
+          "version": "v1.4.3",
+          "k8s-app": "heapster"
+        },
+        "annotations": {
+          "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"ReplicaSet\",\"namespace\":\"kube-system-new\",\"name\":\"heapster-7df8cb8c66\",\"uid\":\"97d144ee-2136-11e8-a8d4-32799206ac60\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"35375\"}}\n",
+          "scheduler.alpha.kubernetes.io/critical-pod": ""
+        },
+        "ownerReferences": [
+          {
+            "apiVersion": "extensions/v1beta1",
+            "kind": "ReplicaSet",
+            "name": "heapster-7df8cb8c66",
+            "uid": "97d144ee-2136-11e8-a8d4-32799206ac60",
+            "controller": true,
+            "blockOwnerDeletion": true
+          }
+        ]
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "heapster-config",
+            "hostPath": {
+              "path": "/etc/kubernetes",
+              "type": ""
+            }
+          },
+          {
+            "name": "heapster-token-rsf8w",
+            "secret": {
+              "secretName": "heapster-token-rsf8w",
+              "defaultMode": 420
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "heapster",
+            "image": "registry.ng.bluemix.net/armada-master/heapster-amd64:v1.4.3",
+            "command": [
+              "/heapster",
+              "--source=kubernetes.summary_api:''?inClusterConfig=false&kubeletPort=10250&kubeletHttps=true&auth=/etc/kubernetes/heapster-kubeconfig"
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "88m",
+                "memory": "204Mi"
+              },
+              "requests": {
+                "cpu": "88m",
+                "memory": "204Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "heapster-config",
+                "readOnly": true,
+                "mountPath": "/etc/kubernetes"
+              },
+              {
+                "name": "heapster-token-rsf8w",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8082,
+                "scheme": "HTTP"
+              },
+              "initialDelaySeconds": 180,
+              "timeoutSeconds": 5,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "failureThreshold": 3
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent"
+          },
+          {
+            "name": "heapster-nanny",
+            "image": "registry.ng.bluemix.net/armada-master/addon-resizer:1.7",
+            "command": [
+              "/pod_nanny",
+              "--cpu=80m",
+              "--extra-cpu=0.5m",
+              "--memory=140Mi",
+              "--extra-memory=4Mi",
+              "--threshold=5",
+              "--deployment=heapster",
+              "--container=heapster",
+              "--poll-period=300000",
+              "--estimator=exponential"
+            ],
+            "env": [
+              {
+                "name": "MY_POD_NAME",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.name"
+                  }
+                }
+              },
+              {
+                "name": "MY_POD_NAMESPACE",
+                "valueFrom": {
+                  "fieldRef": {
+                    "apiVersion": "v1",
+                    "fieldPath": "metadata.namespace"
+                  }
+                }
+              }
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "50m",
+                "memory": "90Mi"
+              },
+              "requests": {
+                "cpu": "50m",
+                "memory": "90Mi"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "heapster-token-rsf8w",
+                "readOnly": true,
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+              }
+            ],
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "imagePullPolicy": "IfNotPresent"
+          }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "heapster",
+        "serviceAccount": "heapster",
+        "nodeName": "10.186.164.173",
+        "securityContext": {
+
+        },
+        "imagePullSecrets": [
+          {
+            "name": "bluemix-default-secret"
+          }
+        ],
+        "schedulerName": "default-scheduler",
+        "tolerations": [
+          {
+            "key": "CriticalAddonsOnly",
+            "operator": "Exists"
+          },
+          {
+            "key": "node.alpha.kubernetes.io/notReady",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          },
+          {
+            "key": "node.alpha.kubernetes.io/unreachable",
+            "operator": "Exists",
+            "effect": "NoExecute",
+            "tolerationSeconds": 300
+          }
+        ]
+      },
+      "status": {
+        "phase": "Running",
+        "conditions": [
+          {
+            "type": "Initialized",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-07T13:29:42Z"
+          },
+          {
+            "type": "Ready",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-07T13:37:51Z"
+          },
+          {
+            "type": "PodScheduled",
+            "status": "True",
+            "lastProbeTime": null,
+            "lastTransitionTime": "2018-03-07T13:28:01Z"
+          }
+        ],
+        "hostIP": "10.186.164.173",
+        "podIP": "172.30.86.160",
+        "startTime": "2018-03-07T13:29:42Z",
+        "containerStatuses": [
+          {
+            "name": "heapster",
+            "state": {
+              "running": {
+                "startedAt": "2018-03-07T13:34:54Z"
+              }
+            },
+            "lastState": {
+
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "registry.ng.bluemix.net/armada-master/heapster-amd64:v1.4.3",
+            "imageID": "docker-pullable://registry.ng.bluemix.net/armada-master/heapster-amd64@sha256:8e04183590f937c274fb95c1397ea0c6b919645c765862e2cc9cb80f097a8fb4",
+            "containerID": "docker://a64d08befd5d39361c7c7a62d63ab11ad03ec6c40fa0be227470e08d9469120d"
+          },
+          {
+            "name": "heapster-nanny",
+            "state": {
+              "running": {
+                "startedAt": "2018-03-07T13:37:50Z"
+              }
+            },
+            "lastState": {
+
+            },
+            "ready": true,
+            "restartCount": 0,
+            "image": "registry.ng.bluemix.net/armada-master/addon-resizer:1.7",
+            "imageID": "docker-pullable://registry.ng.bluemix.net/armada-master/addon-resizer@sha256:dcec9a5c2e20b8df19f3e9eeb87d9054a9e94e71479b935d5cfdbede9ce15895",
+            "containerID": "docker://6d0e39d0f8478c46902271ec96e4a249c228fe8c0444057562b76f7a492bb33f"
+          }
+        ],
+        "qosClass": "Guaranteed"
+      }
+    }
+  ]
+}

@@ -8,7 +8,7 @@ import sys
 import time
 import os
 from SchemeRunner import SchemeRunner
-from ExecutionAssist import SanityExecute, EquivalenceExecute, InterferesExecute, ForbidsExecuter, PermitsExecuter
+from CLExecute import CLExecute
 from RESTServer import RestServer
 
 
@@ -68,22 +68,30 @@ def run_args(args):
              the query result (if command-line queries are used)
     :rtype: int
     """
+    if args.scheme:
+        return SchemeRunner(args.scheme, args.output_format, args.file_out).run_scheme()
+
+    base_np_list = args.base_np_list or 'k8s'
+    cl_execute = CLExecute(args.ns_list, args.pod_list, args.output_format, args.file_out)
     if args.equiv:
-        return EquivalenceExecute(args.equiv, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return cl_execute.equivalence(args.equiv, base_np_list)
 
     if args.interferes:
-        return InterferesExecute(args.interferes, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return cl_execute.interferes(args.interferes, base_np_list)
 
     if args.forbids:
-        return ForbidsExecuter(args.forbids, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return cl_execute.forbids(args.forbids, base_np_list)
 
     if args.permits:
-        return PermitsExecuter(args.permits, args.base_np_list or 'k8s', args.ns_list, args.pod_list).execute()
+        return cl_execute.permits(args.permits, base_np_list)
 
-    if args.scheme:
-        return SchemeRunner(args.scheme).run_scheme()
+    if args.connectivity:
+        return cl_execute.connectivity_map(args.connectivity)
 
-    return SanityExecute(args.sanity or 'k8s', args.ns_list, args.pod_list).execute()
+    if args.semantic_diff:
+        return cl_execute.semantic_diff(args.semantic_diff, base_np_list)
+
+    return cl_execute.sanity(args.sanity or 'k8s')
 
 
 def nca_main(argv=None):
@@ -100,10 +108,14 @@ def nca_main(argv=None):
     parser.add_argument('--period', type=int,
                         help='Run NCA with specified arguments every specified number of minutes', default=0)
     manual_or_automatic = parser.add_mutually_exclusive_group(required=False)
-    manual_or_automatic.add_argument('--scheme', type=_valid_path,
+    manual_or_automatic.add_argument('--scheme', '-s', type=_valid_path,
                                      help='A YAML scheme file, describing verification goals')
     manual_or_automatic.add_argument('--sanity', type=_ghe_or_k8s_or_calico_or_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for sanity checking')
+    manual_or_automatic.add_argument('--connectivity', type=_ghe_or_k8s_or_calico_or_valid_path,
+                                     help='Network policies (file/dir/GHE url/cluster-type) for connectivity map')
+    manual_or_automatic.add_argument('--semantic_diff', type=_ghe_or_k8s_or_calico_or_valid_path,
+                                     help='Network policies (file/dir/GHE url/cluster-type) for semantic-diff')
     manual_or_automatic.add_argument('--equiv', type=_ghe_or_k8s_or_calico_or_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for equivalence checking')
     manual_or_automatic.add_argument('--interferes', type=str, help='Network policies '
@@ -113,13 +125,17 @@ def nca_main(argv=None):
     manual_or_automatic.add_argument('--permits', type=str, help='Network policies '
                                      '(policy name/file/dir/GHE url/cluster-type) specifying permitted connections')
     manual_or_automatic.add_argument('--daemon', action='store_true', help='Run NCA as a daemon with REST API')
-    parser.add_argument('--base_np_list', type=_ghe_or_k8s_or_calico_or_valid_path, default='k8s',
+    parser.add_argument('--base_np_list', '-b', type=_ghe_or_k8s_or_calico_or_valid_path, default='k8s',
                         help='Filesystem or GHE location for equiv/interference check (default: k8s cluster)')
-    parser.add_argument('--ns_list', type=_ghe_or_k8s_or_calico_or_valid_path,
+    parser.add_argument('--ns_list', '-n', type=_ghe_or_k8s_or_calico_or_valid_path,
                         help='A file/cluster-type to read namespace list from')
-    parser.add_argument('--pod_list', type=_ghe_or_k8s_or_calico_or_valid_path,
+    parser.add_argument('--pod_list', '-p', type=_ghe_or_k8s_or_calico_or_valid_path,
                         help='A file/cluster-type to read pod list from')
     parser.add_argument('--ghe_token', type=str, help='A valid token to access a GHE repository')
+    parser.add_argument('--output_format', '-o', type=str, default='txt',
+                        help='Output format specification (txt or yaml). The default is txt.')
+    parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
+
     args = parser.parse_args(argv)
 
     if args.ghe_token:

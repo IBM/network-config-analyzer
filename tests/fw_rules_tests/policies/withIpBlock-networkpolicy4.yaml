@@ -1,0 +1,33 @@
+ ## Second policy - enables access to pods in kube-system with tier frontend can be accessed only by pods from namespace vendor-system
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: enable-from-many-ipblocks-to-isolated-by-tier
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 49.50.0.0/32
+    - ipBlock:
+        cidr: 49.50.0.2/32
+    - ipBlock:
+        cidr: 49.50.0.4/32
+    - ipBlock:
+        cidr: 49.50.0.6/32
+    - ipBlock:
+        cidr: 49.50.0.8/32
+    - ipBlock:
+        cidr: 49.50.0.10/32
+    - ipBlock:
+        cidr: 49.50.0.12/32
+    - ipBlock:
+        cidr: 49.50.0.14/32
+    - ipBlock:
+        cidr: 49.50.0.16/32
