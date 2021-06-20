@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: general-spec-test-type
+  namespace: kube-system
+# wrong type
+spec:
+  - podSelector: {}
+  - policyTypes:
+    - Ingress
+    - Egress
+  - ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  - egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}

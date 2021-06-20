@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: matchexp-key-test-val2
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: -_abc.ABB;
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+    - Egress

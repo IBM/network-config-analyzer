@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: matchexpressions-values-test1
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+        # non-empty values with operator DoesNotExist/Exists
+      - key: tier
+        operator: Exists
+        values:
+          - helm
+  policyTypes:
+    - Ingress
+    - Egress

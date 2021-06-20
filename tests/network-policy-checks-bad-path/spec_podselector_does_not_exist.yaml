@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spec-podselector-test-missing
+  namespace: kube-system-dummy-to-ignore
+spec:
+  # podSelector does not exist
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}

@@ -1,0 +1,10 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: general-spec-test-keys
+  namespace: kube-system
+# wrong keys
+spec:
+  podSelector: {}
+  name: general_spec_test
+  namespace: kube-system

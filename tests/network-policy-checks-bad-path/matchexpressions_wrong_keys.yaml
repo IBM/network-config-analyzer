@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: podselector-matchexpressions-test-keys
+  namespace: kube-system
+spec:
+  podSelector:
+    # wrong keys
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        value:  # values is the right key
+          - helm
+  policyTypes:
+    - Ingress
+    - Egress

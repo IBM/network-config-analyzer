@@ -1,0 +1,408 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: api_version_wrong_type
+    networkPolicyList:
+      - api_version_wrong_type.yaml
+    expectedError: 1
+
+  - name: api_version_wrong_value
+    networkPolicyList:
+      - api_version_wrong_value.yaml
+    expectedError: 1
+
+  - name: metadata_does_not_exist
+    networkPolicyList:
+      - metadata_does_not_exist.yaml
+    expectedError: 1
+
+  - name: metadata_wrong_type
+    networkPolicyList:
+      - metadata_wrong_type.yaml
+    expectedError: 1
+
+  - name: metadata_wrong_keys
+    networkPolicyList:
+      - metadata_wrong_keys.yaml
+    expectedError: 1
+
+  - name: metadata_with_no_value
+    networkPolicyList:
+      - metadata_with_no_value.yaml
+    expectedError: 1
+
+  - name: metadata_is_null
+    networkPolicyList:
+       - metadata_is_null.yaml
+    expectedError: 1
+
+  - name: metadata_empty_map
+    networkPolicyList:
+      - metadata_empty_map.yaml
+    expectedError: 1
+
+  - name: spec_wrong_type
+    networkPolicyList:
+      - spec_wrong_type.yaml
+    expectedError: 1
+
+  - name: spec_wrong_keys
+    networkPolicyList:
+      - spec_wrong_keys.yaml
+    expectedError: 1
+
+  - name: spec_empty_map
+    networkPolicyList:
+      - spec_empty_map.yaml
+    expectedError: 1
+
+  - name: metadata_name_does_not_exist
+    networkPolicyList:
+      - metadata_name_does_not_exist.yaml
+    expectedError: 1
+
+  - name: metadata_name_wrong_type
+    networkPolicyList:
+      - metadata_name_wrong_type.yaml
+    expectedError: 1
+
+  - name: metadata_name_has_no_value
+    networkPolicyList:
+      - metadata_name_has_no_value.yaml
+    expectedError: 1
+
+  - name: metadata_name_null
+    networkPolicyList:
+      - metadata_name_null.yaml
+    expectedError: 1
+
+  - name: metadata_includes_
+    networkPolicyList:
+      - metadata_wrong_form.yaml
+    expectedError: 1
+
+  - name: metadata_name_longer_than_253
+    networkPolicyList:
+      - metadata_name_long.yaml
+    expectedError: 1
+
+  - name: metadata_namespace_wrong_type
+    networkPolicyList:
+      -  metadata_namespace_wrong_type.yaml
+    expectedError: 1
+
+  - name: spec_podselector_does_not_exist
+    networkPolicyList:
+      - spec_podselector_does_not_exist.yaml
+    expectedError: 1
+
+  - name: spec_podselector_wrong_type
+    networkPolicyList:
+      - spec_podselector_wrong_type.yaml
+    expectedError: 1
+
+  - name: spec_podselector_has_no_value
+    networkPolicyList:
+      - spec_podselector_has_no_value.yaml
+    expectedError: 1
+
+  - name: spec_podselector_null
+    networkPolicyList:
+      - spec_podselector_null.yaml
+    expectedError: 1
+
+  - name: spec_podselector_wrong_keys
+    networkPolicyList:
+      - spec_podselector_wrong_keys.yaml
+    expectedError: 1
+
+  - name: spec_policytypes_wrong_values
+    networkPolicyList:
+      - spec_policytypes_wrong_values.yaml
+    expectedError: 1
+
+  - name: spec_policytypes_wrong_type
+    networkPolicyList:
+      - spec_policytypes_wrong_type.yaml
+    expectedError: 1
+
+  - name: spec_policytypes_missing_egress
+    networkPolicyList:
+      - spec_policytypes_missing_egress.yaml
+    expectedError: 1
+
+  - name: spec_policytypes_missing_ingress
+    networkPolicyList:
+      - spec_policytypes_missing_ingress.yaml
+    expectedError: 1
+
+  - name: spec_egress_wrong_keys
+    networkPolicyList:
+      - spec_egress_wrong_keys.yaml
+    expectedError: 1
+
+  - name: spec_egress_wrong_type
+    networkPolicyList:
+      - spec_egress_wrong_type.yaml
+    expectedError: 1
+
+  - name: spec_ingress_wrong_keys
+    networkPolicyList:
+      - spec_ingress_wrong_keys.yaml
+    expectedError: 1
+
+  - name: spec_ingress_wrong_type
+    networkPolicyList:
+      - spec_ingress_wrong_type.yaml
+    expectedError: 1
+
+  - name: matchexpressions_wrong_keys
+    networkPolicyList:
+      - matchexpressions_wrong_keys.yaml
+    expectedError: 1
+
+  - name: matchexpressions_wrong_type
+    networkPolicyList:
+      - matchexpressions_wrong_type.yaml
+    expectedError: 1
+
+  - name: matchlabels_wrong_type
+    networkPolicyList:
+      - matchlabels_wrong_type.yaml
+    expectedError: 1
+
+  - name: matchlabels_wrong_key_label_form
+    networkPolicyList:
+      - matchlabels_wrong_key_form.yaml
+    expectedError: 1
+
+  - name: matchlabels_wrong_key_label_form2
+    networkPolicyList:
+      - matchlabels_wrong_key_form2.yaml
+    expectedError: 1
+
+  - name: matchlabels_wrong_value_label_form
+    networkPolicyList:
+      - matchlabels_wrong_value_label_form.yaml
+    expectedError: 1
+
+  - name: matchlabels_wrong_value_label_form
+    networkPolicyList:
+      - matchlabels_wrong_value_label_form.yaml
+    expectedError: 1
+
+  - name: matchlabels_empty_value_label
+    networkPolicyList:
+      - matchlabels_empty_value_label.yaml
+    expectedError: 1
+
+  - name: matchlabels_wrong_value_label_form2
+    networkPolicyList:
+      - matchlabels_wrong_value_label_form2.yaml
+    expectedError: 1
+
+  - name: matchexpressions_key_wrong_type
+    networkPolicyList:
+      - matchexpressions_key_wrong_type.yaml
+    expectedError: 1
+
+  - name: matchexpressions_key_does_not_exist
+    networkPolicyList:
+      - matchexpressions_key_does_not_exist.yaml
+    expectedError: 1
+
+  - name: matchexpressions_key_null
+    networkPolicyList:
+      - matchexpressions_key_null.yaml
+    expectedError: 1
+
+  - name: matchexpressions_key_has_no_value
+    networkPolicyList:
+      - matchexpressions_key_has_no_value.yaml
+    expectedError: 1
+
+  - name: matchexpressions_key_wrong_value_form
+    networkPolicyList:
+      - matchexpressions_key_wrong_value_form.yaml
+    expectedError: 1
+
+  - name: matchexpressions_key_wrong_value_form2
+    networkPolicyList:
+      - matchexpressions_key_wrong_value_form2.yaml
+    expectedError: 1
+
+  - name: matchexpressions_operator_wrong_type
+    networkPolicyList:
+      - matchexpressions_operator_wrong_type.yaml
+    expectedError: 1
+
+  - name: matchexpressions_operator_wrong_value
+    networkPolicyList:
+      - matchexpressions_operator_wrong_value.yaml
+    expectedError: 1
+
+  - name: matchexpressions_operator_has_no_value
+    networkPolicyList:
+      - matchexpressions_operator_has_no_value.yaml
+    expectedError: 1
+
+  - name: matchexpressions_operator_null
+    networkPolicyList:
+      - matchexpressions_operator_null.yaml
+    expectedError: 1
+
+  - name: matchexpressions_operator_missing
+    networkPolicyList:
+      - matchexpressions_operator_missing.yaml
+    expectedError: 1
+
+  - name: matchexpressions_values_wrong_type
+    networkPolicyList:
+      - matchexpressions_values_wrong_type.yaml
+    expectedError: 1
+
+  - name: matchexpressions_values_no_match_with_operator
+    networkPolicyList:
+      - matchexpressions_values_no_match_with_operator.yaml
+    expectedError: 1
+
+  - name: matchexpressions_values_no_match_with_operator2
+    networkPolicyList:
+      - matchexpressions_values_no_match_with_operator2.yaml
+    expectedError: 1
+
+  - name: ports_wrong_type
+    networkPolicyList:
+      - ports_wrong_type.yaml
+    expectedError: 1
+
+  - name: ports_wrong_keys
+    networkPolicyList:
+      - ports_wrong_keys.yaml
+    expectedError: 1
+
+  - name: peers_wrong_type
+    networkPolicyList:
+      - peers_wrong_type.yaml
+    expectedError: 1
+
+  - name: peers_wrong_keys
+    networkPolicyList:
+      - peers_wrong_keys.yaml
+    expectedError: 1
+
+  - name: port_wrong_type
+    networkPolicyList:
+      - port_wrong_type.yaml
+    expectedError: 1
+
+  - name: port_wrong_range
+    networkPolicyList:
+      - port_wrong_range.yaml
+    expectedError: 1
+
+  - name: port_wrong_label_form1
+    networkPolicyList:
+      - port_wrong_label_form1.yaml
+    expectedError: 1
+
+  - name: port_wrong_label_form2
+    networkPolicyList:
+      - port_wrong_label_form2.yaml
+    expectedError: 1
+
+  - name: protocol_wrong_value
+    networkPolicyList:
+      - protocol_wrong_value.yaml
+    expectedError: 1
+
+  - name: protocol_wrong_type
+    networkPolicyList:
+      - protocol_wrong_type.yaml
+    expectedError: 1
+
+  - name: endport_wrong_type
+    networkPolicyList:
+      - endport_wrong_type.yaml
+    expectedError: 1
+
+  - name: endport_cannot_be_defined
+    networkPolicyList:
+      - endport_cannot_be_defined.yaml
+    expectedError: 1
+
+  - name: endport_cannot_be_defined2
+    networkPolicyList:
+      - endport_cannot_be_defined2.yaml
+    expectedError: 1
+
+  - name: endport_less_than_port
+    networkPolicyList:
+      - endport_less_than_port.yaml
+    expectedError: 1
+
+  - name: endport_wrong_range
+    networkPolicyList:
+      - endport_wrong_range.yaml
+    expectedError: 1
+
+  - name: ipblock_wrong_keys
+    networkPolicyList:
+      - ipblock_wrong_keys.yaml
+    expectedError: 1
+
+  - name: ipblock_cannot_be_defined
+    networkPolicyList:
+      - ipblock_cannot_be_defined.yaml
+    expectedError: 1
+
+  - name: ipblock_wrong_type
+    networkPolicyList:
+      - ipblock_wrong_type.yaml
+    expectedError: 1
+
+  - name: ipblock_empty_map
+    networkPolicyList:
+      - ipblock_empty.yaml
+    expectedError: 1
+
+  - name: ipblock_cidr_is_none
+    networkPolicyList:
+      - ipblock_cidr_is_none.yaml
+    expectedError: 1
+
+  - name: ipblock_cidr_wrong_type
+    networkPolicyList:
+      - ipblock_cidr_wrong_type.yaml
+    expectedError: 1
+
+  - name: ipblock_except_wrong_type
+    networkPolicyList:
+      - ipblock_except_wrong_type.yaml
+    expectedError: 1
+
+  - name: peer_namespaceselector_wrong_type
+    networkPolicyList:
+      - peer_namespaceselector_wrong_type.yaml
+    expectedError: 1
+
+  - name: peer_namespaceselector_wrong_keys
+    networkPolicyList:
+      - peer_namespaceselector_wrong_keys.yaml
+    expectedError: 1
+
+  - name: peer_no_specified_fields
+    networkPolicyList:
+      - peer_no_specified_fields.yaml
+    expectedError: 1
+
+  - name: peer_podselector_wrong_type
+    networkPolicyList:
+      - peer_podselector_wrong_type.yaml
+    expectedError: 1
+
+  - name: peer_podselector_wrong_keys
+    networkPolicyList:
+      - peer_podselector_wrong_keys.yaml
+    expectedError: 1
