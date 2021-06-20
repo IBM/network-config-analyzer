@@ -4,11 +4,11 @@ networkConfigList:
 - name: np4
   networkPolicyList:
   - test4-networkpolicy.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: np3
   networkPolicyList:
   - test3-networkpolicy.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: connectivity_map_4
   connectivityMap:

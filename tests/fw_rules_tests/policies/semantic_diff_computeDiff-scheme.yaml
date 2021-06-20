@@ -4,31 +4,31 @@ networkConfigList:
 - name: old1
   networkPolicyList:
   - old1.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: old2
   networkPolicyList:
   - old2.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: old3
   networkPolicyList:
   - old3.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: new1
   networkPolicyList:
   - new1.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: new1a
   networkPolicyList:
   - new1a.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: new2
   networkPolicyList:
   - new2.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: new3
   networkPolicyList:
   - new3.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: semantic_diff_old1_new1
   semanticDiff:

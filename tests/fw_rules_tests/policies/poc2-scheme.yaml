@@ -4,7 +4,7 @@ networkConfigList:
 - name: poc2
   networkPolicyList:
   - microservices-netpols.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: connectivity_map
   connectivityMap:

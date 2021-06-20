@@ -4,43 +4,43 @@ networkConfigList:
 - name: test1
   networkPolicyList:
   - label_expr_test_policy1.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test2
   networkPolicyList:
   - label_expr_test_policy2.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test3
   networkPolicyList:
   - label_expr_test_policy3.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test4
   networkPolicyList:
   - label_expr_test_policy4.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test5
   networkPolicyList:
   - label_expr_test_policy5.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test6
   networkPolicyList:
   - label_expr_test_policy6.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test7
   networkPolicyList:
   - label_expr_test_policy7.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test8
   networkPolicyList:
   - label_expr_test_policy8.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test9
   networkPolicyList:
   - label_expr_test_policy9.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 - name: test10
   networkPolicyList:
   - label_expr_test_policy10.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: test_app_label
   connectivityMap:
