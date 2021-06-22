@@ -658,55 +658,62 @@ class MinimizeFWRules:
 
     def get_fw_rules_in_required_format(self, add_txt_header=True):
         """
-        :param add_txt_header: bool flag to indicate if header of fw-rules query should be added
-        :return: a string representing the computed minimized fw-rules (in txt or yaml format)
+        :param add_txt_header: bool flag to indicate if header of fw-rules query should be added in txt format
+        :return: a string representing the computed minimized fw-rules (in a supported format txt/yaml/csv)
         """
-        res = ''
         query_name = self.output_config.queryName
         if self.output_config.configName:
             query_name += ', config: ' + self.output_config.configName
         output_format = self.output_config.outputFormat
-        if output_format == 'txt':
-            output_rules = sorted(list(self._get_rules_str_values()))
+        if output_format not in FWRule.supported_formats:
+            print(f'error: unexpected outputFormat in output configuration value [should be txt/yaml/csv],  '
+                  f'value is: {output_format}')
+        return self._get_fw_rules_content_str(query_name, output_format, add_txt_header)
+
+    def _get_fw_rules_content_str(self, query_name, req_format, add_txt_header):
+        """
+        :param query_name: a string of the query name
+        :param req_format: a string of the required format, should be in FWRule.supported_formats
+        :param add_txt_header:  bool flag to indicate if header of fw-rules query should be added in txt format
+        :return: a string of the query name + fw-rules in the required format
+        """
+        rules_list = self._get_all_rules_list_in_req_format(req_format)
+        if req_format == 'txt':
+            # TODO: remove duplicate rules earlier? (rules with different pods mapped to the same pod owner)
+            # current issue is that we use topologies with pods of the same owner but different labels, so cannot consider
+            # fw-rules elemnts of pod with same owner as identical
+            output_rules = sorted(list(set(rules_list)))
+            # output_rules = sorted(rules_list)
             res = ''.join(line for line in output_rules)
             if add_txt_header:
                 res = f'final fw rules for query: {query_name}:\n' + res
-        elif output_format == 'yaml':
-            actual_content = self._get_all_rules_yaml_obj()
-            yaml_query_content = [{'query': query_name, 'rules': actual_content}]
+            return res
+        elif req_format == 'yaml':
+            yaml_query_content = [{'query': query_name, 'rules': rules_list}]
             res = yaml.dump(yaml_query_content, None, default_flow_style=False, sort_keys=False)
-        else:
-            print(f'error: unexpected outputFormat in output configuration value [should be txt or yaml],  '
-                  f'value is: {output_format}')
-        return res
+            return res
+        elif req_format == 'csv':
+            res = ''
+            rules_list = [FWRule.rule_csv_header, [query_name]] + rules_list
+            for row in rules_list:
+                row_str = ''
+                for elem in row:
+                    row_str += '\"' + elem + '\"' + ','
+                res += row_str + '\n'
+            return res
+        return ''
 
-    def _get_rules_str_values(self):
+    def _get_all_rules_list_in_req_format(self, req_format):
         """
-        :return: a set of strings as a txt representation for the computed fw-rules
+        :param req_format: a string of the required format, should be in FWRule.supported_formats
+        :return: a list of objects representing the fw-rules in the required format
         """
         res = []
-        all_connections = set(self.fw_rules_map.keys())
-        for connection in all_connections:
-            connection_rules = self.fw_rules_map[connection]
-            for rule in connection_rules:
-                if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
-                    continue
-                rule_str = rule.get_rule_str(self.cluster_info.is_k8s_config) + '\n'
-                res.append(rule_str)
-        # several rules can be mapped to the same str, since pods are mapped to owner name (example: semantic_diff_named_ports)
-        return set(res)
-
-    def _get_all_rules_yaml_obj(self):
-        """
-        :return: a list of dict objects as a yaml representation for the computed fw-rules
-        """
-        rules = []
         all_connections = sorted(self.fw_rules_map.keys())
         for connection in all_connections:
             connection_rules = sorted(self.fw_rules_map[connection])
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                rule_obj = rule.get_rule_yaml_obj(self.cluster_info.is_k8s_config)
-                rules.append(rule_obj)
-        return rules
+                res.append(rule.get_rule_in_req_format(req_format, self.cluster_info.is_k8s_config))
+        return res

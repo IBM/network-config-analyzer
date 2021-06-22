@@ -7,6 +7,8 @@ import argparse
 import yaml
 from pathlib import Path
 
+from FWRule import FWRule
+
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..'))
 sys.path.append(
     os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
@@ -187,12 +189,14 @@ def main(argv=None):
     parser.add_argument("--all", default=False, action="store_true",
                         help="Run all fw-rules tests with output comparison")
     args = parser.parse_args(argv)
+    req_format = None
 
     if args.all:
         run_all_tests = True
         compare_output = True
         test_mode_flag = False
         test_prefix = ''
+
     else:
         test_prefix = input("Enter test name prefix (empty for all tests):")
         if not test_prefix:
@@ -208,8 +212,11 @@ def main(argv=None):
         if not compare_output:
             test_mode = input("run with test-mode flag?  (y or n):")
             test_mode_flag = (test_mode == 'y')
+            req_format = input("required output format?  (csv/yaml/txt):")
 
     fw_rules_scheme_files = []
+    if req_format not in FWRule.supported_formats:
+        req_format = 'txt'
 
     for root, _, files in os.walk(base_dir):
         for file in files:
@@ -229,7 +236,7 @@ def main(argv=None):
             global_res += run_new_output_test(scheme_filename, get_test_args(scheme_filename, 'yaml', yaml_output_path),
                                               all_results, 'yaml')
         else:
-            global_res += run_simple_test(scheme_filename, get_test_args(scheme_filename, None, None),
+            global_res += run_simple_test(scheme_filename, get_test_args(scheme_filename, req_format, None),
                                           all_results, test_mode_flag)
 
     print('\n\nSummary\n-------')
