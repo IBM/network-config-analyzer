@@ -1,0 +1,116 @@
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traffic-new
+  namespace: kube-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector:
+          matchLabels:
+            app: skydive
+      ports:
+        - port: 85
+          protocol: TCP
+        - port: 86
+          protocol: TCP
+        - port: 87
+          protocol: TCP
+        - port: 88
+          protocol: TCP
+        - port: 89
+          protocol: TCP
+        - port: 90
+          protocol: TCP
+
+
+---
+
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traffic-new-1
+  namespace: kube-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: ibm-system-newNameSpace
+      ports:
+        - port: 80
+          protocol: TCP
+        - port: 81
+          protocol: TCP
+        - port: 82
+          protocol: TCP
+        - port: 83
+          protocol: TCP
+        - port: 84
+          protocol: TCP
+        - port: 85
+          protocol: TCP
+        - port: 86
+          protocol: TCP
+        - port: 87
+          protocol: TCP
+        - port: 88
+          protocol: TCP
+        - port: 89
+          protocol: TCP
+        - port: 90
+          protocol: TCP
+
+---
+
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traffic-new-2
+  namespace: kube-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: dummy
+      ports:
+        - port: 80
+          protocol: TCP
+        - port: 81
+          protocol: TCP
+        - port: 82
+          protocol: TCP
+        - port: 83
+          protocol: TCP
+        - port: 84
+          protocol: TCP
+        - port: 85
+          protocol: TCP
+        - port: 86
+          protocol: TCP
+        - port: 87
+          protocol: TCP
+        - port: 88
+          protocol: TCP
+
+
+
+
+

@@ -1,0 +1,14 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+networkConfigList:
+- name: open-default-TCP
+  networkPolicyList:
+  - calico-testcase13-open-default-TCP.yaml
+  expected_warnings: 0
+queries:
+- name: open-default-TCP-test
+  connectivityMap:
+  - open-default-TCP
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

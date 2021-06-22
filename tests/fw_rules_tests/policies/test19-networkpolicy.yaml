@@ -1,0 +1,197 @@
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p1
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: ibm-system-newNameSpace
+
+---
+
+ 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p2
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: kubeSystemNameSpace
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p3
+  namespace: ibm-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: defaultNameSpace
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p4
+  namespace: ibm-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: dummy
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p5
+  namespace: kube-system-new-dummy-to-ignore
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: ibm-system-newNameSpace
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p6
+  namespace: kube-system-new-dummy-to-ignore
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: dlaasNameSpace
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p7
+  namespace: kube-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: defaultNameSpace
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: p8
+  namespace: dlaas
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            unique-label: dummy
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-default
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ibm-system-new
+  namespace: ibm-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-dummy
+  namespace: kube-system-new-dummy-to-ignore
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-kube-system-new
+  namespace: kube-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-dlaas
+  namespace: dlaas
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress

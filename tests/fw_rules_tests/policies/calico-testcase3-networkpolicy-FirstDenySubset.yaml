@@ -1,0 +1,23 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase3-networkpolicy-FirstDenySubset
+  namespace: kube-system
+spec:
+  selector: has(tier)
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: app in {'file-plugin', 'storage-watcher'}
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(app)
+  egress:
+  - action: Allow
+    destination:
+      selector: all()

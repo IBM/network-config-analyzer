@@ -1,0 +1,19 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase5-allowFirst
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: has(tier)
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: !has(app)
+  egress:
+  - action: Allow

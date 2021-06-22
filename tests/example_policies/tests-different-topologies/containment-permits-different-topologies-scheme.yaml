@@ -1,0 +1,131 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: no_policy
+    # no namespaceList and podList, hence use the global resources above
+    networkPolicyList: []
+    expected_warnings: 0
+
+  - name: policy
+    # should be equivalent to 'no_policy' above
+    namespaceList: ../../example_podlist/ns_list.json
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy3.yaml
+    expected_warnings: 0
+
+  - name: config_a_no_policy
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList: []
+    expected_warnings: 0
+
+  - name: config_a
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_a.yaml
+    expected_warnings: 0
+
+  - name: config_b
+    namespaceList: ../../different_topologies/ns_list_b.json
+    podList: ../../different_topologies/pods_list_b.json
+    networkPolicyList:
+      - policy_b.yaml
+    expected_warnings: 0
+
+  - name: np1
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy1.yaml
+    expected_warnings: 0
+
+  - name: np2
+    networkPolicyList:
+      - ../withIpBlock/withIpBlock-networkpolicy2.yaml
+    expected_warnings: 0
+
+  - name: config_a_with_ipBlock
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_a.yaml
+      - policy_a_ipBlock.yaml
+    expected_warnings: 0
+
+  - name: config_b_with_ipBlock
+    namespaceList: ../../different_topologies/ns_list_b.json
+    podList: ../../different_topologies/pods_list_b.json
+    networkPolicyList:
+      - policy_b.yaml
+      - policy_b_ipBlock.yaml
+    expected_warnings: 0
+
+  - name: config_a_with_b_ipBlock
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_b.yaml
+      - policy_b_ipBlock.yaml
+    expected_warnings: 0
+
+  - name: config_a_with_policy_b1
+    namespaceList: ../../different_topologies/ns_list_a.json
+    podList: ../../different_topologies/pods_list_a.json
+    networkPolicyList:
+      - policy_b1.yaml
+    expected_warnings: 0
+
+queries:
+  - name: containment_identical
+    containment:
+      - no_policy
+      - policy
+    expected: 1
+
+  - name: twoWayContainment_a_no_policy
+    twoWayContainment:
+      - config_a_no_policy
+      - config_a
+    expected: 1
+
+  - name: twoWayContainment_a_b
+    twoWayContainment:
+      - config_a
+      - config_b
+    expected: 0
+
+  - name: twoWayContainment_a_with_different_ipBlock_policies
+    twoWayContainment:
+      - config_a_with_ipBlock
+      - config_a_with_b_ipBlock
+    expected: 0
+
+  - name: twoWayContainment_np1_np2
+    twoWayContainment:
+      - np1
+      - np2
+    expected: 0
+
+  - name: permits_a_b
+    permits:
+      - config_a
+      - config_b
+    expected: 0
+
+  - name: permits_a_with_different_ipBlock_policies
+    permits:
+      - config_a_with_ipBlock
+      - config_a_with_b_ipBlock
+    expected: 0
+
+  - name: permits_aa_with_ab
+    permits:
+      - config_a
+      - config_a_with_policy_b1
+    expected: 1
+
+  - name: permits_a_no_policy
+    permits:
+      - config_a
+      - config_a_no_policy
+    expected: 0

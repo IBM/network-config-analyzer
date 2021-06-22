@@ -139,6 +139,7 @@ class Pod(ClusterEP):
         :param str owner_kind: The kind of the Pod's owner
         """
         super().__init__(name, namespace)
+        self.owner_name = owner_name
 
         if not owner_name:  # no owner
             self.workload_name = f'{namespace.name}/{name}(Pod)'
@@ -207,6 +208,14 @@ class IpBlock(Peer, CanonicalIntervalSet):
             return self.name
         else:
             return self.namespace.name + '_' + self.name
+
+    def copy(self):
+        res = IpBlock(name=self.name, namespace=self.namespace, is_global=self.is_global)
+        res.interval_set = self.interval_set.copy()
+        return res
+
+
+
 
     @staticmethod
     def get_all_ips_block():

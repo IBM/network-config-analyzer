@@ -1,0 +1,14 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+networkConfigList:
+- name: match-icmp-also-within-default
+  networkPolicyList:
+  - calico-testcase14-kube-system-match-default-also-within-icmp.yaml
+  expected_warnings: 0
+queries:
+- name: match-icmp-also-within-default-test
+  connectivityMap:
+  - match-icmp-also-within-default
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

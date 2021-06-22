@@ -1,0 +1,37 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+networkConfigList:
+- name: np_onlyAllow
+  networkPolicyList:
+  - calico-testcase3-networkpolicy-onlyAllow.yaml
+  expected_warnings: 0
+- name: np_FirstDenySubset
+  networkPolicyList:
+  - calico-testcase3-networkpolicy-FirstDenySubset.yaml
+  expected_warnings: 0
+- name: np_firstAllowSuperSet
+  networkPolicyList:
+  - calico-testcase3-networkpolicy-firstAllowSuperSet.yaml
+  expected_warnings: 0
+queries:
+- name: connectivity_map
+  connectivityMap:
+  - np_onlyAllow
+  expected: 0
+  outputConfiguration:
+    fwRulesGeneralizeLabelExpr: true
+    fwRulesRunInTestMode: false
+- name: connectivity_map
+  connectivityMap:
+  - np_FirstDenySubset
+  expected: 0
+  outputConfiguration:
+    fwRulesGeneralizeLabelExpr: true
+    fwRulesRunInTestMode: false
+- name: connectivity_map
+  connectivityMap:
+  - np_firstAllowSuperSet
+  expected: 0
+  outputConfiguration:
+    fwRulesGeneralizeLabelExpr: true
+    fwRulesRunInTestMode: false

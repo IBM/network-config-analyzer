@@ -1,0 +1,14 @@
+namespaceList: ../podlist/ns_list.json
+podList: ../podlist/pods_list.json
+networkConfigList:
+- name: np11
+  networkPolicyList:
+  - test11-networkpolicy.yaml
+  expected_warnings: 0
+queries:
+- name: connectivity_map
+  connectivityMap:
+  - np11
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false

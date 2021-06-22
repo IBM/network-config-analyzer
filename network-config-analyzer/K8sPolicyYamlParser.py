@@ -16,6 +16,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
     """
     A parser for k8s NetworkPolicy objects
     """
+
     def __init__(self, policy, peer_container, policy_file_name=''):
         """
         :param dict policy: The policy object as provided by the yaml parser
@@ -26,6 +27,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = peer_container.get_namespace('default')  # value to be replaced if the netpol has ns defined
+        self.allowed_labels = set()
 
     def check_dns_subdomain_name(self, value, key_container):
         """
@@ -159,6 +161,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         res = self.peer_container.get_all_peers_group()
         match_labels = label_selector.get('matchLabels')
         if match_labels:
+            keys_set = set()
             for key, val in match_labels.items():
                 self.check_label_key_syntax(key, match_labels)
                 self.check_label_value_syntax(val, key, match_labels)
@@ -166,11 +169,17 @@ class K8sPolicyYamlParser(GenericYamlParser):
                     res &= self.peer_container.get_namespace_pods_with_label(key, [val])
                 else:
                     res &= self.peer_container.get_peers_with_label(key, [val])
+                keys_set.add(key)
+            self.allowed_labels.add(':'.join(keys_set))
 
         match_expressions = label_selector.get('matchExpressions')
         if match_expressions:
+            keys_set = set()
             for requirement in match_expressions:
                 res &= self.parse_label_selector_requirement(requirement, namespace_selector)
+                key = requirement['key']
+                keys_set.add(key)
+            self.allowed_labels.add(':'.join(keys_set))
 
         if not res:
             if namespace_selector:

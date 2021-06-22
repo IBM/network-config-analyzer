@@ -29,6 +29,9 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = None
+        # TODO: handle labels expressions and 'and' between labels expressions correctly
+        # collecting labels used in calico network policy for fw-rules computation
+        self.allowed_labels = set()
 
     def _parse_selector_expr(self, expr, origin_map, namespace, is_namespace_selector):
         """
@@ -56,6 +59,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         has_match = has_re.match(expr)
         if has_match:
             label = has_match.group(1)
+            # TODO: currently misses ANDing of keys
+            self.allowed_labels.add(label)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_key(label, False)
             return all_peers & self.peer_container.get_peers_with_key(namespace, label, False)
@@ -69,6 +74,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             action = PeerContainer.FilterActionType.In
             if key_val_match.group(2) == '!':
                 action = PeerContainer.FilterActionType.NotIn
+            self.allowed_labels.add(key)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_label(key, [val], action)
             return all_peers & self.peer_container.get_peers_with_label(key, [val], action)
@@ -99,6 +105,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 action = PeerContainer.FilterActionType.StartWith
             elif str_match.group(2).startswith('ends'):
                 action = PeerContainer.FilterActionType.EndWith
+            self.allowed_labels.add(key)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_label(key, [substr], action)
             return all_peers & self.peer_container.get_peers_with_label(key, [substr],  action)
