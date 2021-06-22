@@ -12,6 +12,7 @@ from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
 from CmdlineRunner import CmdlineRunner
 from GitScanner import GitScanner
+from enum import Enum
 
 
 class PeerContainer:
@@ -19,6 +20,16 @@ class PeerContainer:
     This class holds a representation of the network topology: the set of eps and how they are partitioned to namespaces
     It also provides various services to build the topology from files and to filter the eps by labels and by namespaces
     """
+    class FilterActionType(Enum):
+        """
+        Allowed actions for Calico's network policy rules
+        """
+        In = 0
+        NotIn = 1
+        Contain = 2
+        StartWith = 3
+        EndWith = 4
+
     def __init__(self, ns_resources=None, peer_resources=None, config_name='global'):
         self.peer_set = PeerSet()
         self.namespaces = {}  # mapping from namespace name to the actual K8sNamespace object
@@ -417,12 +428,12 @@ class PeerContainer:
         for peer in self.peer_set:
             peer.clear_extra_labels()
 
-    def get_peers_with_label(self, key, values, not_in=False, namespace=None):
+    def get_peers_with_label(self, key, values,  action=FilterActionType.In, namespace=None):
         """
         Return all peers that have a specific key-value label (in a specific namespace)
         :param str key: The relevant key
         :param list[str] values: A list of possible values to match
-        :param bool not_in: If True, reverse logic - exclude peers with the given values
+        :param FilterActionType action: how to filter the values
         :param K8sNamespace namespace: If not None, only consider peers in this namespace
         :return PeerSet: All peers that (do not) have the key-value as their label
         """
@@ -432,8 +443,21 @@ class PeerContainer:
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
             if namespace is not None and peer.namespace != namespace:
                 continue
-            if (peer.labels.get(key) in values or peer.extra_labels.get(key) in values) ^ not_in:
-                res.add(peer)
+            if action == self.FilterActionType.In:
+                if peer.labels.get(key) in values or peer.extra_labels.get(key) in values:
+                    res.add(peer)
+            elif action == self.FilterActionType.NotIn:
+                if peer.labels.get(key) not in values and peer.extra_labels.get(key) not in values:
+                    res.add(peer)
+            elif action == self.FilterActionType.Contain:
+                if (key in peer.labels and values[0] in peer.labels.get(key)) or (key in peer.extra_labels and values[0] in peer.extra_labels.get(key)):
+                    res.add(peer)
+            elif action == self.FilterActionType.StartWith:
+                if (key in peer.labels and peer.labels.get(key).startswith(values[0])) or (key in peer.extra_labels and peer.extra_labels.get(key).startswith(values[0])):
+                    res.add(peer)
+            elif action == self.FilterActionType.EndWith:
+                if (key in peer.labels and peer.labels.get(key).endswith(values[0])) or (key in peer.extra_labels and peer.extra_labels.get(key).endswith(values[0])):
+                    res.add(peer)
         return res
 
     def get_peers_with_key(self, namespace, key, does_not_exist):
@@ -452,12 +476,12 @@ class PeerContainer:
                 res.add(peer)
         return res
 
-    def get_namespace_pods_with_label(self, key, values, not_in=False):
+    def get_namespace_pods_with_label(self, key, values, action=FilterActionType.In):
         """
         Return all pods in namespace with a given key-value label
         :param str key: The relevant key
         :param list[str] values: possible values for the key
-        :param bool not_in: whether to exclude the given values
+        :param FilterActionType action: how to filter the values
         :return PeerSet: All pods in namespaces that have (or not) the given key-value label
         """
         res = PeerSet()
@@ -466,8 +490,21 @@ class PeerContainer:
                 continue
             # Note: It seems as if the semantics of NotIn is "either key does not exist, or its value is not in values"
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-            if (key in peer.namespace.labels and peer.namespace.labels[key] in values) ^ not_in:
-                res.add(peer)
+            if action == self.FilterActionType.In:
+                if key in peer.namespace.labels and peer.namespace.labels[key] in values:
+                    res.add(peer)
+            elif action == self.FilterActionType.NotIn:
+                if key not in peer.namespace.labels or peer.namespace.labels[key] not in values:
+                    res.add(peer)
+            elif action == self.FilterActionType.Contain:
+                if key in peer.namespace.labels and values[0] in peer.namespace.labels[key]:
+                    res.add(peer)
+            elif action == self.FilterActionType.StartWith:
+                if key in peer.namespace.labels and peer.namespace.labels[key].startswith(values[0]):
+                    res.add(peer)
+            elif action == self.FilterActionType.EndWith:
+                if key in peer.namespace.labels and peer.namespace.labels[key].endswith(values[0]):
+                    res.add(peer)
         return res
 
     def get_namespace_pods_with_key(self, key, does_not_exist):
