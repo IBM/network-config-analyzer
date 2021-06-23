@@ -212,7 +212,7 @@ class PodElement(FWRuleElement):
         """
         :return: list[string] for the field src_pods or dst_pods in representation for yaml object
         """
-        return [str(self.element.owner_name)]
+        return [str(self.element.owner_name)] if isinstance(self.element, Pod) else [str(self.element.name)]
 
     def get_pod_str(self):
         """

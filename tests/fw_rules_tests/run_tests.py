@@ -7,11 +7,12 @@ import argparse
 import yaml
 from pathlib import Path
 
-
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..'))
 sys.path.append(
     os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
 from nca import nca_main
+
+supported_formats = ['txt', 'yaml', 'csv']
 
 
 def compare_files(output_filename, golden_filename):
@@ -79,6 +80,10 @@ def run_simple_test(scheme_filename, args, all_results, test_mode_flag):
 
 
 def run_new_output_test(scheme_filename, args, all_results, file_type):
+    if file_type not in supported_formats:
+        print(f'illegal file type: {file_type}')
+        sys.exit()
+
     print('------------------------------------')
     print('Running testcase', scheme_filename)
     start_time = time()
@@ -86,23 +91,12 @@ def run_new_output_test(scheme_filename, args, all_results, file_type):
     nca_main(args)
 
     test_failure_list = []
-    if file_type == 'yaml':
-        actual_output_file_path = get_output_path(scheme_filename, True, 'yaml')
-        expected_output_file_path = get_output_path(scheme_filename, False, 'yaml')
-        yaml_comparison = compare_files(actual_output_file_path, expected_output_file_path)
-        if not yaml_comparison:
-            test_failure_list.append('yaml')
-        test_passed = yaml_comparison
-    elif file_type == 'txt':
-        actual_output_file_path = get_output_path(scheme_filename, True, 'txt')
-        expected_output_file_path = get_output_path(scheme_filename, False, 'txt')
-        txt_comparison = compare_files(actual_output_file_path, expected_output_file_path)
-        if not txt_comparison:
-            test_failure_list.append('txt')
-        test_passed = txt_comparison
-    else:
-        print(f'illegal file type: {file_type}')
-        sys.exit()
+    actual_output_file_path = get_output_path(scheme_filename, True, file_type)
+    expected_output_file_path = get_output_path(scheme_filename, False, file_type)
+    comparison = compare_files(actual_output_file_path, expected_output_file_path)
+    if not comparison:
+        test_failure_list.append(file_type)
+    test_passed = comparison
     test_failure_str = str(test_failure_list)
 
     test_res = not test_passed
@@ -120,11 +114,8 @@ def run_new_output_test(scheme_filename, args, all_results, file_type):
 def get_output_path(scheme_filename, is_actual, file_type):
     actual_output_dir_name = "actual_output"
     expected_output_dir_name = "expected_output"
-    if file_type == 'txt':
-        output_file_name = os.path.basename(scheme_filename).replace(".yaml", "_output.txt")
-    elif file_type == 'yaml':
-        output_file_name = os.path.basename(scheme_filename).replace(".yaml", "_output.yaml")
-    else:
+    output_file_name = os.path.basename(scheme_filename).replace(".yaml", f"_output.{file_type}")
+    if file_type not in supported_formats:
         print(f'illegal file type: {file_type}')
         sys.exit()
     scheme_dir = os.path.dirname(scheme_filename)
@@ -138,33 +129,22 @@ def prepare_new_test_if_required(scheme_filename):
     expected_output_dir_name = "expected_output"
     scheme_dir = os.path.dirname(scheme_filename)
 
-    expected_txt_output_file_path = get_output_path(scheme_filename, False, 'txt')
-    if not os.path.isfile(expected_txt_output_file_path):
-        Path(os.path.join(scheme_dir, expected_output_dir_name)).mkdir(parents=True, exist_ok=True)
-        Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
-        # run the test and create the expected results files
-        args = get_test_args(scheme_filename, 'txt', expected_txt_output_file_path)
-
-        nca_main(args)
-
-    expected_yaml_output_file_path = get_output_path(scheme_filename, False, 'yaml')
-    if not os.path.isfile(expected_yaml_output_file_path):
-        Path(os.path.join(scheme_dir, expected_output_dir_name)).mkdir(parents=True, exist_ok=True)
-        Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
-        # run the test and create the expected results files
-        args = get_test_args(scheme_filename, 'yaml', expected_yaml_output_file_path)
-
-        nca_main(args)
+    for out_format in supported_formats:
+        expected_output_file_path = get_output_path(scheme_filename, False, out_format)
+        if not os.path.isfile(expected_output_file_path):
+            Path(os.path.join(scheme_dir, expected_output_dir_name)).mkdir(parents=True, exist_ok=True)
+            Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
+            # run the test and create the expected results files
+            args = get_test_args(scheme_filename, out_format, expected_output_file_path)
+            nca_main(args)
 
     if not os.path.isdir(os.path.join(scheme_dir, actual_output_dir_name)):
         Path(os.path.join(scheme_dir, actual_output_dir_name)).mkdir(parents=True, exist_ok=True)
 
-    actual_txt_output_file_path = get_output_path(scheme_filename, True, 'txt')
-    actual_yaml_output_file_path = get_output_path(scheme_filename, True, 'yaml')
-    if os.path.isfile(actual_txt_output_file_path):
-        os.remove(actual_txt_output_file_path)
-    if os.path.isfile(actual_yaml_output_file_path):
-        os.remove(actual_yaml_output_file_path)
+    for out_format in supported_formats:
+        actual_output_file_path = get_output_path(scheme_filename, True, out_format)
+        if os.path.isfile(actual_output_file_path):
+            os.remove(actual_output_file_path)
 
 
 def get_test_args(scheme_filename, output_format=None, output_path=None):
@@ -214,7 +194,7 @@ def main(argv=None):
             req_format = input("required output format?  (csv/yaml/txt):")
 
     fw_rules_scheme_files = []
-    if req_format not in {'txt', 'yaml', 'csv'}:
+    if req_format not in supported_formats:
         req_format = 'txt'
 
     for root, _, files in os.walk(base_dir):
@@ -228,12 +208,11 @@ def main(argv=None):
     for scheme_filename in fw_rules_scheme_files:
         if compare_output:
             prepare_new_test_if_required(scheme_filename)
-            txt_output_path = get_output_path(scheme_filename, True, 'txt')
-            yaml_output_path = get_output_path(scheme_filename, True, 'yaml')
-            global_res += run_new_output_test(scheme_filename, get_test_args(scheme_filename, 'txt', txt_output_path),
-                                              all_results, 'txt')
-            global_res += run_new_output_test(scheme_filename, get_test_args(scheme_filename, 'yaml', yaml_output_path),
-                                              all_results, 'yaml')
+            for out_format in supported_formats:
+                output_path = get_output_path(scheme_filename, True, out_format)
+                global_res += run_new_output_test(scheme_filename,
+                                                  get_test_args(scheme_filename, out_format, output_path),
+                                                  all_results, out_format)
         else:
             global_res += run_simple_test(scheme_filename, get_test_args(scheme_filename, req_format, None),
                                           all_results, test_mode_flag)
