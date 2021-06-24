@@ -88,6 +88,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             action = PeerContainer.FilterActionType.In
             if in_match.group(2) is not None:
                 action = PeerContainer.FilterActionType.NotIn
+            self.allowed_labels.add(key)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_label(key, values, action)
             return all_peers & self.peer_container.get_peers_with_label(key, values, action)
