@@ -1,0 +1,5 @@
+"query","src_ns","src_pods","src_ip_block","dst_ns","dst_pods","dst_ip_block","connection",
+"connectivity_map, config: np20",
+"","[default]","[*]","","[ibm-system-new,kube-system-new]","[*]","","All connections",
+"","[kube-system-new-dummy-to-ignore]","[*]","","[dlaas,ibm-system-new]","[*]","","All connections",
+
