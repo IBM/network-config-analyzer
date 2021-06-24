@@ -54,7 +54,7 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 - `--daemon`\
   Run NCA as a daemon. Send and receive data using a REST API.
 - `--output_format <format>`\
-  Output format specification (txt or yaml).\
+  Output format specification (txt/yaml/csv).\
   *default:* txt\
   *shorthand:* `-o`
 - `--file_out <file name>`\

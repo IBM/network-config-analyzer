@@ -591,16 +591,19 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
     Produces a report of changed connections (also for the case of two configurations of different network topologies)
     """
 
-    def get_explanation_from_conn_graph(self, is_added, conn_graph):
+    def get_explanation_from_conn_graph(self, is_added, conn_graph, is_first_connectivity_result):
         """
         :param is_added: a bool flag indicating if connections are added or removed
         :param conn_graph:  a ConnectivityGraph with added/removed connections
+        :param is_first_connectivity_result: bool flag indicating if this is the first connectivity fw-rules computation
+               for the current semantic-diff query
         :return: explanation (str) with fw-rules summarizing added/removed connections
         """
         topology_config_name = self.config2.name if is_added else self.config1.name
         line_header_txt = 'Added' if is_added else 'Removed'
         fw_rules = conn_graph.get_minimized_firewall_rules()
-        fw_rules_output = fw_rules.get_fw_rules_in_required_format(False)
+        # for csv format, adding the csv header only for the first connectivity fw-rules computation
+        fw_rules_output = fw_rules.get_fw_rules_in_required_format(False, is_first_connectivity_result)
         if self.output_config.outputFormat == 'txt':
             explanation = f'{line_header_txt} connections (based on topology from config: {topology_config_name}) :\n{fw_rules_output}\n'
         else:
@@ -629,11 +632,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 explanation += f'{key}:\n'
 
             if is_added:
-                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns)
+                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns, res == 0)
                 res += 1
 
             if is_removed:
-                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns)
+                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns, res == 0)
                 res += 1
 
         return res, explanation
@@ -650,8 +653,12 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         new_peers = self.config2.peer_container.get_all_peers_group()
         allowed_labels = self.config1.allowed_labels.union(self.config2.allowed_labels)
         topology_peers = new_peers | ip_blocks if is_added else old_peers | ip_blocks
-        query_name_prefix = 'semantic_diff, config1: ' + self.config1.name + ', config2: ' + self.config2.name + ', key: ' + key
-        query_name = query_name_prefix + ' (added)' if is_added else query_name_prefix + ' (removed)'
+        updated_key = key.replace("Changed", "Added") if is_added else key.replace("Changed", "Removed")
+        if self.output_config.queryName:
+            query_name = 'semantic_diff, config1: ' + self.config1.name + ', config2: ' + self.config2.name + ', key: ' + updated_key
+        else:
+            # omit the query name prefix if self.output_config.queryName is empty (single query from command line)
+            query_name = updated_key
         output_config = OutputConfiguration(self.output_config, query_name)
         is_k8s_config = self.config1.type == NetworkConfig.ConfigType.K8s
         return ConnectivityGraph(topology_peers, allowed_labels, output_config, is_k8s_config)
@@ -883,7 +890,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                 _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
                 if not conns1.contained_in(conns2):
                     output_result = f'{self.name1} is not contained in {self.name2}'
-                    output_explanation = f'Allowed connections from {peer1} to {peer2} in {self.name1} '\
+                    output_explanation = f'Allowed connections from {peer1} to {peer2} in {self.name1} ' \
                                          f'are not a subset of those in {self.name2}\n'
                     output_explanation += conns1.print_diff(conns2, self.name1, self.name2)
                     return QueryAnswer(False, output_result, output_explanation)
@@ -933,12 +940,14 @@ class PermitsQuery(TwoNetworkConfigsQuery):
     """
     Checking whether the connections explicitly allowed by config1 are explicitly allowed by config2
     """
+
     def exec(self):
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer  # non-identical configurations are not comparable
 
         return ContainmentQuery(self.config1, self.config2).exec(True)
+
 
 class InterferesQuery(TwoNetworkConfigsQuery):
     """
