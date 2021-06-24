@@ -104,19 +104,19 @@ class SchemeRunner(GenericYamlParser):
                     self.warning(f'Unexpected number of warnings for NetworkConfig {network_config.name}: '
                                  f'Expected {expected_warnings}, got {warnings_found}\n', config_entry)
                     self.global_res += 1
+            self.network_configs[network_config.name] = network_config
 
         except SyntaxError as err:
-            found_error = 1
-            if expected_error is not None:
-                if found_error != expected_error:
-                    self.warning(f'error mismatch for NetworkConfig {config_name}: '
-                                 f'Expected {expected_error} error, got {found_error}\n', config_entry)
-                    self.global_res += 1
-            else:
+            if expected_error is None:
                 raise err
+            found_error = 1
 
-        if found_error != 1:
-            self.network_configs[network_config.name] = network_config
+        if expected_error is not None:
+            if found_error != expected_error:
+                self.warning(f'error mismatch for NetworkConfig {config_name}: '
+                             f'Expected {expected_error} error, got {found_error}\n', config_entry)
+                self.global_res += 1
+
 
 
 

@@ -2,10 +2,10 @@ namespaceList: ../../example_podlist/ns_list.json
 podList: ../../example_podlist/pods_list.json
 
 networkConfigList:
-  - name: api_version_wrong_type
+  - name: no_errors_test
     networkPolicyList:
-      - api_version_wrong_type.yaml
-    expectedError: 1
+      - networkPolicy_no_error.yaml
+    expectedError: 0
 
   - name: api_version_wrong_value
     networkPolicyList:
