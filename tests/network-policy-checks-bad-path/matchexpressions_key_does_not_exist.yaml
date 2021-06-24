@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: matchexp-key-test-exist
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      # existence test , it must be when we have a requirement
+      - operator: NotIn
+        values:
+          - helm
+  policyTypes:
+    - Ingress
+    - Egress

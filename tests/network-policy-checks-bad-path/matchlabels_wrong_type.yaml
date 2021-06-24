@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: podselector-matchlabels-test-type
+  namespace: kube-system
+spec:
+  podSelector:
+    # wrong type
+    matchLabels:
+      - app: skydive
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}

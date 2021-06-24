@@ -19,7 +19,8 @@ It should contain at least the `name` and the `networkPolicyList` fields.
 |namespaceList|A specific list of namespaces|directory, git-repo or yaml/json file|global namespaceList|
 |podList|A specific list of pods|directory, git-repo or yaml/json file|global podList|
 |networkPolicyList|A list of sources for NetworkPolicies|list of sources |
-|expected_warnings|The expected sum of returned warnings for all resources of this configuration (an error is issued on mismatch)|integer |
+|expectedWarnings|The expected sum of returned warnings for all resources of this configuration (an error is issued on mismatch)|integer |
+|expectedError|indicates if there is an expected error from a networkPolicy|0/1|
 
 Possible entries (sources) in the list under `networkPolicyList` are:
 * The string `k8s` - Adds all K8s NetworkPolicies in the cluster to the set

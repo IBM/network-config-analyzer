@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: matchexpressions-operator-test-missing
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        # does not exist
+      - key: app
+        operator: Exists
+      - key: tier
+        operator: Exists
+  policyTypes:
+    - Ingress
+    - Egress

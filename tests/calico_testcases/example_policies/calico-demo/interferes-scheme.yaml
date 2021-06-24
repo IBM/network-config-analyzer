@@ -6,13 +6,13 @@ networkConfigList:
     networkPolicyList:
       - demo-interfere1.yaml
       - demo-deny-all-wdc-wep-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-interfere2
     networkPolicyList:
       - demo-interfere2.yaml
       - demo-deny-all-wdc-wep-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: sanity

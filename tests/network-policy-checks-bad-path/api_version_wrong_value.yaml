@@ -1,0 +1,18 @@
+apiVersion: k8sV1
+kind: NetworkPolicy
+metadata:
+  name: api-version-wrong-value
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: {}

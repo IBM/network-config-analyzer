@@ -5,32 +5,32 @@ networkConfigList:
   - name: np
     networkPolicyList:
       - testcase12-kube-system-policies.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: testcase5-allowFirst
     networkPolicyList:
       - ../testcase5/testcase5-allowFirst.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: testcase5-denyFirst
     networkPolicyList:
       - ../testcase5/testcase5-denyFirst.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: testcase11-allowFirstDefaultDeny
     networkPolicyList:
       - ../testcase11/testcase11-allowFirstDefaultDeny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: testcase11-denyFirstDefaultDeny
     networkPolicyList:
       - ../testcase11/testcase11-denyFirstDefaultDeny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: testcase1-open-default
     networkPolicyList:
       - ../testcase1/testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: nonEmpty_all_policies

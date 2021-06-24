@@ -5,17 +5,17 @@ networkConfigList:
   - name: nt_in
     networkPolicyList:
       - testcase2-networkpolicy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: nt_notin
     networkPolicyList:
       - testcase2-networkpolicy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: nt_notinwithexists
     networkPolicyList:
       - testcase2-networkpolicy3.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: emptiness

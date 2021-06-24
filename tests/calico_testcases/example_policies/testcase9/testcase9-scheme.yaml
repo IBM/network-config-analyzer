@@ -5,7 +5,7 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - testcase9-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: non_vacuous

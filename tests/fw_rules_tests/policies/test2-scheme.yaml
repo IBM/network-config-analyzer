@@ -4,7 +4,7 @@ networkConfigList:
 - name: np2
   networkPolicyList:
   - test2-networkpolicy.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: connectivity_map
   connectivityMap:

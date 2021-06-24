@@ -5,7 +5,7 @@ networkConfigList:
   - name: interfere_np
     networkPolicyList:
       - interferes-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: interference

@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: spec-policytypes-test-values
+  namespace: kube-system
+spec:
+  podSelector: {}
+  # exists with wrong values
+  policyTypes:
+    - Ingress, Egress
+  ingress:
+    - from:
+        - namespaceSelector: { }
+          podSelector: { }
+  egress:
+    - to:
+        - namespaceSelector: { }
+          podSelector: { }

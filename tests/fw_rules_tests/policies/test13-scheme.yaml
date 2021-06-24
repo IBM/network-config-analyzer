@@ -4,7 +4,7 @@ networkConfigList:
 - name: np13
   networkPolicyList:
   - test13-networkpolicy.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: connectivity_map
   connectivityMap:

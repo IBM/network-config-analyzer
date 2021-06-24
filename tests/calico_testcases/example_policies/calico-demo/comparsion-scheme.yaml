@@ -6,13 +6,13 @@ networkConfigList:
     networkPolicyList:
       - demo-comparsionOld.yaml
       - demo-deny-all-wdc-wep-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-new
     networkPolicyList:
       - demo-comparsionNew.yaml
       - demo-deny-all-wdc-wep-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: sanity

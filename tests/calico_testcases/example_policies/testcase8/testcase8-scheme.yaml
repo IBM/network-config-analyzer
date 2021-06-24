@@ -5,7 +5,7 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - testcase8-networkpolicy.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
 queries:
   - name: withConflict_empty

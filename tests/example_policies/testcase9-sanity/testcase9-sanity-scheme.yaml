@@ -5,17 +5,17 @@ networkConfigList:
   - name: np-policies-sanity
     networkPolicyList:
       - testcase9-sanity-between-policies.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
   - name: np-rules-sanity
     networkPolicyList:
       - testcase9-sanity-between-rules.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-vacuous-policy
     networkPolicyList:
     - testcase9-vacuous-policy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: vacuous_policies

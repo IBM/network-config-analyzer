@@ -5,17 +5,17 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - typoNotInTests-networkpolicy1.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
   - name: np1_from_ghe
     networkPolicyList:
       - https://github.com/IBM/network-config-analyzer/tree/master/tests/example_policies/typoNotInTests
-    expected_warnings: 1
+    expectedWarnings: 1
 
   - name: np2_from_ghe
     networkPolicyList:
       - https://github.com/IBM/network-config-analyzer/tree/master/tests/example_policies
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: no_vacuity

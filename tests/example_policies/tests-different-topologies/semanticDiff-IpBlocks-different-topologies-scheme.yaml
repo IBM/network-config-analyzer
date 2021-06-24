@@ -5,22 +5,22 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - ../withIpBlock/withIpBlock-networkpolicy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2
     networkPolicyList:
       - ../withIpBlock/withIpBlock-networkpolicy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np3
     networkPolicyList:
       - ../withIpBlock/withIpBlock-networkpolicy3.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np4
     networkPolicyList:
       - ../withIpBlock/withIpBlock-networkpolicy4.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: semantic_diff_ipblocks_equivalence

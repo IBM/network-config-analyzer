@@ -5,12 +5,12 @@ networkConfigList:
   - name: np_and
     networkPolicyList:
       - andOrCombinations-networkpolicy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_or
     networkPolicyList:
       - andOrCombinations-networkpolicy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: np1_and_np2_not_equiv

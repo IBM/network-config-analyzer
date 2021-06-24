@@ -5,27 +5,27 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - interferes-networkpolicy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2
     networkPolicyList:
       - interferes-networkpolicy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np3
     networkPolicyList:
       - interferes-networkpolicy3.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np4
     networkPolicyList:
       - interferes-networkpolicy4.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: interferes-networkpolicy4
     networkPolicyList:
       - interferes-networkpolicy4.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: Interferes_np1_np2

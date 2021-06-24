@@ -5,11 +5,11 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - withEndPort-networkpolicy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
   - name: np2
     networkPolicyList:
       - withEndPort-networkpolicy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: redundnacy_np2

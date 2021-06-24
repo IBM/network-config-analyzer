@@ -5,41 +5,41 @@ networkConfigList:
   - name: np_vacuous
     networkPolicyList:
       - testcase1-empty-policy.yaml
-    expected_warnings: 5
+    expectedWarnings: 5
 
   - name: np_globalEmpty
     networkPolicyList:
       - testcase1-empty-globalNetworkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_equiv_local_within_kube-system
     networkPolicyList:
       - testcase1-equiv-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_equiv_local
     networkPolicyList:
       - testcase1-equiv-networkpolicy.yaml
       - testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_different_protocol_local
     networkPolicyList:
       - testcase1-different-protocol-nonequiv.yaml
       - testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_nonequiv_local
     networkPolicyList:
       - testcase1-nonequiv-networkpolicy.yaml
       - testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_equiv_global
     networkPolicyList:
       - testcase1-equiv-global-networkpolicy.yaml
       - testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_various_policies
     networkPolicyList:
@@ -47,12 +47,12 @@ networkConfigList:
       - testcase1-open-default.yaml
       - testcase1-nonequiv-networkpolicy.yaml
       - testcase1-equiv-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_for_disjointness
     networkPolicyList:
       - testcase1-for-disjointness.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: vacuous_policy

@@ -5,22 +5,22 @@ networkConfigList:
   - name: np-empty
     networkPolicyList:
       - testcase11-empty-networkpolicy.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
   - name: np-within-default
     networkPolicyList:
       - testcase11-within-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-partly-within-default
     networkPolicyList:
       - testcase11-partly-within-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np-within-kube-system
     networkPolicyList:
       - testcase11-within-kube-system.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: sanity

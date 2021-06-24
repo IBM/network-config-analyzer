@@ -5,17 +5,17 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - testcase4-networkpolicy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2
     networkPolicyList:
       - testcase4-networkpolicy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np3
     networkPolicyList:
       - testcase4-networkpolicy3.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
 queries:
   - name: redundancy_all
