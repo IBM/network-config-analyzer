@@ -98,9 +98,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             key = str_match.group(1)
             substr = str_match.group(3)
             action = PeerContainer.FilterActionType.Contain
-            if str_match.group(2) == 'contains':
-                action = PeerContainer.FilterActionType.Contain
-            elif str_match.group(2).startswith('starts'):
+            if str_match.group(2).startswith('starts'):
                 action = PeerContainer.FilterActionType.StartWith
             elif str_match.group(2).startswith('ends'):
                 action = PeerContainer.FilterActionType.EndWith
