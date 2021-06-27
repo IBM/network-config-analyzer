@@ -119,7 +119,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         expression = expression.strip()
         if expression.count('(') != expression.count(')'):
-            self.syntax_error('number of brackets are not even: ' + expression)
+            self.syntax_error('number of brackets are not even: ' + expression, origin_map)
         while expression.startswith('(') and expression.endswith(')'):
             n_brackets = 0
             do_not_remove = False
