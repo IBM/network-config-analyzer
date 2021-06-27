@@ -1,5 +1,3 @@
-#namespaceList: ../../example_podlist/ns_list.json
-#podList: ../../example_podlist/pods_list.json
 namespaceList: ../../example_podlist/ns_list_wdc.json
 podList: ../../example_podlist/hep_and_wep.json
 

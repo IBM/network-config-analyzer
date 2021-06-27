@@ -29,7 +29,6 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = None
-        # TODO: handle labels expressions and 'and' between labels expressions correctly
         # collecting labels used in calico network policy for fw-rules computation
         self.allowed_labels = set()
 
@@ -170,6 +169,11 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         include_globals = not namespace_selector or 'global()' in label_selector
         label_selector = self._strip_selector(label_selector)
+        #We are handling the operators acording to the "order of operation" - '!', '&&', '||'.
+        # i.e. we will first try to spit the label by '||',
+        # if the label does not contain '||', we will split by '&&',
+        # if the label does not contain &&, we will will look for the prefix '!',
+        # and if there is no '!', we will evaluate the expression.
         # handling '||' :
         splitted_expr = self._split_selector(label_selector, '||')
         if len(splitted_expr) != 1:

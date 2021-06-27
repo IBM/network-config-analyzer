@@ -7,12 +7,12 @@ from fnmatch import fnmatch
 import os
 from sys import stderr
 from pathlib import Path
+from enum import Enum
 import yaml
 from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
 from CmdlineRunner import CmdlineRunner
 from GitScanner import GitScanner
-from enum import Enum
 
 
 class PeerContainer:
