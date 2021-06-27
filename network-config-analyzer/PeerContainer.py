@@ -455,13 +455,13 @@ class PeerContainer:
                 if peer.labels.get(key) not in values and peer.extra_labels.get(key) not in values:
                     res.add(peer)
             elif action == self.FilterActionType.Contain:
-                if (key in peer.labels and values[0] in peer.labels.get(key)) or (key in peer.extra_labels and values[0] in peer.extra_labels.get(key)):
+                if values[0] in peer.labels.get(key, '') or values[0] in peer.extra_labels.get(key, ''):
                     res.add(peer)
             elif action == self.FilterActionType.StartWith:
-                if (key in peer.labels and peer.labels.get(key).startswith(values[0])) or (key in peer.extra_labels and peer.extra_labels.get(key).startswith(values[0])):
+                if peer.labels.get(key, '').startswith(values[0]) or peer.extra_labels.get(key, '').startswith(values[0]):
                     res.add(peer)
             elif action == self.FilterActionType.EndWith:
-                if (key in peer.labels and peer.labels.get(key).endswith(values[0])) or (key in peer.extra_labels and peer.extra_labels.get(key).endswith(values[0])):
+                if peer.labels.get(key, '').endswith(values[0]) or peer.extra_labels.get(key, '').endswith(values[0]):
                     res.add(peer)
         return res
 
