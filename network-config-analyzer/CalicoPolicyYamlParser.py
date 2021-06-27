@@ -84,10 +84,9 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         in_match = in_re.match(expr)
         if in_match:
             key = in_match.group(1)
+            no_not = in_match.group(2) is None
             values = re.findall("'([\\w.\\-/]*)'", expr)
-            action = PeerContainer.FilterActionType.In
-            if in_match.group(2) is not None:
-                action = PeerContainer.FilterActionType.NotIn
+            action = PeerContainer.FilterActionType.In if no_not else PeerContainer.FilterActionType.NotIn
             self.allowed_labels.add(key)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_label(key, values, action)
