@@ -29,11 +29,10 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = None
-        # TODO: handle labels expressions and 'and' between labels expressions correctly
         # collecting labels used in calico network policy for fw-rules computation
         self.allowed_labels = set()
 
-    def _parse_selector_expr(self, expr, origin_map, namespace=None, is_namespace_selector=False):
+    def _parse_selector_expr(self, expr, origin_map, namespace, is_namespace_selector):
         """
         Parses an atomic expression (not containing a && or ||)
         :param str expr: The string expression to parse
@@ -45,45 +44,163 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         expr = expr.strip()  # remove leading and trailing spaces
         expr = ' '.join(expr.split())  # remove redundant spaces
+        if is_namespace_selector and expr == 'global()':
+            return self.peer_container.get_all_global_peers()
+        elif is_namespace_selector:
+            all_peers = self.peer_container.get_all_peers_group(include_globals=False)
+        else:
+            all_peers = self.peer_container.get_namespace_pods(namespace)
         if expr == 'all()':
-            return self.peer_container.get_all_peers_group()
+            return all_peers
 
         # expressions like "has(key)" or "!has(key)"
-        has_re = re.compile('(!?)has\\(([\\w.\\-/]+)\\)')
+        has_re = re.compile('has\\(([\\w.\\-/]+)\\)')
         has_match = has_re.match(expr)
         if has_match:
-            label = has_match.group(2)
+            label = has_match.group(1)
             # TODO: currently misses ANDing of keys
             self.allowed_labels.add(label)
             if is_namespace_selector:
-                return self.peer_container.get_namespace_pods_with_key(label, has_match.group(1) == '!')
-            return self.peer_container.get_peers_with_key(namespace, label, has_match.group(1) == '!')
+                return all_peers & self.peer_container.get_namespace_pods_with_key(label, False)
+            return all_peers & self.peer_container.get_peers_with_key(namespace, label, False)
 
         # expressions like "key==val" or "key!=val"
         key_val_re = re.compile("([\\w.\\-/]+)\\s?([=!])=\\s?'([\\w.\\-/]+)'")
         key_val_match = key_val_re.match(expr)
         if key_val_match:
             key = key_val_match.group(1)
+            equality = key_val_match.group(2)
             val = key_val_match.group(3)
+            action = PeerContainer.FilterActionType.In if equality == '=' else PeerContainer.FilterActionType.NotIn
             self.allowed_labels.add(key)
             if is_namespace_selector:
-                return self.peer_container.get_namespace_pods_with_label(key, [val], key_val_match.group(1) == '!')
-            return self.peer_container.get_peers_with_label(key, [val], key_val_match.group(2) == '!', namespace)
+                return all_peers & self.peer_container.get_namespace_pods_with_label(key, [val], action)
+            return all_peers & self.peer_container.get_peers_with_label(key, [val], action)
 
         # expressions like key in "key in {val1, val2}" or "key not in {val1, val2}"
         in_re = re.compile("([\\w.\\-/]+)\\s(not\\s)?in\\s?{\\s?'[\\w.\\-/]+'\\s?(,\\s?'[\\w.\\-/]+'\\s?)*}")
         in_match = in_re.match(expr)
         if in_match:
             key = in_match.group(1)
+            no_not = in_match.group(2) is None
             values = re.findall("'([\\w.\\-/]*)'", expr)
+            action = PeerContainer.FilterActionType.In if no_not else PeerContainer.FilterActionType.NotIn
             self.allowed_labels.add(key)
             if is_namespace_selector:
-                return self.peer_container.get_namespace_pods_with_label(key, values, in_match.group(2) is not None)
-            return self.peer_container.get_peers_with_label(key, values, in_match.group(2) is not None, namespace)
+                return all_peers & self.peer_container.get_namespace_pods_with_label(key, values, action)
+            return all_peers & self.peer_container.get_peers_with_label(key, values, action)
 
-        # TODO: support expressions like "key contains s", "key starts with s", "k ends with s", "global()"
+        # expressions like key in "key contains substr"
+        str_re = re.compile("([\\w.\\-/]+)\\s?(contains|starts\\swith|ends\\swith)\\s?'([\\w.\\-/]+)'")
+        str_match = str_re.match(expr)
+        if str_match:
+            key = str_match.group(1)
+            substr = str_match.group(3)
+            action = PeerContainer.FilterActionType.Contain
+            if str_match.group(2).startswith('starts'):
+                action = PeerContainer.FilterActionType.StartWith
+            elif str_match.group(2).startswith('ends'):
+                action = PeerContainer.FilterActionType.EndWith
+            self.allowed_labels.add(key)
+            if is_namespace_selector:
+                return all_peers & self.peer_container.get_namespace_pods_with_label(key, [substr], action)
+            return all_peers & self.peer_container.get_peers_with_label(key, [substr],  action)
+
         self.syntax_error('Invalid expression', origin_map)
         return None
+
+    def _strip_selector(self, origin_map, expression):
+        """
+        removing brackets and spaces
+        :param dict origin_map: The EntityRule object (for reporting errors)
+        :param str expression: The selector expression to parse
+        :return: striped expression
+        :rtype: str
+        """
+        expression = expression.strip()
+        if expression.count('(') != expression.count(')'):
+            self.syntax_error('number of brackets are not even: ' + expression, origin_map)
+        while expression.startswith('(') and expression.endswith(')'):
+            n_brackets = 0
+            do_not_remove = False
+            for c in expression[0:len(expression)-1]:
+                if c == '(':
+                    n_brackets += 1
+                if c == ')':
+                    n_brackets -= 1
+                if n_brackets == 0:
+                    do_not_remove = True
+            if do_not_remove:
+                break
+            expression = expression[1:len(expression) - 1]
+            expression = expression.strip()
+        return expression
+
+    @staticmethod
+    def _split_selector(expression, operator):
+        """
+        split the expression by an operator, considering brackets. i.e. "(a || b) || c" is being split to ["(a || b)", "c"]
+        :param str expression: The selector expression to parse
+        :param str operator: The operator to split with
+        :return: a list of expressions
+        :rtype: list of str
+        """
+        expressions = expression.split(operator)
+        current_expr = ""
+        splitted_expr = []
+        for expr in expressions:
+            current_expr += expr
+            if current_expr.count('(') == current_expr.count(')'):
+                splitted_expr.append(current_expr)
+                current_expr = ""
+            else:
+                current_expr += operator
+        return splitted_expr
+
+    def _recursive_parse_label_selector(self, label_selector, origin_map, namespace, namespace_selector):
+        """
+        Recursive Parse a label selector expression appearing in selector/notSelector/namespaceSelector parts of the EntityRule
+        :param str label_selector: The selector expression to parse
+        :param dict origin_map: The EntityRule object (for reporting errors)
+        :param K8sNamespace namespace: Restrict pods to the given namespace
+        :param bool namespace_selector: True if this is a namespaceSelector
+        :return: the set of peers selected by the selector expression
+        :rtype: PeerSet
+        """
+
+        include_globals = not namespace_selector or 'global()' in label_selector
+        label_selector = self._strip_selector(origin_map, label_selector)
+        # We are handling the operators according to the "order of operation" - '!', '&&', '||'.
+        # i.e. we will first try to spit the label by '||',
+        # if the label does not contain '||', we will split by '&&',
+        # if the label does not contain &&, we will will look for the prefix '!',
+        # and if there is no '!', we will evaluate the expression.
+        # handling '||' :
+        splitted_expr = self._split_selector(label_selector, '||')
+        if len(splitted_expr) != 1:
+            res = PeerSet()
+            for expr in splitted_expr:
+                res |= self._recursive_parse_label_selector(expr, origin_map, namespace, namespace_selector)
+            return res
+
+        # there is no '||', handling '&&' :
+        splitted_expr = self._split_selector(label_selector, '&&')
+        if len(splitted_expr) != 1:
+            res = self.peer_container.get_all_peers_group(include_globals=include_globals)
+            for expr in splitted_expr:
+                res &= self._recursive_parse_label_selector(expr, origin_map, namespace, namespace_selector)
+            return res
+
+        # there is no '&&', handling '!' :
+        if label_selector[0] == '!':
+            if namespace_selector:
+                all_peers = self.peer_container.get_all_peers_group(include_globals=include_globals)
+            else:
+                all_peers = self.peer_container.get_namespace_pods(namespace)
+            return all_peers - self._recursive_parse_label_selector(label_selector[1:], origin_map, namespace, namespace_selector)
+
+        # there is no operator, parsing the expression:
+        return self._parse_selector_expr(splitted_expr[0], origin_map, namespace, namespace_selector)
 
     def _parse_label_selector(self, label_selector, origin_map, namespace=None, namespace_selector=False):
         """
@@ -97,19 +214,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         if not label_selector or not isinstance(label_selector, str) or label_selector.isspace():  # empty
             self.syntax_error('Missing selector', origin_map)
-
-        expressions = label_selector.split('&&')  # TODO: also support || operator and combinations
-        if namespace_selector and expressions == ['global()']:
-            res = self.peer_container.get_all_global_peers()
-        else:
-            res = self.peer_container.get_all_peers_group(include_globals=not namespace_selector)
-            for expr in expressions:
-                res &= self._parse_selector_expr(expr, origin_map, namespace, namespace_selector)
+        res = self._recursive_parse_label_selector(label_selector, origin_map, namespace, namespace_selector)
 
         selector_type = 'namespaceSelector' if namespace_selector else 'selector'
         if not res:
             self.warning(selector_type + ' selects no endpoints.', origin_map)
-        elif res == self.peer_container.get_all_peers_group() and expressions and expressions[0] != 'all()':
+        elif res == self.peer_container.get_all_peers_group(include_globals=not namespace_selector) and label_selector and label_selector != 'all()' and 'global()' not in label_selector:
             self.warning(selector_type + ' selects all endpoints - better delete or use "all()".', origin_map)
 
         return res

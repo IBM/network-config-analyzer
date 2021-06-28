@@ -127,9 +127,10 @@ class K8sPolicyYamlParser(GenericYamlParser):
             values = requirement.get('values')
             if not values:
                 self.syntax_error('A requirement with In/NotIn operator but without values', requirement)
+            action = PeerContainer.FilterActionType.In if operator == 'In' else PeerContainer.FilterActionType.NotIn  
             if namespace_selector:
-                return self.peer_container.get_namespace_pods_with_label(key, values, operator == 'NotIn')
-            return self.peer_container.get_peers_with_label(key, values, operator == 'NotIn')
+                return self.peer_container.get_namespace_pods_with_label(key, values, action)
+            return self.peer_container.get_peers_with_label(key, values, action)
 
         if operator in ['Exists', 'DoesNotExist']:
             if 'values' in requirement and requirement['values']:

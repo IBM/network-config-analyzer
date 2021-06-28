@@ -1,0 +1,19 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase24-a
+  namespace: kube-system
+spec:
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: "!all() || !((!has(app) || has(tier)) && !has(k8s-app))"
+      namespaceSelector:  all()
+  egress:
+  - action: Allow
+    destination:
+      namespaceSelector: "!( global() && all() )"
+      selector: k8s-app ends with 'apster' || k8s-app starts with 'kube' || (app == 'vpn' || role == 'db5')
