@@ -109,9 +109,10 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self.syntax_error('Invalid expression', origin_map)
         return None
 
-    def _strip_selector(self, expression):
+    def _strip_selector(self, origin_map, expression):
         """
         removing brackets and spaces
+        :param dict origin_map: The EntityRule object (for reporting errors)
         :param str expression: The selector expression to parse
         :return: striped expression
         :rtype: str
@@ -168,8 +169,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
 
         include_globals = not namespace_selector or 'global()' in label_selector
-        label_selector = self._strip_selector(label_selector)
-        #We are handling the operators acording to the "order of operation" - '!', '&&', '||'.
+        label_selector = self._strip_selector(origin_map, label_selector)
+        # We are handling the operators according to the "order of operation" - '!', '&&', '||'.
         # i.e. we will first try to spit the label by '||',
         # if the label does not contain '||', we will split by '&&',
         # if the label does not contain &&, we will will look for the prefix '!',

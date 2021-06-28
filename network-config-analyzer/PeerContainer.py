@@ -496,19 +496,19 @@ class PeerContainer:
             # Note: It seems as if the semantics of NotIn is "either key does not exist, or its value is not in values"
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
             if action == self.FilterActionType.In:
-                if key in peer.namespace.labels and peer.namespace.labels[key] in values:
+                if peer.namespace.labels.get(key, '') in values:
                     res.add(peer)
             elif action == self.FilterActionType.NotIn:
-                if key not in peer.namespace.labels or peer.namespace.labels[key] not in values:
+                if peer.namespace.labels.get(key, '') not in values:
                     res.add(peer)
             elif action == self.FilterActionType.Contain:
-                if key in peer.namespace.labels and values[0] in peer.namespace.labels[key]:
+                if values[0] in peer.namespace.labels.get(key, ''):
                     res.add(peer)
             elif action == self.FilterActionType.StartWith:
-                if key in peer.namespace.labels and peer.namespace.labels[key].startswith(values[0]):
+                if peer.namespace.labels.get(key, '').startswith(values[0]):
                     res.add(peer)
             elif action == self.FilterActionType.EndWith:
-                if key in peer.namespace.labels and peer.namespace.labels[key].endswith(values[0]):
+                if peer.namespace.labels.get(key, '').endswith(values[0]):
                     res.add(peer)
         return res
 
