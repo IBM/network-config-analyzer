@@ -60,14 +60,15 @@ class SchemeRunner(GenericYamlParser):
     def _add_config(self, config_entry, peer_container_global):
         """
         Produces a NetworkConfig object for a given entry in the scheme file.
-        Increases self.global_res if the number of warnings in the config does not match the expected number.
+        Increases self.global_res if the number of warnings/error in the config does not match the expected number.
         :param dict config_entry: The scheme file entry
         :param PeerContainer peer_container_global: The global network topology
         :return: A matching NetworkConfig object
         :rtype: NetworkConfig
         """
         self.check_fields_validity(config_entry, 'networkConfig', {'name': 1, 'namespaceList': 0, 'podList': 0,
-                                                                   'networkPolicyList': 1, 'expected_warnings': 0})
+                                                                   'networkPolicyList': 1, 'expectedWarnings': 0,
+                                                                   'expectedError': 0}, {'expectedError': [0, 1]})
         config_name = config_entry['name']
         if config_name in self.network_configs:
             self.syntax_error(f'networkPolicyList {config_name} already exists', config_entry)
@@ -87,19 +88,37 @@ class SchemeRunner(GenericYamlParser):
         entry_list = config_entry['networkPolicyList']
         for idx, entry in enumerate(entry_list):
             entry_list[idx] = self._get_input_file(entry)
-        network_config = NetworkConfig(config_name, peer_container, entry_list)
-        if not network_config.policies:
-            self.warning(f'networkPolicyList {network_config.name} contains no networkPolicies',
-                         config_entry['networkPolicyList'])
-        self.network_configs[network_config.name] = network_config
 
-        expected_warnings = config_entry.get('expected_warnings')
-        if expected_warnings is not None:
-            warnings_found = network_config.get_num_findings()
-            if warnings_found != expected_warnings:
-                self.warning(f'Unexpected number of warnings for NetworkConfig {network_config.name}: '
-                             f'Expected {expected_warnings}, got {warnings_found}\n', config_entry)
+        found_error = 0
+        expected_error = config_entry.get('expectedError')
+        try:
+            network_config = NetworkConfig(config_name, peer_container, entry_list)
+            if not network_config.policies:
+                self.warning(f'networkPolicyList {network_config.name} contains no networkPolicies',
+                             config_entry['networkPolicyList'])
+
+            expected_warnings = config_entry.get('expectedWarnings')
+            if expected_warnings is not None:
+                warnings_found = network_config.get_num_findings()
+                if warnings_found != expected_warnings:
+                    self.warning(f'Unexpected number of warnings for NetworkConfig {network_config.name}: '
+                                 f'Expected {expected_warnings}, got {warnings_found}\n', config_entry)
+                    self.global_res += 1
+            self.network_configs[network_config.name] = network_config
+
+        except SyntaxError as err:
+            if expected_error is None:
+                raise err
+            found_error = 1
+
+        if expected_error is not None:
+            if found_error != expected_error:
+                self.warning(f'error mismatch for NetworkConfig {config_name}: '
+                             f'Expected {expected_error} error, got {found_error}\n', config_entry)
                 self.global_res += 1
+
+
+
 
     def _get_config(self, config_name):
         """

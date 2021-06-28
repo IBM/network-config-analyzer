@@ -5,12 +5,12 @@ networkConfigList:
   - name: np_global
     networkPolicyList:
       - testcase10-global-networkpolicies.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_local
     networkPolicyList:
       - testcase10-local-networkpolicies.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: vacuous_policy

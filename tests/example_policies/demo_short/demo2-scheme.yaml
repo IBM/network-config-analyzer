@@ -5,7 +5,7 @@ networkConfigList:
   - name: sanity_np2
     networkPolicyList:
       - sanity2-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: sanity_np2

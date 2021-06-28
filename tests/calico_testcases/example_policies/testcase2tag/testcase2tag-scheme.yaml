@@ -6,13 +6,13 @@ networkConfigList:
     networkPolicyList:
       - testcase2tag-networkpolicy.yaml
       - ../testcase1/testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: global_np
     networkPolicyList:
       - testcase2tag-global-networkpolicy.yaml
       - ../testcase1/testcase1-open-default.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: no_emptiness

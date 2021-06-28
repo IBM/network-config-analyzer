@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ports-protocol-test-value
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+      ports:
+      - port: 44134
+        # wrong value
+        protocol: HTTP

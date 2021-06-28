@@ -4,7 +4,7 @@ networkConfigList:
 - name: np24
   networkPolicyList:
   - test24-networkpolicy.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: connectivity_map
   connectivityMap:

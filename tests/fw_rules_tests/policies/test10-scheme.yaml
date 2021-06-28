@@ -4,7 +4,7 @@ networkConfigList:
 - name: np10
   networkPolicyList:
   - test10-networkpolicy.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: connectivity_map
   connectivityMap:

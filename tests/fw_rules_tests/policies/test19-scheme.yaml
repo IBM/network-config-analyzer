@@ -4,7 +4,7 @@ networkConfigList:
 - name: np19
   networkPolicyList:
   - test19-networkpolicy.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: connectivity_map
   connectivityMap:

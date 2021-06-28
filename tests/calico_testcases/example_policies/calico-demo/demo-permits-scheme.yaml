@@ -10,13 +10,13 @@ networkConfigList:
   - name: np_cnc-fe-not-helm-open
     networkPolicyList:
       - demo-permits-forbids-cnc-fe-not-helm-open.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_product-compare-and-comply
     networkPolicyList:
       - demo-permits-forbids-deny-all-profiles.yaml
       - demo-permits-forbids-traffic-between-compare-and-comply.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: sanity

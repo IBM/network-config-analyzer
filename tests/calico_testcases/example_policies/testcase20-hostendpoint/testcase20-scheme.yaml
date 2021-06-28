@@ -7,32 +7,32 @@ networkConfigList:
     networkPolicyList:
       - testcase20-0-gnps.yaml
       - testcase20-profiles.yaml
-    expected_warnings: 1  # This warning is sort of false. It's because we can't reason about a mixture of pods and ips
+    expectedWarnings: 1  # This warning is sort of false. It's because we can't reason about a mixture of pods and ips
                           # Nevertheless, the problematic policy allow-node-port-dnat is really redundant
 
   - name: np_1_globalEmpty_with_profiles
     networkPolicyList:
       - testcase20-1-empty-globalNetworkpolicy.yaml
       - testcase20-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_2_outbound_hep_all_ep
     networkPolicyList:
       - testcase20-2-outbound-hep-all-ep.yaml
       - testcase20-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_3_outbound_hep_to_wep
     networkPolicyList:
       - testcase20-3-outbound-hep-only-to-wep.yaml
       - testcase20-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_4_outbound_all_namespaceSelector
     networkPolicyList:
       - testcase20-4-outbound-hep-all-namespaceselector.yaml
       - testcase20-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: sanity_Eran_gnps

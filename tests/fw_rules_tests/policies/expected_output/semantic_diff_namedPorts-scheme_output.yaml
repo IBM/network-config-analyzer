@@ -1,5 +1,5 @@
 - query: 'semantic_diff, config1: np1_named_ports, config2: np2_named_ports, key:
-    Changed connections between persistent peers (added)'
+    Added connections between persistent peers'
   rules:
   - src_ns:
     - default
@@ -32,7 +32,7 @@
       Ports:
       - '10054'
 - query: 'semantic_diff, config1: np1_named_ports, config2: np2_named_ports, key:
-    Changed connections between persistent peers and ipBlocks (added)'
+    Added connections between persistent peers and ipBlocks'
   rules:
   - src_ip_block:
     - 0.0.0.0/0

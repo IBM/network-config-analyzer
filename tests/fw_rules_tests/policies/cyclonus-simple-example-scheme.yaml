@@ -10,7 +10,7 @@ networkConfigList:
   - cyclonus-deny-all.yaml
   - cyclonus-deny-all-egress.yaml
   - cyclonus-deny-all-for-label.yaml
-  expected_warnings: 0
+  expectedWarnings: 0
 queries:
 - name: connectivity_map
   connectivityMap:

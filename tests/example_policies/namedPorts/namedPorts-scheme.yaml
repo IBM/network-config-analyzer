@@ -5,27 +5,27 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - namedPorts-policy1.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2
     networkPolicyList:
       - namedPorts-policy2.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np3
     networkPolicyList:
       - namedPorts-policy3.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np4
     networkPolicyList:
       - namedPorts-policy4.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np5 # just for warnings
     networkPolicyList:
       - namedPorts-policy5.yaml
-    expected_warnings: 5
+    expectedWarnings: 5
 
 queries:
   - name: compare_np1_and_np2

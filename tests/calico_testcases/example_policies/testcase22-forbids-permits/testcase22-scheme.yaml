@@ -7,19 +7,19 @@ networkConfigList:
     networkPolicyList:
       - testcase22-0-deny-all-profiles.yaml
       - testcase22-0-cnc-kt-open.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np0_cnc-nlp-open
     networkPolicyList:
       - testcase22-0-deny-all-profiles.yaml
       - testcase22-0-cnc-nlp-open.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np0_cnc-fe-not-helm-open
     networkPolicyList:
       - testcase22-0-deny-all-profiles.yaml
       - testcase22-0-cnc-fe-not-helm-open.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np0_global-to-from-outside
     networkPolicyList:
@@ -40,25 +40,25 @@ networkConfigList:
     networkPolicyList:
       - testcase22-0-deny-all-profiles.yaml
       - testcase22-1-traffic-between-cnc-evaluation-service-also-out.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np2_traffic-between-cnc-evaluation-service-no-outside
     networkPolicyList:
       - testcase22-0-deny-all-profiles.yaml
       - testcase22-2-traffic-between-cnc-evaluation-service-no-out.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np3_product-compare-and-comply
     networkPolicyList:
       - testcase22-0-deny-all-profiles.yaml
       - testcase22-3-traffic-between-compare-and-comply-no-out.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np4_empty-policy-allow-all-profiles
     networkPolicyList:
       - testcase22-0-allow-all-profiles.yaml
       - testcase22-4-empty-policy.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
 queries:
   - name: sanity_ok

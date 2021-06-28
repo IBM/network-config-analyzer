@@ -6,28 +6,28 @@ networkConfigList:
     networkPolicyList:
       - testcase13-kube-system-different-protocols.yaml
       - testcase13-open-default-TCP.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: match-protocol
     networkPolicyList:
       - testcase13-kube-system-match-protocol.yaml
       - testcase13-open-default-TCP.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: match-not-protocol
     networkPolicyList:
       - testcase13-kube-system-match-not-protocol.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: no-match-not-protocol
     networkPolicyList:
       - testcase13-kube-system-no-match-not-protocol.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: also-with-deny
     networkPolicyList:
       - testcase13-also-with-deny.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: policies_not_empty

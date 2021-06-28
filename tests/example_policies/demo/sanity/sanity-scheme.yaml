@@ -5,22 +5,22 @@ networkConfigList:
   - name: sanity-label-mistake
     networkPolicyList:
       - sanity-label-mistake-networkpolicy.yaml
-    expected_warnings: 2
+    expectedWarnings: 2
 
   - name: sanity-typoNotIn
     networkPolicyList:
       - sanity-typoNotIn-networkpolicy.yaml
-    expected_warnings: 1
+    expectedWarnings: 1
 
   - name: sanity-redundant-dash
     networkPolicyList:
       - sanity-redundant-dash-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: sanity-misconception-podSelector-namespaceSelector
     networkPolicyList:
       - sanity-misconception-podSelector-namespaceSelector.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: emptiness_test_on_label_mistake

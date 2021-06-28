@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: port-test-form2
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+      ports:
+        - port: abc-def12_
+          protocol: UDP

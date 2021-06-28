@@ -5,7 +5,7 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - emptinessTests-networkpolicy1.yaml
-    expected_warnings: 5
+    expectedWarnings: 5
     
 queries:
   - name: vacuous_policy

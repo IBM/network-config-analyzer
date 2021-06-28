@@ -5,50 +5,50 @@ networkConfigList:
   - name: icmp-no-type
     networkPolicyList:
       - testcase14-default-icmp-no-type.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: match-icmp-only-between-namespaces
     networkPolicyList:
       - testcase14-kube-system-match-default-only-out-icmp.yaml
       - testcase14-open-default-only-out-icmp.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: default-open-but-vacuous
     networkPolicyList:
       - testcase14-open-default-only-out-icmp.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: match-icmp-also-within-default
     networkPolicyList:
       - testcase14-kube-system-match-default-also-within-icmp.yaml
       - testcase14-open-default-also-within-icmp.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: default-also-within-icmp
     networkPolicyList:
       - testcase14-open-default-also-within-icmp.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: match-icmp-within-kube-system
     networkPolicyList:
       - testcase14-kube-system-match-within.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_kube-system-non-matching-icmps
     networkPolicyList:
       - testcase14-kube-system-non-match-icmp.yaml
       - testcase14-open-default-only-out-icmp.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: match-not-icmp
     networkPolicyList:
       - testcase14-kube-system-match-notICMP.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: no-match-notICMP
     networkPolicyList:
       - testcase14-kube-system-no-match-notICMP.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: policies_not_empty

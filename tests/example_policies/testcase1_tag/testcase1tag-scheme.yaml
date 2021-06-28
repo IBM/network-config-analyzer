@@ -5,12 +5,12 @@ networkConfigList:
   - name: np1
     networkPolicyList:
       - testcase1tag-networkpolicy1.yaml
-    expected_warnings: 2
+    expectedWarnings: 2
 
   - name: np2
     networkPolicyList:
       - testcase1tag-networkpolicy2.yaml
-    expected_warnings: 2
+    expectedWarnings: 2
 
 queries:
   - name: emptiness

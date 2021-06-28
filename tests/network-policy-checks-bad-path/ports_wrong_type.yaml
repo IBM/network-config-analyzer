@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: egress-or-ingress-ports-test-type
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+      # wrong type
+      ports: # ports is an array of NetworkPolicyPort rules (here no indication for array member start)
+       port: tbd
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              unique-label: dummy

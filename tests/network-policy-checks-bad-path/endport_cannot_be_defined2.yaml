@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: endport-test-existance
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - ipBlock:
+          cidr: 10.0.0.0
+      ports:
+        - protocol: UDP
+          # port does not exist but endPort does
+          endPort: 60

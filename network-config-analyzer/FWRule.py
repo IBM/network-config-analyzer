@@ -212,7 +212,7 @@ class PodElement(FWRuleElement):
         """
         :return: list[string] for the field src_pods or dst_pods in representation for yaml object
         """
-        return [str(self.element.owner_name)]
+        return [str(self.element.owner_name)] if isinstance(self.element, Pod) else [str(self.element.name)]
 
     def get_pod_str(self):
         """
@@ -330,6 +330,9 @@ class IPBlockElement(FWRuleElement):
         super().__init__(set())  # no ns for ip-block
         self.element = element
 
+    def get_ns_str(self):
+        return ''
+
     def get_pod_str(self):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
@@ -385,6 +388,10 @@ class FWRule:
     Class for holding a fw-rule: src, dst, connection-set
     """
 
+    rule_csv_header = ['query', 'src_ns', 'src_pods', 'src_ip_block', 'dst_ns', 'dst_pods', 'dst_ip_block',
+                       'connection']
+    supported_formats = {'txt', 'yaml', 'csv'}
+
     def __init__(self, src, dst, conn):
         """
         Create an object of FWRule
@@ -427,7 +434,7 @@ class FWRule:
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
         conn_str = self.conn.get_connections_str(is_k8s_config)  # str(self.conn)
-        return src_str + dst_str + ' conn: ' + conn_str
+        return src_str + dst_str + ' conn: ' + conn_str + '\n'
 
     def __hash__(self):
         return hash(str(self))
@@ -437,6 +444,39 @@ class FWRule:
 
     def __lt__(self, other):
         return str(self) < str(other)
+
+    def get_rule_component_str(self, component, is_k8s_config):
+        """
+        This function is used to produce a csv row for a fw-rule
+        :param component: a fw-rule required component  from components in rule_csv_header
+        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        :return: string of the required rule component
+        """
+        if component == 'src_ns':
+            return self.src.get_ns_str()
+        elif component == 'src_pods':
+            return self.src.get_pod_str()
+        elif component == 'src_ip_block':
+            return str(self.src) if isinstance(self.src, IPBlockElement) else ''
+        elif component == 'dst_ns':
+            return self.dst.get_ns_str()
+        elif component == 'dst_pods':
+            return self.dst.get_pod_str()
+        elif component == 'dst_ip_block':
+            return str(self.dst) if isinstance(self.dst, IPBlockElement) else ''
+        elif component == 'connection':
+            return self.conn.get_connections_str(is_k8s_config)
+        return ''
+
+    def get_rule_csv_row(self, is_k8s_config):
+        """
+        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        :return: a list of strings, representing the csv row for this fw-rule
+        """
+        row = []
+        for component in FWRule.rule_csv_header:
+            row.append(self.get_rule_component_str(component, is_k8s_config))
+        return row
 
     def get_rule_yaml_obj(self, is_k8s_config):
         """
@@ -470,6 +510,24 @@ class FWRule:
                         'dst_ip_block': dst_ip_block_list,
                         'connection': conn_list}
         return rule_obj
+
+    def get_rule_in_req_format(self, req_format, is_k8s_config):
+        """
+        get fw-rule representation according to required format :
+        yaml: dict object
+        csv: list of strings
+        txt: string
+        :param req_format: a string of the required format, should be in supported_formats
+        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        :return:
+        """
+        if req_format == 'yaml':
+            return self.get_rule_yaml_obj(is_k8s_config)
+        elif req_format == 'csv':
+            return self.get_rule_csv_row(is_k8s_config)
+        elif req_format == 'txt':
+            return self.get_rule_str(is_k8s_config)
+        return None
 
     @staticmethod
     def create_fw_rules_from_base_elements(src, dst, connections):

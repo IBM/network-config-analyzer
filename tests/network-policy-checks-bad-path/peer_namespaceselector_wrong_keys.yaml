@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: peer-namespaceselector-test-keys
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            tier: frontend
+  egress:
+    - to:
+        #wrong keys
+        - namespaceSelector:
+           name: peer

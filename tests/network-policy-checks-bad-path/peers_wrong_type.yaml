@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: to-from-peer-test-type
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      app: helm
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              tier: frontend
+    # wrong type: ( peer to/from is an array of NetworkPolicyPeer rules)
+    - from:
+        podSelector:
+            matchLabels:
+              tier: frontend

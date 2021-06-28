@@ -5,7 +5,7 @@ networkConfigList:
   - name: workload_resources_captured
     networkPolicyList:
       - workload-test-networkpolicy.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: all-captured

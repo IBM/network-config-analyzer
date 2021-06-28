@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipblock-test-keys
+  namespace: kube-system
+spec:
+  podSelector:
+    matchLabels:
+      tier: frontend
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      # wrong keys
+        - ipBlock:
+           cidr: 0.0.0.0/0
+           include:
+             - 10.0.0.0/8
+    -  ports:
+        - port: 53
+          protocol: UDP
