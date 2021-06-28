@@ -6,13 +6,13 @@ networkConfigList:
     networkPolicyList:
       - testcase24-a.yaml
       - testcase24-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
   - name: np_b
     networkPolicyList:
       - testcase24-b.yaml
       - testcase24-profiles.yaml
-    expected_warnings: 0
+    expectedWarnings: 0
 
 queries:
   - name: policies_not_vacuous
