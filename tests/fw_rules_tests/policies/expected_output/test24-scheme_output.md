@@ -1,0 +1,7 @@
+|query|src_ns|src_pods|dst_ns|dst_pods|connection|
+|---|---|---|---|---|---|
+|connectivity_map, config: np24|
+||[default]|[common in (M)]|[default]|[app in (skydive)]|UDP 53,|
+||[default]|[cognetive-agents-C]|[default]|[app in (skydive)]|All connections|
+
+

@@ -1,9 +1,12 @@
 final fw rules for query: connectivity_map, config: np_onlyAllow:
 src_ns: [kube-system] src_pods: [app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)] dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 1-65536,
 
+
 final fw rules for query: connectivity_map, config: np_FirstDenySubset:
 src_ns: [kube-system] src_pods: [app in (helm,keepalived-watcher,vpn)] dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 1-65536,
 
+
 final fw rules for query: connectivity_map, config: np_firstAllowSuperSet:
 src_ns: [kube-system] src_pods: [app in (file-plugin,helm,keepalived-watcher,storage-watcher,vpn)] dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 1-65536,
+
 

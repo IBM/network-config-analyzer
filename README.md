@@ -24,6 +24,10 @@ Checking whether the base set of NetworkPolicies interferes with the given set o
 Checking whether the base set of NetworkPolicies permits the traffic explicitly specified in the given set of NetworkPolicies
 - `--forbids <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
 Checking whether the base set of NetworkPolicies forbids the traffic explicitly specified in the given set of NetworkPolicies
+- `--connectivity <NetworkPolicy set>` \
+Get the list of allowed connections as firewall rules on the given set of NetworkPolicies
+- `--semantic_diff <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+Get the connectivity semantic difference as firewall rules between two sets of NetworkPolicy sets
 
 `<NetworkPolicy set>` should be one of:
 - a path to a yaml/json file defining NetworkPolicies
@@ -54,7 +58,7 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 - `--daemon`\
   Run NCA as a daemon. Send and receive data using a REST API.
 - `--output_format <format>`\
-  Output format specification (txt/yaml/csv).\
+  Output format specification (txt/yaml/csv/md).\
   *default:* txt\
   *shorthand:* `-o`
 - `--file_out <file name>`\

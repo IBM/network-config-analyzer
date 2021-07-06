@@ -19,6 +19,7 @@
     connection:
     - All connections
 
+
 - query: 'connectivity_map, config: np_denyFirst'
   rules:
   - src_ns:
@@ -310,4 +311,5 @@
     - '*'
     connection:
     - All connections
+
 

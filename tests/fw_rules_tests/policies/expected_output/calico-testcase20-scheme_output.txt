@@ -67,7 +67,9 @@ src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connection
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [vendor.role in (worker_public)] conn: ICMP [0-254] => [0-255];,TCP 52311,UDP 52311,protocols numbers: 112
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
+
 final fw rules for query: np_1_globalEmpty_with_profiles, config: np_1_globalEmpty_with_profiles:
+
 
 final fw rules for query: np_2_all_outbound_hep, config: np_2_outbound_hep_all_ep:
 src ip block: 0.0.0.0/0 dst_ns: [None] dst_pods: [vendor.role in (worker_public)] conn: All connections
@@ -82,6 +84,7 @@ src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connection
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [vendor.role in (worker_public)] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
+
 final fw rules for query: np_3_outbound_hep_to_wep, config: np_3_outbound_hep_to_wep:
 src ip block: 0.0.0.0/0 dst_ns: [None] dst_pods: [vendor.role in (worker_public)] conn: All connections
 src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
@@ -94,6 +97,7 @@ src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connection
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [vendor.role in (worker_public)] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
+
 final fw rules for query: np_4_outbound_all_namespaceSelector, config: np_4_outbound_all_namespaceSelector:
 src ip block: 0.0.0.0/0 dst_ns: [None] dst_pods: [vendor.role in (worker_public)] conn: All connections
 src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
@@ -105,4 +109,5 @@ src_ns: [None] src_pods: [vendor.role in (worker_public)] dst_ns: [kube-system] 
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [vendor.role in (worker_public)] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
+
 

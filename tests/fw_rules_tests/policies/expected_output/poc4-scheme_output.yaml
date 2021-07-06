@@ -194,6 +194,7 @@
     connection:
     - All connections
 
+
 - query: 'semantic_diff, config1: poc3, config2: poc4, key: Added connections between
     persistent peers'
   rules:

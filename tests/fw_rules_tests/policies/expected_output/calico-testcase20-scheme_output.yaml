@@ -572,8 +572,10 @@
     connection:
     - All connections
 
+
 - query: 'np_1_globalEmpty_with_profiles, config: np_1_globalEmpty_with_profiles'
   rules: []
+
 
 - query: 'np_2_all_outbound_hep, config: np_2_outbound_hep_all_ep'
   rules:
@@ -674,6 +676,7 @@
     connection:
     - All connections
 
+
 - query: 'np_3_outbound_hep_to_wep, config: np_3_outbound_hep_to_wep'
   rules:
   - src_ip_block:
@@ -763,6 +766,7 @@
     connection:
     - All connections
 
+
 - query: 'np_4_outbound_all_namespaceSelector, config: np_4_outbound_all_namespaceSelector'
   rules:
   - src_ip_block:
@@ -851,4 +855,5 @@
     - '*'
     connection:
     - All connections
+
 

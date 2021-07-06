@@ -388,9 +388,8 @@ class FWRule:
     Class for holding a fw-rule: src, dst, connection-set
     """
 
-    rule_csv_header = ['query', 'src_ns', 'src_pods', 'src_ip_block', 'dst_ns', 'dst_pods', 'dst_ip_block',
-                       'connection']
-    supported_formats = {'txt', 'yaml', 'csv'}
+    rule_csv_header = ['query', 'src_ns', 'src_pods', 'dst_ns', 'dst_pods', 'connection']
+    supported_formats = {'txt', 'yaml', 'csv', 'md'}
 
     def __init__(self, src, dst, conn):
         """
@@ -455,15 +454,11 @@ class FWRule:
         if component == 'src_ns':
             return self.src.get_ns_str()
         elif component == 'src_pods':
-            return self.src.get_pod_str()
-        elif component == 'src_ip_block':
-            return str(self.src) if isinstance(self.src, IPBlockElement) else ''
+            return str(self.src) if isinstance(self.src, IPBlockElement) else self.src.get_pod_str()
         elif component == 'dst_ns':
             return self.dst.get_ns_str()
         elif component == 'dst_pods':
-            return self.dst.get_pod_str()
-        elif component == 'dst_ip_block':
-            return str(self.dst) if isinstance(self.dst, IPBlockElement) else ''
+            return str(self.dst) if isinstance(self.dst, IPBlockElement) else self.dst.get_pod_str()
         elif component == 'connection':
             return self.conn.get_connections_str(is_k8s_config)
         return ''
@@ -523,7 +518,7 @@ class FWRule:
         """
         if req_format == 'yaml':
             return self.get_rule_yaml_obj(is_k8s_config)
-        elif req_format == 'csv':
+        elif req_format == 'csv' or req_format == 'md':
             return self.get_rule_csv_row(is_k8s_config)
         elif req_format == 'txt':
             return self.get_rule_str(is_k8s_config)

@@ -1,5 +1,6 @@
-"query","src_ns","src_pods","src_ip_block","dst_ns","dst_pods","dst_ip_block","connection",
+"query","src_ns","src_pods","dst_ns","dst_pods","connection",
 "connectivity_map, config: np19",
-"","[dlaas,ibm-system-new]","[*]","","[kube-system-new-dummy-to-ignore]","[*]","","All connections",
-"","[ibm-system-new,kube-system-new]","[*]","","[default]","[*]","","All connections",
+"","[dlaas,ibm-system-new]","[*]","[kube-system-new-dummy-to-ignore]","[*]","All connections",
+"","[ibm-system-new,kube-system-new]","[*]","[default]","[*]","All connections",
+
 

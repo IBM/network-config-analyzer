@@ -487,6 +487,7 @@ class SchemeRunner(GenericYamlParser):
             output_configuration.configName = config
             full_result = ConnectivityMapQuery(self._get_config(config), output_configuration).exec()
             query_output += full_result.output_explanation
+            query_output += '\n'
         # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output, True)
