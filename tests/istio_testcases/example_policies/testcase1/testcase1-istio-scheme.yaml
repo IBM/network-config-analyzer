@@ -1,0 +1,25 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: istio1
+    networkPolicyList:
+      #- testcase1-deny-all-policy.yaml
+      #- testcase1-allow-nothing-policy.yaml
+      #- testcase1-allow-all-policy.yaml
+      #- testcase1-deny-all-test-policy.yaml
+      - testcase1-policy.yaml
+      #- testcase1-new-policy.yaml
+      #- testcase1-allow-all-test-policy.yaml
+
+    expectedWarnings: 0
+
+queries:
+  - name: istio1_policy
+    connectivityMap:
+      - istio1
+    expected: 0
+    outputConfiguration:
+      fwRulesRunInTestMode: true
+      fwRulesOverrideAllowedLabels: app
+      fwRulesDebug: true

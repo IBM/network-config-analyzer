@@ -31,12 +31,13 @@ def main():
     all_results = {}
     for root, _, files in os.walk(base_dir):
         for file in files:
-            if not fnmatch(file, '*-scheme.yaml'):
+            if not fnmatch(file, '*-istio-scheme.yaml'):
                 continue
 
             scheme_filename = os.path.join(root, file)
             global_res += run_test(scheme_filename, ['--scheme', scheme_filename], 0, all_results)
 
+    '''
     with open(os.path.join(base_dir, 'cmdline_tests.yaml')) as doc:
         code = YAML().load_all(doc)
         for test in next(iter(code)):
@@ -45,6 +46,7 @@ def main():
                 if '/' in arg and not arg.startswith('https://github'):
                     args[idx] = os.path.join(base_dir, arg)
             global_res += run_test(test['name'], args, test['expected'], all_results)
+    '''
 
     print('\n\nSummary\n-------')
     total_time = 0.

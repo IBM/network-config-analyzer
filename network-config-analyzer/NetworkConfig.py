@@ -16,6 +16,8 @@ from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from K8sNetworkPolicy import K8sNetworkPolicy
 from CalicoNetworkPolicy import CalicoNetworkPolicy
+from IstioNetworkPolicy import IstioNetworkPolicy
+from IstioPolicyYamlParser import IstioPolicyYamlParser
 from ConnectionSet import ConnectionSet
 from CmdlineRunner import CmdlineRunner
 from GitScanner import GitScanner
@@ -99,6 +101,8 @@ class NetworkConfig:
             return NetworkConfig.ConfigType.K8s
         if isinstance(policy, CalicoNetworkPolicy):
             return NetworkConfig.ConfigType.Calico
+        if isinstance(policy, IstioNetworkPolicy):
+            return NetworkConfig.ConfigType.Istio
         return NetworkConfig.ConfigType.Unknown
 
     def add_policy(self, policy):
@@ -142,6 +146,9 @@ class NetworkConfig:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
                 self.allowed_labels |= parsed_element.allowed_labels
+            elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
+                parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
+                self.add_policy(parsed_element.parse_policy())
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
@@ -314,13 +321,18 @@ class NetworkConfig:
             raise Exception(peer.full_name() + ' refers to a non-existing profile ' + profile_name)
         return profile.allowed_connections(from_peer, to_peer, is_ingress)
 
+    # for istio: If there are no ALLOW policies for the workload, allow the request.
+    # https://istio.io/latest/docs/reference/config/security/authorization-policy/
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress, only_captured=False):
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
         pass_conns = ConnectionSet()
         policy_captured = False
+        has_allow_policies_for_target = False
         for policy in self.sorted_policies:
             policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
+            if policy_conns.captured and self._get_policy_type(policy) == NetworkConfig.ConfigType.Istio  and  policy.action == IstioNetworkPolicy.ActionType.Allow:
+                has_allow_policies_for_target = True
             assert isinstance(policy_conns, PolicyConnections)
             if policy_conns.captured:
                 policy_captured = True
@@ -334,9 +346,17 @@ class NetworkConfig:
                 policy_conns.pass_conns -= allowed_conns
                 pass_conns |= policy_conns.pass_conns
 
-        if not policy_captured:
+        #TODO: istio: in this case the allowed connections are not captured, but denied connections are (possibly) captured
+        if self.type == NetworkConfig.ConfigType.Istio and not has_allow_policies_for_target:
+            allowed_conns = ConnectionSet(True) - denied_conns
+
+        if not policy_captured and self.type != NetworkConfig.ConfigType.Istio:
+            # TODO: what is the logic for istio?
             if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Unknown]:
                 allowed_conns = ConnectionSet(True)  # default Allow-all ingress in k8s or in case of no policy
+            #elif self.type == NetworkConfig.ConfigType.Istio and not has_allow_policies_for_target:
+            #    allowed_conns = ConnectionSet(True)
+
             else:
                 if only_captured:
                     allowed_conns = ConnectionSet()
@@ -344,6 +364,7 @@ class NetworkConfig:
                     allowed_conns = self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
         elif pass_conns:
             allowed_conns |= pass_conns & self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
+
         return PolicyConnections(policy_captured, allowed_conns, denied_conns)
 
     def allowed_connections(self, from_peer, to_peer, only_captured=False):
@@ -357,16 +378,28 @@ class NetworkConfig:
         :rtype: bool, ConnectionSet, ConnectionSet
         """
         if isinstance(to_peer, Peer.IpBlock):
-            ingress_conns = PolicyConnections(False, ConnectionSet(True))
+            if self.type != NetworkConfig.ConfigType.Istio:
+                ingress_conns = PolicyConnections(False, ConnectionSet(True))
+            else:
+                # istio does not capture connections/requests to destination outside the cluster
+                # this type of connection cannot be considered allowed by istio policies
+                ingress_conns = PolicyConnections(False, ConnectionSet())
         else:
             ingress_conns = self._allowed_xgress_conns(from_peer, to_peer, True, only_captured)
 
-        if isinstance(from_peer, Peer.IpBlock):
-            egress_conns = PolicyConnections(False, ConnectionSet(True))
-        else:
-            egress_conns = self._allowed_xgress_conns(from_peer, to_peer, False, only_captured)
+        # no egress rules in istio
+        if self.type == NetworkConfig.ConfigType.Istio:
+            captured = ingress_conns.captured
+            allowed_conns = ingress_conns.allowed_conns
+            denied_conns = ingress_conns.denied_conns
 
-        captured = ingress_conns.captured or egress_conns.captured
-        allowed_conns = ingress_conns.allowed_conns & egress_conns.allowed_conns
-        denied_conns = ingress_conns.denied_conns | egress_conns.denied_conns
+        else:
+            if isinstance(from_peer, Peer.IpBlock):
+                egress_conns = PolicyConnections(False, ConnectionSet(True))
+            else:
+                egress_conns = self._allowed_xgress_conns(from_peer, to_peer, False, only_captured)
+            captured = ingress_conns.captured or egress_conns.captured
+            allowed_conns = ingress_conns.allowed_conns & egress_conns.allowed_conns
+            denied_conns = ingress_conns.denied_conns | egress_conns.denied_conns
+
         return captured, allowed_conns, denied_conns

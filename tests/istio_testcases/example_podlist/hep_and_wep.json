@@ -1,0 +1,508 @@
+[
+  {
+    "kind": "HostEndpointList",
+    "apiVersion": "projectcalico.org/v3",
+    "metadata": {
+      "resourceVersion": "16318182"
+    },
+    "items": [
+      {
+        "kind": "HostEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "kube-dal10-cr22657aefce704abc9cb81d7228aabfbe-w1.aefce704abc9cb81d7228aabfbe-w1.cloud.worker-public-6c83d95d",
+          "uid": "b5567e38-fd63-11e8-86fb-a2ef5a666dfb",
+          "resourceVersion": "13197434",
+          "creationTimestamp": "2018-12-11T16:42:12Z",
+          "labels": {
+            "vendor.role": "worker_public"
+          }
+        },
+        "spec": {
+          "node": "kube-dal10-cr22657aefce704abc9cb81d7228aabfbe-w1",
+          "interfaceName": "eth1"
+        }
+      },
+      {
+        "kind": "HostEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "kube-dal10-cr22657aefce704abc9cb81d7228aabfbe-w2.aefce704abc9cb81d7228aabfbe-w2.cloud.worker-public-35d9769c",
+          "uid": "b55809ac-fd63-11e8-86fb-a2ef5a666dfb",
+          "resourceVersion": "13197435",
+          "creationTimestamp": "2018-12-11T16:42:12Z",
+          "labels": {
+            "vendor.role": "worker_public"
+          }
+        },
+        "spec": {
+          "node": "kube-dal10-cr22657aefce704abc9cb81d7228aabfbe-w2",
+          "interfaceName": "eth1"
+        }
+      },
+      {
+        "kind": "HostEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "kube-dal10-cr22657aefce704abc9cb81d7228aabfbe-w3.aefce704abc9cb81d7228aabfbe-w3.cloud.worker-public-65385c1d",
+          "uid": "b5599eed-fd63-11e8-86fb-a2ef5a666dfb",
+          "resourceVersion": "13197436",
+          "creationTimestamp": "2018-12-11T16:42:12Z",
+          "labels": {
+            "vendor.role": "worker_public"
+          }
+        },
+        "spec": {
+          "node": "kube-dal10-cr22657aefce704abc9cb81d7228aabfbe-w3",
+          "interfaceName": "eth1"
+        }
+      }
+    ]
+  },
+  {
+    "kind": "WorkloadEndpointList",
+    "apiVersion": "projectcalico.org/v3",
+    "metadata": {},
+    "items": [
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.174-k8s-heapster--9b7fc657b--blncx-eth0",
+          "generateName": "heapster-9b7fc657b-",
+          "namespace": "kube-system",
+          "uid": "533fecee-fa88-11e8-98db-fa1a51bc74a4",
+          "resourceVersion": "7222875",
+          "creationTimestamp": "2018-12-08T01:26:45Z",
+          "labels": {
+            "k8s-app": "heapster",
+            "pod-template-hash": "563972136",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "heapster",
+            "version": "v1.5.2"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.174",
+          "pod": "heapster-9b7fc657b-blncx",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.231.244/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.heapster"
+          ],
+          "interfaceName": "calidbacb1e8601"
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.173-k8s-file--plugin--668cff5d89--dm2w2-eth0",
+          "generateName": "file-plugin-668cff5d89-",
+          "namespace": "kube-system",
+          "uid": "3237d387-d5d7-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7221752",
+          "creationTimestamp": "2018-10-22T08:48:07Z",
+          "labels": {
+            "app": "file-plugin",
+            "pod-template-hash": "2247991845",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "file-plugin",
+            "tier": "frontend"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.173",
+          "pod": "file-plugin-668cff5d89-dm2w2",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.86.149/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.file-plugin"
+          ],
+          "interfaceName": "cali5460dd3ae78"
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.173-k8s-storage--watcher--7f98bffc87--2bmx9-eth0",
+          "generateName": "storage-watcher-7f98bffc87-",
+          "namespace": "kube-system",
+          "uid": "323670d9-d5d7-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7221772",
+          "creationTimestamp": "2018-10-22T08:48:07Z",
+          "labels": {
+            "app": "storage-watcher",
+            "pod-template-hash": "3954699743",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "file-plugin",
+            "tier": "frontend"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.173",
+          "pod": "storage-watcher-7f98bffc87-2bmx9",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.86.153/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.file-plugin"
+          ],
+          "interfaceName": "cali86e649389bc"
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.173-k8s-kube--dns--amd64--7899c75955--9xf2v-eth0",
+          "generateName": "kube-dns-amd64-7899c75955-",
+          "namespace": "kube-system",
+          "uid": "32366320-d5d7-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7221746",
+          "creationTimestamp": "2018-10-22T08:48:07Z",
+          "labels": {
+            "k8s-app": "kube-dns",
+            "pod-template-hash": "3455731511",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "kube-dns"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.173",
+          "pod": "kube-dns-amd64-7899c75955-9xf2v",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.86.150/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.kube-dns"
+          ],
+          "interfaceName": "cali93ff2f56a99",
+          "ports": [
+            {
+              "name": "dns-local",
+              "protocol": "UDP",
+              "port": 10053
+            },
+            {
+              "name": "dns-tcp-local",
+              "protocol": "TCP",
+              "port": 10053
+            },
+            {
+              "name": "metrics",
+              "protocol": "TCP",
+              "port": 10055
+            },
+            {
+              "name": "dns",
+              "protocol": "UDP",
+              "port": 53
+            },
+            {
+              "name": "dns-tcp",
+              "protocol": "TCP",
+              "port": 53
+            },
+            {
+              "name": "metrics",
+              "protocol": "TCP",
+              "port": 10054
+            }
+          ]
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.166-k8s-kube--dns--amd64--7899c75955--j89zl-eth0",
+          "generateName": "kube-dns-amd64-7899c75955-",
+          "namespace": "kube-system",
+          "uid": "1b46adc0-d5d6-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7431117",
+          "creationTimestamp": "2018-10-22T08:40:19Z",
+          "labels": {
+            "k8s-app": "kube-dns",
+            "pod-template-hash": "3455731511",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "kube-dns"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.166",
+          "pod": "kube-dns-amd64-7899c75955-j89zl",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.206.171/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.kube-dns"
+          ],
+          "interfaceName": "caliac8daa3542f",
+          "ports": [
+            {
+              "name": "dns-local",
+              "protocol": "UDP",
+              "port": 10053
+            },
+            {
+              "name": "dns-tcp-local",
+              "protocol": "TCP",
+              "port": 10053
+            },
+            {
+              "name": "metrics",
+              "protocol": "TCP",
+              "port": 10055
+            },
+            {
+              "name": "dns",
+              "protocol": "UDP",
+              "port": 53
+            },
+            {
+              "name": "dns-tcp",
+              "protocol": "TCP",
+              "port": 53
+            },
+            {
+              "name": "metrics",
+              "protocol": "TCP",
+              "port": 10054
+            }
+          ]
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.166-k8s-kube--dns--autoscaler--5cff9d9567--mkzc4-eth0",
+          "generateName": "kube-dns-autoscaler-5cff9d9567-",
+          "namespace": "kube-system",
+          "uid": "1b46a83b-d5d6-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7431123",
+          "creationTimestamp": "2018-10-22T08:40:19Z",
+          "labels": {
+            "k8s-app": "kube-dns-autoscaler",
+            "pod-template-hash": "1799585123",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "kube-dns-autoscaler"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.166",
+          "pod": "kube-dns-autoscaler-5cff9d9567-mkzc4",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.206.178/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.kube-dns-autoscaler"
+          ],
+          "interfaceName": "calib5120ee1e14"
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.173-k8s-kubernetes--dashboard--767c775786--4cs75-eth0",
+          "generateName": "kubernetes-dashboard-767c775786-",
+          "namespace": "kube-system",
+          "uid": "32383ee7-d5d7-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7221755",
+          "creationTimestamp": "2018-10-22T08:48:07Z",
+          "labels": {
+            "k8s-app": "kubernetes-dashboard",
+            "pod-template-hash": "3237331342",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "kubernetes-dashboard"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.173",
+          "pod": "kubernetes-dashboard-767c775786-4cs75",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.86.151/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.kubernetes-dashboard"
+          ],
+          "interfaceName": "calicfee03ff963"
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.173-k8s-public--cre08b89c167414305a1afb205d0bd346f--alb1--58df49995f--k88xl-eth0",
+          "generateName": "public-cre08b89c167414305a1afb205d0bd346f-alb1-58df49995f-",
+          "namespace": "kube-system",
+          "uid": "ad90e8ac-f8cc-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7221760",
+          "creationTimestamp": "2018-12-05T20:31:00Z",
+          "labels": {
+            "app": "public-cre08b89c167414305a1afb205d0bd346f-alb1",
+            "pod-template-hash": "1489055519",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "ingress"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.173",
+          "pod": "public-cre08b89c167414305a1afb205d0bd346f-alb1-58df49995f-k88xl",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.86.159/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.ingress"
+          ],
+          "interfaceName": "cali5f72530e55f"
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.174-k8s-public--cre08b89c167414305a1afb205d0bd346f--alb1--58df49995f--k9xqt-eth0",
+          "generateName": "public-cre08b89c167414305a1afb205d0bd346f-alb1-58df49995f-",
+          "namespace": "kube-system",
+          "uid": "ad8d0ed7-f8cc-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7221892",
+          "creationTimestamp": "2018-12-05T20:31:00Z",
+          "labels": {
+            "app": "public-cre08b89c167414305a1afb205d0bd346f-alb1",
+            "pod-template-hash": "1489055519",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "ingress"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.174",
+          "pod": "public-cre08b89c167414305a1afb205d0bd346f-alb1-58df49995f-k9xqt",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.231.243/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.ingress"
+          ],
+          "interfaceName": "cali04e419ce473"
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.173-k8s-tiller--deploy--5c45c9966b--jr4xr-eth0",
+          "generateName": "tiller-deploy-5c45c9966b-",
+          "namespace": "kube-system",
+          "uid": "3237d07d-d5d7-11e8-b28c-125eb495cab4",
+          "resourceVersion": "7221764",
+          "creationTimestamp": "2018-10-22T08:48:07Z",
+          "labels": {
+            "app": "helm",
+            "name": "tiller",
+            "pod-template-hash": "1701755226",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "default"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.173",
+          "pod": "tiller-deploy-5c45c9966b-jr4xr",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.86.154/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.default"
+          ],
+          "interfaceName": "calid89699359a5",
+          "ports": [
+            {
+              "name": "tiller",
+              "protocol": "TCP",
+              "port": 44134
+            }
+          ]
+        }
+      },
+      {
+        "kind": "WorkloadEndpoint",
+        "apiVersion": "projectcalico.org/v3",
+        "metadata": {
+          "name": "10.186.164.166-k8s-vpn--cc6c7b7fd--6lw9b-eth0",
+          "generateName": "vpn-cc6c7b7fd-",
+          "namespace": "kube-system",
+          "uid": "d65d3d5a-fa88-11e8-98db-fa1a51bc74a4",
+          "resourceVersion": "7431131",
+          "creationTimestamp": "2018-12-08T01:30:25Z",
+          "labels": {
+            "app": "vpn",
+            "kubernetes-dashboard-policy": "allow",
+            "pod-template-hash": "772736398",
+            "projectcalico.org/namespace": "kube-system",
+            "projectcalico.org/orchestrator": "k8s",
+            "projectcalico.org/serviceaccount": "default"
+          }
+        },
+        "spec": {
+          "orchestrator": "k8s",
+          "node": "10.186.164.166",
+          "pod": "vpn-cc6c7b7fd-6lw9b",
+          "endpoint": "eth0",
+          "ipNetworks": [
+            "172.30.206.177/32"
+          ],
+          "profiles": [
+            "kns.kube-system",
+            "ksa.kube-system.default"
+          ],
+          "interfaceName": "cali65b2d9fdcc5"
+        }
+      }
+    ]
+  }
+]

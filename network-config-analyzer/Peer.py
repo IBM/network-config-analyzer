@@ -2,7 +2,6 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
 from ipaddress import ip_network
 from sys import stderr
 from string import hexdigits
@@ -215,8 +214,6 @@ class IpBlock(Peer, CanonicalIntervalSet):
         return res
 
 
-
-
     @staticmethod
     def get_all_ips_block():
         """
@@ -274,6 +271,18 @@ class PeerSet(set):
 
     def __and__(self, other):
         return PeerSet(super().__and__(other))
+
+    def get_ip_block(self):
+        res = IpBlock()
+        for elem in self:
+            if isinstance(elem, IpBlock):
+                res |= elem
+        return res
+
+    def ip_block_intersection(self, other_ip_block):
+        self_ip_block = self.get_ip_block()
+        res_ip_block = self_ip_block & other_ip_block
+        return res_ip_block.split()
 
     def __or__(self, other):
         return PeerSet(super().__or__(other))

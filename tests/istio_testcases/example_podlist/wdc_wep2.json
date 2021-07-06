@@ -1,0 +1,2974 @@
+{
+  "kind": "WorkloadEndpointList",
+  "apiVersion": "projectcalico.org/v3",
+  "metadata": {},
+  "items": [
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.7-k8s-helm--tiller--54fd7577cb--lcttr-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "acc-research",
+        "uid": "f8242032-039e-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180530228",
+        "creationTimestamp": "2018-12-19T15:01:31Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "acc-research",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller",
+          "my-unique-label": "the-only-acc-research"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.7",
+        "pod": "helm-tiller-54fd7577cb-lcttr",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.209.14/32"
+        ],
+        "profiles": [
+          "kns.acc-research",
+          "ksa.acc-research.helm-tiller"
+        ],
+        "interfaceName": "cali30cec35312f",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.3-k8s-helm--tiller--54fd7577cb--sv2n4-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "operia-benchmark",
+        "uid": "ad669a73-0396-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180458777",
+        "creationTimestamp": "2018-12-19T14:02:10Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "operia-benchmark",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.3",
+        "pod": "helm-tiller-54fd7577cb-sv2n4",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.32.191/32"
+        ],
+        "profiles": [
+          "kns.operia-benchmark",
+          "ksa.operia-benchmark.helm-tiller"
+        ],
+        "interfaceName": "calidfeaf4f13a3",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.44-k8s-helm--tiller--54fd7577cb--mmc7s-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "blue-umbrella",
+        "uid": "bc4fb4c1-0393-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180419031",
+        "creationTimestamp": "2018-12-19T13:41:06Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "blue-umbrella",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.44",
+        "pod": "helm-tiller-54fd7577cb-mmc7s",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.3.26/32"
+        ],
+        "profiles": [
+          "kns.blue-umbrella",
+          "ksa.blue-umbrella.helm-tiller"
+        ],
+        "interfaceName": "caliedbae87dd5f",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.58-k8s-helm--tiller--54fd7577cb--j58zh-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cap-agent",
+        "uid": "95cab585-03a0-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180544365",
+        "creationTimestamp": "2018-12-19T15:13:05Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cap-agent",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.58",
+        "pod": "helm-tiller-54fd7577cb-j58zh",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.88.145/32"
+        ],
+        "profiles": [
+          "kns.cap-agent",
+          "ksa.cap-agent.helm-tiller"
+        ],
+        "interfaceName": "calic2efc1fcf80",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.50-k8s-integrations--it--5bfc58f86c--pqh5s-eth0",
+        "generateName": "integrations-it-5bfc58f86c-",
+        "namespace": "cap-agent",
+        "uid": "33956d50-0391-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "181488646",
+        "creationTimestamp": "2018-12-19T13:22:58Z",
+        "labels": {
+          "app": "integrations-it",
+          "pod-template-hash": "1697149427",
+          "projectcalico.org/namespace": "cap-agent",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.50",
+        "pod": "integrations-it-5bfc58f86c-pqh5s",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.12.153/32"
+        ],
+        "profiles": [
+          "kns.cap-agent",
+          "ksa.cap-agent.default"
+        ],
+        "interfaceName": "calibc9dcd52c11"
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.55-k8s-helm--tiller--54fd7577cb--4lgn6-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cap-unauth",
+        "uid": "3cc91494-0397-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180457146",
+        "creationTimestamp": "2018-12-19T14:06:10Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cap-unauth",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.55",
+        "pod": "helm-tiller-54fd7577cb-4lgn6",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.21.53/32"
+        ],
+        "profiles": [
+          "kns.cap-unauth",
+          "ksa.cap-unauth.helm-tiller"
+        ],
+        "interfaceName": "cali5d966b3de3e",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.53-k8s-helm--tiller--54fd7577cb--nbxnb-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "chaos-testing",
+        "uid": "9a9242ae-0398-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180471034",
+        "creationTimestamp": "2018-12-19T14:15:57Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "chaos-testing",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.53",
+        "pod": "helm-tiller-54fd7577cb-nbxnb",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.122.66/32"
+        ],
+        "profiles": [
+          "kns.chaos-testing",
+          "ksa.chaos-testing.helm-tiller"
+        ],
+        "interfaceName": "cali7e1a32081e5",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.58-k8s-helm--tiller--54fd7577cb--958h7-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "ctighs-va",
+        "uid": "d9e2049a-039c-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180513673",
+        "creationTimestamp": "2018-12-19T14:46:21Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "ctighs-va",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.58",
+        "pod": "helm-tiller-54fd7577cb-958h7",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.87.249/32"
+        ],
+        "profiles": [
+          "kns.ctighs-va",
+          "ksa.ctighs-va.helm-tiller"
+        ],
+        "interfaceName": "cali37a15a39135",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.43-k8s-helm--tiller--54fd7577cb--dd9fb-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "ctighs",
+        "uid": "d5f9fc91-038e-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180376521",
+        "creationTimestamp": "2018-12-19T13:06:02Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "ctighs",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.43",
+        "pod": "helm-tiller-54fd7577cb-dd9fb",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.57.93/32"
+        ],
+        "profiles": [
+          "kns.ctighs",
+          "ksa.ctighs.helm-tiller"
+        ],
+        "interfaceName": "calif556982ebb8",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.13-k8s-cnc--clntn--service--6d6895d9ff--whdkx-eth0",
+        "generateName": "cnc-clntn-service-6d6895d9ff-",
+        "namespace": "cnc-clntn-mgmt",
+        "uid": "864562fb-039c-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180511253",
+        "creationTimestamp": "2018-12-19T14:44:01Z",
+        "labels": {
+          "app": "cnc-clntn-service",
+          "pod-template-hash": "2824518599",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-clntn-mgmt",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.13",
+        "pod": "cnc-clntn-service-6d6895d9ff-whdkx",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.110.111/32"
+        ],
+        "profiles": [
+          "kns.cnc-clntn-mgmt",
+          "ksa.cnc-clntn-mgmt.default"
+        ],
+        "interfaceName": "cali63d25d1a1a2",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.55-k8s-helm--tiller--54fd7577cb--w2zct-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cnc-clntn-mgmt",
+        "uid": "3f05564f-0397-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180459519",
+        "creationTimestamp": "2018-12-19T14:06:14Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cnc-clntn-mgmt",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.55",
+        "pod": "helm-tiller-54fd7577cb-w2zct",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.21.20/32"
+        ],
+        "profiles": [
+          "kns.cnc-clntn-mgmt",
+          "ksa.cnc-clntn-mgmt.helm-tiller"
+        ],
+        "interfaceName": "calie5a77b964c6",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.16-k8s-cnc--evaluation--service--fc4b9fdcd--6mpsx-eth0",
+        "generateName": "cnc-evaluation-service-fc4b9fdcd-",
+        "namespace": "cnc-fe",
+        "uid": "ef57ede4-039b-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180503934",
+        "creationTimestamp": "2018-12-19T14:39:48Z",
+        "labels": {
+          "app": "cnc-evaluation-service",
+          "pod-template-hash": "970659878",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.16",
+        "pod": "cnc-evaluation-service-fc4b9fdcd-6mpsx",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.136.56/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "caliad61dfaf259",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.29-k8s-cnc--evaluation--service--fc4b9fdcd--n8spl-eth0",
+        "generateName": "cnc-evaluation-service-fc4b9fdcd-",
+        "namespace": "cnc-fe",
+        "uid": "891cad45-03a2-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180569108",
+        "creationTimestamp": "2018-12-19T15:27:03Z",
+        "labels": {
+          "app": "cnc-evaluation-service",
+          "pod-template-hash": "970659878",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.29",
+        "pod": "cnc-evaluation-service-fc4b9fdcd-n8spl",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.62.163/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "cali37ab560edc2",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.30-k8s-cnc--feedback--service--5bdc4dd7bc--8g5bk-eth0",
+        "generateName": "cnc-feedback-service-5bdc4dd7bc-",
+        "namespace": "cnc-fe",
+        "uid": "dc319474-038d-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "181488894",
+        "creationTimestamp": "2018-12-19T12:59:03Z",
+        "labels": {
+          "app": "cnc-feedback-service",
+          "pod-template-hash": "1687088367",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.30",
+        "pod": "cnc-feedback-service-5bdc4dd7bc-8g5bk",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.148.156/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "calif598759a892",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.48-k8s-cnc--feedback--service--5bdc4dd7bc--n6t5p-eth0",
+        "generateName": "cnc-feedback-service-5bdc4dd7bc-",
+        "namespace": "cnc-fe",
+        "uid": "6acd29a2-0393-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "181488473",
+        "creationTimestamp": "2018-12-19T13:38:49Z",
+        "labels": {
+          "app": "cnc-feedback-service",
+          "pod-template-hash": "1687088367",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.48",
+        "pod": "cnc-feedback-service-5bdc4dd7bc-n6t5p",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.154.178/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "cali3dcb75fc603",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.14-k8s-cnc--feedback--service--5bdc4dd7bc--sw6ml-eth0",
+        "generateName": "cnc-feedback-service-5bdc4dd7bc-",
+        "namespace": "cnc-fe",
+        "uid": "907a01ac-0399-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181486004",
+        "creationTimestamp": "2018-12-19T14:22:50Z",
+        "labels": {
+          "app": "cnc-feedback-service",
+          "pod-template-hash": "1687088367",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.14",
+        "pod": "cnc-feedback-service-5bdc4dd7bc-sw6ml",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.39.93/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "califf4568e8d6b",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.53-k8s-cnc--frontend--api--service--55595dc64d--6hb89-eth0",
+        "generateName": "cnc-frontend-api-service-55595dc64d-",
+        "namespace": "cnc-fe",
+        "uid": "f6e1ab1d-03a0-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180553049",
+        "creationTimestamp": "2018-12-19T15:15:48Z",
+        "labels": {
+          "app": "cnc-frontend-api-service",
+          "pod-template-hash": "1115187208",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.53",
+        "pod": "cnc-frontend-api-service-55595dc64d-6hb89",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.187.203/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "cali6f0307911d0",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.48-k8s-cnc--frontend--service--68df497444--fgql2-eth0",
+        "generateName": "cnc-frontend-service-68df497444-",
+        "namespace": "cnc-fe",
+        "uid": "12a67dd1-0393-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "181488932",
+        "creationTimestamp": "2018-12-19T13:36:21Z",
+        "labels": {
+          "app": "cnc-frontend-service",
+          "pod-template-hash": "2489053000",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.48",
+        "pod": "cnc-frontend-service-68df497444-fgql2",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.154.170/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "calia1787996210"
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.30-k8s-cnc--recommendation--service--6558579846--xwncb-eth0",
+        "generateName": "cnc-recommendation-service-6558579846-",
+        "namespace": "cnc-fe",
+        "uid": "ad662e70-0396-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180452596",
+        "creationTimestamp": "2018-12-19T14:02:10Z",
+        "labels": {
+          "app": "cnc-recommendation-service",
+          "pod-template-hash": "2114135402",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.30",
+        "pod": "cnc-recommendation-service-6558579846-xwncb",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.73.124/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "calic527b6634fc",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.13-k8s-cnc--tooling--service--75849f6945--j2tf6-eth0",
+        "generateName": "cnc-tooling-service-75849f6945-",
+        "namespace": "cnc-fe",
+        "uid": "9b8d1715-03a4-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180583772",
+        "creationTimestamp": "2018-12-19T15:41:53Z",
+        "labels": {
+          "offering": "compare-and-comply",
+          "pod-template-hash": "3140592501",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "service": "cnc-tooling-service"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.13",
+        "pod": "cnc-tooling-service-75849f6945-j2tf6",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.169.254/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "cali8b5566ef317",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.49-k8s-helm--tiller--54fd7577cb--szgvq-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cnc-fe",
+        "uid": "ab2e4a24-039f-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180538990",
+        "creationTimestamp": "2018-12-19T15:06:31Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.49",
+        "pod": "helm-tiller-54fd7577cb-szgvq",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.248.173/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.helm-tiller"
+        ],
+        "interfaceName": "cali629e75a4530",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.47-k8s-nlp--nusk--deployment--6898688864--x2rnm-eth0",
+        "generateName": "nlp-nusk-deployment-6898688864-",
+        "namespace": "vtngc-data", //"cnc-fe",
+        "uid": "5444ba1a-03a5-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180587208",
+        "creationTimestamp": "2018-12-19T15:47:02Z",
+        "labels": {
+          "app": "nlp-nusk-deployment",
+          "pod-template-hash": "2454244420",
+          "product": "nlp-nusk-deployment",
+          "projectcalico.org/namespace": "cnc-fe",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.47",
+        "pod": "nlp-nusk-deployment-6898688864-x2rnm",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.192.160/32"
+        ],
+        "profiles": [
+          "kns.cnc-fe",
+          "ksa.cnc-fe.default"
+        ],
+        "interfaceName": "cali1554852d54b"
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.14-k8s-cnc--analytics--8c455545c--zq8zh-eth0",
+        "generateName": "cnc-analytics-8c455545c-",
+        "namespace": "cnc-ntsgin",
+        "uid": "250a7cd0-03ef-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181487662",
+        "creationTimestamp": "2018-12-20T00:35:26Z",
+        "labels": {
+          "app": "cnc-analytics",
+          "pod-template-hash": "470111017",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.14",
+        "pod": "cnc-analytics-8c455545c-zq8zh",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.99.10/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calid20fa284d24",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.14-k8s-cnc--batch--6c8dcb59b4--gzcjq-eth0",
+        "generateName": "cnc-batch-6c8dcb59b4-",
+        "namespace": "cnc-ntsgin",
+        "uid": "bcaf350b-03ed-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181066627",
+        "creationTimestamp": "2018-12-20T00:25:21Z",
+        "labels": {
+          "app": "cnc-batch",
+          "pod-template-hash": "2748761560",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.14",
+        "pod": "cnc-batch-6c8dcb59b4-gzcjq",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.99.29/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "cali43e754873c4",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.185.66.24-k8s-cnc--batch--6c8dcb59b4--znngl-eth0",
+        "generateName": "cnc-batch-6c8dcb59b4-",
+        "namespace": "cnc-ntsgin",
+        "uid": "067c1c34-03ed-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181062633",
+        "creationTimestamp": "2018-12-20T00:20:16Z",
+        "labels": {
+          "app": "cnc-batch",
+          "pod-template-hash": "2748761560",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.185.66.24",
+        "pod": "cnc-batch-6c8dcb59b4-znngl",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.68.156/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calib906fbb595b",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.159.168-k8s-cnc--component--mesh--dashboard--5d557467c6--bnntz-eth0",
+        "generateName": "cnc-component-mesh-dashboard-5d557467c6-",
+        "namespace": "cnc-ntsgin",
+        "uid": "908d8a8e-03c0-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180776082",
+        "creationTimestamp": "2018-12-19T19:02:00Z",
+        "labels": {
+          "app": "cnc-component-mesh-dashboard",
+          "pod-template-hash": "1811302372",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.159.168",
+        "pod": "cnc-component-mesh-dashboard-5d557467c6-bnntz",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.230.156/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calieb625184eea"
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.36-k8s-cnc--customization--service--74c8bcd659--2hng8-eth0",
+        "generateName": "cnc-customization-service-74c8bcd659-",
+        "namespace": "cnc-ntsgin",
+        "uid": "af02cc8e-03ad-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180652940",
+        "creationTimestamp": "2018-12-19T16:46:51Z",
+        "labels": {
+          "app": "cnc-customization-service",
+          "pod-template-hash": "3074678215",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.36",
+        "pod": "cnc-customization-service-74c8bcd659-2hng8",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.20.255/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calid460e163545",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.22-k8s-cnc--evaluation--service--5b7675448d--vgnln-eth0",
+        "generateName": "cnc-evaluation-service-5b7675448d-",
+        "namespace": "cnc-ntsgin",
+        "uid": "5f06e8ce-039e-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180530987",
+        "creationTimestamp": "2018-12-19T14:57:14Z",
+        "labels": {
+          "app": "cnc-evaluation-service",
+          "pod-template-hash": "1632310048",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.22",
+        "pod": "cnc-evaluation-service-5b7675448d-vgnln",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.22.251/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calibc7a16d2dc1",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.35-k8s-cnc--feedback--service--758bf9cb68--6zs4w-eth0",
+        "generateName": "cnc-feedback-service-758bf9cb68-",
+        "namespace": "cnc-ntsgin",
+        "uid": "91efd2ca-0399-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180482843",
+        "creationTimestamp": "2018-12-19T14:22:52Z",
+        "labels": {
+          "app": "cnc-feedback-service",
+          "pod-template-hash": "3146957624",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.35",
+        "pod": "cnc-feedback-service-758bf9cb68-6zs4w",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.241.7/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calie38ce7a8701",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.5-k8s-cnc--functions--744b985bb8--4nwz7-eth0",
+        "generateName": "cnc-functions-744b985bb8-",
+        "namespace": "cnc-ntsgin",
+        "uid": "56741879-03c5-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180808344",
+        "creationTimestamp": "2018-12-19T19:36:10Z",
+        "labels": {
+          "app": "cnc-functions",
+          "pod-template-hash": "3006541664",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.5",
+        "pod": "cnc-functions-744b985bb8-4nwz7",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.189.118/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "caliefa65e02954",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.39-k8s-cnc--functions--744b985bb8--vw285-eth0",
+        "generateName": "cnc-functions-744b985bb8-",
+        "namespace": "cnc-ntsgin",
+        "uid": "fde043dc-03c5-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180812641",
+        "creationTimestamp": "2018-12-19T19:40:51Z",
+        "labels": {
+          "app": "cnc-functions",
+          "pod-template-hash": "3006541664",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.39",
+        "pod": "cnc-functions-744b985bb8-vw285",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.211.161/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calif41640dba7c",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.31-k8s-cnc--ntsgin--796758f4d4--lcj2m-eth0",
+        "generateName": "cnc-ntsgin-796758f4d4-",
+        "namespace": "cnc-ntsgin",
+        "uid": "29adb033-0396-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180447171",
+        "creationTimestamp": "2018-12-19T13:58:29Z",
+        "labels": {
+          "app": "cnc-ntsgin",
+          "pod-template-hash": "3523149080",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.31",
+        "pod": "cnc-ntsgin-796758f4d4-lcj2m",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.61.185/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calife3cfa16711",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.52-k8s-cnc--ntsgin--796758f4d4--lml95-eth0",
+        "generateName": "cnc-ntsgin-796758f4d4-",
+        "namespace": "cnc-ntsgin",
+        "uid": "fbb30241-03a7-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180623015",
+        "creationTimestamp": "2018-12-19T16:06:02Z",
+        "labels": {
+          "app": "cnc-ntsgin",
+          "pod-template-hash": "3523149080",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.52",
+        "pod": "cnc-ntsgin-796758f4d4-lml95",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.112.131/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calie4ea1c9689e",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.38-k8s-cnc--ntsgin--components--service--d6f98dddf--fwp78-eth0",
+        "generateName": "cnc-ntsgin-components-service-d6f98dddf-",
+        "namespace": "cnc-ntsgin",
+        "uid": "d571b31e-03c9-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181001080",
+        "creationTimestamp": "2018-12-19T20:08:21Z",
+        "labels": {
+          "app": "cnc-ntsgin-components-service",
+          "pod-template-hash": "829548889",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.38",
+        "pod": "cnc-ntsgin-components-service-d6f98dddf-fwp78",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.43.147/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "cali18dfd3b568c",
+        "ports": [
+          {
+            "name": "thrift",
+            "protocol": "TCP",
+            "port": 8080
+          },
+          {
+            "name": "grpc",
+            "protocol": "TCP",
+            "port": 8033
+          },
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.50-k8s-cnc--ntsgin--components--service--d6f98dddf--j52b4-eth0",
+        "generateName": "cnc-ntsgin-components-service-d6f98dddf-",
+        "namespace": "cnc-ntsgin",
+        "uid": "d56e1ed7-03c9-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181000575",
+        "creationTimestamp": "2018-12-19T20:08:21Z",
+        "labels": {
+          "app": "cnc-ntsgin-components-service",
+          "pod-template-hash": "829548889",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.50",
+        "pod": "cnc-ntsgin-components-service-d6f98dddf-j52b4",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.12.169/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "cali3e93521f836",
+        "ports": [
+          {
+            "name": "thrift",
+            "protocol": "TCP",
+            "port": 8080
+          },
+          {
+            "name": "grpc",
+            "protocol": "TCP",
+            "port": 8033
+          },
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.5-k8s-cnc--ntsgin--components--service--d6f98dddf--sx97d-eth0",
+        "generateName": "cnc-ntsgin-components-service-d6f98dddf-",
+        "namespace": "cnc-ntsgin",
+        "uid": "d23ef174-03c9-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181000752",
+        "creationTimestamp": "2018-12-19T20:08:16Z",
+        "labels": {
+          "app": "cnc-ntsgin-components-service",
+          "pod-template-hash": "829548889",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.5",
+        "pod": "cnc-ntsgin-components-service-d6f98dddf-sx97d",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.189.115/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "cali763f7f00fb7",
+        "ports": [
+          {
+            "name": "thrift",
+            "protocol": "TCP",
+            "port": 8080
+          },
+          {
+            "name": "grpc",
+            "protocol": "TCP",
+            "port": 8033
+          },
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.50-k8s-cnc--recommendation--service--5785649ffb--sjk4g-eth0",
+        "generateName": "cnc-recommendation-service-5785649ffb-",
+        "namespace": "cnc-ntsgin",
+        "uid": "eac84f8e-0390-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180397812",
+        "creationTimestamp": "2018-12-19T13:20:56Z",
+        "labels": {
+          "app": "cnc-recommendation-service",
+          "pod-template-hash": "1341205996",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.50",
+        "pod": "cnc-recommendation-service-5785649ffb-sjk4g",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.12.190/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "cali5469ed8862c",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.24-k8s-cnc--registration--6599457688--8zj48-eth0",
+        "generateName": "cnc-registration-6599457688-",
+        "namespace": "cnc-ntsgin",
+        "uid": "cc707606-039c-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180520172",
+        "creationTimestamp": "2018-12-19T14:45:59Z",
+        "labels": {
+          "app": "cnc-registration",
+          "pod-template-hash": "2155013244",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.24",
+        "pod": "cnc-registration-6599457688-8zj48",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.232.142/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "calie1ab2b6eca3",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.7-k8s-cnc--registration--6599457688--9z672-eth0",
+        "generateName": "cnc-registration-6599457688-",
+        "namespace": "cnc-ntsgin",
+        "uid": "5efef66a-039e-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180525765",
+        "creationTimestamp": "2018-12-19T14:57:14Z",
+        "labels": {
+          "app": "cnc-registration",
+          "pod-template-hash": "2155013244",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.7",
+        "pod": "cnc-registration-6599457688-9z672",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.208.246/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "cali4d49d9cfaee",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.46-k8s-cnc--storage--859d69b974--bbgl2-eth0",
+        "generateName": "cnc-storage-859d69b974-",
+        "namespace": "cnc-ntsgin",
+        "uid": "31d387a1-0391-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180396709",
+        "creationTimestamp": "2018-12-19T13:22:55Z",
+        "labels": {
+          "app": "cnc-storage",
+          "pod-template-hash": "4158256530",
+          "product": "compare-and-comply",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.46",
+        "pod": "cnc-storage-859d69b974-bbgl2",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.58.232/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.default"
+        ],
+        "interfaceName": "cali2e483b96765",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.14-k8s-helm--tiller--54fd7577cb--mglt9-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cnc-ntsgin",
+        "uid": "90910c1b-0399-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181264364",
+        "creationTimestamp": "2018-12-19T14:22:50Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cnc-ntsgin",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.14",
+        "pod": "helm-tiller-54fd7577cb-mglt9",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.39.104/32"
+        ],
+        "profiles": [
+          "kns.cnc-ntsgin",
+          "ksa.cnc-ntsgin.helm-tiller"
+        ],
+        "interfaceName": "cali4012bc8c08a",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.17-k8s-helm--tiller--54fd7577cb--djhnv-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cnc-kt",
+        "uid": "da6b98f6-03a5-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180591295",
+        "creationTimestamp": "2018-12-19T15:50:48Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cnc-kt",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.17",
+        "pod": "helm-tiller-54fd7577cb-djhnv",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.71.132/32"
+        ],
+        "profiles": [
+          "kns.cnc-kt",
+          "ksa.cnc-kt.helm-tiller"
+        ],
+        "interfaceName": "cali15fc6c3c1e1",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.29-k8s-nlp--nusk--deployment--6898688864--xcbk8-eth0",
+        "generateName": "nlp-nusk-deployment-6898688864-",
+        "namespace": "cnc-kt",
+        "uid": "89cbcdf2-03a2-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180565176",
+        "creationTimestamp": "2018-12-19T15:27:04Z",
+        "labels": {
+          "app": "nlp-nusk-deployment",
+          "pod-template-hash": "2454244420",
+          "product": "nlp-nusk-deployment",
+          "projectcalico.org/namespace": "cnc-kt",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "tenant": "public"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.29",
+        "pod": "nlp-nusk-deployment-6898688864-xcbk8",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.62.189/32"
+        ],
+        "profiles": [
+          "kns.cnc-kt",
+          "ksa.cnc-kt.default"
+        ],
+        "interfaceName": "cali90868112c4e"
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.159.175-k8s-cnc--nlp--tooling--ui--service--56fffb46bf--zsvzn-eth0",
+        "generateName": "cnc-nlp-tooling-ui-service-56fffb46bf-",
+        "namespace": "cnc-nlp",
+        "uid": "9f2662c2-03e1-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180999981",
+        "creationTimestamp": "2018-12-19T22:58:38Z",
+        "labels": {
+          "app": "cnc-nlp-tooling-ui",
+          "offering": "compare-and-comply",
+          "pod-template-hash": "1299960269",
+          "projectcalico.org/namespace": "cnc-nlp",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "service": "cnc-nlp-tooling-ui-service"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.159.175",
+        "pod": "cnc-nlp-tooling-ui-service-56fffb46bf-zsvzn",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.66.3/32"
+        ],
+        "profiles": [
+          "kns.cnc-nlp",
+          "ksa.cnc-nlp.default"
+        ],
+        "interfaceName": "calicbde2a82a40",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.50-k8s-helm--tiller--54fd7577cb--sqskp-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cnc-nlp",
+        "uid": "ecebae51-0390-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180393917",
+        "creationTimestamp": "2018-12-19T13:20:59Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cnc-nlp",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.50",
+        "pod": "helm-tiller-54fd7577cb-sqskp",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.12.183/32"
+        ],
+        "profiles": [
+          "kns.cnc-nlp",
+          "ksa.cnc-nlp.helm-tiller"
+        ],
+        "interfaceName": "calif24b454de80",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.46-k8s-helm--tiller--54fd7577cb--zlw4z-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cnc-pdf-tool",
+        "uid": "327b27f8-0391-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180394647",
+        "creationTimestamp": "2018-12-19T13:22:56Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cnc-pdf-tool",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.46",
+        "pod": "helm-tiller-54fd7577cb-zlw4z",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.59.6/32"
+        ],
+        "profiles": [
+          "kns.cnc-pdf-tool",
+          "ksa.cnc-pdf-tool.helm-tiller"
+        ],
+        "interfaceName": "calid5ea7fbe44d",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.185.66.24-k8s-cnc--tooling--service--55f49b6486--f4dzk-eth0",
+        "generateName": "cnc-tooling-service-55f49b6486-",
+        "namespace": "cnc-tooling",
+        "uid": "968c51bc-03e1-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180984916",
+        "creationTimestamp": "2018-12-19T22:58:23Z",
+        "labels": {
+          "app": "cnc-tooling",
+          "offering": "compare-and-comply",
+          "pod-template-hash": "1190562042",
+          "projectcalico.org/namespace": "cnc-tooling",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "service": "cnc-tooling-service"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.185.66.24",
+        "pod": "cnc-tooling-service-55f49b6486-f4dzk",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.68.146/32"
+        ],
+        "profiles": [
+          "kns.cnc-tooling",
+          "ksa.cnc-tooling.default"
+        ],
+        "interfaceName": "cali0d7f9c78b87",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.159.175-k8s-cnc--tooling--service--55f49b6486--g2h2m-eth0",
+        "generateName": "cnc-tooling-service-55f49b6486-",
+        "namespace": "cnc-tooling",
+        "uid": "208071bd-03e2-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180988633",
+        "creationTimestamp": "2018-12-19T23:02:15Z",
+        "labels": {
+          "app": "cnc-tooling",
+          "offering": "compare-and-comply",
+          "pod-template-hash": "1190562042",
+          "projectcalico.org/namespace": "cnc-tooling",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "service": "cnc-tooling-service"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.159.175",
+        "pod": "cnc-tooling-service-55f49b6486-g2h2m",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.66.61/32"
+        ],
+        "profiles": [
+          "kns.cnc-tooling",
+          "ksa.cnc-tooling.default"
+        ],
+        "interfaceName": "calid00bd1bb294",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.171.84.86-k8s-cnc--tooling--service--55f49b6486--rf2nl-eth0",
+        "generateName": "cnc-tooling-service-55f49b6486-",
+        "namespace": "cnc-tooling",
+        "uid": "e0093e50-03e1-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180986911",
+        "creationTimestamp": "2018-12-19T23:00:27Z",
+        "labels": {
+          "app": "cnc-tooling",
+          "offering": "compare-and-comply",
+          "pod-template-hash": "1190562042",
+          "projectcalico.org/namespace": "cnc-tooling",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "service": "cnc-tooling-service"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.171.84.86",
+        "pod": "cnc-tooling-service-55f49b6486-rf2nl",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.175.125/32"
+        ],
+        "profiles": [
+          "kns.cnc-tooling",
+          "ksa.cnc-tooling.default"
+        ],
+        "interfaceName": "calid8ede004cde",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.58-k8s-helm--tiller--54fd7577cb--66gcv-eth0",
+        "generateName": "helm-tiller-54fd7577cb-",
+        "namespace": "cnc-tooling",
+        "uid": "dc799594-039c-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180514558",
+        "creationTimestamp": "2018-12-19T14:46:26Z",
+        "labels": {
+          "app": "helm",
+          "name": "tiller",
+          "pod-template-hash": "1098313376",
+          "projectcalico.org/namespace": "cnc-tooling",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "helm-tiller"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.58",
+        "pod": "helm-tiller-54fd7577cb-66gcv",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.87.211/32"
+        ],
+        "profiles": [
+          "kns.cnc-tooling",
+          "ksa.cnc-tooling.helm-tiller"
+        ],
+        "interfaceName": "cali7dfcde8417c",
+        "ports": [
+          {
+            "name": "tiller",
+            "protocol": "TCP",
+            "port": 44134
+          },
+          {
+            "name": "http",
+            "protocol": "TCP",
+            "port": 44135
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.44-k8s-conv--a--s04--data--exhaust--admin--86c9b746b--5v4qr-eth0",
+        "generateName": "conv-a-s04-data-exhaust-admin-86c9b746b-",
+        "namespace": "vtngc-data",
+        "uid": "a0f0971e-0393-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180419881",
+        "creationTimestamp": "2018-12-19T13:40:20Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-admin",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "427563026",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.44",
+        "pod": "conv-a-s04-data-exhaust-admin-86c9b746b-5v4qr",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.3.10/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali0d3d00b83a6",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.29-k8s-conv--a--s04--data--exhaust--admin--86c9b746b--hkzvg-eth0",
+        "generateName": "conv-a-s04-data-exhaust-admin-86c9b746b-",
+        "namespace": "vtngc-data",
+        "uid": "8ade260b-03a2-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180568892",
+        "creationTimestamp": "2018-12-19T15:27:06Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-admin",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "427563026",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.29",
+        "pod": "conv-a-s04-data-exhaust-admin-86c9b746b-hkzvg",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.62.159/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "calid5476338071",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.35-k8s-conv--a--s04--data--exhaust--bad--data--consumer--58f8444464--px25h-eth0",
+        "generateName": "conv-a-s04-data-exhaust-bad-data-consumer-58f8444464-",
+        "namespace": "vtngc-data",
+        "uid": "9d8c162a-0398-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180469797",
+        "creationTimestamp": "2018-12-19T14:16:02Z",
+        "labels": {
+          "k8s-app": "conv-a-s04-runtime-data-exhaust-bad-data-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "1494000020",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.35",
+        "pod": "conv-a-s04-data-exhaust-bad-data-consumer-58f8444464-px25h",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.240.254/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali502a31ed977",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.39-k8s-conv--a--s04--data--exhaust--bad--data--consumer--58f8444464--slmjg-eth0",
+        "generateName": "conv-a-s04-data-exhaust-bad-data-consumer-58f8444464-",
+        "namespace": "vtngc-data",
+        "uid": "f87ad958-039e-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180537772",
+        "creationTimestamp": "2018-12-19T15:01:32Z",
+        "labels": {
+          "k8s-app": "conv-a-s04-runtime-data-exhaust-bad-data-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "1494000020",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.39",
+        "pod": "conv-a-s04-data-exhaust-bad-data-consumer-58f8444464-slmjg",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.211.184/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali7f051a44508",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.31-k8s-conv--a--s04--data--exhaust--cos--consumer--85f4466b66--cpkj8-eth0",
+        "generateName": "conv-a-s04-data-exhaust-cos-consumer-85f4466b66-",
+        "namespace": "vtngc-data",
+        "uid": "db7a142f-038d-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180364943",
+        "creationTimestamp": "2018-12-19T12:59:01Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-cos-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "4190022622",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.31",
+        "pod": "conv-a-s04-data-exhaust-cos-consumer-85f4466b66-cpkj8",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.61.139/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "calie77770ff877",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.43-k8s-conv--a--s04--data--exhaust--cos--consumer--85f4466b66--stxtl-eth0",
+        "generateName": "conv-a-s04-data-exhaust-cos-consumer-85f4466b66-",
+        "namespace": "vtngc-data",
+        "uid": "5a59ab45-038c-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180354144",
+        "creationTimestamp": "2018-12-19T12:48:15Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-cos-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "4190022622",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.43",
+        "pod": "conv-a-s04-data-exhaust-cos-consumer-85f4466b66-stxtl",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.34.170/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali2ae002c5a6a",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.50-k8s-conv--a--s04--data--exhaust--es--consumer--5c889cc894--5l6kk-eth0",
+        "generateName": "conv-a-s04-data-exhaust-es-consumer-5c889cc894-",
+        "namespace": "vtngc-data",
+        "uid": "eccf0f1a-0390-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180397551",
+        "creationTimestamp": "2018-12-19T13:20:59Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-es-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "1744577450",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.50",
+        "pod": "conv-a-s04-data-exhaust-es-consumer-5c889cc894-5l6kk",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.12.161/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali50634ade0ed",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.14-k8s-conv--a--s04--data--exhaust--es--consumer--5c889cc894--jlgbk-eth0",
+        "generateName": "conv-a-s04-data-exhaust-es-consumer-5c889cc894-",
+        "namespace": "vtngc-data",
+        "uid": "911295b6-0399-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181264201",
+        "creationTimestamp": "2018-12-19T14:22:51Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-es-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "1744577450",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.14",
+        "pod": "conv-a-s04-data-exhaust-es-consumer-5c889cc894-jlgbk",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.38.236/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali4f20dc15286",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.17-k8s-conv--a--s04--data--exhaust--es--consumer--5c889cc894--txzjj-eth0",
+        "generateName": "conv-a-s04-data-exhaust-es-consumer-5c889cc894-",
+        "namespace": "vtngc-data",
+        "uid": "a0f1238d-0393-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180418863",
+        "creationTimestamp": "2018-12-19T13:40:20Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-es-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "1744577450",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.17",
+        "pod": "conv-a-s04-data-exhaust-es-consumer-5c889cc894-txzjj",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.158.156/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "caliaa91dd06fd7",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.53-k8s-conv--a--s04--data--exhaust--es--retry--consumer--795899cd54--ht4kj-eth0",
+        "generateName": "conv-a-s04-data-exhaust-es-retry-consumer-795899cd54-",
+        "namespace": "vtngc-data",
+        "uid": "810c2fb0-039a-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180489619",
+        "creationTimestamp": "2018-12-19T14:29:33Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-es-retry-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "3514557810",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.53",
+        "pod": "conv-a-s04-data-exhaust-es-retry-consumer-795899cd54-ht4kj",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.187.234/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "calie7e18855c86",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.42-k8s-conv--a--s04--data--exhaust--es--retry--consumer--795899cd54--m6gqt-eth0",
+        "generateName": "conv-a-s04-data-exhaust-es-retry-consumer-795899cd54-",
+        "namespace": "vtngc-data",
+        "uid": "9a8d1073-0398-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180479935",
+        "creationTimestamp": "2018-12-19T14:15:57Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-es-retry-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "3514557810",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.42",
+        "pod": "conv-a-s04-data-exhaust-es-retry-consumer-795899cd54-m6gqt",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.139.20/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali40c224b18e5",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.50-k8s-conv--a--s04--data--exhaust--es--retry--consumer--795899cd54--w4n8f-eth0",
+        "generateName": "conv-a-s04-data-exhaust-es-retry-consumer-795899cd54-",
+        "namespace": "vtngc-data",
+        "uid": "ed873ac8-0390-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180399404",
+        "creationTimestamp": "2018-12-19T13:21:00Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-es-retry-consumer",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "3514557810",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.50",
+        "pod": "conv-a-s04-data-exhaust-es-retry-consumer-795899cd54-w4n8f",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.12.172/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali90e05055942",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.39-k8s-conv--a--s04--data--exhaust--healthcheck--59bdff6c6b--6wwm8-eth0",
+        "generateName": "conv-a-s04-data-exhaust-healthcheck-59bdff6c6b-",
+        "namespace": "vtngc-data",
+        "uid": "8f4fbb84-03a2-11e9-9b53-de4858112ad7",
+        "resourceVersion": "181206480",
+        "creationTimestamp": "2018-12-19T15:27:13Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-healthcheck",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "1568992726",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.39",
+        "pod": "conv-a-s04-data-exhaust-healthcheck-59bdff6c6b-6wwm8",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.211.149/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali9e99c9ef015",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.50-k8s-conv--a--s04--data--exhaust--kibana--5c8fb5b9fc--78t5n-eth0",
+        "generateName": "conv-a-s04-data-exhaust-kibana-5c8fb5b9fc-",
+        "namespace": "vtngc-data",
+        "uid": "eac8557b-0390-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180399865",
+        "creationTimestamp": "2018-12-19T13:20:56Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-kibana",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "1749616597",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default",
+          "bigapp/network-access": "vtngc-data"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.50",
+        "pod": "conv-a-s04-data-exhaust-kibana-5c8fb5b9fc-78t5n",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.12.162/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali2a26341d799"
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.14-k8s-conv--a--s04--data--exhaust--notifier--77c68566d4--lfsbt-eth0",
+        "generateName": "conv-a-s04-data-exhaust-notifier-77c68566d4-",
+        "namespace": "vtngc-data",
+        "uid": "489180f4-0392-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180401974",
+        "creationTimestamp": "2018-12-19T13:30:42Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-notifier",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "3372412280",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.14",
+        "pod": "conv-a-s04-data-exhaust-notifier-77c68566d4-lfsbt",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.99.2/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali595e23b810f",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.50-k8s-conv--a--s04--data--exhaust--proxy--9dfb45997--4sz98-eth0",
+        "generateName": "conv-a-s04-data-exhaust-proxy-9dfb45997-",
+        "namespace": "vtngc-data",
+        "uid": "ebd92f31-0390-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180397548",
+        "creationTimestamp": "2018-12-19T13:20:57Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-proxy",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "589601553",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.50",
+        "pod": "conv-a-s04-data-exhaust-proxy-9dfb45997-4sz98",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.12.181/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali1745dcc020f",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.55-k8s-conv--a--s04--data--exhaust--proxy--9dfb45997--6zvst-eth0",
+        "generateName": "conv-a-s04-data-exhaust-proxy-9dfb45997-",
+        "namespace": "vtngc-data",
+        "uid": "3c7cee36-0397-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180460420",
+        "creationTimestamp": "2018-12-19T14:06:10Z",
+        "labels": {
+          "app": "conv-a-s04-runtime-data-exhaust-proxy",
+          "plan": "conv-a-s04",
+          "pod-template-hash": "589601553",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.55",
+        "pod": "conv-a-s04-data-exhaust-proxy-9dfb45997-6zvst",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.21.61/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali8279e0aba65",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.184.201.24-k8s-data--exhaust--admin--96c6b7fdf--c8gmk-eth0",
+        "generateName": "data-exhaust-admin-96c6b7fdf-",
+        "namespace": "vtngc-data",
+        "uid": "f508fb9a-03a0-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180550052",
+        "creationTimestamp": "2018-12-19T15:15:45Z",
+        "labels": {
+          "app": "runtime-data-exhaust-admin",
+          "plan": "public",
+          "pod-template-hash": "527263989",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.184.201.24",
+        "pod": "data-exhaust-admin-96c6b7fdf-c8gmk",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.232.163/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali8dd30baee1c",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.177.74.39-k8s-data--exhaust--admin--96c6b7fdf--h4nmg-eth0",
+        "generateName": "data-exhaust-admin-96c6b7fdf-",
+        "namespace": "vtngc-data",
+        "uid": "f7e59aa8-039e-11e9-9b53-de4858112ad7",
+        "resourceVersion": "180536389",
+        "creationTimestamp": "2018-12-19T15:01:31Z",
+        "labels": {
+          "app": "runtime-data-exhaust-admin",
+          "plan": "public",
+          "pod-template-hash": "527263989",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.177.74.39",
+        "pod": "data-exhaust-admin-96c6b7fdf-h4nmg",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.211.137/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "cali1243c1edd53",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    },
+    {
+      "kind": "WorkloadEndpoint",
+      "apiVersion": "projectcalico.org/v3",
+      "metadata": {
+        "name": "10.73.127.48-k8s-data--exhaust--bad--data--consumer--67cf7fbb94--fbtcb-eth0",
+        "generateName": "data-exhaust-bad-data-consumer-67cf7fbb94-",
+        "namespace": "vtngc-data",
+        "uid": "12a8fbaf-0393-11e9-a92f-c63b51a9085d",
+        "resourceVersion": "180408658",
+        "creationTimestamp": "2018-12-19T13:36:21Z",
+        "labels": {
+          "k8s-app": "runtime-data-exhaust-bad-data-consumer",
+          "plan": "public",
+          "pod-template-hash": "2379396650",
+          "projectcalico.org/namespace": "vtngc-data",
+          "projectcalico.org/orchestrator": "k8s",
+          "projectcalico.org/serviceaccount": "default"
+        }
+      },
+      "spec": {
+        "orchestrator": "k8s",
+        "node": "10.73.127.48",
+        "pod": "data-exhaust-bad-data-consumer-67cf7fbb94-fbtcb",
+        "endpoint": "eth0",
+        "ipNetworks": [
+          "172.30.154.145/32"
+        ],
+        "profiles": [
+          "kns.vtngc-data",
+          "ksa.vtngc-data.default"
+        ],
+        "interfaceName": "calicd2d4ff6b90",
+        "ports": [
+          {
+            "name": "statsd",
+            "protocol": "TCP",
+            "port": 8125
+          }
+        ]
+      }
+    }
+  ]
+}

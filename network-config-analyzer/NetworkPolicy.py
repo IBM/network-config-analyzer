@@ -23,6 +23,7 @@ class NetworkPolicy:
         CalicoGlobalNetworkPolicy = 3
         CalicoProfile = 4
         List = 5
+        IstioAuthorizationPolicy = 6
 
     def __init__(self, name, namespace):
         self.name = name
@@ -112,6 +113,9 @@ class NetworkPolicy:
                 policy_type = NetworkPolicy.PolicyType.CalicoNetworkPolicy
             elif kind == 'GlobalNetworkPolicy':
                 policy_type = NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
+        elif 'istio' in api_version:
+            if kind == 'AuthorizationPolicy':
+                policy_type = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
         elif kind == 'NetworkPolicy':
             policy_type = NetworkPolicy.PolicyType.K8sNetworkPolicy
 

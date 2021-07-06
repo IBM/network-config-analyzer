@@ -1,0 +1,2293 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "labels": {
+                    "bigapp/namespace": "acc-research",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "acc-research",
+                "namespace": "",
+                "resourceVersion": "5256030",
+                "selfLink": "/api/v1/namespaces/acc-research",
+                "uid": "f1f0bac1-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:27:49Z",
+                "labels": {
+                    "bigapp/namespace": "operia-benchmark",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "operia-benchmark",
+                "namespace": "",
+                "resourceVersion": "5256047",
+                "selfLink": "/api/v1/namespaces/operia-benchmark",
+                "uid": "f2de8800-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:27:59Z",
+                "labels": {
+                    "bigapp/namespace": "blue-umbrella",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "blue-umbrella",
+                "namespace": "",
+                "resourceVersion": "5256128",
+                "selfLink": "/api/v1/namespaces/blue-umbrella",
+                "uid": "f881918c-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:00Z",
+                "labels": {
+                    "bigapp/namespace": "cap-agent",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "cap-agent",
+                "namespace": "",
+                "resourceVersion": "5256144",
+                "selfLink": "/api/v1/namespaces/cap-agent",
+                "uid": "f969ccd0-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:02Z",
+                "labels": {
+                    "bigapp/namespace": "cap-unauth",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "cap-unauth",
+                "namespace": "",
+                "resourceVersion": "5256161",
+                "selfLink": "/api/v1/namespaces/cap-unauth",
+                "uid": "fa5a31eb-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-19T18:12:18Z",
+                "labels": {
+                    "bigapp/namespace": "chaos-testing",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "chaos-testing",
+                "namespace": "",
+                "resourceVersion": "4041313",
+                "selfLink": "/api/v1/namespaces/chaos-testing",
+                "uid": "4dc18cf5-73ec-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:05Z",
+                "labels": {
+                    "bigapp/namespace": "ctighs",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "ctighs",
+                "namespace": "",
+                "resourceVersion": "5256190",
+                "selfLink": "/api/v1/namespaces/ctighs",
+                "uid": "fbed1910-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:06Z",
+                "labels": {
+                    "bigapp/namespace": "ctighs-va",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "ctighs-va",
+                "namespace": "",
+                "resourceVersion": "5256209",
+                "selfLink": "/api/v1/namespaces/ctighs-va",
+                "uid": "fcccfe2e-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:08Z",
+                "labels": {
+                    "bigapp/namespace": "cnc-clntn-mgmt",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "cnc-clntn-mgmt",
+                "namespace": "",
+                "resourceVersion": "5256284",
+                "selfLink": "/api/v1/namespaces/cnc-clntn-mgmt",
+                "uid": "fdd56556-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:11Z",
+                "labels": {
+                    "bigapp/namespace": "cnc-fe",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "cnc-fe",
+                "namespace": "",
+                "resourceVersion": "5256326",
+                "selfLink": "/api/v1/namespaces/cnc-fe",
+                "uid": "ffb00e5d-7599-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-07-18T15:53:40Z",
+                "labels": {
+                    "bigapp/namespace": "cnc-ntsgin",
+                    "bigapp/ownership": "admin",
+                    "unique-label": "cnc-ntsginNameSpace"
+                },
+                "name": "cnc-ntsgin",
+                "namespace": "",
+                "resourceVersion": "20348945",
+                "selfLink": "/api/v1/namespaces/cnc-ntsgin",
+                "uid": "bdc9e826-8aa2-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:14Z",
+                "labels": {
+                    "bigapp/namespace": "cnc-kt",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "cnc-kt",
+                "namespace": "",
+                "resourceVersion": "5256356",
+                "selfLink": "/api/v1/namespaces/cnc-kt",
+                "uid": "017e5c1b-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:16Z",
+                "labels": {
+                    "bigapp/namespace": "cnc-nlp",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "cnc-nlp",
+                "namespace": "",
+                "resourceVersion": "5256371",
+                "selfLink": "/api/v1/namespaces/cnc-nlp",
+                "uid": "026092d9-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:17Z",
+                "labels": {
+                    "bigapp/namespace": "cnc-pdf-tool",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "cnc-pdf-tool",
+                "namespace": "",
+                "resourceVersion": "5256384",
+                "selfLink": "/api/v1/namespaces/cnc-pdf-tool",
+                "uid": "0341a97c-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:18Z",
+                "labels": {
+                    "bigapp/namespace": "cnc-tooling",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "cnc-tooling",
+                "namespace": "",
+                "resourceVersion": "5256453",
+                "selfLink": "/api/v1/namespaces/cnc-tooling",
+                "uid": "0428c165-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:22Z",
+                "labels": {
+                    "bigapp/namespace": "vtngc-data",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vtngc-data",
+                "namespace": "",
+                "resourceVersion": "5256484",
+                "selfLink": "/api/v1/namespaces/vtngc-data",
+                "uid": "05fb5cbd-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:23Z",
+                "labels": {
+                    "bigapp/namespace": "vtngc-ddqa",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vtngc-ddqa",
+                "namespace": "",
+                "resourceVersion": "5256497",
+                "selfLink": "/api/v1/namespaces/vtngc-ddqa",
+                "uid": "06da56ec-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:24Z",
+                "labels": {
+                    "bigapp/namespace": "vtngc-foundations-test",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vtngc-foundations-test",
+                "namespace": "",
+                "resourceVersion": "5256510",
+                "selfLink": "/api/v1/namespaces/vtngc-foundations-test",
+                "uid": "077fd130-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:26Z",
+                "labels": {
+                    "bigapp/namespace": "vtngc-train",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vtngc-train",
+                "namespace": "",
+                "resourceVersion": "5256523",
+                "selfLink": "/api/v1/namespaces/vtngc-train",
+                "uid": "085f35c1-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:27Z",
+                "labels": {
+                    "bigapp/namespace": "vtngc-train-dev",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vtngc-train-dev",
+                "namespace": "",
+                "resourceVersion": "5256536",
+                "selfLink": "/api/v1/namespaces/vtngc-train-dev",
+                "uid": "09431a79-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:29Z",
+                "labels": {
+                    "bigapp/namespace": "common-service-broker",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "common-service-broker",
+                "namespace": "",
+                "resourceVersion": "5256624",
+                "selfLink": "/api/v1/namespaces/common-service-broker",
+                "uid": "0a4673aa-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:32Z",
+                "labels": {
+                    "bigapp/namespace": "vsrnt",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vsrnt",
+                "namespace": "",
+                "resourceVersion": "5256665",
+                "selfLink": "/api/v1/namespaces/vsrnt",
+                "uid": "0c222ca6-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:33Z",
+                "labels": {
+                    "bigapp/namespace": "vsrnt-improve",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vsrnt-improve",
+                "namespace": "",
+                "resourceVersion": "5256704",
+                "selfLink": "/api/v1/namespaces/vsrnt-improve",
+                "uid": "0d083dcb-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:35Z",
+                "labels": {
+                    "bigapp/namespace": "vsrnt-tooling",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vsrnt-tooling",
+                "namespace": "",
+                "resourceVersion": "5256729",
+                "selfLink": "/api/v1/namespaces/vsrnt-tooling",
+                "uid": "0df7afbe-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:37Z",
+                "labels": {
+                    "bigapp/namespace": "vsrnt-training",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vsrnt-training",
+                "namespace": "",
+                "resourceVersion": "5256756",
+                "selfLink": "/api/v1/namespaces/vsrnt-training",
+                "uid": "0ee80855-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:38Z",
+                "labels": {
+                    "bigapp/namespace": "darviz",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "darviz",
+                "namespace": "",
+                "resourceVersion": "5256808",
+                "selfLink": "/api/v1/namespaces/darviz",
+                "uid": "0fe099cb-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-08T21:12:45Z",
+                "name": "default",
+                "namespace": "",
+                "resourceVersion": "11",
+                "selfLink": "/api/v1/namespaces/default",
+                "uid": "b0741602-6b60-11e8-b23d-d6d9437b031f"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-07-19T14:26:14Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-ccs",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-ccs",
+                "namespace": "",
+                "resourceVersion": "20905967",
+                "selfLink": "/api/v1/namespaces/vscdr-ccs",
+                "uid": "b11dc50e-8b5f-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:40Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-connectivity",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-connectivity",
+                "namespace": "",
+                "resourceVersion": "5256853",
+                "selfLink": "/api/v1/namespaces/vscdr-connectivity",
+                "uid": "10dfc411-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:41Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-data-science",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-data-science",
+                "namespace": "",
+                "resourceVersion": "5256870",
+                "selfLink": "/api/v1/namespaces/vscdr-data-science",
+                "uid": "11cdce15-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:43Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-cstlie-management",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-cstlie-management",
+                "namespace": "",
+                "resourceVersion": "5256885",
+                "selfLink": "/api/v1/namespaces/vscdr-cstlie-management",
+                "uid": "12d74a0c-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:45Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-fda",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-fda",
+                "namespace": "",
+                "resourceVersion": "5256910",
+                "selfLink": "/api/v1/namespaces/vscdr-fda",
+                "uid": "13ae3f98-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:46Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-fe-management",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-fe-management",
+                "namespace": "",
+                "resourceVersion": "5256925",
+                "selfLink": "/api/v1/namespaces/vscdr-fe-management",
+                "uid": "14904199-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:47Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-ntsgin",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-ntsgin",
+                "namespace": "",
+                "resourceVersion": "5256938",
+                "selfLink": "/api/v1/namespaces/vscdr-ntsgin",
+                "uid": "1570dfb0-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:49Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-kg",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-kg",
+                "namespace": "",
+                "resourceVersion": "5257008",
+                "selfLink": "/api/v1/namespaces/vscdr-kg",
+                "uid": "1654a174-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:50Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-kg-test",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-kg-test",
+                "namespace": "",
+                "resourceVersion": "5257021",
+                "selfLink": "/api/v1/namespaces/vscdr-kg-test",
+                "uid": "1733a360-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:52Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-metering",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-metering",
+                "namespace": "",
+                "resourceVersion": "5257039",
+                "selfLink": "/api/v1/namespaces/vscdr-metering",
+                "uid": "181a225a-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:53Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-query",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-query",
+                "namespace": "",
+                "resourceVersion": "5257057",
+                "selfLink": "/api/v1/namespaces/vscdr-query",
+                "uid": "18fb85a8-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:55Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-testing",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-testing",
+                "namespace": "",
+                "resourceVersion": "5257071",
+                "selfLink": "/api/v1/namespaces/vscdr-testing",
+                "uid": "19e5133a-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:56Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-tooling",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-tooling",
+                "namespace": "",
+                "resourceVersion": "5257091",
+                "selfLink": "/api/v1/namespaces/vscdr-tooling",
+                "uid": "1aceaf2c-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:28:58Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-wire-ranker",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-wire-ranker",
+                "namespace": "",
+                "resourceVersion": "5257115",
+                "selfLink": "/api/v1/namespaces/vscdr-wire-ranker",
+                "uid": "1bbc676d-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:00Z",
+                "labels": {
+                    "bigapp/namespace": "vscdr-wire-ranker-train",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vscdr-wire-ranker-train",
+                "namespace": "",
+                "resourceVersion": "5257178",
+                "selfLink": "/api/v1/namespaces/vscdr-wire-ranker-train",
+                "uid": "1ca8c319-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:01Z",
+                "labels": {
+                    "bigapp/namespace": "dlaas",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "dlaas",
+                "namespace": "",
+                "resourceVersion": "5257191",
+                "selfLink": "/api/v1/namespaces/dlaas",
+                "uid": "1d918f3d-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:03Z",
+                "labels": {
+                    "bigapp/namespace": "dlaas-deployer-e2e",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "dlaas-deployer-e2e",
+                "namespace": "",
+                "resourceVersion": "5257206",
+                "selfLink": "/api/v1/namespaces/dlaas-deployer-e2e",
+                "uid": "1e702e1e-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:04Z",
+                "labels": {
+                    "bigapp/namespace": "dlaas-e2e",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "dlaas-e2e",
+                "namespace": "",
+                "resourceVersion": "5257225",
+                "selfLink": "/api/v1/namespaces/dlaas-e2e",
+                "uid": "1f4de72f-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:06Z",
+                "labels": {
+                    "bigapp/namespace": "dlaas-lcm-e2e",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "dlaas-lcm-e2e",
+                "namespace": "",
+                "resourceVersion": "5257244",
+                "selfLink": "/api/v1/namespaces/dlaas-lcm-e2e",
+                "uid": "202dea7f-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:07Z",
+                "labels": {
+                    "bigapp/namespace": "dlaas-perf",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "dlaas-perf",
+                "namespace": "",
+                "resourceVersion": "5257263",
+                "selfLink": "/api/v1/namespaces/dlaas-perf",
+                "uid": "210f26d1-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:09Z",
+                "labels": {
+                    "bigapp/namespace": "dlaas-restapi-e2e",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "dlaas-restapi-e2e",
+                "namespace": "",
+                "resourceVersion": "5257344",
+                "selfLink": "/api/v1/namespaces/dlaas-restapi-e2e",
+                "uid": "21f75b20-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:10Z",
+                "labels": {
+                    "bigapp/namespace": "dlaas-trainer-e2e",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "dlaas-trainer-e2e",
+                "namespace": "",
+                "resourceVersion": "5257366",
+                "selfLink": "/api/v1/namespaces/dlaas-trainer-e2e",
+                "uid": "22f6229c-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-08-27T12:44:28Z",
+                "labels": {
+                    "bigapp/namespace": "doc-clustering",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "doc-clustering",
+                "namespace": "",
+                "resourceVersion": "51548430",
+                "selfLink": "/api/v1/namespaces/doc-clustering",
+                "uid": "efb04808-a9f6-11e8-85c7-2202cd873dbd"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:12Z",
+                "labels": {
+                    "bigapp/namespace": "doctor",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "doctor",
+                "namespace": "",
+                "resourceVersion": "5257379",
+                "selfLink": "/api/v1/namespaces/doctor",
+                "uid": "23d578b8-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:13Z",
+                "labels": {
+                    "bigapp/namespace": "tnumhu-tbkhzv",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "tnumhu-tbkhzv",
+                "namespace": "",
+                "resourceVersion": "5257392",
+                "selfLink": "/api/v1/namespaces/tnumhu-tbkhzv",
+                "uid": "24b2e444-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:15Z",
+                "labels": {
+                    "bigapp/namespace": "hd-netpolicy-monitoring",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "hd-netpolicy-monitoring",
+                "namespace": "",
+                "resourceVersion": "5257405",
+                "selfLink": "/api/v1/namespaces/hd-netpolicy-monitoring",
+                "uid": "25912be5-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-08T21:16:43Z",
+                "name": "vendor-cert-store",
+                "namespace": "",
+                "resourceVersion": "153",
+                "selfLink": "/api/v1/namespaces/vendor-cert-store",
+                "uid": "3e09d40f-6b61-11e8-b23d-d6d9437b031f"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-10-01T18:23:01Z",
+                "name": "services-system",
+                "namespace": "",
+                "resourceVersion": "87800001",
+                "selfLink": "/api/v1/namespaces/services-system",
+                "uid": "07b88e36-c5a7-11e8-9758-7296e15560db"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-08T21:14:38Z",
+                "name": "vendor-system",
+                "namespace": "",
+                "resourceVersion": "137",
+                "selfLink": "/api/v1/namespaces/vendor-system",
+                "uid": "f3f6733a-6b60-11e8-b23d-d6d9437b031f"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-07-02T18:38:31Z",
+                "labels": {
+                    "bigapp/namespace": "intercom",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "intercom",
+                "namespace": "",
+                "resourceVersion": "11379094",
+                "selfLink": "/api/v1/namespaces/intercom",
+                "uid": "1e4d758a-7e27-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-08T21:12:45Z",
+                "name": "kube-public",
+                "namespace": "",
+                "resourceVersion": "20",
+                "selfLink": "/api/v1/namespaces/kube-public",
+                "uid": "b077dfaa-6b60-11e8-b23d-d6d9437b031f"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-08T21:12:45Z",
+                "labels": {
+                    "bigapp/namespace": "kube-system",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "kube-system",
+                "namespace": "",
+                "resourceVersion": "92272524",
+                "selfLink": "/api/v1/namespaces/kube-system",
+                "uid": "b06f2d19-6b60-11e8-b23d-d6d9437b031f"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:16Z",
+                "labels": {
+                    "bigapp/namespace": "apv-translator",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "apv-translator",
+                "namespace": "",
+                "resourceVersion": "5257422",
+                "selfLink": "/api/v1/namespaces/apv-translator",
+                "uid": "26b8ebed-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:18Z",
+                "labels": {
+                    "bigapp/namespace": "nusk-serving",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "nusk-serving",
+                "namespace": "",
+                "resourceVersion": "5257442",
+                "selfLink": "/api/v1/namespaces/nusk-serving",
+                "uid": "27a51bf0-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:20Z",
+                "labels": {
+                    "bigapp/namespace": "nusk-serving-test",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "nusk-serving-test",
+                "namespace": "",
+                "resourceVersion": "5257507",
+                "selfLink": "/api/v1/namespaces/nusk-serving-test",
+                "uid": "28941186-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-08-15T01:15:50Z",
+                "labels": {
+                    "bigapp/namespace": "namespace4canim",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "namespace4canim",
+                "namespace": "",
+                "resourceVersion": "39848637",
+                "selfLink": "/api/v1/namespaces/namespace4canim",
+                "uid": "bf5ac791-a028-11e8-860d-0a67345433d1"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:21Z",
+                "labels": {
+                    "bigapp/namespace": "neo-shcur",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "neo-shcur",
+                "namespace": "",
+                "resourceVersion": "5257519",
+                "selfLink": "/api/v1/namespaces/neo-shcur",
+                "uid": "296da041-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-10-05T19:00:43Z",
+                "labels": {
+                    "bigapp/namespace": "neunets",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "neunets",
+                "namespace": "",
+                "resourceVersion": "92272646",
+                "selfLink": "/api/v1/namespaces/neunets",
+                "uid": "f5b39117-c8d0-11e8-97db-3ed050a0dcad"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:23Z",
+                "labels": {
+                    "bigapp/namespace": "nlc",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "nlc",
+                "namespace": "",
+                "resourceVersion": "5257536",
+                "selfLink": "/api/v1/namespaces/nlc",
+                "uid": "2a5b1147-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:24Z",
+                "labels": {
+                    "bigapp/namespace": "nlc-training",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "nlc-training",
+                "namespace": "",
+                "resourceVersion": "5257550",
+                "selfLink": "/api/v1/namespaces/nlc-training",
+                "uid": "2b394b6e-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:25Z",
+                "labels": {
+                    "bigapp/namespace": "nlu",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "nlu",
+                "namespace": "",
+                "resourceVersion": "5257563",
+                "selfLink": "/api/v1/namespaces/nlu",
+                "uid": "2c178ce7-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:27Z",
+                "labels": {
+                    "bigapp/namespace": "nlu-s3fs-temp",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "nlu-s3fs-temp",
+                "namespace": "",
+                "resourceVersion": "5257576",
+                "selfLink": "/api/v1/namespaces/nlu-s3fs-temp",
+                "uid": "2cee17b1-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:28Z",
+                "labels": {
+                    "bigapp/namespace": "nlu-text-ghcus",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "nlu-text-ghcus",
+                "namespace": "",
+                "resourceVersion": "5257606",
+                "selfLink": "/api/v1/namespaces/nlu-text-ghcus",
+                "uid": "2dd71c77-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:30Z",
+                "labels": {
+                    "bigapp/namespace": "opsviz-metering",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "opsviz-metering",
+                "namespace": "",
+                "resourceVersion": "5257667",
+                "selfLink": "/api/v1/namespaces/opsviz-metering",
+                "uid": "2eca690c-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:31Z",
+                "labels": {
+                    "bigapp/namespace": "pd-tip-relay",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "pd-tip-relay",
+                "namespace": "",
+                "resourceVersion": "5257686",
+                "selfLink": "/api/v1/namespaces/pd-tip-relay",
+                "uid": "2fa8767f-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:33Z",
+                "labels": {
+                    "bigapp/namespace": "perf-tools",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "perf-tools",
+                "namespace": "",
+                "resourceVersion": "5257703",
+                "selfLink": "/api/v1/namespaces/perf-tools",
+                "uid": "309914d4-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:35Z",
+                "labels": {
+                    "bigapp/namespace": "thahu-tcjbu",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "thahu-tcjbu",
+                "namespace": "",
+                "resourceVersion": "5257728",
+                "selfLink": "/api/v1/namespaces/thahu-tcjbu",
+                "uid": "3178cb0b-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:36Z",
+                "labels": {
+                    "bigapp/namespace": "rbr",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "rbr",
+                "namespace": "",
+                "resourceVersion": "5257747",
+                "selfLink": "/api/v1/namespaces/rbr",
+                "uid": "325aec52-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:37Z",
+                "labels": {
+                    "bigapp/namespace": "hjxho-extraction",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "hjxho-extraction",
+                "namespace": "",
+                "resourceVersion": "5257760",
+                "selfLink": "/api/v1/namespaces/hjxho-extraction",
+                "uid": "333999b5-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:39Z",
+                "labels": {
+                    "bigapp/namespace": "s3fs-test",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "s3fs-test",
+                "namespace": "",
+                "resourceVersion": "5257830",
+                "selfLink": "/api/v1/namespaces/s3fs-test",
+                "uid": "3429392f-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:41Z",
+                "labels": {
+                    "bigapp/namespace": "xbyhnby-tbkhzv",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "xbyhnby-tbkhzv",
+                "namespace": "",
+                "resourceVersion": "5257843",
+                "selfLink": "/api/v1/namespaces/xbyhnby-tbkhzv",
+                "uid": "350afe8c-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:42Z",
+                "labels": {
+                    "bigapp/namespace": "shcur-services",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "shcur-services",
+                "namespace": "",
+                "resourceVersion": "5257856",
+                "selfLink": "/api/v1/namespaces/shcur-services",
+                "uid": "35eaf4bc-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-07-30T17:38:02Z",
+                "labels": {
+                    "bigapp/namespace": "sre-tooling",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "sre-tooling",
+                "namespace": "",
+                "resourceVersion": "27714540",
+                "selfLink": "/api/v1/namespaces/sre-tooling",
+                "uid": "4f26d770-941f-11e8-8bc7-0a67345433d1"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:44Z",
+                "labels": {
+                    "bigapp/namespace": "testops",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "testops",
+                "namespace": "",
+                "resourceVersion": "5257869",
+                "selfLink": "/api/v1/namespaces/testops",
+                "uid": "36d7d9e0-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:45Z",
+                "labels": {
+                    "bigapp/namespace": "nbyjyui",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "nbyjyui",
+                "namespace": "",
+                "resourceVersion": "5257882",
+                "selfLink": "/api/v1/namespaces/nbyjyui",
+                "uid": "37b7739f-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:29:46Z",
+                "labels": {
+                    "bigapp/namespace": "tron",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "tron",
+                "namespace": "",
+                "resourceVersion": "5257895",
+                "selfLink": "/api/v1/namespaces/tron",
+                "uid": "38970173-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:30:58Z",
+                "labels": {
+                    "bigapp/namespace": "validate",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "validate",
+                "namespace": "",
+                "resourceVersion": "5259219",
+                "selfLink": "/api/v1/namespaces/validate",
+                "uid": "6378a7c7-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:00Z",
+                "labels": {
+                    "bigapp/namespace": "vfrvuhzutkh",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "vfrvuhzutkh",
+                "namespace": "",
+                "resourceVersion": "5259239",
+                "selfLink": "/api/v1/namespaces/vfrvuhzutkh",
+                "uid": "642209b5-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:01Z",
+                "labels": {
+                    "bigapp/namespace": "wa-content",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wa-content",
+                "namespace": "",
+                "resourceVersion": "5259296",
+                "selfLink": "/api/v1/namespaces/wa-content",
+                "uid": "650e8f1b-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:03Z",
+                "labels": {
+                    "bigapp/namespace": "url-fetcher-ns",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "url-fetcher-ns",
+                "namespace": "",
+                "resourceVersion": "5259313",
+                "selfLink": "/api/v1/namespaces/url-fetcher-ns",
+                "uid": "65fbb062-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:05Z",
+                "labels": {
+                    "bigapp/namespace": "wcp-deploy-squad",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wcp-deploy-squad",
+                "namespace": "",
+                "resourceVersion": "5259328",
+                "selfLink": "/api/v1/namespaces/wcp-deploy-squad",
+                "uid": "671f348b-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-08-27T14:19:37Z",
+                "labels": {
+                    "bigapp/namespace": "wcra",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wcra",
+                "namespace": "",
+                "resourceVersion": "51608380",
+                "selfLink": "/api/v1/namespaces/wcra",
+                "uid": "3a89c4fb-aa04-11e8-85c7-2202cd873dbd"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:06Z",
+                "labels": {
+                    "bigapp/namespace": "wda",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wda",
+                "namespace": "",
+                "resourceVersion": "5259353",
+                "selfLink": "/api/v1/namespaces/wda",
+                "uid": "67ff7454-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:07Z",
+                "labels": {
+                    "bigapp/namespace": "wdc-auth",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wdc-auth",
+                "namespace": "",
+                "resourceVersion": "5259369",
+                "selfLink": "/api/v1/namespaces/wdc-auth",
+                "uid": "68a5258a-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-11T15:56:57Z",
+                "labels": {
+                    "bigapp/namespace": "wdc-system",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wdc-system",
+                "namespace": "",
+                "resourceVersion": "360230",
+                "selfLink": "/api/v1/namespaces/wdc-system",
+                "uid": "118b2be1-6d90-11e8-b23d-d6d9437b031f"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:09Z",
+                "labels": {
+                    "bigapp/namespace": "wire",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wire",
+                "namespace": "",
+                "resourceVersion": "5259405",
+                "selfLink": "/api/v1/namespaces/wire",
+                "uid": "69f043b6-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:11Z",
+                "labels": {
+                    "bigapp/namespace": "with-pilpel",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "with-pilpel",
+                "namespace": "",
+                "resourceVersion": "5259435",
+                "uid": "6acf29e9-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:12Z",
+                "labels": {
+                    "bigapp/namespace": "wks",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wks",
+                "namespace": "",
+                "resourceVersion": "5259481",
+                "selfLink": "/api/v1/namespaces/wks",
+                "uid": "6bb5586f-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2018-06-21T21:31:14Z",
+                "labels": {
+                    "bigapp/namespace": "wva",
+                    "bigapp/ownership": "admin"
+                },
+                "name": "wva",
+                "namespace": "",
+                "resourceVersion": "5259494",
+                "selfLink": "/api/v1/namespaces/wva",
+                "uid": "6c962e25-759a-11e8-9f21-366726e90ce3"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": "",
+        "selfLink": ""
+    }
+}
