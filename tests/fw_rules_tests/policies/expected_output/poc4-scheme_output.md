@@ -1,6 +1,6 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
-|connectivity_map, config: poc4|
+|connectivity_map, config: poc4||||||
 ||[default]|[loadgenerator]|[default]|[frontend]|TCP 23,8080,|
 ||[default]|[app in (checkoutservice,frontend,recommendationservice)]|[default]|[productcatalogservice]|TCP 3550,|
 ||[default]|[app in (checkoutservice,frontend)]|[default]|[shippingservice]|TCP 50051,|
@@ -22,5 +22,6 @@
 
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
-|semantic_diff, config1: poc3, config2: poc4, key: Added connections between persistent peers|
+|semantic_diff, config1: poc3, config2: poc4, key: Added connections between persistent peers||||||
 ||[default]|[loadgenerator]|[default]|[frontend]|TCP 23,|
+

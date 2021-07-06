@@ -84,6 +84,7 @@
     - Protocol: UDP
       Ports:
       - '53'
+
 - query: 'semantic_diff, config1: np1, config2: np3, key: Added connections between
     persistent peers and ipBlocks'
   rules:
@@ -170,6 +171,7 @@
     - Protocol: UDP
       Ports:
       - '53'
+
 - query: 'semantic_diff, config1: np1, config2: np4, key: Added connections between
     persistent peers'
   rules:
@@ -398,6 +400,7 @@
     - 49.50.0.9/32
     connection:
     - All connections
+
 - query: 'semantic_diff, config1: np1, config2: np2, key: Added connections between
     persistent peers and ipBlocks'
   rules:
@@ -484,3 +487,4 @@
     - Protocol: UDP
       Ports:
       - '53'
+

@@ -44,6 +44,7 @@
     - Protocol: SCTP
       Ports:
       - 1-65536
+
 - query: 'semantic_diff, config1: new1a, config2: old1, key: Added connections between
     persistent peers'
   rules:
@@ -84,6 +85,7 @@
     - Protocol: UDP
       Ports:
       - '8080'
+
 - query: 'semantic_diff, config1: new2, config2: old2, key: Added connections between
     persistent peers'
   rules:
@@ -123,3 +125,4 @@
     - Protocol: UDP
       Ports:
       - '9091'
+

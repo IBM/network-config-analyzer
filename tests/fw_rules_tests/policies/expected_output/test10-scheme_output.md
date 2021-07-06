@@ -1,6 +1,6 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
-|connectivity_map, config: np10|
+|connectivity_map, config: np10||||||
 |||ip block: 0.0.0.0/0|[default]|[{app in (skydive)} and {tier in (agent)}]|All connections|
 |||ip block: 0.0.0.0/0|[ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]|All connections|
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]|[default]|[{app in (skydive)} and {tier in (agent)}]|All connections|

@@ -1,5 +1,5 @@
 "query","src_ns","src_pods","dst_ns","dst_pods","connection",
-"connectivity_map, config: np16",
+"connectivity_map, config: np16","","","","","",
 "","","ip block: 0.0.0.0/5","[kube-system-new]","[tier in (frontend)]","UDP 53,",
 "","","ip block: 11.0.0.0/8","[kube-system-new]","[tier in (frontend)]","UDP 53,",
 "","","ip block: 172.22.0.0/15","[kube-system-new]","[tier in (frontend)]","UDP 53,",

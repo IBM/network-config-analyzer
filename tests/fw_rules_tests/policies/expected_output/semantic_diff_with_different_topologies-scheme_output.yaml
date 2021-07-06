@@ -176,6 +176,7 @@
     - 0.0.0.0/0
     connection:
     - All connections
+
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Lost connections
     between removed peers'
   rules:
@@ -354,6 +355,7 @@
     - 0.0.0.0/0
     connection:
     - All connections
+
 - query: 'semantic_diff, config1: old1, config2: config_a, key: Lost connections between
     removed peers'
   rules:
@@ -436,6 +438,7 @@
     - 0.0.0.0/0
     connection:
     - All connections
+
 - query: 'semantic_diff, config1: np1, config2: np2, key: Added connections between
     persistent peers and ipBlocks'
   rules:
@@ -522,6 +525,7 @@
     - Protocol: UDP
       Ports:
       - '53'
+
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
     key: Lost connections between removed peers'
   rules:
@@ -766,3 +770,4 @@
     - 0.0.0.0/0
     connection:
     - All connections
+

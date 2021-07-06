@@ -1,6 +1,6 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
-|connectivity_map, config: poc3|
+|connectivity_map, config: poc3||||||
 ||[default]|[app in (checkoutservice,frontend,recommendationservice)]|[default]|[productcatalogservice]|TCP 3550,|
 ||[default]|[app in (checkoutservice,frontend)]|[default]|[shippingservice]|TCP 50051,|
 ||[default]|[checkoutservice]|[default]|[paymentservice]|TCP 50051,|

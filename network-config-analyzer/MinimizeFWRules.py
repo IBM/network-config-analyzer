@@ -700,7 +700,7 @@ class MinimizeFWRules:
         elif req_format == 'csv' or req_format == 'md':
             is_csv = req_format == 'csv'
             res = ''
-            header_lines = [[query_name]]
+            header_lines = [[query_name] + ['']*(len(FWRule.rule_csv_header)-1)]
             if add_csv_header:
                 if is_csv:
                     header_lines = [FWRule.rule_csv_header] + header_lines

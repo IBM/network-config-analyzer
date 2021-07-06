@@ -270,7 +270,7 @@ class SchemeRunner(GenericYamlParser):
                     query_output += full_result.output_result
                 res += full_result.numerical_result
                 if not full_result.bool_result:
-                    query_output += full_result.output_explanation
+                    query_output += full_result.output_explanation + '\n'
         # print()
         #query_output += '\n'
         output_configuration.print_query_output(query_output, True)
