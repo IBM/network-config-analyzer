@@ -2,6 +2,6 @@
 |---|---|---|---|---|---|
 |connectivity_map, config: np23||||||
 ||[default]|[*]|[default]|[app in (skydive)]|UDP 53,|
-||[default]|[cognetive-agents-C]|[default]|[app in (skydive)]|All connections|
+||[default]|[test in (C)]|[default]|[app in (skydive)]|All connections|
 
 
