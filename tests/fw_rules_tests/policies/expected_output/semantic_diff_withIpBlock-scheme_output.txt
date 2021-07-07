@@ -11,6 +11,7 @@ src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] co
 src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 
+
 np1 and np3 are not semantically equivalent.Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np3) :
 src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
@@ -23,6 +24,7 @@ src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] con
 src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
+
 
 np2 and np3 have the same network topology and the same set of policiesnp4 and np4 have the same network topology and the same set of policiesnp1 and np4 are not semantically equivalent.Changed connections between persistent peers:
 Added connections (based on topology from config: np4) :
@@ -55,6 +57,7 @@ src_ns: [kube-system] src_pods: [tier in (frontend)] dst ip block: 49.50.0.5/32 
 src_ns: [kube-system] src_pods: [tier in (frontend)] dst ip block: 49.50.0.7/32 conn: All connections
 src_ns: [kube-system] src_pods: [tier in (frontend)] dst ip block: 49.50.0.9/32 conn: All connections
 
+
 np1 and np2 are not semantically equivalent.Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np2) :
 src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
@@ -67,4 +70,5 @@ src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] con
 src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
+
 

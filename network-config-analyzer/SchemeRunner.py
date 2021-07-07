@@ -16,7 +16,6 @@ from NetworkConfigQuery import QueryAnswer, SemanticEquivalenceQuery, StrongEqui
     IntersectsQuery, TwoWayContainmentQuery, PermitsQuery, AllCapturedQuery, ConnectivityMapQuery
 
 
-
 class SchemeRunner(GenericYamlParser):
     """
     This class takes a scheme file, build all its network configurations and runs all its queries
@@ -116,9 +115,6 @@ class SchemeRunner(GenericYamlParser):
                 self.warning(f'error mismatch for NetworkConfig {config_name}: '
                              f'Expected {expected_error} error, got {found_error}\n', config_entry)
                 self.global_res += 1
-
-
-
 
     def _get_config(self, config_name):
         """
@@ -265,14 +261,11 @@ class SchemeRunner(GenericYamlParser):
                 config2 = configs_array[ind2]
                 full_result = SemanticDiffQuery(self._get_config(config1), self._get_config(config2),
                                                 output_configuration).exec()
-                # print(full_result.output_result)
                 if output_configuration.outputFormat == 'txt':
                     query_output += full_result.output_result
                 res += full_result.numerical_result
                 if not full_result.bool_result:
-                    query_output += full_result.output_explanation
-        # print()
-        #query_output += '\n'
+                    query_output += full_result.output_explanation + '\n'
         output_configuration.print_query_output(query_output, True)
         return res
 
@@ -289,7 +282,6 @@ class SchemeRunner(GenericYamlParser):
                 query_output += full_result.output_result
             if full_result.output_explanation:
                 query_output += full_result.output_explanation + '\n'
-        # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -304,7 +296,6 @@ class SchemeRunner(GenericYamlParser):
             else:
                 query_output += full_result.output_explanation
             res += full_result.numerical_result
-        # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -358,7 +349,6 @@ class SchemeRunner(GenericYamlParser):
             else:
                 query_output += full_result.output_result
             res += full_result.numerical_result
-        # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -370,7 +360,6 @@ class SchemeRunner(GenericYamlParser):
             full_result = VacuityQuery(self._get_config(config), output_configuration).exec()
             query_output += full_result.output_result
             res += full_result.bool_result
-        # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -385,7 +374,6 @@ class SchemeRunner(GenericYamlParser):
             if not full_result.bool_result:
                 query_output += full_result.output_explanation
                 query_output += '\n'
-        # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -400,7 +388,6 @@ class SchemeRunner(GenericYamlParser):
             if not full_result.bool_result:
                 query_output += full_result.output_explanation
             query_output += '\n'
-        # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -460,7 +447,7 @@ class SchemeRunner(GenericYamlParser):
                     query_output += (configs_array[0] + ' does not permit connections specified in ' + config + ':')
                     query_output += full_result.output_explanation + '\n'
             else:
-                query_output +=  configs_array[0] + ' permits all connections specified in ' + config
+                query_output += configs_array[0] + ' permits all connections specified in ' + config
 
         query_output += '\n'
         output_configuration.print_query_output(query_output)
@@ -475,8 +462,6 @@ class SchemeRunner(GenericYamlParser):
             query_output += full_result.output_result
             if not full_result.bool_result:
                 query_output += full_result.output_explanation + '\n'
-                # print()
-        # print()
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -487,7 +472,7 @@ class SchemeRunner(GenericYamlParser):
             output_configuration.configName = config
             full_result = ConnectivityMapQuery(self._get_config(config), output_configuration).exec()
             query_output += full_result.output_explanation
-        # print()
+            query_output += '\n'
         query_output += '\n'
         output_configuration.print_query_output(query_output, True)
         return 0

@@ -4,21 +4,21 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-3)
     dst_ns:
     - default
     dst_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - app in (app-4)
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - app in (app-4)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-3)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Lost connections
@@ -69,11 +69,11 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-0)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Removed connections
@@ -82,11 +82,11 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-0)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Added connections
@@ -97,7 +97,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Removed connections
@@ -108,7 +108,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: New connections
@@ -140,21 +140,21 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-5)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-6)
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-6)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-5)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: New connections
@@ -176,27 +176,28 @@
     - 0.0.0.0/0
     connection:
     - All connections
+
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Lost connections
     between removed peers'
   rules:
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-5)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-6)
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-6)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-5)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Lost connections
@@ -247,11 +248,11 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-0)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Removed connections
@@ -260,11 +261,11 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-0)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Added connections
@@ -275,7 +276,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Removed connections
@@ -286,7 +287,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: New connections
@@ -318,21 +319,21 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-3)
     dst_ns:
     - default
     dst_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - app in (app-4)
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - app in (app-4)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-3)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: New connections
@@ -354,6 +355,7 @@
     - 0.0.0.0/0
     connection:
     - All connections
+
 - query: 'semantic_diff, config1: old1, config2: config_a, key: Lost connections between
     removed peers'
   rules:
@@ -436,6 +438,7 @@
     - 0.0.0.0/0
     connection:
     - All connections
+
 - query: 'semantic_diff, config1: np1, config2: np2, key: Added connections between
     persistent peers and ipBlocks'
   rules:
@@ -522,27 +525,28 @@
     - Protocol: UDP
       Ports:
       - '53'
+
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
     key: Lost connections between removed peers'
   rules:
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-3)
     dst_ns:
     - default
     dst_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - app in (app-4)
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-local-analyzer-7d77fb55cc
+    - app in (app-4)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-3)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -593,11 +597,11 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-0)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -606,11 +610,11 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-0)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -621,7 +625,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-1)
     connection:
     - All connections
   - src_ip_block:
@@ -629,7 +633,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-1)
     connection:
     - All connections
   - src_ip_block:
@@ -637,7 +641,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-1)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -648,7 +652,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - Protocol: TCP
       Ports:
@@ -665,7 +669,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - Protocol: TCP
       Ports:
@@ -682,7 +686,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - All connections
   - src_ip_block:
@@ -690,7 +694,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - All connections
   - src_ip_block:
@@ -698,7 +702,7 @@
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-2)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -730,21 +734,21 @@
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-5)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-6)
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - cog-agents
+    - app in (app-6)
     dst_ns:
     - default
     dst_pods:
-    - cog-agents
+    - app in (app-5)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -766,3 +770,4 @@
     - 0.0.0.0/0
     connection:
     - All connections
+

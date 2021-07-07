@@ -1,7 +1,7 @@
 no_policy and policy are semantically equivalent.config_a and config_b are not semantically equivalent.Lost connections between removed peers:
 Removed connections (based on topology from config: config_a) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-local-analyzer-7d77fb55cc] conn: All connections
-src_ns: [default] src_pods: [cog-local-analyzer-7d77fb55cc] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-3)] dst_ns: [default] dst_pods: [app in (app-4)] conn: All connections
+src_ns: [default] src_pods: [app in (app-4)] dst_ns: [default] dst_pods: [app in (app-3)] conn: All connections
 
 Lost connections between removed peers and ipBlocks:
 Removed connections (based on topology from config: config_a) :
@@ -15,17 +15,17 @@ src_ns: [default] src_pods: [app in (app-3,app-4)] dst_ns: [default] dst_pods: [
 
 Changed connections between persistent peers:
 Added connections (based on topology from config: config_b) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-0)] dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
 
 Removed connections (based on topology from config: config_a) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-0)] dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
 
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: config_b) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
 
 Removed connections (based on topology from config: config_a) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
 
 New connections between persistent peers and added peers:
 Added connections (based on topology from config: config_b) :
@@ -34,16 +34,19 @@ src_ns: [default] src_pods: [app in (app-5,app-6)] dst_ns: [default] dst_pods: [
 
 New connections between added peers:
 Added connections (based on topology from config: config_b) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-5)] dst_ns: [default] dst_pods: [app in (app-6)] conn: All connections
+src_ns: [default] src_pods: [app in (app-6)] dst_ns: [default] dst_pods: [app in (app-5)] conn: All connections
 
 New connections between added peers and ipBlocks:
 Added connections (based on topology from config: config_b) :
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
 src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: 0.0.0.0/0 conn: All connections
+
 
 config_b and config_a are not semantically equivalent.Lost connections between removed peers:
 Removed connections (based on topology from config: config_b) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-5)] dst_ns: [default] dst_pods: [app in (app-6)] conn: All connections
+src_ns: [default] src_pods: [app in (app-6)] dst_ns: [default] dst_pods: [app in (app-5)] conn: All connections
 
 Lost connections between removed peers and ipBlocks:
 Removed connections (based on topology from config: config_b) :
@@ -57,17 +60,17 @@ src_ns: [default] src_pods: [app in (app-5,app-6)] dst_ns: [default] dst_pods: [
 
 Changed connections between persistent peers:
 Added connections (based on topology from config: config_a) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-0)] dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
 
 Removed connections (based on topology from config: config_b) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-0)] dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
 
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: config_a) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
 
 Removed connections (based on topology from config: config_b) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
 
 New connections between persistent peers and added peers:
 Added connections (based on topology from config: config_a) :
@@ -76,13 +79,14 @@ src_ns: [default] src_pods: [app in (app-3,app-4)] dst_ns: [default] dst_pods: [
 
 New connections between added peers:
 Added connections (based on topology from config: config_a) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-local-analyzer-7d77fb55cc] conn: All connections
-src_ns: [default] src_pods: [cog-local-analyzer-7d77fb55cc] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-3)] dst_ns: [default] dst_pods: [app in (app-4)] conn: All connections
+src_ns: [default] src_pods: [app in (app-4)] dst_ns: [default] dst_pods: [app in (app-3)] conn: All connections
 
 New connections between added peers and ipBlocks:
 Added connections (based on topology from config: config_a) :
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
 src_ns: [default] src_pods: [app in (app-3,app-4)] dst ip block: 0.0.0.0/0 conn: All connections
+
 
 old1 and config_a are not semantically equivalent.Lost connections between removed peers:
 Removed connections (based on topology from config: old1) :
@@ -103,6 +107,7 @@ Added connections (based on topology from config: config_a) :
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-0,app-2,app-3,app-4)] conn: All connections
 src_ns: [default] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 
+
 np1 and np2 are not semantically equivalent.Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np2) :
 src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
@@ -116,10 +121,11 @@ src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] co
 src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 
+
 config_a_with_ipBlock and config_b_with_ipBlock are not semantically equivalent.Lost connections between removed peers:
 Removed connections (based on topology from config: config_a_with_ipBlock) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-local-analyzer-7d77fb55cc] conn: All connections
-src_ns: [default] src_pods: [cog-local-analyzer-7d77fb55cc] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-3)] dst_ns: [default] dst_pods: [app in (app-4)] conn: All connections
+src_ns: [default] src_pods: [app in (app-4)] dst_ns: [default] dst_pods: [app in (app-3)] conn: All connections
 
 Lost connections between removed peers and ipBlocks:
 Removed connections (based on topology from config: config_a_with_ipBlock) :
@@ -133,23 +139,23 @@ src_ns: [default] src_pods: [app in (app-3,app-4)] dst_ns: [default] dst_pods: [
 
 Changed connections between persistent peers:
 Added connections (based on topology from config: config_b_with_ipBlock) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-0)] dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
 
 Removed connections (based on topology from config: config_a_with_ipBlock) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-0)] dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
 
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: config_b_with_ipBlock) :
-src ip block: 0.0.0.0/5 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
-src ip block: 10.10.0.0/16 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
-src ip block: 11.0.0.0/8 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src ip block: 0.0.0.0/5 dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
+src ip block: 10.10.0.0/16 dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
+src ip block: 11.0.0.0/8 dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
 
 Removed connections (based on topology from config: config_a_with_ipBlock) :
-src ip block: 0.0.0.0/5 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
-src ip block: 10.0.0.0/13 dst_ns: [default] dst_pods: [cog-agents] conn: TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,
-src ip block: 10.11.0.0/16 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
-src ip block: 10.12.0.0/14 dst_ns: [default] dst_pods: [cog-agents] conn: TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,
-src ip block: 11.0.0.0/8 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src ip block: 0.0.0.0/5 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
+src ip block: 10.0.0.0/13 dst_ns: [default] dst_pods: [app in (app-2)] conn: TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,
+src ip block: 10.11.0.0/16 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
+src ip block: 10.12.0.0/14 dst_ns: [default] dst_pods: [app in (app-2)] conn: TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,
+src ip block: 11.0.0.0/8 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
 
 New connections between persistent peers and added peers:
 Added connections (based on topology from config: config_b_with_ipBlock) :
@@ -158,10 +164,12 @@ src_ns: [default] src_pods: [app in (app-5,app-6)] dst_ns: [default] dst_pods: [
 
 New connections between added peers:
 Added connections (based on topology from config: config_b_with_ipBlock) :
-src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src_ns: [default] src_pods: [app in (app-5)] dst_ns: [default] dst_pods: [app in (app-6)] conn: All connections
+src_ns: [default] src_pods: [app in (app-6)] dst_ns: [default] dst_pods: [app in (app-5)] conn: All connections
 
 New connections between added peers and ipBlocks:
 Added connections (based on topology from config: config_b_with_ipBlock) :
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
 src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: 0.0.0.0/0 conn: All connections
+
 

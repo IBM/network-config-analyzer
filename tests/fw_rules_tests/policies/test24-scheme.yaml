@@ -12,3 +12,4 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true

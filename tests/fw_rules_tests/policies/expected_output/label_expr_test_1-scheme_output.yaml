@@ -8,6 +8,7 @@
     - has(app)
     connection:
     - All connections
+
 - query: 'test_app_label, config: test2'
   rules:
   - src_ip_block:
@@ -26,6 +27,7 @@
     - c
     connection:
     - All connections
+
 - query: 'test_app_label, config: test3'
   rules:
   - src_ip_block:
@@ -36,6 +38,7 @@
     - '!has(app) or app in (dev)'
     connection:
     - All connections
+
 - query: 'test_app_label, config: test4'
   rules:
   - src_ip_block:
@@ -55,6 +58,7 @@
     connection:
     - All connections
 
+
 - query: 'test_tier_and_app_label, config: test5'
   rules:
   - src_ip_block:
@@ -65,6 +69,7 @@
     - '{app in (G)} and {tier in (W)}'
     connection:
     - All connections
+
 - query: 'test_tier_and_app_label, config: test6'
   rules:
   - src_ip_block:
@@ -75,6 +80,7 @@
     - has(app) and has(tier)
     connection:
     - All connections
+
 - query: 'test_tier_and_app_label, config: test7'
   rules:
   - src_ip_block:
@@ -85,6 +91,7 @@
     - '{!has(app)} and {!has(tier)}'
     connection:
     - All connections
+
 - query: 'test_tier_and_app_label, config: test8'
   rules:
   - src_ip_block:
@@ -95,6 +102,7 @@
     - '{!has(tier)} and {app in (B)}'
     connection:
     - All connections
+
 - query: 'test_tier_and_app_label, config: test9'
   rules:
   - src_ip_block:
@@ -105,6 +113,7 @@
     - '{!has(app) or app in (B)} and {!has(tier)}'
     connection:
     - All connections
+
 - query: 'test_tier_and_app_label, config: test10'
   rules:
   - src_ip_block:
@@ -115,4 +124,5 @@
     - '{app in (A,G,dev)} and {tier in (W,X)}'
     connection:
     - All connections
+
 

@@ -15,11 +15,12 @@
   - src_ns:
     - default
     src_pods:
-    - cognetive-agents-C
+    - test in (C)
     dst_ns:
     - default
     dst_pods:
     - app in (skydive)
     connection:
     - All connections
+
 

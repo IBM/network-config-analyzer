@@ -680,6 +680,7 @@ class MinimizeFWRules:
         :return: a string of the query name + fw-rules in the required format
         """
         rules_list = self._get_all_rules_list_in_req_format(req_format)
+
         if req_format == 'txt':
             # TODO: remove duplicate rules earlier? (rules with different pods mapped to the same pod owner)
             # current issue is that we use topologies with pods of the same owner but different labels, so cannot consider
@@ -690,20 +691,29 @@ class MinimizeFWRules:
             if add_txt_header:
                 res = f'final fw rules for query: {query_name}:\n' + res
             return res
+
         elif req_format == 'yaml':
             yaml_query_content = [{'query': query_name, 'rules': rules_list}]
             res = yaml.dump(yaml_query_content, None, default_flow_style=False, sort_keys=False)
             return res
-        elif req_format == 'csv':
+
+        elif req_format in ['csv', 'md']:
+            is_csv = req_format == 'csv'
             res = ''
-            header_lines = [FWRule.rule_csv_header, [query_name]] if add_csv_header else [[query_name]]
+            header_lines = [[query_name] + ['']*(len(FWRule.rule_csv_header)-1)]
+            if add_csv_header:
+                if is_csv:
+                    header_lines = [FWRule.rule_csv_header] + header_lines
+                else:
+                    header_lines = [FWRule.rule_csv_header, ['---']*len(FWRule.rule_csv_header)] + header_lines
             rules_list = header_lines + rules_list
             for row in rules_list:
-                row_str = ''
+                row_str = '' if is_csv else '|'
                 for elem in row:
-                    row_str += '\"' + elem + '\"' + ','
+                    row_str += f'\"{elem}\",' if is_csv else f'{elem}|'
                 res += row_str + '\n'
             return res
+
         return ''
 
     def _get_all_rules_list_in_req_format(self, req_format):

@@ -9,3 +9,4 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [!has(tier) or tier in (not_frontend_for_demo)] conn: All connections
 
+

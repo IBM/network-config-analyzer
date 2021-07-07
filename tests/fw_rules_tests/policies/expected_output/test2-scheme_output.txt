@@ -6,3 +6,4 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 53,UDP 53,
 src_ns: [ibm-system-new] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
 
+
