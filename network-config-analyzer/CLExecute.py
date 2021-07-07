@@ -16,9 +16,10 @@ class CLExecute:
     """
     A class for running queries from commandline
     """
-    def __init__(self, ns_list='', pod_list='', output_format='txt', output_path=None):
+    def __init__(self, ns_list='', pod_list='', output_format='txt', output_path=None, pr_url=None):
         self.peer_container = PeerContainer(ns_list, pod_list)
-        self.output_config = OutputConfiguration({'outputFormat': output_format, 'outputPath': output_path})
+        self.output_config = OutputConfiguration({'outputFormat': output_format, 'outputPath': output_path,
+                                                  'prURL': pr_url})
 
     def sanity(self, np_list):
         """
