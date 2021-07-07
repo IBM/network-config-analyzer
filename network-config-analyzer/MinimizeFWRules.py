@@ -697,7 +697,7 @@ class MinimizeFWRules:
             res = yaml.dump(yaml_query_content, None, default_flow_style=False, sort_keys=False)
             return res
 
-        elif req_format == 'csv' or req_format == 'md':
+        elif req_format in ['csv', 'md']:
             is_csv = req_format == 'csv'
             res = ''
             header_lines = [[query_name] + ['']*(len(FWRule.rule_csv_header)-1)]
@@ -710,7 +710,7 @@ class MinimizeFWRules:
             for row in rules_list:
                 row_str = '' if is_csv else '|'
                 for elem in row:
-                    row_str += ('\"' + elem + '\"' + ',') if is_csv else (elem + '|')
+                    row_str += f'\"{elem}\",' if is_csv else f'{elem}|'
                 res += row_str + '\n'
             return res
 

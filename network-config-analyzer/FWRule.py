@@ -518,9 +518,9 @@ class FWRule:
         """
         if req_format == 'yaml':
             return self.get_rule_yaml_obj(is_k8s_config)
-        elif req_format == 'csv' or req_format == 'md':
+        if req_format in ['csv', 'md']:
             return self.get_rule_csv_row(is_k8s_config)
-        elif req_format == 'txt':
+        if req_format == 'txt':
             return self.get_rule_str(is_k8s_config)
         return None
 
