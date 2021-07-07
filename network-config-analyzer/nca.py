@@ -72,7 +72,7 @@ def run_args(args):
         return SchemeRunner(args.scheme, args.output_format, args.file_out).run_scheme()
 
     base_np_list = args.base_np_list or 'k8s'
-    cl_execute = CLExecute(args.ns_list, args.pod_list, args.output_format, args.file_out)
+    cl_execute = CLExecute(args.ns_list, args.pod_list, args.output_format, args.file_out, args.pr_url)
     if args.equiv:
         return cl_execute.equivalence(args.equiv, base_np_list)
 
@@ -131,10 +131,11 @@ def nca_main(argv=None):
                         help='A file/cluster-type to read namespace list from')
     parser.add_argument('--pod_list', '-p', type=_ghe_or_k8s_or_calico_or_valid_path,
                         help='A file/cluster-type to read pod list from')
-    parser.add_argument('--ghe_token', type=str, help='A valid token to access a GHE repository')
+    parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str, default='txt',
                         help='Output format specification (txt or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
+    parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
 
     args = parser.parse_args(argv)
 

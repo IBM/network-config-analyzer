@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import json
+import os
+from urllib import request
+
 
 class OutputConfiguration(dict):
     """
@@ -13,7 +17,7 @@ class OutputConfiguration(dict):
         default_output_config = {'fwRulesRunInTestMode': False, 'fwRulesDebug': False,
                                  'fwRulesGroupByLabelSinglePod': False, 'fwRulesFilterSystemNs': False,
                                  'fwRulesMaxIter': 10, 'fwRulesGeneralizeLabelExpr': False, 'outputFormat': 'txt',
-                                 'outputPath': None, 'fwRulesOverrideAllowedLabels': None}
+                                 'outputPath': None, 'fwRulesOverrideAllowedLabels': None, 'prURL': None}
         super().__init__(default_output_config)
         if output_config_dict is not None:
             self.update(output_config_dict)
@@ -43,6 +47,33 @@ class OutputConfiguration(dict):
                 print(f'wrote query output to: {path}')
             except FileNotFoundError:
                 print(f"FileNotFoundError: configured outputPath is: {path}")
+        elif self.prURL is not None:
+            self.write_git_comment(output)
         else:
             # print output to stdout
             print(output)
+
+    def write_git_comment(self, comment_body):
+        """
+        Add a comment to a PR
+        :param str comment_body:
+        :return: The code returned by the GitHub server (201 means OK)
+        :rtype: int
+        """
+        if 'GHE_TOKEN' not in os.environ:
+            print("ERROR: missing GHE_TOKEN")
+            return 0
+        if not self.prURL:
+            print('Error: missing URL')
+            return 0
+
+        headers = {'Authorization': 'token {0:s}'.format(os.environ['GHE_TOKEN'])}
+        data = {'body': comment_body}
+        req = request.Request(self.prURL, headers=headers, data=json.dumps(data).encode('ascii'))
+        with request.urlopen(req) as resp:
+            if resp.status not in [200, 201]:
+                print("request failed, status = ", resp.status, "URL:", self.prURL, "message = ", resp.read())
+            else:
+                print("request succeeded, status = ", resp.status, "message = ", resp.read())
+
+            return resp.status
