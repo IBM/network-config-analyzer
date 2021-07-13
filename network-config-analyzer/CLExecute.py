@@ -16,7 +16,8 @@ class CLExecute:
     """
     A class for running queries from commandline
     """
-    def __init__(self, ns_list='', pod_list='', output_format='txt', output_path=None, pr_url=None):
+    def __init__(self, base_ns_list='', base_pod_list='', ns_list='', pod_list='', output_format='txt', output_path=None, pr_url=None):
+        self.base_peer_container = PeerContainer(base_ns_list, base_pod_list)
         self.peer_container = PeerContainer(ns_list, pod_list)
         self.output_config = OutputConfiguration({'outputFormat': output_format, 'outputPath': output_path,
                                                   'prURL': pr_url})
@@ -71,7 +72,7 @@ class CLExecute:
         self.output_config.print_query_output(query_output, True)
         return 0
 
-    def semantic_diff(self, np1_list_location, np2_list_location):
+    def semantic_diff(self, np2_list_location, np1_list_location):
         """
         Runs a semantic-diff query between two sets of policies
         :param str np1_list_location: First set of policies
@@ -79,7 +80,7 @@ class CLExecute:
         :return: 0 if the sets of policies are semantically equivalent. 1 otherwise
         :rtype: int
         """
-        network_config1 = NetworkConfig(np1_list_location, self.peer_container, [np1_list_location])
+        network_config1 = NetworkConfig(np1_list_location, self.base_peer_container, [np1_list_location])
         network_config2 = NetworkConfig(np2_list_location, self.peer_container, [np2_list_location])
         query_output = '\n'
         full_result = NetworkConfigQuery.SemanticDiffQuery(network_config1, network_config2, self.output_config).exec()

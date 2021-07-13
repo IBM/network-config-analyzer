@@ -820,12 +820,12 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         res, explanation = self.compute_diff()
         if res > 0:
             return QueryAnswer(bool_result=False,
-                               output_result=f'{self.name1} and {self.name2} are not semantically equivalent.',
+                               output_result=f'{self.name1} and {self.name2} are not semantically equivalent.\n',
                                output_explanation=explanation,
                                numerical_result=res)
 
         return QueryAnswer(bool_result=True,
-                           output_result=f'{self.name1} and {self.name2} are semantically equivalent.',
+                           output_result=f'{self.name1} and {self.name2} are semantically equivalent.\n',
                            output_explanation=explanation,
                            numerical_result=res)
 

@@ -36,6 +36,17 @@
     --pod_list example_podlist/pods_list.json
   expected: 1
 
+- name: different_topologies_semantic_diff
+  args: >
+    --semantic_diff example_policies\tests-different-topologies\policy_b.yaml
+    --ns_list different_topologies/ns_list_b.json
+    --pod_list different_topologies/pods_list_b.json
+
+    --base_np_list example_policies\tests-different-topologies\policy_a.yaml
+    --base_ns_list different_topologies/ns_list_a.json
+    --base_pod_list different_topologies/pods_list_a.json
+  expected: 1
+
 - name: basic_interferes
   args: >
     --interferes example_policies/testcase7/testcase7-networkpolicy1.yaml
