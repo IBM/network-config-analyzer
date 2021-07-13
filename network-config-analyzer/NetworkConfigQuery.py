@@ -489,11 +489,11 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
     def is_identical_topologies(self, check_same_policies=False):
         if self.config1.peer_container != self.config2.peer_container:
             return QueryAnswer(False, 'The two configurations have different network topologies '
-                                      'and thus are not comparable')
+                                      'and thus are not comparable.\n')
         if check_same_policies and self.config1.policies == self.config2.policies and \
                 self.config1.profiles == self.config2.profiles:
             return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network '
-                                     'topology and the same set of policies')
+                                     'topology and the same set of policies.\n')
         return QueryAnswer(True)
 
     @staticmethod
