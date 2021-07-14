@@ -1,4 +1,6 @@
-no_policy and policy are semantically equivalent.config_a and config_b are not semantically equivalent.Lost connections between removed peers:
+no_policy and policy are semantically equivalent.
+config_a and config_b are not semantically equivalent.
+Lost connections between removed peers:
 Removed connections (based on topology from config: config_a) :
 src_ns: [default] src_pods: [app in (app-3)] dst_ns: [default] dst_pods: [app in (app-4)] conn: All connections
 src_ns: [default] src_pods: [app in (app-4)] dst_ns: [default] dst_pods: [app in (app-3)] conn: All connections
@@ -43,7 +45,8 @@ src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn:
 src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: 0.0.0.0/0 conn: All connections
 
 
-config_b and config_a are not semantically equivalent.Lost connections between removed peers:
+config_b and config_a are not semantically equivalent.
+Lost connections between removed peers:
 Removed connections (based on topology from config: config_b) :
 src_ns: [default] src_pods: [app in (app-5)] dst_ns: [default] dst_pods: [app in (app-6)] conn: All connections
 src_ns: [default] src_pods: [app in (app-6)] dst_ns: [default] dst_pods: [app in (app-5)] conn: All connections
@@ -88,7 +91,8 @@ src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn:
 src_ns: [default] src_pods: [app in (app-3,app-4)] dst ip block: 0.0.0.0/0 conn: All connections
 
 
-old1 and config_a are not semantically equivalent.Lost connections between removed peers:
+old1 and config_a are not semantically equivalent.
+Lost connections between removed peers:
 Removed connections (based on topology from config: old1) :
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
 
@@ -108,7 +112,8 @@ src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-0,app-2,app-3,a
 src_ns: [default] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 
 
-np1 and np2 are not semantically equivalent.Changed connections between persistent peers and ipBlocks:
+np1 and np2 are not semantically equivalent.
+Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np2) :
 src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
 src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
@@ -122,7 +127,8 @@ src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)]
 src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
 
 
-config_a_with_ipBlock and config_b_with_ipBlock are not semantically equivalent.Lost connections between removed peers:
+config_a_with_ipBlock and config_b_with_ipBlock are not semantically equivalent.
+Lost connections between removed peers:
 Removed connections (based on topology from config: config_a_with_ipBlock) :
 src_ns: [default] src_pods: [app in (app-3)] dst_ns: [default] dst_pods: [app in (app-4)] conn: All connections
 src_ns: [default] src_pods: [app in (app-4)] dst_ns: [default] dst_pods: [app in (app-3)] conn: All connections
