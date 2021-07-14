@@ -71,11 +71,13 @@ def run_args(args):
     if args.scheme:
         return SchemeRunner(args.scheme, args.output_format, args.file_out).run_scheme()
 
+    ns_list = args.ns_list or 'k8s'
+    pod_list = args.pod_list or 'k8s'
     base_ns_list = args.base_ns_list or args.ns_list
     base_pod_list = args.base_pod_list or args.pod_list
     base_np_list = args.base_np_list or 'k8s'
     output_format = args.output_format or 'txt'
-    cl_execute = CLExecute(base_ns_list, base_pod_list, args.ns_list, args.pod_list, output_format, args.file_out, args.pr_url)
+    cl_execute = CLExecute(base_ns_list, base_pod_list, ns_list, pod_list, output_format, args.file_out, args.pr_url)
     if args.equiv:
         return cl_execute.equivalence(args.equiv, base_np_list)
 
@@ -129,7 +131,8 @@ def nca_main(argv=None):
                                      '(policy name/file/dir/GHE url/cluster-type) specifying permitted connections')
     manual_or_automatic.add_argument('--daemon', action='store_true', help='Run NCA as a daemon with REST API')
     parser.add_argument('--base_np_list', '-b', type=_ghe_or_k8s_or_calico_or_valid_path, default='k8s',
-                        help='Filesystem or GHE location of base network policies for equiv/interferes/forbids/permits/semantic_diff check (default: k8s cluster)')
+                        help='Filesystem or GHE location of base network policies '
+                             'for equiv/interferes/forbids/permits/semantic_diff check (default: k8s cluster)')
     parser.add_argument('--base_pod_list', '-pb', type=_ghe_or_k8s_or_calico_or_valid_path,
                         help='A file/cluster-type to read old pod list from. Used for semantic_diff check')
     parser.add_argument('--base_ns_list', '-nb', type=_ghe_or_k8s_or_calico_or_valid_path,
@@ -151,11 +154,6 @@ def nca_main(argv=None):
 
     if args.daemon:
         return RestServer(args.ns_list, args.pod_list).run()
-
-    if args.ns_list is None:
-        args.ns_list = 'k8s'
-    if args.pod_list is None:
-        args.pod_list = 'k8s'
 
     if args.period <= 0:
         return run_args(args)
