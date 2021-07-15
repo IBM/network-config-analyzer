@@ -314,7 +314,7 @@ class NetworkConfig:
             raise Exception(peer.full_name() + ' refers to a non-existing profile ' + profile_name)
         return profile.allowed_connections(from_peer, to_peer, is_ingress)
 
-    def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress, only_captured=False):
+    def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
         pass_conns = ConnectionSet()
@@ -338,33 +338,32 @@ class NetworkConfig:
             if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Unknown]:
                 allowed_conns = ConnectionSet(True)  # default Allow-all ingress in k8s or in case of no policy
             else:
-                if only_captured:
-                    allowed_conns = ConnectionSet()
-                else:
+                if self.profiles:
                     allowed_conns = self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
+                else:
+                    allowed_conns = ConnectionSet()
         elif pass_conns:
             allowed_conns |= pass_conns & self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
         return PolicyConnections(policy_captured, allowed_conns, denied_conns)
 
-    def allowed_connections(self, from_peer, to_peer, only_captured=False):
+    def allowed_connections(self, from_peer, to_peer):
         """
         This is the core of the whole application - computes the set of allowed connections from one peer to another.
         In our connectivity model, this function computes the labels for the edges in our directed graph.
         :param Peer.Peer from_peer: The source peer
         :param Peer.Peer to_peer: The target peer
-        :param bool only_captured: whether to only consider explicitly allowed/denied connections (ignore defaults)
         :return: A triplet: whether any policy captured the pods, the allowed connections, the denied connections
         :rtype: bool, ConnectionSet, ConnectionSet
         """
         if isinstance(to_peer, Peer.IpBlock):
             ingress_conns = PolicyConnections(False, ConnectionSet(True))
         else:
-            ingress_conns = self._allowed_xgress_conns(from_peer, to_peer, True, only_captured)
+            ingress_conns = self._allowed_xgress_conns(from_peer, to_peer, True)
 
         if isinstance(from_peer, Peer.IpBlock):
             egress_conns = PolicyConnections(False, ConnectionSet(True))
         else:
-            egress_conns = self._allowed_xgress_conns(from_peer, to_peer, False, only_captured)
+            egress_conns = self._allowed_xgress_conns(from_peer, to_peer, False)
 
         captured = ingress_conns.captured or egress_conns.captured
         allowed_conns = ingress_conns.allowed_conns & egress_conns.allowed_conns

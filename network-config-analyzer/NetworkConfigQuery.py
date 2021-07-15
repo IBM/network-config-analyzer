@@ -884,7 +884,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2, only_captured)
+                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1:
                     continue
                 _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
@@ -938,7 +938,7 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
 
 class PermitsQuery(TwoNetworkConfigsQuery):
     """
-    Checking whether the connections explicitly allowed by config1 are explicitly allowed by config2
+    Checking whether the connections explicitly allowed by config1 are allowed by config2
     """
 
     def exec(self):
@@ -966,10 +966,10 @@ class InterferesQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2, True)
+                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2)
                 if not captured1:
                     continue
-                captured2, conns2, _ = self.config2.allowed_connections(peer1, peer2, True)
+                captured2, conns2, _ = self.config2.allowed_connections(peer1, peer2)
                 if captured2 and not conns2.contained_in(conns1):
                     output_explanation = f'{self.name2} extends the allowed connections from {peer1} to {peer2}\n' + \
                                          conns2.print_diff(conns1, self.name2, self.name1)
@@ -995,7 +995,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2, only_captured)
+                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1:
                     continue
                 _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
