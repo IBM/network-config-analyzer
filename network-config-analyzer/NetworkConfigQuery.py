@@ -462,11 +462,16 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     conn_graph.add_edge(peer1, peer2, ConnectionSet(True))  # cannot restrict pod's connection to itself
                 else:
                     _, conns, _ = self.config.allowed_connections(peer1, peer2)
-                    conn_graph.add_edge(peer1, peer2, conns)
+                    if conns:
+                        conn_graph.add_edge(peer1, peer2, conns)
 
-        fw_rules = conn_graph.get_minimized_firewall_rules()
-        res = QueryAnswer(True)
-        res.output_explanation = fw_rules.get_fw_rules_in_required_format()
+        if self.output_config.outputFormat == 'visual':
+            conn_graph.visualize()
+            res = QueryAnswer(True)
+        else:
+            fw_rules = conn_graph.get_minimized_firewall_rules()
+            res = QueryAnswer(True)
+            res.output_explanation = fw_rules.get_fw_rules_in_required_format()
         return res
 
 

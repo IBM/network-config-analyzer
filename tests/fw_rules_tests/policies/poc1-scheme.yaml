@@ -11,4 +11,5 @@ queries:
   - poc1
   expected: 0
   outputConfiguration:
+    outputFormat: visual
     fwRulesRunInTestMode: false

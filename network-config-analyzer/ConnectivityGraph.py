@@ -42,6 +42,33 @@ class ConnectivityGraph:
 
         self.connections_to_peers[connections].append((source_peer, dest_peer))
 
+    def visualize(self):
+        dotfile = open(self.output_config.queryName+'_'+self.output_config.configName+'.dot', "w")
+        dotfile.write("// The Connectivity Graph of " + self.output_config.configName + '\n')
+        dotfile.write("digraph {\n")
+        for peer in self.cluster_info.all_peers:
+            if isinstance(peer, IpBlock):
+                dotfile.write('\t\"IpBlock\" [label=\"IpBlock\" color=\"red2\" fontcolor=\"red2\"]\n')
+            else:
+                dotfile.write('\t\"'+peer.name+'\" [label=\"'+peer.name+'\" color=\"blue\" fontcolor=\"blue\"]\n')
+
+        for connections, peer_pairs in self.connections_to_peers.items():
+            for src_peer, dst_peer in peer_pairs:
+                if src_peer != dst_peer:
+                    line = '\t'
+                    if isinstance(src_peer, IpBlock):
+                        line += '\"IpBlock\"'
+                    else:
+                        line += '\"' + src_peer.name + '\"'
+                    line += ' -> '
+                    if isinstance(dst_peer, IpBlock):
+                        line += '\"IpBlock\"'
+                    else:
+                        line += '\"' + dst_peer.name + '\"'
+                    line += ' [label=\"' + str(connections) + '\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
+                    dotfile.write(line)
+        dotfile.write("}")
+
     def get_minimized_firewall_rules(self):
         """
         computes and returns minimized firewall rules from original connectivity graph
