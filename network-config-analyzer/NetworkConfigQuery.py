@@ -465,9 +465,10 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     if conns:
                         conn_graph.add_edge(peer1, peer2, conns)
 
-        if self.output_config.outputFormat == 'visual':
-            conn_graph.visualize()
+        if self.output_config.outputFormat == 'dot':
+            output_result = conn_graph.visualize()
             res = QueryAnswer(True)
+            res.output_result = output_result
         else:
             fw_rules = conn_graph.get_minimized_firewall_rules()
             res = QueryAnswer(True)

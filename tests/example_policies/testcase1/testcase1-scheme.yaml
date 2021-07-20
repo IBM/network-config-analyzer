@@ -23,7 +23,8 @@ queries:
     - np2
     expected: 0
     outputConfiguration:
-      outputFormat: visual
+      outputFormat: dot
+      outputPath: connectivityMap.dot
       fwRulesRunInTestMode: false
 
   - name: sanity

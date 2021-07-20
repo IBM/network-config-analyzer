@@ -7,6 +7,7 @@ from collections import defaultdict
 from ClusterInfo import ClusterInfo
 from ConnectionSet import ConnectionSet
 from Peer import Peer, IpBlock, ClusterEP
+from CanonicalIntervalSet import CanonicalIntervalSet
 from MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 
 
@@ -43,31 +44,30 @@ class ConnectivityGraph:
         self.connections_to_peers[connections].append((source_peer, dest_peer))
 
     def visualize(self):
-        dotfile = open(self.output_config.queryName+'_'+self.output_config.configName+'.dot', "w")
-        dotfile.write("// The Connectivity Graph of " + self.output_config.configName + '\n')
-        dotfile.write("digraph {\n")
+        output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
+        output_result += f'digraph {self.output_config.configName} ' + '{\n'
         for peer in self.cluster_info.all_peers:
             if isinstance(peer, IpBlock):
-                dotfile.write('\t\"IpBlock\" [label=\"IpBlock\" color=\"red2\" fontcolor=\"red2\"]\n')
+                output_result += f'\t\"IpBlock\" [label=\"IpBlock [{CanonicalIntervalSet.str(peer)}]\" color=\"red2\" fontcolor=\"red2\"]\n'
             else:
-                dotfile.write('\t\"'+peer.name+'\" [label=\"'+peer.name+'\" color=\"blue\" fontcolor=\"blue\"]\n')
+                output_result += f'\t\"{peer.name} ({peer.namespace})\" [label=\"{peer.name} ({peer.namespace})\" color=\"blue\" fontcolor=\"blue\"]\n'
 
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer:
-                    line = '\t'
+                    output_result += '\t'
                     if isinstance(src_peer, IpBlock):
-                        line += '\"IpBlock\"'
+                        output_result += '\"IpBlock\"'
                     else:
-                        line += '\"' + src_peer.name + '\"'
-                    line += ' -> '
+                        output_result += f'\"{src_peer.name} ({src_peer.namespace})\"'
+                    output_result += ' -> '
                     if isinstance(dst_peer, IpBlock):
-                        line += '\"IpBlock\"'
+                        output_result += '\"IpBlock\"'
                     else:
-                        line += '\"' + dst_peer.name + '\"'
-                    line += ' [label=\"' + str(connections) + '\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
-                    dotfile.write(line)
-        dotfile.write("}")
+                        output_result += f'\"{dst_peer.name} ({dst_peer.namespace})\"'
+                    output_result += f' [label=\"{str(connections)}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
+        output_result += '}\n\n'
+        return output_result
 
     def get_minimized_firewall_rules(self):
         """

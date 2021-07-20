@@ -11,5 +11,6 @@ queries:
   - poc1
   expected: 0
   outputConfiguration:
-    outputFormat: visual
+    outputFormat: dot
+    outputPath: connectivityMapPoc1.dot
     fwRulesRunInTestMode: false
