@@ -439,6 +439,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     Print the connectivity graph in the form of firewall rules
     """
 
+    supported_output_formats = {'txt', 'yaml', 'csv', 'md', 'dot'}
+
     def exec(self):
         peers_to_compare = self.config.peer_container.get_all_peers_group()
         ref_ip_blocks = self.config.get_referenced_ip_blocks()
@@ -595,6 +597,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
     Produces a report of changed connections (also for the case of two configurations of different network topologies)
     """
 
+    supported_output_formats = {'txt', 'yaml', 'csv', 'md'}
+
     def get_explanation_from_conn_graph(self, is_added, conn_graph, is_first_connectivity_result):
         """
         :param is_added: a bool flag indicating if connections are added or removed
@@ -625,6 +629,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         explanation (str): a diff message
         """
         explanation = ''
+        add_explanation = self.output_config.outputFormat in SemanticDiffQuery.supported_output_formats
         res = 0
         for key in keys_list:
             conn_graph_added_conns = conn_graph_added_per_key[key]
@@ -636,11 +641,13 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 explanation += f'{key}:\n'
 
             if is_added:
-                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns, res == 0)
+                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns,
+                                                                    res == 0) if add_explanation else ''
                 res += 1
 
             if is_removed:
-                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns, res == 0)
+                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns,
+                                                                    res == 0) if add_explanation else ''
                 res += 1
 
         return res, explanation
