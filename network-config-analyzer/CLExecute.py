@@ -67,7 +67,6 @@ class CLExecute:
         network_config = NetworkConfig(np_list_location, self.peer_container, [np_list_location])
         query_output = '\n'
         res = NetworkConfigQuery.ConnectivityMapQuery(network_config, self.output_config).exec()
-        query_output += res.output_result
         query_output += res.output_explanation
         query_output += '\n'
         self.output_config.print_query_output(query_output, True)
