@@ -64,7 +64,7 @@ class ConnectivityGraph:
                         output_result += f'\"{str(src_peer)}\"'
                     output_result += ' -> '
                     if isinstance(dst_peer, IpBlock):
-                        output_result += '\"IpBlock\"'
+                        output_result += f'\"{dst_peer.get_cidr_list_str()}\"'
                     else:
                         output_result += f'\"{dst_peer.name} ({dst_peer.namespace})\"'
                     conn_str = str(connections).replace("Protocol:", "")
