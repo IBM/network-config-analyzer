@@ -470,7 +470,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res.output_explanation = conn_graph.get_connectivity_dot_format_str()
         else:
             fw_rules = conn_graph.get_minimized_firewall_rules()
-            res = QueryAnswer(True)
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
         return res
 
