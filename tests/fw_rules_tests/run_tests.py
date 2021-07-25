@@ -12,7 +12,7 @@ sys.path.append(
     os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
 from nca import nca_main
 
-supported_formats = ['txt', 'yaml', 'csv', 'md', 'dot']
+supported_formats = ['txt', 'yaml', 'csv', 'md']
 
 
 def compare_files(output_filename, golden_filename):
