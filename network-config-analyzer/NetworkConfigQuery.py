@@ -465,6 +465,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     if conns:
                         conn_graph.add_edge(peer1, peer2, conns)
 
+        res = QueryAnswer(True)
         if self.output_config.outputFormat == 'dot':
             output_result = conn_graph.visualize()
             res.output_explanation = conn_graph.get_connectivity_dot_format_str()
