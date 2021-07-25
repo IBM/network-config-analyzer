@@ -48,6 +48,8 @@ class ConnectivityGraph:
         """
         output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
         output_result += f'digraph {self.output_config.configName} ' + '{\n'
+        if self.output_config.queryName and self.output_config.configName:
+            output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
         for peer in self.cluster_info.all_peers:
             if isinstance(peer, IpBlock):
                 output_result += f'\t\"{peer.get_cidr_list_str()}\" [label=\"{peer.get_cidr_list_str()}\" color=\"red2\" fontcolor=\"red2\"]\n'
