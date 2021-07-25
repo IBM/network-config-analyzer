@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import ipaddress
 from ipaddress import ip_network
 from sys import stderr
 from string import hexdigits
@@ -214,7 +215,18 @@ class IpBlock(Peer, CanonicalIntervalSet):
         res.interval_set = self.interval_set.copy()
         return res
 
+    def get_cidr_list(self):
+        cidr_list = []
+        for interval in self.interval_set:
+            startip = ipaddress.IPv4Address(interval.start)
+            endip = ipaddress.IPv4Address(interval.end)
+            cidr = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
+            cidr_list.append(str(cidr[0]))
+        return cidr_list
 
+    def get_cidr_list_str(self):
+        cidr_list = self.get_cidr_list()
+        return ','.join(str(cidr) for cidr in cidr_list)
 
 
     @staticmethod

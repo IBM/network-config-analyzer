@@ -138,21 +138,6 @@ class CanonicalIntervalSet:
         """
         return self.interval_set[0].start
 
-    def str(self):
-        """
-        :return: String representation of the interval set
-        :rtype: string
-        """
-        first = True
-        result = ''
-        for interval in self.interval_set:
-            if not first:
-                result += ' ,'
-            else:
-                first = False
-            result += f'{str(interval.start)}-{str(interval.end)}'
-        return result
-
     class Interval:
         """
         A class representing a single interval.
