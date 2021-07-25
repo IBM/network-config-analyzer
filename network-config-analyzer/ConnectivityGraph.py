@@ -61,7 +61,7 @@ class ConnectivityGraph:
                     if isinstance(src_peer, IpBlock):
                         output_result += f'\"{src_peer.get_cidr_list_str()}\"'
                     else:
-                        output_result += f'\"{src_peer.name} ({src_peer.namespace})\"'
+                        output_result += f'\"{str(src_peer)}\"'
                     output_result += ' -> '
                     if isinstance(dst_peer, IpBlock):
                         output_result += '\"IpBlock\"'
