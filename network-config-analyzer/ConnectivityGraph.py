@@ -66,7 +66,7 @@ class ConnectivityGraph:
                     if isinstance(dst_peer, IpBlock):
                         output_result += f'\"{dst_peer.get_cidr_list_str()}\"'
                     else:
-                        output_result += f'\"{dst_peer.name} ({dst_peer.namespace})\"'
+                        output_result += f'\"{str(dst_peer)}\"'
                     conn_str = str(connections).replace("Protocol:", "")
                     output_result += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
         output_result += '}\n\n'
