@@ -7,7 +7,6 @@ from collections import defaultdict
 from ClusterInfo import ClusterInfo
 from ConnectionSet import ConnectionSet
 from Peer import Peer, IpBlock, ClusterEP
-from CanonicalIntervalSet import CanonicalIntervalSet
 from MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 
 
