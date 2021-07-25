@@ -50,7 +50,7 @@ class ConnectivityGraph:
         output_result += f'digraph {self.output_config.configName} ' + '{\n'
         for peer in self.cluster_info.all_peers:
             if isinstance(peer, IpBlock):
-                output_result += f'\t\"IpBlock\" [label=\"IpBlock [{CanonicalIntervalSet.str(peer)}]\" color=\"red2\" fontcolor=\"red2\"]\n'
+                output_result += f'\t\"{peer.get_cidr_list_str()}\" [label=\"{peer.get_cidr_list_str()}\" color=\"red2\" fontcolor=\"red2\"]\n'
             else:
                 output_result += f'\t\"{peer.name} ({peer.namespace})\" [label=\"{peer.name} ({peer.namespace})\" color=\"blue\" fontcolor=\"blue\"]\n'
 
