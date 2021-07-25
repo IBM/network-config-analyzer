@@ -52,7 +52,7 @@ class ConnectivityGraph:
             if isinstance(peer, IpBlock):
                 output_result += f'\t\"{peer.get_cidr_list_str()}\" [label=\"{peer.get_cidr_list_str()}\" color=\"red2\" fontcolor=\"red2\"]\n'
             else:
-                output_result += f'\t\"{peer.name} ({peer.namespace})\" [label=\"{peer.name} ({peer.namespace})\" color=\"blue\" fontcolor=\"blue\"]\n'
+                output_result += f'\t\"{str(peer)}\" [label=\"{str(peer)}\" color=\"blue\" fontcolor=\"blue\"]\n'
 
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
