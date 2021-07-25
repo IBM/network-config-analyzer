@@ -67,7 +67,8 @@ class ConnectivityGraph:
                         output_result += '\"IpBlock\"'
                     else:
                         output_result += f'\"{dst_peer.name} ({dst_peer.namespace})\"'
-                    output_result += f' [label=\"{str(connections)}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
+                    conn_str = str(connections).replace("Protocol:", "")
+                    output_result += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
         output_result += '}\n\n'
         return output_result
 
