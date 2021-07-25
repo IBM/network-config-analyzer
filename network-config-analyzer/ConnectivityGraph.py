@@ -42,7 +42,10 @@ class ConnectivityGraph:
 
         self.connections_to_peers[connections].append((source_peer, dest_peer))
 
-    def visualize(self):
+    def get_connectivity_dot_format_str(self):
+    """
+    :return: a string with content of dot format for connectivity graph
+    """
         output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
         output_result += f'digraph {self.output_config.configName} ' + '{\n'
         for peer in self.cluster_info.all_peers:
