@@ -266,7 +266,7 @@ class SchemeRunner(GenericYamlParser):
                 res += full_result.numerical_result
                 if not full_result.bool_result:
                     query_output += full_result.output_explanation + '\n'
-        output_configuration.print_query_output(query_output, True)
+        output_configuration.print_query_output(query_output, SemanticDiffQuery.supported_output_formats)
         return res
 
     def _run_containment(self, configs_array, output_configuration):
@@ -474,5 +474,5 @@ class SchemeRunner(GenericYamlParser):
             query_output += full_result.output_explanation
             query_output += '\n'
         query_output += '\n'
-        output_configuration.print_query_output(query_output, True)
+        output_configuration.print_query_output(query_output, ConnectivityMapQuery.supported_output_formats)
         return 0

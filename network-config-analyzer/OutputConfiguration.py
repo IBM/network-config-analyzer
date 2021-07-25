@@ -28,14 +28,16 @@ class OutputConfiguration(dict):
     def __getattr__(self, name):
         return super().__getitem__(name)
 
-    def print_query_output(self, output, non_txt_supported=False):
+    def print_query_output(self, output, supported_output_formats=None):
         """
         print accumulated query's output according to query's output config (in required format, to file or stdout)
-        :param non_txt_supported: bool flag indicating if query supports non txt output format (yaml or csv)
         :param output: string
+        :param supported_output_formats: set of strings with supported output formats for the query
         :return: None
         """
-        if not non_txt_supported and self.outputFormat != 'txt':
+        if supported_output_formats is None:
+            supported_output_formats = {'txt'}
+        if self.outputFormat not in supported_output_formats:
             print(f'{self.outputFormat} output format is not supported for this query')
             return
         path = self.outputPath

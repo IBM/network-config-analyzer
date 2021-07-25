@@ -69,7 +69,7 @@ class CLExecute:
         res = NetworkConfigQuery.ConnectivityMapQuery(network_config, self.output_config).exec()
         query_output += res.output_explanation
         query_output += '\n'
-        self.output_config.print_query_output(query_output, True)
+        self.output_config.print_query_output(query_output, NetworkConfigQuery.ConnectivityMapQuery.supported_output_formats)
         return 0
 
     def semantic_diff(self, np2_list_location, np1_list_location):
@@ -87,7 +87,7 @@ class CLExecute:
         if self.output_config.outputFormat == 'txt':
             query_output += full_result.output_result
         query_output += full_result.output_explanation + '\n'
-        self.output_config.print_query_output(query_output, True)
+        self.output_config.print_query_output(query_output, NetworkConfigQuery.SemanticDiffQuery.supported_output_formats)
         return int(not full_result.bool_result)
 
     def interferes(self, exclusive_network_policy_location_or_name, base_np_location):
