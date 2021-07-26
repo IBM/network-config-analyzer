@@ -1,5 +1,7 @@
 namespaceList: ../../example_podlist/ns_list_wdc.json
-podList: ../../example_podlist/hep_and_wep.json
+podList: ../../example_podlist/hep_and_wep_2.json
+# using hep_and_wep_2.json, where modified ip-blocks for GlobalNetworkSet: "testcase23-globalnetworkset", so that its intersection with ip-blocks from NetworkSet: "kube-system/testcase23-networkset" is empty.
+# with this topology update, the expr of ns-selector (global() || all()) is equivalent to the expr "!( global() && all() )" , because the intersection of global() and all() is empty. 
 
 networkConfigList:
   - name: np_a
@@ -14,11 +16,6 @@ networkConfigList:
       - testcase24-profiles.yaml
     expectedWarnings: 0
 
-  - name: np_c
-    networkPolicyList:
-      - testcase24-c.yaml
-      - testcase24-profiles.yaml
-    expectedWarnings: 0
 
 queries:
   - name: policies_not_vacuous
@@ -32,11 +29,5 @@ queries:
     - np_a
     - np_b
     expected: 0
-
-  - name: nonEquiv2
-    equivalence:
-    - np_c
-    - np_b
-    expected: 1
 
 
