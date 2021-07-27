@@ -42,3 +42,7 @@ jobs:
           GHE_TOKEN: ${{ github.token }}
         run: |
           python tests/fw_rules_tests/run_tests.py --all
+      - name: RUN unit tests
+        run: |
+          python tests/classes_unit_tests/run_unittests.py
+
