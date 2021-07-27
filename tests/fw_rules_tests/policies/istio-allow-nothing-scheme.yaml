@@ -1,0 +1,34 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+networkConfigList:
+- name: istio-allow-nothing-1
+  networkPolicyList:
+  - istio-allow-nothing-policy.yaml
+  expectedWarnings: 0
+- name: istio-allow-nothing-2
+  networkPolicyList:
+  - istio-allow-nothing-policy2.yaml
+  expectedWarnings: 0
+- name: istio-allow-nothing-3
+  networkPolicyList:
+  - istio-allow-nothing-policy-3.yaml
+  expectedWarnings: 0
+queries:
+- name: istio-allow-nothing-1
+  connectivityMap:
+  - istio-allow-nothing-1
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+- name: istio-allow-nothing-2
+  connectivityMap:
+  - istio-allow-nothing-2
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+- name: istio-allow-nothing-3
+  connectivityMap:
+  - istio-allow-nothing-3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
