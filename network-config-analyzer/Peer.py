@@ -15,6 +15,7 @@ class Peer:
     """
     This is the base class for all network endpoints, both inside the relevant cluster and outside of it
     """
+
     def __init__(self, name, namespace):
         self.name = name
         self.namespace = namespace
@@ -57,6 +58,7 @@ class ClusterEP(Peer):
     """
     This is the base class for endpoints inside the given cluster
     """
+
     def __init__(self, name, namespace=None):
         super().__init__(name, namespace)
         self.named_ports = {}  # A map from port name to the port number and its protocol
@@ -132,6 +134,7 @@ class Pod(ClusterEP):
     """
     This class represents either a K8s Pod resource or a Calico WorkloadEndpoint resource
     """
+
     def __init__(self, name, namespace, owner_name='', owner_kind=None):
         """
         :param str name: The name of the Pod
@@ -147,7 +150,7 @@ class Pod(ClusterEP):
         elif owner_kind == 'ReplicaSet':
             # if owner name ends with hex-suffix, assume the pod is generated indirectly
             # by Deployment or StatefulSet; and remove the hex-suffix from workload name
-            suffix = owner_name[owner_name.rfind('-')+1:]
+            suffix = owner_name[owner_name.rfind('-') + 1:]
             if all(c in hexdigits for c in suffix):
                 self.workload_name = f'{namespace.name}/{owner_name[:owner_name.rfind("-")]}(Deployment-StatefulSet)'
             else:  # else, assume the pod is generated directly by a ReplicaSet
@@ -186,6 +189,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
     """
     This class represents a set of ip ranges
     """
+
     def __init__(self, cidr=None, exceptions=None, interval=None, name=None, namespace=None, is_global=False):
         """
         Constructs an IpBlock object. Use either cidr+exceptions or interval
@@ -228,7 +232,6 @@ class IpBlock(Peer, CanonicalIntervalSet):
         cidr_list = self.get_cidr_list()
         return ','.join(str(cidr) for cidr in cidr_list)
 
-
     @staticmethod
     def get_all_ips_block():
         """
@@ -267,11 +270,21 @@ class IpBlock(Peer, CanonicalIntervalSet):
             hole = CanonicalIntervalSet.Interval(exception_n.network_address, exception_n.broadcast_address)
             self.add_hole(hole)
 
+    def get_peer_set(self):
+        """
+        :return: get PeerSet from IpBlock (empty set if IpBlock is empty)
+        """
+        return PeerSet({self}) if self else PeerSet()
+
 
 class PeerSet(set):
     """
     A container to hold a set of Peer objects
+
+    Note #1: objects of type IpBlock are not transformed into canonical form
+    Note #2: __contains__ is implemented under the assumption that item arg is from disjoint_ip_blocks()
     """
+
     def __init__(self, peer_set=None):
         super().__init__(peer_set or set())
 
@@ -281,17 +294,63 @@ class PeerSet(set):
                 if isinstance(peer, IpBlock) and item.contained_in(peer):
                     return True
             return False
-
         return super().__contains__(item)
 
+    def __eq__(self, other):
+        # set comparison
+        if self.get_set_without_ip_block() != other.get_set_without_ip_block():
+            return False
+        # IpBlocks comparison
+        self_ip_block = self.get_ip_block_canonical_form()
+        other_ip_block = other.get_ip_block_canonical_form()
+        return self_ip_block == other_ip_block
+
+    def copy(self):
+        # TODO: shallow copy or deep copy?
+        # res = PeerSet(set(elem.copy() for elem in self))
+        res = PeerSet(super().copy())
+        return res
+
+    # TODO: what is expected for ipblock name/namespace result on intersection?
+    def __iand__(self, other):
+        # intersection of IpBlocks (canonical interval set)
+        self_ip_block = self.get_ip_block_canonical_form()
+        other_ip_block = other.get_ip_block_canonical_form()
+        res_peer_set_ip_block = (self_ip_block & other_ip_block).get_peer_set()
+        # set intersection
+        self_without_ip_block = self.get_set_without_ip_block()
+        other_without_ip_block = other.get_set_without_ip_block()
+        res_without_ip_block = self_without_ip_block & other_without_ip_block
+        # combined result
+        return PeerSet(res_without_ip_block) | res_peer_set_ip_block
+
     def __and__(self, other):
-        return PeerSet(super().__and__(other))
+        res = self.copy()
+        res &= other
+        return res
+
+    def __ior__(self, other):
+        return PeerSet(super().__ior__(other))
 
     def __or__(self, other):
         return PeerSet(super().__or__(other))
 
+    def __isub__(self, other):
+        # subtraction on IpBlocks
+        self_ip_block = self.get_ip_block_canonical_form()
+        other_ip_block = other.get_ip_block_canonical_form()
+        res_peer_set_ip_block = (self_ip_block - other_ip_block).get_peer_set()
+        # set subtraction
+        self_without_ip_block = self.get_set_without_ip_block()
+        other_without_ip_block = other.get_set_without_ip_block()
+        res_without_ip_block = self_without_ip_block - other_without_ip_block
+        # combined result
+        return PeerSet(res_without_ip_block) | res_peer_set_ip_block
+
     def __sub__(self, other):
-        return PeerSet(super().__sub__(other))
+        res = self.copy()
+        res -= other
+        return res
 
     def rep(self):
         """
@@ -302,3 +361,19 @@ class PeerSet(set):
             return ''
         for peer in self:
             return str(peer)
+
+    def get_set_without_ip_block(self):
+        """
+        :return: a set with all elements from self which are not IpBlock
+        """
+        return set(elem for elem in self if not isinstance(elem, IpBlock))
+
+    def get_ip_block_canonical_form(self):
+        """
+        :return: IpBlock element in canonical form for all elements from self which are IpBlock
+        """
+        res = IpBlock()
+        for elem in self:
+            if isinstance(elem, IpBlock):
+                res |= elem
+        return res

@@ -1,7 +1,7 @@
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
-  name: testcase24-a
+  name: testcase24-c
   namespace: kube-system
 spec:
   types:
@@ -15,5 +15,5 @@ spec:
   egress:
   - action: Allow
     destination:
-      namespaceSelector: global() || all()
+      namespaceSelector: "!( global() && all() )"
       selector: k8s-app ends with 'apster' || k8s-app starts with 'kube' || (app == 'vpn' || role == 'db5')
