@@ -14,16 +14,30 @@ networkConfigList:
       - testcase24-profiles.yaml
     expectedWarnings: 0
 
+  - name: np_c
+    networkPolicyList:
+      - testcase24-c.yaml
+      - testcase24-profiles.yaml
+    expectedWarnings: 0
+
 queries:
   - name: policies_not_vacuous
     vacuity:
+    - np_a
+    - np_b
+    - np_c
+    expected: 0
+
+  - name: equiv
+    equivalence:
     - np_a
     - np_b
     expected: 0
 
   - name: nonEquiv
     equivalence:
-    - np_a
+    - np_c
     - np_b
-    expected: 0
+    expected: 1
+
 

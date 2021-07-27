@@ -1,7 +1,7 @@
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
-  name: testcase24-a
+  name: testcase24-b
   namespace: kube-system
 spec:
   types:
