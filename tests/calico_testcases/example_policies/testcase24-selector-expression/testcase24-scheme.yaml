@@ -25,15 +25,16 @@ queries:
     vacuity:
     - np_a
     - np_b
+    - np_c
     expected: 0
 
-  - name: nonEquiv
+  - name: equiv
     equivalence:
     - np_a
     - np_b
     expected: 0
 
-  - name: nonEquiv2
+  - name: nonEquiv
     equivalence:
     - np_c
     - np_b

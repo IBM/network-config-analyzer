@@ -19,7 +19,7 @@ networkConfigList:
 
 queries:
 
-  - name: nonEquiv
+  - name: equiv
     equivalence:
     - np_c
     - np_b
