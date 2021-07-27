@@ -1,0 +1,23 @@
+- name: basic_sanity
+  args: >
+    --sanity k8s
+    --ns_list k8s
+    --pod_list k8s
+  expected: 1
+
+- name: basic_connectivity
+  args: >
+    --connectivity k8s
+    --ns_list k8s
+    --pod_list k8s
+    --output_format dot
+    --file_out connectivityMapLiveK8S.dot
+  expected: 0
+
+- name: basic_equiv
+  args: >
+    --equiv fw_rules_tests/policies/microservices-netpols.yaml
+    --base_np_list k8s
+    --ns_list k8s
+    --pod_list k8s
+  expected: 0

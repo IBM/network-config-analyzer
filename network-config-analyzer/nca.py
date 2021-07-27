@@ -143,7 +143,7 @@ def nca_main(argv=None):
                         help='A file/cluster-type to read pod list from')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
-                        help='Output format specification (txt, csv, md or yaml). The default is txt.')
+                        help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
 
