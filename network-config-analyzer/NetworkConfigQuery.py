@@ -439,6 +439,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     Print the connectivity graph in the form of firewall rules
     """
 
+    supported_output_formats = {'txt', 'yaml', 'csv', 'md', 'dot'}
+
     def exec(self):
         peers_to_compare = self.config.peer_container.get_all_peers_group()
         ref_ip_blocks = self.config.get_referenced_ip_blocks()
@@ -462,11 +464,15 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     conn_graph.add_edge(peer1, peer2, ConnectionSet(True))  # cannot restrict pod's connection to itself
                 else:
                     _, conns, _ = self.config.allowed_connections(peer1, peer2)
-                    conn_graph.add_edge(peer1, peer2, conns)
+                    if conns:
+                        conn_graph.add_edge(peer1, peer2, conns)
 
-        fw_rules = conn_graph.get_minimized_firewall_rules()
         res = QueryAnswer(True)
-        res.output_explanation = fw_rules.get_fw_rules_in_required_format()
+        if self.output_config.outputFormat == 'dot':
+            res.output_explanation = conn_graph.get_connectivity_dot_format_str()
+        else:
+            fw_rules = conn_graph.get_minimized_firewall_rules()
+            res.output_explanation = fw_rules.get_fw_rules_in_required_format()
         return res
 
 
@@ -591,6 +597,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
     Produces a report of changed connections (also for the case of two configurations of different network topologies)
     """
 
+    supported_output_formats = {'txt', 'yaml', 'csv', 'md'}
+
     def get_explanation_from_conn_graph(self, is_added, conn_graph, is_first_connectivity_result):
         """
         :param is_added: a bool flag indicating if connections are added or removed
@@ -621,6 +629,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         explanation (str): a diff message
         """
         explanation = ''
+        add_explanation = self.output_config.outputFormat in SemanticDiffQuery.supported_output_formats
         res = 0
         for key in keys_list:
             conn_graph_added_conns = conn_graph_added_per_key[key]
@@ -632,11 +641,13 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 explanation += f'{key}:\n'
 
             if is_added:
-                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns, res == 0)
+                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns,
+                                                                    res == 0) if add_explanation else ''
                 res += 1
 
             if is_removed:
-                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns, res == 0)
+                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns,
+                                                                    res == 0) if add_explanation else ''
                 res += 1
 
         return res, explanation

@@ -42,6 +42,38 @@ class ConnectivityGraph:
 
         self.connections_to_peers[connections].append((source_peer, dest_peer))
 
+    def get_connectivity_dot_format_str(self):
+        """
+        :return: a string with content of dot format for connectivity graph
+        """
+        output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
+        output_result += f'digraph {self.output_config.configName} ' + '{\n'
+        if self.output_config.queryName and self.output_config.configName:
+            output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
+        for peer in self.cluster_info.all_peers:
+            if isinstance(peer, IpBlock):
+                output_result += f'\t\"{peer.get_cidr_list_str()}\" [label=\"{peer.get_cidr_list_str()}\" color=\"red2\" fontcolor=\"red2\"]\n'
+            else:
+                output_result += f'\t\"{str(peer)}\" [label=\"{str(peer)}\" color=\"blue\" fontcolor=\"blue\"]\n'
+
+        for connections, peer_pairs in self.connections_to_peers.items():
+            for src_peer, dst_peer in peer_pairs:
+                if src_peer != dst_peer:
+                    output_result += '\t'
+                    if isinstance(src_peer, IpBlock):
+                        output_result += f'\"{src_peer.get_cidr_list_str()}\"'
+                    else:
+                        output_result += f'\"{str(src_peer)}\"'
+                    output_result += ' -> '
+                    if isinstance(dst_peer, IpBlock):
+                        output_result += f'\"{dst_peer.get_cidr_list_str()}\"'
+                    else:
+                        output_result += f'\"{str(dst_peer)}\"'
+                    conn_str = str(connections).replace("Protocol:", "")
+                    output_result += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
+        output_result += '}\n\n'
+        return output_result
+
     def get_minimized_firewall_rules(self):
         """
         computes and returns minimized firewall rules from original connectivity graph

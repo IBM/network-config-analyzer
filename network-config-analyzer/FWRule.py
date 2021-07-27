@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-import ipaddress
 from ClusterInfo import ClusterInfo
 from K8sNamespace import K8sNamespace
 from Peer import ClusterEP, IpBlock, Pod
@@ -343,21 +342,14 @@ class IPBlockElement(FWRuleElement):
         """
         :return: list of strings of ip-blocks represented by this element
         """
-        cidr_list = []
-        for interval in self.element.interval_set:
-            startip = ipaddress.IPv4Address(interval.start)
-            endip = ipaddress.IPv4Address(interval.end)
-            cidr = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
-            cidr_list.append(str(cidr[0]))
-        return cidr_list
+        return self.element.get_cidr_list()
 
     def __str__(self):
         """
         :return: string of the represented element
         """
         # return 'ip block: ' + str(self.element)
-        cidr_list = self.get_elem_yaml_obj()
-        return 'ip block: ' + ','.join(str(cidr) for cidr in cidr_list)
+        return 'ip block: ' + self.element.get_cidr_list_str()
 
     def get_elem_str(self, is_src):
         """
