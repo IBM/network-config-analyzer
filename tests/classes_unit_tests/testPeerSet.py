@@ -15,7 +15,6 @@ class TestPeerSetMethods(unittest.TestCase):
         set1 = PeerSet({pod_a, ip1})
         set2 = PeerSet({pod_a, ip2, ip3})
         self.assertTrue(set1 == set2)
-        self.assertTrue(False)
 
     def test_and(self):
         default_namespace = K8sNamespace('default')
