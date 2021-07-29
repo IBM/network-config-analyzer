@@ -1,0 +1,30 @@
+- query: 'istio-deny-all, config: istio-deny-all'
+  rules:
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
+  - src_ns:
+    - default
+    - kube-system
+    - vendor-system
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
+
+
