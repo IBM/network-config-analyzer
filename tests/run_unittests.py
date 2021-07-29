@@ -12,6 +12,11 @@ def main():
     suite = loader.discover(start_dir)
     runner = unittest.TextTestRunner()
     res = runner.run(suite)
+    # https://docs.python.org/3/library/unittest.html#unittest.TestResult
+    # res.errors: A list containing 2-tuples of TestCase instances and strings holding formatted tracebacks.
+    # Each tuple represents a test which raised an unexpected exception.
+    # res.failures: A list containing 2-tuples of TestCase instances and strings holding formatted tracebacks.
+    # Each tuple represents a test where a failure was explicitly signalled using the TestCase.assert*() methods.
     return len(res.failures) + len(res.errors)
 
 
