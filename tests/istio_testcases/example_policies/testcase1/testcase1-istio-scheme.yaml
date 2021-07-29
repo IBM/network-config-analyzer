@@ -52,6 +52,11 @@ networkConfigList:
       - testcase1-allow-nothing-policy.yaml
     expectedWarnings: 0
 
+  - name: allow-nothing-2
+    networkPolicyList:
+      - testcase1-allow-nothing-policy-2.yaml
+    expectedWarnings: 0
+
   - name: deny-all
     networkPolicyList:
       - testcase1-deny-all-policy.yaml
@@ -84,6 +89,7 @@ queries:
     equivalence:
       - allow-nothing
       - deny-all
+      - allow-nothing-2
     expected: 0
 
   - name: equiv-test-2

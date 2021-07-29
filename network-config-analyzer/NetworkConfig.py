@@ -324,20 +324,13 @@ class NetworkConfig:
             raise Exception(peer.full_name() + ' refers to a non-existing profile ' + profile_name)
         return profile.allowed_connections(from_peer, to_peer, is_ingress)
 
-    @staticmethod
-    # TODO: move to some other class?
-    def get_non_TCP_connections():
-        TCP_conns = ConnectionSet()
-        TCP_conns.add_connections('TCP', PortSetPair(PortSet(True), PortSet(True)))
-        return ConnectionSet(True) - TCP_conns
-
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         """
         get allowed and denied ingress/egress connections between from_peer and to_peer,
         considering all config's policies (and defaults)
         :param from_peer: the source peer
         :param to_peer: the dest peer
-        :param is_ingress: flag to indicate if should retuen ingress conections or gress connections
+        :param is_ingress: flag to indicate if should return ingress connections or egress connections
         :return: PolicyConnections object with:
           - captured: flag to indicate if any of the policies captured one of the peers (src/dst)
           - allowed_conns: allowed captured connections (can be used only if the captured flag is True)
@@ -354,12 +347,11 @@ class NetworkConfig:
         has_allow_policies_for_target = False
         for policy in self.sorted_policies:
             policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
-            if policy_conns.captured and self._get_policy_type(policy) == NetworkConfig.ConfigType.Istio:
-                if policy.action == IstioNetworkPolicy.ActionType.Allow:
-                    has_allow_policies_for_target = True
             assert isinstance(policy_conns, PolicyConnections)
             if policy_conns.captured:
                 policy_captured = True
+                if isinstance(policy, IstioNetworkPolicy) and policy.action == IstioNetworkPolicy.ActionType.Allow:
+                    has_allow_policies_for_target = True
                 policy_conns.denied_conns -= allowed_conns
                 policy_conns.denied_conns -= pass_conns
                 denied_conns |= policy_conns.denied_conns
@@ -372,7 +364,7 @@ class NetworkConfig:
 
         if self.type == NetworkConfig.ConfigType.Istio:
             # for istio initialize non-captured conns with non-TCP connections
-            allowed_non_captured_conns = self.get_non_TCP_connections()
+            allowed_non_captured_conns = ConnectionSet.get_non_TCP_connections()
             if not is_ingress:
                 allowed_non_captured_conns = ConnectionSet(True)  # egress currently always allowed and not captured
             elif not has_allow_policies_for_target:

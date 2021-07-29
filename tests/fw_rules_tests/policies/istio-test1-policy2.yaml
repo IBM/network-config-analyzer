@@ -11,7 +11,6 @@ spec:
   rules:
   - from:
     - source:
-        #namespaces: ["vendor-system", "default"]
         notNamespaces: ["vendor-system"]
     - source:
         ipBlocks: ["1.2.3.0/24", "2.2.2.2", "3.3.3.3"]
@@ -23,11 +22,6 @@ spec:
     when:
     - key: destination.port
       notValues: ["26257"]
-      #values: ["30"]
-    #- key: source.namespace
-    #  values: ["default"]
-    #- key: source.ip
-    #  notValues: ["2.2.2.2"]
 
 ---
 

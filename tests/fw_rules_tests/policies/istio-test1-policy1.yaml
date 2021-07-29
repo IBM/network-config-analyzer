@@ -20,8 +20,6 @@ spec:
     when:
     - key: destination.port
       values: ["26257"]
-    #- key: source.namespace
-    #  values: ["default"]
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
@@ -45,6 +43,5 @@ metadata:
   name: test-deny-nothing
   namespace: vendor-system
 spec:
-  action: DENY #ALLOW
-  #rules:
-  #  - {}
+  action: DENY
+

@@ -441,3 +441,13 @@ class ConnectionSet:
                        ' while ' + self_name + ' does not.'
 
         return 'No diff.'
+
+    @staticmethod
+    def get_all_TCP_connections():
+        TCP_conns = ConnectionSet()
+        TCP_conns.add_connections('TCP', PortSetPair(PortSet(True), PortSet(True)))
+        return TCP_conns
+
+    @staticmethod
+    def get_non_TCP_connections():
+        return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()

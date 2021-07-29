@@ -23,8 +23,8 @@ class NetworkPolicy:
         CalicoNetworkPolicy = 2
         CalicoGlobalNetworkPolicy = 3
         CalicoProfile = 4
-        List = 5
-        IstioAuthorizationPolicy = 6
+        IstioAuthorizationPolicy = 10
+        List = 500
 
     def __init__(self, name, namespace):
         self.name = name

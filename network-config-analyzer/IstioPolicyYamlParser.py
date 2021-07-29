@@ -5,8 +5,7 @@
 
 from GenericYamlParser import GenericYamlParser
 from IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
-from Peer import IpBlock
-from Peer import PeerSet
+from Peer import IpBlock, PeerSet
 from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
 from PortSet import PortSetPair, PortSet
@@ -46,17 +45,15 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if not label_selector:
             return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
 
-        allowed_elements = {'matchLabels': 0, 'match_labels': 0}
+        allowed_elements = {'matchLabels': [0, dict]}
         self.check_fields_validity(label_selector, 'authorization policy WorkloadSelector', allowed_elements)
 
         res = self.peer_container.get_all_peers_group()
-        match_labels = label_selector.get('matchLabels', label_selector.get('match_labels'))
+        match_labels = label_selector.get('matchLabels')
         if match_labels:
-            keys_set = set()
             for key, val in match_labels.items():
                 res &= self.peer_container.get_peers_with_label(key, [val])
-                keys_set.add(key)
-            self.allowed_labels.add(':'.join(keys_set))
+            self.allowed_labels.add(':'.join(match_labels.keys()))
 
         if not res:
             self.warning('A podSelector selects no pods. Better use "podSelector: Null"', label_selector)
@@ -113,15 +110,6 @@ class IstioPolicyYamlParser(GenericYamlParser):
             res_ip_block -= IpBlock(cidr)
         return res_ip_block.split()
 
-    @staticmethod
-    def get_all_ports_connection():
-        """
-        :return: a ConnectionSet object with TCP connections for all ports
-        """
-        res = ConnectionSet()
-        res.add_connections('TCP', PortSetPair(PortSet(True), PortSet(True)))
-        return res
-
     def parse_port(self, port):
         """
         :param port: string of a port number
@@ -146,12 +134,11 @@ class IstioPolicyYamlParser(GenericYamlParser):
         """
         connections = ConnectionSet()
         if ports_list is None:  # If not set, any port is allowed.
-            connections = self.get_all_ports_connection()
+            connections = ConnectionSet.get_all_TCP_connections()
         else:
             for port in ports_list:
                 connections |= self.parse_port(port)
-        not_ports_list = [] if not_ports_list is None else not_ports_list
-        for port in not_ports_list:
+        for port in not_ports_list or []:
             connections -= self.parse_port(port)
         return connections
 
@@ -198,13 +185,13 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :return: ConnectionSet object with allowed connections
         """
 
-        to_allowed_elements = {'operation': 1}
+        to_allowed_elements = {'operation': [0, dict]}
         self.check_fields_validity(to_dict, 'authorization policy rule: to', to_allowed_elements)
 
         operation = to_dict.get('operation')
 
         # TODO: Add support for hosts, methods, paths
-        allowed_elements = {'ports': 0, 'notPorts': 0, 'hosts': 2, 'notHosts': 2, 'methods': 2, 'notMethods': 2,
+        allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': 2, 'notMethods': 2,
                             'paths': 2, 'notPaths': 2}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
 
@@ -222,7 +209,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :rtype: Peer.PeerSet
         """
 
-        from_allowed_elements = {'source': 0}
+        from_allowed_elements = {'source': [0, dict]}
         self.check_fields_validity(source_dict, 'authorization policy rule: from', from_allowed_elements)
 
         source_peer = source_dict.get('source')
@@ -338,10 +325,10 @@ class IstioPolicyYamlParser(GenericYamlParser):
             return None  # apiVersion is not properly set
         if api_version not in ['security.istio.io/v1beta1']:
             raise Exception('Unsupported apiVersion: ' + api_version)
-        self.check_fields_validity(self.policy, 'networkPolicy', {'kind': 1, 'metadata': 1, 'spec': 1,
+        self.check_fields_validity(self.policy, 'AuthorizationPolicy', {'kind': 1, 'metadata': 1, 'spec': 1,
                                                                   'apiVersion': 0, 'api_version': 0})
         if 'name' not in self.policy['metadata']:
-            self.syntax_error('NetworkPolicy has no name', self.policy)
+            self.syntax_error('AuthorizationPolicy has no name', self.policy)
         # TODO: what if namespace is not specified in istio policy?
         if 'namespace' in self.policy['metadata']:
             self.namespace = self.peer_container.get_namespace(self.policy['metadata']['namespace'])
@@ -350,7 +337,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         policy_spec = self.policy['spec']
         # currently not supporting provider
-        allowed_spec_keys = {'action': [0, str], 'rules': 0, 'selector': 0, 'provider': 2}
+        allowed_spec_keys = {'action': [0, str], 'rules': [0, list], 'selector': [0, dict], 'provider': 2}
         allowed_key_values = {'action': ['ALLOW', 'DENY']}
         self.check_fields_validity(policy_spec, 'istio authorization policy spec', allowed_spec_keys,
                                    allowed_key_values)

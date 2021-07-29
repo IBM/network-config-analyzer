@@ -205,8 +205,7 @@ class SanityQuery(NetworkConfigQuery):
     """
 
     def has_conflicting_policies_with_same_order(self):
-        # TODO: should skip istio policies here?
-        if self.config.type == NetworkConfig.ConfigType.Istio:
+        if self.config.type != NetworkConfig.ConfigType.Calico:
             return False, ''
         if len(self.config.sorted_policies) <= 1:
             return False, ''
@@ -275,11 +274,11 @@ class SanityQuery(NetworkConfigQuery):
                         continue
                     if pod1 == pod2:
                         continue  # no way to prevent a pod from communicating with itself
-                    _, _, _, self_conns = config_with_self_policy.allowed_connections(pod1, pod2)
-                    _, _, _, other_conns = config_with_other_policy.allowed_connections(pod1, pod2)
-                    if not self_conns:
+                    _, _, _, self_deny_conns = config_with_self_policy.allowed_connections(pod1, pod2)
+                    _, _, _, other_deny_conns = config_with_other_policy.allowed_connections(pod1, pod2)
+                    if not self_deny_conns:
                         continue
-                    if not self_conns.contained_in(other_conns):
+                    if not self_deny_conns.contained_in(other_deny_conns):
                         return None
             return other_policy
         return None
@@ -488,7 +487,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
         return res
 
-    def filter_istio_edge(self, peer2, conns):
+    @staticmethod
+    def filter_istio_edge(peer2, conns):
         # currently only supporting authorization policies, that do not capture egress rules
         if isinstance(peer2, IpBlock):
             return True, None
@@ -496,7 +496,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/
         # Non-TCP based protocols, such as UDP, are not proxied. These protocols will continue to function as normal,
         # without any interception by the Istio proxy
-        conns_new = conns - self.config.get_non_TCP_connections()
+        conns_new = conns - ConnectionSet.get_non_TCP_connections()
         return False, conns_new
 
 
@@ -1035,7 +1035,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 if only_captured and not captured1_flag:
                     continue
                 conns1 = conns1_captured if only_captured else conns1_all
-                conns2, _, _, _,  = self.config2.allowed_connections(peer1, peer2)
+                conns2, _, _, _, = self.config2.allowed_connections(peer1, peer2)
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
                     output_explanation = f'Both {self.name1} and {self.name2} allow the following connection ' \

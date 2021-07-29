@@ -85,12 +85,10 @@ class IstioNetworkPolicy(NetworkPolicy):
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
 
-        rules = self.ingress_rules
         collected_conns = allowed_conns if self.action == IstioNetworkPolicy.ActionType.Allow else denied_conns
-        for rule in rules:
+        for rule in self.ingress_rules:
             if from_peer in rule.peer_set:
-                rule_conns = rule.connections
-                collected_conns |= rule_conns
+                collected_conns |= rule.connections
 
         return PolicyConnections(True, allowed_conns, denied_conns)
 
@@ -118,17 +116,17 @@ class IstioNetworkPolicy(NetworkPolicy):
         full_name = self.full_name(config_name)
         for rule_index, ingress_rule in enumerate(self.ingress_rules, start=1):
             if not ingress_rule.peer_set:
-                emptiness = f'Ingress rule no. {rule_index} in AuthorizationPolicy {full_name} does not select any pods'
+                emptiness = f'Rule no. {rule_index} in AuthorizationPolicy {full_name} does not select any pods'
                 emptiness_explanation.append(emptiness)
                 empty_ingress_rules.add(rule_index)
 
         return emptiness_explanation, empty_ingress_rules, set()
 
-    def clone_without_rule(self, rule_to_exclude, ingress_rule):
+    def clone_without_rule(self, rule_to_exclude, _ingress_rule):
         """
         Makes a copy of 'self' without a given policy rule
         :param IstioPolicyRule rule_to_exclude: The one rule not to include in the copy
-        :param bool ingress_rule: Whether the rule is an ingress or egress rule
+        :param bool _ingress_rule: Whether the rule is an ingress or egress rule
         :return: A copy of 'self' without the provided rule
         :rtype: IstioNetworkPolicy
         """
