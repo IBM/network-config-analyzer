@@ -1,0 +1,5 @@
+final fw rules for query: istio-deny-all, config: istio-deny-all:
+src ip block: 0.0.0.0/0 dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP 1-65536,
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP 1-65536,
+
+

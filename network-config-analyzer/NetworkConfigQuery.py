@@ -205,6 +205,8 @@ class SanityQuery(NetworkConfigQuery):
     """
 
     def has_conflicting_policies_with_same_order(self):
+        if self.config.type != NetworkConfig.ConfigType.Calico:
+            return False, ''
         if len(self.config.sorted_policies) <= 1:
             return False, ''
 
@@ -233,7 +235,8 @@ class SanityQuery(NetworkConfigQuery):
         :return: A policy containing self_policy's allowed connections if exist, None otherwise
         :rtype: NetworkPolicy
         """
-        only_captured = (self.config.type == NetworkConfig.ConfigType.K8s)
+        only_captured = (
+                self.config.type == NetworkConfig.ConfigType.K8s or self.config.type == NetworkConfig.ConfigType.Istio)
         for other_policy in self.config.sorted_policies:
             if other_policy == self_policy:
                 if self.config.type == NetworkConfig.ConfigType.Calico:
@@ -256,7 +259,9 @@ class SanityQuery(NetworkConfigQuery):
         """
         for other_policy in self.config.sorted_policies:
             if other_policy == self_policy:
-                return None  # not checking lower priority
+                if self.config.type == NetworkConfig.ConfigType.Calico:
+                    return None  # not checking lower priority for Calico
+                continue  # (istio: skip comparison of policy to itself)
             if not other_policy.has_deny_rules():
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
@@ -269,8 +274,8 @@ class SanityQuery(NetworkConfigQuery):
                         continue
                     if pod1 == pod2:
                         continue  # no way to prevent a pod from communicating with itself
-                    _, _, self_deny_conns = config_with_self_policy.allowed_connections(pod1, pod2)
-                    _, _, other_deny_conns = config_with_other_policy.allowed_connections(pod1, pod2)
+                    _, _, _, self_deny_conns = config_with_self_policy.allowed_connections(pod1, pod2)
+                    _, _, _, other_deny_conns = config_with_other_policy.allowed_connections(pod1, pod2)
                     if not self_deny_conns:
                         continue
                     if not self_deny_conns.contained_in(other_deny_conns):
@@ -344,6 +349,8 @@ class SanityQuery(NetworkConfigQuery):
 
         has_allow_rules = policy.has_allow_rules()
         has_deny_rules = policy.has_deny_rules()
+        # TODO: check: only in calico - if all the rules are empty then the policy is redundant?
+        # can find an example with istio here?
         if not has_deny_rules and not has_allow_rules:  # all rules are empty
             return redundant_text + '. Note that it contains no effective allow/deny rules\n'
 
@@ -463,9 +470,14 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 if peer1 == peer2:
                     conn_graph.add_edge(peer1, peer2, ConnectionSet(True))  # cannot restrict pod's connection to itself
                 else:
-                    _, conns, _ = self.config.allowed_connections(peer1, peer2)
+                    conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
                     if conns:
-                        conn_graph.add_edge(peer1, peer2, conns)
+                        if self.config.type == NetworkConfig.ConfigType.Istio and self.output_config.connectivityFilterIstioEdges:
+                            should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
+                            if not should_filter:
+                                conn_graph.add_edge(peer1, peer2, modified_conns)
+                        else:
+                            conn_graph.add_edge(peer1, peer2, conns)
 
         res = QueryAnswer(True)
         if self.output_config.outputFormat == 'dot':
@@ -474,6 +486,18 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             fw_rules = conn_graph.get_minimized_firewall_rules()
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
         return res
+
+    @staticmethod
+    def filter_istio_edge(peer2, conns):
+        # currently only supporting authorization policies, that do not capture egress rules
+        if isinstance(peer2, IpBlock):
+            return True, None
+        # remove allowed connections for non TCP protocols
+        # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/
+        # Non-TCP based protocols, such as UDP, are not proxied. These protocols will continue to function as normal,
+        # without any interception by the Istio proxy
+        conns_new = conns - ConnectionSet.get_non_TCP_connections()
+        return False, conns_new
 
 
 class TwoNetworkConfigsQuery(BaseNetworkQuery):
@@ -582,8 +606,8 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-                _, conns1, _ = self.config1.allowed_connections(peer1, peer2)
-                _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
+                conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2)
+                conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if conns1 != conns2:
                     explanation = f'Allowed connections from {peer1} to {peer2} are different\n' + \
                                   conns1.print_diff(conns2, self.name1, self.name2)
@@ -698,7 +722,6 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         explanation (str): a diff message
 
        """
-
         old_peers = self.config1.peer_container.get_all_peers_group()
         new_peers = self.config2.peer_container.get_all_peers_group()
         intersected_peers = old_peers & new_peers
@@ -720,7 +743,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
         conn_graph_added_per_key[key] = None
         for pair in itertools.permutations(removed_peers, 2):
-            _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
+            lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
@@ -730,11 +753,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, old_ip_blocks, False)
         conn_graph_added_per_key[key] = None
         for pair in itertools.product(removed_peers, old_ip_blocks):
-            _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
+            lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
-            _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
+            lost_conns, _, _, _ = self.config1.allowed_connections(pair[1], pair[0])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
 
@@ -744,11 +767,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
         conn_graph_added_per_key[key] = None
         for pair in itertools.product(removed_peers, intersected_peers):
-            _, lost_conns, _ = self.config1.allowed_connections(pair[0], pair[1])
+            lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
-            _, lost_conns, _ = self.config1.allowed_connections(pair[1], pair[0])
+            lost_conns, _, _, _ = self.config1.allowed_connections(pair[1], pair[0])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
 
@@ -761,8 +784,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             for pod2 in intersected_peers if pod1 in captured_pods else captured_pods:
                 if pod1 == pod2:
                     continue
-                _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
-                _, new_conns, _ = self.config2.allowed_connections(pod1, pod2)
+                old_conns, _, _, _ = self.config1.allowed_connections(pod1, pod2)
+                new_conns, _, _, _ = self.config2.allowed_connections(pod1, pod2)
                 if new_conns != old_conns:
                     conn_graph_removed_per_key[key].add_edge(pod1, pod2, old_conns - new_conns)
                     conn_graph_added_per_key[key].add_edge(pod1, pod2, new_conns - old_conns)
@@ -776,8 +799,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, True)
         for pod1 in peers:
             for pod2 in disjoint_ip_blocks if pod1 in captured_pods else captured_pods:
-                _, old_conns, _ = self.config1.allowed_connections(pod1, pod2)
-                _, new_conns, _ = self.config2.allowed_connections(pod1, pod2)
+                old_conns, _, _, _ = self.config1.allowed_connections(pod1, pod2)
+                new_conns, _, _, _ = self.config2.allowed_connections(pod1, pod2)
                 if new_conns != old_conns:
                     conn_graph_removed_per_key[key].add_edge(pod1, pod2, old_conns - new_conns)
                     conn_graph_added_per_key[key].add_edge(pod1, pod2, new_conns - old_conns)
@@ -788,11 +811,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = None
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         for pair in itertools.product(intersected_peers, added_peers):
-            _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
+            new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
-            _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
+            new_conns, _, _, _ = self.config2.allowed_connections(pair[1], pair[0])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
 
@@ -802,7 +825,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = None
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         for pair in itertools.permutations(added_peers, 2):
-            _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
+            new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
@@ -813,11 +836,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, new_ip_blocks, True)
 
         for pair in itertools.product(added_peers, new_ip_blocks):
-            _, new_conns, _ = self.config2.allowed_connections(pair[0], pair[1])
+            new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
-            _, new_conns, _ = self.config2.allowed_connections(pair[1], pair[0])
+            new_conns, _, _, _ = self.config2.allowed_connections(pair[1], pair[0])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
 
@@ -895,10 +918,11 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2)
-                if only_captured and not captured1:
+                conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
+                if only_captured and not captured1_flag:
                     continue
-                _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
+                conns1 = conns1_captured if only_captured else conns1_all
+                conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if not conns1.contained_in(conns2):
                     output_result = f'{self.name1} is not contained in {self.name2}'
                     output_explanation = f'Allowed connections from {peer1} to {peer2} in {self.name1} ' \
@@ -977,13 +1001,14 @@ class InterferesQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2)
-                if not captured1:
+
+                _, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
+                if not captured1_flag:
                     continue
-                captured2, conns2, _ = self.config2.allowed_connections(peer1, peer2)
-                if captured2 and not conns2.contained_in(conns1):
+                _, captured2_flag, conns2_captured, _ = self.config2.allowed_connections(peer1, peer2)
+                if captured2_flag and not conns2_captured.contained_in(conns1_captured):
                     output_explanation = f'{self.name2} extends the allowed connections from {peer1} to {peer2}\n' + \
-                                         conns2.print_diff(conns1, self.name2, self.name1)
+                                         conns2_captured.print_diff(conns1_captured, self.name2, self.name1)
                     return QueryAnswer(True, self.name2 + ' interferes with ' + self.name1, output_explanation)
 
         return QueryAnswer(False, self.name2 + ' does not interfere with ' + self.name1)
@@ -1006,10 +1031,11 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-                captured1, conns1, _ = self.config1.allowed_connections(peer1, peer2)
-                if only_captured and not captured1:
+                conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
+                if only_captured and not captured1_flag:
                     continue
-                _, conns2, _ = self.config2.allowed_connections(peer1, peer2)
+                conns1 = conns1_captured if only_captured else conns1_all
+                conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
                     output_explanation = f'Both {self.name1} and {self.name2} allow the following connection ' \

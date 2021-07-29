@@ -1,0 +1,22 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-empty-source-1
+  namespace: default
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:  # empty due to conmbination of ns + ipblock...
+        namespaces: ["vendor-system", "default"]
+        ipBlocks: ["1.2.3.0/24", "2.2.2.2"]
+    to:
+    - operation:
+        ports: ["26257", "30"]
+    when:
+    - key: destination.port
+      values: ["26257"]
+

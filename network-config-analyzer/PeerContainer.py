@@ -584,3 +584,6 @@ class PeerContainer:
             if peer.is_global_peer():
                 res.add(peer)
         return res
+
+    def get_all_namespaces_str_list(self):
+        return list(self.namespaces.keys())

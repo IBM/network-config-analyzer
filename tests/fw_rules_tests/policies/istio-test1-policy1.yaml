@@ -1,0 +1,47 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-allow
+  namespace: default
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:
+        namespaces: ["vendor-system", "default"]
+    - source:
+        ipBlocks: ["1.2.3.0/24", "2.2.2.2"]
+    to:
+    - operation:
+        ports: ["26257", "30"]
+    when:
+    - key: destination.port
+      values: ["26257"]
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-deny
+  namespace: default
+spec:
+  action: DENY
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:
+        ipBlocks: ["2.2.2.2"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-deny-nothing
+  namespace: vendor-system
+spec:
+  action: DENY
+

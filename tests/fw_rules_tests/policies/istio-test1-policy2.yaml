@@ -1,0 +1,57 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-allow
+  namespace: default
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:
+        notNamespaces: ["vendor-system"]
+    - source:
+        ipBlocks: ["1.2.3.0/24", "2.2.2.2", "3.3.3.3"]
+        notIpBlocks: ["3.3.3.3"]
+    to:
+    - operation:
+        ports: ["26257", "30", "40", "50"]
+        notPorts: ["40"]
+    when:
+    - key: destination.port
+      notValues: ["26257"]
+
+---
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-nothing-default
+  namespace: default
+spec:
+  action: ALLOW
+  # the rules field is not specified, and the policy will never match.
+
+---
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-nothing-kube-system
+  namespace: kube-system
+spec:
+  action: ALLOW
+  # the rules field is not specified, and the policy will never match.
+
+---
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-nothing-vendor-system
+  namespace: vendor-system
+spec:
+  action: ALLOW
+  # the rules field is not specified, and the policy will never match.

@@ -1,0 +1,28 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+networkConfigList:
+- name: istio-policy1
+  networkPolicyList:
+  - istio-test1-policy1.yaml
+  expectedWarnings: 0
+- name: istio-policy2
+  networkPolicyList:
+  - istio-test1-policy2.yaml
+  expectedWarnings: 0
+queries:
+- name: istio-policy1
+  connectivityMap:
+  - istio-policy1
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesOverrideAllowedLabels: app
+    fwRulesGroupByLabelSinglePod: true
+- name: istio-policy2
+  connectivityMap:
+  - istio-policy2
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesOverrideAllowedLabels: app
+    fwRulesGroupByLabelSinglePod: true

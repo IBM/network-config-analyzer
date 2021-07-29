@@ -1,0 +1,22 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-source-namespaces-only-1
+  namespace: default
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:
+        namespaces: [] # empty list -> no namespace allowed?
+                       # are ip-blocks not allowed here as well? (if an ip would be specified here, it should have been "anded" with ns)
+    to:
+    - operation:
+        ports: ["26257", "30"]
+    when:
+    - key: destination.port
+      values: ["26257"]
+

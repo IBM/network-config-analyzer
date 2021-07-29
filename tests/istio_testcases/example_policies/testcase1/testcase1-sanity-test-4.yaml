@@ -1,0 +1,42 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-deny-sanity-1
+  namespace: default
+spec:
+  action: DENY
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:
+        namespaces: ["vendor-system", "default"]
+    to:
+    - operation:
+        ports: ["26257", "30"]
+    when:
+    - key: destination.port
+      values: ["26257"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-deny-sanity-2
+  namespace: default
+spec:
+  action: DENY
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:
+        namespaces: ["vendor-system"]
+    to:
+    - operation:
+        ports: ["26257", "30"]
+    when:
+    - key: destination.port
+      values: ["26257"]

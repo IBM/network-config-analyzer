@@ -13,6 +13,7 @@ class NetworkPolicy:
     """
     The base class for all network policies.
     """
+
     class PolicyType(Enum):
         """
         The supported policy types
@@ -22,7 +23,8 @@ class NetworkPolicy:
         CalicoNetworkPolicy = 2
         CalicoGlobalNetworkPolicy = 3
         CalicoProfile = 4
-        List = 5
+        IstioAuthorizationPolicy = 10
+        List = 500
 
     def __init__(self, name, namespace):
         self.name = name
@@ -112,6 +114,9 @@ class NetworkPolicy:
                 policy_type = NetworkPolicy.PolicyType.CalicoNetworkPolicy
             elif kind == 'GlobalNetworkPolicy':
                 policy_type = NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
+        elif 'istio' in api_version:
+            if kind == 'AuthorizationPolicy':
+                policy_type = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
         elif kind == 'NetworkPolicy':
             policy_type = NetworkPolicy.PolicyType.K8sNetworkPolicy
 
@@ -148,7 +153,7 @@ class NetworkPolicy:
         """
         return 0, False  # default values - override in derived classes
 
-    def ingress_rule_containing(self, other_policy,  other_ingress_rule_index):
+    def ingress_rule_containing(self, other_policy, other_ingress_rule_index):
         """
         Check if an ingress rule in self contains an ingress rule in other_policy
         :param NetworkPolicy other_policy: The other policy (might be the same as self)
@@ -156,7 +161,7 @@ class NetworkPolicy:
         :return: The index of a containing rule if exists (else None) + whether the actions of the two rules contradict
         :rtype: int, bool
         """
-        return self.rule_containing(other_policy, other_policy.ingress_rules[other_ingress_rule_index-1],
+        return self.rule_containing(other_policy, other_policy.ingress_rules[other_ingress_rule_index - 1],
                                     other_ingress_rule_index, self.ingress_rules)
 
     def egress_rule_containing(self, other_policy, other_egress_rule_index):
@@ -167,7 +172,7 @@ class NetworkPolicy:
         :return: The index of a containing rule if exists (else None) + whether the actions of the two rules contradict
         :rtype: int, bool
         """
-        return self.rule_containing(other_policy, other_policy.egress_rules[other_egress_rule_index-1],
+        return self.rule_containing(other_policy, other_policy.egress_rules[other_egress_rule_index - 1],
                                     other_egress_rule_index, self.egress_rules)
 
 
@@ -176,7 +181,8 @@ class PolicyConnections:
     """
     A class to contain the effect of applying policies to a pair of peers
     """
-    captured: bool  # Whether the policy(ies) captured one of the peers
-    allowed_conns: ConnectionSet = ConnectionSet()  # Connections allowed by the policy(ies)
+    captured: bool  # Whether the policy(ies) allowed captured connections captured one of the peers (can also have empty captured-conns with captured==True)
+    allowed_conns: ConnectionSet = ConnectionSet()  # Connections allowed (and captured) by the policy(ies)
     denied_conns: ConnectionSet = ConnectionSet()  # Connections denied by the policy(ies)
     pass_conns: ConnectionSet = ConnectionSet()  # Connections specified as PASS by the policy(ies)
+    all_allowed_conns: ConnectionSet = ConnectionSet() # all (captured+ non-captured) Connections allowed by the policy(ies)
