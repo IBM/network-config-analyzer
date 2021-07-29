@@ -1035,7 +1035,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 if only_captured and not captured1_flag:
                     continue
                 conns1 = conns1_captured if only_captured else conns1_all
-                conns2, _, _, _, = self.config2.allowed_connections(peer1, peer2)
+                conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
                     output_explanation = f'Both {self.name1} and {self.name2} allow the following connection ' \
