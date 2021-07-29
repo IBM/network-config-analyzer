@@ -18,4 +18,7 @@ RUN chmod +x /usr/local/bin/calicoctl
 
 COPY network-config-analyzer/ /nca/
 
+RUN addgroup -S ncagroup && adduser -S ncauser -G ncagroup
+USER ncauser
+
 ENTRYPOINT ["python", "nca/nca.py"]
