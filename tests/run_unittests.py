@@ -11,7 +11,8 @@ def main():
                              'classes_unit_tests')
     suite = loader.discover(start_dir)
     runner = unittest.TextTestRunner()
-    return runner.run(suite)
+    res = runner.run(suite)
+    return len(res.failures) + len(res.errors)
 
 
 if __name__ == "__main__":
