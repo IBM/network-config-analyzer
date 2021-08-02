@@ -1,7 +1,7 @@
 # general tests
-- name: all_scheme_tests
-  type: scheme
-  root: ./
+#- name: all_scheme_tests
+#  type: scheme
+#  root: ./
 
 - name: general_cmdline_tests
   type: cmdline

@@ -371,6 +371,7 @@ class TestsRunner:
         # name = tests_spec.get('name', None)
         tests_queries_type = tests_spec.get('type', None)  # scheme or cmdline
         tests_root_dir = tests_spec.get('root', None)
+        tests_root_dir = os.path.abspath(tests_root_dir)
         files_list = tests_spec.get('files_list', None)
         # args only relevant for output tests:
         tests_expected_output_dir = tests_spec.get('expected_output', None)
