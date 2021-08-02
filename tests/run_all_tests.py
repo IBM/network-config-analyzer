@@ -474,6 +474,9 @@ class TestsRunner:
 # add new output tests: for every missing expected output file, create expected output file from actual output file
 
 def main(argv=None):
+    print(os.path.dirname(os.path.realpath(__file__)))
+    os.exit(0)
+
     test_type_and_spec_dict = {'general': 'general_tests_spec.yaml', 'output': 'output_tests_spec.yaml',
                                'fw_rules_assertions': 'fw_rules_assertions_tests_spec.yaml'}
 
@@ -493,7 +496,7 @@ def main(argv=None):
         print(f'action: {action} is not supported with test type: {test_type}')
         sys.exit(1)
 
-    sepc_file = os.path.join( os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),  test_type_and_spec_dict[test_type]))
+    sepc_file = os.path.join( os.path.dirname(os.path.realpath(__file__)),  test_type_and_spec_dict[test_type])
     tests_runner = TestsRunner(sepc_file, test_type, action)
     tests_runner.run_tests()
 
