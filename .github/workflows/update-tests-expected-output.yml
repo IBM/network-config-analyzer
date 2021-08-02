@@ -32,6 +32,6 @@ jobs:
         run: |
           python tests/run_all_tests.py --type=output --action=override_expected_output
       - name: Commit changes
-          uses: EndBug/add-and-commit@v7
-          with:
-            message: 'Updating tests expected output '
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: 'Updating tests expected output '
