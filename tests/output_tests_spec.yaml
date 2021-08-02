@@ -1,0 +1,50 @@
+# specification of files from which should generate output tests
+- name: fw_rules_txt_and_yaml
+  type: scheme
+  root: fw_rules_tests/policies/
+  expected_output: ./fw_rules_tests/policies/expected_output/
+  out_format_arg: ['txt', 'yaml']
+  add_out_path_arg: true
+
+- name: fw_rules_csv_md
+  type: scheme
+  root: fw_rules_tests/policies/
+  expected_output: ./fw_rules_tests/policies/expected_output/
+  files_list:
+    - poc1-scheme.yaml
+    - test4-scheme.yaml
+    - semantic_diff_computeDiff-scheme.yaml
+    - semantic_diff_namedPorts-scheme.yaml
+    - semantic_diff_with_different_topologies-scheme.yaml
+    - semantic_diff_withIpBlock-scheme.yaml
+  out_format_arg: ['csv', 'md']
+  add_out_path_arg: true
+
+- name: connectivity_dot
+  type: scheme
+  root: fw_rules_tests/policies/
+  expected_output: ./fw_rules_tests/policies/expected_output/
+  files_list:
+    - poc1-scheme.yaml
+    - test4-scheme.yaml
+  out_format_arg: ['dot']
+  add_out_path_arg: true
+
+- name : output_config_no_cli_args
+  type: scheme
+  root: output_config_tests/policies/
+  expected_output: ./output_config_tests/expected_output_files/
+  add_out_path_arg: false
+
+
+- name: output_cmdline_tests
+  type: cmdline
+  root: output_config_tests/
+  expected_output: ./output_config_tests/expected_output_files/
+  files_list:
+    - output_cmdline_tests.yaml
+
+
+
+
+

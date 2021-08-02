@@ -1,10 +1,6 @@
 name: test-push
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -32,17 +28,10 @@ jobs:
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Run unit tests
+      - name: update expected output files
         run: |
-          python tests/run_unittests.py
-      - name: Run all tests
-        env:
-          GHE_TOKEN: ${{ github.token }}
-        run: |
-          python tests/run_all_tests.py
-      - name: Run output comparison tests (connectivity, semantic-diff)
-        run: |
-          python tests/run_all_tests.py --type=output
-      - name: Run fw-rules assertions tests (connectivity, semantic-diff)
-          run: |
-            python tests/run_all_tests.py --type=fw_rules_assertions
+          python tests/run_all_tests.py --type=output --action=override_expected_output
+      - name: Commit changes
+          uses: EndBug/add-and-commit@v7
+          with:
+            message: 'Updating tests expected output '

@@ -1,0 +1,3 @@
+global: cluster has 29 unique endpoints, 8 namespaces
+global: cluster has 29 unique endpoints, 8 namespaces
+dot output format is not supported for this query

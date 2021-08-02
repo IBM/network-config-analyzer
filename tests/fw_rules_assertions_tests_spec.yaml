@@ -1,0 +1,10 @@
+# fw-rules assertions tests
+- name: all_scheme_tests
+  type: scheme
+  root: fw_rules_tests/policies/
+
+
+
+
+
+

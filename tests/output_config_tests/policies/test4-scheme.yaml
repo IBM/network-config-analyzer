@@ -1,0 +1,126 @@
+namespaceList: ../../fw_rules_tests/podlist/ns_list.json
+podList: ../../fw_rules_tests/podlist/pods_list_4.json
+
+
+networkConfigList:
+- name: np4
+  networkPolicyList:
+  - ../../fw_rules_tests/policies/test4-networkpolicy.yaml
+  expectedWarnings: 0
+- name: np3
+  networkPolicyList:
+  - ../../fw_rules_tests/policies/test3-networkpolicy.yaml
+  expectedWarnings: 0
+
+
+queries:
+- name: connectivity_map_3_stdout
+  connectivityMap:
+  - np3
+  expected: 0
+
+- name: connectivity_map_3_stdout_yaml
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: yaml
+
+- name: connectivity_map_3_stdout_csv
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: csv
+
+- name: connectivity_map_3_stdout_md
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: md
+
+- name: connectivity_map_3_stdout_dot
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: dot
+    connectivitySortDotOutput: true
+
+- name: connectivity_map_3_stdout_other
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: other
+
+
+
+- name: connectivity_map_4_yaml
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: yaml
+    outputPath: connectivity_map_4_yaml_output.yaml
+
+- name: connectivity_map_4_csv
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: csv
+    outputPath: connectivity_map_4_csv_output.csv
+
+- name: connectivity_map_4_md
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: md
+    outputPath: connectivity_map_4_md_output.md
+
+- name: connectivity_map_4_dot
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    connectivitySortDotOutput: true
+    outputFormat: dot
+    outputPath: connectivity_map_4_dot_output.dot
+
+- name: connectivity_map_4_bad_out_format
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputFormat: blah
+    outputPath: connectivity_map_4_bad_output.blah
+
+- name: connectivity_map_3_txt
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    outputPath: connectivity_map_3_txt_output.txt
+
+- name: connectivity_map_3_txt_append
+  connectivityMap:
+  - np4
+  expected: 0
+  outputConfiguration:
+    outputPath: connectivity_map_3_txt_output.txt
+
+- name: connectivity_map_3_txt_append_2
+  connectivityMap:
+  - np4
+  expected: 0
+  outputConfiguration:
+    outputPath: connectivity_map_3_txt_output.txt
+    outputFormat: txt
