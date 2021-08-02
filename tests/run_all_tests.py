@@ -379,14 +379,16 @@ class TestsRunner:
         add_out_path_arg = tests_spec.get('add_out_path_arg',
                                           None)  # a flag to indicate if shoud usr out_file args from cli args in test run
 
-        base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+        #base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
         for root, _, files in os.walk(tests_root_dir):
             for file in files:
                 if files_list and os.path.basename(file) not in files_list:
                     continue
                 if tests_queries_type == 'scheme' and not fnmatch(file, '*-scheme.yaml'):
                     continue
-                file_path = os.path.join(base_dir, root, file)
+
+                #file_path = os.path.join(base_dir, root, file)
+                file_path = os.path.join(os.path.abspath(root), file)
                 self.run_test_per_file(file_path, tests_queries_type, tests_root_dir, tests_expected_output_dir,
                                        out_format_arg, add_out_path_arg)
 
@@ -474,7 +476,7 @@ class TestsRunner:
 # add new output tests: for every missing expected output file, create expected output file from actual output file
 
 def main(argv=None):
-    
+
 
     test_type_and_spec_dict = {'general': 'general_tests_spec.yaml', 'output': 'output_tests_spec.yaml',
                                'fw_rules_assertions': 'fw_rules_assertions_tests_spec.yaml'}
