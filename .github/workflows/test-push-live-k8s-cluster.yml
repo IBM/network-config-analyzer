@@ -1,4 +1,4 @@
-name: Lint and Test Charts
+name: Test live k8s cluster
 
 on:
 #  push:
