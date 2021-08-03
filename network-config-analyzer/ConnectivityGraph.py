@@ -58,7 +58,7 @@ class ConnectivityGraph:
 
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
-                if src_peer != dst_peer:
+                if src_peer != dst_peer and not connections.allow_all:
                     output_result += '\t'
                     if isinstance(src_peer, IpBlock):
                         output_result += f'\"{src_peer.get_cidr_list_str()}\"'
