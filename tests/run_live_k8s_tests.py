@@ -35,11 +35,6 @@ def main(argv=None):
     base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
     os.chdir(base_dir)
 
-    # Deploy namespaces, pods and network policies
-#    namespaces = f'{base_dir}/fw_rules_tests/podlist/poc_ns_list.json'
-#    cmdline_list = ['kubectl', 'apply', f'-f{namespaces}']
-#    CmdlineRunner.run_and_get_output(cmdline_list)
-
     pods = f'{base_dir}/fw_rules_tests/podlist/kubernetes-manifests.yaml'
     cmdline_list = ['kubectl', 'apply', f'-f{pods}']
     CmdlineRunner.run_and_get_output(cmdline_list)
@@ -57,7 +52,6 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
     command_line_filename = os.path.join(base_dir, args.command_line_input) if args.command_line_input else ''
-#    print("Command line filename is: ", command_line_filename)
     if os.path.exists(command_line_filename):
         with open(command_line_filename) as doc:
             code = YAML().load_all(doc)
