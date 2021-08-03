@@ -56,4 +56,4 @@ jobs:
         uses: helm/kind-action@v1.2.0
 
       - name: Run live-k8s tests
-        run: python tests/run_live_k8s_tests.py -i tests/cmdline_live_k8s_tests.yaml
+        run: python tests/run_live_k8s_tests.py -i cmdline_live_k8s_tests.yaml
