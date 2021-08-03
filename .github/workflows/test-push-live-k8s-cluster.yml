@@ -28,11 +28,6 @@ jobs:
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-#      - name: Set up Helm
-#        uses: azure/setup-helm@v1
-#        with:
-#          version: v3.4.0
-
       - uses: actions/setup-python@v2.2.2
         with:
           python-version: 3.7

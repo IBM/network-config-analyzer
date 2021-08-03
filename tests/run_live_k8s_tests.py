@@ -1,6 +1,5 @@
 import sys
 import os
-from fnmatch import fnmatch
 from time import time
 from ruamel.yaml import YAML
 import argparse
