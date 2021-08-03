@@ -1,8 +1,8 @@
 import sys
 import os
 from time import time
-from ruamel.yaml import YAML
 import argparse
+from ruamel.yaml import YAML
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'network-config-analyzer'))
