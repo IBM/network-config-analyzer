@@ -28,11 +28,6 @@ jobs:
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - uses: actions/setup-python@v2.2.2
-        with:
-          python-version: 3.7
-          architecture: x64
-
       - name: Create kind cluster
         uses: helm/kind-action@v1.2.0
 
