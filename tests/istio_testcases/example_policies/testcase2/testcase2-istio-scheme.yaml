@@ -1,0 +1,93 @@
+namespaceList: ../../../example_podlist/ns_list.json
+podList: ../../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: istio1
+    networkPolicyList:
+      - testcase2-policy-1.yaml
+    expectedWarnings: 0
+
+  - name: istio2
+    networkPolicyList:
+      - testcase2-policy-2.yaml
+    expectedWarnings: 0
+
+  - name: istio3
+    networkPolicyList:
+      - testcase2-policy-3.yaml
+    expectedWarnings: 2
+
+  - name: istio4
+    networkPolicyList:
+      - testcase2-policy-4.yaml
+    expectedWarnings: 1
+
+  - name: istio5
+    networkPolicyList:
+      - testcase2-policy-5.yaml
+    expectedWarnings: 0
+    expectedError: 1
+
+  - name: istio6
+    networkPolicyList:
+      - testcase2-policy-6.yaml
+    expectedWarnings: 0
+    expectedError: 0
+
+  - name: istio7
+    networkPolicyList:
+      - testcase2-policy-7.yaml
+    expectedWarnings: 0
+
+  - name: istio8
+    networkPolicyList:
+      - testcase2-policy-8.yaml
+    expectedWarnings: 0
+
+
+
+queries:
+  - name: istio1_policy
+    connectivityMap:
+      - istio1
+    expected: 0
+
+  - name: istio2_policy
+    connectivityMap:
+      - istio2
+    expected: 0
+
+  - name: istio3_policy
+    connectivityMap:
+      - istio3
+    expected: 0
+
+  - name: istio4_policy
+    connectivityMap:
+      - istio4
+    expected: 0
+
+  - name: istio7_policy
+    connectivityMap:
+      - istio7
+    expected: 0
+
+  - name: istio6_policy
+    connectivityMap:
+      - istio6
+    expected: 0
+
+  - name: equiv-test-1
+    equivalence:
+      - istio7
+      - istio6
+    expected: 0
+
+  - name: diff-istio2-istio8
+    semanticDiff:
+      - istio2
+      - istio8
+
+
+
+

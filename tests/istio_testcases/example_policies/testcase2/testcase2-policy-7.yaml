@@ -1,0 +1,24 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-source-namespaces-deny-1
+  namespace: default
+spec:
+  action: DENY
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:
+        notNamespaces: ["kube-system","kube-system-dummy-to-ignore","vendor-system"]
+    to:
+    - operation:
+        notPorts: ["26257"]
+  - from:
+    - source:
+        notNamespaces: ["default"]
+    - source:
+        #ipBlocks: ["0.0.0.0/0"]
+        notIpBlocks: []
+

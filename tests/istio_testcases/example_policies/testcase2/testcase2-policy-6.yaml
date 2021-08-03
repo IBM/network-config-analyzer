@@ -1,0 +1,22 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-source-namespaces-only-2
+  namespace: default
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: skydive
+  rules:
+  - from:
+    - source:
+        namespaces: ["default"]
+    to:
+    - operation:
+        ports: ["26257", "30"]
+    when:
+    - key: destination.port
+      values: ["26257"]
+
+

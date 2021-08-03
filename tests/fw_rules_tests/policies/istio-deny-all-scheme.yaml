@@ -1,0 +1,14 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+networkConfigList:
+- name: istio-deny-all
+  networkPolicyList:
+  - istio-deny-all-policy.yaml
+  expectedWarnings: 0
+
+queries:
+- name: istio-deny-all
+  connectivityMap:
+  - istio-deny-all
+  expected: 0
+
