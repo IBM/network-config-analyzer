@@ -1,9 +1,8 @@
 import sys
 import os
-from fnmatch import fnmatch
 from time import time
-from ruamel.yaml import YAML
 import argparse
+from ruamel.yaml import YAML
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'network-config-analyzer'))
@@ -34,11 +33,7 @@ def main(argv=None):
     :return:
     """
     base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-
-    # Deploy namespaces, pods and network policies
-#    namespaces = f'{base_dir}/fw_rules_tests/podlist/poc_ns_list.json'
-#    cmdline_list = ['kubectl', 'apply', f'-f{namespaces}']
-#    CmdlineRunner.run_and_get_output(cmdline_list)
+    os.chdir(base_dir)
 
     pods = f'{base_dir}/fw_rules_tests/podlist/kubernetes-manifests.yaml'
     cmdline_list = ['kubectl', 'apply', f'-f{pods}']
