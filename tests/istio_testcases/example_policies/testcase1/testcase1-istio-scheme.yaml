@@ -5,7 +5,7 @@ networkConfigList:
   - name: istio1
     networkPolicyList:
       - testcase1-policy.yaml
-    expectedWarnings: 0
+    expectedWarnings: 1
 
   - name: istio2
     networkPolicyList:
@@ -68,7 +68,7 @@ queries:
   - name: istio1_policy
     sanity:
       - istio1
-    expected: 1
+    expected: 2
 
   - name: allow-all-vacuity
     vacuity:

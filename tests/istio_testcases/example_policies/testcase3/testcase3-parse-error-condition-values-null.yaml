@@ -1,7 +1,7 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: test-empty-source
+  name: test-condition-values-null
   namespace: default
 spec:
   action: ALLOW
@@ -9,10 +9,8 @@ spec:
     matchLabels:
       app: skydive
   rules:
-  - to:
-      - operation:
-          ports: ["26257", "30"]
-    when:
-    - key: destination.port
-      values: ["26257"]
+  - when:
+      - key: source.namespace
+        values: ["default"]
+        notValues:     # notValues cannot be null (only type array)
 

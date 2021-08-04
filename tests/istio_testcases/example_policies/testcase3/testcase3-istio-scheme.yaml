@@ -1,0 +1,109 @@
+namespaceList: ../../../example_podlist/ns_list.json
+podList: ../../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: parse-error-rule-is-null
+    networkPolicyList:
+      - testcase3-parse-error-rule-is-null.yaml
+    expectedWarnings: 0
+    expectedError: 1 # Authorization policy rule cannot be null
+
+  - name: parse-error-from-is-null
+    networkPolicyList:
+      - testcase3-parse-error-from-is-null.yaml
+    expectedError: 1 # Key: 'from' cannot be null
+
+  - name: parse-error-from-is-empty
+    networkPolicyList:
+      - testcase3-parse-error-from-is-empty.yaml
+    expectedError: 1 # Key: 'from' cannot be empty
+
+  - name: parse-error-namespaces-is-null
+    networkPolicyList:
+      - testcase3-parse-error-namespaces-is-null.yaml
+    expectedError: 1 # SyntaxError: Key: 'namespaces' cannot be null
+
+  - name: parse-error-source-is-empty
+    networkPolicyList:
+      - testcase3-parse-error-source-is-empty.yaml
+    expectedError: 1 # from.source cannot be empty
+
+  - name: valid-syntax-source-not-empty
+    networkPolicyList:
+      - testcase3-valid-syntax-source-not-empty.yaml
+    expectedWarnings: 1  #  Warning: Rule selects no pods (allowing namespaces empty array with notNamespaces non-empty array)
+
+  - name: parse-error-deny-without-rules
+    networkPolicyList:
+      - testcase3-parse-error-deny-without-rules.yaml
+    expectedError: 1  # SyntaxError: DENY action without rules is meaningless as it will never be triggered
+
+  - name: parse-error-source-is-empty-2
+    networkPolicyList:
+      - testcase3-parse-error-source-is-empty-2.yaml
+    expectedError: 1  # SyntaxError: from.source cannot be empty
+
+  - name: parse-error-to-is-empty
+    networkPolicyList:
+      - testcase3-parse-error-to-is-empty.yaml
+    expectedError: 1   # SyntaxError: Key: 'to' cannot be empty
+
+  - name: valid-syntax-when-is-empty
+    networkPolicyList:
+      - testcase3-valid-syntax-when-is-empty.yaml
+
+  - name: parse-error-operation-is-null
+    networkPolicyList:
+      - testcase3-parse-error-operation-is-null.yaml
+    expectedError: 1    # SyntaxError: mandatory operation value can not be null in authorization policy rule: to
+
+
+  - name: parse-error-ports-is-null
+    networkPolicyList:
+      - testcase3-parse-error-ports-is-null.yaml
+    expectedError: 1      # SyntaxError: Key: 'ports' cannot be null
+
+  - name: parse-error-empty-operation
+    networkPolicyList:
+      - testcase3-parse-error-operation-is-empty.yaml
+    expectedError: 1    # SyntaxError: to.operation cannot be empty
+
+  - name: parse-error-when-is-null
+    networkPolicyList:
+      - testcase3-parse-error-when-is-null.yaml
+    expectedError: 1     # SyntaxError: Key: 'when' cannot be null
+
+  - name: parse-error-key-is-empty
+    networkPolicyList:
+      - testcase3-parse-error-key-is-empty.yaml
+    expectedError: 1     # SyntaxError: authorization policy condition must have key entry
+
+  - name: parse-error-condition-empty-values
+    networkPolicyList:
+      - testcase3-parse-error-condition-empty-values.yaml
+    expectedError: 1    # SyntaxError: error parsing condition: at least one of values or not_values must be set.
+
+  - name: parse-error-condition-empty-values-2
+    networkPolicyList:
+      - testcase3-parse-error-condition-empty-values-2.yaml
+    expectedError: 1    # SyntaxError: error parsing condition: at least one of values or not_values must be set.
+
+  - name: parse-error-condition-values-null
+    networkPolicyList:
+      - testcase3-parse-error-condition-values-null.yaml
+    expectedError: 1    # SyntaxError: Key: 'notValues' cannot be null
+
+
+
+
+queries:
+  - name: connectivity-valid-syntax-source-not-empty
+    connectivityMap:
+      - valid-syntax-source-not-empty
+    expected: 0
+
+  - name: connectivity-valid-syntax-when-is-empty
+    connectivityMap:
+      - valid-syntax-when-is-empty
+    expected: 0
+

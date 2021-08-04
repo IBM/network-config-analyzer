@@ -9,8 +9,7 @@ spec:
     matchLabels:
       app: skydive
   rules:
-  - from: # empty
-    to:
+  - to:
     - operation:
         ports: ["26257", "30"]
     when:

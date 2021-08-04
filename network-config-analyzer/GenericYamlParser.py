@@ -11,6 +11,7 @@ class GenericYamlParser:
     """
     A base class for yaml parsers, providing basic services
     """
+
     def __init__(self, yaml_file_name=''):
         """
         :param str yaml_file_name: The name of the parsed file
@@ -89,3 +90,49 @@ class GenericYamlParser:
         if bad_policy_keys:
             self.syntax_error(f'{bad_policy_keys.pop()} is not a valid entry in the specification of {dict_name}',
                               dict_to_check)
+
+    def validate_existing_key_is_not_null(self, dict_elem, key):
+        """
+        check that if key exists in dict_elem, its value is not null
+        :param dict_elem: dict  the element to check
+        :param key: string  the key to validate
+        :return:
+        """
+        if key in dict_elem and dict_elem.get(key) is None:
+            self.syntax_error(f'Key: \'{key}\' cannot be null ')
+
+    def validate_array_not_empty(self, array_elem, elem_name):
+        """
+        chack that array_elem is a non-empty array
+        :param array_elem: list  the element to check
+        :param elem_name:  string  the name of the element to check
+        :return:
+        """
+        if not isinstance(array_elem, list):
+            self.syntax_error(f'Key: \'{elem_name}\' should be an array ')
+        if not array_elem:
+            self.syntax_error(f'Key: \'{elem_name}\' cannot be empty ')
+
+    def get_key_array_and_validate_not_empty(self, dict_elem, key):
+        """
+        check that for a given key in dict_elem, if it exists - its value is a non-empty array
+        :param dict_elem:  dict element to check
+        :param key: string   the key to check
+        :return:
+        """
+        key_array = dict_elem.get(key)
+        if key_array is not None:
+            self.validate_array_not_empty(key_array, key)
+            return key_array
+        return None
+
+    def validate_dict_elem_has_non_empty_array_value(self, dict_elem, dict_key_str):
+        """
+        assuming that dict values are of type arrays, checking that at least one of the arrays is not empty,
+        and that dict_elem is not empty
+        :param dict_elem: dict element to check
+        :param dict_key_str: string  the name of the key to which the dict is mapped
+        """
+        arr_length_set = set(len(v) for v in dict_elem.values())
+        if arr_length_set == {0} or not arr_length_set:
+            self.syntax_error(f"{dict_key_str} cannot be empty ")

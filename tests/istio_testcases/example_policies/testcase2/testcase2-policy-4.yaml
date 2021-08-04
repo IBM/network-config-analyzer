@@ -9,11 +9,7 @@ spec:
     matchLabels:
       app: skydive
   rules:
-  - from:
-    - source:
-        namespaces: [] # empty list -> no namespace allowed?
-                       # are ip-blocks not allowed here as well? (if an ip would be specified here, it should have been "anded" with ns)
-    to:
+  - to:
     - operation:
         ports: ["26257", "30"]
     when:

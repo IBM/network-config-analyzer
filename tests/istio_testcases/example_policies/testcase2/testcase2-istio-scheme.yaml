@@ -20,7 +20,7 @@ networkConfigList:
   - name: istio4
     networkPolicyList:
       - testcase2-policy-4.yaml
-    expectedWarnings: 1
+    expectedWarnings: 0
 
   - name: istio5
     networkPolicyList:
