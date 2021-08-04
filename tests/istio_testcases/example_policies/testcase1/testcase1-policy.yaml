@@ -45,6 +45,9 @@ metadata:
   name: test-deny-nothing
   namespace: vendor-system
 spec:
-  action: DENY #ALLOW
-  #rules:
-  #  - {}
+  action: DENY
+  rules:
+  - from:
+    - source:
+        namespaces: []
+        notNamespaces: ["default"]

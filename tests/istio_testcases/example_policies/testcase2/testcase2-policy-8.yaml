@@ -9,10 +9,7 @@ spec:
     matchLabels:
       app: skydive
   rules:
-  - from:
-    - source:
-        namespaces: # is it valid? (currently considering as unset, thus all namespaces allowed)
-    to:
+  - to:
     - operation:
         ports: ["26257", "30"]
     when:

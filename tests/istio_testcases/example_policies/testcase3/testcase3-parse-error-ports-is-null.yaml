@@ -1,0 +1,11 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: test-ports-is-null
+  namespace: default
+spec:
+  action: ALLOW
+  rules:
+  - to:
+    - operation:
+        ports: # cannot be null

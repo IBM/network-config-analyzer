@@ -36,12 +36,3 @@ spec:
     - source:
         ipBlocks: ["2.2.2.2"]
 
----
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
-metadata:
-  name: test-deny-nothing
-  namespace: vendor-system
-spec:
-  action: DENY
-

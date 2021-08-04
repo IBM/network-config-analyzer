@@ -19,6 +19,6 @@ spec:
     - source:
         notNamespaces: ["default"]
     - source:
-        #ipBlocks: ["0.0.0.0/0"]
-        notIpBlocks: []
+        ipBlocks: ["0.0.0.0/0"]
+        #notIpBlocks: []
 

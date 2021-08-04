@@ -118,6 +118,8 @@ class IstioPolicyYamlParser(GenericYamlParser):
         res = ConnectionSet()
         try:
             port_num = int(port)
+            if port_num > 65535:
+                self.syntax_error(f"invalid port number: {str(port_num)}")
             dest_port_set = PortSet()
             dest_port_set.add_port(port_num)
             res.add_connections('TCP',  # istio currently supports TCP only
@@ -170,30 +172,38 @@ class IstioPolicyYamlParser(GenericYamlParser):
         # TODO: support additional key values: request.headers, remote.ip, source.principal, request.auth.principal,
         #  request.auth.audiences, request.auth.presenter, request.auth.claims, destination.ip, connection.sni
         self.check_fields_validity(condition, 'authorization policy condition', allowed_elements, allowed_key_values)
+        for key_elem in allowed_elements.keys():
+            self.validate_existing_key_is_not_null(condition, key_elem)
+
         key = condition.get('key')
         values = condition.get('values')
         not_values = condition.get('notValues')
-        if values is None and not_values is None:
+        if not values and not not_values:
             self.syntax_error('error parsing condition: at least one of values or not_values must be set. ', condition)
 
         return self.parse_key_values(key, values, not_values)  # PeerSet or ConnectionSet
 
-    def parse_operation(self, to_dict):
+    def parse_operation(self, operation_dict):
         """
         parse an operation component in a rule
-        :param dict to_dict: the operation to parse
+        :param dict operation_dict: the operation to parse
         :return: ConnectionSet object with allowed connections
         """
 
-        to_allowed_elements = {'operation': [0, dict]}
-        self.check_fields_validity(to_dict, 'authorization policy rule: to', to_allowed_elements)
+        to_allowed_elements = {'operation': [1, dict]}
+        self.check_fields_validity(operation_dict, 'authorization policy rule: to', to_allowed_elements)
 
-        operation = to_dict.get('operation')
+        operation = operation_dict.get('operation')
+        if operation is None:
+            self.syntax_error('Authorization policy to.operation cannot be null. ')
 
         # TODO: Add support for hosts, methods, paths
         allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': 2, 'notMethods': 2,
                             'paths': 2, 'notPaths': 2}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
+        for key_elem in allowed_elements.keys():
+            self.validate_existing_key_is_not_null(operation, key_elem)
+        self.validate_dict_elem_has_non_empty_array_value(operation, 'to.operation')
 
         ports_list = operation.get('ports')
         not_ports_list = operation.get('notPorts')
@@ -209,12 +219,12 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :rtype: Peer.PeerSet
         """
 
-        from_allowed_elements = {'source': [0, dict]}
+        from_allowed_elements = {'source': [1, dict]}
         self.check_fields_validity(source_dict, 'authorization policy rule: from', from_allowed_elements)
 
         source_peer = source_dict.get('source')
         if source_peer is None:
-            return self.peer_container.get_all_peers_group(True)
+            self.syntax_error('Authorization policy from.source cannot be null. ')
 
         res = PeerSet()
         # TODO: support source with multiple attributes ("fields in the source are ANDed together")
@@ -224,6 +234,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
                             'notRemoteIpBlocks': 2}
         # TODO: though specified 'list' value_type, check_fields_validity doesn't fail since value is None (empty)...
         self.check_fields_validity(source_peer, 'authorization policy rule: source', allowed_elements)
+        for key_elem in allowed_elements.keys():
+            self.validate_existing_key_is_not_null(source_peer, key_elem)
+        self.validate_dict_elem_has_non_empty_array_value(source_peer, 'from.source')
 
         has_ns = 'namespaces' in source_peer or 'notNamespaces' in source_peer
         has_ip = 'ipBlocks' in source_peer or 'notIpBlocks' in source_peer
@@ -247,6 +260,53 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         return res
 
+    def validate_existing_key_is_not_null(self, dict_elem, key):
+        """
+        check that if key exists in dict_elem, its value is not null
+        :param dict_elem: dict  the element to check
+        :param key: string  the key to validate
+        :return:
+        """
+        if key in dict_elem and dict_elem.get(key) is None:
+            self.syntax_error(f'Key: \'{key}\' cannot be null ')
+
+    def validate_array_not_empty(self, array_elem, elem_name):
+        """
+        chack that array_elem is a non-empty array
+        :param array_elem: list  the element to check
+        :param elem_name:  string  the name of the element to check
+        :return:
+        """
+        if not isinstance(array_elem, list):
+            self.syntax_error(f'Key: \'{elem_name}\' should be an array ')
+        if not array_elem:
+            self.syntax_error(f'Key: \'{elem_name}\' cannot be empty ')
+
+    def get_key_array_and_validate_not_empty(self, dict_elem, key):
+        """
+        check that for a given key in dict_elem, if it exists - its value is a non-empty array
+        :param dict_elem:  dict element to check
+        :param key: string   the key to check
+        :return:
+        """
+        key_array = dict_elem.get(key)
+        if key_array is not None:
+            self.validate_array_not_empty(key_array, key)
+            return key_array
+        return None
+
+    def validate_dict_elem_has_non_empty_array_value(self, dict_elem, dict_key_str):
+        """
+        assuming that dict values are of type arrays, checking that at least one of the arrays is not empty,
+        and that dict_elem is not empty
+        :param dict_elem: dict element to check
+        :param dict_key_str: string  the name of the key to which the dict is mapped
+        """
+        arr_length_set = set(len(v) for v in dict_elem.values())
+        if arr_length_set == {0} or not arr_length_set:
+            self.syntax_error(f"{dict_key_str} cannot be empty ")
+
+
     #  A match occurs when at least one source, one operation and all conditions matches the request
     # https://istio.io/latest/docs/reference/config/security/authorization-policy/#Rule
     def parse_ingress_rule(self, rule):
@@ -256,34 +316,38 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :return: A IstioPolicyRule with the proper PeerSet and ConnectionSet
         :rtype: IstioPolicyRule
         """
+        if rule is None:
+            self.syntax_error('Authorization policy rule cannot be null. ')
 
         allowed_elements = {'from': [0, list], 'to': [0, list], 'when': [0, list]}
         self.check_fields_validity(rule, 'authorization policy rule', allowed_elements)
+        for key_elem in allowed_elements.keys():
+            self.validate_existing_key_is_not_null(rule, key_elem)
 
-        from_array = rule.get('from')
         # collect source peers into res_peers
-        if from_array:
+        from_array = self.get_key_array_and_validate_not_empty(rule, 'from')
+        if from_array is not None:
             res_peers = PeerSet()
             for source_dict in from_array:
                 res_peers |= self.parse_source(source_dict)
-        else:
+        else:  # no 'from' in the rule => all source peers allowed
             res_peers = self.peer_container.get_all_peers_group(True)
 
-        operation_array = rule.get('to')
+        to_array = self.get_key_array_and_validate_not_empty(rule, 'to')
         # currently parsing only ports
         # TODO: extend operations parsing to include other attributes
-        if operation_array:
+        if to_array is not None:
             connections = ConnectionSet()
-            for operation in operation_array:
-                connections |= self.parse_operation(operation)
-        else:
+            for operation_dict in to_array:
+                connections |= self.parse_operation(operation_dict)
+        else: # no 'to' in the rule => all connections allowed
             connections = ConnectionSet(True)
 
         # condition possible result value: source-ip (from) , source-namespace (from) [Peerset], dstination.port (to) [ConnectionSet]
         # should update either res_pods or connections according to the condition
-        condition_array = rule.get('when')
+        condition_array = rule.get('when')  # this array can be empty (unlike 'to' and 'from')
         # the combined condition ("AND" of all conditions) should be applied
-        if condition_array:
+        if condition_array is not None:
             for condition in condition_array:
                 condition_res = self.parse_condition(condition)
                 if isinstance(condition_res, PeerSet):
@@ -352,11 +416,13 @@ class IstioPolicyYamlParser(GenericYamlParser):
             res_policy.selected_peers = self.peer_container.get_all_peers_group()
         else:
             res_policy.selected_peers = self.parse_label_selector(pod_selector)
-        # if policy's namespace is root namespace, then it applies to all cluster's namespaces
+        # if policy's namespace is the root namespace, then it applies to all cluster's namespaces
         if self.namespace.name != IstioPolicyYamlParser.root_namespace:
             res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
         for ingress_rule in policy_spec.get('rules', []):
             res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule))
+        if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:
+            self.syntax_error("DENY action without rules is meaningless as it will never be triggered")
 
         res_policy.findings = self.warning_msgs
 

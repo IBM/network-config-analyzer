@@ -9,10 +9,6 @@ spec:
     matchLabels:
       app: skydive
   rules:
-  - to:
-      - operation:
-          ports: ["26257", "30"]
-    when:
-    - key: destination.port
-      values: ["26257"]
-
+  - from:
+    - source:
+        namespaces: [] # source cannot be empty
