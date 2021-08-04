@@ -198,8 +198,8 @@ class IstioPolicyYamlParser(GenericYamlParser):
             self.syntax_error('Authorization policy to.operation cannot be null. ')
 
         # TODO: Add support for hosts, methods, paths
-        allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': 2, 'notMethods': 2,
-                            'paths': 2, 'notPaths': 2}
+        allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': 2,
+                            'notMethods': 2, 'paths': 2, 'notPaths': 2}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
         for key_elem in allowed_elements.keys():
             self.validate_existing_key_is_not_null(operation, key_elem)
@@ -229,9 +229,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
         res = PeerSet()
         # TODO: support source with multiple attributes ("fields in the source are ANDed together")
         # TODO: add support for allowed elements currently unsupported (principals, requestPrincipals, remoteIpBlocks)
-        allowed_elements = {'namespaces': [0, list], 'notNamespaces': [0, list], 'ipBlocks': [0, list], 'notIpBlocks': [0, list], 'principals': 2,
-                            'notPrincipals': 2, 'requestPrincipals': 2, 'notRequestPrincipals': 2, 'remoteIpBlocks': 2,
-                            'notRemoteIpBlocks': 2}
+        allowed_elements = {'namespaces': [0, list], 'notNamespaces': [0, list], 'ipBlocks': [0, list],
+                            'notIpBlocks': [0, list], 'principals': 2, 'notPrincipals': 2, 'requestPrincipals': 2,
+                            'notRequestPrincipals': 2, 'remoteIpBlocks': 2, 'notRemoteIpBlocks': 2}
         # TODO: though specified 'list' value_type, check_fields_validity doesn't fail since value is None (empty)...
         self.check_fields_validity(source_peer, 'authorization policy rule: source', allowed_elements)
         for key_elem in allowed_elements.keys():
@@ -259,53 +259,6 @@ class IstioPolicyYamlParser(GenericYamlParser):
             res = self.parse_ip_block(ip_blocks, not_ip_blocks)
 
         return res
-
-    def validate_existing_key_is_not_null(self, dict_elem, key):
-        """
-        check that if key exists in dict_elem, its value is not null
-        :param dict_elem: dict  the element to check
-        :param key: string  the key to validate
-        :return:
-        """
-        if key in dict_elem and dict_elem.get(key) is None:
-            self.syntax_error(f'Key: \'{key}\' cannot be null ')
-
-    def validate_array_not_empty(self, array_elem, elem_name):
-        """
-        chack that array_elem is a non-empty array
-        :param array_elem: list  the element to check
-        :param elem_name:  string  the name of the element to check
-        :return:
-        """
-        if not isinstance(array_elem, list):
-            self.syntax_error(f'Key: \'{elem_name}\' should be an array ')
-        if not array_elem:
-            self.syntax_error(f'Key: \'{elem_name}\' cannot be empty ')
-
-    def get_key_array_and_validate_not_empty(self, dict_elem, key):
-        """
-        check that for a given key in dict_elem, if it exists - its value is a non-empty array
-        :param dict_elem:  dict element to check
-        :param key: string   the key to check
-        :return:
-        """
-        key_array = dict_elem.get(key)
-        if key_array is not None:
-            self.validate_array_not_empty(key_array, key)
-            return key_array
-        return None
-
-    def validate_dict_elem_has_non_empty_array_value(self, dict_elem, dict_key_str):
-        """
-        assuming that dict values are of type arrays, checking that at least one of the arrays is not empty,
-        and that dict_elem is not empty
-        :param dict_elem: dict element to check
-        :param dict_key_str: string  the name of the key to which the dict is mapped
-        """
-        arr_length_set = set(len(v) for v in dict_elem.values())
-        if arr_length_set == {0} or not arr_length_set:
-            self.syntax_error(f"{dict_key_str} cannot be empty ")
-
 
     #  A match occurs when at least one source, one operation and all conditions matches the request
     # https://istio.io/latest/docs/reference/config/security/authorization-policy/#Rule
@@ -340,7 +293,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
             connections = ConnectionSet()
             for operation_dict in to_array:
                 connections |= self.parse_operation(operation_dict)
-        else: # no 'to' in the rule => all connections allowed
+        else:  # no 'to' in the rule => all connections allowed
             connections = ConnectionSet(True)
 
         # condition possible result value: source-ip (from) , source-namespace (from) [Peerset], dstination.port (to) [ConnectionSet]
@@ -390,7 +343,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if api_version not in ['security.istio.io/v1beta1']:
             raise Exception('Unsupported apiVersion: ' + api_version)
         self.check_fields_validity(self.policy, 'AuthorizationPolicy', {'kind': 1, 'metadata': 1, 'spec': 1,
-                                                                  'apiVersion': 0, 'api_version': 0})
+                                                                        'apiVersion': 0, 'api_version': 0})
         if 'name' not in self.policy['metadata']:
             self.syntax_error('AuthorizationPolicy has no name', self.policy)
         # TODO: what if namespace is not specified in istio policy?
