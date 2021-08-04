@@ -21,4 +21,4 @@ COPY network-config-analyzer/ /nca/
 RUN addgroup -S ncagroup && adduser -S ncauser -G ncagroup
 USER ncauser
 
-ENTRYPOINT ["python", "nca/nca.py"]
+ENTRYPOINT ["python", "/nca/nca.py"]
