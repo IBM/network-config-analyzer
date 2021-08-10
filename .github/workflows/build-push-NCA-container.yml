@@ -29,6 +29,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-#          tags: IBM/nca:1.0
-          labels: ${{ steps.meta.outputs.labels }}
+#          tags: ${{ steps.meta.outputs.tags }}
+          tags: 1.0
+#          labels: ${{ steps.meta.outputs.labels }}
