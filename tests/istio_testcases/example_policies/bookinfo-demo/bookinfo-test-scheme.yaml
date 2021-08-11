@@ -1,0 +1,63 @@
+namespaceList: ../../example_podlist/bookinfo_ns_list.json
+#podList: ../../example_podlist/bookinfo_pods_list.json
+podList: ../../example_podlist/bookinfo_deployments.yaml
+
+networkConfigList:
+  - name: istio-test-principals-basic-1
+    networkPolicyList:
+      - bookinfo-policy-test-principals-1.yaml
+
+  - name: istio-test-principals-basic-2
+    networkPolicyList:
+      - bookinfo-policy-test-principals-2.yaml
+
+  - name: istio-test-principals-basic-3
+    networkPolicyList:
+      - bookinfo-policy-test-principals-3.yaml
+
+  - name: bookinfo-policy-equiv-principals-by-condition-1
+    networkPolicyList:
+      - bookinfo-policy-equiv-principals-by-condition-1.yaml
+
+  - name: bookinfo-policy-equiv-principals-by-condition-2
+    networkPolicyList:
+      - bookinfo-policy-equiv-principals-by-condition-2.yaml
+
+  - name: bookinfo-policy-equiv-principals-by-condition-3
+    networkPolicyList:
+      - bookinfo-policy-equiv-principals-by-condition-3.yaml
+
+queries:
+  - name: connectivity-istio-test-principals-basic-1
+    connectivityMap:
+      - istio-test-principals-basic-1
+    expected: 0
+
+  - name: connectivity-istio-test-principals-basic-2
+    connectivityMap:
+      - istio-test-principals-basic-2
+    expected: 0
+
+  - name: connectivity-istio-test-principals-basic-3
+    connectivityMap:
+      - istio-test-principals-basic-3
+    expected: 0
+
+  - name: equiv-test-1
+    equivalence:
+      - istio-test-principals-basic-1
+      - bookinfo-policy-equiv-principals-by-condition-1
+    expected: 0
+
+  - name: equiv-test-2
+    equivalence:
+      - istio-test-principals-basic-2
+      - bookinfo-policy-equiv-principals-by-condition-2
+    expected: 0
+
+  - name: equiv-test-3
+    equivalence:
+      - istio-test-principals-basic-3
+      - bookinfo-policy-equiv-principals-by-condition-3
+    expected: 0
+
