@@ -2,7 +2,6 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
 from fnmatch import fnmatch
 import os
 from sys import stderr
@@ -249,6 +248,7 @@ class PeerContainer:
         metadata = pod_object.get('metadata', {})
         pod_name = metadata.get('name', '')
         pod_namespace = self.get_namespace(metadata.get('namespace', 'default'))
+        kind = pod_object.get('kind')
 
         owner_name = ''
         owner_kind = ''
@@ -257,7 +257,19 @@ class PeerContainer:
             owner_name = owner_references[0].get('name', '')  # take the first owner
             owner_kind = owner_references[0].get('kind', '')
 
-        pod = Pod(pod_name, pod_namespace, owner_name, owner_kind)
+        service_account_name = ''
+        if kind == 'Pod':
+            # serviceAccountName for a Pod:
+            # TODO: should we use 'default' here?
+            service_account_name = pod_object['spec'].get('serviceAccountName', 'default')
+        elif kind in {'Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob',
+                      'ReplicationController'}:
+            # serviceAccountName for a Deployment:
+            template_spec = pod_object['spec'].get('template', {}).get('spec', {})
+            # TODO: should we use 'default' here?
+            service_account_name = template_spec.get('serviceAccountName', 'default')
+
+        pod = Pod(pod_name, pod_namespace, owner_name, owner_kind, service_account_name)
         labels = metadata.get('labels', {})
         for key, val in labels.items():
             pod.set_label(key, val)
@@ -279,6 +291,7 @@ class PeerContainer:
         wep_namespace = self.get_namespace(metadata.get('namespace', 'default'))
         wep_name = spec.get('pod', '')
         wep = Pod(wep_name, wep_namespace)
+        # TODO: should handle Pod's serviceAccountName here? how?
 
         labels = metadata.get('labels', {})
         for key, val in labels.items():
@@ -368,19 +381,21 @@ class PeerContainer:
         if workload_resource.get('kind') == 'CronJob':
             workload_spec = workload_spec.get('jobTemplate', {}).get('spec', {})
 
+        template_spec = workload_spec.get('template', {}).get('spec', {})
+        # TODO: should use default service account here?
+        service_account_name = template_spec.get('serviceAccountName', 'default')
+
         replicas = min(replicas, 2)  # We allow at most 2 peers from each equivalence group
         for pod_index in range(1, replicas+1):
-            pod = Pod(f'{workload_name}-{pod_index}', pod_namespace, workload_name, workload_resource.get('kind'))
+            pod = Pod(f'{workload_name}-{pod_index}', pod_namespace, workload_name, workload_resource.get('kind'), service_account_name)
             pod_template = workload_spec.get('template', {})
             labels = pod_template.get('metadata', {}).get('labels', {})
             for key, val in labels.items():
                 pod.set_label(key, val)
-
             pod_containers = pod_template.get('spec', {}).get('containers', [])
             for container in pod_containers:
                 for port in container.get('ports', []):
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
-
             self._add_peer(pod)
 
     def add_eps_from_list(self, ep_list):
@@ -538,6 +553,19 @@ class PeerContainer:
         res = PeerSet()
         for peer in self.peer_set:
             if peer.namespace == namespace:
+                res.add(peer)
+        return res
+
+    def get_pods_with_service_account_name(self, sa_name, namespace_str):
+        """
+        Return all pods that are with a service account name in a given namespace
+        :param sa_name: string  the service account name
+        :param namespace_str:  string  the namespace str
+        :rtype PeerSet
+        """
+        res = PeerSet()
+        for peer in self.peer_set:
+            if isinstance(peer, Pod) and peer.service_account_name == sa_name and peer.namespace.name == namespace_str:
                 res.add(peer)
         return res
 

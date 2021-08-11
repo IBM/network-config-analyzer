@@ -1,0 +1,501 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"details","version":"v1"},"name":"details-v1","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"details","version":"v1"}},"template":{"metadata":{"labels":{"app":"details","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-details-v1:1.16.2","imagePullPolicy":"IfNotPresent","name":"details","ports":[{"containerPort":9080}],"securityContext":{"runAsUser":1000}}],"serviceAccountName":"bookinfo-details"}}}}
+    creationTimestamp: "2021-08-02T06:44:36Z"
+    generation: 1
+    labels:
+      app: details
+      version: v1
+    name: details-v1
+    namespace: default
+    resourceVersion: "2704"
+    selfLink: /apis/apps/v1/namespaces/default/deployments/details-v1
+    uid: 2c8379e2-8270-4d02-a54e-66ae188a3360
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: details
+        version: v1
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: details
+          version: v1
+      spec:
+        containers:
+        - image: docker.io/istio/examples-bookinfo-details-v1:1.16.2
+          imagePullPolicy: IfNotPresent
+          name: details
+          ports:
+          - containerPort: 9080
+            protocol: TCP
+          resources: {}
+          securityContext:
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: bookinfo-details
+        serviceAccountName: bookinfo-details
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2021-08-02T06:45:13Z"
+      lastUpdateTime: "2021-08-02T06:45:13Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2021-08-02T06:44:36Z"
+      lastUpdateTime: "2021-08-02T06:45:13Z"
+      message: ReplicaSet "details-v1-5f449bdbb9" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"productpage","version":"v1"},"name":"productpage-v1","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"productpage","version":"v1"}},"template":{"metadata":{"labels":{"app":"productpage","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-productpage-v1:1.16.2","imagePullPolicy":"IfNotPresent","name":"productpage","ports":[{"containerPort":9080}],"securityContext":{"runAsUser":1000},"volumeMounts":[{"mountPath":"/tmp","name":"tmp"}]}],"serviceAccountName":"bookinfo-productpage","volumes":[{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-02T06:44:36Z"
+    generation: 1
+    labels:
+      app: productpage
+      version: v1
+    name: productpage-v1
+    namespace: default
+    resourceVersion: "2785"
+    selfLink: /apis/apps/v1/namespaces/default/deployments/productpage-v1
+    uid: 1379ac0d-c067-443b-9542-7a8e17d38731
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: productpage
+        version: v1
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: productpage
+          version: v1
+      spec:
+        containers:
+        - image: docker.io/istio/examples-bookinfo-productpage-v1:1.16.2
+          imagePullPolicy: IfNotPresent
+          name: productpage
+          ports:
+          - containerPort: 9080
+            protocol: TCP
+          resources: {}
+          securityContext:
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /tmp
+            name: tmp
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: bookinfo-productpage
+        serviceAccountName: bookinfo-productpage
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: tmp
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2021-08-02T06:45:32Z"
+      lastUpdateTime: "2021-08-02T06:45:32Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2021-08-02T06:44:36Z"
+      lastUpdateTime: "2021-08-02T06:45:32Z"
+      message: ReplicaSet "productpage-v1-6f9df695b7" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"ratings","version":"v1"},"name":"ratings-v1","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"ratings","version":"v1"}},"template":{"metadata":{"labels":{"app":"ratings","version":"v1"}},"spec":{"containers":[{"image":"docker.io/istio/examples-bookinfo-ratings-v1:1.16.2","imagePullPolicy":"IfNotPresent","name":"ratings","ports":[{"containerPort":9080}],"securityContext":{"runAsUser":1000}}],"serviceAccountName":"bookinfo-ratings"}}}}
+    creationTimestamp: "2021-08-02T06:44:36Z"
+    generation: 1
+    labels:
+      app: ratings
+      version: v1
+    name: ratings-v1
+    namespace: default
+    resourceVersion: "2761"
+    selfLink: /apis/apps/v1/namespaces/default/deployments/ratings-v1
+    uid: adbc788c-b962-494e-99f9-9cea58666611
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: ratings
+        version: v1
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: ratings
+          version: v1
+      spec:
+        containers:
+        - image: docker.io/istio/examples-bookinfo-ratings-v1:1.16.2
+          imagePullPolicy: IfNotPresent
+          name: ratings
+          ports:
+          - containerPort: 9080
+            protocol: TCP
+          resources: {}
+          securityContext:
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: bookinfo-ratings
+        serviceAccountName: bookinfo-ratings
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2021-08-02T06:45:26Z"
+      lastUpdateTime: "2021-08-02T06:45:26Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2021-08-02T06:44:36Z"
+      lastUpdateTime: "2021-08-02T06:45:26Z"
+      message: ReplicaSet "ratings-v1-857bb87c57" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v1"},"name":"reviews-v1","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v1"}},"template":{"metadata":{"labels":{"app":"reviews","version":"v1"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v1:1.16.2","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"securityContext":{"runAsUser":1000},"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-02T06:44:36Z"
+    generation: 1
+    labels:
+      app: reviews
+      version: v1
+    name: reviews-v1
+    namespace: default
+    resourceVersion: "2717"
+    selfLink: /apis/apps/v1/namespaces/default/deployments/reviews-v1
+    uid: 85119845-d8b0-4f2a-a3c4-0ec993c92f6c
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: reviews
+        version: v1
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: reviews
+          version: v1
+      spec:
+        containers:
+        - env:
+          - name: LOG_DIR
+            value: /tmp/logs
+          image: docker.io/istio/examples-bookinfo-reviews-v1:1.16.2
+          imagePullPolicy: IfNotPresent
+          name: reviews
+          ports:
+          - containerPort: 9080
+            protocol: TCP
+          resources: {}
+          securityContext:
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /opt/ibm/wlp/output
+            name: wlp-output
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: bookinfo-reviews
+        serviceAccountName: bookinfo-reviews
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: wlp-output
+        - emptyDir: {}
+          name: tmp
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2021-08-02T06:45:15Z"
+      lastUpdateTime: "2021-08-02T06:45:15Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2021-08-02T06:44:36Z"
+      lastUpdateTime: "2021-08-02T06:45:15Z"
+      message: ReplicaSet "reviews-v1-68f9c47f69" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v2"},"name":"reviews-v2","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v2"}},"template":{"metadata":{"labels":{"app":"reviews","version":"v2"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v2:1.16.2","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"securityContext":{"runAsUser":1000},"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-02T06:44:36Z"
+    generation: 1
+    labels:
+      app: reviews
+      version: v2
+    name: reviews-v2
+    namespace: default
+    resourceVersion: "2664"
+    selfLink: /apis/apps/v1/namespaces/default/deployments/reviews-v2
+    uid: 4610e77e-ebfa-4983-9c54-634f839c05c3
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: reviews
+        version: v2
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: reviews
+          version: v2
+      spec:
+        containers:
+        - env:
+          - name: LOG_DIR
+            value: /tmp/logs
+          image: docker.io/istio/examples-bookinfo-reviews-v2:1.16.2
+          imagePullPolicy: IfNotPresent
+          name: reviews
+          ports:
+          - containerPort: 9080
+            protocol: TCP
+          resources: {}
+          securityContext:
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /opt/ibm/wlp/output
+            name: wlp-output
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: bookinfo-reviews
+        serviceAccountName: bookinfo-reviews
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: wlp-output
+        - emptyDir: {}
+          name: tmp
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2021-08-02T06:45:04Z"
+      lastUpdateTime: "2021-08-02T06:45:04Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2021-08-02T06:44:36Z"
+      lastUpdateTime: "2021-08-02T06:45:04Z"
+      message: ReplicaSet "reviews-v2-5d56c488f5" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"reviews","version":"v3"},"name":"reviews-v3","namespace":"default"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"reviews","version":"v3"}},"template":{"metadata":{"labels":{"app":"reviews","version":"v3"}},"spec":{"containers":[{"env":[{"name":"LOG_DIR","value":"/tmp/logs"}],"image":"docker.io/istio/examples-bookinfo-reviews-v3:1.16.2","imagePullPolicy":"IfNotPresent","name":"reviews","ports":[{"containerPort":9080}],"securityContext":{"runAsUser":1000},"volumeMounts":[{"mountPath":"/tmp","name":"tmp"},{"mountPath":"/opt/ibm/wlp/output","name":"wlp-output"}]}],"serviceAccountName":"bookinfo-reviews","volumes":[{"emptyDir":{},"name":"wlp-output"},{"emptyDir":{},"name":"tmp"}]}}}}
+    creationTimestamp: "2021-08-02T06:44:36Z"
+    generation: 1
+    labels:
+      app: reviews
+      version: v3
+    name: reviews-v3
+    namespace: default
+    resourceVersion: "2660"
+    selfLink: /apis/apps/v1/namespaces/default/deployments/reviews-v3
+    uid: 2c25002b-c126-4d54-893e-a41576001ec6
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: reviews
+        version: v3
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: reviews
+          version: v3
+      spec:
+        containers:
+        - env:
+          - name: LOG_DIR
+            value: /tmp/logs
+          image: docker.io/istio/examples-bookinfo-reviews-v3:1.16.2
+          imagePullPolicy: IfNotPresent
+          name: reviews
+          ports:
+          - containerPort: 9080
+            protocol: TCP
+          resources: {}
+          securityContext:
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /opt/ibm/wlp/output
+            name: wlp-output
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: bookinfo-reviews
+        serviceAccountName: bookinfo-reviews
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: wlp-output
+        - emptyDir: {}
+          name: tmp
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2021-08-02T06:45:04Z"
+      lastUpdateTime: "2021-08-02T06:45:04Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2021-08-02T06:44:36Z"
+      lastUpdateTime: "2021-08-02T06:45:04Z"
+      message: ReplicaSet "reviews-v3-869ff44845" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
