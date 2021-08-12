@@ -124,6 +124,10 @@ class PortSetPair:
             return 'no ports'
         return self.get_simplified_str()
 
+    # TODO: fix?
+    def __hash__(self):
+        return hash(frozenset(str(self)))
+
     def get_properties_obj(self):
         return {'Ports': sorted(str(self).split(','))}
 

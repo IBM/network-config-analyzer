@@ -5,6 +5,7 @@
 from CanonicalIntervalSet import CanonicalIntervalSet
 from PortSet import PortSet, PortSetPair
 from ICMPDataSet import ICMPDataSet
+from MultiLayerPropertiesSet import MultiLayerPropertiesSet, RequestAttrs
 
 
 class ConnectionSet:
@@ -15,6 +16,7 @@ class ConnectionSet:
     _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
     _port_supporting_protocols = {6, 17, 132}
     _icmp_protocols = {1, 58}
+    _request_supporting_protocols = {6}
 
     def __init__(self, allow_all=False):
         self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
@@ -315,6 +317,10 @@ class ConnectionSet:
         return ConnectionSet._protocol_number_to_name_dict.get(number, str(number))
 
     @staticmethod
+    def protocol_supports_requests(protocol):
+        return protocol in ConnectionSet._request_supporting_protocols
+
+    @staticmethod
     def protocol_supports_ports(protocol):
         """
         :param protocol: Protocol number
@@ -332,6 +338,7 @@ class ConnectionSet:
         """
         return protocol in ConnectionSet._icmp_protocols
 
+    # possible types for properties: MultiLayerPropertiesSet , PortSetPair , ICMPDataSet
     def add_connections(self, protocol, properties=True):
         """
         Add connections to the set of connections
@@ -370,7 +377,9 @@ class ConnectionSet:
         :return: None
         """
         for protocol in range(1, 256):
-            if self.protocol_supports_ports(protocol):
+            if self.protocol_supports_requests(protocol):  # TCP
+                self.allowed_protocols[protocol] = MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True)))
+            elif self.protocol_supports_ports(protocol):  # UDP, SCTP
                 self.allowed_protocols[protocol] = PortSetPair(PortSet(True), PortSet(True))
             elif self.protocol_is_icmp(protocol):
                 self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
@@ -445,9 +454,18 @@ class ConnectionSet:
     @staticmethod
     def get_all_TCP_connections():
         TCP_conns = ConnectionSet()
-        TCP_conns.add_connections('TCP', PortSetPair(PortSet(True), PortSet(True)))
+        TCP_conns.add_connections('TCP', MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True))))
         return TCP_conns
 
     @staticmethod
     def get_non_TCP_connections():
         return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()
+
+    @staticmethod
+    def create_ports_properties(port_set_pair, protocol):
+        if protocol in ConnectionSet._protocol_name_to_number_dict:
+            protocol = ConnectionSet._protocol_name_to_number_dict[protocol]
+        assert protocol in ConnectionSet._port_supporting_protocols
+        if protocol in ConnectionSet._request_supporting_protocols:
+            return MultiLayerPropertiesSet(port_set_pair)
+        return port_set_pair

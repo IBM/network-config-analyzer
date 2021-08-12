@@ -9,6 +9,7 @@ from Peer import IpBlock, PeerSet
 from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
 from PortSet import PortSetPair, PortSet
+from MultiLayerPropertiesSet import RequestAttrs, MultiLayerPropertiesSet
 
 
 class IstioPolicyYamlParser(GenericYamlParser):
@@ -157,8 +158,10 @@ class IstioPolicyYamlParser(GenericYamlParser):
                 self.syntax_error(f"invalid port number: {str(port_num)}")
             dest_port_set = PortSet()
             dest_port_set.add_port(port_num)
-            res.add_connections('TCP',  # istio currently supports TCP only
-                                PortSetPair(PortSet(True), dest_port_set))  # istio doesn't reason about src ports
+            # istio doesn't reason about src ports
+            properties = MultiLayerPropertiesSet(PortSetPair(PortSet(True), dest_port_set))
+            res.add_connections('TCP', properties)  # istio currently supports TCP only
+
         except ValueError:
             self.syntax_error('error parsing port ', port)
         return res
@@ -178,6 +181,24 @@ class IstioPolicyYamlParser(GenericYamlParser):
         for port in not_ports_list or []:
             connections -= self.parse_port(port)
         return connections
+
+    def validate_methods_list(self, methods):
+        if not set.issubset(set(methods), RequestAttrs.http_methods):
+            self.syntax_error(f"error parsing method: invalid method in to.operation: {methods}")
+
+    def parse_methods_list(self, methods_list, not_methods_list):
+        methods_to_add = RequestAttrs.http_methods if methods_list is None else set(methods_list)
+        methods_to_remove = set() if not_methods_list is None else set(not_methods_list)
+        self.validate_methods_list(methods_to_add)
+        self.validate_methods_list(methods_to_remove)
+        res = ConnectionSet()
+        allowed_methods = methods_to_add - methods_to_remove
+        request_attributes = RequestAttrs()
+        request_attributes.add_methods(allowed_methods)
+        properties = MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True)), request_attributes)
+        res.add_connections('TCP', properties)
+
+        return res
 
     def parse_key_values(self, key, values, not_values):
         """
@@ -235,16 +256,22 @@ class IstioPolicyYamlParser(GenericYamlParser):
             self.syntax_error('Authorization policy to.operation cannot be null. ')
 
         # TODO: Add support for hosts, methods, paths
-        allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': 2,
-                            'notMethods': 2, 'paths': 2, 'notPaths': 2}
+        allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': [0, list],
+                            'notMethods': [0, list], 'paths': 2, 'notPaths': 2}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
         for key_elem in allowed_elements.keys():
             self.validate_existing_key_is_not_null(operation, key_elem)
         self.validate_dict_elem_has_non_empty_array_value(operation, 'to.operation')
 
+        connections = ConnectionSet(True)
+
         ports_list = operation.get('ports')
         not_ports_list = operation.get('notPorts')
-        connections = self.parse_ports_list(ports_list, not_ports_list)
+        methods_list = operation.get('methods')
+        not_methods_list = operation.get('notMethods')
+        connections &= self.parse_ports_list(ports_list, not_ports_list)
+        if methods_list is not None or not_methods_list is not None:
+            connections &= self.parse_methods_list(methods_list, not_methods_list)
 
         return connections
 

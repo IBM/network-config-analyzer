@@ -1,0 +1,39 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "details-viewer"
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: details
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
+        requestPrincipals: []
+    to:
+    - operation:
+        methods: ["GET"]
+        hosts: ["*.example.com"]
+        paths: ["/admin*"]
+    when:
+        #  request.headers:  The header name is surrounded by [] without any quotes
+      - key: request.headers[User-Agent]
+        values: ["Mozilla/*"]
+
+      # for keys with request.auth prefix: requires request authentication policy applied
+      - key: request.auth.principal
+        values: ["issuer.example.com/subject-admin"]
+      - key: request.auth.audiences
+        values: ["example.com"]
+      - key: request.auth.presenter
+        values: ["123456789012.example.com"]
+
+      # request.auth.claims: The claim name is surrounded by [] without any quotes, nested claim can also be used
+      - key: request.auth.claims[iss]
+        values: ["*@foo.com"]
+      - key: request.auth.claims[nested1][nested2]
+        values: ["some-value"]
+

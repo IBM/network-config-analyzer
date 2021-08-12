@@ -1,0 +1,33 @@
+namespaceList: ../../example_podlist/bookinfo_ns_list.json
+podList: ../../example_podlist/bookinfo_pods_list.json
+#podList: ../../example_podlist/bookinfo_deployments.yaml
+
+networkConfigList:
+  - name: istio-test-methods-basic-1
+    networkPolicyList:
+      - bookinfo-policy-test-methods-1.yaml
+
+  - name: istio-test-methods-basic-2
+    networkPolicyList:
+      - bookinfo-policy-test-methods-2.yaml
+
+  - name: bookinfo-policy-parse-error-test-methods-3
+    networkPolicyList:
+      - bookinfo-policy-parse-error-test-methods-3.yaml
+    expectedError: 1  # SyntaxError: error parsing method: invalid method in to.operation: {'abc'}
+
+
+queries:
+  - name: connectivity-istio-test-methods-basic-1
+    connectivityMap:
+      - istio-test-methods-basic-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: connectivity-istio-test-methods-basic-2
+    connectivityMap:
+      - istio-test-methods-basic-2
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
