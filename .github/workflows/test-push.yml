@@ -50,8 +50,9 @@ jobs:
           GHE_TOKEN: ${{ github.token }}
         run: |
           python tests/run_all_tests.py
-      - name: Run FW rules tests
-        env:
-          GHE_TOKEN: ${{ github.token }}
+      - name: Run output comparison tests
         run: |
-          python tests/fw_rules_tests/run_tests.py --all
+          python tests/run_all_tests.py --type=output
+      - name: Run fw-rules assertions tests
+        run: |
+          python tests/run_all_tests.py --type=fw_rules_assertions

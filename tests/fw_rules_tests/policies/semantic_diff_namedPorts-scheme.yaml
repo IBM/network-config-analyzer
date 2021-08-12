@@ -29,6 +29,9 @@ queries:
   expected: 2
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_named_ports_np3_and_np4
   semanticDiff:
   - np3_named_ports
@@ -36,3 +39,6 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false

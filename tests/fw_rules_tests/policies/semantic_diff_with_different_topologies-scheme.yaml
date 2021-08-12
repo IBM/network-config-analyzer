@@ -56,6 +56,9 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_a_to_b
   semanticDiff:
   - config_a
@@ -64,6 +67,9 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_b_to_a
   semanticDiff:
   - config_b
@@ -72,6 +78,9 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_disjoint_old1_config_a
   semanticDiff:
   - old1
@@ -80,6 +89,9 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_np1_np2
   semanticDiff:
   - np1
@@ -88,6 +100,9 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_a_to_b_with_ipBlock
   semanticDiff:
   - config_a_with_ipBlock
@@ -96,3 +111,6 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false

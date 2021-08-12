@@ -26,6 +26,9 @@ queries:
   expected: 4
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_ipblocks__np4_with_itself
   semanticDiff:
   - np4
@@ -33,6 +36,9 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_ipblocks__np1_np4
   semanticDiff:
   - np1
@@ -40,6 +46,9 @@ queries:
   expected: 4
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_ipblocks_npq_np2
   semanticDiff:
   - np1
@@ -47,3 +56,6 @@ queries:
   expected: 2
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false

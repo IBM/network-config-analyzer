@@ -37,6 +37,9 @@ queries:
   expected: 2
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_old1_new1a
   semanticDiff:
   - new1a
@@ -44,12 +47,18 @@ queries:
   expected: 2
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_old2_new2
   semanticDiff:
   - new2
   - old2
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
 - name: semantic_diff_old3_new3
   semanticDiff:
   - new3
@@ -57,3 +66,6 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
+    connectivitySortDotOutput: false
