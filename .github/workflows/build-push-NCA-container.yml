@@ -22,7 +22,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: IBM/nca
+          images: ghcr.io/ibm/nca
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
