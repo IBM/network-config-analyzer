@@ -8,18 +8,12 @@ jobs:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Python
-        uses: actions/setup-python@v2.2.2
-        with:
-          python-version: 3.7
-          architecture: x64
-
       - name: Check out the repo
         uses: actions/checkout@v2
 
       - name: Set version
         run: |
-          python network-config-analyzer/GetVersionFromInput.py
+          echo "version=$(cat build_number.txt)" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1.10.0
@@ -40,5 +34,5 @@ jobs:
           context: .
           push: true
 #          tags: ${{ steps.meta.outputs.tags }}
-          tags: ghcr.io/ibm/nca:1.0
+          tags: ghcr.io/ibm/nca:${{ env.action_state }}
 #          labels: ${{ steps.meta.outputs.labels }}
