@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: printInputs
-        echo "Creating docker image and github release of NCA version ${{ github.event.inputs.version }}"
+        run:
+          echo "Creating docker image and github release of NCA version ${{ github.event.inputs.version }}"
 
       - name: Check out the repo
         uses: actions/checkout@v2
