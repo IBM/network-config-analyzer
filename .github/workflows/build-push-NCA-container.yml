@@ -27,21 +27,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Build and push Docker image
-#        uses: docker/build-push-action@v2
-#        with:
-#          context: .
-#          push: true
-#          tags: ghcr.io/ibm/nca:${{ github.event.inputs.version }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/ibm/nca:${{ github.event.inputs.version }}
+
       - name: Create and push a new git tag
         run: |
-          echo 'git push origin v${{ github.event.inputs.version }}'
-          echo 'the release is: ${{ github.ref }}'
-#          git tag -a v${{ github.event.inputs.version }} -m "Version ${{ github.event.inputs.version }}"
-#          git push origin v${{ github.event.inputs.version }}
+          git tag -a v${{ github.event.inputs.version }} -m "Version ${{ github.event.inputs.version }}"
+          git push origin v${{ github.event.inputs.version }}
 
-      - name: Create Release
-        id: create_release
+      - name: Create a github release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -50,5 +48,5 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release:
-          draft: true
-          prerelease: true
+          draft: false
+          prerelease: false
