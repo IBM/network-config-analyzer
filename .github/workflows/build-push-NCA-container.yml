@@ -13,8 +13,7 @@ jobs:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
-      - name: printInputs
-        run:
+      - run: |
           echo "Creating docker image and github release of NCA version ${{ github.event.inputs.version }}"
 
       - name: Check out the repo
