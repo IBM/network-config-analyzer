@@ -2,6 +2,11 @@ name: Build and push NCA docker image
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'A build version number'
+        required: true
+        default: 0.0.0
 
 jobs:
   push_to_registry:
@@ -34,4 +39,5 @@ jobs:
           context: .
           push: true
 #          tags: ${{ steps.meta.outputs.tags }}
-          tags: ghcr.io/ibm/nca:${{ env.version }}
+#          tags: ghcr.io/ibm/nca:${{ env.version }}
+          tags: ghcr.io/ibm/nca:INPUT_VERSION
