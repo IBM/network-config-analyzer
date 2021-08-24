@@ -36,5 +36,19 @@ jobs:
       - name: Create and push a new git tag
         run: |
           echo 'git push origin v${{ github.event.inputs.version }}'
+          echo 'the release is: ${{ github.ref }}'
 #          git tag -a v${{ github.event.inputs.version }} -m "Version ${{ github.event.inputs.version }}"
 #          git push origin v${{ github.event.inputs.version }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release:
+          draft: true
+          prerelease: true
