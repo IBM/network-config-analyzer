@@ -27,15 +27,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/ibm/nca:${{ github.event.inputs.version }}
+#      - name: Build and push Docker image
+#        uses: docker/build-push-action@v2
+#        with:
+#          context: .
+#          push: true
+#          tags: ghcr.io/ibm/nca:${{ github.event.inputs.version }}
 
       - name: Create and push a new git tag
         run: |
+          git config user.name ${{ github.actor }}
           git tag -a v${{ github.event.inputs.version }} -m "Version ${{ github.event.inputs.version }}"
           git push origin v${{ github.event.inputs.version }}
 
