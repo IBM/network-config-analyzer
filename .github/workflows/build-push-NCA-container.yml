@@ -40,4 +40,4 @@ jobs:
           push: true
 #          tags: ${{ steps.meta.outputs.tags }}
 #          tags: ghcr.io/ibm/nca:${{ env.version }}
-          tags: ghcr.io/ibm/nca:INPUT_VERSION
+          tags: ghcr.io/ibm/nca:${{ INPUT_VERSION }}
