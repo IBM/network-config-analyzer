@@ -1,0 +1,50 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: details-viewer-add
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: details
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
+    to:
+    - operation:
+        methods: ["GET", "PUT"]
+        ports: ["80","90"]
+        paths: ["/good_path1", "/good_path2", "/some/path"]
+---
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "details-viewer-remove"
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: details
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
+    to:
+    - operation:
+        notMethods: ["PUT"]
+        notPorts: ["90"]
+        notPaths: ["/bad/path1", "/bad/path2", "/some/path"]
+---
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-nothing
+  namespace: default
+spec:
+  action: ALLOW
+  # the rules field is not specified, and the policy will never match.

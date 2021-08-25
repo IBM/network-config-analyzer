@@ -11,7 +11,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         port_set.add_port(50)
         port_set.add_port(60)
         port_set_pair = PortSetPair(PortSet(True), port_set)
-        method_get = RequestAttrs().add_methods({"GET"})
+        method_get = RequestAttrs().add_methods({'GET'})
 
         a = MultiLayerPropertiesSet()
         self.assertTrue(not a)
@@ -50,8 +50,8 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         port_set.add_port(50)
         port_set.add_port(60)
         port_set_pair = PortSetPair(PortSet(True), port_set)
-        method_get = RequestAttrs().add_methods({"GET"})
-        methods_get_put = RequestAttrs().add_methods({"GET", "PUT"})
+        method_get = RequestAttrs().add_methods({'GET'})
+        methods_get_put = RequestAttrs().add_methods({'GET', 'PUT'})
 
         b = MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True)))
         c = MultiLayerPropertiesSet(port_set_pair)
@@ -77,8 +77,8 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         port_set_5 = PortSet()
         port_set_5.add_port(56)
         port_set_pair = PortSetPair(PortSet(True), port_set)
-        method_get = RequestAttrs().add_methods({"GET"})
-        methods_get_put = RequestAttrs().add_methods({"GET", "PUT"})
+        method_get = RequestAttrs().add_methods({'GET'})
+        methods_get_put = RequestAttrs().add_methods({'GET', 'PUT'})
         a = MultiLayerPropertiesSet(port_set_pair, method_get)
         b = MultiLayerPropertiesSet()
         b.HTTP_allowed_requests_per_ports[PortSetPair(PortSet(True), port_set_2)] = method_get
@@ -110,8 +110,8 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         port_set_5 = PortSet()
         port_set_5.add_port(56)
         port_set_pair = PortSetPair(PortSet(True), port_set)
-        method_get = RequestAttrs().add_methods({"GET"})
-        methods_get_put = RequestAttrs().add_methods({"GET", "PUT"})
+        method_get = RequestAttrs().add_methods({'GET'})
+        methods_get_put = RequestAttrs().add_methods({'GET', 'PUT'})
 
         a = MultiLayerPropertiesSet(port_set_pair, method_get)
         b = a & a
@@ -149,9 +149,9 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         port_set_7 = PortSet()
         port_set_7.add_port_range(50, 55)
         port_set_pair = PortSetPair(PortSet(True), port_set)
-        method_get = RequestAttrs().add_methods({"GET"})
-        methods_get_put = RequestAttrs().add_methods({"GET", "PUT"})
-        method_put = RequestAttrs().add_methods({"PUT"})
+        method_get = RequestAttrs().add_methods({'GET'})
+        methods_get_put = RequestAttrs().add_methods({'GET', 'PUT'})
+        method_put = RequestAttrs().add_methods({'PUT'})
 
         a = MultiLayerPropertiesSet(port_set_pair, method_get)
         b = a | a
@@ -206,9 +206,9 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         port_set_7 = PortSet()
         port_set_7.add_port_range(50, 55)
         port_set_pair = PortSetPair(PortSet(True), port_set)
-        method_get = RequestAttrs().add_methods({"GET"})
-        methods_get_put = RequestAttrs().add_methods({"GET", "PUT"})
-        method_put = RequestAttrs().add_methods({"PUT"})
+        method_get = RequestAttrs().add_methods({'GET'})
+        methods_get_put = RequestAttrs().add_methods({'GET', 'PUT'})
+        method_put = RequestAttrs().add_methods({'PUT'})
 
         a = MultiLayerPropertiesSet(port_set_pair, method_get)
         print(a)

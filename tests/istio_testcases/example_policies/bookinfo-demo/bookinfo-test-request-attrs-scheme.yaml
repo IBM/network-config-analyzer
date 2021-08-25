@@ -16,6 +16,9 @@ networkConfigList:
       - bookinfo-policy-parse-error-test-methods-3.yaml
     expectedError: 1  # SyntaxError: error parsing method: invalid method in to.operation: {'abc'}
 
+  - name: istio-test-unlimited-attrs
+    networkPolicyList:
+      - bookinfo-policy-test-unlimited-attrs.yaml
 
 queries:
   - name: connectivity-istio-test-methods-basic-1
@@ -28,6 +31,13 @@ queries:
   - name: connectivity-istio-test-methods-basic-2
     connectivityMap:
       - istio-test-methods-basic-2
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: connectivity-istio-test-unlimited-attrs
+    connectivityMap:
+      - istio-test-unlimited-attrs
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
     expected: 0

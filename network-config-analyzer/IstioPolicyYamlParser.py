@@ -97,7 +97,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
     def parse_principals(self, principals_list, not_principals_list):
         """
-        Parse a principals element (within a source component of  a rule)
+        Parse a principals element (within a source component of a rule)
         :param principals_list: list[str]  list of principals patterns/strings
         :param not_principals_list: list[str]  negative list of principals patterns/strings
         :return: A PeerSet containing the relevant pods
@@ -112,7 +112,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
     def parse_namespaces(self, ns_list, not_ns_list):
         """
-        Parse a namespaces element (within a source component of  a rule)
+        Parse a namespaces element (within a source component of a rule)
         :param list[str] ns_list: list of namespaces patterns/strings
         :param list[str] not_ns_list: negative list of namespaces patterns/strings
         :return: A PeerSet containing the relevant pods
@@ -131,7 +131,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
     @staticmethod
     def parse_ip_block(ips_list, not_ips_list):
         """
-        parse ipBlocks elements (within a source component of  a rule)
+        parse ipBlocks elements (within a source component of a rule)
         :param list[str] ips_list: list of ip-block addresses (either ip address or ip-block cidr)
         :param list[str] not_ips_list: negative list of ip-block addresses (either ip address or ip-block cidr)
         :return: A PeerSet containing the relevant IpBlocks
@@ -150,6 +150,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         """
         :param port: string of a port number
         :return: ConnectionSet object with TCP restricted to the given port
+        :rtype: ConnectionSet
         """
         res = ConnectionSet()
         try:
@@ -169,8 +170,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
     def parse_ports_list(self, ports_list, not_ports_list):
         """
         :param list[str]  ports_list: list of strings for port numbers
-        :param list[str]  not_ports_list: negative  list of strings for port numbers
+        :param list[str]  not_ports_list: negative list of strings for port numbers
         :return: ConnectionSet object with relevant TCP connections
+        :rtype: ConnectionSet
         """
         connections = ConnectionSet()
         if ports_list is None:  # If not set, any port is allowed.
@@ -183,22 +185,52 @@ class IstioPolicyYamlParser(GenericYamlParser):
         return connections
 
     def validate_methods_list(self, methods):
-        if not set.issubset(set(methods), RequestAttrs.http_methods):
+        if not methods.issubset(RequestAttrs.http_methods):
             self.syntax_error(f"error parsing method: invalid method in to.operation: {methods}")
 
     def parse_methods_list(self, methods_list, not_methods_list):
+        """
+        Parse methods and notMethods elements (within an operation component of a rule)
+        :param methods_list: list[str]  list of methods
+        :param not_methods_list: list[str]  negative list of methods
+        :return: A ConnectionSet object with allowed connections
+        :rtype: ConnectionSet
+        """
         methods_to_add = RequestAttrs.http_methods if methods_list is None else set(methods_list)
         methods_to_remove = set() if not_methods_list is None else set(not_methods_list)
         self.validate_methods_list(methods_to_add)
         self.validate_methods_list(methods_to_remove)
-        res = ConnectionSet()
         allowed_methods = methods_to_add - methods_to_remove
-        request_attributes = RequestAttrs()
-        request_attributes.add_methods(allowed_methods)
+        request_attributes = RequestAttrs(True)
+        request_attributes.set_methods(allowed_methods)
         properties = MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True)), request_attributes)
-        res.add_connections('TCP', properties)
 
+        res = ConnectionSet()
+        res.add_connections('TCP', properties)
         return res
+
+    def validate_paths_list(self, paths):
+        pass    # ToDo validating legal url paths
+        # self.syntax_error(f"error parsing paths: invalid path in to.operation: {paths}")
+
+    def parse_paths_list(self, paths_list, not_paths_list):
+        """
+        Parse paths and notPaths elements (within an operation component of a rule)
+        :param paths_list: list[str]  list of paths
+        :param not_paths_list: list[str]  negative list of paths
+        :return: A ConnectionSet object with allowed connections
+        :rtype: ConnectionSet
+        """
+        self.validate_paths_list(paths_list)
+        self.validate_paths_list(not_paths_list)
+        request_attributes = RequestAttrs(True)
+        request_attributes.set_paths(paths_list, not_paths_list)
+        properties = MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True)), request_attributes)
+
+        res = ConnectionSet()
+        res.add_connections('TCP', properties)
+        return res
+
 
     def parse_key_values(self, key, values, not_values):
         """
@@ -246,6 +278,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         parse an operation component in a rule
         :param dict operation_dict: the operation to parse
         :return: ConnectionSet object with allowed connections
+        :rtype: ConnectionSet
         """
 
         to_allowed_elements = {'operation': [1, dict]}
@@ -257,7 +290,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         # TODO: Add support for hosts, methods, paths
         allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': [0, list],
-                            'notMethods': [0, list], 'paths': 2, 'notPaths': 2}
+                            'notMethods': [0, list], 'paths': [0, list], 'notPaths': [0, list]}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
         for key_elem in allowed_elements.keys():
             self.validate_existing_key_is_not_null(operation, key_elem)
@@ -267,11 +300,19 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         ports_list = operation.get('ports')
         not_ports_list = operation.get('notPorts')
+        connections &= self.parse_ports_list(ports_list, not_ports_list)
+
         methods_list = operation.get('methods')
         not_methods_list = operation.get('notMethods')
-        connections &= self.parse_ports_list(ports_list, not_ports_list)
         if methods_list is not None or not_methods_list is not None:
             connections &= self.parse_methods_list(methods_list, not_methods_list)
+
+        paths_list = operation.get('paths')
+        not_paths_list = operation.get('notPaths')
+
+        if paths_list is not None or not_paths_list is not None:
+            # shai - why not condition as: if paths_list or not_paths_list (without the None)
+            connections &= self.parse_paths_list(paths_list, not_paths_list)
 
         return connections
 
