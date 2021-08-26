@@ -213,38 +213,45 @@ class RequestAttrs:
             self.methods |= RequestAttrs.http_methods
         # a set of UnlimitedHttpAttributes for allowed request.url_path values
         self.paths = UnlimitedHttpAttributes(allow_all)
+        self.hosts = UnlimitedHttpAttributes(allow_all)
 
     def __bool__(self):
-        return bool(self.methods) |\
-               bool(self.paths)
+        return bool(self.methods) | \
+               bool(self.paths) | \
+               bool(self.hosts)
 
     def __eq__(self, other):
         if isinstance(other, RequestAttrs):
             res = self.methods == other.methods and \
-                  self.paths == other.paths
+                  self.paths == other.paths and \
+                  self.hosts == other.hosts
             return res
         return NotImplemented
 
     def __str__(self):
         return f'request.method in {self.methods}\n' \
-               f'request.url_path {self.paths}\n'
+               f'request.url_path {self.paths}\n' \
+               f'request.hosts {self.hosts}\n'
 
     def copy(self):
         res = RequestAttrs()
         res.methods = self.methods.copy()
         res.paths = self.paths.copy()
+        res.hosts = self.hosts.copy()
         return res
 
     def __and__(self, other):
         res = RequestAttrs()
         res.methods = self.methods.intersection(other.methods)
         res.paths = self.paths & other.paths
+        res.hosts = self.hosts & other.hosts
         return res
 
     def __or__(self, other):
         res = RequestAttrs()
         res.methods = self.methods.union(other.methods)
         res.paths = self.paths | other.paths
+        res.hosts = self.hosts | other.hosts
         return res
 
     def __add__(self, other):
@@ -254,16 +261,19 @@ class RequestAttrs:
         res = RequestAttrs()
         res.methods = self.methods.difference(other.methods)
         res.paths = self.paths - other.paths
+        res.hosts = self.hosts - other.hosts
         return res
 
     def __iand__(self, other):
         self.methods.intersection_update(other.methods)
         self.paths &= other.paths
+        self.hosts &= other.hosts
         return self
 
     def __ior__(self, other):
         self.methods.update(other.methods)
         self.paths |= other.paths
+        self.hosts |= other.hosts
         return self
 
     def __iadd__(self, other):
@@ -272,6 +282,7 @@ class RequestAttrs:
     def __isub__(self, other):
         self.methods.difference_update(other.methods)
         self.paths -= other.paths
+        self.hosts -= other.hosts
         return self
 
     def methods_contained_in(self, other):
@@ -279,8 +290,10 @@ class RequestAttrs:
 
     def contained_in(self, other):
         return self.methods_contained_in(other) and \
-               self.paths.contained_in(other.paths)
+               self.paths.contained_in(other.paths) and \
+               self.hosts.contained_in(other.hosts)
 
+    # shai - decide whether we need funcs add_methods, add_paths, remove_paths or only keep the set funcs
     def add_methods(self, methods):
         # TODO: what if methods is invalid?
         # shai - remove as it's pre-validated by callee
@@ -316,6 +329,9 @@ class RequestAttrs:
 
     def set_paths(self, paths_list, not_paths_list):
         self.paths.set_attributes(paths_list, not_paths_list)
+
+    def set_hosts(self, hosts_list, not_hosts_list):
+        self.hosts.set_attributes(hosts_list, not_hosts_list)
 
     # shai - remove two deprecated funcs below
     def add_unlimited_http_attributes(self, attributes_list, allow_all=False, attributes=None):

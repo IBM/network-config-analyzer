@@ -15,6 +15,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         print(a)
         print(b)
 
+        # test methods/notMethods
         a.set_methods({'GET'})
         self.assertTrue(a)
         print(a)
@@ -48,6 +49,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         self.assertTrue(not x)
         self.assertTrue(y)
 
+        # unlimited attributes - basic construction
         x.add_paths(False, {'path_1', 'path_1'})
         x.add_paths(False, {'path_1', 'path_2'})
         x.remove_paths(False, {'path_1', 'path_3'})
@@ -58,11 +60,13 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         x.remove_paths(False, {'path_1', 'path_3'})
         x.add_paths(False, {'path_1'})
         x.add_paths(False, {'path_3'})
+        x.set_hosts(None, {'abc.com'})
 
+        # test operations on sets with positive attributes
         x = RequestAttrs()
         y = RequestAttrs()
-        x.add_paths(False, {'path_1', 'path_2'})
-        y.add_paths(False, {'path_1', 'path_3'})
+        x.set_paths({'path_1', 'path_2'}, None)
+        y.set_paths({'path_1', 'path_3'}, None)
         x.add_paths(False, {'path_3'})
 
         z = y - x
@@ -74,6 +78,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         v = x & y
         self.assertTrue(v == y)
 
+        # test operations - one set with positive attributes and another set with negative attributes
         y.add_paths(allow_all=True)
         y.remove_paths(False, {'path_1', 'path_3'})
         z = x + y
@@ -86,6 +91,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         self.assertFalse(v)
         self.assertTrue(v.contained_in(x))
 
+        # test operations - both sets with negative attributes
         y.add_paths(allow_all=True)
         y.remove_paths(False, {'path_1', 'path_3'})
         x.add_paths(allow_all=True)
@@ -98,6 +104,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         v = x & y
         self.assertTrue(v.contained_in(x))
 
+        # test operations - one set allows all, other set with negative attributes
         x.add_paths(allow_all=True)
         z = x + y
         z = y + x
@@ -112,6 +119,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         y &= y
         self.assertTrue(v == y)
 
+        # test operations - one set allows all, other set with positive attributes
         y.remove_paths(disallow_all=True)
         y.add_paths(False, {'path_1', 'path_3'})
         z = x + y
@@ -120,6 +128,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         z = y - x
         v = x & y
 
+        # test operations - one set allows nothing, other set with negative attributes
         x = RequestAttrs()
         z = x + y
         z = y + x

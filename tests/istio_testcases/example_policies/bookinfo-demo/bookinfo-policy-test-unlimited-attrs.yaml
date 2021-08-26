@@ -14,6 +14,7 @@ spec:
         principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
     to:
     - operation:
+        notHosts: ["disallowed-host.com"]
         methods: ["GET", "PUT"]
         ports: ["80","90"]
         paths: ["/good_path1", "/good_path2", "/some/path"]
@@ -35,6 +36,7 @@ spec:
         principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
     to:
     - operation:
+        hosts: ["allowed-host.com"]
         notMethods: ["PUT"]
         notPorts: ["90"]
         notPaths: ["/bad/path1", "/bad/path2", "/some/path"]

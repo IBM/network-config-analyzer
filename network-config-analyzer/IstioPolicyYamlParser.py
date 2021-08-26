@@ -209,9 +209,13 @@ class IstioPolicyYamlParser(GenericYamlParser):
         res.add_connections('TCP', properties)
         return res
 
+    # shai - to implement validation funcs
     def validate_paths_list(self, paths):
         pass    # ToDo validating legal url paths
         # self.syntax_error(f"error parsing paths: invalid path in to.operation: {paths}")
+
+    def validate_hosts_list(self, hosts):
+        pass
 
     def parse_paths_list(self, paths_list, not_paths_list):
         """
@@ -231,6 +235,23 @@ class IstioPolicyYamlParser(GenericYamlParser):
         res.add_connections('TCP', properties)
         return res
 
+    def parse_hosts_list(self, hosts_list, not_hosts_list):
+        """
+        Parse hosts and notHosts elements (within an operation component of a rule)
+        :param hosts_list: list[str]  list of hosts
+        :param not_hosts_list: list[str]  negative list of hosts
+        :return: A ConnectionSet object with allowed connections
+        :rtype: ConnectionSet
+        """
+        self.validate_hosts_list(hosts_list)
+        self.validate_hosts_list(not_hosts_list)
+        request_attributes = RequestAttrs(True)
+        request_attributes.set_hosts(hosts_list, not_hosts_list)
+        properties = MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True)), request_attributes)
+
+        res = ConnectionSet()
+        res.add_connections('TCP', properties)
+        return res
 
     def parse_key_values(self, key, values, not_values):
         """
@@ -288,9 +309,8 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if operation is None:
             self.syntax_error('Authorization policy to.operation cannot be null. ')
 
-        # TODO: Add support for hosts, methods, paths
         allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': [0, list],
-                            'notMethods': [0, list], 'paths': [0, list], 'notPaths': [0, list]}
+                            'notMethods': [0, list], 'paths': [0, list], 'notPaths': [0, list], 'hosts': [0, list], 'notHosts': [0, list]}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
         for key_elem in allowed_elements.keys():
             self.validate_existing_key_is_not_null(operation, key_elem)
@@ -313,6 +333,13 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if paths_list is not None or not_paths_list is not None:
             # shai - why not condition as: if paths_list or not_paths_list (without the None)
             connections &= self.parse_paths_list(paths_list, not_paths_list)
+
+        hosts_list = operation.get('hosts')
+        not_hosts_list = operation.get('notHosts')
+
+        if hosts_list is not None or not_hosts_list is not None:
+            # shai - why not condition as: if hosts_list or not_hosts_list (without the None)
+            connections &= self.parse_hosts_list(hosts_list, not_hosts_list)
 
         return connections
 
