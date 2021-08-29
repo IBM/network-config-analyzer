@@ -146,6 +146,7 @@ def nca_main(argv=None):
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
+    parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
 
     args = parser.parse_args(argv)
 
@@ -156,7 +157,8 @@ def nca_main(argv=None):
         return RestServer(args.ns_list, args.pod_list).run()
 
     if args.period <= 0:
-        return run_args(args)
+        ret_val = run_args(args)
+        return 0 if args.return_0 else ret_val
 
     _do_every(args.period * 60, run_args, args)
     return 0

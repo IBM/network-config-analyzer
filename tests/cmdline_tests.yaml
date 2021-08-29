@@ -85,3 +85,11 @@
     --ns_list https://github.com/IBM/network-config-analyzer/tree/master/tests/example_workload_resources/
     --pod_list https://github.com/IBM/network-config-analyzer/tree/master/tests/example_workload_resources/
   expected: 0
+
+- name: return_0
+  args: >
+    --sanity example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list example_podlist/ns_list.json
+    --pod_list example_podlist/pods_list.json
+    --return_0
+  expected: 0
