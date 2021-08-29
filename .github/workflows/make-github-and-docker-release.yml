@@ -1,4 +1,4 @@
-name: Build and push an NCA docker image and create a github release
+name: Create docker release and github release
 
 on:
   workflow_dispatch:
