@@ -163,20 +163,6 @@ class UnlimitedHttpAttributes:
         self.allow_all = res.allow_all
         return self
 
-    # shai - is this needed?
-    '''
-    def add_attributes(self, allow_all=False, attributes=None):
-        assert (allow_all or attributes)
-        other = UnlimitedHttpAttributes()
-        if allow_all:
-            self.values.clear()
-            self.negation = False
-            self.allow_all = True
-        else:
-            other.values = attributes
-            self += other
-    '''
-
     def contained_in(self, other):
         if other.allow_all or (not self.allow_all and not self.values):  # other allows all or self is empty
             return True
@@ -293,19 +279,18 @@ class RequestAttrs:
                self.paths.contained_in(other.paths) and \
                self.hosts.contained_in(other.hosts)
 
-    # shai - decide whether we need funcs add_methods, add_paths, remove_paths or only keep the set funcs
     def add_methods(self, methods):
-        # TODO: what if methods is invalid?
-        # shai - remove as it's pre-validated by callee
-        assert methods.issubset(RequestAttrs.http_methods)
         self.methods |= methods
         return self
 
-    def set_methods(self, methods):
-        # shai - remove as it's pre-validated by callee
-        assert methods.issubset(RequestAttrs.http_methods)
-        self.methods = methods
+    def remove_methods(self, methods):
+        self.methods -= methods
         return self
+
+    def set_methods(self, methods_list, not_methods_list):
+        methods_to_add = RequestAttrs.http_methods if methods_list is None else set(methods_list)
+        methods_to_remove = set() if not_methods_list is None else set(not_methods_list)
+        self.methods = methods_to_add - methods_to_remove
 
     def add_paths(self, allow_all=False, attributes=None):
         if not allow_all and not attributes:
@@ -314,7 +299,7 @@ class RequestAttrs:
         other.allow_all = allow_all
         other.values = attributes
         self.paths.__iadd__(other)
-        #self.add_unlimited_http_attributes(self.paths, allow_all, attributes)
+        return self
 
     def remove_paths(self, disallow_all=False, not_attributes=None):
         if not disallow_all and not not_attributes:
@@ -325,7 +310,7 @@ class RequestAttrs:
         else:
             other.values = not_attributes
             self.paths.__isub__(other)
-        #self.remove_unlimited_http_attributes(self.paths, disallow_all, not_attributes)
+        return self
 
     def set_paths(self, paths_list, not_paths_list):
         self.paths.set_attributes(paths_list, not_paths_list)
@@ -333,54 +318,12 @@ class RequestAttrs:
     def set_hosts(self, hosts_list, not_hosts_list):
         self.hosts.set_attributes(hosts_list, not_hosts_list)
 
-    # shai - remove two deprecated funcs below
-    def add_unlimited_http_attributes(self, attributes_list, allow_all=False, attributes=None):
-        assert (allow_all or attributes)
-        if allow_all:
-            attributes_list.values.clear()
-            attributes_list.negation = False
-            attributes_list.allow_all = True
-            return
-        if attributes_list.allow_all:
-            return  # nothing to add
-        if attributes_list.negation:
-            if attributes.issubset(attributes_list.values):
-                attributes_list.values.difference_update(attributes)
-                if not attributes_list.values:  # new is empty -> allow all
-                    attributes_list.negation = False
-                    attributes_list.allow_all = True
-            else:
-                attributes_list.values = attributes
-                attributes_list.negation = False
-        else:  # !attributes_list.allow_all and !attributes_list.negation
-            attributes_list.values |= attributes
-
-    def remove_unlimited_http_attributes(self, attributes_list, disallow_all=False, not_attributes=None):
-        assert (disallow_all or not_attributes)
-        if disallow_all:
-            attributes_list.values.clear()
-            attributes_list.negation = False
-            attributes_list.allow_all = False
-            return
-        if attributes_list.allow_all:
-            attributes_list.values = not_attributes
-            attributes_list.negation = True
-            attributes_list.allow_all = False
-        elif attributes_list.negation:
-            attributes_list.values += not_attributes
-        else:  # !attributes_list.allow_all and !attributes_list.negation
-            attributes_list.values.difference_update(not_attributes)
-            if not attributes_list.values:  # new is empty -> allow nothing
-                attributes_list.negation = False
-                attributes_list.allow_all = False
-
-    # shai - need to enhance
     def get_first_item(self):
         if not self:
             return NotImplemented
         return list(self.methods)[0]
 
-    # shai - need to enhance
+    # ToDo to be enhanced (used by certain queries, for example SemanticEquivalenceQuery)
     def print_diff(self, other, self_name, other_name):
         self_does_not = ' while ' + self_name + ' does not.'
         other_does_not = ' while ' + other_name + ' does not.'
@@ -393,9 +336,6 @@ class RequestAttrs:
             item = other_minus_self.get_first_item()
             return other_name + ' allows method ' + item + self_does_not
         return 'No diff.'
-
-    # def allow_all_requests(self):
-    #    return self.methods == RequestAttrs.http_methods
 
     # TODO: fix ?
     def __hash__(self):
@@ -482,7 +422,6 @@ class MultiLayerPropertiesSet:
             res.HTTP_allowed_requests_per_ports[key_copy] = val_copy
         return res
 
-    # shai - why static?
     @staticmethod
     def all_disjoint(portsets_input):
         for pair in itertools.permutations(portsets_input, 2):

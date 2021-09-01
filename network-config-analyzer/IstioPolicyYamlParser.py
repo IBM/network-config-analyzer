@@ -185,7 +185,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         return connections
 
     def validate_methods_list(self, methods):
-        if not methods.issubset(RequestAttrs.http_methods):
+        if methods and not set(methods).issubset(RequestAttrs.http_methods):
             self.syntax_error(f"error parsing method: invalid method in to.operation: {methods}")
 
     def parse_methods_list(self, methods_list, not_methods_list):
@@ -196,26 +196,23 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :return: A ConnectionSet object with allowed connections
         :rtype: ConnectionSet
         """
-        methods_to_add = RequestAttrs.http_methods if methods_list is None else set(methods_list)
-        methods_to_remove = set() if not_methods_list is None else set(not_methods_list)
-        self.validate_methods_list(methods_to_add)
-        self.validate_methods_list(methods_to_remove)
-        allowed_methods = methods_to_add - methods_to_remove
+        self.validate_methods_list(methods_list)
+        self.validate_methods_list(not_methods_list)
         request_attributes = RequestAttrs(True)
-        request_attributes.set_methods(allowed_methods)
+        request_attributes.set_methods(methods_list, not_methods_list)
         properties = MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True)), request_attributes)
 
         res = ConnectionSet()
         res.add_connections('TCP', properties)
         return res
 
-    # shai - to implement validation funcs
     def validate_paths_list(self, paths):
         pass    # ToDo validating legal url paths
         # self.syntax_error(f"error parsing paths: invalid path in to.operation: {paths}")
 
     def validate_hosts_list(self, hosts):
-        pass
+        pass    # ToDo validating legal hosts
+        # self.syntax_error(f"error parsing hosts: invalid path in to.operation: {hosts}")
 
     def parse_paths_list(self, paths_list, not_paths_list):
         """
@@ -331,14 +328,12 @@ class IstioPolicyYamlParser(GenericYamlParser):
         not_paths_list = operation.get('notPaths')
 
         if paths_list is not None or not_paths_list is not None:
-            # shai - why not condition as: if paths_list or not_paths_list (without the None)
             connections &= self.parse_paths_list(paths_list, not_paths_list)
 
         hosts_list = operation.get('hosts')
         not_hosts_list = operation.get('notHosts')
 
         if hosts_list is not None or not_hosts_list is not None:
-            # shai - why not condition as: if hosts_list or not_hosts_list (without the None)
             connections &= self.parse_hosts_list(hosts_list, not_hosts_list)
 
         return connections

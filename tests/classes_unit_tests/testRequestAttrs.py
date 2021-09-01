@@ -12,11 +12,16 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         self.assertTrue(not a)
         b = RequestAttrs(True)
         self.assertTrue(b)
+        c = a.copy()
+        c.set_methods(None, {'GET'})
         print(a)
         print(b)
+        print(c)
 
         # test methods/notMethods
-        a.set_methods({'GET'})
+        a.set_methods({'GET'}, None)
+        a.add_methods({'GET'})  # does nothing
+        a.remove_methods({'PUT'})  # does nothing
         self.assertTrue(a)
         print(a)
         c = b - a
