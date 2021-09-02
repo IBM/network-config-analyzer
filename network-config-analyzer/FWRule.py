@@ -224,10 +224,9 @@ class PodElement(FWRuleElement):
         return pod name :using elem.owner_name for Pod elem (if exists), and elem.name for HostEP
         :return: string representing pod element name
         """
-        pod_name = self.element.name
         if isinstance(self.element, Pod) and self.element.owner_name:
-            pod_name = self.element.owner_name
-        return pod_name
+            return self.element.owner_name
+        return self.element.name
 
     def __str__(self):
         """

@@ -86,7 +86,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         # principal_str_example = "cluster.local/ns/default/sa/sleep"
         # TODO: support a more general pattern for principal str (prefix by istio trust-domain)
         # TODO: tighter checks in parsing the principal str
-        principal_pattern = 'cluster.local/ns/([\w-]+)/sa/([\w-]+)'
+        principal_pattern = 'cluster.local/ns/([\\w-]+)/sa/([\\w-]+)'
         match = re.search(principal_pattern, principal)
         if match:
             ns = match.group(1)
@@ -209,7 +209,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         # TODO: support additional key values: request.headers, remote.ip, request.auth.principal,
         #  request.auth.audiences, request.auth.presenter, request.auth.claims, destination.ip, connection.sni
         self.check_fields_validity(condition, 'authorization policy condition', allowed_elements, allowed_key_values)
-        for key_elem in allowed_elements.keys():
+        for key_elem in allowed_elements:
             self.validate_existing_key_is_not_null(condition, key_elem)
 
         key = condition.get('key')
@@ -238,7 +238,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': 2,
                             'notMethods': 2, 'paths': 2, 'notPaths': 2}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
-        for key_elem in allowed_elements.keys():
+        for key_elem in allowed_elements:
             self.validate_existing_key_is_not_null(operation, key_elem)
         self.validate_dict_elem_has_non_empty_array_value(operation, 'to.operation')
 
@@ -271,7 +271,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
                             'notRequestPrincipals': 2, 'remoteIpBlocks': 2, 'notRemoteIpBlocks': 2}
         # TODO: though specified 'list' value_type, check_fields_validity doesn't fail since value is None (empty)...
         self.check_fields_validity(source_peer, 'authorization policy rule: source', allowed_elements)
-        for key_elem in allowed_elements.keys():
+        for key_elem in allowed_elements:
             self.validate_existing_key_is_not_null(source_peer, key_elem)
         self.validate_dict_elem_has_non_empty_array_value(source_peer, 'from.source')
 
@@ -319,7 +319,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         allowed_elements = {'from': [0, list], 'to': [0, list], 'when': [0, list]}
         self.check_fields_validity(rule, 'authorization policy rule', allowed_elements)
-        for key_elem in allowed_elements.keys():
+        for key_elem in allowed_elements:
             self.validate_existing_key_is_not_null(rule, key_elem)
 
         # collect source peers into res_peers

@@ -19,6 +19,9 @@ class PeerContainer:
     This class holds a representation of the network topology: the set of eps and how they are partitioned to namespaces
     It also provides various services to build the topology from files and to filter the eps by labels and by namespaces
     """
+    pod_creation_resources = ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob',
+                              'ReplicationController']
+
     class FilterActionType(Enum):
         """
         Allowed actions for Calico's network policy rules
@@ -199,8 +202,7 @@ class PeerContainer:
                     kind = resource.get('kind')
                     if kind == 'PodList':
                         self.add_eps_from_list(resource)
-                    if kind in ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet',
-                                'Job', 'CronJob', 'ReplicationController']:
+                    if kind in PeerContainer.pod_creation_resources:
                         self._add_pod_from_workload_yaml(resource)
 
     def delete_all_namespaces(self):
@@ -260,13 +262,10 @@ class PeerContainer:
         service_account_name = ''
         if kind == 'Pod':
             # serviceAccountName for a Pod:
-            # TODO: should we use 'default' here?
             service_account_name = pod_object['spec'].get('serviceAccountName', 'default')
-        elif kind in {'Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob',
-                      'ReplicationController'}:
+        elif kind in PeerContainer.pod_creation_resources:
             # serviceAccountName for a Deployment:
             template_spec = pod_object['spec'].get('template', {}).get('spec', {})
-            # TODO: should we use 'default' here?
             service_account_name = template_spec.get('serviceAccountName', 'default')
 
         pod = Pod(pod_name, pod_namespace, owner_name, owner_kind, service_account_name)
@@ -291,7 +290,8 @@ class PeerContainer:
         wep_namespace = self.get_namespace(metadata.get('namespace', 'default'))
         wep_name = spec.get('pod', '')
         wep = Pod(wep_name, wep_namespace)
-        # TODO: should handle Pod's serviceAccountName here? how?
+        # TODO: handle Pod's serviceAccountName: A wep definition includes a pod field which points to the
+        #  corresponding k8s Pod resource.
 
         labels = metadata.get('labels', {})
         for key, val in labels.items():
@@ -382,12 +382,12 @@ class PeerContainer:
             workload_spec = workload_spec.get('jobTemplate', {}).get('spec', {})
 
         template_spec = workload_spec.get('template', {}).get('spec', {})
-        # TODO: should use default service account here?
         service_account_name = template_spec.get('serviceAccountName', 'default')
 
         replicas = min(replicas, 2)  # We allow at most 2 peers from each equivalence group
-        for pod_index in range(1, replicas+1):
-            pod = Pod(f'{workload_name}-{pod_index}', pod_namespace, workload_name, workload_resource.get('kind'), service_account_name)
+        for pod_index in range(1, replicas + 1):
+            pod = Pod(f'{workload_name}-{pod_index}', pod_namespace, workload_name, workload_resource.get('kind'),
+                      service_account_name)
             pod_template = workload_spec.get('template', {})
             labels = pod_template.get('metadata', {}).get('labels', {})
             for key, val in labels.items():
@@ -416,8 +416,7 @@ class PeerContainer:
         if kind in ['PodList', 'List']:  # 'List' for the case of live cluster
             for endpoint in ep_list.get('items', []):
                 self._add_pod_from_yaml(endpoint)
-        elif kind in ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob',
-                      'ReplicationController']:
+        elif kind in PeerContainer.pod_creation_resources:
             self._add_pod_from_workload_yaml(ep_list)
         elif kind in ['WorkloadEndpointList', 'HostEndpointList']:
             is_calico_wep = kind == 'WorkloadEndpointList'
@@ -448,7 +447,7 @@ class PeerContainer:
         for peer in self.peer_set:
             peer.clear_extra_labels()
 
-    def get_peers_with_label(self, key, values,  action=FilterActionType.In, namespace=None):
+    def get_peers_with_label(self, key, values, action=FilterActionType.In, namespace=None):
         """
         Return all peers that have a specific key-value label (in a specific namespace)
         :param str key: The relevant key
@@ -473,7 +472,8 @@ class PeerContainer:
                 if values[0] in peer.labels.get(key, '') or values[0] in peer.extra_labels.get(key, ''):
                     res.add(peer)
             elif action == self.FilterActionType.StartWith:
-                if peer.labels.get(key, '').startswith(values[0]) or peer.extra_labels.get(key, '').startswith(values[0]):
+                if peer.labels.get(key, '').startswith(values[0]) or peer.extra_labels.get(key, '').startswith(
+                        values[0]):
                     res.add(peer)
             elif action == self.FilterActionType.EndWith:
                 if peer.labels.get(key, '').endswith(values[0]) or peer.extra_labels.get(key, '').endswith(values[0]):
