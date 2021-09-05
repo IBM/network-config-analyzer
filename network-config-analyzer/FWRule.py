@@ -44,16 +44,31 @@ class LabelExpr:
         return ' and '.join(f'has({key})' for key in sorted(k.split(':')))
 
     @staticmethod
-    def get_valid_values_expr_str(k, values):
+    def get_valid_values_expr_str(k, values, complement_values, ns_has_pods_without_label_k):
         """
         :param k: a simple key label
         :param values: a set of simple values per given key (all are valid, not all values are covered)
-        :return: a string of the format "k in (v1,v2..)"
+        :param complement_values: the set of complement values
+        :param ns_has_pods_without_label_k: bool flag, indicating if there exist pod w/o label k (in relevant ns)
+        :return: string in one of the following formats:
+                "k in (v1,v2...)"                   [used if values list is shorter than complement values]
+                "k not in (v1,v2,...)"              [used if complement values list is shorter than values list &
+                                                     all pods have label k]
+                "has(k) and k not in (v1,v2,...)"  [used if complement values list is shorter than values list &
+                                                     not all pods have label k]
         """
         if not values:
             return ''
-        vals_str = ','.join(v for v in sorted(list(values)))
-        return f'{k} in ({vals_str})'
+        shorter_values_list = values
+        containment_str = 'in'
+        prefix_expr = ''
+        if len(complement_values) < len(values):
+            shorter_values_list = complement_values
+            containment_str = 'not in'
+            if ns_has_pods_without_label_k:
+                prefix_expr = f'has({k}) and '
+        vals_str = ','.join(v for v in sorted(list(shorter_values_list)))
+        return f'({prefix_expr}{k} {containment_str} ({vals_str}))'
 
     def get_values_expr_str_per_simple_key(self, k, values):
         """
@@ -65,16 +80,20 @@ class LabelExpr:
         :return: a string representing this expr
         """
         expr_str_list = []
+        ns_has_pods_without_label_k = False
         if ClusterInfo.invalid_val in values:
             expr_str_list.append(self.get_invalid_value_expr_str(k))
         valid_values = values - {ClusterInfo.invalid_val}
-        all_valid_values = self.map_simple_keys_to_all_values[k] - \
-                           {ClusterInfo.invalid_val} if self.map_simple_keys_to_all_values is not None else None
+        all_valid_values = self.map_simple_keys_to_all_values[k] - {ClusterInfo.invalid_val}
+        if ClusterInfo.invalid_val in self.map_simple_keys_to_all_values[k]:
+            ns_has_pods_without_label_k = True
         if valid_values:
             if valid_values == all_valid_values:
                 expr_str_list.append(self.get_all_valid_values_expr_str(k))
             else:
-                expr_str_list.append(self.get_valid_values_expr_str(k, valid_values))
+                complement_values = all_valid_values - valid_values
+                expr_str_list.append(
+                    self.get_valid_values_expr_str(k, valid_values, complement_values, ns_has_pods_without_label_k))
         return " or ".join(e for e in sorted(expr_str_list))
 
     def __str__(self):
@@ -82,8 +101,7 @@ class LabelExpr:
         :return: string representing the label expression
         """
         # reasoning of original key (possibly composed key)
-        all_valid_values = set(v for v in self.all_values if ClusterInfo.invalid_val not in v) \
-            if self.all_values else None
+        all_valid_values = set(v for v in self.all_values if ClusterInfo.invalid_val not in v)
         if self.values == all_valid_values:
             # returns an expression of all valid values (e.g. has(app) and has(tier) )
             return self.get_all_valid_values_expr_str(self.key)
@@ -432,7 +450,7 @@ class FWRule:
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = self.conn.get_connections_str(is_k8s_config)  # str(self.conn)
+        conn_str = self.conn.get_simplified_connections_str(is_k8s_config)  # str(self.conn)
         return src_str + dst_str + ' conn: ' + conn_str + '\n'
 
     def __hash__(self):
@@ -460,7 +478,7 @@ class FWRule:
         elif component == 'dst_pods':
             return str(self.dst) if isinstance(self.dst, IPBlockElement) else self.dst.get_pod_str()
         elif component == 'connection':
-            return self.conn.get_connections_str(is_k8s_config)
+            return self.conn.get_simplified_connections_str(is_k8s_config)
         return ''
 
     def get_rule_csv_row(self, is_k8s_config):

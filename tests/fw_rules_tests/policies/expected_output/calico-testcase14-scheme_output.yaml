@@ -3,11 +3,11 @@
   - src_ns:
     - kube-system
     src_pods:
-    - app in (keepalived-watcher)
+    - (app in (keepalived-watcher))
     dst_ns:
     - kube-system
     dst_pods:
-    - app in (keepalived-watcher)
+    - (app in (keepalived-watcher))
     connection:
     - Protocol: ICMP
       Type/Code:

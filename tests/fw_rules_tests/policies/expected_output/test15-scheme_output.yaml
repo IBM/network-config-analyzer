@@ -39,7 +39,7 @@
   - src_ns:
     - ibm-system-new
     src_pods:
-    - ibm-cloud-provider-lb-app in (keepalived)
+    - (ibm-cloud-provider-lb-app in (keepalived))
     dst_ns:
     - default
     dst_pods:

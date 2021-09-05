@@ -13,11 +13,11 @@
   - src_ns:
     - default
     src_pods:
-    - '{app in (skydive)} and {tier in (analyzer)}'
+    - '{(tier in (analyzer))} and {has(app)}'
     dst_ns:
     - default
     dst_pods:
-    - '{app in (skydive)} and {tier in (agent)}'
+    - '{(tier in (agent))} and {has(app)}'
     connection:
     - All connections
   - src_ns:

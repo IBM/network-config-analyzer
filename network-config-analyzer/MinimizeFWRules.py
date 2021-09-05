@@ -326,12 +326,9 @@ class MinimizeCsFwRules:
         # (1) try grouping by pods-labels:
         chosen_rep, remaining_pods = self._get_pods_grouping_by_labels_main(pods_set, extra_pods_set)
         for (key, values, ns_info) in chosen_rep:
-            if self.output_config.fwRulesGeneralizeLabelExpr:
-                map_simple_keys_to_all_values = self.cluster_info.get_map_of_simple_keys_to_all_values(key, ns_info)
-                all_key_values = self.cluster_info.get_all_values_set_for_key_per_namespace(key, ns_info)
-                pod_label_expr = LabelExpr(key, set(values), map_simple_keys_to_all_values, all_key_values)
-            else:
-                pod_label_expr = LabelExpr(key, set(values), None, None)
+            map_simple_keys_to_all_values = self.cluster_info.get_map_of_simple_keys_to_all_values(key, ns_info)
+            all_key_values = self.cluster_info.get_all_values_set_for_key_per_namespace(key, ns_info)
+            pod_label_expr = LabelExpr(key, set(values), map_simple_keys_to_all_values, all_key_values)
             grouped_elem = PodLabelsElement(pod_label_expr, ns_info)
             if is_src_fixed:
                 fw_rule = FWRule(fixed_elem, grouped_elem, self.connections)

@@ -1,10 +1,10 @@
 new1 and old1 are not semantically equivalent.
 Changed connections between persistent peers:
 Added connections (based on topology from config: old1) :
-src_ns: [demo] src_pods: [bank-ui] dst_ns: [demo] dst_pods: [account-command] conn: TCP 1-8079,8081-9089,9091-65536,UDP 1-8079,8081-65536,SCTP 1-65536,
+src_ns: [demo] src_pods: [bank-ui] dst_ns: [demo] dst_pods: [account-command] conn: All but TCP 8080,9090,UDP 8080,
 
 Removed connections (based on topology from config: new1) :
-src_ns: [demo] src_pods: [account-query] dst_ns: [demo] dst_pods: [bank-ui] conn: TCP 1-8079,8081-65536,UDP 1-65536,SCTP 1-65536,
+src_ns: [demo] src_pods: [account-query] dst_ns: [demo] dst_pods: [bank-ui] conn: All but TCP 8080,
 
 
 new1a and old1 are not semantically equivalent.

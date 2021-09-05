@@ -16,8 +16,8 @@ class OutputConfiguration(dict):
     def __init__(self, output_config_dict=None, query_name=''):
         default_output_config = {'fwRulesRunInTestMode': False, 'fwRulesDebug': False,
                                  'fwRulesGroupByLabelSinglePod': False, 'fwRulesFilterSystemNs': False,
-                                 'fwRulesMaxIter': 10, 'fwRulesGeneralizeLabelExpr': False, 'outputFormat': 'txt',
-                                 'outputPath': None, 'fwRulesOverrideAllowedLabels': None, 'prURL': None,
+                                 'fwRulesMaxIter': 10, 'outputFormat': 'txt', 'outputPath': None,
+                                 'fwRulesOverrideAllowedLabels': None, 'prURL': None,
                                  'connectivityFilterIstioEdges': True}
 
         super().__init__(default_output_config)

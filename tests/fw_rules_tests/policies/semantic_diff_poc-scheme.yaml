@@ -1,0 +1,22 @@
+namespaceList: ../podlist/poc_ns_list.json
+podList: ../podlist/kubernetes-manifests-new1.yaml
+networkConfigList:
+- name: poc3
+  networkPolicyList:
+  - microservices-netpols.yaml
+  expectedWarnings: 0
+
+- name: allow_all
+  networkPolicyList:
+  - empty_net_pols.yaml
+  expectedWarnings: 0
+
+queries:
+
+- name: semantic_diff_poc3_empty
+  semanticDiff:
+  - allow_all
+  - poc3
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false

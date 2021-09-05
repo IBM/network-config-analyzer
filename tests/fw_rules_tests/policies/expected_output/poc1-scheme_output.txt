@@ -1,9 +1,9 @@
 final fw rules for query: connectivity_map, config: poc1:
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080,
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070,
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000,
-src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: TCP 50051,
-src_ns: [default] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP 3550,
+src_ns: [default] src_pods: [(app in (checkoutservice,frontend))] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070,
+src_ns: [default] src_pods: [(app in (checkoutservice,frontend))] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000,
+src_ns: [default] src_pods: [(app in (checkoutservice,frontend))] dst_ns: [default] dst_pods: [shippingservice] conn: TCP 50051,
+src_ns: [default] src_pods: [(app in (checkoutservice,frontend,recommendationservice))] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP 3550,
 src_ns: [default] src_pods: [cartservice] dst_ns: [default] dst_pods: [redis-cart] conn: TCP 6379,
 src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: TCP 8080,
 src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [paymentservice] conn: TCP 50051,

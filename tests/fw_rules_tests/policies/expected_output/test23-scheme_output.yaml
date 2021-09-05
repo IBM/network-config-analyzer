@@ -7,7 +7,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (skydive)
+    - has(app)
     connection:
     - Protocol: UDP
       Ports:
@@ -15,11 +15,11 @@
   - src_ns:
     - default
     src_pods:
-    - test in (C)
+    - (test in (C))
     dst_ns:
     - default
     dst_pods:
-    - app in (skydive)
+    - has(app)
     connection:
     - All connections
 

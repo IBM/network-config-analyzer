@@ -1,6 +1,6 @@
 final fw rules for query: connectivity_map, config: np11:
 src ip block: 0.0.0.0/0 dst_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [{app in (skydive)} and {tier in (analyzer)}] dst_ns: [default] dst_pods: [{app in (skydive)} and {tier in (agent)}] conn: All connections
+src_ns: [default] src_pods: [{(tier in (analyzer))} and {has(app)}] dst_ns: [default] dst_pods: [{(tier in (agent))} and {has(app)}] conn: All connections
 src_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 
