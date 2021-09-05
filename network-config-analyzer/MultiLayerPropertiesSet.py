@@ -78,21 +78,21 @@ class UnlimitedHttpAttributes:
             res = other.copy()
             return res
         if not self.negation and not other.negation:
-            res.values = set(self.values).intersection(other.values)
+            res.values = self.values & other.values
             # res.negation = False
         elif not self.negation and other.negation:
-            res.values = set(self.values).difference(other.values)
+            res.values = self.values - other.values
             # res.negation = False
         elif self.negation and not other.negation:
-            res.values = set(other.values).difference(self.values)
+            res.values = other.values - self.values
             # res.negation = False
         else:  # self.negation and other.negation
-            res.values = set(self.values).union(other.values)
+            res.values = self.values | other.values
             res.negation = True
         return res
 
     def __or__(self, other):
-        return self.__add__(other)
+        return self + other
 
     def __add__(self, other):
         res = UnlimitedHttpAttributes()
@@ -100,16 +100,22 @@ class UnlimitedHttpAttributes:
             res.allow_all = True
             return res
         if not self.negation and not other.negation:
-            res.values = set(self.values).union(other.values)  # self.values + other.values
+            res.values = self.values | other.values
             # res.negation = False
         elif not self.negation and other.negation:
-            res.values = set(other.values).difference(self.values)  # other.values - self.values
-            res.negation = True
+            res.values = other.values - self.values
+            if res.values:
+                res.negation = True
+            else:
+                res.allow_all = True
         elif self.negation and not other.negation:
-            res.values = set(self.values).difference(other.values)  # self.values - other.values
-            res.negation = True
+            res.values = self.values - other.values
+            if res.values:
+                res.negation = True
+            else:
+                res.allow_all = True
         else:  # self.negation and other.negation
-            res.values = set(self.values).intersection(other.values)  # self.values & other.values
+            res.values = self.values & other.values
             res.negation = True
         return res
 
@@ -132,7 +138,7 @@ class UnlimitedHttpAttributes:
             res.values = self.values - (self.values - other.values)
             # res.negation = False
         elif self.negation and not other.negation:
-            res.values = set(self.values).union(other.values)  # self.values + other.values
+            res.values = self.values | other.values
             res.negation = True
         else:  # self.negation and other.negation
             res.values = other.values - self.values
@@ -140,24 +146,25 @@ class UnlimitedHttpAttributes:
         return res
 
     def __iand__(self, other):
-        res = self.copy() & other
+        res = self & other
         self.values = res.values
         self.negation = res.negation
         self.allow_all = res.allow_all
         return self
 
     def __ior__(self, other):
-        return self.__iadd__(other)
+        self += other
+        return self
 
     def __iadd__(self, other):
-        res = self.copy() + other
+        res = self + other
         self.values = res.values
         self.negation = res.negation
         self.allow_all = res.allow_all
         return self
 
     def __isub__(self, other):
-        res = self.copy() - other
+        res = self - other
         self.values = res.values
         self.negation = res.negation
         self.allow_all = res.allow_all
@@ -170,22 +177,22 @@ class UnlimitedHttpAttributes:
             return False
         # else, both list do not allow all values
         if not self.negation and not other.negation:
-            return set(self.values).issubset(other.values)
+            return self.values.issubset(other.values)
         if not self.negation and other.negation:
-            return set(self.values).isdisjoint(other.values)
+            return self.values.isdisjoint(other.values)
         if self.negation and not other.negation:
             return False
         # else, self.negation and other.negation:
-        return set(other.values).issubset(self.values)
+        return other.values.issubset(self.values)
 
     def set_attributes(self, attrs, not_attrs):
-        assert (bool(attrs) != bool(not_attrs))  # xor - maybe switch to warning
+        # ToDo: maybe report a warning if not attrs.isdisjoint(not_attrs)
         if attrs:
-            self.values = attrs
+            self.values = set(attrs) - (set(not_attrs) if not_attrs else set())
             self.negation = False
             self.allow_all = False
         else:
-            self.values = not_attrs
+            self.values = set(not_attrs)
             self.negation = True
             self.allow_all = False
 
@@ -194,10 +201,9 @@ class RequestAttrs:
     http_methods = {'GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'}
 
     def __init__(self, allow_all=False):
-        self.methods = set()  # a set of strings for allowed request.method values
+        self.methods = set()
         if allow_all:
             self.methods |= RequestAttrs.http_methods
-        # a set of UnlimitedHttpAttributes for allowed request.url_path values
         self.paths = UnlimitedHttpAttributes(allow_all)
         self.hosts = UnlimitedHttpAttributes(allow_all)
 
@@ -228,45 +234,46 @@ class RequestAttrs:
 
     def __and__(self, other):
         res = RequestAttrs()
-        res.methods = self.methods.intersection(other.methods)
+        res.methods = self.methods & other.methods
         res.paths = self.paths & other.paths
         res.hosts = self.hosts & other.hosts
         return res
 
     def __or__(self, other):
         res = RequestAttrs()
-        res.methods = self.methods.union(other.methods)
+        res.methods = self.methods | other.methods
         res.paths = self.paths | other.paths
         res.hosts = self.hosts | other.hosts
         return res
 
     def __add__(self, other):
-        return self.__or__(other)
+        return self | other
 
     def __sub__(self, other):
         res = RequestAttrs()
-        res.methods = self.methods.difference(other.methods)
+        res.methods = self.methods - other.methods
         res.paths = self.paths - other.paths
         res.hosts = self.hosts - other.hosts
         return res
 
     def __iand__(self, other):
-        self.methods.intersection_update(other.methods)
+        self.methods &= other.methods
         self.paths &= other.paths
         self.hosts &= other.hosts
         return self
 
     def __ior__(self, other):
-        self.methods.update(other.methods)
+        self.methods |= other.methods
         self.paths |= other.paths
         self.hosts |= other.hosts
         return self
 
     def __iadd__(self, other):
-        return self.__ior__(other)
+        self |= other
+        return self
 
     def __isub__(self, other):
-        self.methods.difference_update(other.methods)
+        self.methods -= other.methods
         self.paths -= other.paths
         self.hosts -= other.hosts
         return self
@@ -279,10 +286,12 @@ class RequestAttrs:
                self.paths.contained_in(other.paths) and \
                self.hosts.contained_in(other.hosts)
 
+    # used only for unit testing
     def add_methods(self, methods):
         self.methods |= methods
         return self
 
+    # used only for unit testing
     def remove_methods(self, methods):
         self.methods -= methods
         return self
@@ -292,24 +301,26 @@ class RequestAttrs:
         methods_to_remove = set() if not_methods_list is None else set(not_methods_list)
         self.methods = methods_to_add - methods_to_remove
 
+    # used only for unit testing
     def add_paths(self, allow_all=False, attributes=None):
         if not allow_all and not attributes:
             return  # nothing to add
         other = UnlimitedHttpAttributes()
         other.allow_all = allow_all
         other.values = attributes
-        self.paths.__iadd__(other)
+        self.paths += other
         return self
 
+    # used only for unit testing
     def remove_paths(self, disallow_all=False, not_attributes=None):
         if not disallow_all and not not_attributes:
             return  # nothing to remove
         other = UnlimitedHttpAttributes()
         if disallow_all:
-            self.paths.__iand__(other)
+            self.paths &= other
         else:
             other.values = not_attributes
-            self.paths.__isub__(other)
+            self.paths -= other
         return self
 
     def set_paths(self, paths_list, not_paths_list):
@@ -540,7 +551,7 @@ class MultiLayerPropertiesSet:
 
             if remaining_ports_interval - other_http_req_ports:
                 new_dict[remaining_ports_interval - other_http_req_ports] = allowed_requests
-            if remaining_ports_interval & other_http_req_ports: # subtract http_req required
+            if remaining_ports_interval & other_http_req_ports:  # subtract http_req required
                 for other_ports_interval, other_allowed_requests in other.HTTP_allowed_requests_per_ports.items():
                     if remaining_ports_interval & other_ports_interval:
                         new_dict[remaining_ports_interval & other_ports_interval] = allowed_requests - other_allowed_requests
@@ -571,4 +582,3 @@ class MultiLayerPropertiesSet:
 
     def get_properties_obj(self):
         return self.plain_TCP_allowed_ports.get_properties_obj()
-

@@ -89,6 +89,8 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         z = x + y
         z = y + x
         z = x - y
+        all_paths = RequestAttrs().add_paths(allow_all=True)
+        self.assertTrue(z + y == all_paths)
         z = y - x
         y -= x
         self.assertTrue(y == z)
@@ -139,6 +141,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         z = y + x
         z = x - y
         z = y - x
+        self.assertTrue(z == y)
 
         y.add_paths(allow_all=True)
         y.remove_paths(False, {'path_1', 'path_2'})
@@ -148,5 +151,3 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         z = y - x
 
         print(z)
-
-

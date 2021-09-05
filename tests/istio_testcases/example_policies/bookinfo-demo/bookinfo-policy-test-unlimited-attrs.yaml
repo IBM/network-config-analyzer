@@ -1,7 +1,7 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: details-viewer-add
+  name: details-viewer-attr-ports-80-90
   namespace: default
 spec:
   selector:
@@ -17,13 +17,14 @@ spec:
         notHosts: ["disallowed-host.com"]
         methods: ["GET", "PUT"]
         ports: ["80","90"]
-        paths: ["/good_path1", "/good_path2", "/some/path"]
+        paths: ["/good_path1", "/good_path2", "/some/path1", "/some/path2"]
+        notPaths: ["/bad/path1", "/some/path1"]
 ---
 
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: "details-viewer-remove"
+  name: details-viewer-attr-not-port-90
   namespace: default
 spec:
   selector:
@@ -39,7 +40,28 @@ spec:
         hosts: ["allowed-host.com"]
         notMethods: ["PUT"]
         notPorts: ["90"]
-        notPaths: ["/bad/path1", "/bad/path2", "/some/path"]
+        notPaths: ["/bad/path1", "/bad/path3", "/some/path2"]
+---
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: details-viewer-attr-port-100-nothing
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: details
+  action: ALLOW
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
+    to:
+    - operation:
+        ports: ["100"]
+        paths: ["/some/path3"]
+        notPaths: ["/some/path3"]
 ---
 
 apiVersion: security.istio.io/v1beta1

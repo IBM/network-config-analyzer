@@ -306,8 +306,8 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if operation is None:
             self.syntax_error('Authorization policy to.operation cannot be null. ')
 
-        allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': [0, list],
-                            'notMethods': [0, list], 'paths': [0, list], 'notPaths': [0, list], 'hosts': [0, list], 'notHosts': [0, list]}
+        allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': [0, list], 'notHosts': [0, list],
+                            'methods': [0, list], 'notMethods': [0, list], 'paths': [0, list], 'notPaths': [0, list]}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
         for key_elem in allowed_elements.keys():
             self.validate_existing_key_is_not_null(operation, key_elem)

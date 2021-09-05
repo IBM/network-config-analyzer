@@ -1,6 +1,6 @@
 import unittest
 
-from MultiLayerPropertiesSet import MultiLayerPropertiesSet, RequestAttrs
+from MultiLayerPropertiesSet import MultiLayerPropertiesSet, RequestAttrs, UnlimitedHttpAttributes
 from PortSet import PortSetPair, PortSet
 
 
@@ -171,7 +171,7 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         d.HTTP_allowed_requests_per_ports[PortSetPair(PortSet(True), port_set_3)] = methods_get_put
         print(d)
         print(a | d)
-        self.assertTrue(a|d == d)
+        self.assertTrue(a | d == d)
         self.assertTrue(d | a == d)
 
 
@@ -183,9 +183,9 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         g.HTTP_allowed_requests_per_ports[PortSetPair(PortSet(True), port_set_7)] = method_get
         print(e)
         print(f)
-        print(e|f)
+        print(e | f)
         print(g)
-        self.assertTrue(e|f == g)
+        self.assertTrue(e | f == g)
         self.assertTrue(f | e == g)
         h = MultiLayerPropertiesSet(PortSetPair(PortSet(True), port_set_5))
         print(h | g)
@@ -218,19 +218,36 @@ class TestMultiLayerPropertiesSetMethods(unittest.TestCase):
         print(a-c)
         print(c-c)
 
+    def test_unlimited_attrs(self):
+        allow_all = UnlimitedHttpAttributes(True)
+        allow_nothing = UnlimitedHttpAttributes()
+        a = UnlimitedHttpAttributes()
+        self.assertTrue(not a)
+        print(a)
+        a.values = {'a'}
+        b = UnlimitedHttpAttributes()
+        b.values = {'a'}
+        b.negation = True
+        print(a)
+        print(b)
+        self.assertFalse(a.contained_in(b))
+        self.assertFalse(b.contained_in(a))
+        print(a | b)
+        print(a & b)
+        self.assertTrue(a & b == allow_nothing)
+        self.assertTrue(a | b == allow_all)
+        self.assertTrue(b - b == allow_nothing)
 
+        c = b.copy()
+        b &= b
+        self.assertTrue(b == c)
+        b += a
+        self.assertTrue(b == allow_all)
+        b -= a
+        self.assertTrue(b == c)
+        print(b)
 
-
-
-
-
-
-
-
-
-
-r'''
-
+    '''
     def test_basic(self):
         empty_req_attr = RequestAttrs()
         method_get = empty_req_attr.add_methods({"GET"})
@@ -258,4 +275,4 @@ r'''
         self.assertTrue(bool(c))
         d = MultiLayerPropertiesSet(PortSetPair(PortSet(True), PortSet(True)), RequestAttrs(True))
         self.assertTrue(bool(d))
-'''
+    '''
