@@ -3,7 +3,7 @@ src_ns: [kube-system] src_pods: [(has(app) and app not in (kube-fluentd,public-c
 
 
 final fw rules for query: connectivity_map, config: np_FirstDenySubset:
-src_ns: [kube-system] src_pods: [(app in (helm,keepalived-watcher,vpn))] dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 1-65536,
+src_ns: [kube-system] src_pods: [app in (helm,keepalived-watcher,vpn)] dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 1-65536,
 
 
 final fw rules for query: connectivity_map, config: np_firstAllowSuperSet:

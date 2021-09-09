@@ -16,7 +16,7 @@
   - src_ns:
     - default
     src_pods:
-    - (app in (checkoutservice,frontend,recommendationservice))
+    - app in (checkoutservice,frontend,recommendationservice)
     dst_ns:
     - default
     dst_pods:
@@ -28,7 +28,7 @@
   - src_ns:
     - default
     src_pods:
-    - (app in (checkoutservice,frontend))
+    - app in (checkoutservice,frontend)
     dst_ns:
     - default
     dst_pods:
@@ -76,7 +76,7 @@
   - src_ns:
     - default
     src_pods:
-    - (app in (checkoutservice,frontend))
+    - app in (checkoutservice,frontend)
     dst_ns:
     - default
     dst_pods:
@@ -88,7 +88,7 @@
   - src_ns:
     - default
     src_pods:
-    - (app in (checkoutservice,frontend))
+    - app in (checkoutservice,frontend)
     dst_ns:
     - default
     dst_pods:
@@ -158,7 +158,7 @@
   - src_ns:
     - default
     src_pods:
-    - (app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice))
+    - app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)
     dst_ns:
     - kube-system
     dst_pods:

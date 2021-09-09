@@ -2,6 +2,6 @@
 |---|---|---|---|---|---|
 |connectivity_map, config: np24||||||
 ||[default]|[has(common)]|[default]|[has(app)]|UDP 53,|
-||[default]|[(test in (C))]|[default]|[has(app)]|All connections|
+||[default]|[test in (C)]|[default]|[has(app)]|All connections|
 
 

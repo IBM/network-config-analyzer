@@ -15,7 +15,7 @@
   - src_ns:
     - default
     src_pods:
-    - (test in (C))
+    - test in (C)
     dst_ns:
     - default
     dst_pods:

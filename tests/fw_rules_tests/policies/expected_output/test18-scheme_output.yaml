@@ -11,7 +11,7 @@
   - src_ns:
     - kube-system-new
     src_pods:
-    - '!has(tier) or (tier in (not_frontend_for_demo))'
+    - '!has(tier) or tier in (not_frontend_for_demo)'
     dst_ip_block:
     - 0.0.0.0/0
     connection:
@@ -19,7 +19,7 @@
   - src_ns:
     - kube-system-new
     src_pods:
-    - '!has(tier) or (tier in (not_frontend_for_demo))'
+    - '!has(tier) or tier in (not_frontend_for_demo)'
     dst_ns:
     - kube-system-new
     dst_pods:
@@ -29,7 +29,7 @@
   - src_ns:
     - kube-system-new
     src_pods:
-    - (tier in (frontend))
+    - tier in (frontend)
     dst_ip_block:
     - 49.50.0.0/32
     connection:
@@ -37,7 +37,7 @@
   - src_ns:
     - kube-system-new
     src_pods:
-    - (tier in (frontend))
+    - tier in (frontend)
     dst_ip_block:
     - 49.50.0.2/32
     connection:

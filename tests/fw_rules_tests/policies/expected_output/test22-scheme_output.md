@@ -1,6 +1,6 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |connectivity_map, config: np22||||||
-||[default]|[(test not in (C))]|[default]|[has(app)]|All connections|
+||[default]|[test not in (C)]|[default]|[has(app)]|All connections|
 
 

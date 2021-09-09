@@ -16,7 +16,7 @@
     dst_ns:
     - default
     dst_pods:
-    - (app in (A,B))
+    - app in (A,B)
     connection:
     - All connections
   - src_ip_block:
@@ -35,7 +35,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '!has(app) or (app in (dev))'
+    - '!has(app) or app in (dev)'
     connection:
     - All connections
 
@@ -46,7 +46,7 @@
     dst_ns:
     - default
     dst_pods:
-    - (app in (dev))
+    - app in (dev)
     connection:
     - All connections
   - src_ip_block:
@@ -66,7 +66,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '{(app in (G))} and {(tier in (W))}'
+    - app in (G) and tier in (W)
     connection:
     - All connections
 
@@ -88,7 +88,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '{!has(app)} and {!has(tier)}'
+    - '!has(app) and !has(tier)'
     connection:
     - All connections
 
@@ -99,7 +99,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '{!has(tier)} and {(app in (B))}'
+    - '!has(tier) and app in (B)'
     connection:
     - All connections
 
@@ -110,7 +110,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '{!has(app) or (app in (B))} and {!has(tier)}'
+    - '!has(tier) and {!has(app) or app in (B)}'
     connection:
     - All connections
 
@@ -121,7 +121,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '{(has(app) and app not in (B))} and {(tier in (W,X))}'
+    - (has(app) and app not in (B)) and tier in (W,X)
     connection:
     - All connections
 

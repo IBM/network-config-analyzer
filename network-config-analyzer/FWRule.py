@@ -68,7 +68,8 @@ class LabelExpr:
             if ns_has_pods_without_label_k:
                 prefix_expr = f'has({k}) and '
         vals_str = ','.join(v for v in sorted(list(shorter_values_list)))
-        return f'({prefix_expr}{k} {containment_str} ({vals_str}))'
+        label_containment_expr = f'{k} {containment_str} ({vals_str})'
+        return f'({prefix_expr}{label_containment_expr})' if prefix_expr else label_containment_expr
 
     def get_values_expr_str_per_simple_key(self, k, values):
         """
@@ -94,7 +95,8 @@ class LabelExpr:
                 complement_values = all_valid_values - valid_values
                 expr_str_list.append(
                     self.get_valid_values_expr_str(k, valid_values, complement_values, ns_has_pods_without_label_k))
-        return " or ".join(e for e in sorted(expr_str_list))
+        res_expr_str = " or ".join(e for e in sorted(expr_str_list))
+        return '{' + res_expr_str + '}' if len(expr_str_list) > 1 else res_expr_str
 
     def __str__(self):
         """
@@ -114,7 +116,9 @@ class LabelExpr:
             values_set_per_key = set(v[index] for v in values_list_per_all_keys)
             expr_str = self.get_values_expr_str_per_simple_key(key, values_set_per_key)
             expr_str_list.append(expr_str)
-        expr_str_list = ["{" + e + "}" for e in expr_str_list] if len(expr_str_list) > 1 else expr_str_list
+
+        if len(expr_str_list) == 1:
+            return expr_str_list[0].replace('{', '').replace('}', '')
         return ' and '.join(e for e in sorted(expr_str_list))
 
     def __eq__(self, other):

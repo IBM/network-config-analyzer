@@ -1,4 +1,4 @@
 final fw rules for query: connectivity_map, config: np22:
-src_ns: [default] src_pods: [(test not in (C))] dst_ns: [default] dst_pods: [has(app)] conn: All connections
+src_ns: [default] src_pods: [test not in (C)] dst_ns: [default] dst_pods: [has(app)] conn: All connections
 
 
