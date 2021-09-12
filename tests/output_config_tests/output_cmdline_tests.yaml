@@ -32,7 +32,12 @@
     --pod_list ../example_podlist/pods_list.json
     -o md
 
-# currently skipping dot format, because cannot sort its output w/o flag from outputConfiguration in scheme file
+- name: basic_connectivity_dot
+  args: >
+    --connectivity ../example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list ../example_podlist/ns_list.json
+    --pod_list ../example_podlist/pods_list.json
+    -o dot
 
 - name: basic_connectivity_other
   args: >

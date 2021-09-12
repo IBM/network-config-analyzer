@@ -120,6 +120,7 @@ fw_rules_assertions:
   - name: all_scheme_tests
     type: scheme
     root: fw_rules_tests/policies/
+    activate_output_config_flag: fwRulesRunInTestMode
 
 #---------------------------------------------------------------------------------------------------------------------------------
 

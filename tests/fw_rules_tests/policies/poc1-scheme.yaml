@@ -14,4 +14,3 @@ queries:
     outputFormat: txt
     outputPath: null
     fwRulesRunInTestMode: false
-    connectivitySortDotOutput: false

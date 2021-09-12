@@ -43,16 +43,16 @@ jobs:
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Run unit tests
-        run: |
-          python tests/run_unittests.py
+        run: python tests/run_unittests.py
       - name: Run all tests
         env:
           GHE_TOKEN: ${{ github.token }}
-        run: |
-          python tests/run_all_tests.py
+        run: python tests/run_all_tests.py --type=general
       - name: Run output comparison tests
-        run: |
-          python tests/run_all_tests.py --type=output
+        run:  python tests/run_all_tests.py --type=output
       - name: Run fw-rules assertions tests
-        run: |
-          python tests/run_all_tests.py --type=fw_rules_assertions
+        run:  python tests/run_all_tests.py --type=fw_rules_assertions
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.2.0
+      - name: Run live-k8s tests
+        run:  python tests/run_all_tests.py --type=k8s_live_general

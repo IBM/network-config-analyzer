@@ -12,7 +12,6 @@ import yaml
 from ruamel.yaml import YAML
 from contextlib import redirect_stdout
 
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'network-config-analyzer'))
 from nca import nca_main
@@ -25,7 +24,12 @@ script should be run with one of the following flags combinations:
     run_all_tests.py --type=k8s_live_general  --action=run_tests
     run_all_tests.py --type=output --action=run_tests
     run_all_tests.py --type=fw_rules_assertions --action=run_tests
-    run_all_tests.py --type=output --action=override_expected_output   ( used for updating tests expected output or adding new tests with unknown expected output)
+    run_all_tests.py --type=output --action=override_expected_output   (used for updating tests expected output or 
+                                                                        adding new tests with unknown expected output)
+    
+    optional flags:
+    --dont_clean_output_files   (will save output files in tests/actual_output_files.
+                                 by default cleaning generated output files)
 
 """
 
@@ -146,7 +150,7 @@ class SchemeFile:
 # general test: comparison of numerical result (nca return value) to expected value
 # most of the test flow is common to other tests types
 class GeneralTest:
-    def __init__(self, test_name, test_queries_obj, expected_result):
+    def __init__(self, test_name, test_queries_obj, expected_result, clean_out_files, required_output_config_flag):
         self.test_name = test_name  # str
         self.test_queries_obj = test_queries_obj  # SchemeFile or CliQuery
         self.result = None  # tuple of (numerical result, test runtime)
@@ -155,6 +159,8 @@ class GeneralTest:
         self.nca_res = None
         self.expected_result = expected_result  # integer - expected return value from nca
         self.result_details = None  # extra info on test results. currently only relevant for OutputTests
+        self.clean_out_files = clean_out_files
+        self.required_output_config_flag = required_output_config_flag
 
     def initialize_test(self):
         self._update_required_scheme_file_config_args(True)
@@ -177,8 +183,16 @@ class GeneralTest:
     def run_nca(self):
         return nca_main(self.test_queries_obj.args_obj.args)
 
+    def move_output_files_to_dedicated_dir(self):
+        # move actual out file from current dir to actual_output_files dir
+        for out_file in self.test_queries_obj.list_expected_output_files:
+            actual_out_file = TestsRunner.get_actual_out_file_path(out_file)
+            if Path(os.path.basename(actual_out_file)).exists():
+                shutil.move(os.path.basename(actual_out_file), actual_out_file)
+
     def run_test(self):
         self.nca_res = self.run_nca()  # either run a scheme or a query, with relevant args
+        self.move_output_files_to_dedicated_dir()
 
     # update self.numerical_result, return true if test passed
     def evaluate_test_results(self):
@@ -190,7 +204,8 @@ class GeneralTest:
         else:
             print('Testcase', self.test_name, 'passed')
         self.result = (self.numerical_result, time() - self.start_time, self.result_details)
-        self._clean_generated_output_files()
+        if self.clean_out_files:
+            self._clean_generated_output_files()
         self._update_required_scheme_file_config_args(False)
 
     def _clean_generated_output_files(self, after_test_run=True):
@@ -203,8 +218,10 @@ class GeneralTest:
             os.remove(out_file_actual)
 
     def _update_required_scheme_file_config_args(self, before_test_run):
-        # currently nothing to do for GeneralTest
-        return
+        if self.required_output_config_flag is not None:
+            if isinstance(self.test_queries_obj, SchemeFile):
+                self.test_queries_obj.update_arg_at_scheme_file_output_config(self.required_output_config_flag,
+                                                                              before_test_run)
 
 
 # output test: comparison of actual output files and/or stdout output to expected output files
@@ -212,28 +229,25 @@ class GeneralTest:
 class OutputTest(GeneralTest):
     stdout_ouf_file_suffix = '__stdout_output.txt'
 
-    def __init__(self, test_name, test_queries_obj, expected_output_dir):
-        super().__init__(test_name, test_queries_obj, None)
+    def __init__(self, test_name, test_queries_obj, expected_output_dir, clean_out_files, required_output_config_flag):
+        super().__init__(test_name, test_queries_obj, None, clean_out_files, required_output_config_flag)
         self.expected_output_dir = expected_output_dir
         self.result_details = {}  # map from file name to comparison result (bool)
+        self.clean_out_files = clean_out_files
 
     def _clean_generated_output_files(self, after_test_run=True):
         all_out_files = self.test_queries_obj.list_expected_output_files
         if after_test_run:  # don't clean failed output tests after test run
-            all_out_files = [f for f in all_out_files if self.result_details[f]]
+            if self.clean_out_files:
+                all_out_files = [f for f in all_out_files if self.result_details[f]]
+            else:
+                all_out_files = []
         for out_file in all_out_files:
             self._delete_output_file(out_file)
             # create empty output files before test run (so even if out file not created, the empty ref file exists)
             if not after_test_run:
                 filename = Path(TestsRunner.get_actual_out_file_path(out_file))
                 filename.touch(exist_ok=True)  # will create file, if it exists will do nothing
-
-    def _update_required_scheme_file_config_args(self, before_test_run):
-        if isinstance(self.test_queries_obj, SchemeFile):
-            # when overriding out_format with cli arg of 'dot', should add flag to sort dot output
-            if self.test_queries_obj.args_obj.has_out_format_arg_with_val('dot'):
-                self.test_queries_obj.update_arg_at_scheme_file_output_config('connectivitySortDotOutput',
-                                                                              before_test_run)
 
     def initialize_test(self):
         # due to 'append' behavior - for output test, make sure to delete output files from prev runs
@@ -248,6 +262,7 @@ class OutputTest(GeneralTest):
         else:
             res = self.run_nca()
         self.nca_res = res
+        self.move_output_files_to_dedicated_dir()
 
     def _get_out_file_expected_and_actual(self, out_file):
         expected_out_file = os.path.join(self.expected_output_dir, out_file)
@@ -260,6 +275,7 @@ class OutputTest(GeneralTest):
         for out_file in output_files:
             expected_out_file, actual_out_file = self._get_out_file_expected_and_actual(out_file)
             comparison_res = self.compare_files(actual_out_file, expected_out_file)
+
             self.result_details[out_file] = comparison_res
             if not comparison_res:
                 # consider as one test failure, even if multiple output files fail in comparison on this test
@@ -313,14 +329,9 @@ class OutputTest(GeneralTest):
 
 # for fw-rules - activate assertions for testing in fwRulesTestMode
 class AssertionTest(GeneralTest):
-    def __init__(self, test_name, test_queries_obj):
-        super().__init__(test_name, test_queries_obj, None)
+    def __init__(self, test_name, test_queries_obj, clean_out_files, required_output_config_flag):
+        super().__init__(test_name, test_queries_obj, None, clean_out_files, required_output_config_flag)
         self.assertion_error = None
-
-    def _update_required_scheme_file_config_args(self, before_test_run):
-        if isinstance(self.test_queries_obj, SchemeFile):
-            self.test_queries_obj.update_arg_at_scheme_file_output_config('fwRulesRunInTestMode',
-                                                                          before_test_run)
 
     def run_test(self):
         try:
@@ -331,6 +342,7 @@ class AssertionTest(GeneralTest):
             tb_info = traceback.extract_tb(tb)
             filename, line, func, text = tb_info[-1]
             self.assertion_error = f'An error occurred on file {filename} line {line} in statement {text}'
+        self.move_output_files_to_dedicated_dir()
 
     def evaluate_test_results(self):
         self.numerical_result = 0 if self.assertion_error is None else 1
@@ -339,7 +351,8 @@ class AssertionTest(GeneralTest):
 class TestFilesSpec(dict):
     def __init__(self, tests_spec_dict=None):
         default_tests_spec = {'type': None, 'root': None, 'expected_output': None, 'out_format_arg': None,
-                              'add_out_path_arg': False, 'files_list': None, 'out_path_arg_suffix': '_output'}
+                              'add_out_path_arg': False, 'files_list': None, 'out_path_arg_suffix': '_output',
+                              'activate_output_config_flag': None}
         super().__init__(default_tests_spec)
         if tests_spec_dict is not None:
             self.update(tests_spec_dict)
@@ -349,13 +362,14 @@ class TestFilesSpec(dict):
 
 
 class TestsRunner:
-    def __init__(self, spec_file, tests_type, action):
+    def __init__(self, spec_file, tests_type, action, clean_out_files):
         self.spec_file = spec_file
         self.all_results = {}
         self.global_res = 0
         self.tests_type = tests_type  # general / k8s_live_general / output / fw_rules_assertions
         self.action = action
         self.test_files_spec = None
+        self.clean_out_files = clean_out_files
 
     @staticmethod
     def k8s_apply_resources(yaml_file):
@@ -410,13 +424,17 @@ class TestsRunner:
         for test_queries_obj in test_queries_obj_list:
             # create test object
             test_obj = None
+            required_output_config_flag = self.test_files_spec.activate_output_config_flag
             if self.tests_type in {'general', 'k8s_live_general'}:
-                test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res)
+                test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res, self.clean_out_files,
+                                       required_output_config_flag)
             elif self.tests_type == 'fw_rules_assertions':
-                test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj)
+                test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, self.clean_out_files,
+                                         required_output_config_flag)
             elif self.tests_type == 'output':
                 test_obj = OutputTest(test_queries_obj.test_name, test_queries_obj,
-                                      self.test_files_spec.expected_output)
+                                      self.test_files_spec.expected_output, self.clean_out_files,
+                                      required_output_config_flag)
             # run test object with required action
             if self.action == 'run_tests':
                 self.global_res += test_obj.run_all_test_flow(self.all_results)
@@ -477,7 +495,8 @@ class TestsRunner:
 
     @staticmethod
     def get_actual_output_dir():
-        return os.getcwd()
+        # return os.getcwd()
+        return os.path.join('.', 'actual_output_files')
 
     @staticmethod
     def get_actual_out_file_path(out_file):
@@ -489,21 +508,25 @@ def main(argv=None):
     os.chdir(base_dir)
 
     parser = argparse.ArgumentParser(description='Testing network configuration analyzer')
-    parser.add_argument('--type', choices=['general', 'k8s_live_general', 'output', 'fw_rules_assertions'], help='Choose test types to run',
+    parser.add_argument('--type', choices=['general', 'k8s_live_general', 'output', 'fw_rules_assertions'],
+                        help='Choose test types to run',
                         default='general')
+
     parser.add_argument('--action', choices=['run_tests', 'override_expected_output'],
                         default='run_tests',
                         help='Choose action')
+    parser.add_argument('--dont_clean_output_files', action='store_true', help='Do not clean output files')
 
     args = parser.parse_args(argv)
     test_type = args.type
     action = args.action
+    clean_out_files = not args.dont_clean_output_files
     if action != 'run_tests' and test_type != 'output':
         print(f'action: {action} is not supported with test type: {test_type}')
         sys.exit(1)
 
     spec_file = 'all_tests_spec.yaml'
-    tests_runner = TestsRunner(spec_file, test_type, action)
+    tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files)
     tests_runner.run_tests()
     return 0
 

@@ -74,11 +74,7 @@ class ConnectivityGraph:
                     conn_str = str(connections).replace("Protocol:", "")
                     line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
                     edge_lines.append(line)
-        # for testing purposes - sort the output if required
-        if self.output_config.connectivitySortDotOutput:
-            peer_lines = sorted(peer_lines)
-            edge_lines = sorted(edge_lines)
-        output_result += ''.join(line for line in peer_lines) + ''.join(line for line in edge_lines) + '}\n\n'
+        output_result += ''.join(line for line in sorted(peer_lines)) + ''.join(line for line in sorted(edge_lines)) + '}\n\n'
         return output_result
 
     def get_minimized_firewall_rules(self):

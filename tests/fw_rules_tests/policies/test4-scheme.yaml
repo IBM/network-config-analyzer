@@ -17,7 +17,6 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
-    connectivitySortDotOutput: false
     outputFormat: txt
     outputPath: null
 - name: connectivity_map_3
@@ -26,6 +25,5 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
-    connectivitySortDotOutput: false
     outputFormat: txt
     outputPath: null
