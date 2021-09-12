@@ -227,7 +227,8 @@ class SchemeRunner(GenericYamlParser):
                 query_output += full_result.output_result
                 total_res += not full_result.bool_result
                 if not full_result.bool_result:
-                    query_output += full_result.output_explanation + '\n'
+                    query_output += full_result.output_explanation
+                query_output += '\n'
         if full_result.bool_result:
             query_output += '\n'
         output_configuration.print_query_output(query_output)
@@ -247,6 +248,7 @@ class SchemeRunner(GenericYamlParser):
                 query_output += full_result.output_result
                 if not full_result.bool_result and full_result.output_explanation:
                     query_output += full_result.output_explanation
+                query_output += '\n'
         if full_result.bool_result or not full_result.output_explanation:
             query_output += '\n'
         output_configuration.print_query_output(query_output)
@@ -265,7 +267,8 @@ class SchemeRunner(GenericYamlParser):
                     query_output += full_result.output_result
                 res += full_result.numerical_result
                 if not full_result.bool_result:
-                    query_output += full_result.output_explanation + '\n'
+                    query_output += full_result.output_explanation
+                query_output += '\n'
         output_configuration.print_query_output(query_output, SemanticDiffQuery.supported_output_formats)
         return res
 
@@ -281,7 +284,8 @@ class SchemeRunner(GenericYamlParser):
             if full_result.output_result:
                 query_output += full_result.output_result
             if full_result.output_explanation:
-                query_output += full_result.output_explanation + '\n'
+                query_output += full_result.output_explanation
+            query_output += '\n'
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -295,6 +299,7 @@ class SchemeRunner(GenericYamlParser):
                 query_output += full_result.output_result
             else:
                 query_output += full_result.output_explanation
+            query_output += '\n'
             res += full_result.numerical_result
         query_output += '\n'
         output_configuration.print_query_output(query_output)
@@ -312,7 +317,8 @@ class SchemeRunner(GenericYamlParser):
             res += full_result.bool_result
             query_output += full_result.output_result
             if full_result.bool_result:
-                query_output += full_result.output_explanation + '\n'
+                query_output += full_result.output_explanation
+            query_output += '\n'
 
         if not full_result.bool_result:
             query_output += '\n'
@@ -333,7 +339,8 @@ class SchemeRunner(GenericYamlParser):
                     total_res += full_result.bool_result
                     query_output += full_result.output_result
                     if full_result.bool_result:
-                        query_output += full_result.output_explanation + '\n'
+                        query_output += full_result.output_explanation
+                    query_output += '\n'
         if not full_result.bool_result:
             query_output += '\n'
         output_configuration.print_query_output(query_output)
@@ -348,6 +355,7 @@ class SchemeRunner(GenericYamlParser):
                 query_output += full_result.output_explanation
             else:
                 query_output += full_result.output_result
+            query_output += '\n'
             res += full_result.numerical_result
         query_output += '\n'
         output_configuration.print_query_output(query_output)
@@ -359,6 +367,7 @@ class SchemeRunner(GenericYamlParser):
         for config in configs_array:
             full_result = VacuityQuery(self._get_config(config), output_configuration).exec()
             query_output += full_result.output_result
+            query_output += '\n'
             res += full_result.bool_result
         query_output += '\n'
         output_configuration.print_query_output(query_output)
@@ -373,7 +382,7 @@ class SchemeRunner(GenericYamlParser):
             query_output += full_result.output_result
             if not full_result.bool_result:
                 query_output += full_result.output_explanation
-                query_output += '\n'
+            query_output += '\n'
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res
@@ -404,7 +413,8 @@ class SchemeRunner(GenericYamlParser):
                 query_output += full_result.output_result
                 total_res += full_result.numerical_result
                 if full_result.numerical_result != 3:
-                    query_output += full_result.output_explanation + '\n'
+                    query_output += full_result.output_explanation
+                query_output += '\n'
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return total_res
@@ -421,9 +431,10 @@ class SchemeRunner(GenericYamlParser):
             res += full_result.bool_result
             if full_result.bool_result:
                 query_output += configs_array[0] + ' does not forbid connections specified in ' + config + ':'
-                query_output += full_result.output_explanation + '\n'
+                query_output += full_result.output_explanation
             else:
                 query_output += configs_array[0] + ' forbids connections specified in ' + config
+            query_output += '\n'
 
         if not full_result.bool_result:
             query_output += '\n'
@@ -448,6 +459,7 @@ class SchemeRunner(GenericYamlParser):
                     query_output += full_result.output_explanation + '\n'
             else:
                 query_output += configs_array[0] + ' permits all connections specified in ' + config
+            query_output += '\n'
 
         query_output += '\n'
         output_configuration.print_query_output(query_output)
@@ -461,7 +473,7 @@ class SchemeRunner(GenericYamlParser):
             res += full_result.numerical_result
             query_output += full_result.output_result
             if not full_result.bool_result:
-                query_output += full_result.output_explanation + '\n'
+                query_output += full_result.output_explanation
         query_output += '\n'
         output_configuration.print_query_output(query_output)
         return res

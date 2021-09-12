@@ -1,0 +1,150 @@
+# Enables access from all pods in kube-system to all addresses
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipv6-enable-to-kube-system-from-ipblock-all-addresses
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - ipBlock:
+          cidr: ::/0     # All destinations
+
+---
+ ### Enables access from all pods in kube-system to all addresses except SL Internal, kube System and kube cluster
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipv6-enable-to-kube-system-from-ipblock-original
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: ::/0     # All destinations
+          except:
+          - 4f10:d80:1a00:ffff:ffff:ffff:ffff:ffff/126 # Range A
+          - a000:800::/32 # Range B
+          - a000:a00::/32 # Range C
+      ports:
+        - port: 53
+          protocol: UDP
+
+---
+ ### Enables access from all pods in kube-system to all addresses except SL Internal, kube System and kube cluster with redundancy - additional redundant from with more except
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipv6-enable-to-kube-system-from-ipblock-original-with-redundancy-by-except
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: ::/0     # All destinations
+          except:
+          - 4f10:d80:1a00:ffff:ffff:ffff:ffff:ffff/126 # Range A
+          - a000:800::/32 # Range B
+          - a000:a00::/32 # Range C
+      ports:
+        - port: 53
+          protocol: UDP
+    - from:
+      - ipBlock:
+          cidr: ::/0     # All destinations
+          except:
+          - 4f10:d80:1a00:ffff:ffff:ffff:ffff:ffff/126 # Range A
+          - a000::/16    # overlaps with the above ranges B and C
+      ports:
+        - port: 53
+          protocol: UDP
+
+
+---
+### Enables access from all pods in kube-system to all addresses except SL Internal, kube System and kube cluster
+### The ip block range here is written differently than the previous one - by separating Kube cluster to two halves
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipv6-enable-to-kube-system-from-ipblock-except-kube-cluster-written-differently
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: ::/0     # All destinations
+          except:
+          - 4f10:d80:1a00:ffff:ffff:ffff:ffff:ffff/126 # Range A
+          - a000:800::/32        # Range B
+          - a000:a00::/33        # Range C first half
+          - a000:a00:8000::/33   # Range C second half
+      ports:
+        - port: 53
+          protocol: UDP
+
+---
+### Enables access from all pods in kube-system to all addresses except SL Internal, kube System and kube cluster
+### The ip block range here is written differently than the previous one - by separating all addresses to 2
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipv6-enable-to-kube-system-from-ipblock-all-except-separated-to-2
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: ::/1     # All destinations first half
+          except:
+          - 4f10:d80:1a00:ffff:ffff:ffff:ffff:ffff/126 # Range A
+      ports:
+        - port: 53
+          protocol: UDP
+    - from:
+      - ipBlock:
+          cidr: 8000::/1     # All destinations second half
+          except:
+          - a000:800::/32 # Range B
+          - a000:a00::/32 # Range C
+      ports:
+        - port: 53
+          protocol: UDP
+
+---
+### Enables access from all pods in kube-system to all addresses except SL Internal, kube System and kube cluster first half
+### The ip block range here is thus a real superset of the previous ones
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipv6-enable-to-kube-system-from-ipblock-except-half-kube-cluster
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - ipBlock:
+          cidr: ::/0    # All destinations
+          except:
+          - 4f10:d80:1a00:ffff:ffff:ffff:ffff:ffff/126 # Range A
+          - a000:800::/32        # Range B
+          - a000:a00::/33        # Range C first half
+      ports:
+        - port: 53
+          protocol: UDP
