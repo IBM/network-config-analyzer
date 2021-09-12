@@ -2,7 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+import re
 from GenericYamlParser import GenericYamlParser
 from IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
 from Peer import IpBlock, PeerSet
@@ -73,6 +73,41 @@ class IstioPolicyYamlParser(GenericYamlParser):
                 'error parsing namespace regular expr: currently not supporting prefix/suffix patterns ', ns)
         ns_obj = self.peer_container.get_namespace(ns)
         return self.peer_container.get_namespace_pods(ns_obj)
+
+    def parse_principal_str(self, principal):
+        """
+        parse a principal string from source component in rule
+        :param principal: the principal string, currently assuming in format: "cluster.local/ns/<ns-str>/sa/<sa-str>"
+        :return: PeerSet: All pods with the given ns + sa_name as extracted from principal str
+        """
+        if '*' in principal:
+            self.syntax_error(
+                'error parsing principal regular expr: currently not supporting prefix/suffix patterns ', principal)
+        # principal_str_example = "cluster.local/ns/default/sa/sleep"
+        # TODO: support a more general pattern for principal str (prefix by istio trust-domain)
+        # TODO: tighter checks in parsing the principal str
+        principal_pattern = 'cluster.local/ns/([\\w-]+)/sa/([\\w-]+)'
+        match = re.search(principal_pattern, principal)
+        if match:
+            ns = match.group(1)
+            sa_name = match.group(2)
+            return self.peer_container.get_pods_with_service_account_name(sa_name, ns)
+        self.syntax_error(f'error parsing principal str: {principal}')
+
+    def parse_principals(self, principals_list, not_principals_list):
+        """
+        Parse a principals element (within a source component of  a rule)
+        :param principals_list: list[str]  list of principals patterns/strings
+        :param not_principals_list: list[str]  negative list of principals patterns/strings
+        :return: A PeerSet containing the relevant pods
+        :rtype: Peer.PeerSet
+        """
+        res = PeerSet() if principals_list is not None else self.peer_container.get_all_peers_group()
+        for principal in principals_list or []:
+            res |= self.parse_principal_str(principal)
+        for principal in not_principals_list or []:
+            res -= self.parse_principal_str(principal)
+        return res
 
     def parse_namespaces(self, ns_list, not_ns_list):
         """
@@ -156,6 +191,8 @@ class IstioPolicyYamlParser(GenericYamlParser):
             return self.parse_ip_block(values, not_values)  # PeerSet
         elif key == 'source.namespace':
             return self.parse_namespaces(values, not_values)  # PeerSet
+        elif key == 'source.principal':
+            return self.parse_principals(values, not_values)  # PeerSet
         elif key == 'destination.port':
             return self.parse_ports_list(values, not_values)  # ConnectionSet
         return NotImplemented, False
@@ -167,12 +204,12 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :return: PeerSet or ConnectionSet (depends on the key) with allowed values
         """
         allowed_elements = {'key': [1, str], 'values': [0, list], 'notValues': [0, list]}
-        allowed_key_values = {'key': ['source.ip', 'source.namespace', 'destination.port']}
+        allowed_key_values = {'key': ['source.ip', 'source.namespace', 'source.principal', 'destination.port']}
         # https://istio.io/latest/docs/reference/config/security/conditions/
-        # TODO: support additional key values: request.headers, remote.ip, source.principal, request.auth.principal,
+        # TODO: support additional key values: request.headers, remote.ip, request.auth.principal,
         #  request.auth.audiences, request.auth.presenter, request.auth.claims, destination.ip, connection.sni
         self.check_fields_validity(condition, 'authorization policy condition', allowed_elements, allowed_key_values)
-        for key_elem in allowed_elements.keys():
+        for key_elem in allowed_elements:
             self.validate_existing_key_is_not_null(condition, key_elem)
 
         key = condition.get('key')
@@ -201,7 +238,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         allowed_elements = {'ports': [0, list], 'notPorts': [0, list], 'hosts': 2, 'notHosts': 2, 'methods': 2,
                             'notMethods': 2, 'paths': 2, 'notPaths': 2}
         self.check_fields_validity(operation, 'authorization policy operation', allowed_elements)
-        for key_elem in allowed_elements.keys():
+        for key_elem in allowed_elements:
             self.validate_existing_key_is_not_null(operation, key_elem)
         self.validate_dict_elem_has_non_empty_array_value(operation, 'to.operation')
 
@@ -226,37 +263,45 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if source_peer is None:
             self.syntax_error('Authorization policy from.source cannot be null. ')
 
-        res = PeerSet()
+
         # TODO: support source with multiple attributes ("fields in the source are ANDed together")
         # TODO: add support for allowed elements currently unsupported (principals, requestPrincipals, remoteIpBlocks)
         allowed_elements = {'namespaces': [0, list], 'notNamespaces': [0, list], 'ipBlocks': [0, list],
-                            'notIpBlocks': [0, list], 'principals': 2, 'notPrincipals': 2, 'requestPrincipals': 2,
+                            'notIpBlocks': [0, list], 'principals': [0, list], 'notPrincipals': [0, list], 'requestPrincipals': 2,
                             'notRequestPrincipals': 2, 'remoteIpBlocks': 2, 'notRemoteIpBlocks': 2}
         # TODO: though specified 'list' value_type, check_fields_validity doesn't fail since value is None (empty)...
         self.check_fields_validity(source_peer, 'authorization policy rule: source', allowed_elements)
-        for key_elem in allowed_elements.keys():
+        for key_elem in allowed_elements:
             self.validate_existing_key_is_not_null(source_peer, key_elem)
         self.validate_dict_elem_has_non_empty_array_value(source_peer, 'from.source')
 
         has_ns = 'namespaces' in source_peer or 'notNamespaces' in source_peer
         has_ip = 'ipBlocks' in source_peer or 'notIpBlocks' in source_peer
+        has_principals = 'principals' in source_peer or 'notPrincipals' in source_peer
 
         # TODO: how to support a source peer with both namespace and ip-block properties?
         #  currently assuming ip-block is only outside the cluster
-        if has_ns and has_ip:
-            self.warning('currently not supporting source with both namespace and ip block')
+        if has_ip and (has_principals or has_ns):
+            self.warning('currently not supporting source with both namespaces/principals and ip block')
             # TODO: should return empty peerSet if has requirements of both ns and ip-block ?
-            return res
+            return PeerSet()
+
+        res = self.peer_container.get_all_peers_group(True)
+
+        if has_principals:
+            principals_list = source_peer.get('principals')
+            not_principals_list = source_peer.get('notPrincipals')
+            res &= self.parse_principals(principals_list, not_principals_list)
 
         if has_ns:
             ns_list = source_peer.get('namespaces')
             not_ns_list = source_peer.get('notNamespaces')
-            res = self.parse_namespaces(ns_list, not_ns_list)
+            res &= self.parse_namespaces(ns_list, not_ns_list)
 
         elif has_ip:
             ip_blocks = source_peer.get('ipBlocks')
             not_ip_blocks = source_peer.get('notIpBlocks')
-            res = self.parse_ip_block(ip_blocks, not_ip_blocks)
+            res &= self.parse_ip_block(ip_blocks, not_ip_blocks)
 
         return res
 
@@ -274,7 +319,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         allowed_elements = {'from': [0, list], 'to': [0, list], 'when': [0, list]}
         self.check_fields_validity(rule, 'authorization policy rule', allowed_elements)
-        for key_elem in allowed_elements.keys():
+        for key_elem in allowed_elements:
             self.validate_existing_key_is_not_null(rule, key_elem)
 
         # collect source peers into res_peers

@@ -135,7 +135,7 @@ class Pod(ClusterEP):
     This class represents either a K8s Pod resource or a Calico WorkloadEndpoint resource
     """
 
-    def __init__(self, name, namespace, owner_name='', owner_kind=None):
+    def __init__(self, name, namespace, owner_name='', owner_kind=None, service_account_name=''):
         """
         :param str name: The name of the Pod
         :param K8sNamespace namespace: The namespace object for the Pod's namespace
@@ -144,6 +144,7 @@ class Pod(ClusterEP):
         """
         super().__init__(name, namespace)
         self.owner_name = owner_name
+        self.service_account_name = service_account_name
 
         if not owner_name:  # no owner
             self.workload_name = f'{namespace.name}/{name}(Pod)'

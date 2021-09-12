@@ -211,14 +211,22 @@ class PodElement(FWRuleElement):
         """
         :return: list[string] for the field src_pods or dst_pods in representation for yaml object
         """
-        return [str(self.element.owner_name)] if isinstance(self.element, Pod) else [str(self.element.name)]
+        return [str(self._get_pod_name())]
 
     def get_pod_str(self):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
         """
-        # using elem.owner_name for Pod elem, and elem.name for HostEP
-        return f'[{self.element.owner_name}]' if isinstance(self.element, Pod) else f'[{self.element.name}]'
+        return f'[{self._get_pod_name()}]'
+
+    def _get_pod_name(self):
+        """
+        return pod name :using elem.owner_name for Pod elem (if exists), and elem.name for HostEP
+        :return: string representing pod element name
+        """
+        if isinstance(self.element, Pod) and self.element.owner_name:
+            return self.element.owner_name
+        return self.element.name
 
     def __str__(self):
         """
