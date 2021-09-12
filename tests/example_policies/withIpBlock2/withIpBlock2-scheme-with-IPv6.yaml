@@ -22,11 +22,13 @@ queries:
     emptiness:
       - np2-ipv6
       - np2
+      - np5-ipv6
 
   - name: no_vacuity
     vacuity:
       - np2-ipv6
       - np2
+      - np5-ipv6
 
 # The last two should be equiv
   - name: ipv6-compare_equiv_policies_all_addresses_and_original

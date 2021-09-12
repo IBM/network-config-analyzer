@@ -422,14 +422,25 @@ class K8sPolicyYamlParser(GenericYamlParser):
         res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
 
         ingress_rules = policy_spec.get('ingress', [])
+        exception = ''
         if ingress_rules:
             for ingress_rule in ingress_rules:
-                res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule, res_policy.selected_peers))
+                try:
+                    res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule, res_policy.selected_peers))
+                except ValueError as e:
+                    exception = e.args
+                if exception:
+                    self.syntax_error(exception)
 
         egress_rules = policy_spec.get('egress', [])
         if egress_rules:
             for egress_rule in egress_rules:
-                res_policy.add_egress_rule(self.parse_egress_rule(egress_rule))
+                try:
+                    res_policy.add_egress_rule(self.parse_egress_rule(egress_rule))
+                except ValueError as e:
+                    exception = e.args
+                if exception:
+                    self.syntax_error(exception)
 
         res_policy.findings = self.warning_msgs
         return res_policy
