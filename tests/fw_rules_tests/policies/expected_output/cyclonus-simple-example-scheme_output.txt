@@ -2,6 +2,6 @@ final fw rules for query: connectivity_map, config: cyclonus-simple-example:
 src ip block: 0.0.0.0/0 dst_ns: [y] dst_pods: [b] conn: All connections
 src ip block: 0.0.0.0/24 dst_ns: [y] dst_pods: [c] conn: All connections
 src_ns: [y] src_pods: [a] dst_ns: [y] dst_pods: [b] conn: All connections
-src_ns: [y] src_pods: [pod in (a,b)] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [y] src_pods: [pod not in (c)] dst ip block: 0.0.0.0/0 conn: All connections
 
 
