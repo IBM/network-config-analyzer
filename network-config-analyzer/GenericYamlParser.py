@@ -27,8 +27,8 @@ class GenericYamlParser:
         :return: None
         """
         if isinstance(obj, comments.CommentedBase):
-            raise SyntaxError(msg, (self.yaml_file_name, obj.lc.line, obj.lc.col, ''))
-        raise SyntaxError(msg)
+            raise SyntaxError(msg, (self.yaml_file_name, obj.lc.line, obj.lc.col, '')) from None
+        raise SyntaxError(msg) from None
 
     def warning(self, msg, obj=None):
         """

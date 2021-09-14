@@ -200,7 +200,10 @@ class K8sPolicyYamlParser(GenericYamlParser):
         """
         self.check_fields_validity(block, 'ipBlock', {'cidr': [1, str], 'except': [0, list]})
         res = Peer.PeerSet()
-        res.add(Peer.IpBlock(block['cidr'], block.get('except')))
+        try:
+            res.add(Peer.IpBlock(block['cidr'], block.get('except')))
+        except ValueError as e:
+            self.syntax_error(e.args)
         return res
 
     def parse_peer(self, peer):
@@ -425,22 +428,12 @@ class K8sPolicyYamlParser(GenericYamlParser):
         exception = ''
         if ingress_rules:
             for ingress_rule in ingress_rules:
-                try:
-                    res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule, res_policy.selected_peers))
-                except ValueError as e:
-                    exception = e.args
-                if exception:
-                    self.syntax_error(exception)
+                res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule, res_policy.selected_peers))
 
         egress_rules = policy_spec.get('egress', [])
         if egress_rules:
             for egress_rule in egress_rules:
-                try:
-                    res_policy.add_egress_rule(self.parse_egress_rule(egress_rule))
-                except ValueError as e:
-                    exception = e.args
-                if exception:
-                    self.syntax_error(exception)
+                res_policy.add_egress_rule(self.parse_egress_rule(egress_rule))
 
         res_policy.findings = self.warning_msgs
         return res_policy
