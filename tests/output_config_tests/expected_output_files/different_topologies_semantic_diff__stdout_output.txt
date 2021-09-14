@@ -14,8 +14,8 @@ src_ns: [default] src_pods: [app in (app-3,app-4)] dst ip block: 0.0.0.0/0 conn:
 
 Lost connections between removed peers and persistent peers:
 Removed connections (based on topology from config: output_config_tests/../example_policies/tests-different-topologies/policy_a.yaml) :
-src_ns: [default] src_pods: [app in (app-0,app-1,app-2)] dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
 src_ns: [default] src_pods: [app in (app-3,app-4)] dst_ns: [default] dst_pods: [app in (app-0,app-2)] conn: All connections
+src_ns: [default] src_pods: [app not in (app-3,app-4)] dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
 
 Changed connections between persistent peers:
 Added connections (based on topology from config: output_config_tests/../example_policies/tests-different-topologies/policy_b.yaml) :
@@ -33,8 +33,8 @@ src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All conne
 
 New connections between persistent peers and added peers:
 Added connections (based on topology from config: output_config_tests/../example_policies/tests-different-topologies/policy_b.yaml) :
-src_ns: [default] src_pods: [app in (app-0,app-1,app-2)] dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
 src_ns: [default] src_pods: [app in (app-5,app-6)] dst_ns: [default] dst_pods: [app in (app-0,app-1)] conn: All connections
+src_ns: [default] src_pods: [app not in (app-5,app-6)] dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
 
 New connections between added peers:
 Added connections (based on topology from config: output_config_tests/../example_policies/tests-different-topologies/policy_b.yaml) :
