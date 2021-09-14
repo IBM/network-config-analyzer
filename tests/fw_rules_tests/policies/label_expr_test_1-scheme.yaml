@@ -52,7 +52,6 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesOverrideAllowedLabels: app
-    fwRulesGeneralizeLabelExpr: true
 - name: test_tier_and_app_label
   connectivityMap:
   - test5
@@ -65,5 +64,4 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesOverrideAllowedLabels: app:tier
-    fwRulesGeneralizeLabelExpr: true
     fwRulesGroupByLabelSinglePod: true

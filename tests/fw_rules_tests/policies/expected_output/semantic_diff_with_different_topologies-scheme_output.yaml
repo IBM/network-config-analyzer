@@ -46,21 +46,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-0,app-1,app-2)
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-3,app-4)
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
     - app in (app-3,app-4)
     dst_ns:
     - default
     dst_pods:
     - app in (app-0,app-2)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app not in (app-3,app-4)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-3,app-4)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Added connections
@@ -117,21 +117,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-0,app-1,app-2)
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-5,app-6)
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
     - app in (app-5,app-6)
     dst_ns:
     - default
     dst_pods:
     - app in (app-0,app-1)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app not in (app-5,app-6)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-5,app-6)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: New connections
@@ -225,21 +225,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-0,app-1,app-2)
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-5,app-6)
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
     - app in (app-5,app-6)
     dst_ns:
     - default
     dst_pods:
     - app in (app-0,app-1)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app not in (app-5,app-6)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-5,app-6)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: Added connections
@@ -296,21 +296,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-0,app-1,app-2)
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-3,app-4)
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
     - app in (app-3,app-4)
     dst_ns:
     - default
     dst_pods:
     - app in (app-0,app-2)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app not in (app-3,app-4)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-3,app-4)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_b, config2: config_a, key: New connections
@@ -406,7 +406,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (app-0,app-2,app-3,app-4)
+    - app not in (app-1)
     connection:
     - All connections
   - src_ns:
@@ -427,7 +427,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (app-0,app-2,app-3,app-4)
+    - app not in (app-1)
     connection:
     - All connections
   - src_ns:
@@ -447,7 +447,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - has(tier)
     connection:
     - Protocol: TCP
       Ports:
@@ -457,7 +457,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - has(tier)
     connection:
     - Protocol: TCP
       Ports:
@@ -467,7 +467,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - has(tier)
     connection:
     - Protocol: TCP
       Ports:
@@ -477,7 +477,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - has(tier)
     connection:
     - Protocol: TCP
       Ports:
@@ -490,7 +490,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - has(tier)
     connection:
     - Protocol: UDP
       Ports:
@@ -500,7 +500,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - has(tier)
     connection:
     - Protocol: UDP
       Ports:
@@ -510,7 +510,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - has(tier)
     connection:
     - Protocol: UDP
       Ports:
@@ -520,7 +520,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - has(tier)
     connection:
     - Protocol: UDP
       Ports:
@@ -574,21 +574,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-0,app-1,app-2)
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-3,app-4)
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
     - app in (app-3,app-4)
     dst_ns:
     - default
     dst_pods:
     - app in (app-0,app-2)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app not in (app-3,app-4)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-3,app-4)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
@@ -711,21 +711,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-0,app-1,app-2)
-    dst_ns:
-    - default
-    dst_pods:
-    - app in (app-5,app-6)
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
     - app in (app-5,app-6)
     dst_ns:
     - default
     dst_pods:
     - app in (app-0,app-1)
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    src_pods:
+    - app not in (app-5,app-6)
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (app-5,app-6)
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,

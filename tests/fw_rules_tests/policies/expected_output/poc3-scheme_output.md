@@ -14,6 +14,6 @@
 ||[default]|[loadgenerator]|[default]|[frontend]|TCP 8080,|
 ||[kube-system]|[*]|[default]|[frontend]|TCP 8080,|
 ||[default]|[frontend]|[default]|[adservice]|TCP 9555,|
-||[default]|[app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)]|[kube-system]|[k8s-app in (kube-dns)]|UDP 53,|
+||[default]|[app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)]|[kube-system]|[has(k8s-app)]|UDP 53,|
 
 

@@ -1,7 +1,7 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |connectivity_map, config: np23||||||
-||[default]|[*]|[default]|[app in (skydive)]|UDP 53,|
-||[default]|[test in (C)]|[default]|[app in (skydive)]|All connections|
+||[default]|[*]|[default]|[has(app)]|UDP 53,|
+||[default]|[test in (C)]|[default]|[has(app)]|All connections|
 
 
