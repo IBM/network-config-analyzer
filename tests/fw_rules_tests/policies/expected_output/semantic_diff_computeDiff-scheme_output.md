@@ -1,9 +1,9 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |semantic_diff, config1: new1, config2: old1, key: Added connections between persistent peers||||||
-||[demo]|[bank-ui]|[demo]|[account-command]|TCP 1-8079,8081-9089,9091-65536,UDP 1-8079,8081-65536,SCTP 1-65536,|
+||[demo]|[bank-ui]|[demo]|[account-command]|All but TCP 8080,9090,UDP 8080,|
 |semantic_diff, config1: new1, config2: old1, key: Removed connections between persistent peers||||||
-||[demo]|[account-query]|[demo]|[bank-ui]|TCP 1-8079,8081-65536,UDP 1-65536,SCTP 1-65536,|
+||[demo]|[account-query]|[demo]|[bank-ui]|All but TCP 8080,|
 
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|

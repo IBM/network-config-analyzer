@@ -29,7 +29,7 @@
   - src_ns:
     - y
     src_pods:
-    - pod in (a,b)
+    - pod not in (c)
     dst_ip_block:
     - 0.0.0.0/0
     connection:

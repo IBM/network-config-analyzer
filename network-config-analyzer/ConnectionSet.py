@@ -40,6 +40,7 @@ class ConnectionSet:
     def __hash__(self):
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
 
+    # TODO: should consider shorter notation (complement- 'all but ...' ) for yaml representation as well?
     def get_connections_list(self, is_k8s_config):
         """
         :param is_k8s_config:  bool flag indicating if network policy is k8s or not
@@ -65,12 +66,30 @@ class ConnectionSet:
             res.append(protocol_obj)
         return res
 
+    def get_simplified_connections_str(self, is_k8s_config):
+        """
+        Get a simplified representation of the connection set - choose shorter version between self and its complement
+        :param is_k8s_config: bool flag indicating if network policy is k8s or not
+        :return: a string representation of the connection set, to be used at fw-rules representation in txt
+        """
+        if self.allow_all:
+            return "All connections"
+        if not self.allowed_protocols:
+            return 'No connections'
+        complement = ConnectionSet(True) - self
+        complement_str = complement.get_connections_str(is_k8s_config)
+        self_str = self.get_connections_str(is_k8s_config)
+        # TODO: is there a better heuristic here?
+        if len(complement_str) < len(self_str):
+            return f'All but {complement_str}'
+        return self_str
+
     def get_connections_str(self, is_k8s_config):
         """
+        Get a string representation of the connection set
         :param is_k8s_config:  bool flag indicating if network policy is k8s or not
         :return: a string representation of the connection set, to be used at fw-rules representation in txt
         """
-
         if self.allow_all:
             return "All connections"
         if not self.allowed_protocols:

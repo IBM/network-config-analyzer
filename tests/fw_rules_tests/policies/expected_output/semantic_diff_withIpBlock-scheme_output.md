@@ -33,10 +33,10 @@
 ||[kube-system]|[tier in (frontend)]|[default,kube-system-dummy-to-ignore,vendor-system]|[*]|All connections|
 ||[kube-system]|[tier in (frontend)]|[kube-system]|[!has(tier) or tier in (not_frontend_for_demo)]|All connections|
 |semantic_diff, config1: np1, config2: np4, key: Added connections between persistent peers and ipBlocks||||||
-|||ip block: 0.0.0.0/5|[kube-system]|[tier in (frontend)]|TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,|
-|||ip block: 11.0.0.0/8|[kube-system]|[tier in (frontend)]|TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,|
-|||ip block: 172.22.0.0/15|[kube-system]|[tier in (frontend)]|TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,|
-|||ip block: 172.31.0.0/16|[kube-system]|[tier in (frontend)]|TCP 1-65536,UDP 1-52,54-65536,SCTP 1-65536,|
+|||ip block: 0.0.0.0/5|[kube-system]|[tier in (frontend)]|All but UDP 53,|
+|||ip block: 11.0.0.0/8|[kube-system]|[tier in (frontend)]|All but UDP 53,|
+|||ip block: 172.22.0.0/15|[kube-system]|[tier in (frontend)]|All but UDP 53,|
+|||ip block: 172.31.0.0/16|[kube-system]|[tier in (frontend)]|All but UDP 53,|
 |||ip block: 10.0.0.0/8|[kube-system]|[tier in (frontend)]|All connections|
 |||ip block: 172.21.0.0/16|[kube-system]|[tier in (frontend)]|All connections|
 |||ip block: 172.30.0.0/16|[kube-system]|[tier in (frontend)]|All connections|

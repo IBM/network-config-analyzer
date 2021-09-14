@@ -3,11 +3,11 @@
   - src_ns:
     - default
     src_pods:
-    - test in (A,B)
+    - test not in (C)
     dst_ns:
     - default
     dst_pods:
-    - app in (skydive)
+    - has(app)
     connection:
     - All connections
 

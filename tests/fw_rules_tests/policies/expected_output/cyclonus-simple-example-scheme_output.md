@@ -4,6 +4,6 @@
 |||ip block: 0.0.0.0/0|[y]|[b]|All connections|
 |||ip block: 0.0.0.0/24|[y]|[c]|All connections|
 ||[y]|[a]|[y]|[b]|All connections|
-||[y]|[pod in (a,b)]||ip block: 0.0.0.0/0|All connections|
+||[y]|[pod not in (c)]||ip block: 0.0.0.0/0|All connections|
 
 

@@ -39,7 +39,7 @@
   - src_ns:
     - kube-system-new
     src_pods:
-    - app in (helm,ibm-kube-fluentd,ibm-storage-watcher,vpn)
+    - (has(app) and app not in (ibm-file-plugin,ibm-keepalived-watcher))
     dst_ns:
     - kube-system-new
     dst_pods:
