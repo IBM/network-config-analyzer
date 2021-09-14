@@ -49,6 +49,7 @@ queries:
       - np2
       - np2-ipv6
       - np5-ipv6
+    expected: 0
 
   - name: no_vacuity
     vacuity:
@@ -56,6 +57,7 @@ queries:
       - np2
       - np2-ipv6
       - np5-ipv6
+    expected: 0
 
   - name: compare_np1_and_np2
     equivalence:
