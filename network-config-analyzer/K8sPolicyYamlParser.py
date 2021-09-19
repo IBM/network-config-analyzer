@@ -203,7 +203,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         try:
             res.add(Peer.IpBlock(block['cidr'], block.get('except')))
         except ValueError as e:
-            self.syntax_error(e.args)
+            self.syntax_error(e.args, block)
         return res
 
     def parse_peer(self, peer):
