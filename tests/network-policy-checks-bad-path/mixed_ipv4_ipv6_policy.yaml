@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mixed-ipv4-ipv6-policy-different-rules
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - ipBlock:
+          cidr: 0.0.0.0/0     # All destinations IPv4
+      ports:
+        - port: 53
+          protocol: UDP
+    - from:
+      - ipBlock:
+          cidr: ::/0     # All destinations IPv6
+      ports:
+        - port: 53
+          protocol: UDP
