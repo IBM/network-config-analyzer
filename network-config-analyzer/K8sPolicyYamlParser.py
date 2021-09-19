@@ -425,7 +425,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
         res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
 
         ingress_rules = policy_spec.get('ingress', [])
-        exception = ''
         if ingress_rules:
             for ingress_rule in ingress_rules:
                 res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule, res_policy.selected_peers))
