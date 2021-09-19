@@ -195,7 +195,7 @@ class SchemeRunner(GenericYamlParser):
         allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0,
                             'redundancy': 0, 'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0,
                             'sanity': 0, 'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0,
-                            'expected': 0, 'allCaptured': 0, 'connectivityMap': 0, 'outputConfiguration': 0}
+                            'expected': 0, 'expectedError': None, 'allCaptured': 0, 'connectivityMap': 0, 'outputConfiguration': 0}
 
         for query in query_array:
             res = 0
@@ -204,10 +204,24 @@ class SchemeRunner(GenericYamlParser):
             print('Running query', query_name)
             output_config_obj = self.get_query_output_config_obj(query)
 
+            expected_error = None
             for query_key in query.keys():
-                if query_key not in ['name', 'expected', 'outputConfiguration']:
-                    res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key],
-                                                                                               output_config_obj)
+                if query_key not in ['name', 'expected', 'expectedError', 'outputConfiguration']:
+                    try:
+                        res += getattr(self, f'_run_{self._lower_camel_to_snake_case(query_key)}')(query[query_key],
+                                                                                                   output_config_obj)
+                    except TypeError as err:
+                        if 'expectedError' in query:
+                            expected_error = query['expectedError']
+                        if expected_error is None:
+                            self.syntax_error(err.args, query)
+                        found_error = 1
+            if expected_error is not None:
+                if found_error != expected_error:
+                    self.warning(f'error mismatch for query {query_name}: '
+                                 f'Expected {expected_error} errors, got {found_error}\n', query)
+                    self.global_res += 1
+
             if 'expected' in query:
                 expected = query['expected']
                 if res != expected:

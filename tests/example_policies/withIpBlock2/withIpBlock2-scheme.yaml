@@ -65,6 +65,13 @@ queries:
       - np2
     expected: 1
 
+# Mixing comparison between ipv4 and ipv6 should result in error
+  - name: mixed_compare_np5_and_np5-ipv6
+    equivalence:
+      - np5
+      - np5-ipv6
+    expectedError: 1
+
   - name: compare_np3_and_np4
     equivalence:
       - np3
@@ -93,6 +100,27 @@ queries:
       - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-original
       - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-except-separated-to-2
     expected: 2
+
+# Mixing equivalence between ipv4 and ipv6 should result in error
+  - name: mixed-ipv4-ipv6-comparison
+    equivalence:
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-addresses
+    expectedError: 1
+
+# Mixing redundancy check with ipv4 and ipv6 should be ok
+  - name: mixed-ipv4-ipv6-redundancy
+    redundancy:
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-addresses
+    expected: 0
+
+# Mixing containment between ipv4 and ipv6 should result in error
+  - name: mixed-ipv4-ipv6-containment
+    containment:
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-addresses
+    expectedError: 1
 
 # all should be equiv.
   - name: compare_equiv_policies_original_and_versions
