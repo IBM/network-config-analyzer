@@ -1,9 +1,0 @@
-|query|src_ns|src_pods|dst_ns|dst_pods|connection|
-|---|---|---|---|---|---|
-|connectivity_map, config: np3||||||
-||[default]|[*]|[kube-system-new]|[*]|TCP 85-90,|
-|||ip block: 0.0.0.0/0|[default]|[*]|All connections|
-||[default,kube-system-new]|[*]||ip block: 0.0.0.0/0|All connections|
-||[default,kube-system-new]|[*]|[default]|[*]|All connections|
-
-

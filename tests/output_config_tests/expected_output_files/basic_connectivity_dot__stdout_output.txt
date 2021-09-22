@@ -1,0 +1,39 @@
+global: cluster has 29 unique endpoints, 8 namespaces
+global: cluster has 29 unique endpoints, 8 namespaces
+
+// The Connectivity Graph of 
+digraph  {
+	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
+	"default/cog-agents-d54st" [label="default/cog-agents-d54st" color="blue" fontcolor="blue"]
+	"default/cog-agents-js4qc" [label="default/cog-agents-js4qc" color="blue" fontcolor="blue"]
+	"default/cog-agents-qr8gp" [label="default/cog-agents-qr8gp" color="blue" fontcolor="blue"]
+	"default/cog-local-analyzer-7d77fb55cc-bs8rc" [label="default/cog-local-analyzer-7d77fb55cc-bs8rc" color="blue" fontcolor="blue"]
+	"kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77-t6slc" [label="kube-system-dummy-to-ignore/calico-kube-controllers-7694668c77-t6slc" color="blue" fontcolor="blue"]
+	"kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db-9s486" [label="kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db-9s486" color="blue" fontcolor="blue"]
+	"kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db-bbvts" [label="kube-system-dummy-to-ignore/kube-dns-amd64-d66bf76db-bbvts" color="blue" fontcolor="blue"]
+	"kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46-zt2sf" [label="kube-system-dummy-to-ignore/kube-dns-autoscaler-78f5fdbd46-zt2sf" color="blue" fontcolor="blue"]
+	"kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf-cvg7r" [label="kube-system-dummy-to-ignore/kubernetes-dashboard-5b5f985bcf-cvg7r" color="blue" fontcolor="blue"]
+	"kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-b9j42" [label="kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-b9j42" color="blue" fontcolor="blue"]
+	"kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-hctcv" [label="kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1-8489b8458f-hctcv" color="blue" fontcolor="blue"]
+	"kube-system/calico-node-mgdlr" [label="kube-system/calico-node-mgdlr" color="blue" fontcolor="blue"]
+	"kube-system/calico-node-ns8kw" [label="kube-system/calico-node-ns8kw" color="blue" fontcolor="blue"]
+	"kube-system/calico-node-ptdgj" [label="kube-system/calico-node-ptdgj" color="blue" fontcolor="blue"]
+	"kube-system/file-plugin-7bfb8b69bf-p86gk" [label="kube-system/file-plugin-7bfb8b69bf-p86gk" color="blue" fontcolor="blue"]
+	"kube-system/heapster-7df8cb8c66-zxkk2" [label="kube-system/heapster-7df8cb8c66-zxkk2" color="blue" fontcolor="blue"]
+	"kube-system/keepalived-watcher-57ghx" [label="kube-system/keepalived-watcher-57ghx" color="blue" fontcolor="blue"]
+	"kube-system/keepalived-watcher-gzdfm" [label="kube-system/keepalived-watcher-gzdfm" color="blue" fontcolor="blue"]
+	"kube-system/keepalived-watcher-wczq8" [label="kube-system/keepalived-watcher-wczq8" color="blue" fontcolor="blue"]
+	"kube-system/kube-fluentd-2qw2g" [label="kube-system/kube-fluentd-2qw2g" color="blue" fontcolor="blue"]
+	"kube-system/kube-fluentd-h6rjg" [label="kube-system/kube-fluentd-h6rjg" color="blue" fontcolor="blue"]
+	"kube-system/kube-fluentd-qmp4w" [label="kube-system/kube-fluentd-qmp4w" color="blue" fontcolor="blue"]
+	"kube-system/storage-watcher-8494b4b8bb-f8csd" [label="kube-system/storage-watcher-8494b4b8bb-f8csd" color="blue" fontcolor="blue"]
+	"kube-system/tiller-deploy-5c45c9966b-nqwz6" [label="kube-system/tiller-deploy-5c45c9966b-nqwz6" color="blue" fontcolor="blue"]
+	"kube-system/vpn-858f6d9777-2bw5m" [label="kube-system/vpn-858f6d9777-2bw5m" color="blue" fontcolor="blue"]
+	"vendor-system/barbar-app-r66p2" [label="vendor-system/barbar-app-r66p2" color="blue" fontcolor="blue"]
+	"vendor-system/barbar-app-zv2ch" [label="vendor-system/barbar-app-zv2ch" color="blue" fontcolor="blue"]
+	"vendor-system/foofoo-app-lp6tw" [label="vendor-system/foofoo-app-lp6tw" color="blue" fontcolor="blue"]
+	"vendor-system/foofoo-app-vsh47" [label="vendor-system/foofoo-app-vsh47" color="blue" fontcolor="blue"]
+}
+
+
+

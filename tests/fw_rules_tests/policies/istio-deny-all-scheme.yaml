@@ -5,10 +5,10 @@ networkConfigList:
   networkPolicyList:
   - istio-deny-all-policy.yaml
   expectedWarnings: 0
-
 queries:
 - name: istio-deny-all
   connectivityMap:
   - istio-deny-all
   expected: 0
-
+  outputConfiguration:
+    fwRulesRunInTestMode: false

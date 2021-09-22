@@ -1,0 +1,10 @@
+global: cluster has 29 unique endpoints, 8 namespaces
+global: cluster has 29 unique endpoints, 8 namespaces
+
+"query","src_ns","src_pods","dst_ns","dst_pods","connection",
+"","","","","","",
+"","","ip block: 0.0.0.0/0","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","All connections",
+"","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","","ip block: 0.0.0.0/0","All connections",
+"","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","All connections",
+
+

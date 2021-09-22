@@ -1,0 +1,37 @@
+// The Connectivity Graph of poc1
+digraph poc1 {
+	HEADER [shape="box" label=< <B>connectivity_map/poc1</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
+	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
+	"default/adservice-1" [label="default/adservice-1" color="blue" fontcolor="blue"]
+	"default/cartservice-1" [label="default/cartservice-1" color="blue" fontcolor="blue"]
+	"default/checkoutservice-1" [label="default/checkoutservice-1" color="blue" fontcolor="blue"]
+	"default/currencyservice-1" [label="default/currencyservice-1" color="blue" fontcolor="blue"]
+	"default/emailservice-1" [label="default/emailservice-1" color="blue" fontcolor="blue"]
+	"default/frontend-1" [label="default/frontend-1" color="blue" fontcolor="blue"]
+	"default/loadgenerator-1" [label="default/loadgenerator-1" color="blue" fontcolor="blue"]
+	"default/paymentservice-1" [label="default/paymentservice-1" color="blue" fontcolor="blue"]
+	"default/productcatalogservice-1" [label="default/productcatalogservice-1" color="blue" fontcolor="blue"]
+	"default/recommendationservice-1" [label="default/recommendationservice-1" color="blue" fontcolor="blue"]
+	"default/redis-cart-1" [label="default/redis-cart-1" color="blue" fontcolor="blue"]
+	"default/shippingservice-1" [label="default/shippingservice-1" color="blue" fontcolor="blue"]
+	"0.0.0.0/0" -> "default/frontend-1" [label=" TCP, 8080" color="gold2" fontcolor="darkgreen"]
+	"default/cartservice-1" -> "default/redis-cart-1" [label=" TCP, 6379" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice-1" -> "default/cartservice-1" [label=" TCP, 7070" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice-1" -> "default/currencyservice-1" [label=" TCP, 7000" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice-1" -> "default/emailservice-1" [label=" TCP, 8080" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice-1" -> "default/paymentservice-1" [label=" TCP, 50051" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice-1" -> "default/productcatalogservice-1" [label=" TCP, 3550" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice-1" -> "default/shippingservice-1" [label=" TCP, 50051" color="gold2" fontcolor="darkgreen"]
+	"default/frontend-1" -> "default/adservice-1" [label=" TCP, 9555" color="gold2" fontcolor="darkgreen"]
+	"default/frontend-1" -> "default/cartservice-1" [label=" TCP, 7070" color="gold2" fontcolor="darkgreen"]
+	"default/frontend-1" -> "default/checkoutservice-1" [label=" TCP, 5050" color="gold2" fontcolor="darkgreen"]
+	"default/frontend-1" -> "default/currencyservice-1" [label=" TCP, 7000" color="gold2" fontcolor="darkgreen"]
+	"default/frontend-1" -> "default/productcatalogservice-1" [label=" TCP, 3550" color="gold2" fontcolor="darkgreen"]
+	"default/frontend-1" -> "default/recommendationservice-1" [label=" TCP, 8080" color="gold2" fontcolor="darkgreen"]
+	"default/frontend-1" -> "default/shippingservice-1" [label=" TCP, 50051" color="gold2" fontcolor="darkgreen"]
+	"default/loadgenerator-1" -> "default/frontend-1" [label=" TCP, 8080" color="gold2" fontcolor="darkgreen"]
+	"default/recommendationservice-1" -> "default/productcatalogservice-1" [label=" TCP, 3550" color="gold2" fontcolor="darkgreen"]
+}
+
+
+

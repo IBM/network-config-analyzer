@@ -5,10 +5,10 @@ networkConfigList:
   networkPolicyList:
   - istio-allow-all-policy.yaml
   expectedWarnings: 0
-
 queries:
 - name: istio-allow-all
   connectivityMap:
   - istio-allow-all
   expected: 0
-
+  outputConfiguration:
+    fwRulesRunInTestMode: false
