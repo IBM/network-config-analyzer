@@ -185,6 +185,72 @@ class HostEP(ClusterEP):
     def is_global_peer(self):
         return True
 
+class IPNetworkAddress:
+    """
+    This class represents an arbitrary network address (either IPv4 or IPv6)
+    """
+
+    def __init__(self, address):
+        if not isinstance(address, ipaddress.IPv4Address) and \
+                not isinstance(address, ipaddress.IPv6Address):
+            raise ValueError('%r does not appear to be an IPv4 or IPv6 network' % address)
+        self.address = address
+
+    def __int__(self):
+        return int(self.address)
+
+    def __eq__(self, other):
+        return self.address == other.address
+
+    def __lt__(self, other):
+        if not isinstance(other, IPNetworkAddress):
+            return NotImplemented
+        if self.address._version == other.address._version:
+            return self.address < other.address
+        return self.address._version < other.address._version    # IPv4 < IPv6
+
+    def __le__(self, other):
+        if not isinstance(other, IPNetworkAddress):
+            return NotImplemented
+        if self.address._version == other.address._version:
+            return self.address <= other.address
+        return self.address._version < other.address._version    # IPv4 < IPv6
+
+    def __gt__(self, other):
+        if not isinstance(other, IPNetworkAddress):
+            return NotImplemented
+        if self.address._version == other.address._version:
+            return self.address > other.address
+        return self.address._version > other.address._version    # IPv6 > IPv4
+
+    def __ge__(self, other):
+        if not isinstance(other, IPNetworkAddress):
+            return NotImplemented
+        if self.address._version == other.address._version:
+            return self.address >= other.address
+        return self.address._version > other.address._version    # IPv6 > IPv4
+
+    def __add__(self, other):
+        if not isinstance(other, int):
+            return NotImplemented
+        return self.__class__(self.address + other)
+
+    def __sub__(self, other):
+        if not isinstance(other, int):
+            return NotImplemented
+        return self.__class__(self.address - other)
+
+    def __repr__(self):
+        return repr(self.address)
+
+    def __str__(self):
+        return str(self.address)
+
+    def __hash__(self):
+        return hash(self.address)
+
+    def __format__(self, fmt):
+        return format(self.address)
 
 class IpBlock(Peer, CanonicalIntervalSet):
     """
@@ -263,12 +329,12 @@ class IpBlock(Peer, CanonicalIntervalSet):
 
     def add_cidr(self, cidr, exceptions=None):
         ipn = ip_network(cidr, False)  # strict is False as k8s API shows an example CIDR where host bits are set
-        self.add_interval(CanonicalIntervalSet.Interval(ipn.network_address, ipn.broadcast_address))
+        self.add_interval(CanonicalIntervalSet.Interval(IPNetworkAddress(ipn.network_address), IPNetworkAddress(ipn.broadcast_address)))
         for exception in exceptions or []:
             exception_n = ip_network(exception, False)
             # the following line has no effect - only used to raise an exception when exception_n is not within cidr
             ipn.address_exclude(exception_n)  # TODO: use exception_n.subnet_of(self.cidr) (Python 3.7 only)
-            hole = CanonicalIntervalSet.Interval(exception_n.network_address, exception_n.broadcast_address)
+            hole = CanonicalIntervalSet.Interval(IPNetworkAddress(exception_n.network_address), IPNetworkAddress(exception_n.broadcast_address))
             self.add_hole(hole)
 
     def get_peer_set(self):
