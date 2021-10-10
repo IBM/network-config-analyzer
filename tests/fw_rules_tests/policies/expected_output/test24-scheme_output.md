@@ -1,7 +1,0 @@
-|query|src_ns|src_pods|dst_ns|dst_pods|connection|
-|---|---|---|---|---|---|
-|connectivity_map, config: np24||||||
-||[default]|[has(common)]|[default]|[has(app)]|UDP 53,|
-||[default]|[test in (C)]|[default]|[has(app)]|All connections|
-
-

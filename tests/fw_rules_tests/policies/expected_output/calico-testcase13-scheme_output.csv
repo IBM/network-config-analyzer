@@ -1,5 +1,0 @@
-"query","src_ns","src_pods","dst_ns","dst_pods","connection",
-"open-default-TCP-test, config: open-default-TCP","","","","","",
-"","[default]","[*]","[default]","[*]","All but UDPLite,",
-
-

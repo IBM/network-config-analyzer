@@ -17,9 +17,13 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null
 - name: connectivity_map_3
   connectivityMap:
   - np3
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+    outputPath: null

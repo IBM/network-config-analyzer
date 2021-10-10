@@ -11,6 +11,6 @@ queries:
   - poc1
   expected: 0
   outputConfiguration:
-    outputFormat: dot
-    outputPath: connectivityMapPoc1.dot
+    outputFormat: txt
+    outputPath: null
     fwRulesRunInTestMode: false

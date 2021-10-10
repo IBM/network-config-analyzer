@@ -50,28 +50,31 @@ class ConnectivityGraph:
         output_result += f'digraph {self.output_config.configName} ' + '{\n'
         if self.output_config.queryName and self.output_config.configName:
             output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
+        peer_lines = []
         for peer in self.cluster_info.all_peers:
             if isinstance(peer, IpBlock):
-                output_result += f'\t\"{peer.get_cidr_list_str()}\" [label=\"{peer.get_cidr_list_str()}\" color=\"red2\" fontcolor=\"red2\"]\n'
+                peer_lines.append(f'\t\"{peer.get_cidr_list_str()}\" [label=\"{peer.get_cidr_list_str()}\" color=\"red2\" fontcolor=\"red2\"]\n')
             else:
-                output_result += f'\t\"{str(peer)}\" [label=\"{str(peer)}\" color=\"blue\" fontcolor=\"blue\"]\n'
+                peer_lines.append(f'\t\"{str(peer)}\" [label=\"{str(peer)}\" color=\"blue\" fontcolor=\"blue\"]\n')
 
+        edge_lines = []
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer and not connections.allow_all:
-                    output_result += '\t'
+                    line = '\t'
                     if isinstance(src_peer, IpBlock):
-                        output_result += f'\"{src_peer.get_cidr_list_str()}\"'
+                        line += f'\"{src_peer.get_cidr_list_str()}\"'
                     else:
-                        output_result += f'\"{str(src_peer)}\"'
-                    output_result += ' -> '
+                        line += f'\"{str(src_peer)}\"'
+                    line += ' -> '
                     if isinstance(dst_peer, IpBlock):
-                        output_result += f'\"{dst_peer.get_cidr_list_str()}\"'
+                        line += f'\"{dst_peer.get_cidr_list_str()}\"'
                     else:
-                        output_result += f'\"{str(dst_peer)}\"'
+                        line += f'\"{str(dst_peer)}\"'
                     conn_str = str(connections).replace("Protocol:", "")
-                    output_result += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
-        output_result += '}\n\n'
+                    line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
+                    edge_lines.append(line)
+        output_result += ''.join(line for line in sorted(peer_lines)) + ''.join(line for line in sorted(edge_lines)) + '}\n\n'
         return output_result
 
     def get_minimized_firewall_rules(self):
