@@ -293,8 +293,8 @@ class IpBlock(Peer, CanonicalIntervalSet):
     def get_cidr_list(self):
         cidr_list = []
         for interval in self.interval_set:
-            startip = ipaddress.IPv4Address(interval.start)
-            endip = ipaddress.IPv4Address(interval.end)
+            startip = interval.start.address.__class__(interval.start) # either IPv4AAddress or IPv6Address
+            endip = interval.end.address.__class__(interval.end)
             cidr = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
             cidr_list.append(str(cidr[0]))
         return cidr_list
