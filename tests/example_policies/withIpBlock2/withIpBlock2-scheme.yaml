@@ -12,6 +12,11 @@ networkConfigList:
       - withIpBlock2-networkpolicy2.yaml
     expectedWarnings: 0
 
+  - name: np2-ipv6
+    networkPolicyList:
+      - withIpBlock2-networkpolicy2-IPv6.yaml
+    expectedWarnings: 0
+
   - name: np3
     networkPolicyList:
       - withIpBlock2-networkpolicy3.yaml
@@ -32,21 +37,39 @@ networkConfigList:
       - https://github.com/IBM/network-config-analyzer/blob/master/tests/example_policies/withIpBlock2/withIpBlock2-networkpolicy5.yaml
     expectedWarnings: 0
 
+  - name: np5-ipv6
+    networkPolicyList:
+      - withIpBlock2-networkpolicy5-IPv6.yaml
+    expectedWarnings: 0
+
 queries:
   - name: no_emptiness
     emptiness:
       - np1
       - np2
+      - np2-ipv6
+      - np5-ipv6
+    expected: 0
 
   - name: no_vacuity
     vacuity:
       - np1
       - np2
+      - np2-ipv6
+      - np5-ipv6
+    expected: 0
 
   - name: compare_np1_and_np2
     equivalence:
       - np1
       - np2
+    expected: 1
+
+# Mixing comparison between ipv4 and ipv6
+  - name: mixed_compare_np5_and_np5-ipv6
+    equivalence:
+      - np5
+      - np5-ipv6
     expected: 1
 
   - name: compare_np3_and_np4
@@ -70,12 +93,49 @@ queries:
       - np2/kube-system/enable-to-kube-system-from-ipblock-all-except-seperated-to-2
     expected: 2
 
+# The last two should be equiv
+  - name: ipv6-compare_equiv_policies_all_addresses_and_original
+    equivalence:
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-addresses
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-original
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-except-separated-to-2
+    expected: 2
+
+# Mixing equivalence between ipv4 and ipv6
+  - name: mixed-ipv4-ipv6-comparison
+    equivalence:
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-addresses
+    expected: 1
+
+# Mixing redundancy check with ipv4 and ipv6 should be ok
+  - name: mixed-ipv4-ipv6-redundancy
+    redundancy:
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-addresses
+    expected: 0
+
+# Mixing containment between ipv4 and ipv6
+  - name: mixed-ipv4-ipv6-containment
+    containment:
+      - np1/kube-system/enable-to-kube-system-from-ipblock-all-addresses
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-addresses
+    expected: 0
+
 # all should be equiv.
   - name: compare_equiv_policies_original_and_versions
     equivalence:
       - np2/kube-system/enable-to-kube-system-from-ipblock-original
       - np2/kube-system/enable-to-kube-system-from-ipblock-except-kube-cluster-written-differently
       - np2/kube-system/enable-to-kube-system-from-ipblock-all-except-seperated-to-2
+    expected: 0
+
+# all should be equiv.
+  - name: ipv6-compare_equiv_policies_original_and_versions
+    equivalence:
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-original
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-except-kube-cluster-written-differently
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-except-separated-to-2
     expected: 0
 
 # none should be equiv
@@ -86,6 +146,16 @@ queries:
       - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
       - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different3-port-added
       - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different4-port-reduced
+    expected: 10
+
+# none should be equiv
+  - name: ipv6-equiv_check_slighlty_different_policies
+    equivalence:
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different3-port-added
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different4-port-reduced
     expected: 10
 
 # comparing against the same file, but taken from GHE
@@ -105,6 +175,16 @@ queries:
       - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different4-port-reduced
     expected: 0
 
+# none should be redundant
+  - name: ipv6-redundancy_check_slighlty_different_policies
+    redundancy:
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different3-port-added
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different4-port-reduced
+    expected: 0
+
  # First 3 contain redundancy
   - name: redundancy_in_specific_policies
     redundancy:
@@ -116,6 +196,15 @@ queries:
       - np2/kube-system/enable-to-kube-system-from-ipblock-all-except-seperated-to-2
       - np2/kube-system/enable-to-kube-system-from-ipblock-except-half-kube-cluster
     expected: 3
+
+  - name: ipv6-redundancy_in_specific_policies
+    redundancy:
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-original-with-redundancy-by-except # contains redundancy
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-original
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-except-kube-cluster-written-differently
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-except-separated-to-2
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-except-half-kube-cluster
+    expected: 1
 
 # The two policies are equiv
   - name: compare_two_equiv_multiple_ports
@@ -152,6 +241,13 @@ queries:
     expected: 1
 
 # The first policy contains the second one
+  - name: ipv6-containment_specific_np2
+    containment:
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-except-half-kube-cluster
+      - np2-ipv6/kube-system/ipv6-enable-to-kube-system-from-ipblock-all-except-separated-to-2
+    expected: 1
+
+# The first policy contains the second one
   - name: containment_specific_np3
     containment:
       - np3/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
@@ -165,6 +261,12 @@ queries:
       - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
     expected: 1
 
+# The first policy contains the second one
+  - name: ipv6-containment_specific_np5_1
+    containment:
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
+    expected: 1
 
 # The first policy contains the second one
   - name: containment_specific_np5_2
@@ -174,9 +276,24 @@ queries:
     expected: 1
 
 # The first policy contains the second one
+  - name: ipv6-containment_specific_np5_2
+    containment:
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different2-excpect-smaller
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+    expected: 1
+
+# The first policy contains the second one
   - name: containment_specific_np5_3
     containment:
       - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different3-port-added
       - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
       - np5/kube-system/enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
+    expected: 2
+
+# The first policy contains the second one
+  - name: ipv6-containment_specific_np5_3
+    containment:
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different3-port-added
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54
+      - np5-ipv6/kube-system/ipv6-enable-from-kube-system-tier-frontend-to-ipblock-high-addresses-on-ports-53-54-slightly-different1-expect-bigger
     expected: 2

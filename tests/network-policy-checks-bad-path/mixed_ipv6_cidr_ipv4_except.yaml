@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ipv6-cidr-ipv4-except
+  namespace: kube-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - ipBlock:
+          cidr: ::/0     # All destinations IPv6
+          except:
+            - 172.21.0.0/16
+      ports:
+        - port: 53
+          protocol: UDP

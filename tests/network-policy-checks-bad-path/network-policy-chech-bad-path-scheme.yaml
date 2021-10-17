@@ -377,6 +377,21 @@ networkConfigList:
       - ipblock_cidr_wrong_type.yaml
     expectedError: 1
 
+  - name: ipblock_bad_cidr
+    networkPolicyList:
+      - ipblock_bad_cidr.yaml
+    expectedError: 1
+
+  - name: ipblock_bad_cidr_2
+    networkPolicyList:
+      - ipblock_bad_cidr_2.yaml
+    expectedError: 1
+
+  - name: ipblock_bad_cidr_3
+    networkPolicyList:
+      - ipblock_bad_cidr_3.yaml
+    expectedError: 1
+
   - name: ipblock_except_wrong_type
     networkPolicyList:
       - ipblock_except_wrong_type.yaml
@@ -405,4 +420,19 @@ networkConfigList:
   - name: peer_podselector_wrong_keys
     networkPolicyList:
       - peer_podselector_wrong_keys.yaml
+    expectedError: 1
+
+  - name: mixed-ipv4-ipv6-policy
+    networkPolicyList:
+      - mixed_ipv4_ipv6_policy.yaml
+    expectedError: 0
+
+  - name: mixed-ipv4-cidr-ipv6-except
+    networkPolicyList:
+      - mixed_ipv4_cidr_ipv6_except.yaml
+    expectedError: 1
+
+  - name: mixed-ipv6-cidr-ipv4-except
+    networkPolicyList:
+      - mixed_ipv6_cidr_ipv4_except.yaml
     expectedError: 1
