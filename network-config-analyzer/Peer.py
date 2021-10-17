@@ -254,6 +254,72 @@ class IPNetworkAddress:
 
     def max_address(self):
         return self.address._ip == self.address.__class__._ALL_ONES
+class IPNetworkAddress:
+    """
+    This class represents an arbitrary network address (either IPv4 or IPv6)
+    """
+
+    def __init__(self, address):
+        if not isinstance(address, ipaddress.IPv4Address) and \
+                not isinstance(address, ipaddress.IPv6Address):
+            raise ValueError('%r does not appear to be an IPv4 or IPv6 network' % address)
+        self.address = address
+
+    def __int__(self):
+        return int(self.address)
+
+    def __eq__(self, other):
+        return self.address == other.address
+
+    def __lt__(self, other):
+        if not isinstance(other, IPNetworkAddress):
+            return NotImplemented
+        if self.address._version == other.address._version:
+            return self.address < other.address
+        return self.address._version < other.address._version    # IPv4 < IPv6
+
+    def __le__(self, other):
+        if not isinstance(other, IPNetworkAddress):
+            return NotImplemented
+        if self.address._version == other.address._version:
+            return self.address <= other.address
+        return self.address._version < other.address._version    # IPv4 < IPv6
+
+    def __gt__(self, other):
+        if not isinstance(other, IPNetworkAddress):
+            return NotImplemented
+        if self.address._version == other.address._version:
+            return self.address > other.address
+        return self.address._version > other.address._version    # IPv6 > IPv4
+
+    def __ge__(self, other):
+        if not isinstance(other, IPNetworkAddress):
+            return NotImplemented
+        if self.address._version == other.address._version:
+            return self.address >= other.address
+        return self.address._version > other.address._version    # IPv6 > IPv4
+
+    def __add__(self, other):
+        if not isinstance(other, int):
+            return NotImplemented
+        return self.__class__(self.address + other)
+
+    def __sub__(self, other):
+        if not isinstance(other, int):
+            return NotImplemented
+        return self.__class__(self.address - other)
+
+    def __repr__(self):
+        return repr(self.address)
+
+    def __str__(self):
+        return str(self.address)
+
+    def __hash__(self):
+        return hash(self.address)
+
+    def __format__(self, fmt):
+        return format(self.address)
 
 class IpBlock(Peer, CanonicalIntervalSet):
     """
