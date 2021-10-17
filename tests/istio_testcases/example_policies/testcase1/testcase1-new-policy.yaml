@@ -14,8 +14,8 @@ spec:
         #namespaces: ["vendor-system", "default"]
         notNamespaces: ["vendor-system"]
     - source:
-        ipBlocks: ["1.2.3.0/24", "2.2.2.2", "3.3.3.3"]
-        notIpBlocks: ["3.3.3.3"]
+        ipBlocks: ["1.2.3.0/24", "2.2.2.2", "3.3.3.3", "f200:8000::/32", "8f00::ffff", "1234::1000"]
+        notIpBlocks: ["3.3.3.3", "1234::1000"]
     to:
     - operation:
         ports: ["26257", "30", "40", "50"]

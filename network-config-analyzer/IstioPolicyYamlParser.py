@@ -136,7 +136,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :return: A PeerSet containing the relevant IpBlocks
         :rtype: Peer.PeerSet
         """
-        ips_list = ['0.0.0.0/0'] if ips_list is None else ips_list  # If not set, any IP is allowed
+        ips_list = ['0.0.0.0/0', '::/0'] if ips_list is None else ips_list  # If not set, any IP is allowed
         not_ips_list = [] if not_ips_list is None else not_ips_list
         res_ip_block = IpBlock()
         for cidr in ips_list:
