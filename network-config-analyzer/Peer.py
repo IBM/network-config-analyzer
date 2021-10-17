@@ -252,6 +252,9 @@ class IPNetworkAddress:
     def __format__(self, fmt):
         return format(self.address)
 
+    def max_address(self):
+        return self.address._ip == self.address.__class__._ALL_ONES
+
 class IpBlock(Peer, CanonicalIntervalSet):
     """
     This class represents a set of ip ranges
@@ -302,10 +305,12 @@ class IpBlock(Peer, CanonicalIntervalSet):
     @staticmethod
     def get_all_ips_block():
         """
-        :return: The full range of ipv4 addresses
+        :return: The full range of ipv4 and ipv6 addresses
         :rtype: IpBlock
         """
-        return IpBlock('0.0.0.0/0')
+        res = IpBlock('0.0.0.0/0')
+        res.add_cidr('::/0')
+        return res
 
     def split(self):
         """

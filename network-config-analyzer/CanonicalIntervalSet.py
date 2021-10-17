@@ -214,9 +214,9 @@ class CanonicalIntervalSet:
             :return: Whether the two intervals touch each other (without overlapping)
             :rtype: bool
             """
-            if self.start > other.end:
+            if self.start > other.end and (hasattr(other.end, 'max_address') and not other.end.max_address()):
                 return self.start == other.end + 1
-            if other.start > self.end:
+            if other.start > self.end and (hasattr(self.end, 'max_address') and not self.end.max_address()):
                 return other.start == self.end + 1
             return False
 

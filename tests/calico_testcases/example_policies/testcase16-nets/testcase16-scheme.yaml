@@ -49,10 +49,22 @@ queries:
       - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
     expected: 1
 
+  - name: no_equiv_all_range_with_almost_all_with_deny-ipv6
+    equivalence:
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-ipv6
+      - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
+    expected: 1
+
   - name: contain_equiv_almost_all_range_and_smaller
     twoWayContainment:
       - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range
       - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller
+    expected: 1
+
+  - name: contain_equiv_almost_all_range_and_smaller-ipv6
+    twoWayContainment:
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-ipv6
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller-ipv6
     expected: 1
 
   - name: contaiment1
@@ -60,6 +72,13 @@ queries:
       - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
       - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range
       - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller
+    expected: 2
+
+  - name: contaiment1-ipv6
+    containment:
+      - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-ipv6
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller-ipv6
     expected: 2
 
   - name: contaiment_nets_not_nets_games

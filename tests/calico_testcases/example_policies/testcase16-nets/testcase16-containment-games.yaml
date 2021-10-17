@@ -33,6 +33,7 @@ spec:
     destination:
       nets:
       - 0.0.0.0/0
+      - ::/0
 ---
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
@@ -62,6 +63,32 @@ spec:
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
+  name: testcase16-nets-almost-all-range-ipv6
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - aa00::ffff
+      - aa80::0001
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - ::/0
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
   name: testcase16-nets-almost-all-range-smaller
   namespace: kube-system
 spec:
@@ -87,6 +114,31 @@ spec:
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
+  name: testcase16-nets-almost-all-range-smaller-ipv6
+  namespace: kube-system
+spec:
+  selector: tier == 'frontend'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+  egress:
+  - action: Deny
+    protocol: TCP
+    destination:
+      nets:
+      - aa00::/2
+  - action: Allow
+    protocol: TCP
+    destination:
+      nets:
+      - ::/0
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
   name: testcase16-not-nets-list
   namespace: kube-system
 spec:
@@ -105,12 +157,12 @@ spec:
       - 0.0.5.0
       - 0.5.0.0
       - 5.0.0.0
+      - aa00::ffff
   - action: Deny #should be redundant
     protocol: TCP
     destination:
       nets:
       - 0.0.0.5/4
-
 
 ---
 apiVersion: projectcalico.org/v3
@@ -134,6 +186,7 @@ spec:
       - 0.0.4.0
       - 0.4.0.0
       - 4.0.0.0
+      - aa00::1110
   - action: Deny #should be redundant
     protocol: TCP
     destination:
