@@ -94,6 +94,16 @@
     - Protocol: TCP
       Ports:
       - '8080'
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - default
+    dst_pods:
+    - frontend
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '8080'
   - src_ns:
     - default
     src_pods:

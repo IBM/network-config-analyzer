@@ -16,6 +16,14 @@
     - c
     connection:
     - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - y
+    dst_pods:
+    - b
+    connection:
+    - All connections
   - src_ns:
     - y
     src_pods:
@@ -32,6 +40,14 @@
     - pod not in (c)
     dst_ip_block:
     - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - y
+    src_pods:
+    - pod not in (c)
+    dst_ip_block:
+    - ::/0
     connection:
     - All connections
 

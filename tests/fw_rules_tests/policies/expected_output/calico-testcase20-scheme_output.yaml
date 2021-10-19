@@ -17,6 +17,23 @@
       Ports:
       - '52311'
     - Protocol: '112'
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - None
+    dst_pods:
+    - has(vendor.role)
+    connection:
+    - Protocol: ICMP
+      Type/Code:
+      - '[0-254] => [0-255];'
+    - Protocol: TCP
+      Ports:
+      - '52311'
+    - Protocol: UDP
+      Ports:
+      - '52311'
+    - Protocol: '112'
   - src_ns:
     - None
     src_pods:
@@ -535,12 +552,28 @@
     - has(vendor.role)
     connection:
     - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
   - src_ns:
     - None
     src_pods:
     - has(vendor.role)
     dst_ip_block:
     - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - None
+    src_pods:
+    - has(vendor.role)
+    dst_ip_block:
+    - ::/0
     connection:
     - All connections
   - src_ns:
@@ -559,6 +592,14 @@
     - '*'
     dst_ip_block:
     - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - ::/0
     connection:
     - All connections
   - src_ns:
@@ -589,6 +630,22 @@
     - All connections
   - src_ip_block:
     - 0.0.0.0/0
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - None
+    dst_pods:
+    - has(vendor.role)
+    connection:
+    - All connections
+  - src_ip_block:
+    - ::/0
     dst_ns:
     - kube-system
     dst_pods:
@@ -653,6 +710,14 @@
     - '*'
     dst_ip_block:
     - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - ::/0
     connection:
     - All connections
   - src_ns:
@@ -695,6 +760,22 @@
     - '*'
     connection:
     - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - None
+    dst_pods:
+    - has(vendor.role)
+    connection:
+    - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
   - src_ns:
     - None
     src_pods:
@@ -743,6 +824,14 @@
     - '*'
     dst_ip_block:
     - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - ::/0
     connection:
     - All connections
   - src_ns:
@@ -785,6 +874,22 @@
     - '*'
     connection:
     - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - None
+    dst_pods:
+    - has(vendor.role)
+    connection:
+    - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
   - src_ns:
     - None
     src_pods:
@@ -833,6 +938,14 @@
     - '*'
     dst_ip_block:
     - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - ::/0
     connection:
     - All connections
   - src_ns:

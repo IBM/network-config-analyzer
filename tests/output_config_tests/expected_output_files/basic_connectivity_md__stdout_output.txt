@@ -5,7 +5,9 @@ global: cluster has 29 unique endpoints, 8 namespaces
 |---|---|---|---|---|---|
 |||||||
 |||ip block: 0.0.0.0/0|[default,kube-system,kube-system-dummy-to-ignore,vendor-system]|[*]|All connections|
+|||ip block: ::/0|[default,kube-system,kube-system-dummy-to-ignore,vendor-system]|[*]|All connections|
 ||[default,kube-system,kube-system-dummy-to-ignore,vendor-system]|[*]||ip block: 0.0.0.0/0|All connections|
+||[default,kube-system,kube-system-dummy-to-ignore,vendor-system]|[*]||ip block: ::/0|All connections|
 ||[default,kube-system,kube-system-dummy-to-ignore,vendor-system]|[*]|[default,kube-system,kube-system-dummy-to-ignore,vendor-system]|[*]|All connections|
 
 

@@ -14,6 +14,17 @@ global: cluster has 29 unique endpoints, 8 namespaces
     - '*'
     connection:
     - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - default
+    - kube-system
+    - kube-system-dummy-to-ignore
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
   - src_ns:
     - default
     - kube-system
@@ -23,6 +34,17 @@ global: cluster has 29 unique endpoints, 8 namespaces
     - '*'
     dst_ip_block:
     - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    - kube-system
+    - kube-system-dummy-to-ignore
+    - vendor-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - ::/0
     connection:
     - All connections
   - src_ns:

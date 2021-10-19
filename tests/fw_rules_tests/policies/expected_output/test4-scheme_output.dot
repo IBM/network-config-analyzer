@@ -2,6 +2,7 @@
 digraph np4 {
 	HEADER [shape="box" label=< <B>connectivity_map_4/np4</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
+	"::/0" [label="::/0" color="red2" fontcolor="red2"]
 	"default/cognetive-agents-d54st" [label="default/cognetive-agents-d54st" color="blue" fontcolor="blue"]
 	"default/cognetive-agents-js4qc" [label="default/cognetive-agents-js4qc" color="blue" fontcolor="blue"]
 	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2" [label="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2" color="blue" fontcolor="blue"]
@@ -26,6 +27,7 @@ digraph np4 {
 digraph np3 {
 	HEADER [shape="box" label=< <B>connectivity_map_4/np3</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
+	"::/0" [label="::/0" color="red2" fontcolor="red2"]
 	"default/cognetive-agents-d54st" [label="default/cognetive-agents-d54st" color="blue" fontcolor="blue"]
 	"default/cognetive-agents-js4qc" [label="default/cognetive-agents-js4qc" color="blue" fontcolor="blue"]
 	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2" [label="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2" color="blue" fontcolor="blue"]
@@ -45,6 +47,7 @@ digraph np3 {
 digraph np3 {
 	HEADER [shape="box" label=< <B>connectivity_map_3/np3</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
+	"::/0" [label="::/0" color="red2" fontcolor="red2"]
 	"default/cognetive-agents-d54st" [label="default/cognetive-agents-d54st" color="blue" fontcolor="blue"]
 	"default/cognetive-agents-js4qc" [label="default/cognetive-agents-js4qc" color="blue" fontcolor="blue"]
 	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2" [label="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2" color="blue" fontcolor="blue"]

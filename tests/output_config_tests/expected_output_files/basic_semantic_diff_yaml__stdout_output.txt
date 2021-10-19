@@ -66,5 +66,18 @@ global: cluster has 29 unique endpoints, 8 namespaces
     - Protocol: UDP
       Ports:
       - '53'
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - '53'
+    - Protocol: UDP
+      Ports:
+      - '53'
 
 

@@ -27,6 +27,9 @@ Changed connections between persistent peers and ipBlocks:
 Removed connections (based on topology from config: allow_all) :
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All but TCP 8080,
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app not in (frontend)] conn: All connections
+src ip block: ::/0 dst_ns: [default] dst_pods: [*] conn: All but TCP 8080,
+src ip block: ::/0 dst_ns: [default] dst_pods: [app not in (frontend)] conn: All connections
 src_ns: [default] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [*] dst ip block: ::/0 conn: All connections
 
 
