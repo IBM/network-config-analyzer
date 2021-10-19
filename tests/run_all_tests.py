@@ -528,7 +528,7 @@ def main(argv=None):
     spec_file = 'all_tests_spec.yaml'
     tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files)
     tests_runner.run_tests()
-    return 0
+    return tests_runner.global_res
 
 
 if __name__ == "__main__":
