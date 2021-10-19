@@ -233,12 +233,20 @@ class IPNetworkAddress:
     def __add__(self, other):
         if not isinstance(other, int):
             return NotImplemented
-        return self.__class__(self.address + other)
+        try:
+            res = self.__class__(self.address + other)
+        except ipaddress.AddressValueError:
+            res = self.__class__(self.address)
+        return res
 
     def __sub__(self, other):
         if not isinstance(other, int):
             return NotImplemented
-        return self.__class__(self.address - other)
+        try:
+            res = self.__class__(self.address - other)
+        except ipaddress.AddressValueError:
+            res = self.__class__(self.address)
+        return res
 
     def __repr__(self):
         return repr(self.address)
@@ -251,6 +259,7 @@ class IPNetworkAddress:
 
     def __format__(self, fmt):
         return format(self.address)
+
 
 class IpBlock(Peer, CanonicalIntervalSet):
     """
@@ -289,8 +298,8 @@ class IpBlock(Peer, CanonicalIntervalSet):
     def get_cidr_list(self):
         cidr_list = []
         for interval in self.interval_set:
-            startip = ipaddress.IPv4Address(interval.start)
-            endip = ipaddress.IPv4Address(interval.end)
+            startip = interval.start.address.__class__(interval.start) # either IPv4AAddress or IPv6Address
+            endip = interval.end.address.__class__(interval.end)
             cidr = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
             cidr_list.append(str(cidr[0]))
         return cidr_list
@@ -302,10 +311,12 @@ class IpBlock(Peer, CanonicalIntervalSet):
     @staticmethod
     def get_all_ips_block():
         """
-        :return: The full range of ipv4 addresses
+        :return: The full range of ipv4 and ipv6 addresses
         :rtype: IpBlock
         """
-        return IpBlock('0.0.0.0/0')
+        res = IpBlock('0.0.0.0/0')
+        res.add_cidr('::/0')
+        return res
 
     def split(self):
         """

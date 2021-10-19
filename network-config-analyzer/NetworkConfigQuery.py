@@ -453,7 +453,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         ref_ip_blocks = self.config.get_referenced_ip_blocks()
         peers_to_compare |= ref_ip_blocks
         # add the complement of ref_ip_blocks
-        complement = IpBlock('0.0.0.0/0')
+        complement = IpBlock.get_all_ips_block()
         for ip in ref_ip_blocks:
             complement -= ip
         complement_peer_set = PeerSet()

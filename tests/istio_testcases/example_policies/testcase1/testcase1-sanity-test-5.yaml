@@ -13,7 +13,7 @@ spec:
     - source:
         namespaces: ["vendor-system", "default"]
     - source:
-        ipBlocks: ["1.2.3.0/24", "2.2.2.2"]
+        ipBlocks: ["1.2.3.0/24", "2.2.2.2", "f200:8000::/32", "8f00::ffff"]
     to:
     - operation:
         ports: ["26257", "30"]
@@ -50,7 +50,7 @@ spec:
   rules:
   - from:
     - source:
-        ipBlocks: ["1.2.3.0/24", "2.2.2.2"]
+        ipBlocks: ["1.2.3.0/24", "2.2.2.2", "f200:8000::/32", "8f00::ffff"]
     to:
     - operation:
         ports: ["26257"]

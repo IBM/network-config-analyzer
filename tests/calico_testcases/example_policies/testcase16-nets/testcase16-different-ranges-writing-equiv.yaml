@@ -14,6 +14,7 @@ spec:
     source:
       nets:
       - 0.0.0.0/0
+      - ::/0
   egress:
   - action: Allow
 
@@ -35,11 +36,13 @@ spec:
     source:
       nets:
         - 0.0.0.0/1     # All destinations first half
+        - ::/1      # All v6 destinations first half
   - action: Allow
     protocol: TCP
     source:
         nets:
         - 128.0.0.0/1     # All destinations second half
+        - 8000::/1      # All v6 destinations second half
   egress:
   - action: Allow
 
@@ -62,21 +65,25 @@ spec:
     source:
       nets:
         - 0.0.0.0/2     # All destinations first 1/4
+        - ::/2          # All v6 destinations first 1/4
   - action: Allow
     protocol: TCP
     source:
       nets:
         - 64.0.0.0/2     # All destinations second 1/4
+        - 4000::/2       # All v6 destinations second 1/4
   - action: Allow
     protocol: TCP
     source:
         nets:
         - 128.0.0.0/2     # All destinations third 1/4
+        - 8000::/2       # All v6 destinations third 1/4
   - action: Allow
     protocol: TCP
     source:
       nets:
         - 192.0.0.0/2     # All destinations last 1/4
+        - c000::/2       # All v6 destinations last 1/4
   egress:
   - action: Allow
 
@@ -97,11 +104,13 @@ spec:
     source:
       notNets:
         - 0.0.0.0/1     # All destinations second half
+        - ::/1      # All v6 destinations second half
   - action: Allow
     protocol: TCP
     source:
         notNets:
         - 128.0.0.0/1     # All destinations first half
+        - 8000::/1      # All v6 destinations first half
   egress:
   - action: Allow
 
@@ -123,11 +132,13 @@ spec:
     source:
       nets:
         - 0.0.0.0/1     # All destinations first half
+        - ::/1          # All v6 destinations first half
   - action: Allow
     protocol: TCP
     source:
         notNets:
         - 0.0.0.0/1     # All destinations second half
+        - ::/1          # All v6 destinations second half
   egress:
   - action: Allow
 
@@ -148,11 +159,13 @@ spec:
     source:
       notNets:
         - 0.0.0.0/2     # All destinations first 1/4
+        - ::/2          # All v6 destinations 3/4
   - action: Allow
     protocol: TCP
     source:
       nets:
         - 0.0.0.0/2     # All destinations 3/4
+        - ::/2          # All v6 destinations first 1/4
 
   egress:
   - action: Allow
@@ -179,11 +192,14 @@ spec:
         - 1.0.1.0
         - 0.0.0.7
         - 1.0.0.90
+        - 2001:4860:4860::8888
+        - 3000:80ff::aff0
   - action: Allow
     protocol: TCP
     source:
       nets:
         - 0.0.0.0/1     # All destinations first 1/2
+        - ::/1          # All v6 destinations first 1/2
 
   egress:
   - action: Allow
