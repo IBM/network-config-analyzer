@@ -233,12 +233,20 @@ class IPNetworkAddress:
     def __add__(self, other):
         if not isinstance(other, int):
             return NotImplemented
-        return self.__class__(self.address + other)
+        try:
+            res = self.__class__(self.address + other)
+        except ipaddress.AddressValueError:
+            res = self.__class__(self.address)
+        return res
 
     def __sub__(self, other):
         if not isinstance(other, int):
             return NotImplemented
-        return self.__class__(self.address - other)
+        try:
+            res = self.__class__(self.address - other)
+        except ipaddress.AddressValueError:
+            res = self.__class__(self.address)
+        return res
 
     def __repr__(self):
         return repr(self.address)
@@ -251,9 +259,6 @@ class IPNetworkAddress:
 
     def __format__(self, fmt):
         return format(self.address)
-
-    def max_address(self):
-        return self.address._ip == self.address.__class__._ALL_ONES
 
 
 class IpBlock(Peer, CanonicalIntervalSet):
