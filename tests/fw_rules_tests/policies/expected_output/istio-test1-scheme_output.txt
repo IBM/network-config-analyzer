@@ -2,6 +2,8 @@ final fw rules for query: istio-policy1, config: istio-policy1:
 src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (special_skydive)] conn: TCP 1-65536,
 src ip block: 0.0.0.0/0 dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP 1-65536,
 src ip block: 1.2.3.0/24 dst_ns: [default] dst_pods: [app in (skydive)] conn: TCP 26257,
+src ip block: ::/0 dst_ns: [default] dst_pods: [app in (special_skydive)] conn: TCP 1-65536,
+src ip block: ::/0 dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP 1-65536,
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default] dst_pods: [app in (special_skydive)] conn: TCP 1-65536,
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP 1-65536,
 src_ns: [default,vendor-system] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: TCP 26257,

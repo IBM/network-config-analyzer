@@ -9,5 +9,6 @@ global: cluster has 29 unique endpoints, 8 namespaces
 "","[vendor-system]","[*]","[kube-system]","[*]","All connections",
 "Removed connections between persistent peers and ipBlocks","","","","","",
 "","","ip block: 0.0.0.0/0","[kube-system]","[*]","TCP 53,UDP 53,",
+"","","ip block: ::/0","[kube-system]","[*]","TCP 53,UDP 53,",
 
 

@@ -13,6 +13,7 @@ src_ns: [vendor-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: 
 Changed connections between persistent peers and ipBlocks:
 Removed connections (based on topology from config: output_config_tests/../example_policies/testcase7/testcase7-networkpolicy2.yaml) :
 src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: TCP 53,UDP 53,
+src ip block: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: TCP 53,UDP 53,
 
 
 

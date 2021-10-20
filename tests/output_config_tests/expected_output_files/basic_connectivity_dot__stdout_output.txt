@@ -4,6 +4,7 @@ global: cluster has 29 unique endpoints, 8 namespaces
 // The Connectivity Graph of 
 digraph  {
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
+	"::/0" [label="::/0" color="red2" fontcolor="red2"]
 	"default/cog-agents-d54st" [label="default/cog-agents-d54st" color="blue" fontcolor="blue"]
 	"default/cog-agents-js4qc" [label="default/cog-agents-js4qc" color="blue" fontcolor="blue"]
 	"default/cog-agents-qr8gp" [label="default/cog-agents-qr8gp" color="blue" fontcolor="blue"]

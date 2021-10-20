@@ -60,10 +60,14 @@ src ip block: 50.23.167.0/24 dst_ns: [None] dst_pods: [has(vendor.role)] conn: A
 src ip block: 66.228.118.0/23 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src ip block: 67.228.118.0/23 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src ip block: 75.126.61.0/24 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
+src ip block: ::/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP [0-254] => [0-255];,TCP 52311,UDP 52311,protocols numbers: 112
+src ip block: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [None] src_pods: [has(vendor.role)] dst ip block: ::/0 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP [0-254] => [0-255];,TCP 52311,UDP 52311,protocols numbers: 112
 src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP [0-254] => [0-255];,TCP 52311,UDP 52311,protocols numbers: 112
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
@@ -74,6 +78,8 @@ final fw rules for query: np_1_globalEmpty_with_profiles, config: np_1_globalEmp
 final fw rules for query: np_2_all_outbound_hep, config: np_2_outbound_hep_all_ep:
 src ip block: 0.0.0.0/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src ip block: ::/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
+src ip block: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 198.51.100.0/22 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 198.51.200.0/27 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 203.0.113.0/24 conn: All connections
@@ -81,6 +87,7 @@ src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 203.0.115.0/29 conn: A
 src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
@@ -88,12 +95,15 @@ src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: Al
 final fw rules for query: np_3_outbound_hep_to_wep, config: np_3_outbound_hep_to_wep:
 src ip block: 0.0.0.0/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src ip block: ::/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
+src ip block: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 198.51.100.0/22 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 198.51.200.0/27 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 203.0.113.0/24 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 203.0.115.0/29 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
@@ -101,12 +111,15 @@ src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: Al
 final fw rules for query: np_4_outbound_all_namespaceSelector, config: np_4_outbound_all_namespaceSelector:
 src ip block: 0.0.0.0/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src ip block: ::/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
+src ip block: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 198.51.100.0/22 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 198.51.200.0/27 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 203.0.113.0/24 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 203.0.115.0/29 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 

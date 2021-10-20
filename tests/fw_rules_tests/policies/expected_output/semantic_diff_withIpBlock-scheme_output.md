@@ -40,6 +40,7 @@
 |||ip block: 10.0.0.0/8|[kube-system]|[tier in (frontend)]|All connections|
 |||ip block: 172.21.0.0/16|[kube-system]|[tier in (frontend)]|All connections|
 |||ip block: 172.30.0.0/16|[kube-system]|[tier in (frontend)]|All connections|
+|||ip block: ::/0|[kube-system]|[tier in (frontend)]|All connections|
 |semantic_diff, config1: np1, config2: np4, key: Removed connections between persistent peers and ipBlocks||||||
 ||[kube-system]|[tier in (frontend)]||ip block: 0.0.0.0/3|All connections|
 ||[kube-system]|[tier in (frontend)]||ip block: 49.50.0.1/32|All connections|
@@ -51,6 +52,7 @@
 ||[kube-system]|[tier in (frontend)]||ip block: 49.50.0.5/32|All connections|
 ||[kube-system]|[tier in (frontend)]||ip block: 49.50.0.7/32|All connections|
 ||[kube-system]|[tier in (frontend)]||ip block: 49.50.0.9/32|All connections|
+||[kube-system]|[tier in (frontend)]||ip block: ::/0|All connections|
 
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|

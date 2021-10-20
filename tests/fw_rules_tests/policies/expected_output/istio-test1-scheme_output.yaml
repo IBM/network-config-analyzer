@@ -21,6 +21,27 @@
     - Protocol: TCP
       Ports:
       - 1-65536
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - default
+    dst_pods:
+    - app in (special_skydive)
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - kube-system
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 1-65536
   - src_ns:
     - default
     - kube-system
