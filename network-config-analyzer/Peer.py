@@ -344,7 +344,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
         for exception in exceptions or []:
             exception_n = ip_network(exception, False)
             # the following line has no effect - only used to raise an exception when exception_n is not within cidr
-            ipn.address_exclude(exception_n)  # TODO: use exception_n.subnet_of(self.cidr) (Python 3.7 only)
+            exception_n.subnet_of(ipn)
             hole = CanonicalIntervalSet.Interval(IPNetworkAddress(exception_n.network_address), IPNetworkAddress(exception_n.broadcast_address))
             self.add_hole(hole)
 
