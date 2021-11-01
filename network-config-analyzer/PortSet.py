@@ -79,22 +79,37 @@ class PortSet:
         return self
 
 
-class PortSetPair:
+class TcpProperties:
     """
-    A class for holding a set of rectangles, each defined over a range of source ports X a range of target ports
+    A class for holding a set of cubes_set, each defined over a range of source ports X a range of target ports
     """
 
-    def __init__(self, source_ports=PortSet(), dest_ports=PortSet()):
+    dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts"]
+    #dimensions_list = ["src_ports", "dst_ports"]
+
+    def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=None, paths=None, hosts=None):
         """
-        This will create all rectangles made of a range in source_ports and a range in dest_ports
+        This will create all cubes_set made of a range in source_ports and a range in dest_ports
         :param PortSet source_ports: The set of source ports (as a set of intervals/ranges)
         :param PortSet dest_ports: The set of target ports (as a set of intervals/ranges)
         """
-        self.rectangles = CanonicalHyperCubeSet(2)
-        for src in source_ports.port_set:
-            for dst in dest_ports.port_set:
-                rectangle_intervals = [src, dst]
-                self.rectangles.add_interval(rectangle_intervals)
+        self.cubes_set = CanonicalHyperCubeSet(TcpProperties.dimensions_list)
+        cube = [source_ports.port_set, dest_ports.port_set]
+        active_dims = ["src_ports", "dst_ports"]
+        if methods is not None:
+            cube.append(methods)
+            active_dims.append("methods")
+        if paths is not None:
+            cube.append(paths)
+            active_dims.append("paths")
+        if hosts is not None:
+            cube.append(hosts)
+            active_dims.append("hosts")
+        self.cubes_set.add_cube(cube, active_dims)
+        #for src in source_ports.port_set:
+        #    for dst in dest_ports.port_set:
+        #        rectangle_intervals = [src, dst]
+        #        self.cubes_set.add_cube(rectangle_intervals)
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         # assuming named ports are only in dest, not src
@@ -107,36 +122,42 @@ class PortSetPair:
             self.excluded_named_ports[port_name] = all_ports
 
     def __bool__(self):
-        return bool(self.rectangles) or bool(self.named_ports)
+        return bool(self.cubes_set) or bool(self.named_ports)
 
     def get_simplified_str(self):
-        if len(self.rectangles.layers) == 1:
-            src_ports = self.rectangles.layers[0][0]
-            dst_ports = self.rectangles.layers[0][1]
-            if src_ports == CanonicalIntervalSet.Interval(1, 65536):
-                return str(dst_ports)
-        return str(self.rectangles)
+        #if len(self.cubes_set.layers) == 1:
+        #    src_ports = self.cubes_set.layers[0][0]
+        #    dst_ports = self.cubes_set.layers[0][1]
+        #    if src_ports == CanonicalIntervalSet.Interval(1, 65536):
+        #        return str(dst_ports)
+        return str(self.cubes_set)
 
     def __str__(self):
-        if not self.rectangles:
+        if not self.cubes_set:
             if self.named_ports:
                 return 'some named ports'
             return 'no ports'
         return self.get_simplified_str()
 
     def get_properties_obj(self):
-        return {'Ports': sorted(str(self).split(','))}
+        if self.cubes_set.is_all():
+            return {}
+        dimensions_header = ",".join(dim for dim in self.cubes_set.active_dimensions)
+        cubes_str_list = []
+        for cube in self.cubes_set:
+            cubes_str_list.append(self.cubes_set.get_cube_str(cube))
+        return {dimensions_header: sorted(cubes_str_list)}
 
     def __eq__(self, other):
-        if isinstance(other, PortSetPair):
-            res = self.rectangles == other.rectangles and self.named_ports == other.named_ports and \
+        if isinstance(other, TcpProperties):
+            res = self.cubes_set == other.cubes_set and self.named_ports == other.named_ports and \
                   self.excluded_named_ports == other.excluded_named_ports
             return res
         return NotImplemented
 
     def __and__(self, other):
-        res = PortSetPair()
-        res.rectangles = self.rectangles & other.rectangles
+        res = TcpProperties()
+        res.cubes_set = self.cubes_set & other.cubes_set
 
         res.named_ports = dict({})
         for port_name in self.named_ports:
@@ -156,8 +177,8 @@ class PortSetPair:
         return res
 
     def __or__(self, other):
-        res = PortSetPair()
-        res.rectangles = self.rectangles | other.rectangles
+        res = TcpProperties()
+        res.cubes_set = self.cubes_set | other.cubes_set
 
         res.named_ports = dict({})
         for port_name in self.named_ports:
@@ -178,8 +199,8 @@ class PortSetPair:
         return res
 
     def __sub__(self, other):
-        res = PortSetPair()
-        res.rectangles = self.rectangles - other.rectangles
+        res = TcpProperties()
+        res.cubes_set = self.cubes_set - other.cubes_set
 
         res.named_ports = dict({})
         for port_name in self.named_ports:
@@ -200,7 +221,7 @@ class PortSetPair:
         return res
 
     def __iand__(self, other):
-        self.rectangles &= other.rectangles
+        self.cubes_set &= other.cubes_set
 
         res_named_ports = dict({})
         for port_name in self.named_ports:
@@ -222,7 +243,7 @@ class PortSetPair:
         return self
 
     def __ior__(self, other):
-        self.rectangles |= other.rectangles
+        self.cubes_set |= other.cubes_set
 
         res_named_ports = dict({})
         for port_name in self.named_ports:
@@ -245,7 +266,7 @@ class PortSetPair:
         return self
 
     def __isub__(self, other):
-        self.rectangles -= other.rectangles
+        self.cubes_set -= other.cubes_set
 
         res_named_ports = dict({})
         for port_name in self.named_ports:
@@ -269,11 +290,11 @@ class PortSetPair:
 
     def contained_in(self, other):
         """
-        :param PortSetPair other: Another PortSetPair
+        :param TcpProperties other: Another PortSetPair
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
-        if not self.rectangles.contained_in(other.rectangles):
+        if not self.cubes_set.contained_in(other.cubes_set):
             return False
         for port_name in self.named_ports:
             if port_name not in other.named_ports:
@@ -306,41 +327,45 @@ class PortSetPair:
         """
         if not named_ports:
             named_ports = {}
+        #if named_ports:
+        #    print('named ports exist')
+        #if self.named_ports: #and named_ports:
+        #    print('has named ports')
         for port in self.named_ports:
             real_port = named_ports.get(port)
             if real_port and real_port[1] == protocol:
                 real_port_number = real_port[0]
-                for src_interval in self.named_ports[port]:
-                    rectangle = [src_interval, CanonicalIntervalSet.Interval(real_port_number, real_port_number)]
-                    self.rectangles.add_interval(rectangle)
+                #for src_interval in self.named_ports[port]:
+                rectangle = [self.named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
+                self.cubes_set.add_cube(rectangle)
         for port in self.excluded_named_ports:
             real_port = named_ports.get(port)
             if real_port and real_port[1] == protocol:
                 real_port_number = real_port[0]
-                for src_interval in self.excluded_named_ports[port]:
-                    rectangle = [src_interval, CanonicalIntervalSet.Interval(real_port_number, real_port_number)]
-                    self.rectangles.add_hole(rectangle)
+                #for src_interval in self.excluded_named_ports[port]:
+                rectangle = [self.excluded_named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
+                self.cubes_set.add_hole(rectangle)
 
         self.named_ports = {}
         self.excluded_named_ports = {}
 
     def copy(self):
-        res = PortSetPair()
-        res.rectangles = self.rectangles.copy()
+        res = TcpProperties()
+        res.cubes_set = self.cubes_set.copy()
         res.named_ports = self.named_ports.copy()
         res.excluded_named_ports = self.excluded_named_ports.copy()
         return res
 
     def print_diff(self, other, self_name, other_name):
         """
-        :param PortSetPair other: Another PortSetPair object
+        :param TcpProperties other: Another PortSetPair object
         :param str self_name: A name for 'self'
         :param str other_name: A name for 'other'
         :return: If self!=other, return a string showing a (source, target) pair that appears in only one of them
         :rtype: str
         """
-        self_minus_other = self.rectangles - other.rectangles
-        other_minus_self = other.rectangles - self.rectangles
+        self_minus_other = self.cubes_set - other.cubes_set
+        other_minus_self = other.cubes_set - self.cubes_set
         diff_str = self_name if self_minus_other else other_name
         if self_minus_other:
             item = self_minus_other.get_first_item()

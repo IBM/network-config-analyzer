@@ -582,8 +582,8 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -592,8 +592,8 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -602,8 +602,8 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -612,8 +612,8 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
 - query: 'semantic_diff, config1: np1, config2: np2, key: Removed connections between
     persistent peers and ipBlocks'
   rules:
@@ -625,8 +625,8 @@
     - has(tier)
     connection:
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -635,8 +635,8 @@
     - has(tier)
     connection:
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -645,8 +645,8 @@
     - has(tier)
     connection:
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -655,8 +655,8 @@
     - has(tier)
     connection:
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
 
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
     key: Lost connections between removed peers'
@@ -811,15 +811,10 @@
     - app in (app-2)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
     - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65536
+      dst_ports:
+      - ({1-52,54-65536}, )
     - Protocol: SCTP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - 10.12.0.0/14
     dst_ns:
@@ -828,15 +823,10 @@
     - app in (app-2)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
     - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65536
+      dst_ports:
+      - ({1-52,54-65536}, )
     - Protocol: SCTP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - 0.0.0.0/5
     dst_ns:

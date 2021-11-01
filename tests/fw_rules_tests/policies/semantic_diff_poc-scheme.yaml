@@ -19,4 +19,5 @@ queries:
   - poc3
   expected: 2
   outputConfiguration:
+    outputFormat: yaml
     fwRulesRunInTestMode: false

@@ -11,6 +11,6 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - '[100-100] => [230];'
+      - 'icmp_type,icmp_code: (100, 230, )'
 
 

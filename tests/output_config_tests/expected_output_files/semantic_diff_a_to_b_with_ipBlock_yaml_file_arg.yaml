@@ -151,15 +151,10 @@
     - app in (app-2)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
     - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65536
+      dst_ports:
+      - ({1-52,54-65536}, )
     - Protocol: SCTP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - 10.12.0.0/14
     dst_ns:
@@ -168,15 +163,10 @@
     - app in (app-2)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
     - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65536
+      dst_ports:
+      - ({1-52,54-65536}, )
     - Protocol: SCTP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - 0.0.0.0/5
     dst_ns:

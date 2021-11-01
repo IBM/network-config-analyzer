@@ -11,14 +11,12 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - '[0-254] => [0-255];'
+      - All
     - Protocol: '2'
     - Protocol: '3'
     - Protocol: '4'
     - Protocol: '5'
     - Protocol: TCP
-      Ports:
-      - 1-65536
     - Protocol: '7'
     - Protocol: '8'
     - Protocol: '9'
@@ -30,8 +28,6 @@
     - Protocol: '15'
     - Protocol: '16'
     - Protocol: UDP
-      Ports:
-      - 1-65536
     - Protocol: '18'
     - Protocol: '19'
     - Protocol: '20'
@@ -74,7 +70,7 @@
     - Protocol: '57'
     - Protocol: ICMPv6
       Type/Code:
-      - '[0-254] => [0-255];'
+      - All
     - Protocol: '59'
     - Protocol: '60'
     - Protocol: '61'
@@ -149,8 +145,6 @@
     - Protocol: '130'
     - Protocol: '131'
     - Protocol: SCTP
-      Ports:
-      - 1-65536
     - Protocol: '133'
     - Protocol: '134'
     - Protocol: '136'

@@ -13,6 +13,16 @@ class CanonicalIntervalSet:
     def __init__(self):
         self.interval_set = []
 
+    @staticmethod
+    def get_interval_set(start, end):
+        res = CanonicalIntervalSet()
+        interval = CanonicalIntervalSet.Interval(start, end)
+        res.add_interval(interval)
+        return res
+
+    def empty(self):
+        return not bool(self)
+
     def __bool__(self):
         return bool(self.interval_set)
 
@@ -55,6 +65,7 @@ class CanonicalIntervalSet:
             res += ','
         return res[0:-1]
 
+    # TODO: binary search instead of linear search
     def __contains__(self, item):
         for interval in self.interval_set:
             if item in interval:
@@ -227,6 +238,8 @@ class CanonicalIntervalSet:
             :rtype: bool
             """
             return other.start <= self.start and other.end >= self.end
+
+
 
     def add_interval(self, interval_to_add):
         """

@@ -447,14 +447,14 @@ class FWRule:
         conn_str = str(self.conn)  # self.conn.get_connections_str()
         return src_str + dst_str + ' conn: ' + conn_str
 
-    def get_rule_str(self, is_k8s_config):
+    def get_rule_str(self, config_type_str):
         """
         :param is_k8s_config: bool flag indicating if network policy is k8s or not
         :return: a string representation of the fw-rule, for output in txt format
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = self.conn.get_simplified_connections_str(is_k8s_config)  # str(self.conn)
+        conn_str = self.conn.get_simplified_connections_str(config_type_str)  # str(self.conn)
         return src_str + dst_str + ' conn: ' + conn_str + '\n'
 
     def __hash__(self):
@@ -466,7 +466,7 @@ class FWRule:
     def __lt__(self, other):
         return str(self) < str(other)
 
-    def get_rule_component_str(self, component, is_k8s_config):
+    def get_rule_component_str(self, component, config_type_str):
         """
         This function is used to produce a csv row for a fw-rule
         :param component: a fw-rule required component  from components in rule_csv_header
@@ -482,20 +482,20 @@ class FWRule:
         elif component == 'dst_pods':
             return str(self.dst) if isinstance(self.dst, IPBlockElement) else self.dst.get_pod_str()
         elif component == 'connection':
-            return self.conn.get_simplified_connections_str(is_k8s_config)
+            return self.conn.get_simplified_connections_str(config_type_str)
         return ''
 
-    def get_rule_csv_row(self, is_k8s_config):
+    def get_rule_csv_row(self, config_type_str):
         """
         :param is_k8s_config:  bool flag indicating if network policy is k8s or not
         :return: a list of strings, representing the csv row for this fw-rule
         """
         row = []
         for component in FWRule.rule_csv_header:
-            row.append(self.get_rule_component_str(component, is_k8s_config))
+            row.append(self.get_rule_component_str(component, config_type_str))
         return row
 
-    def get_rule_yaml_obj(self, is_k8s_config):
+    def get_rule_yaml_obj(self, config_type_str):
         """
         :param is_k8s_config: bool flag indicating if network policy is k8s or not
         :return:  a dict with content representing the fw-rule, for output in yaml format
@@ -506,7 +506,7 @@ class FWRule:
         dst_pods_list = self.dst.get_elem_yaml_obj() if not isinstance(self.dst, IPBlockElement) else None
         src_ip_block_list = sorted(self.src.get_elem_yaml_obj()) if isinstance(self.src, IPBlockElement) else None
         dst_ip_block_list = sorted(self.dst.get_elem_yaml_obj()) if isinstance(self.dst, IPBlockElement) else None
-        conn_list = self.conn.get_connections_list(is_k8s_config)
+        conn_list = self.conn.get_connections_list(config_type_str)
 
         rule_obj = {}
         if src_ip_block_list is None and dst_ip_block_list is None:
@@ -528,7 +528,7 @@ class FWRule:
                         'connection': conn_list}
         return rule_obj
 
-    def get_rule_in_req_format(self, req_format, is_k8s_config):
+    def get_rule_in_req_format(self, req_format, config_type_str):
         """
         get fw-rule representation according to required format :
         yaml: dict object
@@ -539,11 +539,11 @@ class FWRule:
         :return:
         """
         if req_format == 'yaml':
-            return self.get_rule_yaml_obj(is_k8s_config)
+            return self.get_rule_yaml_obj(config_type_str)
         if req_format in ['csv', 'md']:
-            return self.get_rule_csv_row(is_k8s_config)
+            return self.get_rule_csv_row(config_type_str)
         if req_format == 'txt':
-            return self.get_rule_str(is_k8s_config)
+            return self.get_rule_str(config_type_str)
         return None
 
     @staticmethod

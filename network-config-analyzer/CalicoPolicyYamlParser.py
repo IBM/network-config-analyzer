@@ -6,7 +6,7 @@
 import re
 from ruamel.yaml import comments
 from Peer import PeerSet, IpBlock
-from PortSet import PortSet, PortSetPair
+from PortSet import PortSet, TcpProperties
 from ICMPDataSet import ICMPDataSet
 from ConnectionSet import ConnectionSet
 from GenericYamlParser import GenericYamlParser
@@ -472,7 +472,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                     self.warning('notProtocol field has no effect', rule)
             else:
                 if protocol_supports_ports:
-                    connections.add_connections(protocol, PortSetPair(src_res_ports, dst_res_ports))
+                    connections.add_connections(protocol, TcpProperties(src_res_ports, dst_res_ports))
                 elif ConnectionSet.protocol_is_icmp(protocol):
                     connections.add_connections(protocol, self._parse_icmp(rule.get('icmp'), rule.get('notICMP')))
                 else:

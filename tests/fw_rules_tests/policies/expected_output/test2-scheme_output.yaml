@@ -8,11 +8,11 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -21,11 +21,11 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ns:
     - default
     - kube-system-new
@@ -38,11 +38,11 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:

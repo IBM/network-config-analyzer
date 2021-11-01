@@ -1,5 +1,5 @@
 final fw rules for query: connectivity_map, config: np23:
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [has(app)] conn: UDP 53,
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [has(app)] conn: UDP dst_ports: (53, ),
 src_ns: [default] src_pods: [test in (C)] dst_ns: [default] dst_pods: [has(app)] conn: All connections
 
 

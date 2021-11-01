@@ -8,8 +8,6 @@
     - app in (special_skydive)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -19,8 +17,6 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -29,8 +25,6 @@
     - app in (special_skydive)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -40,8 +34,6 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
   - src_ns:
     - default
     - kube-system
@@ -54,8 +46,6 @@
     - app in (special_skydive)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
   - src_ns:
     - default
     - kube-system
@@ -69,8 +59,6 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - 1.2.3.0/24
     dst_ns:
@@ -79,8 +67,8 @@
     - app in (skydive)
     connection:
     - Protocol: TCP
-      Ports:
-      - '26257'
+      dst_ports:
+      - (26257, )
   - src_ns:
     - default
     - vendor-system
@@ -92,8 +80,8 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - '26257'
+      dst_ports:
+      - (26257, )
 
 
 - query: 'istio-policy2, config: istio-policy2'
@@ -106,9 +94,8 @@
     - app in (skydive)
     connection:
     - Protocol: TCP
-      Ports:
-      - '30'
-      - '50'
+      dst_ports:
+      - ({30,50}, )
   - src_ip_block:
     - 2.2.2.2/32
     dst_ns:
@@ -117,9 +104,8 @@
     - app in (skydive)
     connection:
     - Protocol: TCP
-      Ports:
-      - '30'
-      - '50'
+      dst_ports:
+      - ({30,50}, )
   - src_ns:
     - default
     - kube-system
@@ -131,9 +117,8 @@
     - app in (skydive)
     connection:
     - Protocol: TCP
-      Ports:
-      - '30'
-      - '50'
+      dst_ports:
+      - ({30,50}, )
   - src_ns:
     - default
     src_pods:
@@ -144,8 +129,7 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - '30'
-      - '50'
+      dst_ports:
+      - ({30,50}, )
 
 

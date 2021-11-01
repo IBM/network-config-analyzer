@@ -4,6 +4,6 @@ src ip block: ::/0 dst_ns: [default] dst_pods: [*] conn: All connections
 src_ns: [default,kube-system-new] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [default,kube-system-new] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [default,kube-system-new] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90,
+src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP dst_ports: (85-90, ),
 
 

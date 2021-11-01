@@ -10,8 +10,8 @@
     - has(app)
     connection:
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ns:
     - default
     src_pods:

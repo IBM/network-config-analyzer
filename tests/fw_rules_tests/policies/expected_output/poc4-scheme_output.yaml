@@ -3,19 +3,6 @@
   - src_ns:
     - default
     src_pods:
-    - loadgenerator
-    dst_ns:
-    - default
-    dst_pods:
-    - frontend
-    connection:
-    - Protocol: TCP
-      Ports:
-      - '23'
-      - '8080'
-  - src_ns:
-    - default
-    src_pods:
     - app in (checkoutservice,frontend,recommendationservice)
     dst_ns:
     - default
@@ -23,8 +10,8 @@
     - productcatalogservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '3550'
+      dst_ports:
+      - (3550, )
   - src_ns:
     - default
     src_pods:
@@ -35,8 +22,8 @@
     - shippingservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '50051'
+      dst_ports:
+      - (50051, )
   - src_ns:
     - default
     src_pods:
@@ -47,8 +34,8 @@
     - paymentservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '50051'
+      dst_ports:
+      - (50051, )
   - src_ns:
     - default
     src_pods:
@@ -59,8 +46,8 @@
     - checkoutservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '5050'
+      dst_ports:
+      - (5050, )
   - src_ns:
     - default
     src_pods:
@@ -71,8 +58,8 @@
     - redis-cart
     connection:
     - Protocol: TCP
-      Ports:
-      - '6379'
+      dst_ports:
+      - (6379, )
   - src_ns:
     - default
     src_pods:
@@ -83,8 +70,8 @@
     - currencyservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '7000'
+      dst_ports:
+      - (7000, )
   - src_ns:
     - default
     src_pods:
@@ -95,8 +82,8 @@
     - cartservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '7070'
+      dst_ports:
+      - (7070, )
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -105,8 +92,8 @@
     - frontend
     connection:
     - Protocol: TCP
-      Ports:
-      - '8080'
+      dst_ports:
+      - (8080, )
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -115,8 +102,8 @@
     - frontend
     connection:
     - Protocol: TCP
-      Ports:
-      - '8080'
+      dst_ports:
+      - (8080, )
   - src_ns:
     - default
     src_pods:
@@ -127,8 +114,8 @@
     - emailservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '8080'
+      dst_ports:
+      - (8080, )
   - src_ns:
     - default
     src_pods:
@@ -139,8 +126,8 @@
     - recommendationservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '8080'
+      dst_ports:
+      - (8080, )
   - src_ns:
     - kube-system
     src_pods:
@@ -151,8 +138,8 @@
     - frontend
     connection:
     - Protocol: TCP
-      Ports:
-      - '8080'
+      dst_ports:
+      - (8080, )
   - src_ns:
     - default
     src_pods:
@@ -163,8 +150,20 @@
     - adservice
     connection:
     - Protocol: TCP
-      Ports:
-      - '9555'
+      dst_ports:
+      - (9555, )
+  - src_ns:
+    - default
+    src_pods:
+    - loadgenerator
+    dst_ns:
+    - default
+    dst_pods:
+    - frontend
+    connection:
+    - Protocol: TCP
+      dst_ports:
+      - ({23,8080}, )
   - src_ns:
     - default
     src_pods:
@@ -175,8 +174,8 @@
     - has(k8s-app)
     connection:
     - Protocol: UDP
-      Ports:
-      - '53'
+      dst_ports:
+      - (53, )
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -234,6 +233,6 @@
     - frontend
     connection:
     - Protocol: TCP
-      Ports:
-      - '23'
+      dst_ports:
+      - (23, )
 

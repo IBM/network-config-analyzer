@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from CanonicalIntervalSet import CanonicalIntervalSet
-from PortSet import PortSet, PortSetPair
+from PortSet import PortSet, TcpProperties
 from ICMPDataSet import ICMPDataSet
 
 
@@ -41,7 +41,7 @@ class ConnectionSet:
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
 
     # TODO: should consider shorter notation (complement- 'all but ...' ) for yaml representation as well?
-    def get_connections_list(self, is_k8s_config):
+    def get_connections_list(self, config_type_str):
         """
         :param is_k8s_config:  bool flag indicating if network policy is k8s or not
         :return:  list with yaml representation of the connection set, to be used at fw-rules representation in yaml
@@ -55,7 +55,7 @@ class ConnectionSet:
             return res
         protocols_set = set(self.allowed_protocols.keys())
         # in k8s policy - restrict allowed protocols only to protocols supported by it
-        if is_k8s_config:
+        if config_type_str == "K8s":
             protocols_set &= ConnectionSet._port_supporting_protocols
         for protocol in sorted(list(protocols_set)):
             protocol_text = self.protocol_number_to_name(protocol)
@@ -66,7 +66,7 @@ class ConnectionSet:
             res.append(protocol_obj)
         return res
 
-    def get_simplified_connections_str(self, is_k8s_config):
+    def get_simplified_connections_str(self, config_type_str):
         """
         Get a simplified representation of the connection set - choose shorter version between self and its complement
         :param is_k8s_config: bool flag indicating if network policy is k8s or not
@@ -76,15 +76,24 @@ class ConnectionSet:
             return "All connections"
         if not self.allowed_protocols:
             return 'No connections'
+        self_str = self.get_connections_str(config_type_str)
+        # TODO: for istio the complement str should be only for TCP connections,
+        #  currently disabling this for istio temporarily (consider performance with regex attributes)
+        if config_type_str == "Istio":
+            return self_str
+            # complement = self.get_all_TCP_connections() - self
+
+        # check the alternative of the complement str (for k8s and calico currently)
         complement = ConnectionSet(True) - self
-        complement_str = complement.get_connections_str(is_k8s_config)
-        self_str = self.get_connections_str(is_k8s_config)
+        complement_str = complement.get_connections_str(config_type_str)
+        
         # TODO: is there a better heuristic here?
         if len(complement_str) < len(self_str):
             return f'All but {complement_str}'
         return self_str
 
-    def get_connections_str(self, is_k8s_config):
+
+    def get_connections_str(self, config_type_str):
         """
         Get a string representation of the connection set
         :param is_k8s_config:  bool flag indicating if network policy is k8s or not
@@ -97,7 +106,7 @@ class ConnectionSet:
         res = ''
         protocols_set = set(self.allowed_protocols.keys())
         # in k8s policy - restrict allowed protocols only to protocols supported by it
-        if is_k8s_config:
+        if config_type_str == "K8s":
             protocols_set &= ConnectionSet._port_supporting_protocols
         protocols_numbers = CanonicalIntervalSet()
         for protocol in sorted(list(protocols_set)):
@@ -390,7 +399,7 @@ class ConnectionSet:
         """
         for protocol in range(1, 256):
             if self.protocol_supports_ports(protocol):
-                self.allowed_protocols[protocol] = PortSetPair(PortSet(True), PortSet(True))
+                self.allowed_protocols[protocol] = TcpProperties(PortSet(True), PortSet(True))
             elif self.protocol_is_icmp(protocol):
                 self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
             else:
@@ -464,7 +473,7 @@ class ConnectionSet:
     @staticmethod
     def get_all_TCP_connections():
         TCP_conns = ConnectionSet()
-        TCP_conns.add_connections('TCP', PortSetPair(PortSet(True), PortSet(True)))
+        TCP_conns.add_connections('TCP', TcpProperties(PortSet(True), PortSet(True)))
         return TCP_conns
 
     @staticmethod

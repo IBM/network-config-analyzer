@@ -107,6 +107,8 @@ class CalicoNetworkPolicy(NetworkPolicy):
         for rule in rules:
             if from_peer in rule.src_peers and to_peer in rule.dst_peers:
                 rule_conns = rule.connections.copy()  # we need a copy because convert_named_ports is destructive
+                #named_ports = to_peer.get_named_ports()
+                #if named_ports
                 rule_conns.convert_named_ports(to_peer.get_named_ports())
 
                 if rule.action == CalicoPolicyRule.ActionType.Allow:

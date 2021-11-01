@@ -6,7 +6,7 @@ src ip block: ::/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-igno
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90,
+src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP dst_ports: (85-90, ),
 
 
 
@@ -23,8 +23,8 @@ Running query connectivity_map_3_stdout_yaml
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - 85-90
+      dst_ports:
+      - (85-90, )
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -88,7 +88,7 @@ Running query connectivity_map_3_stdout_yaml
 Running query connectivity_map_3_stdout_csv
 "query","src_ns","src_pods","dst_ns","dst_pods","connection",
 "connectivity_map_3_stdout_csv, config: np3","","","","","",
-"","[default]","[*]","[kube-system-new]","[*]","TCP 85-90,",
+"","[default]","[*]","[kube-system-new]","[*]","TCP dst_ports: (85-90, ),",
 "","","ip block: 0.0.0.0/0","[default,ibm-system-new,kube-system-new-dummy-to-ignore]","[*]","All connections",
 "","","ip block: ::/0","[default,ibm-system-new,kube-system-new-dummy-to-ignore]","[*]","All connections",
 "","[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]","[*]","","ip block: 0.0.0.0/0","All connections",
@@ -101,7 +101,7 @@ Running query connectivity_map_3_stdout_md
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |connectivity_map_3_stdout_md, config: np3||||||
-||[default]|[*]|[kube-system-new]|[*]|TCP 85-90,|
+||[default]|[*]|[kube-system-new]|[*]|TCP dst_ports: (85-90, ),|
 |||ip block: 0.0.0.0/0|[default,ibm-system-new,kube-system-new-dummy-to-ignore]|[*]|All connections|
 |||ip block: ::/0|[default,ibm-system-new,kube-system-new-dummy-to-ignore]|[*]|All connections|
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]||ip block: 0.0.0.0/0|All connections|
@@ -123,10 +123,10 @@ digraph np3 {
 	"kube-system-new-dummy-to-ignore/calico-kube-controllers-7694668c77-t6slc" [label="kube-system-new-dummy-to-ignore/calico-kube-controllers-7694668c77-t6slc" color="blue" fontcolor="blue"]
 	"kube-system-new/calico-node-mgdlr" [label="kube-system-new/calico-node-mgdlr" color="blue" fontcolor="blue"]
 	"kube-system-new/heapster-7df8cb8c66-zxkk2" [label="kube-system-new/heapster-7df8cb8c66-zxkk2" color="blue" fontcolor="blue"]
-	"default/cognetive-agents-d54st" -> "kube-system-new/calico-node-mgdlr" [label=" TCP, 85-90" color="gold2" fontcolor="darkgreen"]
-	"default/cognetive-agents-d54st" -> "kube-system-new/heapster-7df8cb8c66-zxkk2" [label=" TCP, 85-90" color="gold2" fontcolor="darkgreen"]
-	"default/cognetive-agents-js4qc" -> "kube-system-new/calico-node-mgdlr" [label=" TCP, 85-90" color="gold2" fontcolor="darkgreen"]
-	"default/cognetive-agents-js4qc" -> "kube-system-new/heapster-7df8cb8c66-zxkk2" [label=" TCP, 85-90" color="gold2" fontcolor="darkgreen"]
+	"default/cognetive-agents-d54st" -> "kube-system-new/calico-node-mgdlr" [label=" TCP, dst_ports: (85-90, )" color="gold2" fontcolor="darkgreen"]
+	"default/cognetive-agents-d54st" -> "kube-system-new/heapster-7df8cb8c66-zxkk2" [label=" TCP, dst_ports: (85-90, )" color="gold2" fontcolor="darkgreen"]
+	"default/cognetive-agents-js4qc" -> "kube-system-new/calico-node-mgdlr" [label=" TCP, dst_ports: (85-90, )" color="gold2" fontcolor="darkgreen"]
+	"default/cognetive-agents-js4qc" -> "kube-system-new/heapster-7df8cb8c66-zxkk2" [label=" TCP, dst_ports: (85-90, )" color="gold2" fontcolor="darkgreen"]
 }
 
 

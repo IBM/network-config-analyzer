@@ -9,13 +9,13 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - '[0-254] => [0-255];'
+      - All
     - Protocol: TCP
-      Ports:
-      - '52311'
+      dst_ports:
+      - (52311, )
     - Protocol: UDP
-      Ports:
-      - '52311'
+      dst_ports:
+      - (52311, )
     - Protocol: '112'
   - src_ip_block:
     - ::/0
@@ -26,13 +26,13 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - '[0-254] => [0-255];'
+      - All
     - Protocol: TCP
-      Ports:
-      - '52311'
+      dst_ports:
+      - (52311, )
     - Protocol: UDP
-      Ports:
-      - '52311'
+      dst_ports:
+      - (52311, )
     - Protocol: '112'
   - src_ns:
     - None
@@ -45,13 +45,13 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - '[0-254] => [0-255];'
+      - All
     - Protocol: TCP
-      Ports:
-      - '52311'
+      dst_ports:
+      - (52311, )
     - Protocol: UDP
-      Ports:
-      - '52311'
+      dst_ports:
+      - (52311, )
     - Protocol: '112'
   - src_ns:
     - kube-system
@@ -64,13 +64,13 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - '[0-254] => [0-255];'
+      - All
     - Protocol: TCP
-      Ports:
-      - '52311'
+      dst_ports:
+      - (52311, )
     - Protocol: UDP
-      Ports:
-      - '52311'
+      dst_ports:
+      - (52311, )
     - Protocol: '112'
   - src_ip_block:
     - 0.0.0.0/0

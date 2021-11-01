@@ -21,7 +21,6 @@ from IstioPolicyYamlParser import IstioPolicyYamlParser
 from ConnectionSet import ConnectionSet
 from CmdlineRunner import CmdlineRunner
 from GitScanner import GitScanner
-from PortSet import PortSetPair, PortSet
 
 
 class NetworkConfig:

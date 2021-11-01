@@ -14,10 +14,12 @@ class ICMPDataSet(CanonicalHyperCubeSet):
     The class uses the CanonicalHyperCubeSet to compactly represent a set of (type,code) pairs.
     """
 
+    dimensions_list = ["icmp_type", "icmp_code"]
+
     def __init__(self, add_all=False):
-        super().__init__(2)
-        if add_all:
-            self.add_all()
+        super().__init__(ICMPDataSet.dimensions_list, add_all)
+        #if add_all:
+        #    self.add_all()
 
     def __str__(self):
         if not self:
@@ -61,12 +63,12 @@ class ICMPDataSet(CanonicalHyperCubeSet):
             return
 
         if icmp_code is None:
-            self.add_interval(
-                [CanonicalIntervalSet.Interval(icmp_type, icmp_type), CanonicalIntervalSet.Interval(0, 255)])
+            self.add_cube(
+                [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type), CanonicalIntervalSet.get_interval_set(0, 255)])
             return
 
-        self.add_interval(
-            [CanonicalIntervalSet.Interval(icmp_type, icmp_type), CanonicalIntervalSet.Interval(icmp_code, icmp_code)])
+        self.add_cube(
+            [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type), CanonicalIntervalSet.get_interval_set(icmp_code, icmp_code)])
 
     def add_all_but_given_pair(self, icmp_type, icmp_code):
         """
@@ -82,19 +84,20 @@ class ICMPDataSet(CanonicalHyperCubeSet):
         self.add_all()
         if icmp_code is None:
             self.add_hole(
-                [CanonicalIntervalSet.Interval(icmp_type, icmp_type), CanonicalIntervalSet.Interval(0, 255)])
+                [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type), CanonicalIntervalSet.get_interval_set(0, 255)])
         else:
             self.add_hole(
-                [CanonicalIntervalSet.Interval(icmp_type, icmp_type),
-                 CanonicalIntervalSet.Interval(icmp_code, icmp_code)])
+                [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type),
+                 CanonicalIntervalSet.get_interval_set(icmp_code, icmp_code)])
 
     def add_all(self):
         """
         Add all possible ICMP connections to the set
         :return: None
         """
-        self.add_interval(
-            [CanonicalIntervalSet.Interval(0, 254), CanonicalIntervalSet.Interval(0, 255)])
+        self.set_all()
+        #self.add_cube(
+        #    [CanonicalIntervalSet.Interval(0, 254), CanonicalIntervalSet.Interval(0, 255)])
 
     def print_diff(self, other, self_name, other_name):
         """

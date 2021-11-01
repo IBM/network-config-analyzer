@@ -6,7 +6,7 @@
 import re
 import Peer
 from ConnectionSet import ConnectionSet
-from PortSet import PortSet, PortSetPair
+from PortSet import PortSet, TcpProperties
 from GenericYamlParser import GenericYamlParser
 from K8sNetworkPolicy import K8sNetworkPolicy, K8sPolicyRule
 from PeerContainer import PeerContainer
@@ -287,7 +287,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         elif end_port_num:
             self.syntax_error('endPort cannot be defined if the port field is not defined ', port)
 
-        res.add_connections(protocol, PortSetPair(PortSet(True), dest_port_set))  # K8s doesn't reason about src ports
+        res.add_connections(protocol, TcpProperties(PortSet(True), dest_port_set))  # K8s doesn't reason about src ports
         return res
 
     def parse_ingress_egress_rule(self, rule, peer_array_key):

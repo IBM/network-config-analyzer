@@ -461,8 +461,15 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         peers_to_compare |= complement_peer_set
 
         is_k8s_config = self.config.type == NetworkConfig.ConfigType.K8s
+        config_type_str = ""
+        if self.config.type == NetworkConfig.ConfigType.K8s:
+            config_type_str = "K8s"
+        elif self.config.type == NetworkConfig.ConfigType.Calico:
+            config_type_str = "Calico"
+        elif self.config.type == NetworkConfig.ConfigType.Istio:
+            config_type_str = "Istio"
 
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, is_k8s_config)
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, config_type_str)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
@@ -696,7 +703,14 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             query_name = updated_key
         output_config = OutputConfiguration(self.output_config, query_name)
         is_k8s_config = self.config1.type == NetworkConfig.ConfigType.K8s
-        return ConnectivityGraph(topology_peers, allowed_labels, output_config, is_k8s_config)
+        config_type_str = ""
+        if self.config1.type == NetworkConfig.ConfigType.K8s or self.config2.type == NetworkConfig.ConfigType.K8s:
+            config_type_str = "K8s"
+        elif self.config1.type == NetworkConfig.ConfigType.Calico or self.config2.type == NetworkConfig.ConfigType.Calico:
+            config_type_str = "Calico"
+        elif self.config1.type == NetworkConfig.ConfigType.Istio or self.config2.type == NetworkConfig.ConfigType.Istio:
+            config_type_str = "Istio"
+        return ConnectivityGraph(topology_peers, allowed_labels, output_config, config_type_str)
 
     def compute_diff(self):
         """

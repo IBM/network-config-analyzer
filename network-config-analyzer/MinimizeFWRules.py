@@ -725,5 +725,5 @@ class MinimizeFWRules:
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                res.append(rule.get_rule_in_req_format(req_format, self.cluster_info.is_k8s_config))
+                res.append(rule.get_rule_in_req_format(req_format, self.cluster_info.config_type_str))
         return res
