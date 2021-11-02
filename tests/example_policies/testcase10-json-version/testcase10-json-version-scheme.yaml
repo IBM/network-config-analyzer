@@ -4,7 +4,7 @@ podList: ../../example_podlist/pods_list.json
 networkConfigList:
   - name: np
     networkPolicyList: # policies_from_fs_dir_entry
-      - ../../json_dir
+      - json_dir
     expectedWarnings: 2
 
 
