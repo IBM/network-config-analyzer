@@ -6,80 +6,116 @@
 from CanonicalIntervalSet import CanonicalIntervalSet
 from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 
+def singleton(class_):
+    instances = {}
+    def getinstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+    return getinstance
 
-class PortSet:
+class PortSet(CanonicalIntervalSet):
     """
-    A class for holding a set of ports, including support for (included and excluded) named ports
+    A class for holding a set of ports, including support for named ports
+    Named ports are represented by indices higher than 65536
+    A mapping between name and index of named ports is handled by NamedPortDB singleton
     """
+    MIN_PORT_NUM = 1
+    MAX_PORT_NUM = 65536
+    MIN_NAMED_PORT_NUM = MAX_PORT_NUM + 10          # make a gap to avoid uniting named and unnamed port ranges
+    MAX_NAMED_PORT_NUM = MIN_NAMED_PORT_NUM + 10000 # make enough place for named ports
+
+    @singleton
+    class NamedPortDB:
+        """
+        A class for holding a mapping between name and faked number (index) of named ports is handled by NamedPortDB singleton
+        """
+
+        def __init__(self):
+            self._names = []
+
+        def nameToIndex(self, name):
+            if self._names.count(name) == 0:
+                self._names.append(name)
+            return PortSet.MIN_NAMED_PORT_NUM + self._names.index(name)
+
+        def indexToName(self, index):
+            if not PortSet.is_named_port(index) or index >= PortSet.MIN_NAMED_PORT_NUM + len(self._names):
+                raise Exception('Named port index out of range')
+            return self._names[index-PortSet.MIN_NAMED_PORT_NUM]
+
+    @staticmethod
+    def is_named_port(port):
+        return port >= PortSet.MIN_NAMED_PORT_NUM and port < PortSet.MAX_NAMED_PORT_NUM
 
     def __init__(self, all_ports=False):
         # type: (bool) -> None
-        self.port_set = CanonicalIntervalSet()
-        self.named_ports = set()
-        self.excluded_named_ports = set()
+        super().__init__()
         if all_ports:
-            self.port_set.add_interval(CanonicalIntervalSet.Interval(1, 65536))
+            self.add_interval(CanonicalIntervalSet.Interval(PortSet.MIN_PORT_NUM, PortSet.MAX_PORT_NUM))
+#        self.add_interval(CanonicalIntervalSet.Interval(PortSet.MIN_NAMED_PORT_NUM, PortSet.MAX_NAMED_PORT_NUM))
 
-    def __eq__(self, other):
-        if isinstance(other, PortSet):
-            return self.port_set == other.port_set and self.named_ports == other.named_ports and \
-                   self.excluded_named_ports == other.excluded_named_ports
-        return NotImplemented
+    def has_real_ports(self):
+        for port_range in self:
+            if not self.is_named_port(port_range.start):
+                return True
+        return False
 
-    def __bool__(self):
-        return bool(self.port_set) or bool(self.named_ports)
+    def has_named_ports(self):
+        for port_range in self.interval_set:
+            if PortSet.is_named_port(port_range.start):
+                return True
+        return False
 
     def __str__(self):
-        if not self.port_set:
-            if self.named_ports:
-                return 'some named ports'
+        if not self:
             return 'no ports'
 
-        if self.port_set.interval_set[0].start == 1 and self.port_set.interval_set[0].end == 65536:
+        if self.interval_set[0].start == self.MIN_PORT_NUM and self.interval_set[0].end == self.MAX_PORT_NUM:
             return 'all ports'
-        return 'ports ' + str(self.port_set)
+
+        hasNamedPort = False
+        res = ''
+        for port_range in self.interval_set:
+            if PortSet.is_named_port(port_range.start):
+                hasNamedPort = True
+            else:
+                res += str(port_range.start)
+                if port_range.start != port_range.end:
+                    res += '-' + str(port_range.end)
+                res += ','
+        if res:
+            return res
+        assert hasNamedPort
+        return 'some named ports'
 
     def copy(self):
-        res = PortSet()
-        res.port_set = self.port_set.copy()
-        res.named_ports = self.named_ports.copy()
-        res.excluded_named_ports = self.excluded_named_ports.copy()
+        res = PortSet(super().copy())
         return res
 
     def add_port(self, port):
         if isinstance(port, str):
-            self.named_ports.add(port)
-            self.excluded_named_ports.discard(port)
+            ind = PortSet.NamedPortDB().nameToIndex(port)
+            interval = CanonicalIntervalSet.Interval(ind, ind)
         else:
             interval = CanonicalIntervalSet.Interval(port, port)
-            self.port_set.add_interval(interval)
+        self.add_interval(interval)
 
     def remove_port(self, port):
         if isinstance(port, str):
-            self.named_ports.discard(port)
-            self.excluded_named_ports.add(port)
+            ind = PortSet.NamedPortDB().nameToIndex(port)
+            interval = CanonicalIntervalSet.Interval(ind, ind)
         else:
             interval = CanonicalIntervalSet.Interval(port, port)
-            self.port_set.add_hole(interval)
+        self.add_hole(interval)
 
     def add_port_range(self, min_port, max_port):
+        assert not PortSet.is_named_port(min_port)
+        assert not PortSet.is_named_port(max_port)
         interval = CanonicalIntervalSet.Interval(min_port, max_port)
-        self.port_set.add_interval(interval)
+        self.add_interval(interval)
 
-    def __ior__(self, other):
-        self.port_set |= other.port_set
-        self.named_ports |= other.named_ports
-        self.excluded_named_ports -= other.named_ports
-        return self
-
-    def __isub__(self, other):
-        self.port_set -= other.port_set
-        self.named_ports -= other.named_ports
-        self.excluded_named_ports |= other.named_ports
-        return self
-
-
-class PortSetPair:
+class PortSetPair(CanonicalHyperCubeSet):
     """
     A class for holding a set of rectangles, each defined over a range of source ports X a range of target ports
     """
@@ -89,211 +125,72 @@ class PortSetPair:
         This will create all rectangles made of a range in source_ports and a range in dest_ports
         :param PortSet source_ports: The set of source ports (as a set of intervals/ranges)
         :param PortSet dest_ports: The set of target ports (as a set of intervals/ranges)
+        assuming named ports are only in dest, not src
         """
-        self.rectangles = CanonicalHyperCubeSet(2)
-        for src in source_ports.port_set:
-            for dst in dest_ports.port_set:
-                rectangle_intervals = [src, dst]
-                self.rectangles.add_interval(rectangle_intervals)
-        self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        # assuming named ports are only in dest, not src
-        all_ports = CanonicalIntervalSet()
-        all_ports.add_interval(CanonicalIntervalSet.Interval(1, 65536))
-        for port_name in dest_ports.named_ports:
-            self.named_ports[port_name] = source_ports.port_set
-        for port_name in dest_ports.excluded_named_ports:
-            # self.excluded_named_ports[port_name] = all_ports - source_ports.port_set
-            self.excluded_named_ports[port_name] = all_ports
-
-    def __bool__(self):
-        return bool(self.rectangles) or bool(self.named_ports)
+        super().__init__(2)
+        for src in source_ports:
+            for dst in dest_ports:
+                rectangle_intervals = [dst, src]
+                self.add_interval(rectangle_intervals)
 
     def get_simplified_str(self):
-        if len(self.rectangles.layers) == 1:
-            src_ports = self.rectangles.layers[0][0]
-            dst_ports = self.rectangles.layers[0][1]
-            if src_ports == CanonicalIntervalSet.Interval(1, 65536):
-                return str(dst_ports)
-        return str(self.rectangles)
+        if len(self.layers) == 1:
+            src_ports = self.layers[0][1]
+            dst_ports = self.layers[0][0]
+            if dst_ports == CanonicalIntervalSet.Interval(PortSet.MIN_PORT_NUM, PortSet.MAX_PORT_NUM):
+                return str(src_ports)
+        return super().__str__() # includes dst ports real numbers and faked numbers (for named ports)
 
     def __str__(self):
-        if not self.rectangles:
-            if self.named_ports:
-                return 'some named ports'
+        if not self.layers:
             return 'no ports'
         return self.get_simplified_str()
 
     def get_properties_obj(self):
         return {'Ports': sorted(str(self).split(','))}
 
-    def __eq__(self, other):
-        if isinstance(other, PortSetPair):
-            res = self.rectangles == other.rectangles and self.named_ports == other.named_ports and \
-                  self.excluded_named_ports == other.excluded_named_ports
-            return res
-        return NotImplemented
-
     def __and__(self, other):
-        res = PortSetPair()
-        res.rectangles = self.rectangles & other.rectangles
-
-        res.named_ports = dict({})
-        for port_name in self.named_ports:
-            if port_name in other.named_ports:
-                src_interval_res = self.named_ports[port_name] & other.named_ports[port_name]
-                res.named_ports[port_name] = src_interval_res
-
-        res.excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res.excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.excluded_named_ports:
-            if port_name in res.excluded_named_ports:
-                res.excluded_named_ports[port_name] |= other.excluded_named_ports[port_name]
-            else:
-                res.excluded_named_ports[port_name] = other.excluded_named_ports[port_name]
-
-        return res
+        assert not self.has_named_ports()
+        assert not other.has_named_ports()
+        return super().__and__(other)
 
     def __or__(self, other):
-        res = PortSetPair()
-        res.rectangles = self.rectangles | other.rectangles
-
-        res.named_ports = dict({})
-        for port_name in self.named_ports:
-            res.named_ports[port_name] = self.named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res.named_ports:
-                res.named_ports[port_name] |= other.named_ports[port_name]
-            else:
-                res.named_ports[port_name] = other.named_ports[port_name]
-
-        res.excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res.excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res.excluded_named_ports:
-                res.excluded_named_ports[port_name] -= other.named_ports[port_name]
-
-        return res
+        assert not self.has_named_ports()
+        assert not other.has_named_ports()
+        return super().__or__(other)
 
     def __sub__(self, other):
-        res = PortSetPair()
-        res.rectangles = self.rectangles - other.rectangles
-
-        res.named_ports = dict({})
-        for port_name in self.named_ports:
-            res.named_ports[port_name] = self.named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res.named_ports:
-                res.named_ports[port_name] -= other.named_ports[port_name]
-
-        res.excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res.excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res.excluded_named_ports:
-                res.excluded_named_ports[port_name] |= other.named_ports[port_name]
-            else:
-                res.excluded_named_ports[port_name] = other.named_ports[port_name]
-
-        return res
+        assert not self.has_named_ports()
+        assert not other.has_named_ports()
+        return super().__sub__(other)
 
     def __iand__(self, other):
-        self.rectangles &= other.rectangles
-
-        res_named_ports = dict({})
-        for port_name in self.named_ports:
-            if port_name in other.named_ports:
-                src_interval_res = self.named_ports[port_name] & other.named_ports[port_name]
-                res_named_ports[port_name] = src_interval_res
-        self.named_ports = res_named_ports
-
-        res_excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res_excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.excluded_named_ports:
-            if port_name in res_excluded_named_ports:
-                res_excluded_named_ports[port_name] |= other.excluded_named_ports[port_name]
-            else:
-                res_excluded_named_ports[port_name] = other.excluded_named_ports[port_name]
-        self.excluded_named_ports = res_excluded_named_ports
-
-        return self
+        assert not self.has_named_ports()
+        assert not other.has_named_ports()
+        return super().__iand__(other)
 
     def __ior__(self, other):
-        self.rectangles |= other.rectangles
-
-        res_named_ports = dict({})
-        for port_name in self.named_ports:
-            res_named_ports[port_name] = self.named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res_named_ports:
-                res_named_ports[port_name] |= other.named_ports[port_name]
-            else:
-                res_named_ports[port_name] = other.named_ports[port_name]
-        self.named_ports = res_named_ports
-
-        res_excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res_excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res_excluded_named_ports:
-                res_excluded_named_ports[port_name] -= other.named_ports[port_name]
-        self.excluded_named_ports = res_excluded_named_ports
-
-        return self
+        assert not self.has_named_ports()
+        assert not other.has_named_ports()
+        return super().__ior__(other)
 
     def __isub__(self, other):
-        self.rectangles -= other.rectangles
-
-        res_named_ports = dict({})
-        for port_name in self.named_ports:
-            res_named_ports[port_name] = self.named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res_named_ports:
-                res_named_ports[port_name] -= other.named_ports[port_name]
-        self.named_ports = res_named_ports
-
-        res_excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res_excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res_excluded_named_ports:
-                res_excluded_named_ports[port_name] |= other.named_ports[port_name]
-            else:
-                res_excluded_named_ports[port_name] = other.named_ports[port_name]
-        self.excluded_named_ports = res_excluded_named_ports
-
-        return self
-
-    def contained_in(self, other):
-        """
-        :param PortSetPair other: Another PortSetPair
-        :return: Whether all (source port, target port) pairs in self also appear in other
-        :rtype: bool
-        """
-        if not self.rectangles.contained_in(other.rectangles):
-            return False
-        for port_name in self.named_ports:
-            if port_name not in other.named_ports:
-                return False
-            if not self.named_ports[port_name].contained_in(other.named_ports[port_name]):
-                return False
-        for port_name in other.excluded_named_ports:
-            if port_name not in self.excluded_named_ports:
-                return False
-            if not other.excluded_named_ports[port_name].contained_in(self.excluded_named_ports[port_name]):
-                return False
-        return True
+        assert not self.has_named_ports()
+        assert not other.has_named_ports()
+        return super.__isub__(other)
 
     def has_named_ports(self):
-        return self.named_ports or self.excluded_named_ports
+        for layer in self.layers:
+            if PortSet.is_named_port(layer[0].start):
+                return True
+        return False
 
     def get_named_ports(self):
         res = set()
-        res |= set(self.named_ports.keys())
-        # res |= set(self.excluded_named_ports.keys())
+        for layer in self.layers:
+            if PortSet.is_named_port(layer[0].start):
+                res.add(PortSet.NamedPortDB().indexToName(layer[0].start))
+                res.add(PortSet.NamedPortDB().indexToName(layer[0].end))
         return res
 
     def convert_named_ports(self, named_ports, protocol):
@@ -306,29 +203,33 @@ class PortSetPair:
         """
         if not named_ports:
             named_ports = {}
-        for port in self.named_ports:
-            real_port = named_ports.get(port)
-            if real_port and real_port[1] == protocol:
-                real_port_number = real_port[0]
-                for src_interval in self.named_ports[port]:
-                    rectangle = [src_interval, CanonicalIntervalSet.Interval(real_port_number, real_port_number)]
-                    self.rectangles.add_interval(rectangle)
-        for port in self.excluded_named_ports:
-            real_port = named_ports.get(port)
-            if real_port and real_port[1] == protocol:
-                real_port_number = real_port[0]
-                for src_interval in self.excluded_named_ports[port]:
-                    rectangle = [src_interval, CanonicalIntervalSet.Interval(real_port_number, real_port_number)]
-                    self.rectangles.add_hole(rectangle)
 
-        self.named_ports = {}
-        self.excluded_named_ports = {}
+        # First, pick all named port ranges
+        named_port_layers = []
+        for layer in self.layers:
+            if PortSet.is_named_port(layer[0].start):
+                named_port_layers.append(layer.copy())
+
+        # Next, remove faked named ports and add real ports corresponding to the named ones
+        for layer in named_port_layers:
+            for port in range(layer[0].start, layer[0].end + 1):
+                removedFakedPort = False
+                real_port = named_ports.get(PortSet.NamedPortDB().indexToName(port))
+                if real_port and real_port[1] == protocol:
+                    real_port_number = real_port[0]
+                    layer_sub_element = layer[1]
+                    assert layer_sub_element.dimensions == 1
+                    interval_list = layer_sub_element.get_list_of_all_intervals_paths()
+                    for src_interval in interval_list:
+                        new_rectangle = [CanonicalIntervalSet.Interval(real_port_number, real_port_number), src_interval]
+                        self.add_interval(new_rectangle)
+                        if not removedFakedPort:
+                            old_rectangle = [layer[0], src_interval]
+                            self.add_hole(old_rectangle)
+                            removedFakedPort = True
 
     def copy(self):
-        res = PortSetPair()
-        res.rectangles = self.rectangles.copy()
-        res.named_ports = self.named_ports.copy()
-        res.excluded_named_ports = self.excluded_named_ports.copy()
+        res = PortSetPair(super().copy())
         return res
 
     def print_diff(self, other, self_name, other_name):
@@ -339,8 +240,8 @@ class PortSetPair:
         :return: If self!=other, return a string showing a (source, target) pair that appears in only one of them
         :rtype: str
         """
-        self_minus_other = self.rectangles - other.rectangles
-        other_minus_self = other.rectangles - self.rectangles
+        self_minus_other = self - other
+        other_minus_self = other - self
         diff_str = self_name if self_minus_other else other_name
         if self_minus_other:
             item = self_minus_other.get_first_item()
