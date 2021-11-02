@@ -200,7 +200,7 @@ class NetworkConfig:
     def add_policies_from_fs_dir(self, path):
         for root, _, files in os.walk(path):
             for file in files:
-                if not file.endswith('.yaml') and not file.endswith('.yml'):
+                if not file.endswith('.yaml') and not file.endswith('.yml') and not file.endswith('.json'):
                     continue
                 file_with_path = os.path.join(root, file)
                 self.add_policies_from_file(file_with_path)

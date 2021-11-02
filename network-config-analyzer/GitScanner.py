@@ -80,7 +80,8 @@ class GitScanner:
                 continue
             if not element.path.startswith(path):
                 continue
-            if not element.path.endswith('.yaml') and not element.path.endswith('.yml'):
+            if not element.path.endswith('.yaml') and not element.path.endswith('.yml') \
+                    and not element.path.endswith('.json'):
                 continue
             if not recursive and element.path.count('/') != path.count('/'):
                 continue
