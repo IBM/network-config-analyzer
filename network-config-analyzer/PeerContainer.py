@@ -131,48 +131,56 @@ class PeerContainer:
             ns_code = yaml.load(yaml_file, Loader=yaml.SafeLoader)
             self.set_namespaces(ns_code)
 
-    def _set_peer_list(self, peer_resources, config_name):
+    def _set_peer_list(self, peer_resources_list, config_name):
         """
         Populates the set of peers in the container from one of the following resources:
          - git path of yaml file or a directory with yamls
          - local file (yaml or json) or a local directory containing yamls
          - query of the cluster
-        :param str peer_resources: peer resource to use. If set to 'k8s'/'calico'  query cluster using kubectl/calicoctl
+        :param list peer_resources_list: list of peer resources to use.
+        If set to 'k8s'/'calico'  query cluster using kubectl/calicoctl
         :param srt config_name: The config name
         :return: None
         """
-        # load from git
-        if peer_resources.startswith('https://github'):
-            self._set_peer_list_from_github(peer_resources)
 
-        # load from local file
-        elif os.path.isfile(peer_resources):
-            with open(peer_resources) as yaml_file:
-                code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
-                for peer_code in code:
-                    if isinstance(peer_code, dict):
-                        self.add_eps_from_list(peer_code)
-                    elif isinstance(peer_code, list):
-                        for ep_list in peer_code:
-                            self.add_eps_from_list(ep_list)
-
-        # load from local directory
-        elif os.path.isdir(peer_resources):
-            for path in Path(peer_resources).glob('**/*.yaml'):
-                with open(path) as yaml_file:
-                    code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
-                    for peer_code in code:
-                        self.add_eps_from_list(peer_code)
-
-        # load from live cluster
-        elif peer_resources == 'calico':
-            for peer_type in ['wep', 'hep', 'networkset', 'globalnetworkset']:
-                peer_code = yaml.load(CmdlineRunner.get_calico_resources(peer_type), Loader=yaml.SafeLoader)
-                self.add_eps_from_list(peer_code)
-        elif not peer_resources or peer_resources == 'k8s':
+        if not peer_resources_list:
             self.locate_kube_config_file()
             peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
             self.add_eps_from_list(peer_code)
+
+        for peer_resources in peer_resources_list:
+            # load from git
+            if peer_resources.startswith('https://github'):
+                self._set_peer_list_from_github(peer_resources)
+
+            # load from local file
+            elif os.path.isfile(peer_resources):
+                with open(peer_resources) as yaml_file:
+                    code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
+                    for peer_code in code:
+                        if isinstance(peer_code, dict):
+                            self.add_eps_from_list(peer_code)
+                        elif isinstance(peer_code, list):
+                            for ep_list in peer_code:
+                                self.add_eps_from_list(ep_list)
+
+            # load from local directory
+            elif os.path.isdir(peer_resources):
+                for path in Path(peer_resources).glob('**/*.yaml'):
+                    with open(path) as yaml_file:
+                        code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
+                        for peer_code in code:
+                            self.add_eps_from_list(peer_code)
+
+            # load from live cluster
+            elif peer_resources == 'calico':
+                for peer_type in ['wep', 'hep', 'networkset', 'globalnetworkset']:
+                    peer_code = yaml.load(CmdlineRunner.get_calico_resources(peer_type), Loader=yaml.SafeLoader)
+                    self.add_eps_from_list(peer_code)
+            elif peer_resources == 'k8s':
+                self.locate_kube_config_file()
+                peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
+                self.add_eps_from_list(peer_code)
 
         print(f'{config_name}: cluster has {self.get_num_peers()} unique endpoints, '
               f'{self.get_num_namespaces()} namespaces')
