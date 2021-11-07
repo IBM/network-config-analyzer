@@ -65,6 +65,17 @@ class PeerContainer:
                 return
         raise Exception('Failed to locate Kubernetes configuration files')
 
+    def load_ns_from_live_cluster(self):
+        self.locate_kube_config_file()
+        yaml_file = CmdlineRunner.get_k8s_resources('namespace')
+        ns_code = yaml.load(yaml_file, Loader=yaml.SafeLoader)
+        self.set_namespaces(ns_code)
+
+    def load_peer_from_k8s_live_cluster(self):
+        self.locate_kube_config_file()
+        peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
+        self.add_eps_from_list(peer_code)
+
     def _add_namespace(self, ns_object, generic_list):
         """
         Adds a single namespace to the container
@@ -94,42 +105,43 @@ class PeerContainer:
         for namespace in ns_list.get('items', []):
             self._add_namespace(namespace, ns_list.get('kind') == 'List')
 
-    def _set_namespace_list(self, ns_resources):
+    def _set_namespace_list(self, ns_resources_list):
         """
         Populates the set of namespaces in the container from one of the following resources:
          - git path of yaml file or a directory with yamls
          - local file (yaml or json) or a local directory containing yamls
          - query of the cluster
-        :param str ns_resources: The namespace resource to be used. If set to 'k8s', will query cluster using kubectl
+        :param list ns_resources_list: The namespace resource to be used. If set to 'k8s', will query cluster using kubectl
         :return: None
         """
-        # load from git
-        if ns_resources.startswith('https://github'):
-            self._set_namespace_list_from_github(ns_resources)
+        if not ns_resources_list:
+            self.load_ns_from_live_cluster()
 
-        # load from local file
-        elif os.path.isfile(ns_resources):
-            with open(ns_resources) as yaml_file:
-                code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
-                for ns_code in code:
-                    if isinstance(ns_code, dict) and ns_code.get('kind') in {'NamespaceList', 'List'}:
-                        self.set_namespaces(ns_code)
+        for ns_resources in ns_resources_list:
+            # load from git
+            if ns_resources.startswith('https://github'):
+                self._set_namespace_list_from_github(ns_resources)
 
-        # load from local directory
-        elif os.path.isdir(ns_resources):
-            for path in Path(ns_resources).glob('**/*.yaml'):
-                with open(path) as yaml_file:
+            # load from local file
+            elif os.path.isfile(ns_resources):
+                with open(ns_resources) as yaml_file:
                     code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
                     for ns_code in code:
                         if isinstance(ns_code, dict) and ns_code.get('kind') in {'NamespaceList', 'List'}:
                             self.set_namespaces(ns_code)
 
-        # load from live cluster
-        elif not ns_resources or ns_resources == 'k8s':
-            self.locate_kube_config_file()
-            yaml_file = CmdlineRunner.get_k8s_resources('namespace')
-            ns_code = yaml.load(yaml_file, Loader=yaml.SafeLoader)
-            self.set_namespaces(ns_code)
+            # load from local directory
+            elif os.path.isdir(ns_resources):
+                for path in Path(ns_resources).glob('**/*.yaml'):
+                    with open(path) as yaml_file:
+                        code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
+                        for ns_code in code:
+                            if isinstance(ns_code, dict) and ns_code.get('kind') in {'NamespaceList', 'List'}:
+                                self.set_namespaces(ns_code)
+
+            # load from live cluster
+            elif ns_resources == 'k8s':
+                self.load_ns_from_live_cluster()
 
     def _set_peer_list(self, peer_resources_list, config_name):
         """
@@ -144,9 +156,7 @@ class PeerContainer:
         """
 
         if not peer_resources_list:
-            self.locate_kube_config_file()
-            peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
-            self.add_eps_from_list(peer_code)
+           self.load_peer_from_k8s_live_cluster()
 
         for peer_resources in peer_resources_list:
             # load from git
@@ -178,9 +188,8 @@ class PeerContainer:
                     peer_code = yaml.load(CmdlineRunner.get_calico_resources(peer_type), Loader=yaml.SafeLoader)
                     self.add_eps_from_list(peer_code)
             elif peer_resources == 'k8s':
-                self.locate_kube_config_file()
-                peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
-                self.add_eps_from_list(peer_code)
+                self.load_peer_from_k8s_live_cluster()
+
 
         print(f'{config_name}: cluster has {self.get_num_peers()} unique endpoints, '
               f'{self.get_num_namespaces()} namespaces')
