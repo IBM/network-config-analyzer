@@ -390,7 +390,7 @@ class ConnectionSet:
         """
         for protocol in range(1, 256):
             if self.protocol_supports_ports(protocol):
-                self.allowed_protocols[protocol] = PortSetPair(PortSet(True), PortSet(True))
+                self.allowed_protocols[protocol] = PortSetPair(PortSet(True), PortSet(True, True))
             elif self.protocol_is_icmp(protocol):
                 self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
             else:
@@ -464,7 +464,7 @@ class ConnectionSet:
     @staticmethod
     def get_all_TCP_connections():
         TCP_conns = ConnectionSet()
-        TCP_conns.add_connections('TCP', PortSetPair(PortSet(True), PortSet(True)))
+        TCP_conns.add_connections('TCP', PortSetPair(PortSet(True), PortSet(True, True)))
         return TCP_conns
 
     @staticmethod

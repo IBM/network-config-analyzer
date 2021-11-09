@@ -318,7 +318,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         return rule_peers
 
-    def _get_rule_ports(self, entity_rule, protocol_supports_ports):
+    def _get_rule_ports(self, entity_rule, protocol_supports_ports, is_dest_rule):
         """
         Parse the port-related parts of the source/destination parts of a rule
         :param dict entity_rule: The object to parse
@@ -327,25 +327,32 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         :rtype: PortSet
         """
         ports_array = entity_rule.get('ports')
+        named_ports = set()
         if ports_array is not None:
             if not protocol_supports_ports:
                 self.syntax_error('A rule specifying ports must specify a protocol supporting ports', ports_array)
             rule_ports = PortSet()
             for port in ports_array:
-                rule_ports |= self._parse_port(port, ports_array)
+                real_port = self._parse_port(port, ports_array)
+                rule_ports |= real_port
+                if PortSet.is_named_port(real_port.interval_set[0].start):
+                    named_ports.add(PortSet.NamedPortDB().index_to_name(real_port.interval_set[0].start))
         else:
-            rule_ports = PortSet(True)
+            rule_ports = PortSet(True, is_dest_rule)
 
         not_ports_array = entity_rule.get('notPorts')
         if not_ports_array is not None:
             if not protocol_supports_ports:
                 self.syntax_error('A rule specifying notPorts must specify a protocol supporting ports', ports_array)
             for port in not_ports_array:
-                rule_ports -= self._parse_port(port, not_ports_array)
+                real_port = self._parse_port(port, not_ports_array)
+                rule_ports -= real_port
+                if PortSet.is_named_port(real_port.interval_set[0].start):
+                    named_ports.add(PortSet.NamedPortDB().index_to_name(real_port.interval_set[0].start))
 
-        return rule_ports
+        return rule_ports, named_ports
 
-    def _parse_entity_rule(self, entity_rule, protocol_supports_ports):
+    def _parse_entity_rule(self, entity_rule, protocol_supports_ports, is_dest_rule):
         """
         Parse the source/destination parts of a rule
         :param dict entity_rule: The object to parse
@@ -357,7 +364,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                             'namespaceSelector': 0,  'ports': 0, 'notPorts': 0, 'serviceAccounts': 2}
         self.check_fields_validity(entity_rule, 'network policy peer', allowed_elements)
 
-        return self._get_rule_peers(entity_rule), self._get_rule_ports(entity_rule, protocol_supports_ports)
+        ports, named_ports = self._get_rule_ports(entity_rule, protocol_supports_ports, is_dest_rule)
+        return self._get_rule_peers(entity_rule), ports, named_ports
 
     def _parse_icmp(self, icmp_data, not_icmp_data):
         """
@@ -445,18 +453,20 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         protocol_supports_ports = ConnectionSet.protocol_supports_ports(protocol)
         not_protocol = self._parse_protocol(rule.get('notProtocol'), rule)
         src_entity_rule = rule.get('source')
+        src_named_ports = set()
         if src_entity_rule:
-            src_res_pods, src_res_ports = self._parse_entity_rule(src_entity_rule, protocol_supports_ports)
+            src_res_pods, src_res_ports, src_named_ports = self._parse_entity_rule(src_entity_rule, protocol_supports_ports, False)
         else:
             src_res_pods = self.peer_container.get_all_peers_group(True)
             src_res_ports = PortSet(True)
 
         dst_entity_rule = rule.get('destination')
+        dst_named_ports = set()
         if dst_entity_rule:
-            dst_res_pods, dst_res_ports = self._parse_entity_rule(dst_entity_rule, protocol_supports_ports)
+            dst_res_pods, dst_res_ports, dst_named_ports = self._parse_entity_rule(dst_entity_rule, protocol_supports_ports, True)
         else:
             dst_res_pods = self.peer_container.get_all_peers_group(True)
-            dst_res_ports = PortSet(True)
+            dst_res_ports = PortSet(True, True)
 
         if is_ingress:  # FIXME: We do not handle well the case where dst_res_pods or src_res_pods contain ipBlocks
             dst_res_pods &= policy_selected_eps
@@ -483,7 +493,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         else:
             connections.allow_all = True
 
-        self._verify_named_ports(rule, dst_res_pods, connections)
+        self._verify_named_ports(rule, dst_res_pods, dst_named_ports, protocol)
 
         if not src_res_pods and policy_selected_eps and (is_ingress or not is_profile):
             self.warning('Rule selects no source endpoints', rule)
@@ -492,30 +502,28 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action)
 
-    def _verify_named_ports(self, rule, rule_eps, rule_conns):
+    def _verify_named_ports(self, rule, rule_eps, dst_named_ports, protocol):
         """
         Check the validity of named ports in a given rule: whether a relevant ep refers to the named port and whether
         the protocol defined in the policy matches the protocol defined by the ep. Issue warnings as required.
         :param dict rule: The unparsed rule (for reference in warnings)
         :param Peer.PeerSet rule_eps: The set of eps in which the named ports should be defined
-        :param ConnectionSet rule_conns: The rule-specified connections, possibly containing named ports
+        :param PortSet dst_named_ports: The dst named ports
         :return: None
         """
-        if not rule_conns.has_named_ports():
+        if not dst_named_ports or not protocol:
             return
-        named_ports = rule_conns.get_named_ports()
-        for protocol, rule_ports in named_ports:
-            for port in rule_ports:
-                port_used = False
-                for pod in rule_eps:
-                    pod_named_port = pod.get_named_ports().get(port)
-                    if pod_named_port:
-                        port_used = True
-                        if ConnectionSet.protocol_name_to_number(pod_named_port[1]) != protocol:
-                            self.warning(f'Protocol mismatch for named port {port} (vs. Pod {pod.full_name()})', rule)
+        for port in dst_named_ports:
+            port_used = False
+            for pod in rule_eps:
+                pod_named_port = pod.get_named_ports().get(port)
+                if pod_named_port:
+                    port_used = True
+                    if ConnectionSet.protocol_name_to_number(pod_named_port[1]) != protocol:
+                        self.warning(f'Protocol mismatch for named port {port} (vs. Pod {pod.full_name()})', rule)
 
-                if not port_used:
-                    self.warning(f'Named port {port} is not defined in any selected pod', rule)
+            if not port_used:
+                self.warning(f'Named port {port} is not defined in any selected pod', rule)
 
     def _apply_extra_labels(self, policy_spec, is_profile, profile_name):
         """

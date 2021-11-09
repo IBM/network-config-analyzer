@@ -34,26 +34,30 @@ class PortSet(CanonicalIntervalSet):
         def __init__(self):
             self._names = []
 
-        def nameToIndex(self, name):
+        def name_to_index(self, name):
             if self._names.count(name) == 0:
                 self._names.append(name)
             return PortSet.MIN_NAMED_PORT_NUM + self._names.index(name)
 
-        def indexToName(self, index):
-            if not PortSet.is_named_port(index) or index >= PortSet.MIN_NAMED_PORT_NUM + len(self._names):
-                raise Exception('Named port index out of range')
+        def index_to_name(self, index):
+            if not PortSet.is_named_port(index):
+                return ""
             return self._names[index-PortSet.MIN_NAMED_PORT_NUM]
+
+        def named_ports_num(self):
+            return len(self._names)
 
     @staticmethod
     def is_named_port(port):
-        return port >= PortSet.MIN_NAMED_PORT_NUM and port < PortSet.MAX_NAMED_PORT_NUM
+        return port >= PortSet.MIN_NAMED_PORT_NUM and port < PortSet.MIN_NAMED_PORT_NUM + PortSet.NamedPortDB().named_ports_num()
 
-    def __init__(self, all_ports=False):
-        # type: (bool) -> None
+    def __init__(self, all_ports=False, all_named_ports=False):
+        # type: (bool, bool) -> None
         super().__init__()
         if all_ports:
             self.add_interval(CanonicalIntervalSet.Interval(PortSet.MIN_PORT_NUM, PortSet.MAX_PORT_NUM))
-#        self.add_interval(CanonicalIntervalSet.Interval(PortSet.MIN_NAMED_PORT_NUM, PortSet.MAX_NAMED_PORT_NUM))
+        if all_named_ports:
+            self.add_interval(CanonicalIntervalSet.Interval(PortSet.MIN_NAMED_PORT_NUM, PortSet.MAX_NAMED_PORT_NUM))
 
     def has_real_ports(self):
         for port_range in self:
@@ -95,7 +99,7 @@ class PortSet(CanonicalIntervalSet):
 
     def add_port(self, port):
         if isinstance(port, str):
-            ind = PortSet.NamedPortDB().nameToIndex(port)
+            ind = PortSet.NamedPortDB().name_to_index(port)
             interval = CanonicalIntervalSet.Interval(ind, ind)
         else:
             interval = CanonicalIntervalSet.Interval(port, port)
@@ -103,7 +107,7 @@ class PortSet(CanonicalIntervalSet):
 
     def remove_port(self, port):
         if isinstance(port, str):
-            ind = PortSet.NamedPortDB().nameToIndex(port)
+            ind = PortSet.NamedPortDB().name_to_index(port)
             interval = CanonicalIntervalSet.Interval(ind, ind)
         else:
             interval = CanonicalIntervalSet.Interval(port, port)
@@ -177,7 +181,7 @@ class PortSetPair(CanonicalHyperCubeSet):
     def __isub__(self, other):
         assert not self.has_named_ports()
         assert not other.has_named_ports()
-        return super.__isub__(other)
+        return super().__isub__(other)
 
     def has_named_ports(self):
         for layer in self.layers:
@@ -189,8 +193,12 @@ class PortSetPair(CanonicalHyperCubeSet):
         res = set()
         for layer in self.layers:
             if PortSet.is_named_port(layer[0].start):
-                res.add(PortSet.NamedPortDB().indexToName(layer[0].start))
-                res.add(PortSet.NamedPortDB().indexToName(layer[0].end))
+                startPortName = PortSet.NamedPortDB().index_to_name(layer[0].start)
+                if startPortName:
+                    res.add(startPortName)
+                endPortName = PortSet.NamedPortDB().index_to_name(layer[0].end)
+                if endPortName:
+                    res.add(endPortName)
         return res
 
     def convert_named_ports(self, named_ports, protocol):
@@ -208,28 +216,48 @@ class PortSetPair(CanonicalHyperCubeSet):
         named_port_layers = []
         for layer in self.layers:
             if PortSet.is_named_port(layer[0].start):
-                named_port_layers.append(layer.copy())
+                named_port_layers.append((layer[0].copy(), layer[1].copy()))
 
+        processedNamedPorts = CanonicalIntervalSet()
         # Next, remove faked named ports and add real ports corresponding to the named ones
         for layer in named_port_layers:
-            for port in range(layer[0].start, layer[0].end + 1):
-                removedFakedPort = False
-                real_port = named_ports.get(PortSet.NamedPortDB().indexToName(port))
+            layer_sub_element = layer[1]
+            assert layer_sub_element.dimensions == 1
+            #interval_list = layer_sub_element.get_list_of_all_intervals_paths()
+            interval_list = layer_sub_element.baseIntervalSet
+
+            # remove faked named ports
+            for src_interval in interval_list:
+                old_rectangle = [layer[0], src_interval]
+                self.add_hole(old_rectangle)
+
+            # add real ports corresponding to the named ones
+            processedNamedPorts.add_interval(layer[0])
+            for port in range(layer[0].start, min(layer[0].end + 1, \
+                                                  PortSet.MIN_NAMED_PORT_NUM + PortSet.NamedPortDB().named_ports_num())):
+                real_port = named_ports.get(PortSet.NamedPortDB().index_to_name(port))
                 if real_port and real_port[1] == protocol:
                     real_port_number = real_port[0]
-                    layer_sub_element = layer[1]
-                    assert layer_sub_element.dimensions == 1
-                    interval_list = layer_sub_element.get_list_of_all_intervals_paths()
                     for src_interval in interval_list:
                         new_rectangle = [CanonicalIntervalSet.Interval(real_port_number, real_port_number), src_interval]
                         self.add_interval(new_rectangle)
-                        if not removedFakedPort:
-                            old_rectangle = [layer[0], src_interval]
-                            self.add_hole(old_rectangle)
-                            removedFakedPort = True
+
+        # finally, remove real ports that did not appear in names ports
+        for port in range(PortSet.MIN_NAMED_PORT_NUM, PortSet.MIN_NAMED_PORT_NUM + PortSet.NamedPortDB().named_ports_num()):
+            if not port in processedNamedPorts:
+                real_port = named_ports.get(PortSet.NamedPortDB().index_to_name(port))
+                if real_port and real_port[1] == protocol:
+                    real_port_number = real_port[0]
+                    new_rectangle = [CanonicalIntervalSet.Interval(real_port_number, real_port_number),\
+                                     CanonicalIntervalSet.Interval(PortSet.MIN_PORT_NUM, PortSet.MAX_PORT_NUM)]
+                    self.add_hole(new_rectangle)
 
     def copy(self):
-        res = PortSetPair(super().copy())
+        res = PortSetPair()
+        # From CanonicalHuperCubeSet.copy (did not find a way to write a decent copy c'tor)
+        for layer in self.layers:
+            res.layers.append((layer[0].copy(), layer[1].copy()))
+        res.baseIntervalSet = self.baseIntervalSet.copy()
         return res
 
     def print_diff(self, other, self_name, other_name):
