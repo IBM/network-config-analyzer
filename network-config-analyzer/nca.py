@@ -133,13 +133,13 @@ def nca_main(argv=None):
     parser.add_argument('--base_np_list', '-b', type=_ghe_or_k8s_or_calico_or_valid_path, default='k8s',
                         help='Filesystem or GHE location of base network policies '
                              'for equiv/interferes/forbids/permits/semantic_diff check (default: k8s cluster)')
-    parser.add_argument('--base_pod_list', '-pb', type=_ghe_or_k8s_or_calico_or_valid_path,
+    parser.add_argument('--base_pod_list', '-pb', type=_ghe_or_k8s_or_calico_or_valid_path, action='append',
                         help='A file/cluster-type to read old pod list from. Used for semantic_diff check')
-    parser.add_argument('--base_ns_list', '-nb', type=_ghe_or_k8s_or_calico_or_valid_path,
+    parser.add_argument('--base_ns_list', '-nb', type=_ghe_or_k8s_or_calico_or_valid_path, action='append',
                         help='A file/cluster-type to read old namespace list from. Used for semantic_diff check')
-    parser.add_argument('--ns_list', '-n', type=_ghe_or_k8s_or_calico_or_valid_path,
+    parser.add_argument('--ns_list', '-n', type=_ghe_or_k8s_or_calico_or_valid_path, action='append',
                         help='A file/cluster-type to read namespace list from')
-    parser.add_argument('--pod_list', '-p', type=_ghe_or_k8s_or_calico_or_valid_path,
+    parser.add_argument('--pod_list', '-p', type=_ghe_or_k8s_or_calico_or_valid_path, action='append',
                         help='A file/cluster-type to read pod list from')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
