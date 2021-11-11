@@ -156,7 +156,7 @@ class PeerContainer:
         """
 
         if not peer_resources_list:
-           self.load_peer_from_k8s_live_cluster()
+            self.load_peer_from_k8s_live_cluster()
 
         for peer_resources in peer_resources_list:
             # load from git
@@ -189,7 +189,6 @@ class PeerContainer:
                     self.add_eps_from_list(peer_code)
             elif peer_resources == 'k8s':
                 self.load_peer_from_k8s_live_cluster()
-
 
         print(f'{config_name}: cluster has {self.get_num_peers()} unique endpoints, '
               f'{self.get_num_namespaces()} namespaces')
