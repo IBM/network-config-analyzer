@@ -61,9 +61,10 @@ class SchemeRunner(GenericYamlParser):
             return None
         if isinstance(resources_list, str):
             resources_list = [resources_list]
-        for idx, resource in enumerate(resources_list):
-            resources_list[idx] = self._get_input_file(resource)
-        return resources_list
+        input_file_list = []
+        for resource in resources_list:
+            input_file_list.append(self._get_input_file(resource))
+        return input_file_list
 
     def _add_config(self, config_entry, peer_container_global):
         """
