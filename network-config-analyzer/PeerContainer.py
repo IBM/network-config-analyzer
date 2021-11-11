@@ -156,7 +156,7 @@ class PeerContainer:
         """
 
         if not peer_resources_list:
-           self.load_peer_from_k8s_live_cluster()
+            self.load_peer_from_k8s_live_cluster()
 
         for peer_resources in peer_resources_list:
             # load from git
