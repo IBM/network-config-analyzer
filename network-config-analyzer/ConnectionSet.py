@@ -392,12 +392,16 @@ class ConnectionSet:
             return
         del self.allowed_protocols[protocol]
 
-    def add_all_connections(self):
+    def add_all_connections(self, excluded_protocols=None):
         """
         Add all possible connections to the connection set
         :return: None
         """
+        if excluded_protocols is None:
+            excluded_protocols = []
         for protocol in range(1, 256):
+            if excluded_protocols and protocol in excluded_protocols:
+                continue
             if self.protocol_supports_ports(protocol):
                 self.allowed_protocols[protocol] = TcpProperties(PortSet(True), PortSet(True))
             elif self.protocol_is_icmp(protocol):
@@ -478,4 +482,7 @@ class ConnectionSet:
 
     @staticmethod
     def get_non_TCP_connections():
-        return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()
+        res = ConnectionSet()
+        res.add_all_connections([ConnectionSet._protocol_name_to_number_dict['TCP']])
+        return res
+        #return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()

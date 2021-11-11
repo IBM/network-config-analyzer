@@ -1,5 +1,8 @@
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
 from enum import Enum
-
 from CanonicalIntervalSet import CanonicalIntervalSet
 from MinDFA import MinDFA
 
@@ -9,6 +12,7 @@ A singleton class to manage dimensions names and their association to type and d
 
 
 class DimensionsManager:
+
     class DimensionType(Enum):
         IntervalSet = 0
         DFA = 1

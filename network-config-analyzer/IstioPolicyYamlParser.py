@@ -276,6 +276,12 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
     @staticmethod
     def parse_str_value(str_val_input):
+        """
+        transform input regex/str to the format supported by greenery
+        TODO: add some checks that input is valid
+        :param str_val_input: the str/regex from input
+        :return: str: the result regex/str after conversion
+        """
         res = str_val_input
         if '.' in res:
             res = res.replace(".", "[.]")

@@ -1,4 +1,7 @@
-
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
 from greenery.fsm import fsm
 from greenery.lego import parse, from_fsm
 
@@ -11,6 +14,25 @@ class MinDFA(fsm):
     - is_all_words: flag (ternary-logic) to indicate if it is known for this DFA if its language is all words or not.
     - complement_dfa: either None (if complement dfa is unknown) or another MinDFA object which complements this
                       dfa to all words.
+
+    Assumptions:
+    (1) assuming that all MinDFA objects are originated from dfa_from_regex, or dfa_from_fsm on fsm that
+        is originated from MinDFA (or operations between two fsms originated from MinDFA)
+    (2) Based on (1), assuming that two MinDFA objects are equal iff they have the exact same set of states
+       (including states numbers), same initial state, same final states, and same transition relation.
+       This is because in greenery.fsm, the fsm construction is deterministic (see fsm.crawl() )
+    (3) thus, for performance considerations, overriding the __eq__ method, and adding the __hash__ function.
+        MinDFA comparison is more lightweight this way , rather than using fsm.equivalent() method.
+    (4) assuming that any comparison or other operations between two MinDFA objects, are for DFAs of the same
+       alphabet.
+      In MinDFA __eq__ and __hash__ ignoring the alphabet: for performance considerations, allowing build MinDFA with
+      minimal relevant alphabet (e.g. alphabet for "PUT" is {P,U,T,everything_else})
+      * for a DFA originated from finite-len language of regexp, the alphabet will be restricted to the words' alphabet.
+      * for a DFA of an infinite language, it will necessarily have the original alphabet.
+        that is because, in istio, regexp with * is always translated to: [any allowed char]*
+        and relevant also for the complement case, since we subtract from (dfa_all_words).
+      * assuming that no finite-len DFA has any char that is illegal in the original alphabet.(legal input only)
+
     """
 
     class Ternary:
@@ -33,6 +55,10 @@ class MinDFA(fsm):
             super().__setattr__(name, value)
         return self
 
+    def get_fsm(self):
+        res = fsm(self.alphabet, self.states, self.initial, self.finals, self.map)
+        return res
+
     @staticmethod
     def dfa_from_fsm(f):
         """
@@ -41,6 +67,11 @@ class MinDFA(fsm):
         :return: MinDFA object
         """
         return MinDFA(f.alphabet, f.states, f.initial, f.finals, f.map)
+
+    # TODO: verify it is canonical rep for minDFA (except alphabet) (also for __hash__)
+    def __eq__(self, other):
+        res = self.states == other.states and self.initial == other.initial and self.finals == other.finals and self.map == other.map
+        return res
 
     @staticmethod
     # TODO: when not being used from DFA_all_words, should provide alphabet set
@@ -53,7 +84,7 @@ class MinDFA(fsm):
         :return:
         """
         # TODO: consider runtime impact for using alphabet...
-        # alphabet = None
+        alphabet = None
         f = parse(s).to_fsm(alphabet)
         # for canonical rep -- transform to minimal MinDFA
         f.reduce()
@@ -95,7 +126,9 @@ class MinDFA(fsm):
         return res
 
     def __hash__(self):
-        return hash(super().__str__())
+        return hash((frozenset(self.states), frozenset(self.finals), frozenset(self.map), self.initial ))
+        #return hash((frozenset(self.alphabet), frozenset(self.states), frozenset(self.finals), frozenset(self.map), self.initial ))
+        #return hash(super().__str__())
 
     def _get_strings_set_str(self):
         """
@@ -104,7 +137,6 @@ class MinDFA(fsm):
         :rtype: set of strings
         """
         str_values = set()
-        # TODO: avoid using from_fsm, use strings() directly on fsm object
         str_generator = self.strings()
         for i in range(0, len(self)):
             str_val = next(str_generator)
@@ -207,6 +239,6 @@ class MinDFA(fsm):
         """
         if self.empty():
             return NotImplemented
-        # TODO: avoid using from_fsm
-        str_generator = from_fsm(self).strings()
-        return next(str_generator)
+        str_generator = self.strings()
+        str_val = next(str_generator)
+        return ''.join(ch for ch in str_val)
