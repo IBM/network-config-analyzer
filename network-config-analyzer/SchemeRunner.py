@@ -56,7 +56,7 @@ class SchemeRunner(GenericYamlParser):
             return input_file
         return given_path
 
-    def _handle_resorces_list(self, resources_list):
+    def _handle_resources_list(self, resources_list):
         if not resources_list: # shouldn't get here
             return None
         if isinstance(resources_list, str):
@@ -89,8 +89,8 @@ class SchemeRunner(GenericYamlParser):
                 ns_list = self.scheme.get('namespaceList', 'k8s')
             if not pod_list:  # use global resource file
                 pod_list = self.scheme.get('podList', 'k8s')
-            pod_list = self._handle_resorces_list(pod_list)
-            ns_list = self._handle_resorces_list(ns_list)
+            pod_list = self._handle_resources_list(pod_list)
+            ns_list = self._handle_resources_list(ns_list)
             peer_container = PeerContainer(ns_list, pod_list, config_name)
         else:
             # deepcopy is required since NetworkConfig's constructor may change peer_container
@@ -157,8 +157,8 @@ class SchemeRunner(GenericYamlParser):
         self.check_fields_validity(self.scheme, 'scheme', allowed_keys)
 
         # global resource files
-        pod_list = self._handle_resorces_list(self.scheme.get('podList', 'k8s'))
-        ns_list = self._handle_resorces_list(self.scheme.get('namespaceList', 'k8s'))
+        pod_list = self._handle_resources_list(self.scheme.get('podList', 'k8s'))
+        ns_list = self._handle_resources_list(self.scheme.get('namespaceList', 'k8s'))
         peer_container = PeerContainer(ns_list, pod_list)
 
         for config_entry in self.scheme.get('networkConfigList', []):
