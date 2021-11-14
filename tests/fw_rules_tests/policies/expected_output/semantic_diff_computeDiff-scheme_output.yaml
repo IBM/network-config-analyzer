@@ -12,10 +12,10 @@
     connection:
     - Protocol: TCP
       dst_ports:
-      - ({1-8079,8081-9089,9091-65536}, )
+      - ({1-8079,8081-9089,9091-65535}, )
     - Protocol: UDP
       dst_ports:
-      - ({1-8079,8081-65536}, )
+      - ({1-8079,8081-65535}, )
     - Protocol: SCTP
 - query: 'semantic_diff, config1: new1, config2: old1, key: Removed connections between
     persistent peers'
@@ -31,7 +31,7 @@
     connection:
     - Protocol: TCP
       dst_ports:
-      - ({1-8079,8081-65536}, )
+      - ({1-8079,8081-65535}, )
     - Protocol: UDP
     - Protocol: SCTP
 

@@ -62,7 +62,6 @@ class CanonicalHyperCubeSet:
         # if both objects have no cubes they are equal, even if they have different active dimensions
         if not self and not other:
             return True
-        # TODO: currently comparing cubes_list for testing
         return self.active_dimensions == other.active_dimensions and self.layers == other.layers
 
     @staticmethod
@@ -126,7 +125,7 @@ class CanonicalHyperCubeSet:
             dim_domain = dimensions_manager.get_dimension_domain_by_name(cube_dims[dim_index])
             dim_type = dimensions_manager.get_dimension_type_by_name(cube_dims[dim_index])
             # if one of the cube's dimensions is empty, the cartesian product is empty
-            if dim_val.empty():
+            if not dim_val:
                 is_empty = True
                 return None, None, is_empty
             # if dim_domain != dim_val:
@@ -175,32 +174,6 @@ class CanonicalHyperCubeSet:
         for dim_name in dimensions_list_ordered:
             cube_res.append(self.dimensions_manager.get_dimension_domain_by_name(dim_name))
         return cube_res
-
-    def _get_dim_values_str(self, dim_values, dim_name):
-        """
-        :param dim_values: CanonicalIntervalSet of MinDFA object, depends on type of dim_name
-        :param dim_name: string of a dimension name
-        :return: a string representing the values in dim_values
-        """
-        dim_type = self.dimensions_manager.get_dimension_type_by_name(dim_name)
-        dim_domain = self.dimensions_manager.get_dimension_domain_by_name(dim_name)
-
-        if dim_type == DimensionsManager.DimensionType.IntervalSet:
-            if len(dim_values) > 1:
-                return '{' + str(dim_values) + '}'
-            return str(dim_values)  # dim_values should be of type CanonicalIntervalSet
-        else:  # dim_values should be of type MinDFA
-            if dim_values.has_finite_len():
-                return str(dim_values)  # return set of words accepted by this MinDFA
-            all_words_dfa = dim_domain
-            # TODO: for istio regex the "*" corresponds to any string but empty
-            if dim_values.is_dfa_wll_words(all_words_dfa):
-                return "*"
-            # complement dfa
-            complement_dfa = dim_values.complement_dfa if dim_values.complement_dfa is not None else all_words_dfa - dim_values
-            if complement_dfa.has_finite_len():
-                return f'all but {complement_dfa}'  # return set of words not accepted by this MinDFA
-            return str(dim_values)  # return regex representing this MinDFA
 
     def __len__(self):
         """
@@ -255,7 +228,7 @@ class CanonicalHyperCubeSet:
                 assert (isinstance(item[index], int))
         if self.is_all():
             return True
-        if self.is_empty():
+        if not self:
             return False
         # reduce item to active dimensions only
         relevant_input_item = self._get_aligned_cube_by_new_active_dimensions(item, self.all_dimensions_list,
@@ -275,13 +248,13 @@ class CanonicalHyperCubeSet:
     def __iand__(self, other):
         if other.is_all():
             return self
-        if other.is_empty() or self.is_empty():
+        if not other or not self:
             self.clear()
             return self
         if self.is_all():
             # TODO: change?
             self._override_by_other(other.copy())
-            #self.__dict__ = (other.copy()).__dict__
+            # self.__dict__ = (other.copy()).__dict__
             return self
         other_copy = self._prepare_common_active_dimensions(other)
         self._and_aux(other_copy)
@@ -300,11 +273,14 @@ class CanonicalHyperCubeSet:
         for self_layer in self.layers:
             for other_layer in other.layers:
                 common_elem = self_layer & other_layer
-                if common_elem.empty():
+                if not common_elem:
                     continue
                 if self._is_last_dimension():
                     res_layers[common_elem] = self.layers[self_layer]
                     continue
+                # TODO: use type hint to avoid warning on access to a protected member?
+                # self_sub_elem: CanonicalHyperCubeSet = self.layers[self_layer]
+                # new_sub_elem = self_sub_elem._and_aux(other.layers[other_layer])
                 new_sub_elem = self.layers[self_layer]._and_aux(other.layers[other_layer])
                 if new_sub_elem:
                     res_layers[common_elem] = new_sub_elem
@@ -322,11 +298,11 @@ class CanonicalHyperCubeSet:
         if other.is_all() or self.is_all():
             self.set_all()
             return self
-        if other.is_empty():
+        if not other:
             return self
-        if self.is_empty():
+        if not self:
             self._override_by_other(other.copy())
-            #self.__dict__ = (other.copy()).__dict__
+            # self.__dict__ = (other.copy()).__dict__
             return self
             # self = other.copy()
             # return self
@@ -351,7 +327,7 @@ class CanonicalHyperCubeSet:
             remaining_self_layer = self_layer.copy()
             for other_layer in other.layers:
                 common_elem = self_layer & other_layer
-                if common_elem.empty():
+                if not common_elem:
                     continue
                 remaining_other_layers[other_layer] -= common_elem
                 remaining_self_layer -= common_elem
@@ -360,10 +336,10 @@ class CanonicalHyperCubeSet:
                     continue
                 new_sub_elem = (self.layers[self_layer].copy()).or_aux(other.layers[other_layer])
                 res_layers[common_elem] = new_sub_elem
-            if not remaining_self_layer.empty():
+            if remaining_self_layer:
                 res_layers[remaining_self_layer] = self.layers[self_layer]
         for layer_elem, remaining_layer_elem in remaining_other_layers.items():
-            if not remaining_layer_elem.empty():
+            if remaining_layer_elem:
                 res_layers[remaining_layer_elem] = other.layers[layer_elem]
         self.layers = res_layers
         self._apply_layer_elements_union()
@@ -377,7 +353,7 @@ class CanonicalHyperCubeSet:
     def __isub__(self, other):
         if other.is_all():
             self.clear()
-        if other.is_empty():
+        if not other:
             return self
         other_copy = self._prepare_common_active_dimensions(other)
         self.sub_aux(other_copy)
@@ -397,7 +373,7 @@ class CanonicalHyperCubeSet:
             remaining_self_layer = self_layer.copy()
             for other_layer in other.layers:
                 common_elem = self_layer & other_layer
-                if common_elem.empty():
+                if not common_elem:
                     continue
                 remaining_self_layer -= common_elem
                 if self._is_last_dimension():
@@ -408,7 +384,7 @@ class CanonicalHyperCubeSet:
                 if bool(new_sub_elem):
                     # add remaining new_sub_elem if not empty, under common
                     res_layers[common_elem] = new_sub_elem
-            if not remaining_self_layer.empty():
+            if remaining_self_layer:
                 res_layers[remaining_self_layer] = self.layers[self_layer]
         self.layers = res_layers
         self._apply_layer_elements_union()
@@ -418,8 +394,9 @@ class CanonicalHyperCubeSet:
         """
         change self and other so that they have common active dimensions.
         Changes to 'other' should be on a new copy, not directly on it.
-        :param other: CanonicalHyperCubeSet object
-        :return: CanonicalHyperCubeSet object: 'other' result
+        :type other: CanonicalHyperCubeSet
+        :rtype CanonicalHyperCubeSet
+        :return: result for 'other' (which may be copied and changed or not)
         """
         if self.active_dimensions == other.active_dimensions:
             return other
@@ -438,21 +415,20 @@ class CanonicalHyperCubeSet:
         """
         return not self.active_dimensions
 
-    def is_empty(self):
-        """
-        :return: bool indicating if self is empty
-        """
-        return not bool(self)
-
     def set_all(self):
         """
         update self to consist of a cube of the entire defined space
         """
         self.active_dimensions = []
-        # self.cubes_list = []
         self.layers = dict()
 
+    # TODO: use _prepare_common_active_dimensions ? (extend it?)
     def contained_in(self, other):
+        """
+        check containment between CanonicalHyperCubeSet objects: is self contained in other
+        :type other: CanonicalHyperCubeSet
+        :rtype bool
+        """
         required_active_dimensions = set(self.active_dimensions + other.active_dimensions)
         # containment check should not change active dimensions of self/other
         self_copy = self.copy()
@@ -465,7 +441,7 @@ class CanonicalHyperCubeSet:
         """
         recursive function to check containment between CanonicalHyperCubeSet objects.
         :param other: CanonicalHyperCubeSet objects, to check if self is contained in it.
-        :return: bool: containment result
+        :rtype bool
         """
         assert self.active_dimensions == other.active_dimensions
         # each cube in self should be covered by one or more cubes from other
@@ -476,9 +452,9 @@ class CanonicalHyperCubeSet:
                 other_interval = other_layer
                 other_sub_elem = other.layers[other_layer]
                 common_part = current_layer_0 & other_interval
-                has_common_part = not common_part.empty()
+                has_common_part = bool(common_part)
                 remaining = current_layer_0 - common_part
-                has_remaining = not remaining.empty()
+                has_remaining = bool(remaining)
                 if has_common_part:
                     if not self._is_last_dimension() and not (self.layers[layer])._contained_in_aux(
                             other_sub_elem):
@@ -490,7 +466,7 @@ class CanonicalHyperCubeSet:
                         break
         return is_subset_count == len(self.layers)
 
-    # TODO: add argument to specify relevant dimensions, or change to active dimensions only
+    # TODO: add argument to specify relevant dimensions, or change to active dimensions only?
     def get_first_item(self):
         if not self:
             return NotImplemented
@@ -525,7 +501,7 @@ class CanonicalHyperCubeSet:
         res = ""
         for dim_index, dim_values in enumerate(cube):
             dim_name = self.active_dimensions[dim_index]
-            res += self._get_dim_values_str(dim_values, dim_name) + ", "
+            res += self.dimensions_manager.get_dim_values_str(dim_values, dim_name) + ", "
         return f"({res})"
 
     def _is_last_dimension(self):
@@ -541,12 +517,12 @@ class CanonicalHyperCubeSet:
         if not cube_to_add:
             return  # ignore empty cube
         for dim_value in cube_to_add:
-            if dim_value.empty():
+            if not dim_value:
                 return
         cube_obj = CanonicalHyperCubeSet.create_from_cube(self.all_dimensions_list, cube_to_add, cube_dimensions)
         res = self | cube_obj
         self._override_by_other(res)
-        #self.__dict__.update(res.__dict__)
+        # self.__dict__.update(res.__dict__)
         # self |= CanonicalHyperCubeSet.create_from_cube(self.all_dimensions_list, cube_to_add, cube_dimensions)
         # print(self)
 
@@ -557,232 +533,12 @@ class CanonicalHyperCubeSet:
         if not hole_to_add:
             return  # ignore empty hole
         for dim_value in hole_to_add:
-            if dim_value.empty():
+            if not dim_value:
                 return
         cube_obj = CanonicalHyperCubeSet.create_from_cube(self.all_dimensions_list, hole_to_add, hole_dimensions)
         res = self - cube_obj
         self._override_by_other(res)
-        #self.__dict__.update(res.__dict__)
-
-    '''
-    def add_cube_old(self, cube_to_add, cube_dimensions=None):
-        """
-        add cube to self:
-        1. _add_cube_aux computes the result and updates self (recursive)
-        2. reduce_active_dimensions : update self with minimal required active dimensions on the final result
-        :param cube_to_add: list representing a cube to add, with dimensions from cube_dimensions
-        :param cube_dimensions: list with the cube dimension names
-        """
-        if cube_dimensions is None and len(cube_to_add) > 0:
-            cube_dimensions = self.all_dimensions_list[0:len(cube_to_add)]
-        if not isinstance(cube_to_add, list):
-            raise Exception("cube_to_add is not a list")
-        if not cube_to_add:
-            return  # ignore empty cube
-        for dim_value in cube_to_add:
-            if dim_value.empty():
-                return
-        if self._is_cube_entire_space(cube_to_add, cube_dimensions):
-            self.set_all()
-            return
-        # TODO: debug without this as well
-
-        if not bool(self):
-            # empty elem is equivalent for any non-empty set of active dimensions
-            self.active_dimensions = self._get_dimensions_subset_by_order(cube_dimensions)
-
-        self._add_cube_aux(cube_to_add, cube_dimensions)
-        # after cube was added, check if some dimensions are now 'allow all', and can be reduced
-        self._reduce_active_dimensions()
-
-    def _add_cube_aux(self, cube_to_add, cube_dimensions):
-        """
-        recursive function to add cube_to_add to self:
-        1. add_element_item: get new_layers
-        2. _apply_layer_elements_union: apply required union for tuples in layers with identical sub-"hyper-cube-set"
-           objects.
-        :param cube_to_add: list representing a cube to add, with dimensions from cube_dimensions
-        :param cube_dimensions: list with the cube dimension names
-        """
-        # sanity checks
-        if not set(cube_dimensions).issubset(set(self.all_dimensions_list)):
-            # raise Exception("Invalid cube_dimensions: not a subset of allowed dimensions")
-            return
-        dimensions_to_add_as_active = set(cube_dimensions) - set(self.active_dimensions)
-        # cube_active_dimensions = set(cube_dimensions) & set(self.active_dimensions)
-        # for existing cubes, add this dimension with *all* values
-        # align cube_values with active_dimensions by required order, and complete missing dimensions with all_domain_values
-
-        # TODO: if there is a new dimension to be set as active, but its value in this "cube to add" is the entire domain, we can skip it.
-        #  currently assuming this is not the case..
-        if dimensions_to_add_as_active:
-            self._set_active_dimensions(dimensions_to_add_as_active)
-        # the cube_to_add should be aligned by active dimensions
-        # cube should be aligned even if no dimensions are added as active, because the order may change ..?
-        # TODO: (optimization): if self is empty, can change active dimensions according to those of cube...(no need to set all dimensions as active)
-        cube_to_add_aligned = self._get_aligned_cube_by_new_active_dimensions(cube_to_add, cube_dimensions,
-                                                                              self.active_dimensions)
-        # should add the cube: aligned_cube_values, and transform all existing cubes to be consistent with active domains.
-        new_item = cube_to_add_aligned[0].copy()
-        new_layers = self._add_element_item(new_item, cube_to_add_aligned)
-        self.layers = new_layers
-        self._apply_layer_elements_union()
-
-    def _add_element_item(self, new_element, cube_to_add):
-        """
-        computation of new_layers as the result of adding cube_to_add to self.layers
-        :param new_element: a MinDFA/CanonicalIntervalSet element - the first element in  cube_to_add
-        :param cube_to_add: a cube as a list of elements
-        :return: list : new_layers
-        """
-        new_layers = dict()
-        new_elem_added = False
-        for layer_elem_set, layer_sub_element in self.layers.items():
-            elem_set_intersection = layer_elem_set & new_element
-            if elem_set_intersection.empty():
-                new_layers[layer_elem_set] = layer_sub_element
-            else:
-                # split this layer_elem_set based on intersection
-                common_elem = elem_set_intersection
-                only_layer_elems = layer_elem_set - common_elem
-                only_new_elems = new_element - common_elem
-                new_layers[common_elem] = self._get_new_sub_elem(cube_to_add, layer_sub_element.copy())
-                if only_layer_elems:
-                    new_layers[only_layer_elems] = layer_sub_element
-                if only_new_elems:
-                    new_element = only_new_elems  # continue exploring with next intervals
-                else:
-                    new_elem_added = True
-        if not new_elem_added:
-            new_layers[new_element] = self._get_new_sub_elem(cube_to_add)
-        return new_layers
-
-    def _get_new_sub_elem(self, cube_to_add, existing_sub_elem=None):
-        """
-        get the result of a sub-"hyper-cube" object with self.active_dimensions[1:]
-        :param cube_to_add: list representing a cube to add, with dimensions from self.active_dimensions
-        :param existing_sub_elem: either None or an object of sub-"hyper-cube" with self.active_dimensions[1:]
-        :return: CanonicalHyperCubeSet object: the result of adding cube_to_add[1:] to existing_sub_elem if exists,
-                 or to an empty sub-"hyper-cube" object.
-        """
-        if self._is_last_dimension():
-            return CanonicalHyperCubeSet.empty_interval
-        if existing_sub_elem is not None:
-            # initialize new sub-elem with existing sub-elem copy
-            res = existing_sub_elem.copy()
-        else:
-            # initialize an empty sub-elem
-            res = CanonicalHyperCubeSet(self.all_dimensions_list)
-            res.active_dimensions = self.active_dimensions[1:]
-        # update sub-elem with relevant sub-cube from cube_to_add
-        res._add_cube_aux(cube_to_add[1:], self.active_dimensions[1:])
-        return res
-
-    
-
-    def add_hole_old(self, hole_to_add, hole_dimensions=None):
-        """
-        add hole to self:
-        1. add_hole_aux computes the result and updates self (recursive)
-        2. _reduce_active_dimensions : update self with minimal required active dimensions on the final result
-        :param hole_to_add: list representing a hole cube to add, with dimensions from hole_dimensions
-        :param hole_dimensions: list with the hole dimension names
-        :return:
-        """
-        if hole_dimensions is None and len(hole_to_add) > 0:
-            hole_dimensions = self.all_dimensions_list[0:len(hole_to_add)]
-        if not isinstance(hole_to_add, list):
-            raise Exception("hole_to_add is not a list")
-        if not hole_to_add:
-            return  # ignore empty hole
-        for dim_value in hole_to_add:
-            if dim_value.empty():
-                return
-        if self._is_cube_entire_space(hole_to_add, hole_dimensions):
-            self.clear()
-            return
-        self.add_hole_aux(hole_to_add, hole_dimensions)
-        # after cube was added, check if some dimensions are now always 'allow all', and can be reduced
-        self._reduce_active_dimensions()
-
-    def add_hole_aux(self, hole_to_add, hole_dimensions):
-        """
-        recursive function to add hole_to_add to self:
-        1. add_element_hole: get new_layers
-        2. _apply_layer_elements_union: apply required union for tuples in layers with identical sub-"hyper-cube-set"
-           objects.
-        :param hole_to_add: list representing a hole to add, with dimensions from cube_dimensions
-        :param hole_dimensions: list with the hole dimension names
-        """
-        # TODO: if removing the entire domain on some dimension, the result is empty?
-        dimensions_to_add_as_active = set(hole_dimensions) - set(self.active_dimensions)
-        if dimensions_to_add_as_active:
-            self._set_active_dimensions(dimensions_to_add_as_active)
-        hole_to_add_aligned = self._get_aligned_cube_by_new_active_dimensions(hole_to_add, hole_dimensions,
-                                                                              self.active_dimensions)
-        hole_item = hole_to_add_aligned[0].copy()
-        new_layers = self.add_element_hole(hole_item, hole_to_add_aligned)
-        self.layers = new_layers
-        self._apply_layer_elements_union()
-        # self.cubes_list = cubes_list
-
-    def add_element_hole(self, hole_elem, hole_to_add):
-        """
-        computation of new_layers as the result of adding hole_to_add to self.layers
-        :param hole_elem: a MinDFA/CanonicalIntervalSet element - the first element in  hole_to_add
-        :param hole_to_add: a cube as a list of elements
-        :return: list : new_layers
-        """
-        new_layers = dict()
-        for layer_elem, layer_sub_elem in self.layers.items():
-            hole_layer_intersection = hole_elem & layer_elem
-            if not hole_layer_intersection.empty():
-                only_layer_elem = layer_elem - hole_layer_intersection
-                # handle the hole dfa:
-                new_sub_elem = self._get_new_sub_elem_hole(hole_to_add, layer_sub_elem)
-                if new_sub_elem is not None:  # if the subtraction result is not empty, add the relevant part
-                    new_layers[hole_layer_intersection] = new_sub_elem
-                    # new_layers.append((hole_layer_intersection, new_sub_elem))
-                # handle the remaining layer dfa not impacted by the hole
-                if not only_layer_elem.empty():
-                    new_layers[only_layer_elem] = layer_sub_elem
-                    # new_layers.append((only_layer_elem, layer_sub_elem))
-            else:
-                new_layers[layer_elem] = layer_sub_elem  # .append(layer)
-        return new_layers
-
-    def _get_new_sub_elem_hole(self, cube_to_remove, existing_sub_elem):
-        """
-        get the result of a sub-"hyper-cube" object with self.active_dimensions[1:]
-        :param cube_to_remove: list representing a cube to remove, with dimensions from self.active_dimensions
-        :param existing_sub_elem: an object of sub-"hyper-cube" with self.active_dimensions[1:]
-        :return: CanonicalHyperCubeSet object: the result of removing cube_to_add[1:] from existing_sub_elem.
-                 if the result is empty, returns None
-        """
-        if self._is_last_dimension():
-            return None
-        res = existing_sub_elem.copy()
-        res.add_hole_aux(cube_to_remove[1:], self.active_dimensions[1:])
-        if not res:  # empty
-            return None
-        return res
-    
-
-    def _is_cube_entire_space(self, cube, cube_dimensions): 
-        """
-        :param cube: list representing a cube with dimensions from  cube_dimensions
-        :param cube_dimensions: list with dimensions names
-        :return: bool indicating if cube is equivalent to the entire n-dimensional space cube.
-        """
-        for dim_index, dim_name in enumerate(cube_dimensions):
-            dim_type = self.dimensions_manager.get_dimension_type_by_name(dim_name)
-            all_domain = self.dimensions_manager.get_dimension_domain_by_name(dim_name)
-            if dim_type == DimensionsManager.DimensionType.DFA and not cube[dim_index].is_dfa_wll_words(all_domain):
-                return False
-            elif dim_type == DimensionsManager.DimensionType.IntervalSet and not cube[dim_index] == all_domain:
-                return False
-        return True
-    '''
+        # self.__dict__.update(res.__dict__)
 
     @staticmethod
     # TODO: add assumption about the case where cube is point -> not adding dimensions there, only removing
@@ -884,7 +640,7 @@ class CanonicalHyperCubeSet:
         if self.active_dimensions[0] == new_active_dimensions[0]:
             # comment out redundant case: (caught by prev branch)
             # case 1 (a): last dimension equal -> end
-            #if self._is_last_dimension():
+            # if self._is_last_dimension():
             #    return
             # case 1 (b) : not last dimension + has more new_active_dimensions -> handle sub_elements
             if new_active_dimensions[1:]:

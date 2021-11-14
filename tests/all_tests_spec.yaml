@@ -22,15 +22,15 @@ general:
   - name: all_scheme_tests
     type: scheme
     root: ./
-    files_list:
-      - bookinfo-test-request-attrs-scheme.yaml
+    #files_list:
+    #  - bookinfo-test-request-attrs-scheme.yaml
 
   # 2: all cli queries in tests/cmdline_tests.yaml
-  #- name: general_cmdline_tests
-  #  type: cmdline
-  #  root: ./
-  #  files_list:
-  #    - cmdline_tests.yaml
+  - name: general_cmdline_tests
+    type: cmdline
+    root: ./
+    files_list:
+      - cmdline_tests.yaml
 
 #---------------------------------------------------------------------------------------------------------------------------------
 

@@ -224,10 +224,6 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         return res
 
-    def _validate_int_port(self, port, array):
-        if port < 1 or port > 65536:
-            self.syntax_error('Port number must be between 1 and 65535', array)
-
     def _parse_port(self, port, array):
         """
         Parse a single port in the array defined in the ports/notPorts part of an EntityRule
@@ -238,7 +234,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         res_port_set = PortSet()
         if isinstance(port, int):
-            self._validate_int_port(port, array)
+            self.validate_value_in_domain(port, 'dst_ports', array, 'Port number')
             res_port_set.add_port(port)
         elif isinstance(port, str):
             if port.count(':') == 1:
@@ -246,8 +242,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 try:
                     left_port = int(port_range[0])
                     right_port = int(port_range[1])
-                    self._validate_int_port(left_port, array)
-                    self._validate_int_port(right_port, array)
+                    self.validate_value_in_domain(left_port, 'dst_ports', array, 'Port number')
+                    self.validate_value_in_domain(right_port, 'dst_ports', array, 'Port number')
                     if right_port < left_port:
                         self.syntax_error('Invalid port range: ' + port, array)
                     res_port_set.add_port_range(left_port, right_port)

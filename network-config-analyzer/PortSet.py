@@ -5,6 +5,7 @@
 
 from CanonicalIntervalSet import CanonicalIntervalSet
 from CanonicalHyperCubeSet import CanonicalHyperCubeSet
+from DimensionsManager import DimensionsManager
 
 
 class PortSet:
@@ -12,13 +13,15 @@ class PortSet:
     A class for holding a set of ports, including support for (included and excluded) named ports
     """
 
+    all_ports_interval = DimensionsManager().get_dimension_domain_by_name("dst_ports")
+
     def __init__(self, all_ports=False):
         # type: (bool) -> None
         self.port_set = CanonicalIntervalSet()
         self.named_ports = set()
         self.excluded_named_ports = set()
         if all_ports:
-            self.port_set.add_interval(CanonicalIntervalSet.Interval(1, 65536))
+            self.port_set = PortSet.all_ports_interval.copy()
 
     def __eq__(self, other):
         if isinstance(other, PortSet):
@@ -35,7 +38,7 @@ class PortSet:
                 return 'some named ports'
             return 'no ports'
 
-        if self.port_set.interval_set[0].start == 1 and self.port_set.interval_set[0].end == 65536:
+        if self.port_set == PortSet.all_ports_interval:
             return 'all ports'
         return 'ports ' + str(self.port_set)
 
@@ -79,6 +82,8 @@ class PortSet:
         return self
 
 
+# TODO: move to a separate file ?
+# TODO: currently using TcpProperties as properties for all port-supported-protocols (UDP and SCTP as well)
 class TcpProperties:
     """
     A class for holding a set of cubes_set, each defined over a range of source ports X a range of target ports
@@ -87,6 +92,7 @@ class TcpProperties:
     dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts"]
     #dimensions_list = ["src_ports", "dst_ports"]
 
+    # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
     def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=None, paths=None, hosts=None):
         """
         This will create all cubes_set made of a range in source_ports and a range in dest_ports
@@ -94,6 +100,8 @@ class TcpProperties:
         :param PortSet dest_ports: The set of target ports (as a set of intervals/ranges)
         """
         self.cubes_set = CanonicalHyperCubeSet(TcpProperties.dimensions_list)
+
+        # create the cube from input arguments
         cube = [source_ports.port_set, dest_ports.port_set]
         active_dims = ["src_ports", "dst_ports"]
         if methods is not None:
@@ -106,15 +114,11 @@ class TcpProperties:
             cube.append(hosts)
             active_dims.append("hosts")
         self.cubes_set.add_cube(cube, active_dims)
-        #for src in source_ports.port_set:
-        #    for dst in dest_ports.port_set:
-        #        rectangle_intervals = [src, dst]
-        #        self.cubes_set.add_cube(rectangle_intervals)
+
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         # assuming named ports are only in dest, not src
-        all_ports = CanonicalIntervalSet()
-        all_ports.add_interval(CanonicalIntervalSet.Interval(1, 65536))
+        all_ports = PortSet.all_ports_interval.copy()
         for port_name in dest_ports.named_ports:
             self.named_ports[port_name] = source_ports.port_set
         for port_name in dest_ports.excluded_named_ports:
@@ -125,11 +129,6 @@ class TcpProperties:
         return bool(self.cubes_set) or bool(self.named_ports)
 
     def get_simplified_str(self):
-        #if len(self.cubes_set.layers) == 1:
-        #    src_ports = self.cubes_set.layers[0][0]
-        #    dst_ports = self.cubes_set.layers[0][1]
-        #    if src_ports == CanonicalIntervalSet.Interval(1, 65536):
-        #        return str(dst_ports)
         return str(self.cubes_set)
 
     def __str__(self):
@@ -327,22 +326,17 @@ class TcpProperties:
         """
         if not named_ports:
             named_ports = {}
-        #if named_ports:
-        #    print('named ports exist')
-        #if self.named_ports: #and named_ports:
-        #    print('has named ports')
+
         for port in self.named_ports:
             real_port = named_ports.get(port)
             if real_port and real_port[1] == protocol:
                 real_port_number = real_port[0]
-                #for src_interval in self.named_ports[port]:
                 rectangle = [self.named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
                 self.cubes_set.add_cube(rectangle)
         for port in self.excluded_named_ports:
             real_port = named_ports.get(port)
             if real_port and real_port[1] == protocol:
                 real_port_number = real_port[0]
-                #for src_interval in self.excluded_named_ports[port]:
                 rectangle = [self.excluded_named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
                 self.cubes_set.add_hole(rectangle)
 
@@ -356,6 +350,7 @@ class TcpProperties:
         res.excluded_named_ports = self.excluded_named_ports.copy()
         return res
 
+    # TODO: update this function: a diff item is not necessarily a [source-destination pair] as used to be on PortSetPair
     def print_diff(self, other, self_name, other_name):
         """
         :param TcpProperties other: Another PortSetPair object

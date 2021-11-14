@@ -132,7 +132,7 @@ spec:
     destination:
       ports:
       - 1:10052
-      - 10054:65536
+      - 10054:65535
       selector: has_named_port == 'dns-local'
     source:
       ports:
@@ -194,7 +194,7 @@ spec:
     source:
       ports:
       - 1:79
-      - 101:65536
+      - 101:65535
       selector: all()  
 
 ---
@@ -248,12 +248,12 @@ spec:
     destination:
       ports:
       - 1:10052
-      - 10054:65536
+      - 10054:65535
       selector: has_named_port == 'dns-local'
     source:
       ports:
       - 1:79
-      - 101:65536
+      - 101:65535
       selector: all()  
 
 ---

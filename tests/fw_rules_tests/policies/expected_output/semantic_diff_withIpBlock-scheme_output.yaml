@@ -235,7 +235,7 @@
     - Protocol: TCP
     - Protocol: UDP
       dst_ports:
-      - ({1-52,54-65536}, )
+      - ({1-52,54-65535}, )
     - Protocol: SCTP
   - src_ip_block:
     - 11.0.0.0/8
@@ -247,7 +247,7 @@
     - Protocol: TCP
     - Protocol: UDP
       dst_ports:
-      - ({1-52,54-65536}, )
+      - ({1-52,54-65535}, )
     - Protocol: SCTP
   - src_ip_block:
     - 172.22.0.0/15
@@ -259,7 +259,7 @@
     - Protocol: TCP
     - Protocol: UDP
       dst_ports:
-      - ({1-52,54-65536}, )
+      - ({1-52,54-65535}, )
     - Protocol: SCTP
   - src_ip_block:
     - 172.31.0.0/16
@@ -271,7 +271,7 @@
     - Protocol: TCP
     - Protocol: UDP
       dst_ports:
-      - ({1-52,54-65536}, )
+      - ({1-52,54-65535}, )
     - Protocol: SCTP
   - src_ip_block:
     - 10.0.0.0/8

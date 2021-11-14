@@ -64,7 +64,7 @@ class TestPortSetPairMethods(unittest.TestCase):
         res_src_port_set2.add_interval(CanonicalIntervalSet.Interval(85, 90))
         res_src_port_set3 = CanonicalIntervalSet()
         res_src_port_set3.add_interval(CanonicalIntervalSet.Interval(1, 84))
-        res_src_port_set3.add_interval(CanonicalIntervalSet.Interval(91, 65536))
+        res_src_port_set3.add_interval(CanonicalIntervalSet.Interval(91, 65535))
         self.assertTrue(res.named_ports['A'] == res_src_port_set1)
         self.assertTrue(res.named_ports['B'] == res_src_port_set2)
         self.assertTrue(res.named_ports['M'] == res_src_port_set2)
@@ -99,7 +99,7 @@ class TestPortSetPairMethods(unittest.TestCase):
         res_src_port_set2 = CanonicalIntervalSet()
         res_src_port_set2.add_interval(CanonicalIntervalSet.Interval(85, 90))
         res_src_port_set3 = CanonicalIntervalSet()
-        res_src_port_set3.add_interval(CanonicalIntervalSet.Interval(1, 65536))
+        res_src_port_set3.add_interval(CanonicalIntervalSet.Interval(1, 65535))
 
         self.assertTrue(res.named_ports['A'] == res_src_port_set1)
         self.assertTrue(res.excluded_named_ports['A'] == res_src_port_set2)

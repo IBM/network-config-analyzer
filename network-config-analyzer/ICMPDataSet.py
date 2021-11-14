@@ -6,6 +6,7 @@
 import copy
 from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from CanonicalIntervalSet import CanonicalIntervalSet
+from DimensionsManager import DimensionsManager
 
 
 class ICMPDataSet(CanonicalHyperCubeSet):
@@ -18,17 +19,22 @@ class ICMPDataSet(CanonicalHyperCubeSet):
 
     def __init__(self, add_all=False):
         super().__init__(ICMPDataSet.dimensions_list, add_all)
-        #if add_all:
-        #    self.add_all()
 
     def __str__(self):
         if not self:
             return 'no types'
         return super().__str__()
 
-    # TODO: imprvoe this properties obj representation
     def get_properties_obj(self):
-        return {'Type/Code': [str(self)]}
+        cubes_list = []
+        res_obj = {'Type/Code': cubes_list}
+        for properties_cube in iter(self):
+            # for a cube with only one dimension, the missing (inactive) dimension is icmp_code
+            if len(properties_cube) == 1:
+                properties_cube.append(DimensionsManager().get_dimension_domain_by_name("icmp_code"))
+            cube_str = '/'.join(str(dim_val) for dim_val in properties_cube)
+            cubes_list.append(cube_str)
+        return res_obj
 
     def copy(self):
         new_copy = copy.copy(self)
@@ -45,11 +51,32 @@ class ICMPDataSet(CanonicalHyperCubeSet):
         """
         if icmp_code is not None and icmp_type is None:
             return 'ICMP code cannot be specified without a type'
-        if icmp_type < 0 or icmp_type > 254:
-            return 'ICMP type must be in the range 0-254'
-        if icmp_code is not None and (icmp_code < 0 or icmp_code > 255):
-            return 'ICMP code must be in the range 0-255'
+
+        is_valid, err_message = DimensionsManager().validate_value_by_domain(icmp_type, 'icmp_type', 'ICMP type')
+        if not is_valid:
+            return err_message
+        if icmp_code is not None:
+            is_valid, err_message = DimensionsManager().validate_value_by_domain(icmp_code, 'icmp_code', 'ICMP code')
+            if not is_valid:
+                return err_message
         return ''
+
+    @staticmethod
+    def _get_properties_cube(icmp_type, icmp_code):
+        """
+        assuming the icmp_type is not None, return the relevant icmp properties cube:
+        if icmp code is None -> res cube is [icmp_type]
+        if icmp code is not None -> res cube is [icmp_type, icmp_code]
+        For a cube with a missing dimension, all its values apply, thus a cube of [icmp_type]
+        is equivalent to a cube of [icmp_type, all-icmp-code-domain]
+        :param icmp_type: int : the icmp type value
+        :param icmp_code: int or None : the icmp code value
+        :return: list[CanonicalIntervalSet]: result cube
+        """
+        properties_cube = [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type)]
+        if icmp_code is not None:
+            properties_cube.append(CanonicalIntervalSet.get_interval_set(icmp_code, icmp_code))
+        return properties_cube
 
     def add_to_set(self, icmp_type, icmp_code):
         """
@@ -62,13 +89,7 @@ class ICMPDataSet(CanonicalHyperCubeSet):
             self.add_all()
             return
 
-        if icmp_code is None:
-            self.add_cube(
-                [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type), CanonicalIntervalSet.get_interval_set(0, 255)])
-            return
-
-        self.add_cube(
-            [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type), CanonicalIntervalSet.get_interval_set(icmp_code, icmp_code)])
+        self.add_cube(self._get_properties_cube(icmp_type, icmp_code))
 
     def add_all_but_given_pair(self, icmp_type, icmp_code):
         """
@@ -82,13 +103,7 @@ class ICMPDataSet(CanonicalHyperCubeSet):
             return
 
         self.add_all()
-        if icmp_code is None:
-            self.add_hole(
-                [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type), CanonicalIntervalSet.get_interval_set(0, 255)])
-        else:
-            self.add_hole(
-                [CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type),
-                 CanonicalIntervalSet.get_interval_set(icmp_code, icmp_code)])
+        self.add_hole(self._get_properties_cube(icmp_type, icmp_code))
 
     def add_all(self):
         """
@@ -96,8 +111,6 @@ class ICMPDataSet(CanonicalHyperCubeSet):
         :return: None
         """
         self.set_all()
-        #self.add_cube(
-        #    [CanonicalIntervalSet.Interval(0, 254), CanonicalIntervalSet.Interval(0, 255)])
 
     def print_diff(self, other, self_name, other_name):
         """

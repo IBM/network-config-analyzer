@@ -1,9 +1,6 @@
 import sys
 import os
 
-
-
-print(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
 sys.path.append(
     os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
 
@@ -18,17 +15,18 @@ dimensions2 = ["ports", "src_ports", "methods", "paths"]
 dimensions3 = ["src_ports", "ports", "methods", "paths", "hosts"]
 dimensions4 = ["x", "y", "z"]
 dim_manager = DimensionsManager()
-dim_manager.set_domain("ports", DimensionsManager.DimensionType.IntervalSet, (1, 65536))
-dim_manager.set_domain("x", DimensionsManager.DimensionType.IntervalSet, (1, 65536))
-dim_manager.set_domain("y", DimensionsManager.DimensionType.IntervalSet, (1, 65536))
-dim_manager.set_domain("z", DimensionsManager.DimensionType.IntervalSet, (1, 65536))
+dim_manager.set_domain("ports", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
+dim_manager.set_domain("x", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
+dim_manager.set_domain("y", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
+dim_manager.set_domain("z", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
 
 
 # TODO: consider performance implications on concrete alphabet (worse performance then implied alphabet: 1.324 sec vs 0.542 sec)
 #  (applied this change so that str_dfa & (*) == (str_dfa) , with same alphabet, discovered at test: test_intersection)
 def get_str_dfa(s):
     dfa_alphabet = dim_manager.get_dimension_domain_by_name("methods").alphabet
-    return MinDFA.dfa_from_regex(s, dfa_alphabet)
+    return MinDFA.dfa_from_regex(s)
+    # return MinDFA.dfa_from_regex(s, dfa_alphabet)
     # return MinDFA.DFA_from_str(s, None)
 
 
@@ -563,7 +561,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         ports_range2 = CanonicalIntervalSet.get_interval_set(15, 40)
         x.add_cube([ports_range2], ["ports"])
         range1 = CanonicalIntervalSet.get_interval_set(1, 9)
-        range1 |= CanonicalIntervalSet.get_interval_set(21, 65536)
+        range1 |= CanonicalIntervalSet.get_interval_set(21, 65535)
         x_expected_cubes = [[range1, ports_range2],
                             [ports_range, CanonicalIntervalSet.get_interval_set(10, 40)]]
         self.assertEqual(sorted(x._get_cubes_list_from_layers()), sorted(x_expected_cubes))
@@ -609,12 +607,12 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         methods_dfa_all_but_put = dim_manager.get_dimension_domain_by_name("methods") - methods_dfa
         new_cube = [methods_dfa_all_but_put]
         x.add_cube(new_cube, ["methods"])
-        # x_str_expected_new_3 = "src_ports,ports,methods,paths: ([1-9], [1-14], all but {'PUT'}, *, ),([1-9], [15-40], *, *, ),([1-9], [41-99], all but {'PUT'}, *, ),([1-9], [100-200], *, *, ),([1-9], [201-3999], all but {'PUT'}, *, ),([1-9], [4000-4000], {'PUT'}, {'abc'}, ),([1-9], [4000-4000], all but {'PUT'}, *, ),([1-9], [4001-65536], all but {'PUT'}, *, ),([10-20], [1-9], all but {'PUT'}, *, ),([10-20], [10-40], *, *, ),([10-20], [41-99], all but {'PUT'}, *, ),([10-20], [100-200], *, *, ),([10-20], [201-3999], all but {'PUT'}, *, ),([10-20], [4000-4000], {'PUT'}, {'abc'}, ),([10-20], [4000-4000], all but {'PUT'}, *, ),([10-20], [4001-65536], all but {'PUT'}, *, ),([21-65536], [1-14], all but {'PUT'}, *, ),([21-65536], [15-40], *, *, ),([21-65536], [41-99], all but {'PUT'}, *, ),([21-65536], [100-200], *, *, ),([21-65536], [201-3999], all but {'PUT'}, *, ),([21-65536], [4000-4000], {'PUT'}, {'abc'}, ),([21-65536], [4000-4000], all but {'PUT'}, *, ),([21-65536], [4001-65536], all but {'PUT'}, *, )"
+        # x_str_expected_new_3 = "src_ports,ports,methods,paths: ([1-9], [1-14], all but {'PUT'}, *, ),([1-9], [15-40], *, *, ),([1-9], [41-99], all but {'PUT'}, *, ),([1-9], [100-200], *, *, ),([1-9], [201-3999], all but {'PUT'}, *, ),([1-9], [4000-4000], {'PUT'}, {'abc'}, ),([1-9], [4000-4000], all but {'PUT'}, *, ),([1-9], [4001-65535], all but {'PUT'}, *, ),([10-20], [1-9], all but {'PUT'}, *, ),([10-20], [10-40], *, *, ),([10-20], [41-99], all but {'PUT'}, *, ),([10-20], [100-200], *, *, ),([10-20], [201-3999], all but {'PUT'}, *, ),([10-20], [4000-4000], {'PUT'}, {'abc'}, ),([10-20], [4000-4000], all but {'PUT'}, *, ),([10-20], [4001-65535], all but {'PUT'}, *, ),([21-65535], [1-14], all but {'PUT'}, *, ),([21-65535], [15-40], *, *, ),([21-65535], [41-99], all but {'PUT'}, *, ),([21-65535], [100-200], *, *, ),([21-65535], [201-3999], all but {'PUT'}, *, ),([21-65535], [4000-4000], {'PUT'}, {'abc'}, ),([21-65535], [4000-4000], all but {'PUT'}, *, ),([21-65535], [4001-65535], all but {'PUT'}, *, )"
         range2 = CanonicalIntervalSet.get_interval_set(10, 14) | CanonicalIntervalSet.get_interval_set(4000, 4000)
         range3 = CanonicalIntervalSet.get_interval_set(15, 40) | CanonicalIntervalSet.get_interval_set(100, 200)
         range4 = CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(41,
                                                                                                      99) | CanonicalIntervalSet.get_interval_set(
-            201, 3999) | CanonicalIntervalSet.get_interval_set(4001, 65536)
+            201, 3999) | CanonicalIntervalSet.get_interval_set(4001, 65535)
         range5 = CanonicalIntervalSet.get_interval_set(10, 40) | CanonicalIntervalSet.get_interval_set(100, 200)
         '''
         x_expected_cubes = [
@@ -966,7 +964,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         # print(x)
         # print(y)
         z_cube_expected_1 = (
-            CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65536), paths_dfa)
+            CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65535), paths_dfa)
         z_cube_expected_2 = (CanonicalIntervalSet.get_interval_set(10, 20), dim_manager.get_dimension_domain_by_name("paths"))
         z = x | y
         # print(z)
@@ -1168,9 +1166,9 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         x.add_cube(
             [CanonicalIntervalSet.get_interval_set(1, 89), get_str_dfa("GET|HEAD"), get_str_dfa("bad1|bad3|some2")],
             ["ports", "methods", "paths"])
-        x.add_cube([CanonicalIntervalSet.get_interval_set(91, 65536), get_str_dfa("GET|HEAD")], ["ports", "methods"])
+        x.add_cube([CanonicalIntervalSet.get_interval_set(91, 65535), get_str_dfa("GET|HEAD")], ["ports", "methods"])
         x.add_hole(
-            [CanonicalIntervalSet.get_interval_set(91, 65536), get_str_dfa("GET|HEAD"), get_str_dfa("bad1|bad3|some2")],
+            [CanonicalIntervalSet.get_interval_set(91, 65535), get_str_dfa("GET|HEAD"), get_str_dfa("bad1|bad3|some2")],
             ["ports", "methods", "paths"])
         # TODO: check cubes list more precisely
         # print(x)
@@ -1240,22 +1238,22 @@ class TestCanonicalHyperCubeSetMethodsIntervalsNew(unittest.TestCase):
     def test_new(self):
         c = CanonicalHyperCubeSet(dimensions4)
         c.add_cube([CanonicalIntervalSet.get_interval_set(10, 20), CanonicalIntervalSet.get_interval_set(10, 20),
-                    CanonicalIntervalSet.get_interval_set(1, 65536)])
-        c.add_cube([CanonicalIntervalSet.get_interval_set(1, 65536), CanonicalIntervalSet.get_interval_set(15, 40),
-                    CanonicalIntervalSet.get_interval_set(1, 65536)])
-        c.add_cube([CanonicalIntervalSet.get_interval_set(1, 65536), CanonicalIntervalSet.get_interval_set(100, 200),
+                    CanonicalIntervalSet.get_interval_set(1, 65535)])
+        c.add_cube([CanonicalIntervalSet.get_interval_set(1, 65535), CanonicalIntervalSet.get_interval_set(15, 40),
+                    CanonicalIntervalSet.get_interval_set(1, 65535)])
+        c.add_cube([CanonicalIntervalSet.get_interval_set(1, 65535), CanonicalIntervalSet.get_interval_set(100, 200),
                     CanonicalIntervalSet.get_interval_set(30, 80)])
         res_cubes = set()
-        res_cubes |= {(CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65536),
-                       CanonicalIntervalSet.get_interval_set(15, 40), CanonicalIntervalSet.get_interval_set(1, 65536))}
-        res_cubes |= {(CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65536),
+        res_cubes |= {(CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65535),
+                       CanonicalIntervalSet.get_interval_set(15, 40), CanonicalIntervalSet.get_interval_set(1, 65535))}
+        res_cubes |= {(CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65535),
                        CanonicalIntervalSet.get_interval_set(100, 200), CanonicalIntervalSet.get_interval_set(30, 80))}
         res_cubes |= {(CanonicalIntervalSet.get_interval_set(10, 20), CanonicalIntervalSet.get_interval_set(10, 40),
-                       CanonicalIntervalSet.get_interval_set(1, 65536))}
+                       CanonicalIntervalSet.get_interval_set(1, 65535))}
         res_cubes |= {(CanonicalIntervalSet.get_interval_set(10, 20), CanonicalIntervalSet.get_interval_set(100, 200),
                        CanonicalIntervalSet.get_interval_set(30, 80))}
-        # res_cubes |= {(CanonicalIntervalSet.get_interval_set(21, 65536), CanonicalIntervalSet.get_interval_set(15, 40), CanonicalIntervalSet.get_interval_set(1, 65536))}
-        # res_cubes |= {(CanonicalIntervalSet.get_interval_set(21, 65536), CanonicalIntervalSet.get_interval_set(100, 200), CanonicalIntervalSet.get_interval_set(30, 80))}
+        # res_cubes |= {(CanonicalIntervalSet.get_interval_set(21, 65535), CanonicalIntervalSet.get_interval_set(15, 40), CanonicalIntervalSet.get_interval_set(1, 65535))}
+        # res_cubes |= {(CanonicalIntervalSet.get_interval_set(21, 65535), CanonicalIntervalSet.get_interval_set(100, 200), CanonicalIntervalSet.get_interval_set(30, 80))}
         # print(c)
         self.assertEqual(c._get_cubes_set(), res_cubes)
 
@@ -1515,14 +1513,14 @@ class TestCanonicalHyperCubeSetMethodsIntervalsNew(unittest.TestCase):
             [CanonicalIntervalSet.get_interval_set(80, 100), CanonicalIntervalSet.get_interval_set(10053, 10053)])
         b = CanonicalHyperCubeSet(dimensions4)
         b.add_cube(
-            [CanonicalIntervalSet.get_interval_set(1, 65536), CanonicalIntervalSet.get_interval_set(10054, 10054)])
+            [CanonicalIntervalSet.get_interval_set(1, 65535), CanonicalIntervalSet.get_interval_set(10054, 10054)])
         a |= b
         expected_res = CanonicalHyperCubeSet(dimensions4)
         expected_res.add_cube(
             [CanonicalIntervalSet.get_interval_set(1, 79), CanonicalIntervalSet.get_interval_set(10054, 10054)])
         expected_res.add_cube(
             [CanonicalIntervalSet.get_interval_set(80, 100), CanonicalIntervalSet.get_interval_set(10053, 10054)])
-        expected_res.add_cube([CanonicalIntervalSet.get_interval_set(101, 65536),
+        expected_res.add_cube([CanonicalIntervalSet.get_interval_set(101, 65535),
                                CanonicalIntervalSet.get_interval_set(10054, 10054)])
         self.assertEqual(a, expected_res)
 
@@ -1660,3 +1658,16 @@ class TestCanonicalHyperCubeSetMethodsIntervalsNew(unittest.TestCase):
         self.assertEqual(str(c), "x,y: (1-100, 200-300, )")
         # self.assertEqual(str(c), "x,y: ([1-100], [200-300], )")
         # self.assertEqual(str(c), "[1-100] => [[200-300]];")
+
+    def test_hole_new(self):
+        c = CanonicalHyperCubeSet(dimensions4)
+        c.add_cube([CanonicalIntervalSet.get_interval_set(1, 100), CanonicalIntervalSet.get_interval_set(200, 300)])
+        x = [CanonicalIntervalSet.get_interval_set(50, 50)]
+        c.add_hole(x)  # added hole is [50, all]
+        print(c)
+        y = [CanonicalIntervalSet.get_interval_set(250, 250)]
+        c.add_hole(y, ["y"])  # added hole is [all, 250]
+        print(c)
+        hole_new = [CanonicalIntervalSet.get_interval_set(70, 70), CanonicalIntervalSet.get_interval_set(280, 280)]
+        c.add_hole(hole_new)
+        print(c)

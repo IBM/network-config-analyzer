@@ -460,16 +460,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         complement_peer_set |= complement.split()
         peers_to_compare |= complement_peer_set
 
-        is_k8s_config = self.config.type == NetworkConfig.ConfigType.K8s
-        config_type_str = ""
-        if self.config.type == NetworkConfig.ConfigType.K8s:
-            config_type_str = "K8s"
-        elif self.config.type == NetworkConfig.ConfigType.Calico:
-            config_type_str = "Calico"
-        elif self.config.type == NetworkConfig.ConfigType.Istio:
-            config_type_str = "Istio"
-
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, config_type_str)
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, self.config.type)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
@@ -503,7 +494,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/
         # Non-TCP based protocols, such as UDP, are not proxied. These protocols will continue to function as normal,
         # without any interception by the Istio proxy
-        conns_new = conns - ConnectionSet.get_non_TCP_connections()
+        conns_new = conns - ConnectionSet.get_non_tcp_connections()
         return False, conns_new
 
 
@@ -702,15 +693,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             # omit the query name prefix if self.output_config.queryName is empty (single query from command line)
             query_name = updated_key
         output_config = OutputConfiguration(self.output_config, query_name)
-        is_k8s_config = self.config1.type == NetworkConfig.ConfigType.K8s
-        config_type_str = ""
-        if self.config1.type == NetworkConfig.ConfigType.K8s or self.config2.type == NetworkConfig.ConfigType.K8s:
-            config_type_str = "K8s"
-        elif self.config1.type == NetworkConfig.ConfigType.Calico or self.config2.type == NetworkConfig.ConfigType.Calico:
-            config_type_str = "Calico"
-        elif self.config1.type == NetworkConfig.ConfigType.Istio or self.config2.type == NetworkConfig.ConfigType.Istio:
-            config_type_str = "Istio"
-        return ConnectivityGraph(topology_peers, allowed_labels, output_config, config_type_str)
+        config_type = self.config1.type if self.config1.type != NetworkConfig.ConfigType.Unknown else self.config2.type
+        return ConnectivityGraph(topology_peers, allowed_labels, output_config, config_type)
 
     def compute_diff(self):
         """

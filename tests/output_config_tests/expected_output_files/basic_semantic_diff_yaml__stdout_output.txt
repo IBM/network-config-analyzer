@@ -14,10 +14,10 @@ global: cluster has 29 unique endpoints, 8 namespaces
     connection:
     - Protocol: TCP
       dst_ports:
-      - ({1-52,54-65536}, )
+      - ({1-52,54-65535}, )
     - Protocol: UDP
       dst_ports:
-      - ({1-52,54-65536}, )
+      - ({1-52,54-65535}, )
     - Protocol: SCTP
 - query: Removed connections between persistent peers
   rules:

@@ -9,7 +9,7 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - All
+      - 0-254/0-255
     - Protocol: TCP
       dst_ports:
       - (52311, )
@@ -26,7 +26,7 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - All
+      - 0-254/0-255
     - Protocol: TCP
       dst_ports:
       - (52311, )
@@ -45,7 +45,7 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - All
+      - 0-254/0-255
     - Protocol: TCP
       dst_ports:
       - (52311, )
@@ -64,7 +64,7 @@
     connection:
     - Protocol: ICMP
       Type/Code:
-      - All
+      - 0-254/0-255
     - Protocol: TCP
       dst_ports:
       - (52311, )

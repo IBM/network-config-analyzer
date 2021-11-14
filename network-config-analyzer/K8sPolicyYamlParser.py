@@ -266,16 +266,16 @@ class K8sPolicyYamlParser(GenericYamlParser):
                                   'as a named (string) port', port)
             if not isinstance(port_id, int):
                 self.syntax_error('type of port is not numerical in NetworkPolicyPort', port)
-            if not (1 <= port_id <= 65535 and 1 <= end_port_num <= 65535):
-                self.syntax_error('port/endPort must be between 1 and 65535')
+            self.validate_value_in_domain(port_id, 'dst_ports', port, 'Port number')
+            self.validate_value_in_domain(end_port_num, 'dst_ports', port, 'endPort number')
             if port_id > end_port_num:
                 self.syntax_error('endPort must be equal or greater than port', port)
             dest_port_set.add_port_range(port_id, end_port_num)
         elif port_id is not None:
             if not isinstance(port_id, str) and not isinstance(port_id, int):
                 self.syntax_error('type of port is not numerical or named (string) in NetworkPolicyPort', port)
-            if isinstance(port_id, int) and not 1 <= port_id <= 65535:
-                self.syntax_error('port must be between 1 and 65535')
+            if isinstance(port_id, int):
+                self.validate_value_in_domain(port_id, 'dst_ports', port, 'Port number')
             if isinstance(port_id, str):
                 if len(port_id) > 15:
                     self.syntax_error('port name  must be no more than 15 characters', port)

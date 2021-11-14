@@ -41,9 +41,10 @@ class ConnectionSet:
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
 
     # TODO: should consider shorter notation (complement- 'all but ...' ) for yaml representation as well?
-    def get_connections_list(self, config_type_str):
+    def get_connections_list(self, relevant_protocols):
         """
-        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        allowed connections representation, restricted to protocols from relevant_protocols
+        :param relevant_protocols:  a set of protocols numbers or None
         :return:  list with yaml representation of the connection set, to be used at fw-rules representation in yaml
         """
         res = []
@@ -55,8 +56,8 @@ class ConnectionSet:
             return res
         protocols_set = set(self.allowed_protocols.keys())
         # in k8s policy - restrict allowed protocols only to protocols supported by it
-        if config_type_str == "K8s":
-            protocols_set &= ConnectionSet._port_supporting_protocols
+        if relevant_protocols is not None:
+            protocols_set &= relevant_protocols
         for protocol in sorted(list(protocols_set)):
             protocol_text = self.protocol_number_to_name(protocol)
             protocol_obj = {'Protocol': protocol_text}
@@ -66,37 +67,34 @@ class ConnectionSet:
             res.append(protocol_obj)
         return res
 
-    def get_simplified_connections_str(self, config_type_str):
+    def get_simplified_connections_str(self, relevant_protocols, use_complement_simplification):
         """
-        Get a simplified representation of the connection set - choose shorter version between self and its complement
-        :param is_k8s_config: bool flag indicating if network policy is k8s or not
+        Get a simplified representation of the connection set - choose shorter version between self and its complement.
+        Restrict representation to relevant protocols, and use complement simplification when required.
+        :param relevant_protocols:  a set of protocols numbers or None
+        :param use_complement_simplification: bool: should use complement simplification when possible or not
         :return: a string representation of the connection set, to be used at fw-rules representation in txt
         """
         if self.allow_all:
             return "All connections"
         if not self.allowed_protocols:
             return 'No connections'
-        self_str = self.get_connections_str(config_type_str)
-        # TODO: for istio the complement str should be only for TCP connections,
-        #  currently disabling this for istio temporarily (consider performance with regex attributes)
-        if config_type_str == "Istio":
+        self_str = self.get_connections_str(relevant_protocols)
+        if not use_complement_simplification:
             return self_str
-            # complement = self.get_all_TCP_connections() - self
 
-        # check the alternative of the complement str (for k8s and calico currently)
+        # check the alternative of the complement str
         complement = ConnectionSet(True) - self
-        complement_str = complement.get_connections_str(config_type_str)
-        
+        complement_str = complement.get_connections_str(relevant_protocols)
         # TODO: is there a better heuristic here?
         if len(complement_str) < len(self_str):
             return f'All but {complement_str}'
         return self_str
 
-
-    def get_connections_str(self, config_type_str):
+    def get_connections_str(self, relevant_protocols):
         """
         Get a string representation of the connection set
-        :param is_k8s_config:  bool flag indicating if network policy is k8s or not
+        :param relevant_protocols: a set of protocols numbers or None
         :return: a string representation of the connection set, to be used at fw-rules representation in txt
         """
         if self.allow_all:
@@ -105,9 +103,8 @@ class ConnectionSet:
             return 'No connections'
         res = ''
         protocols_set = set(self.allowed_protocols.keys())
-        # in k8s policy - restrict allowed protocols only to protocols supported by it
-        if config_type_str == "K8s":
-            protocols_set &= ConnectionSet._port_supporting_protocols
+        if relevant_protocols is not None:
+            protocols_set &= relevant_protocols
         protocols_numbers = CanonicalIntervalSet()
         for protocol in sorted(list(protocols_set)):
             if protocol not in ConnectionSet._protocol_number_to_name_dict:
@@ -365,6 +362,7 @@ class ConnectionSet:
         Add connections to the set of connections
         :param int,str protocol: protocol number of the connections to add
         :param properties: an object with protocol properties (e.g., ports), if relevant
+        :type properties: Union[bool, TcpProperties, ICMPDataSet]
         :return: None
         """
         if isinstance(protocol, str):
@@ -475,13 +473,13 @@ class ConnectionSet:
         return 'No diff.'
 
     @staticmethod
-    def get_all_TCP_connections():
-        TCP_conns = ConnectionSet()
-        TCP_conns.add_connections('TCP', TcpProperties(PortSet(True), PortSet(True)))
-        return TCP_conns
+    def get_all_tcp_connections():
+        tcp_conns = ConnectionSet()
+        tcp_conns.add_connections('TCP', TcpProperties(PortSet(True), PortSet(True)))
+        return tcp_conns
 
     @staticmethod
-    def get_non_TCP_connections():
+    def get_non_tcp_connections():
         res = ConnectionSet()
         res.add_all_connections([ConnectionSet._protocol_name_to_number_dict['TCP']])
         return res
