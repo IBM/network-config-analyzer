@@ -5,13 +5,13 @@
 from fnmatch import fnmatch
 import os
 from sys import stderr
-from pathlib import Path
 from enum import Enum
 import yaml
 from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
 from CmdlineRunner import CmdlineRunner
 from GitScanner import GitScanner
+from DirScanner import DirScanner
 
 
 class PeerContainer:
@@ -111,7 +111,8 @@ class PeerContainer:
          - git path of yaml file or a directory with yamls
          - local file (yaml or json) or a local directory containing yamls
          - query of the cluster
-        :param list ns_resources_list: The namespace resource to be used. If set to 'k8s', will query cluster using kubectl
+        :param list ns_resources_list: The namespace resource to be used.
+            If set to 'k8s', will query cluster using kubectl
         :return: None
         """
         if not ns_resources_list:
@@ -132,12 +133,11 @@ class PeerContainer:
 
             # load from local directory
             elif os.path.isdir(ns_resources):
-                for path in Path(ns_resources).glob('**/*.yaml'):
-                    with open(path) as yaml_file:
-                        code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
-                        for ns_code in code:
-                            if isinstance(ns_code, dict) and ns_code.get('kind') in {'NamespaceList', 'List'}:
-                                self.set_namespaces(ns_code)
+                yaml_files = DirScanner(ns_resources).get_yamls_in_dir()
+                for yaml_file in yaml_files:
+                    for ns_code in yaml_file.data:
+                        if isinstance(ns_code, dict) and ns_code.get('kind') in {'NamespaceList', 'List'}:
+                            self.set_namespaces(ns_code)
 
             # load from live cluster
             elif ns_resources == 'k8s':
@@ -176,11 +176,10 @@ class PeerContainer:
 
             # load from local directory
             elif os.path.isdir(peer_resources):
-                for path in Path(peer_resources).glob('**/*.yaml'):
-                    with open(path) as yaml_file:
-                        code = yaml.load_all(yaml_file, Loader=yaml.SafeLoader)
-                        for peer_code in code:
-                            self.add_eps_from_list(peer_code)
+                yaml_files = DirScanner(peer_resources).get_yamls_in_dir()
+                for yaml_file in yaml_files:
+                    for peer_code in yaml_file.data:
+                        self.add_eps_from_list(peer_code)
 
             # load from live cluster
             elif peer_resources == 'calico':

@@ -21,6 +21,7 @@ from IstioPolicyYamlParser import IstioPolicyYamlParser
 from ConnectionSet import ConnectionSet
 from CmdlineRunner import CmdlineRunner
 from GitScanner import GitScanner
+from DirScanner import DirScanner
 from PortSet import PortSetPair, PortSet
 
 
@@ -198,12 +199,10 @@ class NetworkConfig:
                 print(filename + ': Error: Bad yaml file')
 
     def add_policies_from_fs_dir(self, path):
-        for root, _, files in os.walk(path):
-            for file in files:
-                if not file.endswith('.yaml') and not file.endswith('.yml') and not file.endswith('.json'):
-                    continue
-                file_with_path = os.path.join(root, file)
-                self.add_policies_from_file(file_with_path)
+        yaml_files = DirScanner(path).get_yamls_in_dir()
+        for yaml_file in yaml_files:
+            for policy in yaml_file.data:
+                self._add_policy_to_parse_queue(policy, yaml_file.path)
 
     def add_policies_from_github(self, url):
         yaml_files = GitScanner(url).get_yamls_in_repo()

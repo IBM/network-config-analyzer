@@ -3,28 +3,18 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from dataclasses import dataclass
 import os
-from sys import stderr
 from urllib.parse import urlparse
 from github import Github, GithubException
-import yaml
+from GenericScanner import GenericScanner
 
 
-@dataclass
-class YamlFile:
-    """
-    A class for holding the retrieved data of a yaml file from git repo
-    """
-    data: object
-    path: str
-
-
-class GitScanner:
+class GitScanner(GenericScanner):
     """
     A class for reading yaml files from a git repo
     """
     def __init__(self, url):
+        GenericScanner.__init__(self, GenericScanner.ScannerType.GitUrl)
         self.url = url
         if url.endswith('/'):
             url = url[:-1]
@@ -63,14 +53,6 @@ class GitScanner:
             raise Exception(f'GitHub URL {self.url} does not point to a valid repository')
         return repo
 
-    def _yield_yaml_file(self, path):
-        file_contents = self.repo.get_contents(path, self.ref)
-        try:
-            yield YamlFile(yaml.load_all(file_contents.decoded_content, Loader=yaml.SafeLoader), file_contents.path)
-        except yaml.YAMLError:
-            print('Bad yaml file:', path, file=stderr)
-            return
-
     def _scan_dir_in_repo(self, path, recursive):
         if path and not path.endswith('/'):
             path += '/'
@@ -80,13 +62,12 @@ class GitScanner:
                 continue
             if not element.path.startswith(path):
                 continue
-            if not element.path.endswith('.yaml') and not element.path.endswith('.yml') \
-                    and not element.path.endswith('.json'):
+            if not GenericScanner.is_yaml_file(element.path):
                 continue
             if not recursive and element.path.count('/') != path.count('/'):
                 continue
 
-            yield from self._yield_yaml_file(element.path)
+            yield from self._yield_yaml_file(element.path, self.repo.get_contents(element.path, self.ref))
 
     def get_yamls_in_repo(self):
         """
@@ -103,7 +84,7 @@ class GitScanner:
             path_in_repo = '' if len(self.url_path) == 5 else self.url_path[5]
 
         if is_file:
-            return self._yield_yaml_file(path_in_repo)
+            return self._yield_yaml_file(path_in_repo, self.repo.get_contents(path_in_repo, self.ref))
         if path_in_repo.endswith('**'):
             return self._scan_dir_in_repo(path_in_repo[:-2], True)  # path_in_repo without **
         return self._scan_dir_in_repo(path_in_repo, False)
