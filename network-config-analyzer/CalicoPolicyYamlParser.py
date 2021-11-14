@@ -228,7 +228,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if port < 1 or port > 65536:
             self.syntax_error('Port number must be between 1 and 65535', array)
 
-    def _parse_port(self, port, array):
+    def _parse_port(self, port, array, is_pos=True):
         """
         Parse a single port in the array defined in the ports/notPorts part of an EntityRule
         :param port: The port to parse (might be an int, a range of ints or a named port)
@@ -252,9 +252,9 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                         self.syntax_error('Invalid port range: ' + port, array)
                     res_port_set.add_port_range(left_port, right_port)
                 except ValueError:
-                    res_port_set.add_port(port)
+                    res_port_set.add_port(port, is_pos)
             else:
-                res_port_set.add_port(port)
+                res_port_set.add_port(port, is_pos)
         return res_port_set
 
     @staticmethod
@@ -318,7 +318,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         return rule_peers
 
-    def _get_rule_ports(self, entity_rule, protocol_supports_ports, is_dest_rule):
+    def _get_rule_ports(self, entity_rule, protocol_supports_ports):
         """
         Parse the port-related parts of the source/destination parts of a rule
         :param dict entity_rule: The object to parse
@@ -333,26 +333,28 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 self.syntax_error('A rule specifying ports must specify a protocol supporting ports', ports_array)
             rule_ports = PortSet()
             for port in ports_array:
-                real_port = self._parse_port(port, ports_array)
+                real_port = self._parse_port(port, ports_array, True)
                 rule_ports |= real_port
-                if PortSet.is_named_port(real_port.interval_set[0].start):
+                if PortSet.is_pos_named_port(real_port.interval_set[0].start):
                     named_ports.add(PortSet.NamedPortDB().index_to_name(real_port.interval_set[0].start))
         else:
-            rule_ports = PortSet(True, is_dest_rule)
+            rule_ports = PortSet(True)
 
         not_ports_array = entity_rule.get('notPorts')
         if not_ports_array is not None:
             if not protocol_supports_ports:
                 self.syntax_error('A rule specifying notPorts must specify a protocol supporting ports', ports_array)
             for port in not_ports_array:
-                real_port = self._parse_port(port, not_ports_array)
-                rule_ports -= real_port
-                if PortSet.is_named_port(real_port.interval_set[0].start):
+                real_port = self._parse_port(port, not_ports_array, False)
+                if PortSet.is_neg_named_port(real_port.interval_set[0].start):
+                    rule_ports |= real_port
                     named_ports.add(PortSet.NamedPortDB().index_to_name(real_port.interval_set[0].start))
+                else:
+                    rule_ports -= real_port
 
         return rule_ports, named_ports
 
-    def _parse_entity_rule(self, entity_rule, protocol_supports_ports, is_dest_rule):
+    def _parse_entity_rule(self, entity_rule, protocol_supports_ports):
         """
         Parse the source/destination parts of a rule
         :param dict entity_rule: The object to parse
@@ -364,7 +366,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                             'namespaceSelector': 0,  'ports': 0, 'notPorts': 0, 'serviceAccounts': 2}
         self.check_fields_validity(entity_rule, 'network policy peer', allowed_elements)
 
-        ports, named_ports = self._get_rule_ports(entity_rule, protocol_supports_ports, is_dest_rule)
+        ports, named_ports = self._get_rule_ports(entity_rule, protocol_supports_ports)
         return self._get_rule_peers(entity_rule), ports, named_ports
 
     def _parse_icmp(self, icmp_data, not_icmp_data):
@@ -455,7 +457,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         src_entity_rule = rule.get('source')
         src_named_ports = set()
         if src_entity_rule:
-            src_res_pods, src_res_ports, src_named_ports = self._parse_entity_rule(src_entity_rule, protocol_supports_ports, False)
+            src_res_pods, src_res_ports, src_named_ports = self._parse_entity_rule(src_entity_rule, protocol_supports_ports)
         else:
             src_res_pods = self.peer_container.get_all_peers_group(True)
             src_res_ports = PortSet(True)
@@ -463,10 +465,10 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         dst_entity_rule = rule.get('destination')
         dst_named_ports = set()
         if dst_entity_rule:
-            dst_res_pods, dst_res_ports, dst_named_ports = self._parse_entity_rule(dst_entity_rule, protocol_supports_ports, True)
+            dst_res_pods, dst_res_ports, dst_named_ports = self._parse_entity_rule(dst_entity_rule, protocol_supports_ports)
         else:
             dst_res_pods = self.peer_container.get_all_peers_group(True)
-            dst_res_ports = PortSet(True, True)
+            dst_res_ports = PortSet(True)
 
         if is_ingress:  # FIXME: We do not handle well the case where dst_res_pods or src_res_pods contain ipBlocks
             dst_res_pods &= policy_selected_eps
