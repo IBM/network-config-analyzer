@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import os
 from enum import Enum
 from dataclasses import dataclass
 from sys import stderr
