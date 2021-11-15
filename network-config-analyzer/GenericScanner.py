@@ -40,9 +40,8 @@ class GenericScanner:
         :param str file_name: the name of the file
         :rtype: bool
         """
-        if file_name.endswith('.yaml') or file_name.endswith('.yml') or file_name.endswith('json'):
-            return True
-        return False
+        extension = os.path.splitext(file_name)[1]
+        return extension in {'.yaml', '.yml', '.json'}
 
     def _yield_yaml_file(self, path, stream):
         """
