@@ -46,10 +46,10 @@ class TestPortSetPairMethods(unittest.TestCase):
         first = TcpProperties(b, a)
 
         c = PortSet(False)
-        c.add_port("A")
-        c.add_port("M")
-        c.add_port("B")
-        c.remove_port("C")
+        c.add_port(1)
+        c.add_port(2)
+        c.add_port(3)
+        c.remove_port(3)
 
         d = PortSet(False)
         d.add_port_range(85, 90)
@@ -81,10 +81,10 @@ class TestPortSetPairMethods(unittest.TestCase):
         first = TcpProperties(b, a)
 
         c = PortSet(False)
-        c.add_port("A")
-        c.add_port("M")
-        c.add_port("B")
-        c.remove_port("C")
+        c.add_port(1)
+        c.add_port(2)
+        c.add_port(3)
+        c.remove_port(2)
 
         d = PortSet(False)
         d.add_port_range(85, 90)
