@@ -180,7 +180,15 @@ class TcpProperties(CanonicalHyperCubeSet):
         assert not isinstance(other, TcpProperties) or not other.excluded_named_ports
         super().__ior__(other)
         if isinstance(other, TcpProperties):
-            self.named_ports |= other.named_ports
+            res_named_ports = dict({})
+            for port_name in self.named_ports:
+                res_named_ports[port_name] = self.named_ports[port_name]
+            for port_name in other.named_ports:
+                if port_name in res_named_ports:
+                    res_named_ports[port_name] |= other.named_ports[port_name]
+                else:
+                    res_named_ports[port_name] = other.named_ports[port_name]
+            self.named_ports = res_named_ports
         return self
 
     def __isub__(self, other):
