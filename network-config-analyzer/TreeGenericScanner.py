@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import os
+import abc
 from enum import Enum
 from dataclasses import dataclass
+from ruamel.yaml import YAML, error
 from sys import stderr
-import yaml
 
 
 @dataclass
@@ -18,7 +20,7 @@ class YamlFile:
     path: str
 
 
-class GenericScanner:
+class TreeGenericScanner(metaclass=abc.ABCMeta):
     """
     A base class for reading yaml files
     """
@@ -30,8 +32,13 @@ class GenericScanner:
         GitUrl = 0
         FileSystemPath = 1
 
-    def __init__(self, scanner_type):
+    def __init__(self, scanner_type, np_scanner):
         self.scanner_type = scanner_type
+        self.np_scanner = np_scanner
+
+    @abc.abstractmethod
+    def get_yamls(self):
+        pass
 
     @staticmethod
     def is_yaml_file(file_name):
@@ -50,10 +57,34 @@ class GenericScanner:
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
         """
         decoded_stream = stream
-        if self.scanner_type == GenericScanner.ScannerType.GitUrl:
+        if self.scanner_type == TreeGenericScanner.ScannerType.GitUrl:
             decoded_stream = stream.decoded_content
+        load_type = None
+        if not self.np_scanner:
+            load_type = "safe"
+        yaml = YAML(typ=load_type)
         try:
-            yield YamlFile(yaml.load_all(decoded_stream, Loader=yaml.SafeLoader), path)
-        except yaml.YAMLError:
+            yield YamlFile(yaml.load_all(decoded_stream), path)
+        except error.MarkedYAMLError as parse_error:
+            print(parse_error.problem_mark.name + ':' + str(parse_error.problem_mark.line) + ':' +
+                  str(parse_error.problem_mark.column) + ':', 'Parse Error:', parse_error.problem, file=stderr)
+            return
+        except error.YAMLError:
             print('Bad yaml file:', path, file=stderr)
             return
+
+
+from GitScanner import GitScanner
+from DirScanner import DirScanner
+
+
+class TreeScannerFactory:
+
+    @staticmethod
+    def get_scanner(entry, np_scanner=False):
+        if entry.startswith('https://github'):
+            return GitScanner(entry, np_scanner)
+        elif os.path.isfile(entry) or os.path.isdir(entry):
+            return DirScanner(entry, np_scanner)
+        else:
+            return None

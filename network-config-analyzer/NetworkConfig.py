@@ -4,11 +4,9 @@
 #
 
 from bisect import insort
-from sys import stderr
 from enum import Enum
 from collections import deque
-import os
-from ruamel.yaml import YAML, error
+from ruamel.yaml import YAML
 import Peer
 from PeerContainer import PeerContainer
 from NetworkPolicy import PolicyConnections, NetworkPolicy
@@ -20,9 +18,7 @@ from IstioNetworkPolicy import IstioNetworkPolicy
 from IstioPolicyYamlParser import IstioPolicyYamlParser
 from ConnectionSet import ConnectionSet
 from CmdlineRunner import CmdlineRunner
-from GitScanner import GitScanner
-from DirScanner import DirScanner
-from PortSet import PortSetPair, PortSet
+from TreeGenericScanner import TreeScannerFactory
 
 
 class NetworkConfig:
@@ -64,7 +60,7 @@ class NetworkConfig:
         if not isinstance(other, NetworkConfig):
             return NotImplemented
         return self.name == other.name and self.peer_container == other.peer_container and \
-               self.policies == other.policies
+            self.policies == other.policies
 
     def __str__(self):
         return self.name
@@ -187,28 +183,14 @@ class NetworkConfig:
         else:
             self._add_policies_to_parse_queue(code, file_name)
 
-    def add_policies_from_file(self, filename):
-        with open(filename) as doc:
-            try:
-                self._add_policies(doc, filename)
-            except error.MarkedYAMLError as parse_error:
-                print(parse_error.problem_mark.name + ':' + str(parse_error.problem_mark.line) + ':' +
-                      str(parse_error.problem_mark.column) + ':', 'Parse Error:', parse_error.problem, file=stderr)
-                return
-            except error.YAMLError:
-                print(filename + ': Error: Bad yaml file')
-
-    def add_policies_from_fs_dir(self, path):
-        yaml_files = DirScanner(path).get_yamls_in_dir()
+    def scan_entry_for_policies(self, entry):
+        yaml_files = TreeScannerFactory.get_scanner(entry, np_scanner=True).get_yamls()
+        if not yaml_files:
+            return False
         for yaml_file in yaml_files:
             for policy in yaml_file.data:
                 self._add_policy_to_parse_queue(policy, yaml_file.path)
-
-    def add_policies_from_github(self, url):
-        yaml_files = GitScanner(url).get_yamls_in_repo()
-        for yaml_file in yaml_files:
-            for policy in yaml_file.data:
-                self._add_policy_to_parse_queue(policy, yaml_file.path)
+        return True
 
     def add_policies_from_k8s_cluster(self):
         PeerContainer.locate_kube_config_file()
@@ -224,15 +206,9 @@ class NetworkConfig:
             self.add_policies_from_k8s_cluster()
         elif entry == 'calico':
             self.add_policies_from_calico_cluster()
-        elif entry.startswith('https://github'):
-            self.add_policies_from_github(entry)
         elif entry.startswith('buffer: '):
             self._add_policies(entry[8:], 'buffer', True)
-        elif os.path.isfile(entry):
-            self.add_policies_from_file(entry)
-        elif os.path.isdir(entry):
-            self.add_policies_from_fs_dir(entry)
-        else:
+        elif not self.scan_entry_for_policies(entry):
             raise Exception(entry + ' is not a file or directory')
 
     def clone_without_policies(self, name):
