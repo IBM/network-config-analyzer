@@ -12,6 +12,11 @@ networkConfigList:
       - testcase1-networkpolicy2.yaml
     expectedWarnings: 0
 
+  - name: np3 # testing json policy from file entry
+    networkPolicyList:
+      - testcase1-networkpolicy1.json
+    expectedWarnings: 0
+
   - name: notPolicyFile
     networkPolicyList:
       - testcase1-readme.yaml
@@ -31,6 +36,12 @@ queries:
     sanity:
       - np1
     expected: 1
+
+  - name: sanity_json_np
+    sanity:
+      - np3
+    expected: 1
+
   - name: compare_np1_and_np2
     twoWayContainment:
       - np1

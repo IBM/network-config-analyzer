@@ -3,6 +3,8 @@
     --sanity example_policies/testcase8/testcase8-networkpolicy1.yaml
     --ns_list example_podlist/ns_list.json
     --pod_list example_podlist/pods_list.json
+    --ns_list example_podlist/bank_ns_list.json
+    --pod_list example_podlist/bank_pod_list.json
   expected: 1
 
 - name: basic_connectivity

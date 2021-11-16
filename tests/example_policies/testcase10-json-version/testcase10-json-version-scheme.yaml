@@ -1,0 +1,77 @@
+namespaceList: ../../example_podlist/ns_list_for_testcase10.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: np
+    networkPolicyList: # policies_from_fs_dir_entry
+      - json_dir
+    expectedWarnings: 2
+
+
+queries:
+  - name: sanity_all
+    sanity:
+      - np
+    expected: 1
+
+  - name: sanity_allow-all-traffic-kube-system
+    sanity:
+      - np/kube-system/allow-all-traffic-kube-system
+    expected: 1
+
+  - name: sanity_allow-all-wep-traffic-kube-system1
+    sanity:
+      - np/kube-system/allow-all-wep-traffic-kube-system1
+    expected: 0
+
+  - name: sanity_allow-all-traffic-kube-system2
+    sanity:
+      - np/kube-system/allow-all-wep-traffic-kube-system2
+    expected: 0
+
+  - name: sanity_allow-all-between-kube-system-some-other-namespaces
+    sanity:
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces
+    expected: 0
+
+  - name: sanity_allow-all-between-kube-system-some-other-namespaces-with-podSelector
+    sanity:
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podselector
+    expected: 0
+
+  - name: sanity_allow-all-between-kube-system-default-with-podSelector
+    sanity:
+      - np/kube-system/allow-all-between-kube-system-default-with-podselector
+    expected: 0
+
+
+  - name: allow-all-wep-traffic-kube-system_equiv
+    twoWayContainment:
+      - np/kube-system/allow-all-wep-traffic-kube-system1
+      - np/kube-system/allow-all-wep-traffic-kube-system2
+    expected: 3
+
+  - name: allow-all-traffic-kube-system_supset_allow-wep-kube-system
+    twoWayContainment:
+      - np/kube-system/allow-all-traffic-kube-system
+      - np/kube-system/allow-all-wep-traffic-kube-system1
+    expected: 1
+
+  - name: all-wep-traffic-kube-system_supset-some-namespaces
+    twoWayContainment:
+      - np/kube-system/allow-all-wep-traffic-kube-system1
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces
+    expected: 1
+
+  - name: kube-system-with-some-namespaces-supset-with-podSelector
+    twoWayContainment:
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podselector
+    expected: 1
+
+  - name: kube-system-with-some-namespaces-podSelector-equiv-default-podSelector
+    twoWayContainment:
+      - np/kube-system/allow-all-between-kube-system-some-other-namespaces-with-podselector
+      - np/kube-system/allow-all-between-kube-system-default-with-podselector
+    expected: 3
+
