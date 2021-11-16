@@ -17,6 +17,10 @@ class DirScanner(GenericTreeScanner):
         self.fs_path = fs_path
 
     def check_and_yield_file(self, file_path):
+        """
+        checks if the given file is yaml file and yield its components
+        :param str file_path: path of file to check and yield
+        """
         if GenericTreeScanner.is_yaml_file(file_path):
             yield from self._yield_yaml_file(file_path, open(file_path))
 

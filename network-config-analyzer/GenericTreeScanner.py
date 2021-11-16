@@ -82,6 +82,11 @@ class TreeScannerFactory:
 
     @staticmethod
     def get_scanner(entry, np_scanner=False):
+        """
+        factory method to determine what scanner to build
+        :param str entry: the entry (path/url) to be scanned
+        :param bool np_scanner: indicates if the scanned entry is a policy
+        """
         if entry.startswith('https://github'):
             return GitScanner(entry, np_scanner)
         elif os.path.isfile(entry) or os.path.isdir(entry):
