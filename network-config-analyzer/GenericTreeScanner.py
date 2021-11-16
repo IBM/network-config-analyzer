@@ -20,7 +20,7 @@ class YamlFile:
     path: str
 
 
-class TreeGenericScanner(metaclass=abc.ABCMeta):
+class GenericTreeScanner(metaclass=abc.ABCMeta):
     """
     A base class for reading yaml files
     """
@@ -57,7 +57,7 @@ class TreeGenericScanner(metaclass=abc.ABCMeta):
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
         """
         decoded_stream = stream
-        if self.scanner_type == TreeGenericScanner.ScannerType.GitUrl:
+        if self.scanner_type == GenericTreeScanner.ScannerType.GitUrl:
             decoded_stream = stream.decoded_content
         load_type = None
         if not self.np_scanner:

@@ -4,20 +4,20 @@
 #
 
 import os
-from TreeGenericScanner import TreeGenericScanner
+from GenericTreeScanner import GenericTreeScanner
 
 
-class DirScanner(TreeGenericScanner):
+class DirScanner(GenericTreeScanner):
     """
        A class for reading yaml files from a file system path
     """
 
     def __init__(self, fs_path, np_scanner):
-        TreeGenericScanner.__init__(self, TreeGenericScanner.ScannerType.FileSystemPath, np_scanner)
+        GenericTreeScanner.__init__(self, GenericTreeScanner.ScannerType.FileSystemPath, np_scanner)
         self.fs_path = fs_path
 
     def check_and_yield_file(self, file_path):
-        if TreeGenericScanner.is_yaml_file(file_path):
+        if GenericTreeScanner.is_yaml_file(file_path):
             yield from self._yield_yaml_file(file_path, open(file_path))
 
     def get_yamls(self):

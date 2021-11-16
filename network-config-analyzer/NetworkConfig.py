@@ -18,7 +18,7 @@ from IstioNetworkPolicy import IstioNetworkPolicy
 from IstioPolicyYamlParser import IstioPolicyYamlParser
 from ConnectionSet import ConnectionSet
 from CmdlineRunner import CmdlineRunner
-from TreeGenericScanner import TreeScannerFactory
+from GenericTreeScanner import TreeScannerFactory
 
 
 class NetworkConfig:

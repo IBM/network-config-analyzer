@@ -6,15 +6,15 @@
 import os
 from urllib.parse import urlparse
 from github import Github, GithubException
-from TreeGenericScanner import TreeGenericScanner
+from GenericTreeScanner import GenericTreeScanner
 
 
-class GitScanner(TreeGenericScanner):
+class GitScanner(GenericTreeScanner):
     """
     A class for reading yaml files from a git repo
     """
     def __init__(self, url, np_scanner):
-        TreeGenericScanner.__init__(self, TreeGenericScanner.ScannerType.GitUrl, np_scanner)
+        GenericTreeScanner.__init__(self, GenericTreeScanner.ScannerType.GitUrl, np_scanner)
         self.url = url
         if url.endswith('/'):
             url = url[:-1]
@@ -62,7 +62,7 @@ class GitScanner(TreeGenericScanner):
                 continue
             if not element.path.startswith(path):
                 continue
-            if not TreeGenericScanner.is_yaml_file(element.path):
+            if not GenericTreeScanner.is_yaml_file(element.path):
                 continue
             if not recursive and element.path.count('/') != path.count('/'):
                 continue

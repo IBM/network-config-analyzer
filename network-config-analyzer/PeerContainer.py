@@ -10,7 +10,7 @@ import yaml
 from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
 from CmdlineRunner import CmdlineRunner
-from TreeGenericScanner import TreeScannerFactory
+from GenericTreeScanner import TreeScannerFactory
 
 
 class PeerContainer:
