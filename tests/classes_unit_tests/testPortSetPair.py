@@ -10,7 +10,6 @@ class TestPortSetPairMethods(unittest.TestCase):
     def test_and(self):
         a = PortSet(False)
         a.add_port("A")
-        a.remove_port("B")
 
         b = PortSet(False)
         b.add_port_range(80, 100)
@@ -31,7 +30,6 @@ class TestPortSetPairMethods(unittest.TestCase):
         res_src_port_set = CanonicalIntervalSet()
         res_src_port_set.add_interval(CanonicalIntervalSet.Interval(80, 100))
         self.assertTrue(res.named_ports['A'] == res_src_port_set)
-        self.assertTrue("B" in res.excluded_named_ports)
         self.assertTrue(1 not in res.named_ports)
 
     def test_or(self):
@@ -69,7 +67,6 @@ class TestPortSetPairMethods(unittest.TestCase):
     def test_sub(self):
         a = PortSet(False)
         a.add_port("A")
-        a.remove_port("B")
 
         b = PortSet(False)
         b.add_port_range(80, 100)
@@ -97,7 +94,6 @@ class TestPortSetPairMethods(unittest.TestCase):
         res_src_port_set3.add_interval(CanonicalIntervalSet.Interval(1, 65535))
 
         self.assertTrue(res.named_ports['A'] == res_src_port_set1)
-        self.assertTrue(res.excluded_named_ports['B'] == res_src_port_set3)
 
 
 if __name__ == '__main__':

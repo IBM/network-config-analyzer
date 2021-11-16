@@ -170,18 +170,21 @@ class TcpProperties(CanonicalHyperCubeSet):
         return res
 
     def __iand__(self, other):
+        assert not self.excluded_named_ports
         assert not isinstance(other, TcpProperties) or not other.named_ports
         assert not isinstance(other, TcpProperties) or not other.excluded_named_ports
         super().__iand__(other)
         return self
 
     def __ior__(self, other):
-        assert not isinstance(other, TcpProperties) or not other.named_ports
         assert not isinstance(other, TcpProperties) or not other.excluded_named_ports
         super().__ior__(other)
+        if isinstance(other, TcpProperties):
+            self.named_ports |= other.named_ports
         return self
 
     def __isub__(self, other):
+        assert not self.excluded_named_ports
         assert not isinstance(other, TcpProperties) or not other.named_ports
         assert not isinstance(other, TcpProperties) or not other.excluded_named_ports
         super().__isub__(other)
