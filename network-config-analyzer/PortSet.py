@@ -84,7 +84,7 @@ class PortSet:
 
 # TODO: move to a separate file ?
 # TODO: currently using TcpProperties as properties for all port-supported-protocols (UDP and SCTP as well)
-class TcpProperties:
+class TcpProperties(CanonicalHyperCubeSet):
     """
     A class for holding a set of cubes_set, each defined over a range of source ports X a range of target ports
     """
@@ -99,7 +99,17 @@ class TcpProperties:
         :param PortSet source_ports: The set of source ports (as a set of intervals/ranges)
         :param PortSet dest_ports: The set of target ports (as a set of intervals/ranges)
         """
-        self.cubes_set = CanonicalHyperCubeSet(TcpProperties.dimensions_list)
+        super().__init__(TcpProperties.dimensions_list)
+
+        self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
+        self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
+        # assuming named ports are only in dest, not src
+        all_ports = PortSet.all_ports_interval.copy()
+        for port_name in dest_ports.named_ports:
+            self.named_ports[port_name] = source_ports.port_set
+        for port_name in dest_ports.excluded_named_ports:
+            # self.excluded_named_ports[port_name] = all_ports - source_ports.port_set
+            self.excluded_named_ports[port_name] = all_ports
 
         # create the cube from input arguments
         cube = [source_ports.port_set, dest_ports.port_set]
@@ -113,178 +123,68 @@ class TcpProperties:
         if hosts is not None:
             cube.append(hosts)
             active_dims.append("hosts")
-        self.cubes_set.add_cube(cube, active_dims)
-
-        self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        # assuming named ports are only in dest, not src
-        all_ports = PortSet.all_ports_interval.copy()
-        for port_name in dest_ports.named_ports:
-            self.named_ports[port_name] = source_ports.port_set
-        for port_name in dest_ports.excluded_named_ports:
-            # self.excluded_named_ports[port_name] = all_ports - source_ports.port_set
-            self.excluded_named_ports[port_name] = all_ports
+        self.add_cube(cube, active_dims)
 
     def __bool__(self):
-        return bool(self.cubes_set) or bool(self.named_ports)
+        return super().__bool__() or bool(self.named_ports)
 
     def get_simplified_str(self):
-        return str(self.cubes_set)
+        return super().__str__()
 
     def __str__(self):
-        if not self.cubes_set:
+        if not super().__bool__():
             if self.named_ports:
                 return 'some named ports'
             return 'no ports'
         return self.get_simplified_str()
 
     def get_properties_obj(self):
-        if self.cubes_set.is_all():
+        if self.is_all():
             return {}
-        dimensions_header = ",".join(dim for dim in self.cubes_set.active_dimensions)
+        dimensions_header = ",".join(dim for dim in self.active_dimensions)
         cubes_str_list = []
-        for cube in self.cubes_set:
-            cubes_str_list.append(self.cubes_set.get_cube_str(cube))
+        for cube in self:
+            cubes_str_list.append(self.get_cube_str(cube))
         return {dimensions_header: sorted(cubes_str_list)}
 
     def __eq__(self, other):
         if isinstance(other, TcpProperties):
-            res = self.cubes_set == other.cubes_set and self.named_ports == other.named_ports and \
+            res = super().__eq__(other) and self.named_ports == other.named_ports and \
                   self.excluded_named_ports == other.excluded_named_ports
             return res
         return NotImplemented
 
     def __and__(self, other):
-        res = TcpProperties()
-        res.cubes_set = self.cubes_set & other.cubes_set
-
-        res.named_ports = dict({})
-        for port_name in self.named_ports:
-            if port_name in other.named_ports:
-                src_interval_res = self.named_ports[port_name] & other.named_ports[port_name]
-                res.named_ports[port_name] = src_interval_res
-
-        res.excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res.excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.excluded_named_ports:
-            if port_name in res.excluded_named_ports:
-                res.excluded_named_ports[port_name] |= other.excluded_named_ports[port_name]
-            else:
-                res.excluded_named_ports[port_name] = other.excluded_named_ports[port_name]
-
+        res = self.copy()
+        res &= other
         return res
 
     def __or__(self, other):
-        res = TcpProperties()
-        res.cubes_set = self.cubes_set | other.cubes_set
-
-        res.named_ports = dict({})
-        for port_name in self.named_ports:
-            res.named_ports[port_name] = self.named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res.named_ports:
-                res.named_ports[port_name] |= other.named_ports[port_name]
-            else:
-                res.named_ports[port_name] = other.named_ports[port_name]
-
-        res.excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res.excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res.excluded_named_ports:
-                res.excluded_named_ports[port_name] -= other.named_ports[port_name]
-
+        res = self.copy()
+        res |= other
         return res
 
     def __sub__(self, other):
-        res = TcpProperties()
-        res.cubes_set = self.cubes_set - other.cubes_set
-
-        res.named_ports = dict({})
-        for port_name in self.named_ports:
-            res.named_ports[port_name] = self.named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res.named_ports:
-                res.named_ports[port_name] -= other.named_ports[port_name]
-
-        res.excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res.excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res.excluded_named_ports:
-                res.excluded_named_ports[port_name] |= other.named_ports[port_name]
-            else:
-                res.excluded_named_ports[port_name] = other.named_ports[port_name]
-
+        res = self.copy()
+        res -= other
         return res
 
     def __iand__(self, other):
-        self.cubes_set &= other.cubes_set
-
-        res_named_ports = dict({})
-        for port_name in self.named_ports:
-            if port_name in other.named_ports:
-                src_interval_res = self.named_ports[port_name] & other.named_ports[port_name]
-                res_named_ports[port_name] = src_interval_res
-        self.named_ports = res_named_ports
-
-        res_excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res_excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.excluded_named_ports:
-            if port_name in res_excluded_named_ports:
-                res_excluded_named_ports[port_name] |= other.excluded_named_ports[port_name]
-            else:
-                res_excluded_named_ports[port_name] = other.excluded_named_ports[port_name]
-        self.excluded_named_ports = res_excluded_named_ports
-
+        assert not isinstance(other, TcpProperties) or not other.named_ports
+        assert not isinstance(other, TcpProperties) or not other.excluded_named_ports
+        super().__iand__(other)
         return self
 
     def __ior__(self, other):
-        self.cubes_set |= other.cubes_set
-
-        res_named_ports = dict({})
-        for port_name in self.named_ports:
-            res_named_ports[port_name] = self.named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res_named_ports:
-                res_named_ports[port_name] |= other.named_ports[port_name]
-            else:
-                res_named_ports[port_name] = other.named_ports[port_name]
-        self.named_ports = res_named_ports
-
-        res_excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res_excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res_excluded_named_ports:
-                res_excluded_named_ports[port_name] -= other.named_ports[port_name]
-        self.excluded_named_ports = res_excluded_named_ports
-
+        assert not isinstance(other, TcpProperties) or not other.named_ports
+        assert not isinstance(other, TcpProperties) or not other.excluded_named_ports
+        super().__ior__(other)
         return self
 
     def __isub__(self, other):
-        self.cubes_set -= other.cubes_set
-
-        res_named_ports = dict({})
-        for port_name in self.named_ports:
-            res_named_ports[port_name] = self.named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res_named_ports:
-                res_named_ports[port_name] -= other.named_ports[port_name]
-        self.named_ports = res_named_ports
-
-        res_excluded_named_ports = dict({})
-        for port_name in self.excluded_named_ports:
-            res_excluded_named_ports[port_name] = self.excluded_named_ports[port_name]
-        for port_name in other.named_ports:
-            if port_name in res_excluded_named_ports:
-                res_excluded_named_ports[port_name] |= other.named_ports[port_name]
-            else:
-                res_excluded_named_ports[port_name] = other.named_ports[port_name]
-        self.excluded_named_ports = res_excluded_named_ports
-
+        assert not isinstance(other, TcpProperties) or not other.named_ports
+        assert not isinstance(other, TcpProperties) or not other.excluded_named_ports
+        super().__isub__(other)
         return self
 
     def contained_in(self, other):
@@ -293,7 +193,7 @@ class TcpProperties:
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
-        if not self.cubes_set.contained_in(other.cubes_set):
+        if not super().contained_in(other):
             return False
         for port_name in self.named_ports:
             if port_name not in other.named_ports:
@@ -327,25 +227,31 @@ class TcpProperties:
         if not named_ports:
             named_ports = {}
 
-        for port in self.named_ports:
-            real_port = named_ports.get(port)
-            if real_port and real_port[1] == protocol:
-                real_port_number = real_port[0]
-                rectangle = [self.named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
-                self.cubes_set.add_cube(rectangle)
-        for port in self.excluded_named_ports:
-            real_port = named_ports.get(port)
-            if real_port and real_port[1] == protocol:
-                real_port_number = real_port[0]
-                rectangle = [self.excluded_named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
-                self.cubes_set.add_hole(rectangle)
-
+        my_named_ports = self.named_ports
         self.named_ports = {}
+        my_excluded_named_ports = self.excluded_named_ports
         self.excluded_named_ports = {}
+
+        for port in my_named_ports:
+            real_port = named_ports.get(port)
+            if real_port and real_port[1] == protocol:
+                real_port_number = real_port[0]
+                rectangle = [my_named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
+                self.add_cube(rectangle)
+        for port in my_excluded_named_ports:
+            real_port = named_ports.get(port)
+            if real_port and real_port[1] == protocol:
+                real_port_number = real_port[0]
+                rectangle = [my_excluded_named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
+                self.add_hole(rectangle)
 
     def copy(self):
         res = TcpProperties()
-        res.cubes_set = self.cubes_set.copy()
+        # from CanonicalHyperCubeSet.copy():
+        for layer in self.layers:
+            res.layers[layer.copy()] = self.layers[layer].copy()
+        res.active_dimensions = self.active_dimensions.copy()
+
         res.named_ports = self.named_ports.copy()
         res.excluded_named_ports = self.excluded_named_ports.copy()
         return res
@@ -359,8 +265,8 @@ class TcpProperties:
         :return: If self!=other, return a string showing a (source, target) pair that appears in only one of them
         :rtype: str
         """
-        self_minus_other = self.cubes_set - other.cubes_set
-        other_minus_self = other.cubes_set - self.cubes_set
+        self_minus_other = self - other
+        other_minus_self = other - self
         diff_str = self_name if self_minus_other else other_name
         if self_minus_other:
             item = self_minus_other.get_first_item()
