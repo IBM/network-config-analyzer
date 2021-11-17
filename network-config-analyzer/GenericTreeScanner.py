@@ -20,7 +20,7 @@ class YamlFile:
     path: str
 
 
-class GenericTreeScanner(metaclass=abc.ABCMeta):
+class GenericTreeScanner(abc.ABC):
     """
     A base class for reading yaml files
     """
@@ -32,9 +32,8 @@ class GenericTreeScanner(metaclass=abc.ABCMeta):
         GitUrl = 0
         FileSystemPath = 1
 
-    def __init__(self, scanner_type, np_scanner):
+    def __init__(self, scanner_type):
         self.scanner_type = scanner_type
-        self.np_scanner = np_scanner
 
     @abc.abstractmethod
     def get_yamls(self):
@@ -59,10 +58,7 @@ class GenericTreeScanner(metaclass=abc.ABCMeta):
         decoded_stream = stream
         if self.scanner_type == GenericTreeScanner.ScannerType.GitUrl:
             decoded_stream = stream.decoded_content
-        load_type = None
-        if not self.np_scanner:
-            load_type = "safe"
-        yaml = YAML(typ=load_type)
+        yaml = YAML(typ="safe")
         try:
             yield YamlFile(yaml.load_all(decoded_stream), path)
         except error.MarkedYAMLError as parse_error:
@@ -81,15 +77,14 @@ from DirScanner import DirScanner
 class TreeScannerFactory:
 
     @staticmethod
-    def get_scanner(entry, np_scanner=False):
+    def get_scanner(entry):
         """
         factory method to determine what scanner to build
         :param str entry: the entry (path/url) to be scanned
-        :param bool np_scanner: indicates if the scanned entry is a policy
         """
         if entry.startswith('https://github'):
-            return GitScanner(entry, np_scanner)
+            return GitScanner(entry)
         elif os.path.isfile(entry) or os.path.isdir(entry):
-            return DirScanner(entry, np_scanner)
+            return DirScanner(entry)
         else:
             return None

@@ -19,7 +19,7 @@ spec:
       selector: app  == 'keepalived-watcher'
   - action: Deny
     source:
-      selector: !has(no_tag)
+      selector: "!has(no_tag)"
   - action: Allow
     source:
       selector: has(no_tag)
@@ -30,4 +30,4 @@ spec:
       selector: app  == 'keepalived-watcher'
   - action: Deny
     destination:
-      selector: !has(no_exist_such_app)
+      selector: "!has(no_exist_such_app)"

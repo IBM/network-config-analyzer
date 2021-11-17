@@ -13,8 +13,8 @@ class GitScanner(GenericTreeScanner):
     """
     A class for reading yaml files from a git repo
     """
-    def __init__(self, url, np_scanner):
-        GenericTreeScanner.__init__(self, GenericTreeScanner.ScannerType.GitUrl, np_scanner)
+    def __init__(self, url):
+        GenericTreeScanner.__init__(self, GenericTreeScanner.ScannerType.GitUrl)
         self.url = url
         if url.endswith('/'):
             url = url[:-1]

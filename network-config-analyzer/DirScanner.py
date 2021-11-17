@@ -12,8 +12,8 @@ class DirScanner(GenericTreeScanner):
        A class for reading yaml files from a file system path
     """
 
-    def __init__(self, fs_path, np_scanner):
-        GenericTreeScanner.__init__(self, GenericTreeScanner.ScannerType.FileSystemPath, np_scanner)
+    def __init__(self, fs_path):
+        GenericTreeScanner.__init__(self, GenericTreeScanner.ScannerType.FileSystemPath)
         self.fs_path = fs_path
 
     def check_and_yield_file(self, file_path):
@@ -30,6 +30,7 @@ class DirScanner(GenericTreeScanner):
         """
         if os.path.isfile(self.fs_path):
             yield from self.check_and_yield_file(self.fs_path)
+            return
 
         for root, _, files in os.walk(self.fs_path):
             for file in files:

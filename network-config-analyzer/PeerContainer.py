@@ -122,7 +122,10 @@ class PeerContainer:
             if ns_resources == 'k8s':
                 self.load_ns_from_live_cluster()
             else:
-                yaml_files = TreeScannerFactory.get_scanner(ns_resources).get_yamls()
+                resource_scanner = TreeScannerFactory.get_scanner(ns_resources)
+                if resource_scanner is None:
+                    continue
+                yaml_files = resource_scanner.get_yamls()
                 for yaml_file in yaml_files:
                     for ns_code in yaml_file.data:
                         if isinstance(ns_code, dict) and ns_code.get('kind') in {'NamespaceList', 'List'}:
@@ -152,7 +155,10 @@ class PeerContainer:
             elif peer_resources == 'k8s':
                 self.load_peer_from_k8s_live_cluster()
             else:
-                yaml_files = TreeScannerFactory.get_scanner(peer_resources).get_yamls()
+                resource_scanner = TreeScannerFactory.get_scanner(peer_resources)
+                if resource_scanner is None:
+                    continue
+                yaml_files = resource_scanner.get_yamls()
                 for yaml_file in yaml_files:
                     for peer_code in yaml_file.data:
                         self.add_eps_from_list(peer_code)
