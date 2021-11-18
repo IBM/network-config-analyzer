@@ -11,10 +11,10 @@ spec:
   ingress:
   - action: Allow
     source:
-      selector: app != 'helm'
+      selector: "app != 'helm'"
       namespaceSelector: all()
   egress:
   - action: Allow
     destination:
-      selector: app != 'helm'
+      selector: "app != 'helm'"
       namespaceSelector: all()

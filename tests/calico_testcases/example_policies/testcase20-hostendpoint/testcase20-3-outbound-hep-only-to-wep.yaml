@@ -14,6 +14,6 @@ spec:
   egress:
   - action: Allow
     destination:
-      selector: !has(vendor.role)
+      selector: "!has(vendor.role)"
   ingress:
   - action: Allow

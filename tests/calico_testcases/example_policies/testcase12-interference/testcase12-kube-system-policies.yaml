@@ -52,7 +52,7 @@ spec:
   - action: Allow
     protocol: TCP
     source:
-      selector: !has(app)
+      selector: "!has(app)"
   egress:
   - action: Allow
     destination:
@@ -73,7 +73,7 @@ spec:
   - action: Deny
     protocol: TCP
     source:
-      selector: !has(app)
+      selector: "!has(app)"
   egress:
   - action: Allow
     destination:

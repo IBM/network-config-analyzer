@@ -30,7 +30,7 @@ spec:
   - action: Deny
     protocol: TCP
     source:
-      selector: !has(app)
+      selector: "!has(app)"
 
 ---
 apiVersion: projectcalico.org/v3
