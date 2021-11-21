@@ -126,7 +126,8 @@ class TcpProperties(CanonicalHyperCubeSet):
         self.add_cube(cube, active_dims)
 
     def __bool__(self):
-        return super().__bool__() or bool(self.named_ports)
+        assert not self.named_ports
+        return super().__bool__()
 
     def get_simplified_str(self):
         return super().__str__()
@@ -204,19 +205,11 @@ class TcpProperties(CanonicalHyperCubeSet):
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
-        if not super().contained_in(other):
-            return False
-        for port_name in self.named_ports:
-            if port_name not in other.named_ports:
-                return False
-            if not self.named_ports[port_name].contained_in(other.named_ports[port_name]):
-                return False
-        for port_name in other.excluded_named_ports:
-            if port_name not in self.excluded_named_ports:
-                return False
-            if not other.excluded_named_ports[port_name].contained_in(self.excluded_named_ports[port_name]):
-                return False
-        return True
+        assert not self.named_ports
+        assert not other.named_ports
+        assert not self.excluded_named_ports
+        assert not other.excluded_named_ports
+        return super().contained_in(other)
 
     def has_named_ports(self):
         return self.named_ports or self.excluded_named_ports
