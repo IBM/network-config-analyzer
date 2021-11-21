@@ -1,6 +1,6 @@
 from CanonicalIntervalSet import CanonicalIntervalSet
 from PortSet import PortSet
-from PortSet import TcpLikeProperties
+from TcpLikeProperties import TcpLikeProperties
 
 import unittest
 
