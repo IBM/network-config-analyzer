@@ -40,8 +40,6 @@
     - '*'
     connection:
     - Protocol: ICMP
-      Type/Code:
-      - 0-254/0-255
     - Protocol: '2'
     - Protocol: '3'
     - Protocol: '4'
@@ -98,8 +96,6 @@
     - Protocol: '56'
     - Protocol: '57'
     - Protocol: ICMPv6
-      Type/Code:
-      - 0-254/0-255
     - Protocol: '59'
     - Protocol: '60'
     - Protocol: '61'

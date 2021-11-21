@@ -8,9 +8,8 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -19,9 +18,8 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -30,9 +28,8 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -41,9 +38,8 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:

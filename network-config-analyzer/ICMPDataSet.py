@@ -28,6 +28,8 @@ class ICMPDataSet(CanonicalHyperCubeSet):
         return super().__str__()
 
     def get_properties_obj(self):
+        if self.is_all():
+            return {}
         cubes_list = []
         res_obj = {'Type/Code': cubes_list}
         for properties_cube in iter(self):

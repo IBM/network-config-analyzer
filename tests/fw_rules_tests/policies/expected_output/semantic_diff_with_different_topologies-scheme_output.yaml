@@ -582,9 +582,8 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -593,9 +592,8 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -604,9 +602,8 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -615,9 +612,8 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
 - query: 'semantic_diff, config1: np1, config2: np2, key: Removed connections between
     persistent peers and ipBlocks'
   rules:
@@ -629,9 +625,8 @@
     - has(tier)
     connection:
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -640,9 +635,8 @@
     - has(tier)
     connection:
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -651,9 +645,8 @@
     - has(tier)
     connection:
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -662,9 +655,8 @@
     - has(tier)
     connection:
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
 
 - query: 'semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock,
     key: Lost connections between removed peers'
@@ -820,10 +812,9 @@
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - 1-52
-        - 54-65535
+      Ports:
+      - 1-52
+      - 54-65535
     - Protocol: SCTP
   - src_ip_block:
     - 10.12.0.0/14
@@ -834,10 +825,9 @@
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - 1-52
-        - 54-65535
+      Ports:
+      - 1-52
+      - 54-65535
     - Protocol: SCTP
   - src_ip_block:
     - 0.0.0.0/5

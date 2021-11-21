@@ -135,6 +135,9 @@ class TcpLikeProperties:
         for cube in self.cubes_set:
             cube_dict = self.get_cube_dict(cube, self.cubes_set.active_dimensions)
             cubs_dict_list.append(cube_dict)
+        if self.cubes_set.active_dimensions == ['dst_ports']:
+            assert len(cubs_dict_list) == 1
+            return {'Ports': cubs_dict_list[0]['dst_ports']}
         return {'properties': cubs_dict_list}
 
     def __eq__(self, other):

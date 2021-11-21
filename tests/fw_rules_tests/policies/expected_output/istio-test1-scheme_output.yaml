@@ -67,9 +67,8 @@
     - app in (skydive)
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '26257'
+      Ports:
+      - '26257'
   - src_ns:
     - default
     - vendor-system
@@ -81,9 +80,8 @@
     - '*'
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '26257'
+      Ports:
+      - '26257'
 
 
 - query: 'istio-policy2, config: istio-policy2'
@@ -96,10 +94,9 @@
     - app in (skydive)
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '30'
-        - '50'
+      Ports:
+      - '30'
+      - '50'
   - src_ip_block:
     - 2.2.2.2/32
     dst_ns:
@@ -108,10 +105,9 @@
     - app in (skydive)
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '30'
-        - '50'
+      Ports:
+      - '30'
+      - '50'
   - src_ns:
     - default
     - kube-system
@@ -123,10 +119,9 @@
     - app in (skydive)
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '30'
-        - '50'
+      Ports:
+      - '30'
+      - '50'
   - src_ns:
     - default
     src_pods:
@@ -137,9 +132,8 @@
     - '*'
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '30'
-        - '50'
+      Ports:
+      - '30'
+      - '50'
 
 

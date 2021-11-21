@@ -8,16 +8,12 @@
     - has(vendor.role)
     connection:
     - Protocol: ICMP
-      Type/Code:
-      - 0-254/0-255
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '52311'
+      Ports:
+      - '52311'
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '52311'
+      Ports:
+      - '52311'
     - Protocol: '112'
   - src_ip_block:
     - ::/0
@@ -27,16 +23,12 @@
     - has(vendor.role)
     connection:
     - Protocol: ICMP
-      Type/Code:
-      - 0-254/0-255
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '52311'
+      Ports:
+      - '52311'
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '52311'
+      Ports:
+      - '52311'
     - Protocol: '112'
   - src_ns:
     - None
@@ -48,16 +40,12 @@
     - has(vendor.role)
     connection:
     - Protocol: ICMP
-      Type/Code:
-      - 0-254/0-255
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '52311'
+      Ports:
+      - '52311'
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '52311'
+      Ports:
+      - '52311'
     - Protocol: '112'
   - src_ns:
     - kube-system
@@ -69,16 +57,12 @@
     - has(vendor.role)
     connection:
     - Protocol: ICMP
-      Type/Code:
-      - 0-254/0-255
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '52311'
+      Ports:
+      - '52311'
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '52311'
+      Ports:
+      - '52311'
     - Protocol: '112'
   - src_ip_block:
     - 0.0.0.0/0
