@@ -178,7 +178,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         res = TcpLikeProperties()
         # from CanonicalHyperCubeSet.copy():
         for layer in self.layers:
-            res.layers[layer.copy()] = self.layers[layer].copy()
+            res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
 
         res.named_ports = self.named_ports.copy()
