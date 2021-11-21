@@ -10,11 +10,13 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:

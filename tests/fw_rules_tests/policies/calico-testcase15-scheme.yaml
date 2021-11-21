@@ -1,0 +1,15 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+networkConfigList:
+- name: ports-rectangles
+  networkPolicyList:
+  - calico-testcase15-ports-rectangles.yaml
+  expectedWarnings: 0
+queries:
+  - name: connectivity_map_1
+    connectivityMap:
+      - ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2-equiv
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+      #outputFormat: yaml
+    expected: 0

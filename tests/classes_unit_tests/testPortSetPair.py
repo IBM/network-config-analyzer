@@ -1,6 +1,6 @@
 from CanonicalIntervalSet import CanonicalIntervalSet
 from PortSet import PortSet
-from PortSet import TcpProperties
+from TcpLikeProperties import TcpLikeProperties
 
 import unittest
 
@@ -14,7 +14,7 @@ class TestPortSetPairMethods(unittest.TestCase):
         b = PortSet(False)
         b.add_port_range(80, 100)
 
-        first = TcpProperties(b, a)
+        first = TcpLikeProperties(b, a)
 
         c = PortSet(False)
         c.add_port(1)
@@ -24,7 +24,7 @@ class TestPortSetPairMethods(unittest.TestCase):
         d = PortSet(False)
         d.add_port_range(85, 90)
 
-        second = TcpProperties(d, c)
+        second = TcpLikeProperties(d, c)
 
         res = first & second
         res_src_port_set = CanonicalIntervalSet()
@@ -40,7 +40,7 @@ class TestPortSetPairMethods(unittest.TestCase):
         b = PortSet(False)
         b.add_port_range(80, 100)
 
-        first = TcpProperties(b, a)
+        first = TcpLikeProperties(b, a)
 
         c = PortSet(False)
         c.add_port(1)
@@ -51,7 +51,7 @@ class TestPortSetPairMethods(unittest.TestCase):
         d = PortSet(False)
         d.add_port_range(85, 90)
 
-        second = TcpProperties(d, c)
+        second = TcpLikeProperties(d, c)
 
         res = first | second
 
@@ -71,7 +71,7 @@ class TestPortSetPairMethods(unittest.TestCase):
         b = PortSet(False)
         b.add_port_range(80, 100)
 
-        first = TcpProperties(b, a)
+        first = TcpLikeProperties(b, a)
 
         c = PortSet(False)
         c.add_port(1)
@@ -82,7 +82,7 @@ class TestPortSetPairMethods(unittest.TestCase):
         d = PortSet(False)
         d.add_port_range(85, 90)
 
-        second = TcpProperties(d, c)
+        second = TcpLikeProperties(d, c)
 
         res = first - second
 

@@ -11,7 +11,7 @@ spec:
   - action: Deny
     protocol: TCP
     source:
-      selector: !has(app)
+      selector: "!has(app)"
   - action: Allow
     source:
       selector: has(tier)

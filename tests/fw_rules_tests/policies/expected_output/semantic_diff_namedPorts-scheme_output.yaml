@@ -14,8 +14,9 @@
     - kube-dns-amd64-d66bf76db
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (10054, )
+      properties:
+      - dst_ports:
+        - '10054'
   - src_ns:
     - default
     - kube-system
@@ -29,8 +30,9 @@
     - kube-dns-amd64-d66bf76db
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (10054, )
+      properties:
+      - dst_ports:
+        - '10054'
 - query: 'semantic_diff, config1: np1_named_ports, config2: np2_named_ports, key:
     Added connections between persistent peers and ipBlocks'
   rules:
@@ -42,8 +44,9 @@
     - kube-dns-amd64-d66bf76db
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (10054, )
+      properties:
+      - dst_ports:
+        - '10054'
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -52,8 +55,9 @@
     - kube-dns-amd64-d66bf76db
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (10054, )
+      properties:
+      - dst_ports:
+        - '10054'
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -62,8 +66,9 @@
     - kube-dns-amd64-d66bf76db
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (10054, )
+      properties:
+      - dst_ports:
+        - '10054'
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -72,6 +77,7 @@
     - kube-dns-amd64-d66bf76db
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (10054, )
+      properties:
+      - dst_ports:
+        - '10054'
 

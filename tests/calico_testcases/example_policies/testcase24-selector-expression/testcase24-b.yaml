@@ -11,7 +11,7 @@ spec:
   - action: Allow
     source:
       selector: "(has(app) && !has(tier)) || has(k8s-app)"
-      namespaceSelector: all() && !global()
+      namespaceSelector: "all() && !global()"
   egress:
   - action: Allow
     destination:

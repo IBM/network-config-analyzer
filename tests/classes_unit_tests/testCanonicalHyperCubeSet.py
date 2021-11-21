@@ -926,6 +926,40 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         # print(res6)
         self.assertTrue(res6)
 
+    def test_contained_in_new(self):
+        x = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("abc")], ["methods"])
+        y = CanonicalHyperCubeSet.create_from_cube(dimensions, [CanonicalIntervalSet.get_interval_set(10, 20)], ["ports"])
+        self.assertFalse(x.contained_in(y))
+        self.assertFalse(y.contained_in(x))
+        z = CanonicalHyperCubeSet.create_from_cube(dimensions, [CanonicalIntervalSet.get_interval_set(10, 20)], ["ports"])
+        w = CanonicalHyperCubeSet.create_from_cube(dimensions, [CanonicalIntervalSet.get_interval_set(10, 20)], ["ports"])
+        w.add_cube([CanonicalIntervalSet.get_interval_set(5, 5), get_str_dfa("abc")], ["ports", "methods"])
+        print(z)
+        print(w)
+        self.assertTrue(z.contained_in(w))
+        self.assertFalse(w.contained_in(z))
+        w2 = CanonicalHyperCubeSet.create_from_cube(dimensions, [CanonicalIntervalSet.get_interval_set(5, 5), get_str_dfa("abc")], ["ports", "methods"])
+        self.assertFalse(z.contained_in(w2))
+        w2.add_cube([CanonicalIntervalSet.get_interval_set(10, 20)], ["ports"])
+        self.assertTrue(z.contained_in(w2))
+
+        w2.add_cube([get_str_dfa("x")], ["methods"])
+        z2 = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("x")], ["methods"])
+        print(z2)
+        print(w2)
+        self.assertTrue(z2.contained_in(w2))
+        w2.add_hole([CanonicalIntervalSet.get_interval_set(5, 5), get_str_dfa("x")], ["ports", "methods"])
+        self.assertFalse(z2.contained_in(w2))
+
+        a = CanonicalHyperCubeSet.create_from_cube(dimensions, [CanonicalIntervalSet.get_interval_set(10, 20), get_str_dfa("x")], ["ports", "methods"])
+        b = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("x")], ["methods"])
+        self.assertTrue(a.contained_in(b))
+
+        c = CanonicalHyperCubeSet.create_from_cube(dimensions, [CanonicalIntervalSet.get_interval_set(10, 20), get_str_dfa("x")], ["ports", "methods"])
+        c.add_cube([CanonicalIntervalSet.get_interval_set(5, 5), get_str_dfa("y")], ["ports", "methods"])
+        d = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("x|y|z")], ["methods"])
+        self.assertTrue(c.contained_in(d))
+
     def test_subtract_basic(self):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)

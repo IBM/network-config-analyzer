@@ -22,7 +22,7 @@ spec:
     destination:
       ports:
       - 200:300
-      selector: !has(app)
+      selector: "!has(app)"
 
 ---
 apiVersion: projectcalico.org/v3
@@ -50,4 +50,4 @@ spec:
       ports:
       - 90
       - 10:25
-      selector: !has(app)
+      selector: "!has(app)"

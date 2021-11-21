@@ -86,7 +86,7 @@ spec:
   - action: Allow
     protocol: TCP
     source:
-      selector: !has(tier)
+      selector: "!has(tier)"
   - action: Pass
     source:
       selector: has(k8s-app)

@@ -23,6 +23,8 @@ class ICMPDataSet(CanonicalHyperCubeSet):
     def __str__(self):
         if not self:
             return 'no types'
+        if self.is_all():
+            return ''
         return super().__str__()
 
     def get_properties_obj(self):

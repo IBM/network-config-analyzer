@@ -1,0 +1,62 @@
+namespaceList: ../podlist/bookinfo_ns_list.json
+podList: ../podlist/bookinfo_pods_list.json
+
+networkConfigList:
+  - name: istio-test-methods-basic-1
+    networkPolicyList:
+      - istio-bookinfo-policy-test-methods-1.yaml
+
+  - name: istio-test-methods-basic-2
+    networkPolicyList:
+      - istio-bookinfo-policy-test-methods-2.yaml
+
+  - name: istio-test-methods-paths-1
+    networkPolicyList:
+      - istio-bookinfo-policy-test-methods-paths.yaml
+
+  - name: istio-test-operation-deny-1
+    networkPolicyList:
+      - istio-bookinfo-policy-test-operation-deny-example.yaml
+
+  - name:  istio-test-operation-allow-1
+    networkPolicyList:
+      - istio-bookinfo-policy-test-operation-allow-example-1.yaml
+
+
+
+
+queries:
+  - name: connectivity-istio-test-methods-basic-1
+    connectivityMap:
+      - istio-test-methods-basic-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: connectivity-istio-test-methods-basic-2
+    connectivityMap:
+      - istio-test-methods-basic-2
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: connectivity-istio-test-methods-paths-1
+    connectivityMap:
+      - istio-test-methods-paths-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: connectivity-istio-test-operation-deny-1
+    connectivityMap:
+      - istio-test-operation-deny-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: connectivity-istio-test-operation-allow-1
+    connectivityMap:
+      - istio-test-operation-allow-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0

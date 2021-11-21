@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from CanonicalIntervalSet import CanonicalIntervalSet
-from PortSet import PortSet, TcpProperties
+from PortSet import PortSet
+from TcpLikeProperties import TcpLikeProperties
 from ICMPDataSet import ICMPDataSet
 
 
@@ -13,8 +14,8 @@ class ConnectionSet:
     """
     _protocol_number_to_name_dict = {1: 'ICMP', 6: 'TCP', 17: 'UDP', 58: 'ICMPv6', 132: 'SCTP', 135: 'UDPLite'}
     _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
-    _port_supporting_protocols = {6, 17, 132}
     _icmp_protocols = {1, 58}
+    port_supporting_protocols = {6, 17, 132}
 
     def __init__(self, allow_all=False):
         self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
@@ -44,7 +45,7 @@ class ConnectionSet:
     def get_connections_list(self, relevant_protocols):
         """
         allowed connections representation, restricted to protocols from relevant_protocols
-        :param relevant_protocols:  a set of protocols numbers or None
+        :param set[int] relevant_protocols:  a set of protocols numbers or None
         :return:  list with yaml representation of the connection set, to be used at fw-rules representation in yaml
         """
         res = []
@@ -346,7 +347,7 @@ class ConnectionSet:
         :return: Whether the given protocol has ports
         :rtype: bool
         """
-        return protocol in ConnectionSet._port_supporting_protocols
+        return protocol in ConnectionSet.port_supporting_protocols
 
     @staticmethod
     def protocol_is_icmp(protocol):
@@ -362,7 +363,7 @@ class ConnectionSet:
         Add connections to the set of connections
         :param int,str protocol: protocol number of the connections to add
         :param properties: an object with protocol properties (e.g., ports), if relevant
-        :type properties: Union[bool, TcpProperties, ICMPDataSet]
+        :type properties: Union[bool, TcpLikeProperties, ICMPDataSet]
         :return: None
         """
         if isinstance(protocol, str):
@@ -393,15 +394,14 @@ class ConnectionSet:
     def add_all_connections(self, excluded_protocols=None):
         """
         Add all possible connections to the connection set
+        :param list[int] excluded_protocols: (optional) list of protocol numbers to exclude
         :return: None
         """
-        if excluded_protocols is None:
-            excluded_protocols = []
         for protocol in range(1, 256):
             if excluded_protocols and protocol in excluded_protocols:
                 continue
             if self.protocol_supports_ports(protocol):
-                self.allowed_protocols[protocol] = TcpProperties(PortSet(True), PortSet(True))
+                self.allowed_protocols[protocol] = TcpLikeProperties(PortSet(True), PortSet(True))
             elif self.protocol_is_icmp(protocol):
                 self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
             else:
@@ -475,7 +475,7 @@ class ConnectionSet:
     @staticmethod
     def get_all_tcp_connections():
         tcp_conns = ConnectionSet()
-        tcp_conns.add_connections('TCP', TcpProperties(PortSet(True), PortSet(True)))
+        tcp_conns.add_connections('TCP', TcpLikeProperties(PortSet(True), PortSet(True)))
         return tcp_conns
 
     @staticmethod

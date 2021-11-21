@@ -12,9 +12,9 @@ spec:
   - action: Allow
     protocol: SCTP
     source:
-      selector: !has(app)
+      selector: "!has(app)"
   egress:
   - action: Allow
     notProtocol: 132 #(SCTP)
     destination:
-      selector: !has(app)
+      selector: "!has(app)"

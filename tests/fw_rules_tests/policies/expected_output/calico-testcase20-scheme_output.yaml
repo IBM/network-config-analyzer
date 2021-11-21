@@ -11,11 +11,13 @@
       Type/Code:
       - 0-254/0-255
     - Protocol: TCP
-      dst_ports:
-      - (52311, )
+      properties:
+      - dst_ports:
+        - '52311'
     - Protocol: UDP
-      dst_ports:
-      - (52311, )
+      properties:
+      - dst_ports:
+        - '52311'
     - Protocol: '112'
   - src_ip_block:
     - ::/0
@@ -28,11 +30,13 @@
       Type/Code:
       - 0-254/0-255
     - Protocol: TCP
-      dst_ports:
-      - (52311, )
+      properties:
+      - dst_ports:
+        - '52311'
     - Protocol: UDP
-      dst_ports:
-      - (52311, )
+      properties:
+      - dst_ports:
+        - '52311'
     - Protocol: '112'
   - src_ns:
     - None
@@ -47,11 +51,13 @@
       Type/Code:
       - 0-254/0-255
     - Protocol: TCP
-      dst_ports:
-      - (52311, )
+      properties:
+      - dst_ports:
+        - '52311'
     - Protocol: UDP
-      dst_ports:
-      - (52311, )
+      properties:
+      - dst_ports:
+        - '52311'
     - Protocol: '112'
   - src_ns:
     - kube-system
@@ -66,11 +72,13 @@
       Type/Code:
       - 0-254/0-255
     - Protocol: TCP
-      dst_ports:
-      - (52311, )
+      properties:
+      - dst_ports:
+        - '52311'
     - Protocol: UDP
-      dst_ports:
-      - (52311, )
+      properties:
+      - dst_ports:
+        - '52311'
     - Protocol: '112'
   - src_ip_block:
     - 0.0.0.0/0

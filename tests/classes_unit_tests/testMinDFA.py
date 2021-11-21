@@ -96,6 +96,7 @@ class TestMinDFA(unittest.TestCase):
         dfa5 = dfa3 - dfa2  # all but "abc*"
         self.assertEqual(dfa5.is_all_words, MinDFA.Ternary.FALSE)
         self.assertEqual(dfa5.complement_dfa, dfa2)
+        self.assertEqual(dfa2.complement_dfa, dfa5)
         self.assertFalse(dfa5.has_finite_len())
 
         dfa6 = dfa5 | dfa2  # all (not directly from  dfa_all_words() )
@@ -168,9 +169,11 @@ class TestMinDFA(unittest.TestCase):
         self.assertNotEqual(dfa1.alphabet, dfa3.alphabet)
         self.assertEqual(d[dfa1], d[dfa3])
 
+    '''
     def test_copy(self):
         dfa1 = get_str_dfa("put")
         all = MinDFA.dfa_all_words(alphabet_regex)
         dfa2 = all - dfa1
         dfa3 = dfa2.copy()
         self.assertNotEqual(dfa3.complement_dfa, None)
+    '''
