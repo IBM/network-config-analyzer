@@ -11,11 +11,16 @@
     - account-command
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-8079,8081-9089,9091-65535}, )
+      properties:
+      - dst_ports:
+        - 1-8079
+        - 8081-9089
+        - 9091-65535
     - Protocol: UDP
-      dst_ports:
-      - ({1-8079,8081-65535}, )
+      properties:
+      - dst_ports:
+        - 1-8079
+        - 8081-65535
     - Protocol: SCTP
 - query: 'semantic_diff, config1: new1, config2: old1, key: Removed connections between
     persistent peers'
@@ -30,8 +35,10 @@
     - bank-ui
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-8079,8081-65535}, )
+      properties:
+      - dst_ports:
+        - 1-8079
+        - 8081-65535
     - Protocol: UDP
     - Protocol: SCTP
 
@@ -48,8 +55,9 @@
     - bank-ui
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (8080, )
+      properties:
+      - dst_ports:
+        - '8080'
   - src_ns:
     - demo
     src_pods:
@@ -73,8 +81,9 @@
     - bank-ui
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (8080, )
+      properties:
+      - dst_ports:
+        - '8080'
 
 - query: 'semantic_diff, config1: new2, config2: old2, key: Added connections between
     persistent peers'
@@ -89,14 +98,17 @@
     - account-command
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (8080, )
+      properties:
+      - dst_ports:
+        - '8080'
     - Protocol: UDP
-      dst_ports:
-      - (9090, )
+      properties:
+      - dst_ports:
+        - '9090'
     - Protocol: SCTP
-      dst_ports:
-      - (7070, )
+      properties:
+      - dst_ports:
+        - '7070'
 - query: 'semantic_diff, config1: new2, config2: old2, key: Removed connections between
     persistent peers'
   rules:
@@ -110,9 +122,11 @@
     - account-command
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (8082, )
+      properties:
+      - dst_ports:
+        - '8082'
     - Protocol: UDP
-      dst_ports:
-      - (9091, )
+      properties:
+      - dst_ports:
+        - '9091'
 

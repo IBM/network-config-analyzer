@@ -231,5 +231,11 @@ queries:
     equivalence:
       - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-complex-1
       - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-no-connections
-    expected: 1       
+    expected: 1
+  - name: connectivity_map_1
+    connectivityMap:
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2-equiv
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
     

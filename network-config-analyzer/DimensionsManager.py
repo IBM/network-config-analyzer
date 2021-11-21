@@ -6,22 +6,24 @@ from enum import Enum
 from CanonicalIntervalSet import CanonicalIntervalSet
 from MinDFA import MinDFA
 
-"""
-A singleton class to manage dimensions names and their association to type and domain.
-"""
-
 
 class DimensionsManager:
+    """
+    A singleton class to manage dimensions names and their association to type and domain.
+    The dimensions are related to certain protocol's properties in ConnectionSet.
+    They are used for allowed connection representation, as protocols properties, within CanonicalHyperCubeSet objects.
+    """
 
     class DimensionType(Enum):
         IntervalSet = 0
         DFA = 1
 
+    # the inner class is needed to make the outer class a singleton
     class __DimensionsManager:
         def __init__(self):
             # TODO: verify alphabet for regex type dimensions, currently using one default alphabet
             #  currently valid chars are: ['.', '/', '-', 0-9, a-z, A-Z ]
-            self.default_dfa_alphabet_str = "[.\w/\-]*"
+            self.default_dfa_alphabet_str = "[.\\w/\\-]*"
             self.default_interval_domain_tuple = (0, 100000)
             self.domain_str_to_dfa_map = dict()
             dfa_all_words_default = self._get_dfa_from_alphabet_str(self.default_dfa_alphabet_str)
@@ -63,7 +65,7 @@ class DimensionsManager:
     def get_dimension_type_by_name(self, dim_name):
         """
         get dimension's type from its name
-        :param dim_name: str: dimension name
+        :param str dim_name: dimension name
         :return:  DimensionsManager.DimensionType: the type value
         """
         return self.dim_dict[dim_name][0]
@@ -71,7 +73,7 @@ class DimensionsManager:
     def get_dimension_domain_by_name(self, dim_name):
         """
         get dimensions domain from its name
-        :param dim_name: str: dimension name
+        :param str dim_name: dimension name
         :return: CanonicalIntervalSet object or MinDFA object  (depends on dimension type)
         """
         return self.dim_dict[dim_name][1]
@@ -79,10 +81,10 @@ class DimensionsManager:
     def set_domain(self, dim_name, dim_type, interval_tuple=None, alphabet_str=None):
         """
         set a new dimension, or change an existing dimension
-        :param dim_name: str: dimension name
-        :param dim_type: DimensionsManager.DimensionType: dimension type
-        :param interval_tuple: tuple: (int,int) - for interval domain value
-        :param alphabet_str: str: regex in greenery format to express the str dimension domain
+        :param str dim_name: dimension name
+        :param DimensionsManager.DimensionType dim_type: dimension type
+        :param tuple(int,int) interval_tuple:  for interval domain value
+        :param str alphabet_str: regex in greenery format to express the str dimension domain
         """
         if dim_type == DimensionsManager.DimensionType.IntervalSet:
             interval = interval_tuple if interval_tuple is not None else self.default_interval_domain_tuple
@@ -96,10 +98,10 @@ class DimensionsManager:
         """
         validate that value is valid, within the defined set of values by the dimension domain
         return validation result and error str if invalid
-        :param value: a value to validate (int or str, depends on the dimension type)
-        :param dim_name: str: dimension name
-        :param value_name: str: name of the value (to be used in error message)
-        :return: tuple: (valid_res, err_str), where:
+        :param Union[int,str] value: a value to validate (int or str, depends on the dimension type)
+        :param str dim_name: dimension name
+        :param str value_name: name of the value (to be used in error message)
+        :return: tuple(valid_res, err_str), where:
             valid_res: a bool flag to indicate if value is valid by dimension domain
             err_str: str: a description of the error if value is invalid
         """
@@ -115,8 +117,8 @@ class DimensionsManager:
 
     def get_dim_values_str(self, dim_values, dim_name):
         """
-        :param dim_values: CanonicalIntervalSet or MinDFA object, depends on type of dim_name
-        :param dim_name: string of a dimension name
+        :param Union[CanonicalIntervalSet, MinDFA] dim_values: dimension values object
+        :param str dim_name: string of a dimension name
         :return: str: a string representing the values in dim_values, under dimension dim_name
         """
         dim_type = self.get_dimension_type_by_name(dim_name)
@@ -134,7 +136,8 @@ class DimensionsManager:
             if dim_values.is_dfa_wll_words(all_words_dfa):
                 return "*"
             # complement dfa
-            complement_dfa = dim_values.complement_dfa if dim_values.complement_dfa is not None else all_words_dfa - dim_values
+            complement_dfa = dim_values.complement_dfa if dim_values.complement_dfa is not None else \
+                all_words_dfa - dim_values
             if complement_dfa.has_finite_len():
                 return f'all but {complement_dfa}'  # return set of words not accepted by this MinDFA
             return str(dim_values)  # return regex representing this MinDFA

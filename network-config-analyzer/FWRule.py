@@ -451,7 +451,7 @@ class FWRule:
 
     def get_rule_str(self, config_type):
         """
-        :param config_type:  of type NetworkConfig.ConfigType: for relevant protocols inference
+        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
         :return: a string representation of the fw-rule, for output in txt format
         """
         src_str = self.src.get_elem_str(True)
@@ -471,8 +471,8 @@ class FWRule:
     def get_rule_component_str(self, component, config_type):
         """
         This function is used to produce a csv row for a fw-rule
-        :param component: a fw-rule required component  from components in rule_csv_header
-        :param config_type:  of type NetworkConfig.ConfigType: for relevant protocols inference
+        :param str component: a fw-rule required component  from components in rule_csv_header
+        :param NetworkConfig.ConfigType config_type:  for relevant protocols inference
         :return: string of the required rule component
         """
         if component == 'src_ns':
@@ -491,7 +491,7 @@ class FWRule:
     def get_conn_str_configuration(config_type):
         """
         given config type, return the relevant parameters required for relevant representation of allowed connections.
-        :param config_type: config_type: of type NetworkConfig.ConfigType: for relevant protocols inference
+        :param NetworkConfig.ConfigType config_type:  for relevant protocols inference
         :return: a tuple: (relevant_protocols, use_complement_simplification)
             relevant_protocols: set of protocols to be used in str representation (or None for all)
             use_complement_simplification: bool flag to indicate if use complement simplification when possible
@@ -500,7 +500,7 @@ class FWRule:
         use_complement_simplification = True
         if config_type == NetworkConfig.ConfigType.K8s:
             # for k8s policy - restrict allowed protocols only to protocols supported by it
-            relevant_protocols = ConnectionSet._port_supporting_protocols
+            relevant_protocols = ConnectionSet.port_supporting_protocols
         if config_type == NetworkConfig.ConfigType.Istio:
             # TODO: should restrict istio relevant protocols here?
             # relevant_protocols = {ConnectionSet._protocol_name_to_number_dict['TCP']}
@@ -510,7 +510,7 @@ class FWRule:
 
     def get_connection_str(self, config_type):
         """
-        :param config_type: of type NetworkConfig.ConfigType: for relevant protocols inference
+        :param NetworkConfig.ConfigTyp config_type: for relevant protocols inference
         :return: str : representation of the allowed connections for this rule
         """
         relevant_protocols, use_complement_simplification = self.get_conn_str_configuration(config_type)
@@ -518,7 +518,7 @@ class FWRule:
 
     def get_connections_list(self, config_type):
         """
-        :param config_type: of type NetworkConfig.ConfigType: for relevant protocols inference
+        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
         :return: list : for yaml representation of the connection set
         """
         relevant_protocols, _ = self.get_conn_str_configuration(config_type)
@@ -526,7 +526,7 @@ class FWRule:
 
     def get_rule_csv_row(self, config_type):
         """
-        :param config_type:  of type NetworkConfig.ConfigType: for relevant protocols inference
+        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
         :return: a list of strings, representing the csv row for this fw-rule
         """
         row = []
@@ -536,7 +536,7 @@ class FWRule:
 
     def get_rule_yaml_obj(self, config_type):
         """
-        :param config_type:  of type NetworkConfig.ConfigType: for relevant protocols inference
+        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
         :return:  a dict with content representing the fw-rule, for output in yaml format
         """
         src_ns_list = sorted([str(ns) for ns in self.src.ns_info])
@@ -573,9 +573,9 @@ class FWRule:
         yaml: dict object
         csv: list of strings
         txt: string
-        :param req_format: a string of the required format, should be in supported_formats
-        :param config_type:  of type NetworkConfig.ConfigType: for relevant protocols inference
-        :return:
+        :param str req_format: a string of the required format, should be in supported_formats
+        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
+        :return: str of the fw-rule representation according to required format
         """
         if req_format == 'yaml':
             return self.get_rule_yaml_obj(config_type)
@@ -589,7 +589,7 @@ class FWRule:
     def create_fw_rules_from_base_elements(src, dst, connections):
         """
         create fw-rules from single pair of base elements (src,dst) and a given connection set
-        :param connections: the allowed connections from src to dst, of type ConnectionSet
+        :param ConnectionSet connections: the allowed connections from src to dst
         :param src: a base-element  of type: ClusterEP/K8sNamespace/ IpBlock
         :param dst: a base-element  of type: ClusterEP/K8sNamespace/IpBlock
         :return: list with created fw-rules

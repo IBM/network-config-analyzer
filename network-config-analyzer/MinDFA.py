@@ -81,7 +81,7 @@ class MinDFA(fsm):
     def dfa_from_fsm(f):
         """
         create MinDFA object from a greenery.fsm object
-        :param f: greenery.fsm object , assuming f was reduced (min fsm)
+        :param  greenery.fsm  f: the input fsm, assuming f was reduced (min fsm)
         :return: MinDFA object
         """
         return MinDFA(f.alphabet, f.states, f.initial, f.finals, f.map)
@@ -104,9 +104,9 @@ class MinDFA(fsm):
     def dfa_from_regex(s, alphabet=None):
         """
         Using greenery to convert regex to a minimal (canonical) DFA
-        :param s: str object with the input regular expression
-        :param alphabet:
-        :return:
+        :param str s: the input regular expression
+        :param str alphabet: (optional) the alphabet for the required output DFA
+        :return: MinDFA object, with language equivalent to the input's regex language
         """
         # TODO: consider runtime impact for using alphabet...
         # alphabet = None
@@ -120,13 +120,13 @@ class MinDFA(fsm):
         return res
 
     @staticmethod
-    def dfa_all_words(legal_characters):
+    def dfa_all_words(alphabet):
         """
         get MinDFA for all words in a domain
-        :param legal_characters: str object with regular expression for all words in a domain
+        :param str alphabet: regular expression for all words in a domain
         :return: MinDFA object such that its language is equivalent to all words in the domain
         """
-        res = MinDFA.dfa_from_regex(legal_characters)
+        res = MinDFA.dfa_from_regex(alphabet)
         res.is_all_words = MinDFA.Ternary.TRUE
         return res
 
@@ -135,14 +135,14 @@ class MinDFA(fsm):
         """
         return True iff self is equivalent to DFA of all words.
         avoid dfa-comparison if possible (rely on is_all_words and len() when possible )
-        :param all_words_dfa: the DFA of all words for the relevant domain.
+        :param MinDFA all_words_dfa: the DFA of all words for the relevant domain.
         :rtype: bool
         """
         if self.is_all_words == MinDFA.Ternary.TRUE:
             return True
-        elif self.is_all_words == MinDFA.Ternary.UNKNOWN and not self.has_finite_len() and self == all_words_dfa:
-            return True
-        return False
+        if self.is_all_words == MinDFA.Ternary.FALSE:
+            return False
+        return not self.has_finite_len() and self == all_words_dfa
 
     def copy(self):
         res = MinDFA.dfa_from_fsm(self)
@@ -153,20 +153,19 @@ class MinDFA(fsm):
 
     def __hash__(self):
         return hash((frozenset(self.states), frozenset(self.finals), frozenset(self.map), self.initial))
-        # return hash((frozenset(self.alphabet), frozenset(self.states), frozenset(self.finals), frozenset(self.map), self.initial ))
 
     def _get_strings_set_str(self):
         """
         This method assumes that self has a finite len.
-        Returns a set of strings with all str values in the language of self.
-        :rtype: set of strings
+        Returns str of a set of strings with all words in the language of self.
+        :rtype: str
         """
-        str_values = set()
+        str_values = []
         str_generator = self.strings()
-        for i in range(0, len(self)):
+        for _ in range(0, len(self)):
             str_val = next(str_generator)
             str_val_new = ''.join(ch for ch in str_val)
-            str_values |= {str_val_new}
+            str_values.append(str_val_new)
         return str(str_values)
 
     def has_finite_len(self):
@@ -191,6 +190,8 @@ class MinDFA(fsm):
         """
         if self.has_finite_len():
             return self._get_strings_set_str()
+        if self.is_all_words == MinDFA.Ternary.TRUE:
+            return "*"
         # TODO: consider performance implications of this conversion from MinDFA to regex
         return str(from_fsm(self))
 
@@ -207,7 +208,7 @@ class MinDFA(fsm):
     def contained_in(self, other):
         """
         return True iff self is contained in other.
-        :param other: a minDFA object
+        :type other: minDFA
         :rtype: bool
         """
         if other.is_all_words == MinDFA.Ternary.TRUE:
@@ -227,7 +228,6 @@ class MinDFA(fsm):
         res = MinDFA.dfa_from_fsm(fsm_res)
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
-        res.complement_dfa = None
         return res
 
     def __and__(self, other):
@@ -239,7 +239,6 @@ class MinDFA(fsm):
         res = MinDFA.dfa_from_fsm(fsm_res)
         if self.is_all_words == MinDFA.Ternary.FALSE or other.is_all_words == MinDFA.Ternary.FALSE:
             res.is_all_words = MinDFA.Ternary.FALSE
-        res.complement_dfa = None
         return res
 
     def __sub__(self, other):
@@ -247,14 +246,15 @@ class MinDFA(fsm):
         res = MinDFA.dfa_from_fsm(fsm_res)
         if other.is_all_words == MinDFA.Ternary.TRUE:
             res.is_all_words = MinDFA.Ternary.FALSE
-        if res.has_finite_len():
+        elif other:
             res.is_all_words = MinDFA.Ternary.FALSE
-        if other:
-            res.is_all_words = MinDFA.Ternary.FALSE
-        if self.is_all_words == MinDFA.Ternary.TRUE and not other:
+        elif self.is_all_words == MinDFA.Ternary.TRUE and not other:
             res.is_all_words = MinDFA.Ternary.TRUE
-        if self.is_all_words == MinDFA.Ternary.TRUE:
+        elif self.is_all_words == MinDFA.Ternary.TRUE:
             res.complement_dfa = other.copy()
+            other.complement_dfa = res
+        elif res.has_finite_len():
+            res.is_all_words = MinDFA.Ternary.FALSE
         return res
 
     def rep(self):

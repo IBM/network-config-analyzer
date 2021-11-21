@@ -10,8 +10,9 @@
     - productcatalogservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (3550, )
+      properties:
+      - dst_ports:
+        - '3550'
   - src_ns:
     - default
     src_pods:
@@ -22,8 +23,9 @@
     - shippingservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (50051, )
+      properties:
+      - dst_ports:
+        - '50051'
   - src_ns:
     - default
     src_pods:
@@ -34,8 +36,9 @@
     - paymentservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (50051, )
+      properties:
+      - dst_ports:
+        - '50051'
   - src_ns:
     - default
     src_pods:
@@ -46,8 +49,9 @@
     - checkoutservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (5050, )
+      properties:
+      - dst_ports:
+        - '5050'
   - src_ns:
     - default
     src_pods:
@@ -58,8 +62,9 @@
     - redis-cart
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (6379, )
+      properties:
+      - dst_ports:
+        - '6379'
   - src_ns:
     - default
     src_pods:
@@ -70,8 +75,9 @@
     - currencyservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (7000, )
+      properties:
+      - dst_ports:
+        - '7000'
   - src_ns:
     - default
     src_pods:
@@ -82,8 +88,9 @@
     - cartservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (7070, )
+      properties:
+      - dst_ports:
+        - '7070'
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -92,8 +99,9 @@
     - frontend
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (8080, )
+      properties:
+      - dst_ports:
+        - '8080'
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -102,8 +110,9 @@
     - frontend
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (8080, )
+      properties:
+      - dst_ports:
+        - '8080'
   - src_ns:
     - default
     src_pods:
@@ -114,8 +123,9 @@
     - emailservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (8080, )
+      properties:
+      - dst_ports:
+        - '8080'
   - src_ns:
     - default
     src_pods:
@@ -126,8 +136,9 @@
     - recommendationservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (8080, )
+      properties:
+      - dst_ports:
+        - '8080'
   - src_ns:
     - default
     src_pods:
@@ -138,8 +149,9 @@
     - frontend
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (8080, )
+      properties:
+      - dst_ports:
+        - '8080'
   - src_ns:
     - default
     src_pods:
@@ -150,7 +162,8 @@
     - adservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (9555, )
+      properties:
+      - dst_ports:
+        - '9555'
 
 

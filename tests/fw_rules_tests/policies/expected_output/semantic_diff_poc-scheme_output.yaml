@@ -12,8 +12,10 @@
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      dst_ports:
-      - ({1-52,54-65535}, )
+      properties:
+      - dst_ports:
+        - 1-52
+        - 54-65535
     - Protocol: SCTP
   - src_ns:
     - default
@@ -25,8 +27,10 @@
     - productcatalogservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-3549,3551-65535}, )
+      properties:
+      - dst_ports:
+        - 1-3549
+        - 3551-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -39,8 +43,10 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-3549,3551-65535}, )
+      properties:
+      - dst_ports:
+        - 1-3549
+        - 3551-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -53,8 +59,10 @@
     - app in (paymentservice,shippingservice)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-50050,50052-65535}, )
+      properties:
+      - dst_ports:
+        - 1-50050
+        - 50052-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -67,8 +75,10 @@
     - checkoutservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-5049,5051-65535}, )
+      properties:
+      - dst_ports:
+        - 1-5049
+        - 5051-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -81,8 +91,10 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-6378,6380-65535}, )
+      properties:
+      - dst_ports:
+        - 1-6378
+        - 6380-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -95,8 +107,10 @@
     - currencyservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-6999,7001-65535}, )
+      properties:
+      - dst_ports:
+        - 1-6999
+        - 7001-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -109,8 +123,10 @@
     - cartservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-7069,7071-65535}, )
+      properties:
+      - dst_ports:
+        - 1-7069
+        - 7071-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -123,8 +139,10 @@
     - app in (emailservice,recommendationservice)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-8079,8081-65535}, )
+      properties:
+      - dst_ports:
+        - 1-8079
+        - 8081-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -137,8 +155,10 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-8079,8081-65535}, )
+      properties:
+      - dst_ports:
+        - 1-8079
+        - 8081-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -151,8 +171,10 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-8079,8081-65535}, )
+      properties:
+      - dst_ports:
+        - 1-8079
+        - 8081-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -165,8 +187,10 @@
     - adservice
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-9554,9556-65535}, )
+      properties:
+      - dst_ports:
+        - 1-9554
+        - 9556-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ns:
@@ -271,8 +295,10 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-8079,8081-65535}, )
+      properties:
+      - dst_ports:
+        - 1-8079
+        - 8081-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ip_block:
@@ -283,8 +309,10 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - ({1-8079,8081-65535}, )
+      properties:
+      - dst_ports:
+        - 1-8079
+        - 8081-65535
     - Protocol: UDP
     - Protocol: SCTP
   - src_ip_block:

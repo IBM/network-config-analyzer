@@ -10,8 +10,9 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (80-88, )
+      properties:
+      - dst_ports:
+        - 80-88
   - src_ns:
     - ibm-system-new
     src_pods:
@@ -22,8 +23,9 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (80-90, )
+      properties:
+      - dst_ports:
+        - 80-90
   - src_ns:
     - default
     src_pods:
@@ -34,8 +36,9 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (85-90, )
+      properties:
+      - dst_ports:
+        - 85-90
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -106,8 +109,9 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (85-90, )
+      properties:
+      - dst_ports:
+        - 85-90
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -179,8 +183,9 @@
     - '*'
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (85-90, )
+      properties:
+      - dst_ports:
+        - 85-90
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:

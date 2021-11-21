@@ -9,8 +9,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -19,8 +20,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -29,8 +31,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -39,8 +42,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
 - query: 'semantic_diff, config1: np1, config2: np2, key: Removed connections between
     persistent peers and ipBlocks'
   rules:
@@ -52,8 +56,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -62,8 +67,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -72,8 +78,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -82,8 +89,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
 
 - query: 'semantic_diff, config1: np1, config2: np3, key: Added connections between
     persistent peers and ipBlocks'
@@ -96,8 +104,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -106,8 +115,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -116,8 +126,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -126,8 +137,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
 - query: 'semantic_diff, config1: np1, config2: np3, key: Removed connections between
     persistent peers and ipBlocks'
   rules:
@@ -139,8 +151,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -149,8 +162,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -159,8 +173,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -169,8 +184,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
 
 - query: 'semantic_diff, config1: np1, config2: np4, key: Added connections between
     persistent peers'
@@ -234,8 +250,10 @@
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      dst_ports:
-      - ({1-52,54-65535}, )
+      properties:
+      - dst_ports:
+        - 1-52
+        - 54-65535
     - Protocol: SCTP
   - src_ip_block:
     - 11.0.0.0/8
@@ -246,8 +264,10 @@
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      dst_ports:
-      - ({1-52,54-65535}, )
+      properties:
+      - dst_ports:
+        - 1-52
+        - 54-65535
     - Protocol: SCTP
   - src_ip_block:
     - 172.22.0.0/15
@@ -258,8 +278,10 @@
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      dst_ports:
-      - ({1-52,54-65535}, )
+      properties:
+      - dst_ports:
+        - 1-52
+        - 54-65535
     - Protocol: SCTP
   - src_ip_block:
     - 172.31.0.0/16
@@ -270,8 +292,10 @@
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      dst_ports:
-      - ({1-52,54-65535}, )
+      properties:
+      - dst_ports:
+        - 1-52
+        - 54-65535
     - Protocol: SCTP
   - src_ip_block:
     - 10.0.0.0/8
@@ -408,8 +432,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -418,8 +443,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -428,8 +454,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -438,8 +465,9 @@
     - tier in (frontend)
     connection:
     - Protocol: TCP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
 - query: 'semantic_diff, config1: np1, config2: np2, key: Removed connections between
     persistent peers and ipBlocks'
   rules:
@@ -451,8 +479,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -461,8 +490,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -471,8 +501,9 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -481,6 +512,7 @@
     - tier in (frontend)
     connection:
     - Protocol: UDP
-      dst_ports:
-      - (53, )
+      properties:
+      - dst_ports:
+        - '53'
 

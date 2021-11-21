@@ -96,6 +96,7 @@ class TestMinDFA(unittest.TestCase):
         dfa5 = dfa3 - dfa2  # all but "abc*"
         self.assertEqual(dfa5.is_all_words, MinDFA.Ternary.FALSE)
         self.assertEqual(dfa5.complement_dfa, dfa2)
+        self.assertEqual(dfa2.complement_dfa, dfa5)
         self.assertFalse(dfa5.has_finite_len())
 
         dfa6 = dfa5 | dfa2  # all (not directly from  dfa_all_words() )

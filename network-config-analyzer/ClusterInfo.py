@@ -26,6 +26,7 @@ class ClusterInfo:
         Create a ClusterInfo object
         :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
         :param allowed_labels: the set of allowed labels to be used in generated fw-rules, extracted from policy yamls
+        :param config_type:  of type NetworkConfig.ConfigType: for relevant protocols inference
         """
         self.all_peers = all_peers
         self.allowed_labels = allowed_labels
