@@ -15,7 +15,7 @@ spec:
       type: 204
       code: 54
     source:
-      selector: !has(app)
+      selector: "!has(app)"
   egress:
   - action: Allow
     protocol: ICMP
@@ -23,4 +23,4 @@ spec:
       type: 204
       code: 54
     destination:
-      selector: !has(app)
+      selector: "!has(app)"

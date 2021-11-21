@@ -1,0 +1,44 @@
+namespaceList:
+  - ../../example_podlist/bank_ns_list.json
+  - ../../example_podlist/ns_list.json
+podList:
+  - podlist_example # pods from dir
+  - ../../example_podlist/pods_list.json # pods from file
+
+networkConfigList:
+  - name: old1
+    networkPolicyList:
+      - old1.yaml
+    expectedWarnings: 0
+
+  - name: new1
+    networkPolicyList:
+      - new1.yaml
+    expectedWarnings: 0
+
+  - name: no_policy
+    networkPolicyList: []
+    expectedWarnings: 0
+
+  - name: policy
+    networkPolicyList:
+      - policy_a.yaml
+    expectedWarnings: 3
+
+
+queries:
+  - name: semantic_diff_old1_new1
+    semanticDiff:
+      - old1
+      - new1
+    expected: 2
+
+  - name: semantic_diff_identical
+    semanticDiff:
+      - no_policy
+      - policy
+    expected: 0
+
+
+
+

@@ -16,7 +16,7 @@ class CLExecute:
     """
     A class for running queries from commandline
     """
-    def __init__(self, base_ns_list='', base_pod_list='', ns_list='', pod_list='', output_format='txt', output_path=None, pr_url=None):
+    def __init__(self, base_ns_list=None, base_pod_list=None, ns_list=None, pod_list=None, output_format='txt', output_path=None, pr_url=None):
         self.base_peer_container = PeerContainer(base_ns_list, base_pod_list)
         self.peer_container = PeerContainer(ns_list, pod_list)
         self.output_config = OutputConfiguration({'outputFormat': output_format, 'outputPath': output_path,
@@ -101,7 +101,7 @@ class CLExecute:
         base_np_config = NetworkConfig(base_np_location, self.peer_container, [base_np_location])
         exclusive_network_policy = NetworkConfig(exclusive_network_policy_location_or_name, self.peer_container)
         if path.isfile(exclusive_network_policy_location_or_name):
-            exclusive_network_policy.add_policies_from_file(exclusive_network_policy_location_or_name)
+            exclusive_network_policy.scan_entry_for_policies(exclusive_network_policy_location_or_name)
         else:
             matching_policies = base_np_config.find_policy(exclusive_network_policy_location_or_name)
             if len(matching_policies) == 1:
