@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from CanonicalIntervalSet import CanonicalIntervalSet
-from PortSet import PortSet, TcpProperties
+from PortSet import PortSet
+from TcpLikeProperties import TcpLikeProperties
 from ICMPDataSet import ICMPDataSet
 
 
@@ -362,7 +363,7 @@ class ConnectionSet:
         Add connections to the set of connections
         :param int,str protocol: protocol number of the connections to add
         :param properties: an object with protocol properties (e.g., ports), if relevant
-        :type properties: Union[bool, TcpProperties, ICMPDataSet]
+        :type properties: Union[bool, TcpLikeProperties, ICMPDataSet]
         :return: None
         """
         if isinstance(protocol, str):
@@ -400,7 +401,7 @@ class ConnectionSet:
             if excluded_protocols and protocol in excluded_protocols:
                 continue
             if self.protocol_supports_ports(protocol):
-                self.allowed_protocols[protocol] = TcpProperties(PortSet(True), PortSet(True))
+                self.allowed_protocols[protocol] = TcpLikeProperties(PortSet(True), PortSet(True))
             elif self.protocol_is_icmp(protocol):
                 self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
             else:
@@ -474,7 +475,7 @@ class ConnectionSet:
     @staticmethod
     def get_all_tcp_connections():
         tcp_conns = ConnectionSet()
-        tcp_conns.add_connections('TCP', TcpProperties(PortSet(True), PortSet(True)))
+        tcp_conns.add_connections('TCP', TcpLikeProperties(PortSet(True), PortSet(True)))
         return tcp_conns
 
     @staticmethod

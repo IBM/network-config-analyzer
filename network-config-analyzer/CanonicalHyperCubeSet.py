@@ -4,6 +4,7 @@
 #
 from CanonicalIntervalSet import CanonicalIntervalSet
 from DimensionsManager import DimensionsManager
+from MinDFA import MinDFA
 
 
 class CanonicalHyperCubeSet:
@@ -206,9 +207,15 @@ class CanonicalHyperCubeSet:
     def copy(self):
         res = CanonicalHyperCubeSet(self.all_dimensions_list)
         for layer in self.layers:
-            res.layers[layer.copy()] = self.layers[layer].copy()
+            res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
         return res
+
+    @staticmethod
+    def _copy_layer_elem(elem):
+        if isinstance(elem, MinDFA):
+            return elem
+        return elem.copy()
 
     # TODO: should handle input item without all dimensions specified?
     def __contains__(self, item):
@@ -318,9 +325,9 @@ class CanonicalHyperCubeSet:
         res_layers = dict()
         remaining_other_layers = dict()  # map from layer_0 elems in orig "other", to remaining parts to be added
         for layer_elem in other.layers:
-            remaining_other_layers[layer_elem] = layer_elem.copy()
+            remaining_other_layers[layer_elem] = self._copy_layer_elem(layer_elem)
         for self_layer in self.layers:
-            remaining_self_layer = self_layer.copy()
+            remaining_self_layer = self._copy_layer_elem(self_layer)
             for other_layer in other.layers:
                 common_elem = self_layer & other_layer
                 if not common_elem:
@@ -366,7 +373,7 @@ class CanonicalHyperCubeSet:
         assert self.active_dimensions == other.active_dimensions
         res_layers = dict()
         for self_layer in self.layers:
-            remaining_self_layer = self_layer.copy()
+            remaining_self_layer = self._copy_layer_elem(self_layer)
             for other_layer in other.layers:
                 common_elem = self_layer & other_layer
                 if not common_elem:
@@ -501,7 +508,7 @@ class CanonicalHyperCubeSet:
                 if not self._contained_in_aux(sub_elem, all_active_dims[1:]):
                     return False
                 if covered_elem_res is None:
-                    covered_elem_res = elem.copy()
+                    covered_elem_res = self._copy_layer_elem(elem)
                 else:
                     covered_elem_res |= elem
             # since the current dim is inactive for self, the covered_elem_res should equal the entire dim's domain
@@ -517,7 +524,7 @@ class CanonicalHyperCubeSet:
         # each cube in self should be covered by one or more cubes from other
         is_subset_count = 0  # count how many cubes originated from this layer are contained in other's cubes
         for layer in self.layers:
-            current_layer_0 = layer.copy()
+            current_layer_0 = self._copy_layer_elem(layer)
             for other_layer in other.layers:
                 other_sub_elem = other.layers[other_layer]
                 common_part = current_layer_0 & other_layer

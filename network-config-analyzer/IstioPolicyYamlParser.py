@@ -10,7 +10,8 @@ from IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
 from Peer import IpBlock, PeerSet
 from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
-from PortSet import PortSet, TcpProperties
+from PortSet import PortSet
+from TcpLikeProperties import TcpLikeProperties
 
 
 class IstioPolicyYamlParser(GenericYamlParser):
@@ -297,8 +298,8 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
         :return: ConnectionSet with TCP allowed connections , corresponding to input properties cube
         """
-        tcp_properties = TcpProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=methods_dfa,
-                                       paths=paths_dfa, hosts=hosts_dfa)
+        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=methods_dfa,
+                                           paths=paths_dfa, hosts=hosts_dfa)
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
         return res

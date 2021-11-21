@@ -145,11 +145,8 @@ class MinDFA(fsm):
         return not self.has_finite_len() and self == all_words_dfa
 
     def copy(self):
-        res = MinDFA.dfa_from_fsm(self)
-        res.is_all_words = self.is_all_words
-        if self.complement_dfa is not None:
-            res.complement_dfa = self.complement_dfa.copy()
-        return res
+        # MinDFA is de-facto immutable, thus assuming copy is not used
+        return NotImplemented
 
     def __hash__(self):
         return hash((frozenset(self.states), frozenset(self.finals), frozenset(self.map), self.initial))
@@ -221,9 +218,9 @@ class MinDFA(fsm):
     # operators within fsm already apply reduce() (minimization)
     def __or__(self, other):
         if self.is_all_words == MinDFA.Ternary.TRUE:
-            return self.copy()
+            return self
         if other.is_all_words == MinDFA.Ternary.TRUE:
-            return other.copy()
+            return other
         fsm_res = super().__or__(other)
         res = MinDFA.dfa_from_fsm(fsm_res)
         if res.has_finite_len():
@@ -232,9 +229,9 @@ class MinDFA(fsm):
 
     def __and__(self, other):
         if self.is_all_words == MinDFA.Ternary.TRUE:
-            return other.copy()
+            return other
         if other.is_all_words == MinDFA.Ternary.TRUE:
-            return self.copy()
+            return self
         fsm_res = super().__and__(other)
         res = MinDFA.dfa_from_fsm(fsm_res)
         if self.is_all_words == MinDFA.Ternary.FALSE or other.is_all_words == MinDFA.Ternary.FALSE:
@@ -248,12 +245,12 @@ class MinDFA(fsm):
             res.is_all_words = MinDFA.Ternary.FALSE
         elif other:
             res.is_all_words = MinDFA.Ternary.FALSE
-        elif self.is_all_words == MinDFA.Ternary.TRUE and not other:
+        if self.is_all_words == MinDFA.Ternary.TRUE and not other:
             res.is_all_words = MinDFA.Ternary.TRUE
-        elif self.is_all_words == MinDFA.Ternary.TRUE:
-            res.complement_dfa = other.copy()
+        if self.is_all_words == MinDFA.Ternary.TRUE:
+            res.complement_dfa = other
             other.complement_dfa = res
-        elif res.has_finite_len():
+        if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
         return res
 
