@@ -9,7 +9,6 @@ from DimensionsManager import DimensionsManager
 from PortSet import PortSet
 
 
-# TODO: currently using TcpLikeProperties as properties for all port-supported-protocols (UDP and SCTP as well)
 class TcpLikeProperties:
     """
     A class for holding a set of cubes, each defined over dimensions from TcpLikeProperties.dimensions_list
@@ -32,8 +31,6 @@ class TcpLikeProperties:
         self.cubes_set = CanonicalHyperCubeSet(TcpLikeProperties.dimensions_list)
 
         # create the cube from input arguments
-        #cube = [source_ports.port_set, dest_ports.port_set]
-        #active_dims = ["src_ports", "dst_ports"]
         cube = []
         active_dims = []
         if not source_ports.is_all():
@@ -51,7 +48,6 @@ class TcpLikeProperties:
         if hosts is not None:
             cube.append(hosts)
             active_dims.append("hosts")
-        #self.cubes_set.add_cube(cube, active_dims)
         if not active_dims:
             self.cubes_set.set_all()
         else:
@@ -90,7 +86,6 @@ class TcpLikeProperties:
 
         cubes_dict_list = [self.get_cube_dict(cube, self.cubes_set.active_dimensions, True) for cube in self.cubes_set]
         return ','.join(str(cube_dict) for cube_dict in cubes_dict_list)
-        # return str(self.cubes_set)
 
     @staticmethod
     def get_interval_set_list_obj(interval_set):
@@ -112,19 +107,15 @@ class TcpLikeProperties:
             if dim_domain == dim_values:
                 continue  # skip dimensions with all values allowed in a cube
             if dim_type == DimensionsManager.DimensionType.IntervalSet:
-                # values_list = [str(interval) for interval in dim_values]
                 values_list = TcpLikeProperties.get_interval_set_list_obj(dim_values)
                 if is_txt:
                     values_list = ','.join(interval for interval in values_list)
             else:
                 # TODO: should be a list of words for a finite len DFA?
                 values_list = DimensionsManager().get_dim_values_str(dim_values, dim)
-                # values_list = [str(dim_values)]
             cube_dict[dim] = values_list
         return cube_dict
 
-    # TODO: change cube from a line to a dict in yaml object
-    # TODO: make sure output is deterministic (sorted) for output comparison tests...
     def get_properties_obj(self):
         """
         get an object for a yaml representation of the protocol's properties
@@ -306,7 +297,6 @@ class TcpLikeProperties:
     def get_named_ports(self):
         res = set()
         res |= set(self.named_ports.keys())
-        # res |= set(self.excluded_named_ports.keys())
         return res
 
     def convert_named_ports(self, named_ports, protocol):
