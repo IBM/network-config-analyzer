@@ -163,7 +163,7 @@ class MinDFA(fsm):
             str_val = next(str_generator)
             str_val_new = ''.join(ch for ch in str_val)
             str_values.append(str_val_new)
-        return str(str_values)
+        return ', '.join(word for word in str_values)
 
     def has_finite_len(self):
         """

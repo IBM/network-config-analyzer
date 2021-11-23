@@ -9,21 +9,24 @@ from DimensionsManager import DimensionsManager
 from PortSet import PortSet
 
 
-# TODO: currently using TcpLikeProperties as properties for all port-supported-protocols (UDP and SCTP as well)
 class TcpLikeProperties(CanonicalHyperCubeSet):
     """
-    A class for holding a set of cubes_set, each defined over a range of source ports X a range of target ports
+    A class for holding a set of cubes, each defined over dimensions from TcpLikeProperties.dimensions_list
+    For UDP, SCTP protocols, the actual used dimensions are only [source ports, dest ports]
+    for TCP, it may be any of the dimensions from dimensions_list.
     """
 
     dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts"]
-    #dimensions_list = ["src_ports", "dst_ports"]
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
     def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=None, paths=None, hosts=None):
         """
-        This will create all cubes_set made of a range in source_ports and a range in dest_ports
+        This will create all cubes made of the input arguments ranges/regex values.
         :param PortSet source_ports: The set of source ports (as a set of intervals/ranges)
         :param PortSet dest_ports: The set of target ports (as a set of intervals/ranges)
+        :param MinDFA methods: the dfa of http request methods
+        :param MinDFA paths: The dfa of http request paths
+        :param MinDFA hosts: The dfa of http request hosts
         """
         super().__init__(TcpLikeProperties.dimensions_list)
 
@@ -38,8 +41,14 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             self.excluded_named_ports[port_name] = all_ports
 
         # create the cube from input arguments
-        cube = [source_ports.port_set, dest_ports.port_set]
-        active_dims = ["src_ports", "dst_ports"]
+        cube = []
+        active_dims = []
+        if not source_ports.is_all():
+            cube.append(source_ports.port_set)
+            active_dims.append("src_ports")
+        if not dest_ports.is_all():
+            cube.append(dest_ports.port_set)
+            active_dims.append("dst_ports")
         if methods is not None:
             cube.append(methods)
             active_dims.append("methods")
@@ -49,7 +58,17 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if hosts is not None:
             cube.append(hosts)
             active_dims.append("hosts")
-        self.add_cube(cube, active_dims)
+        #self.cubes_set.add_cube(cube, active_dims)
+        if not active_dims:
+            self.set_all()
+        else:
+            has_empty_dim_value = False
+            for dim_val in cube:
+                if not dim_val:
+                    has_empty_dim_value = True
+                    break
+            if not has_empty_dim_value:
+                self.add_cube(cube, active_dims)
 
     def __bool__(self):
         return super().__bool__() or bool(self.named_ports)
@@ -58,20 +77,63 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return super().__str__()
 
     def __str__(self):
+        if self.is_all():
+            return ''
         if not super().__bool__():
-            if self.named_ports:
-                return 'some named ports'
-            return 'no ports'
-        return self.get_simplified_str()
+            return 'Empty'
+        if self.active_dimensions == ['dst_ports']:
+            assert (len(self) == 1)
+            for cube in self:
+                ports_list = self.get_interval_set_list_obj(cube[0])
+                ports_str = ','.join(ports_interval for ports_interval in ports_list)
+                return ports_str
+
+        cubes_dict_list = [self.get_cube_dict(cube, self.active_dimensions, True) for cube in self]
+        return ','.join(str(cube_dict) for cube_dict in cubes_dict_list)
+
+    @staticmethod
+    def get_interval_set_list_obj(interval_set):
+        res = []
+        for interval in interval_set:
+            if interval.start == interval.end:
+                res.append(str(interval.start))
+            else:
+                res.append(f'{interval.start}-{interval.end}')
+        return res
+
+    @staticmethod
+    def get_cube_dict(cube, dims_list, is_txt=False):
+        cube_dict = {}
+        for i, dim in enumerate(dims_list):
+            dim_values = cube[i]
+            dim_type = DimensionsManager().get_dimension_type_by_name(dim)
+            dim_domain = DimensionsManager().get_dimension_domain_by_name(dim)
+            if dim_domain == dim_values:
+                continue  # skip dimensions with all values allowed in a cube
+            if dim_type == DimensionsManager.DimensionType.IntervalSet:
+                values_list = TcpLikeProperties.get_interval_set_list_obj(dim_values)
+                if is_txt:
+                    values_list = ','.join(interval for interval in values_list)
+            else:
+                # TODO: should be a list of words for a finite len DFA?
+                values_list = DimensionsManager().get_dim_values_str(dim_values, dim)
+            cube_dict[dim] = values_list
+        return cube_dict
 
     def get_properties_obj(self):
+        """
+        get an object for a yaml representation of the protocol's properties
+        """
         if self.is_all():
             return {}
-        dimensions_header = ",".join(dim for dim in self.active_dimensions)
-        cubes_str_list = []
+        cubs_dict_list = []
         for cube in self:
-            cubes_str_list.append(self.get_cube_str(cube))
-        return {dimensions_header: sorted(cubes_str_list)}
+            cube_dict = self.get_cube_dict(cube, self.active_dimensions)
+            cubs_dict_list.append(cube_dict)
+        if self.active_dimensions == ['dst_ports']:
+            assert len(cubs_dict_list) == 1
+            return {'Ports': cubs_dict_list[0]['dst_ports']}
+        return {'properties': cubs_dict_list}
 
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
@@ -142,7 +204,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     def get_named_ports(self):
         res = set()
         res |= set(self.named_ports.keys())
-        # res |= set(self.excluded_named_ports.keys())
         return res
 
     def convert_named_ports(self, named_ports, protocol):

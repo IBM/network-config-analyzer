@@ -10,9 +10,8 @@
     - '*'
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - 85-90
+      Ports:
+      - 85-90
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:

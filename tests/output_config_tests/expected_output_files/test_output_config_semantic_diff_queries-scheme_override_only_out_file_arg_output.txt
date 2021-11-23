@@ -520,10 +520,9 @@ src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: ::/0 conn: All 
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - 1-52
-        - 54-65535
+      Ports:
+      - 1-52
+      - 54-65535
     - Protocol: SCTP
   - src_ip_block:
     - 10.12.0.0/14
@@ -534,10 +533,9 @@ src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: ::/0 conn: All 
     connection:
     - Protocol: TCP
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - 1-52
-        - 54-65535
+      Ports:
+      - 1-52
+      - 54-65535
     - Protocol: SCTP
   - src_ip_block:
     - 0.0.0.0/5

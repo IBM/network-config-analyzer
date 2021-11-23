@@ -13,15 +13,13 @@ global: cluster has 29 unique endpoints, 8 namespaces
     - '*'
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - 1-52
-        - 54-65535
+      Ports:
+      - 1-52
+      - 54-65535
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - 1-52
-        - 54-65535
+      Ports:
+      - 1-52
+      - 54-65535
     - Protocol: SCTP
 - query: Removed connections between persistent peers
   rules:
@@ -36,13 +34,11 @@ global: cluster has 29 unique endpoints, 8 namespaces
     - '*'
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ns:
     - vendor-system
     src_pods:
@@ -63,13 +59,11 @@ global: cluster has 29 unique endpoints, 8 namespaces
     - '*'
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -78,12 +72,10 @@ global: cluster has 29 unique endpoints, 8 namespaces
     - '*'
     connection:
     - Protocol: TCP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
     - Protocol: UDP
-      properties:
-      - dst_ports:
-        - '53'
+      Ports:
+      - '53'
 
 

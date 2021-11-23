@@ -23,7 +23,7 @@
       properties:
       - dst_ports:
         - '80'
-        methods: '[''GET'']'
+        methods: GET
 
 
 - query: 'connectivity-istio-test-methods-basic-2, config: istio-test-methods-basic-2'
@@ -39,7 +39,7 @@
     connection:
     - Protocol: TCP
       properties:
-      - methods: '[''PUT'']'
+      - methods: PUT
   - src_ns:
     - default
     src_pods:
@@ -51,7 +51,7 @@
     connection:
     - Protocol: TCP
       properties:
-      - methods: all but ['GET']
+      - methods: all but GET
 
 
 - query: 'connectivity-istio-test-methods-paths-1, config: istio-test-methods-paths-1'
@@ -69,51 +69,50 @@
       properties:
       - dst_ports:
         - '80'
-        methods: '[''GET'']'
-        paths: '[''/good_path1'', ''/good_path2'', ''/some/path2'']'
-        hosts: all but ['disallowed-host.com']
+        methods: GET
+        paths: /good_path1, /good_path2, /some/path2
+        hosts: all but disallowed-host.com
       - dst_ports:
         - '80'
-        methods: '[''GET'']'
-        paths: all but ['/bad/path1', '/bad/path3', '/good_path1', '/good_path2',
-          '/some/path2']
-        hosts: '[''allowed-host.com'']'
+        methods: GET
+        paths: all but /bad/path1, /bad/path3, /good_path1, /good_path2, /some/path2
+        hosts: allowed-host.com
       - dst_ports:
         - '80'
-        methods: '[''PUT'']'
-        paths: '[''/good_path1'', ''/good_path2'', ''/some/path2'']'
-        hosts: all but ['disallowed-host.com']
+        methods: PUT
+        paths: /good_path1, /good_path2, /some/path2
+        hosts: all but disallowed-host.com
       - dst_ports:
         - '80'
-        methods: all but ['GET', 'PUT']
-        paths: all but ['/bad/path1', '/bad/path3', '/some/path2']
-        hosts: '[''allowed-host.com'']'
+        methods: all but GET, PUT
+        paths: all but /bad/path1, /bad/path3, /some/path2
+        hosts: allowed-host.com
       - dst_ports:
         - '90'
-        methods: '[''GET'', ''PUT'']'
-        paths: '[''/good_path1'', ''/good_path2'', ''/some/path2'']'
-        hosts: all but ['disallowed-host.com']
+        methods: GET, PUT
+        paths: /good_path1, /good_path2, /some/path2
+        hosts: all but disallowed-host.com
       - dst_ports:
         - '100'
-        methods: all but ['PUT']
-        paths: '[''/some/path3'']'
+        methods: all but PUT
+        paths: /some/path3
       - dst_ports:
         - '100'
-        methods: all but ['PUT']
-        paths: all but ['/bad/path1', '/bad/path3', '/some/path2', '/some/path3']
-        hosts: '[''allowed-host.com'']'
+        methods: all but PUT
+        paths: all but /bad/path1, /bad/path3, /some/path2, /some/path3
+        hosts: allowed-host.com
       - dst_ports:
         - '100'
-        methods: '[''PUT'']'
-        paths: '[''/some/path3'']'
+        methods: PUT
+        paths: /some/path3
       - dst_ports:
         - 1-79
         - 81-89
         - 91-99
         - 101-65535
-        methods: all but ['PUT']
-        paths: all but ['/bad/path1', '/bad/path3', '/some/path2']
-        hosts: '[''allowed-host.com'']'
+        methods: all but PUT
+        paths: all but /bad/path1, /bad/path3, /some/path2
+        hosts: allowed-host.com
 
 
 - query: 'connectivity-istio-test-operation-deny-1, config: istio-test-operation-deny-1'
@@ -163,7 +162,7 @@
     connection:
     - Protocol: TCP
       properties:
-      - methods: all but ['GET']
+      - methods: all but GET
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -173,7 +172,7 @@
     connection:
     - Protocol: TCP
       properties:
-      - methods: all but ['GET']
+      - methods: all but GET
   - src_ns:
     - default
     src_pods:
@@ -185,7 +184,7 @@
     connection:
     - Protocol: TCP
       properties:
-      - methods: all but ['GET']
+      - methods: all but GET
 
 
 - query: 'connectivity-istio-test-operation-allow-1, config: istio-test-operation-allow-1'
@@ -201,9 +200,9 @@
     connection:
     - Protocol: TCP
       properties:
-      - methods: '[''GET'']'
+      - methods: GET
         paths: /info[\--9A-Z_a-z]*
-      - methods: '[''POST'']'
-        paths: '[''/data'']'
+      - methods: POST
+        paths: /data
 
 
