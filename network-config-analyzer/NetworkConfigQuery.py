@@ -112,14 +112,16 @@ class VacuityQuery(NetworkConfigQuery):
         vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config).exec()
         if not vacuous_res.bool_result:
             return QueryAnswer(vacuous_res.bool_result,
-                               output_result=f'Network configuration {self.config.name} is not vacuous')
+                               output_result=f'Network configuration {self.config.name} is not vacuous',
+                               numerical_result=vacuous_res.bool_result)
 
         if self.config.type == NetworkConfig.ConfigType.Calico:
             output_result = f'Network configuration {self.config.name} is vacuous - only the default connections,' \
                             f' as defined by profiles, are allowed '
         else:
             output_result = f'Network configuration {self.config.name} is vacuous - it allows all connections'
-        return QueryAnswer(bool_result=vacuous_res.bool_result, output_result=output_result)
+        return QueryAnswer(bool_result=vacuous_res.bool_result, output_result=output_result,
+                           numerical_result=vacuous_res.bool_result)
 
 
 class RedundancyQuery(NetworkConfigQuery):
@@ -931,7 +933,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                     return QueryAnswer(False, output_result, output_explanation)
 
         output_result = self.name1 + ' is contained in ' + self.name2
-        return QueryAnswer(True, output_result)
+        return QueryAnswer(True, output_result, numerical_result=1)
 
 
 class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
@@ -990,28 +992,30 @@ class InterferesQuery(TwoNetworkConfigsQuery):
     """
 
     def exec(self):
+        base_config = self.config2
+        other_config = self.config1
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
+        peers_to_compare = base_config.peer_container.get_all_peers_group()
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
-        captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
+        captured_pods = base_config.get_captured_pods() | other_config.get_captured_pods()
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
 
-                _, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
+                _, captured1_flag, conns1_captured, _ = base_config.allowed_connections(peer1, peer2)
                 if not captured1_flag:
                     continue
-                _, captured2_flag, conns2_captured, _ = self.config2.allowed_connections(peer1, peer2)
+                _, captured2_flag, conns2_captured, _ = other_config.allowed_connections(peer1, peer2)
                 if captured2_flag and not conns2_captured.contained_in(conns1_captured):
-                    output_explanation = f'{self.name2} extends the allowed connections from {peer1} to {peer2}\n' + \
-                                         conns2_captured.print_diff(conns1_captured, self.name2, self.name1)
-                    return QueryAnswer(True, self.name2 + ' interferes with ' + self.name1, output_explanation)
+                    output_explanation = f'{self.name1} extends the allowed connections from {peer1} to {peer2}\n' + \
+                                         conns2_captured.print_diff(conns1_captured, self.name1, self.name2)
+                    return QueryAnswer(True, self.name1 + ' interferes with ' + self.name2, output_explanation)
 
-        return QueryAnswer(False, self.name2 + ' does not interfere with ' + self.name1)
+        return QueryAnswer(False, self.name1 + ' does not interfere with ' + self.name2)
 
 
 class IntersectsQuery(TwoNetworkConfigsQuery):
@@ -1019,7 +1023,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
     Checking whether both configs allow the same connection between any pair of peers
     """
 
-    def exec(self, only_captured):
+    def exec(self, only_captured=True):
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer

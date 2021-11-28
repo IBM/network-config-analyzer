@@ -9,7 +9,7 @@ from os import path
 from OutputConfiguration import OutputConfiguration
 from PeerContainer import PeerContainer
 from NetworkConfig import NetworkConfig
-import NetworkConfigQuery
+from NetworkConfigQueryRunner import NetworkConfigQueryRunner
 
 
 class CLExecute:
@@ -22,73 +22,30 @@ class CLExecute:
         self.output_config = OutputConfiguration({'outputFormat': output_format, 'outputPath': output_path,
                                                   'prURL': pr_url})
 
-    def sanity(self, np_list):
-        """
-        Runs a set of sanity check on a given list of network policies
-        :param str np_list: A set of policies
-        :return: 0 if all sanity checks passed. 1 otherwise
-        :rtype: int
-        """
-        network_config = NetworkConfig(np_list, self.peer_container, [np_list])
-        query_output = '\n'
-        sanity_res = NetworkConfigQuery.SanityQuery(network_config).exec()
-        query_output += sanity_res.output_result
-        if not sanity_res.bool_result:
-            query_output += sanity_res.output_explanation
-        query_output += '\n'
-        self.output_config.print_query_output(query_output)
-        return int(not sanity_res.bool_result)
+    def execute_single_config_query(self, query_name, np1_list):
+        network_config1 = NetworkConfig(np1_list, self.peer_container, [np1_list])
+        return NetworkConfigQueryRunner(query_name, [network_config1], self.output_config).run_query()
 
-    def equivalence(self, np1_list_location, np2_list_location):
+    def execute_pair_configs_query(self, query_name, np1_list_location, np2_list_location):
         """
         Runs an equivalence-checking query between two sets of policies
+        :param str query_name: the name of the arg.query
         :param str np1_list_location: First set of policies
-        :param str np2_list_location: Second set of policies
-        :return: 0 if the sets of policies are semantically equivalent. 1 otherwise
+        :param str np2_list_location: Second set of policies (or the base_policies_list)
+        :return: result of executing the query
         :rtype: int
         """
         network_config1 = NetworkConfig(np1_list_location, self.peer_container, [np1_list_location])
         network_config2 = NetworkConfig(np2_list_location, self.peer_container, [np2_list_location])
-        query_output = '\n'
-        full_result = NetworkConfigQuery.TwoWayContainmentQuery(network_config1, network_config2).exec()
-        query_output += full_result.output_result
-        if full_result.numerical_result != 3:
-            query_output += full_result.output_explanation + '\n'
-        self.output_config.print_query_output(query_output)
-        return int(not full_result.bool_result)
-
-    def connectivity_map(self, np_list_location):
-        """
-        Prints the list of allowed connections (as firewall rules)
-        :param str np_list_location: First set of policies
-        :return: 0
-        :rtype: int
-        """
-        network_config = NetworkConfig(np_list_location, self.peer_container, [np_list_location])
-        query_output = '\n'
-        res = NetworkConfigQuery.ConnectivityMapQuery(network_config, self.output_config).exec()
-        query_output += res.output_explanation
-        query_output += '\n'
-        self.output_config.print_query_output(query_output, NetworkConfigQuery.ConnectivityMapQuery.supported_output_formats)
-        return 0
-
-    def semantic_diff(self, np2_list_location, np1_list_location):
-        """
-        Runs a semantic-diff query between two sets of policies
-        :param str np1_list_location: First set of policies
-        :param str np2_list_location: Second set of policies
-        :return: 0 if the sets of policies are semantically equivalent. 1 otherwise
-        :rtype: int
-        """
-        network_config1 = NetworkConfig(np1_list_location, self.base_peer_container, [np1_list_location])
-        network_config2 = NetworkConfig(np2_list_location, self.peer_container, [np2_list_location])
-        query_output = '\n'
-        full_result = NetworkConfigQuery.SemanticDiffQuery(network_config1, network_config2, self.output_config).exec()
-        if self.output_config.outputFormat == 'txt':
-            query_output += full_result.output_result
-        query_output += full_result.output_explanation + '\n'
-        self.output_config.print_query_output(query_output, NetworkConfigQuery.SemanticDiffQuery.supported_output_formats)
-        return int(not full_result.bool_result)
+        if query_name in {'permits', 'forbids'} and not network_config2:
+            print(f'\nThere are no NetworkPolicies in {np1_list_location}. No traffic is specified for {query_name}.\n')
+            sys.exit(1)
+        res = NetworkConfigQueryRunner(query_name, [network_config1, network_config2], self.output_config).run_query()
+        if query_name == 'forbids':
+            return res
+        if query_name == 'semanticDiff':
+            return res > 0
+        return not res
 
     def interferes(self, exclusive_network_policy_location_or_name, base_np_location):
         """
@@ -116,60 +73,5 @@ class CLExecute:
                       file=sys.stderr)
                 sys.exit(1)
 
-        full_result = NetworkConfigQuery.InterferesQuery(exclusive_network_policy, base_np_config).exec()
-        query_output = '\n'
-        query_output += full_result.output_result
-        if full_result.bool_result:
-            query_output += full_result.output_explanation
-        query_output += '\n'
-        self.output_config.print_query_output(query_output)
-        return int(full_result.bool_result)
-
-    def forbids(self, policies_to_forbid, base_np_location):
-        """
-        Runs a "forbids" query
-        :param str policies_to_forbid: A set of policies explicitly defining connections that should be denied in base
-        :param str base_np_location: The set of policies to check
-        :return: 0 if all connections are denied in base. 1 otherwise
-        :rtype: int
-        """
-        base_config = NetworkConfig(base_np_location, self.peer_container, [base_np_location])
-        forbid_config = NetworkConfig(policies_to_forbid, self.peer_container, [policies_to_forbid])
-        if not forbid_config:
-            print(f'\nThere are no NetworkPolicies in {policies_to_forbid}. No traffic is specified as forbidden.\n')
-            sys.exit(1)
-
-        query_output = '\n'
-        full_result = NetworkConfigQuery.IntersectsQuery(forbid_config, base_config).exec(True)
-        if full_result.bool_result:
-            query_output += f'{base_config.name} does not forbid connections specified in {forbid_config.name}:'
-            query_output += full_result.output_explanation
-        else:
-            query_output += f'{base_config.name} forbids connections specified in {forbid_config.name}'
-        query_output += '\n'
-        self.output_config.print_query_output(query_output)
-        return int(full_result.bool_result)
-
-    def permits(self, policies_to_permit, base_np_location):
-        """
-        Runs a "permits" query
-        :param str policies_to_permit: A set of policies explicitly defining connections that should be allowed in base
-        :param str base_np_location: The set of policies to check
-        :return: 0 if all connections are permitted in base. 1 otherwise
-        :rtype: int
-        """
-        base_config = NetworkConfig(base_np_location, self.peer_container, [base_np_location])
-        permit_config = NetworkConfig(policies_to_permit, self.peer_container, [policies_to_permit])
-        if not permit_config:
-            print(f'\nNo NetworkPolicies in {policies_to_permit}. No traffic is specified as permitted.\n')
-            sys.exit(1)
-
-        query_output = '\n'
-        full_result = NetworkConfigQuery.PermitsQuery(permit_config, base_config).exec()
-        if not full_result.bool_result:
-            query_output += full_result.output_explanation
-        else:
-            query_output += f'{base_config.name} permits all connections specified in {permit_config.name}'
-        query_output += '\n'
-        self.output_config.print_query_output(query_output)
-        return int(not full_result.bool_result)
+        return NetworkConfigQueryRunner('interferes', [exclusive_network_policy, base_np_config],
+                                        self.output_config).run_query()

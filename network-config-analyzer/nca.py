@@ -79,24 +79,24 @@ def run_args(args):
     output_format = args.output_format or 'txt'
     cl_execute = CLExecute(base_ns_list, base_pod_list, ns_list, pod_list, output_format, args.file_out, args.pr_url)
     if args.equiv:
-        return cl_execute.equivalence(args.equiv, base_np_list)
+        return cl_execute.execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list)
 
     if args.interferes:
         return cl_execute.interferes(args.interferes, base_np_list)
 
     if args.forbids:
-        return cl_execute.forbids(args.forbids, base_np_list)
+        return cl_execute.execute_pair_configs_query('forbids', args.forbids, base_np_list)
 
     if args.permits:
-        return cl_execute.permits(args.permits, base_np_list)
+        return cl_execute.execute_pair_configs_query('permits', args.permits, base_np_list)
 
     if args.connectivity:
-        return cl_execute.connectivity_map(args.connectivity)
+        return cl_execute.execute_single_config_query('connectivityMap', args.connectivity)
 
     if args.semantic_diff:
-        return cl_execute.semantic_diff(args.semantic_diff, base_np_list)
+        return cl_execute.execute_pair_configs_query('semanticDiff', args.semantic_diff, base_np_list)
 
-    return cl_execute.sanity(args.sanity or 'k8s')
+    return cl_execute.execute_single_config_query('sanity', args.sanity or 'k8s')
 
 
 def nca_main(argv=None):
