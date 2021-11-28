@@ -82,5 +82,3 @@ class PortSet:
 
     def is_all(self):
         return self.port_set == PortSet.all_ports_interval
-
-
