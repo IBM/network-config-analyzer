@@ -14,6 +14,22 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     A class for holding a set of cubes, each defined over dimensions from TcpLikeProperties.dimensions_list
     For UDP, SCTP protocols, the actual used dimensions are only [source ports, dest ports]
     for TCP, it may be any of the dimensions from dimensions_list.
+    Also, including support for (included and excluded) named ports (relevant for dest ports only).
+    The representation with named ports is considered a mid-representation, and is required due to the late binding
+    of the named ports to real ports numbers.
+    The method convert_named_ports is responsible for applying this late binding, and is called by a policy's method
+    allowed_connections(), to get the the actual policy's allowed connections, given src peer, dest peer and direction ingress/egress.
+    Given a specific context of dest peer, the pod's named ports mapping is known, and used for the named ports conversion.
+    Some of the operators for TcpLikeProperties are not supported for objects with (included and excluded) named ports.
+    For example, in the general case, the result for (all but port "x") | (all but port 10) has 2 options:
+        (1) if the dest pod has named port "x" mapped to 10 -> the result would be: (all but port 10)
+        (2) otherwise, the result would be: (all ports)
+    Thus, for the 'or' operator, the assumption is that excluded named ports is empty for both input objects.
+    Some methods, such as bool(), str(), may not return accurate results on objects with named ports (included/excluded),
+    since they depend on the late binding with actual dest pod context.
+    The current actual flow for using named ports is limited for the following:
+    (1) k8s: only positive named ports, only dest named ports (no src ports), and only use of 'or' operators between these objects.
+    (2) calico: positive and negative named ports, only dest named ports (no src ports), and no use of operators between these objects.
     """
 
     dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts"]
@@ -32,13 +48,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        # assuming named ports are only in dest, not src
-        all_ports = PortSet.all_ports_interval.copy()
-        for port_name in dest_ports.named_ports:
-            self.named_ports[port_name] = source_ports.port_set
-        for port_name in dest_ports.excluded_named_ports:
-            # self.excluded_named_ports[port_name] = all_ports - source_ports.port_set
-            self.excluded_named_ports[port_name] = all_ports
 
         # create the cube from input arguments
         cube = []
@@ -70,11 +79,17 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             if not has_empty_dim_value:
                 self.add_cube(cube, active_dims)
 
+        # assuming named ports are only in dest, not src
+        all_ports = PortSet.all_ports_interval.copy()
+        for port_name in dest_ports.named_ports:
+            self.named_ports[port_name] = source_ports.port_set
+        for port_name in dest_ports.excluded_named_ports:
+            # self.excluded_named_ports[port_name] = all_ports - source_ports.port_set
+            self.excluded_named_ports[port_name] = all_ports
+
+
     def __bool__(self):
         return super().__bool__() or bool(self.named_ports)
-
-    def get_simplified_str(self):
-        return super().__str__()
 
     def __str__(self):
         if self.is_all():
@@ -158,13 +173,13 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return res
 
     def __iand__(self, other):
-        assert not self.excluded_named_ports
-        assert not isinstance(other, TcpLikeProperties) or not other.named_ports
-        assert not isinstance(other, TcpLikeProperties) or not other.excluded_named_ports
+        assert not self.has_named_ports()
+        assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__iand__(other)
         return self
 
     def __ior__(self, other):
+        assert not self.excluded_named_ports
         assert not isinstance(other, TcpLikeProperties) or not other.excluded_named_ports
         super().__ior__(other)
         if isinstance(other, TcpLikeProperties):
@@ -180,9 +195,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return self
 
     def __isub__(self, other):
-        assert not self.excluded_named_ports
-        assert not isinstance(other, TcpLikeProperties) or not other.named_ports
-        assert not isinstance(other, TcpLikeProperties) or not other.excluded_named_ports
+        assert not self.has_named_ports()
+        assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__isub__(other)
         return self
 
@@ -192,10 +206,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
-        assert not self.named_ports
-        assert not other.named_ports
-        assert not self.excluded_named_ports
-        assert not other.excluded_named_ports
+        assert not self.has_named_ports()
+        assert not other.has_named_ports()
         return super().contained_in(other)
 
     def has_named_ports(self):
@@ -204,6 +216,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     def get_named_ports(self):
         res = set()
         res |= set(self.named_ports.keys())
+        res |= set(self.excluded_named_ports.keys())
         return res
 
     def convert_named_ports(self, named_ports, protocol):
