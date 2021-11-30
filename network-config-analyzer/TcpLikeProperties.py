@@ -7,7 +7,7 @@ from CanonicalIntervalSet import CanonicalIntervalSet
 from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from DimensionsManager import DimensionsManager
 from PortSet import PortSet
-
+from MethodSet import MethodSet
 
 class TcpLikeProperties(CanonicalHyperCubeSet):
     """
@@ -35,12 +35,12 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts"]
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
-    def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=None, paths=None, hosts=None):
+    def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=MethodSet(), paths=None, hosts=None):
         """
         This will create all cubes made of the input arguments ranges/regex values.
         :param PortSet source_ports: The set of source ports (as a set of intervals/ranges)
         :param PortSet dest_ports: The set of target ports (as a set of intervals/ranges)
-        :param MinDFA methods: the dfa of http request methods
+        :param MethodSet methods: the set of http request methods
         :param MinDFA paths: The dfa of http request paths
         :param MinDFA hosts: The dfa of http request hosts
         """
@@ -58,7 +58,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if not dest_ports.is_all():
             cube.append(dest_ports.port_set)
             active_dims.append("dst_ports")
-        if methods is not None:
+        if not methods.is_whole_range():
             cube.append(methods)
             active_dims.append("methods")
         if paths is not None:
@@ -125,7 +125,9 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             dim_domain = DimensionsManager().get_dimension_domain_by_name(dim)
             if dim_domain == dim_values:
                 continue  # skip dimensions with all values allowed in a cube
-            if dim_type == DimensionsManager.DimensionType.IntervalSet:
+            if dim == 'methods':
+                values_list = ','.join(method for method in MethodSet.get_method_names_from_interval_set(dim_values))
+            elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = TcpLikeProperties.get_interval_set_list_obj(dim_values)
                 if is_txt:
                     values_list = ','.join(interval for interval in values_list)

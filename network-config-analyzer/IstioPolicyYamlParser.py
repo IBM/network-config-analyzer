@@ -11,6 +11,7 @@ from Peer import IpBlock, PeerSet
 from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
 from PortSet import PortSet
+from MethodSet import MethodSet
 from TcpLikeProperties import TcpLikeProperties
 
 
@@ -289,16 +290,16 @@ class IstioPolicyYamlParser(GenericYamlParser):
         return res
 
     @staticmethod
-    def _get_connection_set_from_properties(dest_ports, methods_dfa=None, paths_dfa=None, hosts_dfa=None):
+    def _get_connection_set_from_properties(dest_ports, method_set, paths_dfa=None, hosts_dfa=None):
         """
         get ConnectionSet with TCP allowed connections, corresponding to input properties cube
         :param PortSet dest_ports: ports set for dset_ports dimension
-        :param MinDFA methods_dfa: MinDFA obj for methods dimension
+        :param MethodSet method_set: methods set for methods dimension
         :param MinDFA paths_dfa: MinDFA obj for paths dimension
         :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
         :return: ConnectionSet with TCP allowed connections , corresponding to input properties cube
         """
-        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=methods_dfa,
+        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=method_set,
                                            paths=paths_dfa, hosts=hosts_dfa)
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
@@ -328,12 +329,12 @@ class IstioPolicyYamlParser(GenericYamlParser):
         self.validate_dict_elem_has_non_empty_array_value(operation, 'to.operation')
 
         dst_ports = self.get_rule_ports(operation.get('ports'), operation.get('notPorts'))  # PortSet
-        methods_dfa = self.parse_regex_dimension_values("methods", operation.get("methods"),
+        methods_dfa = self.parse_regex_dimension_values("methods_dfa", operation.get("methods"),
                                                         operation.get("notMethods"), operation)
         paths_dfa = self.parse_regex_dimension_values("paths", operation.get("paths"), operation.get("notPaths"), operation)
         hosts_dfa = self.parse_regex_dimension_values("hosts", operation.get("hosts"), operation.get("notHosts"), operation)
 
-        return self._get_connection_set_from_properties(dst_ports, methods_dfa, paths_dfa, hosts_dfa)
+        return self._get_connection_set_from_properties(dst_ports, MethodSet(methods_dfa), paths_dfa, hosts_dfa)
 
     def parse_source(self, source_dict):
         """
