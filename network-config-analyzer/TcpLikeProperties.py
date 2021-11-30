@@ -67,7 +67,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if hosts is not None:
             cube.append(hosts)
             active_dims.append("hosts")
-        #self.cubes_set.add_cube(cube, active_dims)
         if not active_dims:
             self.set_all()
         else:
