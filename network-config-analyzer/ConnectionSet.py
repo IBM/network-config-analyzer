@@ -114,7 +114,7 @@ class ConnectionSet:
             else:
                 protocol_text = self.protocol_number_to_name(protocol)
                 properties = self.allowed_protocols[protocol]
-                if not isinstance(properties, bool):
+                if not isinstance(properties, bool) and not properties.is_all():
                     res += protocol_text + ' ' + str(properties) + ','
                 else:
                     res += protocol_text + ','
