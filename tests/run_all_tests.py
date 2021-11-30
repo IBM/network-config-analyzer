@@ -9,6 +9,8 @@ from os import path
 from time import time
 from pathlib import Path
 import yaml
+import csv
+from sys import stderr
 from ruamel.yaml import YAML
 from contextlib import redirect_stdout
 
@@ -198,12 +200,26 @@ class GeneralTest:
     def evaluate_test_results(self):
         self.numerical_result = 1 if self.nca_res != self.expected_result else 0
 
+    def get_expected_test_run_time(self):
+        expected_time_file_name = "./tests_expected_runtime.csv"
+        with open(expected_time_file_name, 'r') as csv_file:
+            csv_reader = csv.reader(csv_file)
+            for row in csv_reader:
+                current_test = row[0] if row[0].startswith('cmdline_') else os.path.abspath(row[0])
+                if current_test == self.test_name:
+                    return float(row[1])
+        return 0.0
+
     def finalize_test(self):
         if not self.test_passed():
             print('Testcase', self.test_name, 'failed', file=sys.stderr)
         else:
             print('Testcase', self.test_name, 'passed')
-        self.result = (self.numerical_result, time() - self.start_time, self.result_details)
+        expected_run_time = self.get_expected_test_run_time()
+        actual_run_time = time() - self.start_time
+        self.result = (self.numerical_result, actual_run_time, self.result_details)
+        if actual_run_time >= expected_run_time*2:
+            print(f'Warning: Test performance of {self.test_name} should be faster', file=stderr)
         if self.clean_out_files:
             self._clean_generated_output_files()
         self._update_required_scheme_file_config_args(False)
