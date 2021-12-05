@@ -14,7 +14,9 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     A class for holding a set of cubes, each defined over dimensions from TcpLikeProperties.dimensions_list
     For UDP, SCTP protocols, the actual used dimensions are only [source ports, dest ports]
     for TCP, it may be any of the dimensions from dimensions_list.
+
     Also, including support for (included and excluded) named ports (relevant for dest ports only).
+
     The representation with named ports is considered a mid-representation, and is required due to the late binding
     of the named ports to real ports numbers.
     The method convert_named_ports is responsible for applying this late binding, and is called by a policy's method
@@ -67,7 +69,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if hosts is not None:
             cube.append(hosts)
             active_dims.append("hosts")
-        #self.cubes_set.add_cube(cube, active_dims)
+
         if not active_dims:
             self.set_all()
         else:
@@ -87,7 +89,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             # self.excluded_named_ports[port_name] = all_ports - source_ports.port_set
             self.excluded_named_ports[port_name] = all_ports
 
-
     def __bool__(self):
         return super().__bool__() or bool(self.named_ports)
 
@@ -100,7 +101,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             assert (len(self) == 1)
             for cube in self:
                 ports_list = self.get_interval_set_list_obj(cube[0])
-                ports_str = ','.join(ports_interval for ports_interval in ports_list)
+                ports_str = ','.join(str(ports_interval) for ports_interval in ports_list)
                 return ports_str
 
         cubes_dict_list = [self.get_cube_dict(cube, self.active_dimensions, True) for cube in self]
@@ -108,16 +109,32 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     @staticmethod
     def get_interval_set_list_obj(interval_set):
+        """
+        get list of ports from input interval set
+        the list may contain int values (for single ports) and str values (for port ranges)
+        e.g. if interval_set = {1-1,3-5}, then the output would be: [1, '3-5']
+        :param CanonicalIntervalSet interval_set: an interval-set object
+        :return: list of intervals or int values from input interval_set
+        :rtype: list
+        """
         res = []
         for interval in interval_set:
             if interval.start == interval.end:
-                res.append(str(interval.start))
+                res.append(interval.start)
             else:
                 res.append(f'{interval.start}-{interval.end}')
         return res
 
     @staticmethod
     def get_cube_dict(cube, dims_list, is_txt=False):
+        """
+        represent the properties cube as dict objet, for output generation as yaml/txt format
+        :param list cube: the values of the input cube
+        :param list dims_list: the list of dimensions for the input cube
+        :param bool is_txt: flag indicating if output is for txt or yaml format
+        :return: the cube properties in dict representation
+        :rtype: dict
+        """
         cube_dict = {}
         for i, dim in enumerate(dims_list):
             dim_values = cube[i]
@@ -128,7 +145,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             if dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = TcpLikeProperties.get_interval_set_list_obj(dim_values)
                 if is_txt:
-                    values_list = ','.join(interval for interval in values_list)
+                    values_list = ','.join(str(interval) for interval in values_list)
             else:
                 # TODO: should be a list of words for a finite len DFA?
                 values_list = DimensionsManager().get_dim_values_str(dim_values, dim)

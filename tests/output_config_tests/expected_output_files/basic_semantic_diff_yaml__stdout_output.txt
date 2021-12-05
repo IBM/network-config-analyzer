@@ -35,10 +35,10 @@ global: cluster has 29 unique endpoints, 8 namespaces
     connection:
     - Protocol: TCP
       Ports:
-      - '53'
+      - 53
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
   - src_ns:
     - vendor-system
     src_pods:
@@ -60,10 +60,10 @@ global: cluster has 29 unique endpoints, 8 namespaces
     connection:
     - Protocol: TCP
       Ports:
-      - '53'
+      - 53
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -73,9 +73,9 @@ global: cluster has 29 unique endpoints, 8 namespaces
     connection:
     - Protocol: TCP
       Ports:
-      - '53'
+      - 53
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
 
 

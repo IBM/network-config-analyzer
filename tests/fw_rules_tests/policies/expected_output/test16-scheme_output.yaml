@@ -9,7 +9,7 @@
     connection:
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -19,7 +19,7 @@
     connection:
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -29,7 +29,7 @@
     connection:
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -39,7 +39,7 @@
     connection:
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:

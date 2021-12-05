@@ -25,9 +25,25 @@ class ICMPDataSet(CanonicalHyperCubeSet):
             return 'no types'
         if self.is_all():
             return ''
-        return super().__str__()
+        cubes_list = self._get_cubes_list_from_layers()
+        return ",".join(self._get_icmp_cube_str(cube) for cube in cubes_list)
+
+    def _get_icmp_cube_str(self, cube):
+        """
+        get string representation for icmp properties cube
+        :param list cube: a single cube in self
+        :return: string representation for the input cube
+        """
+        components_str_list = []
+        for dim_index, dim_values in enumerate(cube):
+            dim_name = (self.active_dimensions[dim_index]).replace("icmp_", "")
+            components_str_list.append(f'{dim_name}={dim_values}')
+        return f"({','.join(c for c in components_str_list)})"
 
     def get_properties_obj(self):
+        """
+        get an object for a yaml representation of the protocol's properties
+        """
         if self.is_all():
             return {}
         cubes_list = []
