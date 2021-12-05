@@ -60,7 +60,9 @@ class ConnectionSet:
         if relevant_protocols is not None:
             protocols_set &= relevant_protocols
         for protocol in sorted(list(protocols_set)):
-            protocol_text = self.protocol_number_to_name(protocol)
+            protocol_text = protocol #self.protocol_number_to_name(protocol)
+            if protocol in ConnectionSet._protocol_number_to_name_dict:
+                protocol_text = ConnectionSet._protocol_number_to_name_dict[protocol]
             protocol_obj = {'Protocol': protocol_text}
             properties = self.allowed_protocols[protocol]
             if not isinstance(properties, bool):
@@ -72,8 +74,8 @@ class ConnectionSet:
         """
         Get a simplified representation of the connection set - choose shorter version between self and its complement.
         Restrict representation to relevant protocols, and use complement simplification when required.
-        :param relevant_protocols:  a set of protocols numbers or None
-        :param use_complement_simplification: bool: should use complement simplification when possible or not
+        :param set[int] relevant_protocols:  a set of protocols numbers or None
+        :param bool use_complement_simplification: should use complement simplification when possible or not
         :return: a string representation of the connection set, to be used at fw-rules representation in txt
         """
         if self.allow_all:
@@ -95,7 +97,7 @@ class ConnectionSet:
     def get_connections_str(self, relevant_protocols):
         """
         Get a string representation of the connection set
-        :param relevant_protocols: a set of protocols numbers or None
+        :param set[int] relevant_protocols: a set of protocols numbers or None
         :return: a string representation of the connection set, to be used at fw-rules representation in txt
         """
         if self.allow_all:

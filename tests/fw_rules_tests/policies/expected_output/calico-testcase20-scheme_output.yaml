@@ -10,11 +10,11 @@
     - Protocol: ICMP
     - Protocol: TCP
       Ports:
-      - '52311'
+      - 52311
     - Protocol: UDP
       Ports:
-      - '52311'
-    - Protocol: '112'
+      - 52311
+    - Protocol: 112
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -25,11 +25,11 @@
     - Protocol: ICMP
     - Protocol: TCP
       Ports:
-      - '52311'
+      - 52311
     - Protocol: UDP
       Ports:
-      - '52311'
-    - Protocol: '112'
+      - 52311
+    - Protocol: 112
   - src_ns:
     - None
     src_pods:
@@ -42,11 +42,11 @@
     - Protocol: ICMP
     - Protocol: TCP
       Ports:
-      - '52311'
+      - 52311
     - Protocol: UDP
       Ports:
-      - '52311'
-    - Protocol: '112'
+      - 52311
+    - Protocol: 112
   - src_ns:
     - kube-system
     src_pods:
@@ -59,11 +59,11 @@
     - Protocol: ICMP
     - Protocol: TCP
       Ports:
-      - '52311'
+      - 52311
     - Protocol: UDP
       Ports:
-      - '52311'
-    - Protocol: '112'
+      - 52311
+    - Protocol: 112
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:

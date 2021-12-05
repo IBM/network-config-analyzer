@@ -11,7 +11,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '3550'
+      - 3550
   - src_ns:
     - default
     src_pods:
@@ -23,7 +23,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '50051'
+      - 50051
   - src_ns:
     - default
     src_pods:
@@ -35,7 +35,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '50051'
+      - 50051
   - src_ns:
     - default
     src_pods:
@@ -47,7 +47,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '5050'
+      - 5050
   - src_ns:
     - default
     src_pods:
@@ -59,7 +59,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '6379'
+      - 6379
   - src_ns:
     - default
     src_pods:
@@ -71,7 +71,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '7000'
+      - 7000
   - src_ns:
     - default
     src_pods:
@@ -83,7 +83,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '7070'
+      - 7070
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -93,7 +93,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8080'
+      - 8080
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -103,7 +103,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8080'
+      - 8080
   - src_ns:
     - default
     src_pods:
@@ -115,7 +115,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8080'
+      - 8080
   - src_ns:
     - default
     src_pods:
@@ -127,7 +127,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8080'
+      - 8080
   - src_ns:
     - default
     src_pods:
@@ -139,7 +139,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8080'
+      - 8080
   - src_ns:
     - kube-system
     src_pods:
@@ -151,7 +151,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8080'
+      - 8080
   - src_ns:
     - default
     src_pods:
@@ -163,7 +163,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '9555'
+      - 9555
   - src_ns:
     - default
     src_pods:
@@ -175,6 +175,6 @@
     connection:
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
 
 

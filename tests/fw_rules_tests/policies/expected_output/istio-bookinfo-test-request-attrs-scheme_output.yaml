@@ -22,7 +22,7 @@
     - Protocol: TCP
       properties:
       - dst_ports:
-        - '80'
+        - 80
         methods: GET
 
 
@@ -68,41 +68,41 @@
     - Protocol: TCP
       properties:
       - dst_ports:
-        - '80'
+        - 80
         methods: GET
         paths: /good_path1, /good_path2, /some/path2
         hosts: all but disallowed-host.com
       - dst_ports:
-        - '80'
+        - 80
         methods: GET
         paths: all but /bad/path1, /bad/path3, /good_path1, /good_path2, /some/path2
         hosts: allowed-host.com
       - dst_ports:
-        - '80'
+        - 80
         methods: PUT
         paths: /good_path1, /good_path2, /some/path2
         hosts: all but disallowed-host.com
       - dst_ports:
-        - '80'
+        - 80
         methods: all but GET, PUT
         paths: all but /bad/path1, /bad/path3, /some/path2
         hosts: allowed-host.com
       - dst_ports:
-        - '90'
+        - 90
         methods: GET, PUT
         paths: /good_path1, /good_path2, /some/path2
         hosts: all but disallowed-host.com
       - dst_ports:
-        - '100'
+        - 100
         methods: all but PUT
         paths: /some/path3
       - dst_ports:
-        - '100'
+        - 100
         methods: all but PUT
         paths: all but /bad/path1, /bad/path3, /some/path2, /some/path3
         hosts: allowed-host.com
       - dst_ports:
-        - '100'
+        - 100
         methods: PUT
         paths: /some/path3
       - dst_ports:

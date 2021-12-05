@@ -8,6 +8,12 @@ class TestICMPDataSet(unittest.TestCase):
         x = ICMPDataSet()
         y = ICMPDataSet()
         w = ICMPDataSet()
+        f = ICMPDataSet()
+        f.add_to_set(100,230)
+        print(f)
+        z = f.get_properties_obj()
+        print(z)
+
         x. add_all_but_given_pair(20, None)
         y.add_all()
         w. add_all_but_given_pair(20, 50)

@@ -11,10 +11,10 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '53'
+      - 53
     - Protocol: UDP
       Ports:
-      - '53'
+      - 53
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:

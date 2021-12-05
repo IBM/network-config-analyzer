@@ -264,6 +264,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :param str dim_name: dimension name
         :param list[str] values_list: positive regex values list
         :param list[str] negative_values_list: negative regex values list
+        :param dict operation_dict: the parsed operation dict object
         :return: Union[MinDFA, None] object
         """
         dimensions_manager = DimensionsManager()

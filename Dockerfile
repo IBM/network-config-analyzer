@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-FROM python:3-alpine
+FROM python:3.8-alpine
 
 COPY requirements.txt /nca/
 RUN pip install -r /nca/requirements.txt
