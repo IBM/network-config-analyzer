@@ -3,7 +3,7 @@ An analyzer for Network Policies and other connectivity-configuration resources
 
 ---
 
-## Usage (requires Python 3.7 or above)
+## Usage (requires Python 3.8 or above)
 `python nca.py [--scheme <scheme_file>]`
 
 where *scheme_file* is a yaml file describing what to verify.
