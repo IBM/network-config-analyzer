@@ -32,6 +32,10 @@ spec:
     - from:
         - source:
             principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
+      to:
+        - operation:
+            methods: ["*"]
+            paths: ["/good_path1"]
 
 ---
 apiVersion: security.istio.io/v1beta1

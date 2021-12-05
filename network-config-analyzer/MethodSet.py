@@ -4,7 +4,6 @@
 #
 
 from CanonicalIntervalSet import CanonicalIntervalSet
-from MinDFA import MinDFA
 
 class MethodSet(CanonicalIntervalSet):
     """
@@ -12,16 +11,10 @@ class MethodSet(CanonicalIntervalSet):
     """
     all_methods_list = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
 
-    def __init__(self, methods_dfa=None):
+    def __init__(self, all_methods=False):
         super().__init__()
-        if not methods_dfa: # the whole range
+        if all_methods: # the whole range
             self.add_interval(self.whole_range_interval())
-            return
-        index = 0
-        for method in MethodSet.all_methods_list:
-            if method in methods_dfa:
-                self.add_interval(CanonicalIntervalSet.Interval(index, index))
-            index = index + 1
 
     @staticmethod
     def all_methods_regex():
@@ -38,6 +31,11 @@ class MethodSet(CanonicalIntervalSet):
 
     def is_whole_range(self):
         return self == self.whole_range_interval_set()
+
+    @staticmethod
+    def get_interval_from_method_name(method):
+        index = MethodSet.all_methods_list.index(method) if MethodSet.all_methods_list.count(method) > 0 else -1
+        return CanonicalIntervalSet.Interval(index, index)
 
     @staticmethod
     def get_method_names_from_interval_set(interval_set):

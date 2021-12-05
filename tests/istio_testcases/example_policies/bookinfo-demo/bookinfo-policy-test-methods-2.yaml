@@ -14,7 +14,7 @@ spec:
             principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
       to:
         - operation:
-            notMethods: ["GET"]
+            notMethods: ["*T"]
 
 ---
 
@@ -34,8 +34,8 @@ spec:
             principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
       to:
         - operation:
-            methods: ["GET", "PUT"]
-            notMethods: ["GET"]
+            methods: ["GET", "P*"]
+            notMethods: ["G*"]
 
 ---
 apiVersion: security.istio.io/v1beta1

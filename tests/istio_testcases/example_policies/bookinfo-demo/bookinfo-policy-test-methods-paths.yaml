@@ -38,7 +38,7 @@ spec:
       to:
         - operation:
             hosts: ["allowed-host.com"]
-            notMethods: ["PUT"]
+            notMethods: ["*T"]
             notPorts: ["90"]
             notPaths: ["/bad/path1", "/bad/path3", "/some/path2"]
 ---

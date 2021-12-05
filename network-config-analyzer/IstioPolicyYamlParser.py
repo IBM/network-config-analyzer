@@ -305,6 +305,53 @@ class IstioPolicyYamlParser(GenericYamlParser):
         res.add_connections('TCP', tcp_properties)
         return res
 
+    def _parse_method(self, method_str, methods_array):
+        res = MethodSet()
+        if method_str == '*': # presence match
+            res.add_interval(MethodSet.whole_range_interval())
+            return res
+        if '*' in method_str:
+            if method_str.count('*') > 1:
+                self.syntax_error("Illegal method " + method_str, methods_array)
+            # Fix Istio regex to match standard regex
+            if re.match('\*[a-zA-Z]+', method_str):
+                # prefix match
+                method_str = '.' + method_str + '$'
+            elif re.match('[a-zA-Z]+\*$', method_str):
+                # suffix match
+                method_str = '^' + method_str.split('*')[0] + '.*'
+            else:
+                self.syntax_error("Illegal method " + method_str, methods_array)
+        else:
+            if not method_str.isalpha():
+                self.syntax_error("Illegal method " + method_str, methods_array)
+
+        index = -1
+        for method in MethodSet.all_methods_list:
+            if re.search(method_str, method):
+                index = MethodSet.all_methods_list.index(method)
+                res.add_interval(MethodSet.Interval(index, index))
+
+        if index == -1:
+            self.syntax_error("Illegal method " + method_str, methods_array)
+        return res
+
+    def get_methods_set(self, operation):
+        methods_array = operation.get('methods')
+        if methods_array is not None:
+            rule_methods = MethodSet()
+            for method_str in methods_array:
+                rule_methods |= self._parse_method(method_str, methods_array)
+        else:
+            rule_methods = MethodSet(True)
+
+        not_methods_array = operation.get('notMethods')
+        if not_methods_array is not None:
+            for method_str in not_methods_array:
+                rule_methods -= self._parse_method(method_str, methods_array)
+
+        return rule_methods
+
     def parse_operation(self, operation_dict):
         """
         parse an operation component in a rule
@@ -329,12 +376,11 @@ class IstioPolicyYamlParser(GenericYamlParser):
         self.validate_dict_elem_has_non_empty_array_value(operation, 'to.operation')
 
         dst_ports = self.get_rule_ports(operation.get('ports'), operation.get('notPorts'))  # PortSet
-        methods_dfa = self.parse_regex_dimension_values("methods_dfa", operation.get("methods"),
-                                                        operation.get("notMethods"), operation)
+        methods_set = self.get_methods_set(operation)
         paths_dfa = self.parse_regex_dimension_values("paths", operation.get("paths"), operation.get("notPaths"), operation)
         hosts_dfa = self.parse_regex_dimension_values("hosts", operation.get("hosts"), operation.get("notHosts"), operation)
 
-        return self._get_connection_set_from_properties(dst_ports, MethodSet(methods_dfa), paths_dfa, hosts_dfa)
+        return self._get_connection_set_from_properties(dst_ports, methods_set, paths_dfa, hosts_dfa)
 
     def parse_source(self, source_dict):
         """
