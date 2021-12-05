@@ -37,7 +37,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts"]
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
-    def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=MethodSet(), paths=None, hosts=None):
+    def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=MethodSet(True), paths=None, hosts=None):
         """
         This will create all cubes made of the input arguments ranges/regex values.
         :param PortSet source_ports: The set of source ports (as a set of intervals/ranges)
