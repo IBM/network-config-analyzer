@@ -10,6 +10,7 @@ class CanonicalIntervalSet:
     In addition no two intervals in interval_set overlap/touch. Formally:
        foreach <s1, e1>, <s2, e2> in interval_set: either e1+1 < s2 OR e2+1 < s1
     """
+
     def __init__(self):
         self.interval_set = []
 
@@ -143,6 +144,7 @@ class CanonicalIntervalSet:
         A class representing a single interval.
         start and end should be of any type that supports equality and lt operators as well as '+1' and '-1'
         """
+
         def __init__(self, start, end):
             self.start = start
             self.end = end
@@ -260,3 +262,16 @@ class CanonicalIntervalSet:
         for interval in self.interval_set:
             new_interval_set += (interval - hole)
         self.interval_set = new_interval_set
+
+    @staticmethod
+    def get_interval_set(start, end):
+        """
+        create a CanonicalIntervalSet object with a single interval as given by input
+        :param start: the input interval start point
+        :param end: the input interval end point
+        :return: CanonicalIntervalSet object with one interval: [start, end]
+        """
+        res = CanonicalIntervalSet()
+        interval = CanonicalIntervalSet.Interval(start, end)
+        res.add_interval(interval)
+        return res
