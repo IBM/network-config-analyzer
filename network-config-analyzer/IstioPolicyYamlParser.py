@@ -334,7 +334,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
                 res.add_interval(MethodSet.Interval(index, index))
 
         if index == -1:
-            self.syntax_error("Illegal method " + method_str, methods_array)
+            self.warning("Illegal method '" + method_str + "' ignored", methods_array)
         return res
 
     def get_methods_set(self, operation):

@@ -19,7 +19,7 @@ spec:
             methods: ["GET"]
             paths:  ["/info*"]
         - operation:
-            methods: ["P*"]
+            methods: ["POST"]
             paths: ["/data"]
 
 ---
