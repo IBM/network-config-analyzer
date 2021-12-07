@@ -152,9 +152,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
     def parse_key_values(self, key, values, not_values):
         """
         parse key and its values for a given condition component in a rule
-        :param str key: the specified key str
-        :param list values: a list of strings with values for this key
-        :param list not_values: a list of strings with negative values for this key
+        :param string key: the specified key str
+        :param values: a list of strings with values for this key
+        :param not_values: a list of strings with negative values for this key
         :return: PeerSet or ConnectionSet (depends on the key) with allowed values
         """
         if key == 'source.ip':
@@ -291,67 +291,20 @@ class IstioPolicyYamlParser(GenericYamlParser):
         return res
 
     @staticmethod
-    def _get_connection_set_from_properties(dest_ports, method_set=MethodSet(True), paths_dfa=None, hosts_dfa=None):
+    def _get_connection_set_from_properties(dest_ports, methods_dfa=None, paths_dfa=None, hosts_dfa=None):
         """
         get ConnectionSet with TCP allowed connections, corresponding to input properties cube
         :param PortSet dest_ports: ports set for dset_ports dimension
-        :param MethodSet method_set: methods set for methods dimension
+        :param MinDFA methods_dfa: MinDFA obj for methods dimension
         :param MinDFA paths_dfa: MinDFA obj for paths dimension
         :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
         :return: ConnectionSet with TCP allowed connections , corresponding to input properties cube
         """
-        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=method_set,
+        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=methods_dfa,
                                            paths=paths_dfa, hosts=hosts_dfa)
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
         return res
-
-    def _parse_method(self, method_str, methods_array):
-        res = MethodSet()
-        if method_str == '*': # presence match
-            res.add_interval(MethodSet.whole_range_interval())
-            return res
-        if '*' in method_str:
-            if method_str.count('*') > 1:
-                self.syntax_error("Illegal method " + method_str, methods_array)
-            # Fix Istio regex to match standard regex
-            if re.match('\*[a-zA-Z]+', method_str):
-                # prefix match
-                method_str = '.' + method_str + '$'
-            elif re.match('[a-zA-Z]+\*$', method_str):
-                # suffix match
-                method_str = '^' + method_str.split('*')[0] + '.*'
-            else:
-                self.syntax_error("Illegal method " + method_str, methods_array)
-        else:
-            if not method_str.isalpha():
-                self.syntax_error("Illegal method " + method_str, methods_array)
-
-        index = -1
-        for method in MethodSet.all_methods_list:
-            if re.search(method_str, method):
-                index = MethodSet.all_methods_list.index(method)
-                res.add_interval(MethodSet.Interval(index, index))
-
-        if index == -1:
-            self.warning("Illegal method '" + method_str + "' ignored", methods_array)
-        return res
-
-    def get_methods_set(self, operation):
-        methods_array = operation.get('methods')
-        if methods_array is not None:
-            rule_methods = MethodSet()
-            for method_str in methods_array:
-                rule_methods |= self._parse_method(method_str, methods_array)
-        else:
-            rule_methods = MethodSet(True)
-
-        not_methods_array = operation.get('notMethods')
-        if not_methods_array is not None:
-            for method_str in not_methods_array:
-                rule_methods -= self._parse_method(method_str, methods_array)
-
-        return rule_methods
 
     def parse_operation(self, operation_dict):
         """

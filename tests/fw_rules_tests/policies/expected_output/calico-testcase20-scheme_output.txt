@@ -1,5 +1,5 @@
 final fw rules for query: Eran_gnps, config: Eran_gnps:
-src ip block: 0.0.0.0/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP,TCP 52311,UDP 52311,protocols numbers: 112
+src ip block: 0.0.0.0/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP [0-254] => [0-255];,TCP 52311,UDP 52311,protocols numbers: 112
 src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src ip block: 119.81.136.0/24 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src ip block: 119.81.138.0/23 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
@@ -60,15 +60,15 @@ src ip block: 50.23.167.0/24 dst_ns: [None] dst_pods: [has(vendor.role)] conn: A
 src ip block: 66.228.118.0/23 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src ip block: 67.228.118.0/23 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
 src ip block: 75.126.61.0/24 dst_ns: [None] dst_pods: [has(vendor.role)] conn: All connections
-src ip block: ::/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP,TCP 52311,UDP 52311,protocols numbers: 112
+src ip block: ::/0 dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP [0-254] => [0-255];,TCP 52311,UDP 52311,protocols numbers: 112
 src ip block: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [None] src_pods: [has(vendor.role)] dst ip block: ::/0 conn: All connections
-src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP,TCP 52311,UDP 52311,protocols numbers: 112
+src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP [0-254] => [0-255];,TCP 52311,UDP 52311,protocols numbers: 112
 src_ns: [None] src_pods: [has(vendor.role)] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
-src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP,TCP 52311,UDP 52311,protocols numbers: 112
+src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP [0-254] => [0-255];,TCP 52311,UDP 52311,protocols numbers: 112
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
 
