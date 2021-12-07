@@ -143,7 +143,12 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             if dim_domain == dim_values:
                 continue  # skip dimensions with all values allowed in a cube
             if dim == 'methods':
-                values_list = ','.join(method for method in MethodSet.get_method_names_from_interval_set(dim_values))
+                method_names = MethodSet.get_method_names_from_interval_set(dim_values)
+                compl_method_names = MethodSet.get_compl_method_names_from_interval_set(dim_values)
+                if len(method_names) <= len(compl_method_names):
+                    values_list = ','.join(method for method in method_names)
+                else:
+                    values_list = 'all but ' + ','.join(method for method in compl_method_names)
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = TcpLikeProperties.get_interval_set_list_obj(dim_values)
                 if is_txt:

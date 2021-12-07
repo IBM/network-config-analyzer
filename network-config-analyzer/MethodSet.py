@@ -45,6 +45,13 @@ class MethodSet(CanonicalIntervalSet):
             for index in range(interval.start, interval.end+1):
                 res.append(MethodSet.all_methods_list[index])
         return res
+    @staticmethod
+
+    def get_compl_method_names_from_interval_set(interval_set):
+        res = MethodSet.all_methods_list.copy()
+        for method in MethodSet.get_method_names_from_interval_set(interval_set):
+            res.remove(method)
+        return res
 
     def get_methods_names(self):
         return MethodSet.get_method_names_from_interval_set(self)
