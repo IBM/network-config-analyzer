@@ -15,6 +15,7 @@ dimensions2 = ["ports", "src_ports", "methods", "paths"]
 dimensions3 = ["src_ports", "ports", "methods", "paths", "hosts"]
 dimensions4 = ["x", "y", "z"]
 dim_manager = DimensionsManager()
+dim_manager.set_domain("methods", DimensionsManager.DimensionType.DFA)
 dim_manager.set_domain("ports", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
 dim_manager.set_domain("x", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
 dim_manager.set_domain("y", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
