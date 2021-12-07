@@ -24,7 +24,8 @@ It should contain at least the `name` and the `networkPolicyList` fields.
 
 Possible entries (sources) in the list under `networkPolicyList` are:
 * The string `k8s` - Adds all K8s NetworkPolicies in the cluster to the set
-* The string `calico` - Adds all Calico NetworkPolicies and Profiles in the cluster to the set 
+* The string `calico` - Adds all Calico NetworkPolicies and Profiles in the cluster to the set
+* The string `istio` - Adds all Istio AuthorizationPolicies in the cluster to the set
 * A full path to a yaml file containing NetworkPolicies - Adds all policies in the file
 * A full path to a directory - Adds all policies in all files in this directory
 * A directory + `/**` - Adds all policies in all files under this directory recursively

@@ -204,11 +204,17 @@ class NetworkConfig:
         self._add_policies(CmdlineRunner.get_calico_resources('networkPolicy'), 'calicoctl', True)
         self._add_policies(CmdlineRunner.get_calico_resources('globalNetworkPolicy'), 'calicoctl', True)
 
+    def add_istio_policies_from_k8s_cluster(self):
+        PeerContainer.locate_kube_config_file()
+        self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl', True)
+
     def add_policies_from_entry(self, entry):
         if entry == 'k8s':
             self.add_policies_from_k8s_cluster()
         elif entry == 'calico':
             self.add_policies_from_calico_cluster()
+        elif entry == 'istio':
+            self.add_istio_policies_from_k8s_cluster()
         elif entry.startswith('buffer: '):
             self._add_policies(entry[8:], 'buffer', True)
         elif not self.scan_entry_for_policies(entry):

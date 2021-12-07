@@ -12,7 +12,7 @@ from CLExecute import CLExecute
 from RESTServer import RestServer
 
 
-def _valid_path(path_location, allow_ghe=False, allow_k8s=False, allow_calico=False):
+def _valid_path(path_location, allow_ghe=False, allow_k8s=False, allow_calico=False, allow_istio=False):
     """
     A validator for paths in the command line, raising an exception if the path is invalid
     :param str path_location: The path to validate
@@ -29,13 +29,15 @@ def _valid_path(path_location, allow_ghe=False, allow_k8s=False, allow_calico=Fa
         return path_location
     if allow_calico and path_location == 'calico':
         return path_location
+    if allow_istio and path_location == 'istio':
+        return path_location
     if not os.path.exists(path_location):
         raise argparse.ArgumentTypeError(path_location + ' is not a valid path')
     return path_location
 
 
 def _ghe_or_k8s_or_calico_or_valid_path(path_location):
-    return _valid_path(path_location, allow_ghe=True, allow_k8s=True, allow_calico=True)
+    return _valid_path(path_location, allow_ghe=True, allow_k8s=True, allow_calico=True, allow_istio=True)
 
 
 def _k8s_or_calico_or_valid_path(path_location):
