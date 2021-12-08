@@ -28,7 +28,6 @@ Possible entries (sources) in the list under `networkPolicyList` are:
 * The string `istio` - Adds all Istio AuthorizationPolicies in the cluster to the set
 * A full path to a yaml file containing NetworkPolicies - Adds all policies in the file
 * A full path to a directory - Adds all policies in all files in this directory
-* A directory + `/**` - Adds all policies in all files under this directory recursively
 * A URL of a file in a GHE repository - Adds all policies in the file
 * A URL of a directory in a GHE repository - Adds all policies in all files in this directory
 * A URL of a GHE directory + `/**` - Adds all policies in all files under this directory recursively
