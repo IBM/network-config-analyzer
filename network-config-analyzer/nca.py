@@ -82,19 +82,19 @@ def run_args(args):
         return cl_execute.execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list)
 
     if args.interferes:
-        return cl_execute.interferes(args.interferes, base_np_list)
+        return cl_execute.execute_pair_configs_query('interferes', args.interferes, base_np_list)
 
     if args.forbids:
-        return cl_execute.execute_pair_configs_query('forbids', args.forbids, base_np_list)
+        return cl_execute.execute_pair_configs_query('forbids', base_np_list, args.forbids)
 
     if args.permits:
-        return cl_execute.execute_pair_configs_query('permits', args.permits, base_np_list)
+        return cl_execute.execute_pair_configs_query('permits', base_np_list, args.permits)
 
     if args.connectivity:
         return cl_execute.execute_single_config_query('connectivityMap', args.connectivity)
 
     if args.semantic_diff:
-        return cl_execute.execute_pair_configs_query('semanticDiff', args.semantic_diff, base_np_list)
+        return cl_execute.execute_pair_configs_query('semanticDiff', base_np_list, args.semantic_diff)
 
     return cl_execute.execute_single_config_query('sanity', args.sanity or 'k8s')
 
