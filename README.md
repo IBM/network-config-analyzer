@@ -18,7 +18,7 @@ Running several sanity checks on the given set of NetworkPolicies
 - `--equiv <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
 Semantically comparing two sets of NetworkPolicy sets to decide whether they allow exactly the same traffic
 - `--interferes <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
-Checking whether the base set of NetworkPolicies interferes with the given set of NetworkPolicies
+Checking whether the given set of NetworkPolicies interferes with the base set of NetworkPolicies 
 (allows more traffic between relevant endpoints)
 - `--permits <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
 Checking whether the base set of NetworkPolicies permits the traffic explicitly specified in the given set of NetworkPolicies

@@ -146,22 +146,6 @@ class SchemeRunner(GenericYamlParser):
         self.run_queries(self.scheme.get('queries', []))
         return self.global_res
 
-    @staticmethod
-    def _lower_camel_to_snake_case(keyword):
-        """
-        Converts a lowerCamelCase keyword (from json file) to a snake_case (to be used as a python var)
-        :param str keyword: the keyword to convert
-        :return: The keyword in snake_case
-        :rtype: str
-        """
-        ret = ''
-        for letter in keyword:
-            if letter.isupper():
-                ret += '_' + letter.lower()
-            else:
-                ret += letter
-        return ret
-
     def get_query_output_config_obj(self, query):
         """
         return an output config object based on scheme query and cli arguments
