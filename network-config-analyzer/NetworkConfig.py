@@ -342,7 +342,7 @@ class NetworkConfig:
 
         if self.type == NetworkConfig.ConfigType.Istio:
             # for istio initialize non-captured conns with non-TCP connections
-            allowed_non_captured_conns = ConnectionSet.get_non_TCP_connections()
+            allowed_non_captured_conns = ConnectionSet.get_non_tcp_connections()
             if not is_ingress:
                 allowed_non_captured_conns = ConnectionSet(True)  # egress currently always allowed and not captured
             elif not has_allow_policies_for_target:

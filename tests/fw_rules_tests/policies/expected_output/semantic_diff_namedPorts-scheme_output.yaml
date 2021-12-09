@@ -15,7 +15,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '10054'
+      - 10054
   - src_ns:
     - default
     - kube-system
@@ -30,7 +30,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '10054'
+      - 10054
 - query: 'semantic_diff, config1: np1_named_ports, config2: np2_named_ports, key:
     Added connections between persistent peers and ipBlocks'
   rules:
@@ -43,7 +43,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '10054'
+      - 10054
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
@@ -53,7 +53,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '10054'
+      - 10054
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -63,7 +63,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '10054'
+      - 10054
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -73,5 +73,5 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '10054'
+      - 10054
 

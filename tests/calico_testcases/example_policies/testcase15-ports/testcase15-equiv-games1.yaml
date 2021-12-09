@@ -15,7 +15,7 @@ spec:
     protocol: TCP
     destination:
       ports:
-      - 1:65536
+      - 1:65535
 ---
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
@@ -53,7 +53,7 @@ spec:
     destination:
       ports:
       - 101:104
-      - 301:65536
+      - 301:65535
       selector: all()
 ---
 apiVersion: projectcalico.org/v3
@@ -133,7 +133,7 @@ spec:
       ports:
       - 1:100
       - 105:200
-      - 300:65536
+      - 300:65535
       selector: all()
   - action: Allow
     protocol: TCP

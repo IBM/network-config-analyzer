@@ -21,18 +21,19 @@ class ClusterInfo:
 
     invalid_val = '#NO_LABEL_VALUE'
 
-    def __init__(self, all_peers, allowed_labels, is_k8s_config):
+    def __init__(self, all_peers, allowed_labels, config_type):
         """
         Create a ClusterInfo object
         :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
         :param allowed_labels: the set of allowed labels to be used in generated fw-rules, extracted from policy yamls
+        :param config_type:  of type NetworkConfig.ConfigType: for relevant protocols inference
         """
         self.all_peers = all_peers
         self.allowed_labels = allowed_labels
         self.ns_dict = defaultdict(set)  # map from ns to set of pods
         self.pods_labels_map = defaultdict(set)  # map from (label,value) pairs to set of pods
         self.all_label_values_per_ns = defaultdict(set)  # map from (label_key,ns) to set of all valid values
-        self.is_k8s_config = is_k8s_config
+        self.config_type = config_type
 
         all_pods = set()
         for peer in self.all_peers:

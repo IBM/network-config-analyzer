@@ -10,8 +10,6 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
 
 
 - query: 'connectivity_map, config: np_FirstDenySubset'
@@ -26,8 +24,6 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
 
 
 - query: 'connectivity_map, config: np_firstAllowSuperSet'
@@ -42,7 +38,5 @@
     - has(tier)
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
 
 

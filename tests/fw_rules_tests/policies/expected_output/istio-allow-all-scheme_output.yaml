@@ -10,8 +10,6 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -22,8 +20,6 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
   - src_ns:
     - default
     - kube-system
@@ -38,7 +34,5 @@
     - '*'
     connection:
     - Protocol: TCP
-      Ports:
-      - 1-65536
 
 
