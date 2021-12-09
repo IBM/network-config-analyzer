@@ -3,4 +3,3 @@ src ip block: 0.0.0.0/0 dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: 
 src ip block: ::/0 dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP ,
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP ,
 
-
