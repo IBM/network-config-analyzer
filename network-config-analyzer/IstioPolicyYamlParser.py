@@ -153,8 +153,8 @@ class IstioPolicyYamlParser(GenericYamlParser):
         """
         parse key and its values for a given condition component in a rule
         :param string key: the specified key str
-        :param values: a list of strings with values for this key
-        :param not_values: a list of strings with negative values for this key
+        :param list values: a list of strings with values for this key
+        :param list not_values: a list of strings with negative values for this key
         :return: PeerSet or ConnectionSet (depends on the key) with allowed values
         """
         if key == 'source.ip':
@@ -334,7 +334,10 @@ class IstioPolicyYamlParser(GenericYamlParser):
                 res.add_interval(MethodSet.Interval(index, index))
 
         if index == -1:
-            self.warning("Illegal method '" + method_str + "' ignored", methods_array)
+            if not method_str:
+                self.warning("Empty values for methods", methods_array)
+            else:
+                self.warning("Illegal method '" + method_str + "' ignored", methods_array)
         return res
 
     def get_methods_set(self, operation):
