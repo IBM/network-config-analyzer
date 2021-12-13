@@ -1,0 +1,42 @@
+namespaceList: ../../example_podlist/bookinfo_ns_list.json
+podList: ../../example_podlist/bookinfo_deployments.yaml
+
+networkConfigList:
+  - name: istio-test-methods-4
+    networkPolicyList:
+      - bookinfo-policy-test-methods-4.yaml
+
+  - name: istio-test-methods-1
+    networkPolicyList:
+      - bookinfo-policy-test-methods-1.yaml
+
+queries:
+  - name: equiv-diff-methods
+    equivalence:
+      - istio-test-methods-4/default/details-viewer-allow-get
+      - istio-test-methods-4/default/details-viewer-allow-put
+    expected: 1
+
+  - name: equiv-diff-methods-1
+    equivalence:
+      - istio-test-methods-4/default/details-viewer-allow-put
+      - istio-test-methods-4/default/details-viewer-allow-get
+    expected: 1
+
+  - name: equiv-diff-methods-2
+    equivalence:
+      - istio-test-methods-1/default/allow-nothing
+      - istio-test-methods-1/default/details-viewer
+    expected: 1
+
+  - name: equiv-diff-methods-3
+    equivalence:
+      - istio-test-methods-4/default/details-viewer-allow-get-port-80
+      - istio-test-methods-4/default/details-viewer-allow-nothing
+    expected: 1
+
+  - name: equiv-diff-methods-4
+    equivalence:
+      - istio-test-methods-4/default/details-viewer-allow-get-port-80
+      - istio-test-methods-4/default/details-viewer-allow-get-port-8080
+    expected: 1
