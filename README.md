@@ -35,12 +35,13 @@ Get the connectivity semantic difference as firewall rules between two sets of N
 - a url of a GHE repository/dir/file with NetworkPolicies
 - The string `k8s`, instructing the tool to take all NetworkPolicies from a Kubernetes cluster (using `kubectl`)
 - The string `calico`, instructing the tool to take all NetworkPolicies from a Calico cluster (using `calicoctl`)
+- The string `istio`, instructing the tool to take all AuthorizationPolicies from a Kubernetes cluster (using `kubectl`)
 
 Running with no command-line options at all is like running `nca.py --sanity k8s`.
 
 #### Additional command-line switches:
 - `--base_np_list <path to file or 'k8s'>`\
-  The set of NetworkPolicies to compare against in `--equiv` and `--interferes`\
+  The set of NetworkPolicies to compare against in `--equiv`, `--interferes`,`--permits`, `--forbids` and `--semantic_diff`  \
   *default:* The result of `kubectl get netpol -A`\
   *shorthand:* `-b`
 - `--ns_list <path to file or 'k8s'>`\
@@ -51,6 +52,10 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
   Specifies where to take the list of pods/endpoints from\
   *default:* the result of `kubectl get pods -A`\
   *shorthand*: `-p`
+- `--base_ns_list <path to file or 'k8s'>`\
+  Specifies a file with list of namespaces to compare against in `--semantic_diff`
+- `--base_pod_list  <path to a file, 'calico' or 'k8s'>`\
+  Specifies a file with list of pods/endpoints to compare against in `--semantic_diff`
 - `--ghe_token <token>`\
   A valid token to access a GHE repository
 - `--period <minutes>`\
@@ -82,6 +87,7 @@ python network-config-analyzer/nca.py -h
 ## Supported platforms
 * Kubernetes
 * Calico
+* Istio (see what is supported [here](docs/IstioSupport.md).)
 
 ## Contributing
 
