@@ -62,6 +62,6 @@ class CmdlineRunner:
         :return: The output of 'kubectl get' (should be a list-resource)
         """
         cmdline_list = ['kubectl', 'get', resource, '-o=json']
-        if resource in ['networkPolicy', 'pod']:
+        if resource in ['networkPolicy', 'authorizationPolicy', 'pod']:
             cmdline_list.append('--all-namespaces')
         return CmdlineRunner.run_and_get_output(cmdline_list)

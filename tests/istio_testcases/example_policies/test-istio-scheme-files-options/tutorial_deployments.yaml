@@ -1,0 +1,221 @@
+# modifications: added namespace + serviceAccountName for each Deployment
+---
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  name: "customer"
+  namespace: tutorial
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: customer
+    version: v1
+  name: customer
+  namespace: tutorial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: customer
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTIONS
+              value: -Xms15m -Xmx15m -Xmn15m
+          name: customer
+          image: quay.io/rhdevelopers/istio-tutorial-customer:v1.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8778
+              name: jolokia
+              protocol: TCP
+            - containerPort: 9779
+              name: prometheus
+              protocol: TCP
+          resources:
+            requests:
+              memory: "20Mi"
+              cpu: "200m" # 1/5 core
+            limits:
+              memory: "40Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/health/live
+            initialDelaySeconds: 5
+            periodSeconds: 4
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/health/ready
+            initialDelaySeconds: 6
+            periodSeconds: 5
+            timeoutSeconds: 1
+          securityContext:
+            privileged: false
+      serviceAccount: "customer"
+      serviceAccountName: "customer"
+
+---
+---
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  name: "recommendation"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: recommendation
+    version: v1
+  name: recommendation-v1
+  namespace: tutorial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommendation
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: recommendation
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTIONS
+              value: -Xms15m -Xmx15m -Xmn15m
+          name: recommendation
+          image: quay.io/rhdevelopers/istio-tutorial-recommendation:v1.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8778
+              name: jolokia
+              protocol: TCP
+            - containerPort: 9779
+              name: prometheus
+              protocol: TCP
+          resources:
+            requests:
+              memory: "80Mi"
+              cpu: "200m" # 1/5 core
+            limits:
+              memory: "120Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/health/live
+            initialDelaySeconds: 5
+            periodSeconds: 4
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/health/ready
+            initialDelaySeconds: 6
+            periodSeconds: 5
+            timeoutSeconds: 1
+          securityContext:
+            privileged: false
+      serviceAccount: "recommendation"
+      serviceAccountName: "recommendation"
+---
+---
+apiVersion: "v1"
+kind: "ServiceAccount"
+metadata:
+  name: "preference"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: preference
+    version: v1
+  name: preference-v1
+  namespace: tutorial
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: preference
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: preference
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTIONS
+              value: -Xms15m -Xmx15m -Xmn15m
+          name: preference
+          image: quay.io/rhdevelopers/istio-tutorial-preference:v1.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8778
+              name: jolokia
+              protocol: TCP
+            - containerPort: 9779
+              name: prometheus
+              protocol: TCP
+          resources:
+            requests:
+              memory: "20Mi"
+              cpu: "200m" # 1/5 core
+            limits:
+              memory: "40Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/health/live
+            initialDelaySeconds: 5
+            periodSeconds: 4
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - localhost:8080/health/ready
+            initialDelaySeconds: 6
+            periodSeconds: 5
+            timeoutSeconds: 1
+          securityContext:
+            privileged: false
+      serviceAccount: "preference"
+      serviceAccountName: "preference"
