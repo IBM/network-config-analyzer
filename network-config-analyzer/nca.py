@@ -8,8 +8,11 @@ import sys
 import time
 import os
 from SchemeRunner import SchemeRunner
-from CLExecute import CLExecute
 from RESTServer import RestServer
+from OutputConfiguration import OutputConfiguration
+from PeerContainer import PeerContainer
+from NetworkConfig import NetworkConfig
+from NetworkConfigQueryRunner import NetworkConfigQueryRunner
 
 
 def _valid_path(path_location, allow_ghe=False, allowed_platforms=None):
@@ -66,6 +69,36 @@ def _do_every(period, func, *args):
         time.sleep(next(sleep_for))
 
 
+def _execute_single_config_query(query_name, np1_list, peer_container, output_config):
+    """
+    Runs a query on single set of policies
+    :param str query_name: the name of the arg.query
+    :param str np1_list: set of policies
+    :param PeerContainer peer_container: set of peers
+    :param OutputConfiguration output_config: dict object
+    :rtype: int
+    """
+    network_config1 = NetworkConfig(np1_list, peer_container, [np1_list])
+    return NetworkConfigQueryRunner(query_name, [network_config1], output_config).run_query() > 0
+
+
+def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config):
+    """
+    Runs an pair configs query between two sets of policies
+    :param str query_name: the name of the arg.query
+    :param str np1_list_location: First set of policies
+    :param str np2_list_location:  Second set of policies
+    :param PeerContainer base_peer_container: set of base peers
+    :param PeerContainer peer_container: set of peers
+    :param OutputConfiguration output_config: dict object
+    :return: result of executing the query
+    :rtype: int
+    """
+    network_config1 = NetworkConfig(np1_list_location, base_peer_container, [np1_list_location])
+    network_config2 = NetworkConfig(np2_list_location, peer_container, [np2_list_location])
+    return NetworkConfigQueryRunner(query_name, [network_config1, network_config2], output_config).run_query(True)
+
+
 def run_args(args):
     """
     Given the parsed cmdline, decide what to run
@@ -77,32 +110,35 @@ def run_args(args):
     if args.scheme:
         return SchemeRunner(args.scheme, args.output_format, args.file_out).run_scheme()
 
-    ns_list = args.ns_list or 'k8s'
-    pod_list = args.pod_list or 'k8s'
-    base_ns_list = args.base_ns_list or args.ns_list
-    base_pod_list = args.base_pod_list or args.pod_list
     base_np_list = args.base_np_list or 'k8s'
-    output_format = args.output_format or 'txt'
-    cl_execute = CLExecute(base_ns_list, base_pod_list, ns_list, pod_list, output_format, args.file_out, args.pr_url)
+    base_peer_container = PeerContainer(args.base_ns_list or args.ns_list, args.base_pod_list or args.pod_list)
+    peer_container = PeerContainer(args.ns_list or 'k8s', args.pod_list or 'k8s')
+    output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
+                                         'outputPath': args.file_out or None, 'prURL': args.pr_url or None})
     if args.equiv:
-        return cl_execute.execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list)
+        return _execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list, base_peer_container,
+                                           peer_container, output_config)
 
     if args.interferes:
-        return cl_execute.execute_pair_configs_query('interferes', args.interferes, base_np_list)
+        return _execute_pair_configs_query('interferes', args.interferes, base_np_list, base_peer_container,
+                                           peer_container, output_config)
 
     if args.forbids:
-        return cl_execute.execute_pair_configs_query('forbids', base_np_list, args.forbids)
+        return _execute_pair_configs_query('forbids', base_np_list, args.forbids, base_peer_container,
+                                           peer_container, output_config)
 
     if args.permits:
-        return cl_execute.execute_pair_configs_query('permits', base_np_list, args.permits)
+        return _execute_pair_configs_query('permits', base_np_list, args.permits, base_peer_container,
+                                           peer_container, output_config)
 
     if args.connectivity:
-        return cl_execute.execute_single_config_query('connectivityMap', args.connectivity)
+        return _execute_single_config_query('connectivityMap', args.connectivity, peer_container, output_config)
 
     if args.semantic_diff:
-        return cl_execute.execute_pair_configs_query('semanticDiff', base_np_list, args.semantic_diff)
+        return _execute_pair_configs_query('semanticDiff', base_np_list, args.semantic_diff, base_peer_container,
+                                           peer_container, output_config)
 
-    return cl_execute.execute_single_config_query('sanity', args.sanity or 'k8s')
+    return _execute_single_config_query('sanity', args.sanity or 'k8s', peer_container, output_config)
 
 
 def nca_main(argv=None):
