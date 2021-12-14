@@ -71,6 +71,25 @@ spec:
   apiVersion: security.istio.io/v1beta1
   kind: AuthorizationPolicy
   metadata:
+    name: "allow-all-methods"
+    namespace: default
+  spec:
+    selector:
+      matchLabels:
+        app: productpage
+    action: ALLOW
+    rules:
+      - from:
+          - source:
+              principals: [ "cluster.local/ns/default/sa/bookinfo-reviews" ]
+        to:
+          - operation:
+              methods: ['*']
+
+---
+  apiVersion: security.istio.io/v1beta1
+  kind: AuthorizationPolicy
+  metadata:
     name: "allow-no-methods"
     namespace: default
   spec:
@@ -81,26 +100,7 @@ spec:
     rules:
       - from:
           - source:
-              principals: [ "cluster.local/ns/default/sa/bookinfo-productpage" ]
-        to:
-          - operation:
-              notMethods: ['*']
-
----
-  apiVersion: security.istio.io/v1beta1
-  kind: AuthorizationPolicy
-  metadata:
-    name: "allow-no-methods2"
-    namespace: default
-  spec:
-    selector:
-      matchLabels:
-        app: productpage
-    action: ALLOW
-    rules:
-      - from:
-          - source:
-              principals: [ "cluster.local/ns/default/sa/bookinfo-productpage" ]
+              principals: [ "cluster.local/ns/default/sa/bookinfo-details" ]
         to:
           - operation:
               methods: ['DUMMY']

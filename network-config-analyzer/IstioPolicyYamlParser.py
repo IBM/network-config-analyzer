@@ -232,23 +232,30 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         return rule_ports
 
-    @staticmethod
-    def parse_str_value(str_val_input):
+    def parse_str_value(self, str_val_input, dim_name, operation, allowed_non_word_chars=""):
         """
         transform input regex/str to the format supported by greenery
         :param str str_val_input: the str/regex from input
         :return: str: the result regex/str after conversion
         """
-        # TODO: for istio regex the "*" corresponds to any string but empty
-        # TODO: add some checks that input is valid : (1) characters valid (2) '*' only at prefix/suffix
-        res = str_val_input
-        res = res.replace(".", "[.]")
-        # TODO: refine legal characters by dimension domain, should not always use the default alphabet
-        res = res.replace("*", DimensionsManager().default_dfa_alphabet_str)
-        # res = res.replace("*", "[.\w/\-]*")
+        allowed_chars = "[\\w" + allowed_non_word_chars + "]"
+        allowed_chars_with_star_regex = "[\\w*" + allowed_non_word_chars + "]*"
+        if not re.fullmatch(allowed_chars_with_star_regex, str_val_input):
+            self.syntax_error(f'Illegal characters in {dim_name} {str_val_input} in {operation}')
+
+        res = str_val_input.replace(".", "[.]")
+        if '*' in res:
+            if res.count('*') > 1:
+                self.syntax_error(f'Only one asterisk is allowed in {dim_name} {res} in {operation}. ')
+            if res == '*': # presence match
+                res = allowed_chars + "+" # non-empty string of allowed chars
+            elif res.startswith('*') or res.endswith('*'): # prefix/suffix match
+                res = res.replace("*", allowed_chars + '*')
+            else:
+                self.syntax_error(f'Illegal asterisk inside {dim_name} {res} in {operation}')
         return res
 
-    def get_values_list_regex(self, values_list):
+    def get_values_list_regex(self, values_list, dim_name, operation):
         """
         Given a list of regex str values, return one regex for the entire list (or between all its elements).
         (the goal is to minimize the number of calls to dfa_from_regex).
@@ -256,7 +263,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :return: str: the result regex str
         """
         assert len(values_list) > 0
-        return '|'.join(self.parse_str_value(str_value) for str_value in values_list)
+        return '|'.join(self.parse_str_value(str_value, dim_name, operation, "/.\\-") for str_value in values_list)
 
     def parse_regex_dimension_values(self, dim_name, values_list, negative_values_list, operation_dict):
         """
@@ -275,14 +282,14 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if values_list is None and negative_values_list is None:
             return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
         if values_list is not None:
-            positive_regex = self.get_values_list_regex(values_list)
+            positive_regex = self.get_values_list_regex(values_list, dim_name, operation_dict)
             values_dfa = MinDFA.dfa_from_regex(positive_regex)
         else:
             values_dfa = entire_domain_dfa
 
         if negative_values_list is None:
             return values_dfa
-        negative_regex = self.get_values_list_regex(negative_values_list)
+        negative_regex = self.get_values_list_regex(negative_values_list, dim_name, operation_dict)
         negative_values_dfa = MinDFA.dfa_from_regex(negative_regex)
         res = values_dfa - negative_values_dfa
         if not res:
@@ -308,28 +315,10 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
     def _parse_method(self, method_str, methods_array):
         res = MethodSet()
-        if method_str == '*': # presence match
-            res.add_interval(MethodSet.whole_range_interval())
-            return res
-        if '*' in method_str:
-            if method_str.count('*') > 1:
-                self.syntax_error("Illegal method " + method_str, methods_array)
-            # Fix Istio regex to match standard regex
-            if re.match('\*[a-zA-Z]+', method_str):
-                # prefix match
-                method_str = '.' + method_str + '$'
-            elif re.match('[a-zA-Z]+\*$', method_str):
-                # suffix match
-                method_str = '^' + method_str.split('*')[0] + '.*'
-            else:
-                self.syntax_error("Illegal method " + method_str, methods_array)
-        else:
-            if not method_str.isalpha():
-                self.syntax_error("Illegal method " + method_str, methods_array)
-
+        method_regex =  self.parse_str_value(method_str, 'method', methods_array)
         index = -1
         for method in MethodSet.all_methods_list:
-            if re.search(method_str, method):
+            if re.fullmatch(method_regex, method):
                 index = MethodSet.all_methods_list.index(method)
                 res.add_interval(MethodSet.Interval(index, index))
 
@@ -352,7 +341,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         not_methods_array = operation.get('notMethods')
         if not_methods_array is not None:
             for method_str in not_methods_array:
-                rule_methods -= self._parse_method(method_str, methods_array)
+                rule_methods -= self._parse_method(method_str, not_methods_array)
 
         return rule_methods
 
