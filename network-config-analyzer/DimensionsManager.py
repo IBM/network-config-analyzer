@@ -29,7 +29,7 @@ class DimensionsManager:
             self.domain_str_to_dfa_map = dict()
             dfa_all_words_default = self._get_dfa_from_alphabet_str(self.default_dfa_alphabet_str)
             ports_interval = CanonicalIntervalSet.get_interval_set(1, 65535)
-            all_methods_interval = MethodSet.whole_range_interval_set()
+            all_methods_interval = MethodSet(True)
             self.dim_dict = dict()
             self.dim_dict["src_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval)
             self.dim_dict["dst_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval)
