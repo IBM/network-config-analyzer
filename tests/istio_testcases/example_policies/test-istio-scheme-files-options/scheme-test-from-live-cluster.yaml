@@ -1,0 +1,14 @@
+
+networkConfigList:
+  - name: istio-test-live-cluster
+    networkPolicyList:
+      - istio
+
+
+queries:
+  - name: connectivity-istio-test
+    connectivityMap:
+      - istio-test-live-cluster
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
