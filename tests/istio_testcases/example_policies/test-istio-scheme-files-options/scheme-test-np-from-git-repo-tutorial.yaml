@@ -1,0 +1,22 @@
+#namespaceList: https://github.com/adisos/istio-tutorial/tree/test_policies/**
+#podList: https://github.com/adisos/istio-tutorial/tree/test_policies/**
+namespaceList: ..\test-istio-scheme-files-options\empty_ns.yaml
+podList: ..\test-istio-scheme-files-options\tutorial_deployments.yaml
+
+
+networkConfigList:
+
+  - name: istio-test-git-repo-dir
+    networkPolicyList:
+      #- https://github.com/adisos/istio-tutorial/tree/test_policies/istiofiles
+      - https://github.com/adisos/istio-tutorial/tree/test_policies/**
+
+
+queries:
+
+  - name: connectivity-istio-test-1
+    connectivityMap:
+      - istio-test-git-repo-dir
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0

@@ -12,38 +12,44 @@ from CLExecute import CLExecute
 from RESTServer import RestServer
 
 
-def _valid_path(path_location, allow_ghe=False, allow_k8s=False, allow_calico=False):
+def _valid_path(path_location, allow_ghe=False, allowed_platforms=None):
     """
     A validator for paths in the command line, raising an exception if the path is invalid
     :param str path_location: The path to validate
     :param bool allow_ghe: Whether to allow url to github
-    :param bool allow_k8s: whether to allow the string 'k8s'
-    :param bool allow_calico:  whether to allow the string 'calico'
+    :param list allowed_platforms: list of allowed platforms, sublist of ['k8s', 'calico', 'istio']
     :return: The argument path_location
     :rtype: str
     :raises: argparse.ArgumentTypeError when path is invalid
     """
     if allow_ghe and path_location.startswith('https://github'):
         return path_location
-    if allow_k8s and path_location == 'k8s':
-        return path_location
-    if allow_calico and path_location == 'calico':
+    if allowed_platforms and path_location in allowed_platforms:
         return path_location
     if not os.path.exists(path_location):
         raise argparse.ArgumentTypeError(path_location + ' is not a valid path')
     return path_location
 
 
-def _ghe_or_k8s_or_calico_or_valid_path(path_location):
-    return _valid_path(path_location, allow_ghe=True, allow_k8s=True, allow_calico=True)
+def _network_policies_valid_path(path_location):
+    """
+    validation for paths of Network policies in the command line
+    """
+    return _valid_path(path_location, allow_ghe=True, allowed_platforms=['k8s', 'calico', 'istio'])
 
 
-def _k8s_or_calico_or_valid_path(path_location):
-    return _valid_path(path_location, allow_k8s=True, allow_calico=True)
+def _pod_list_valid_path(path_location):
+    """
+    validation for paths of pod lists in the command line
+    """
+    return _valid_path(path_location, allow_ghe=True, allowed_platforms=['k8s', 'calico'])
 
 
-def _k8s_or_valid_path(path_location):
-    return _valid_path(path_location, allow_k8s=True)
+def _namespace_list_valid_path(path_location):
+    """
+    validation for paths of namespaces list in the command line
+    """
+    return _valid_path(path_location, allow_ghe=True, allowed_platforms=['k8s'])
 
 
 def _do_every(period, func, *args):
@@ -115,35 +121,35 @@ def nca_main(argv=None):
     manual_or_automatic = parser.add_mutually_exclusive_group(required=False)
     manual_or_automatic.add_argument('--scheme', '-s', type=_valid_path,
                                      help='A YAML scheme file, describing verification goals')
-    manual_or_automatic.add_argument('--sanity', type=_ghe_or_k8s_or_calico_or_valid_path,
+    manual_or_automatic.add_argument('--sanity', type=_network_policies_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for sanity checking')
-    manual_or_automatic.add_argument('--connectivity', type=_ghe_or_k8s_or_calico_or_valid_path,
+    manual_or_automatic.add_argument('--connectivity', type=_network_policies_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for connectivity map')
-    manual_or_automatic.add_argument('--semantic_diff', type=_ghe_or_k8s_or_calico_or_valid_path,
+    manual_or_automatic.add_argument('--semantic_diff', type=_network_policies_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for semantic-diff')
-    manual_or_automatic.add_argument('--equiv', type=_ghe_or_k8s_or_calico_or_valid_path,
+    manual_or_automatic.add_argument('--equiv', type=_network_policies_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for equivalence checking')
     manual_or_automatic.add_argument('--interferes', type=str, help='Network policies '
-                                     '(policy name/file/dir/GHE url/cluster-type) for interference checking')
+                                                                    '(policy name/file/dir/GHE url/cluster-type) for interference checking')
     manual_or_automatic.add_argument('--forbids', type=str, help='Network policies '
-                                     '(policy name/file/dir/GHE url/cluster-type) specifying forbidden connections')
+                                                                 '(policy name/file/dir/GHE url/cluster-type) specifying forbidden connections')
     manual_or_automatic.add_argument('--permits', type=str, help='Network policies '
-                                     '(policy name/file/dir/GHE url/cluster-type) specifying permitted connections')
+                                                                 '(policy name/file/dir/GHE url/cluster-type) specifying permitted connections')
     manual_or_automatic.add_argument('--daemon', action='store_true', help='Run NCA as a daemon with REST API')
-    parser.add_argument('--base_np_list', '-b', type=_ghe_or_k8s_or_calico_or_valid_path, default='k8s',
+    parser.add_argument('--base_np_list', '-b', type=_network_policies_valid_path, default='k8s',
                         help='Filesystem or GHE location of base network policies '
                              'for equiv/interferes/forbids/permits/semantic_diff check (default: k8s cluster)')
-    parser.add_argument('--base_pod_list', '-pb', type=_ghe_or_k8s_or_calico_or_valid_path, action='append',
-                        help='A file/cluster-type to read old pod list from. Used for semantic_diff check, '
+    parser.add_argument('--base_pod_list', '-pb', type=_pod_list_valid_path, action='append',
+                        help='A file/GHE url/cluster-type to read old pod list from. Used for semantic_diff check, '
                              'may be used multiple times')
-    parser.add_argument('--base_ns_list', '-nb', type=_ghe_or_k8s_or_calico_or_valid_path, action='append',
-                        help='A file/cluster-type to read old namespace list from. Used for semantic_diff check, '
+    parser.add_argument('--base_ns_list', '-nb', type=_namespace_list_valid_path, action='append',
+                        help='A file/GHE url/cluster-type to read old namespace list from. Used for semantic_diff check, '
                              'may be used multiple times')
-    parser.add_argument('--ns_list', '-n', type=_ghe_or_k8s_or_calico_or_valid_path, action='append',
-                        help='A file/cluster-type to read namespace list from. '
+    parser.add_argument('--ns_list', '-n', type=_namespace_list_valid_path, action='append',
+                        help='A file/GHE url/cluster-type to read namespace list from. '
                              'This option may be specified multiple times')
-    parser.add_argument('--pod_list', '-p', type=_ghe_or_k8s_or_calico_or_valid_path, action='append',
-                        help='A file/cluster-type to read pod list from. This option may be specified multiple times')
+    parser.add_argument('--pod_list', '-p', type=_pod_list_valid_path, action='append',
+                        help='A file/GHE url/cluster-type to read pod list from. This option may be specified multiple times')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
