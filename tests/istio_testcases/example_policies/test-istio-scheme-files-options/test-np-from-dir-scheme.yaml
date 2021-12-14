@@ -1,0 +1,17 @@
+namespaceList: ../../example_podlist/bookinfo_ns_list.json
+podList: ../../example_podlist/bookinfo_pods_list.json
+#podList: ../../example_podlist/bookinfo_deployments.yaml
+
+networkConfigList:
+  - name: istio-test-current-dir
+    networkPolicyList:
+      - ../test-istio-scheme-files-options
+      #- ../test-istio-scheme-files-options/**
+
+queries:
+  - name: connectivity-istio-test
+    connectivityMap:
+      - istio-test-current-dir
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0

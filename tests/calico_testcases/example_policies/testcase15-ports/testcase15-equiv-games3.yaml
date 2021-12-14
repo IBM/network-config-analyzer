@@ -28,7 +28,7 @@ spec:
     destination:
       ports:
       - 101:104
-      - 301:65536
+      - 301:65535
       selector: all()
 ---
 apiVersion: projectcalico.org/v3
@@ -55,7 +55,7 @@ spec:
     destination:
       ports:
       - 101:104
-      - 301:65536
+      - 301:65535
       selector: all()
   - action: Allow
     protocol: TCP
@@ -66,7 +66,7 @@ spec:
     destination:
       ports:
       - 101:104
-      - 301:65536
+      - 301:65535
       selector: all()
 ---
 apiVersion: projectcalico.org/v3
@@ -93,7 +93,7 @@ spec:
     destination:
       ports:
       - 101:104
-      - 301:65536
+      - 301:65535
       selector: all()
   - action: Allow
     protocol: TCP
@@ -104,7 +104,7 @@ spec:
     destination:
       ports:
       - 101:104
-      - 301:65536
+      - 301:65535
       selector: all()
 ---
 apiVersion: projectcalico.org/v3

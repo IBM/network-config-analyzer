@@ -697,12 +697,12 @@ class MinimizeFWRules:
         elif req_format in ['csv', 'md']:
             is_csv = req_format == 'csv'
             res = ''
-            header_lines = [[query_name] + ['']*(len(FWRule.rule_csv_header)-1)]
+            header_lines = [[query_name] + [''] * (len(FWRule.rule_csv_header) - 1)]
             if add_csv_header:
                 if is_csv:
                     header_lines = [FWRule.rule_csv_header] + header_lines
                 else:
-                    header_lines = [FWRule.rule_csv_header, ['---']*len(FWRule.rule_csv_header)] + header_lines
+                    header_lines = [FWRule.rule_csv_header, ['---'] * len(FWRule.rule_csv_header)] + header_lines
             rules_list = header_lines + rules_list
             for row in rules_list:
                 row_str = '' if is_csv else '|'
@@ -725,5 +725,5 @@ class MinimizeFWRules:
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                res.append(rule.get_rule_in_req_format(req_format, self.cluster_info.is_k8s_config))
+                res.append(rule.get_rule_in_req_format(req_format, self.cluster_info.config_type))
         return res

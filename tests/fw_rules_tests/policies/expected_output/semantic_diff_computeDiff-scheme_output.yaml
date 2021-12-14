@@ -14,14 +14,12 @@
       Ports:
       - 1-8079
       - 8081-9089
-      - 9091-65536
+      - 9091-65535
     - Protocol: UDP
       Ports:
       - 1-8079
-      - 8081-65536
+      - 8081-65535
     - Protocol: SCTP
-      Ports:
-      - 1-65536
 - query: 'semantic_diff, config1: new1, config2: old1, key: Removed connections between
     persistent peers'
   rules:
@@ -37,13 +35,9 @@
     - Protocol: TCP
       Ports:
       - 1-8079
-      - 8081-65536
+      - 8081-65535
     - Protocol: UDP
-      Ports:
-      - 1-65536
     - Protocol: SCTP
-      Ports:
-      - 1-65536
 
 - query: 'semantic_diff, config1: new1a, config2: old1, key: Added connections between
     persistent peers'
@@ -59,7 +53,7 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8080'
+      - 8080
   - src_ns:
     - demo
     src_pods:
@@ -84,7 +78,7 @@
     connection:
     - Protocol: UDP
       Ports:
-      - '8080'
+      - 8080
 
 - query: 'semantic_diff, config1: new2, config2: old2, key: Added connections between
     persistent peers'
@@ -100,13 +94,13 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8080'
+      - 8080
     - Protocol: UDP
       Ports:
-      - '9090'
+      - 9090
     - Protocol: SCTP
       Ports:
-      - '7070'
+      - 7070
 - query: 'semantic_diff, config1: new2, config2: old2, key: Removed connections between
     persistent peers'
   rules:
@@ -121,8 +115,8 @@
     connection:
     - Protocol: TCP
       Ports:
-      - '8082'
+      - 8082
     - Protocol: UDP
       Ports:
-      - '9091'
+      - 9091
 

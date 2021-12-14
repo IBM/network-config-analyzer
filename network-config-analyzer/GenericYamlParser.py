@@ -6,6 +6,8 @@
 from sys import stderr
 from ruamel.yaml import comments
 
+from DimensionsManager import DimensionsManager
+
 
 class GenericYamlParser:
     """
@@ -136,3 +138,17 @@ class GenericYamlParser:
         arr_length_set = set(len(v) for v in dict_elem.values())
         if arr_length_set == {0} or not arr_length_set:
             self.syntax_error(f"{dict_key_str} cannot be empty ")
+
+    def validate_value_in_domain(self, value, dim_name, array, value_name):
+        """
+        check that a given parsed value is valid by the defined domain of its associated dimension
+        :param value: the value to validate
+        :param dim_name:  the dimension name (which defines the domain)
+        :param array: the element where this value is parsed from
+        :param value_name: the name of the value (to be shown in error message)
+        :return: None
+        :raises SyntaxError: if the value is not within the defined domain for the relevant dimension
+        """
+        is_valid, err_message = DimensionsManager().validate_value_by_domain(value, dim_name, value_name)
+        if not is_valid:
+            self.syntax_error(err_message, array)
