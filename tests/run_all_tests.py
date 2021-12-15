@@ -32,6 +32,8 @@ script should be run with one of the following flags combinations:
     optional flags:
     --dont_clean_output_files   (will save output files in tests/actual_output_files.
                                  by default cleaning generated output files)
+    --check_run_time    (will print a list of tests with unexpected run time 
+                         performance in tests/tests_failed_runtime_check.csv)
 
 """
 
@@ -152,7 +154,7 @@ class SchemeFile:
 # general test: comparison of numerical result (nca return value) to expected value
 # most of the test flow is common to other tests types
 class GeneralTest:
-    def __init__(self, test_name, test_queries_obj, expected_result, clean_out_files, required_output_config_flag):
+    def __init__(self, test_name, test_queries_obj, expected_result, clean_out_files, check_run_time, required_output_config_flag):
         self.test_name = test_name  # str
         self.test_queries_obj = test_queries_obj  # SchemeFile or CliQuery
         self.result = None  # tuple of (numerical result, test runtime)
@@ -162,6 +164,7 @@ class GeneralTest:
         self.expected_result = expected_result  # integer - expected return value from nca
         self.result_details = None  # extra info on test results. currently only relevant for OutputTests
         self.clean_out_files = clean_out_files
+        self.check_run_time = check_run_time
         self.required_output_config_flag = required_output_config_flag
 
     def initialize_test(self):
@@ -200,7 +203,7 @@ class GeneralTest:
     def evaluate_test_results(self):
         self.numerical_result = 1 if self.nca_res != self.expected_result else 0
 
-    def get_expected_test_run_time(self):
+    def _get_expected_test_run_time(self):
         expected_time_file_name = "./tests_expected_runtime.csv"
         with open(expected_time_file_name, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
@@ -208,18 +211,32 @@ class GeneralTest:
                 current_test = row[0] if row[0].startswith('cmdline_') else os.path.abspath(row[0])
                 if current_test == self.test_name:
                     return float(row[1])
+        csv_file.close()
         return 0.0
+
+    def _execute_run_time_compare(self, actual_run_time):
+        output_file = "./tests_failed_runtime_check.csv"
+        write_header = False
+        expected_run_time = self._get_expected_test_run_time()
+        if actual_run_time >= expected_run_time * 2:
+            if not path.isfile(output_file):
+                write_header = True
+            with open(output_file, 'a') as csv_file:
+                csv_writer = csv.writer(csv_file)
+                if write_header:
+                    csv_writer.writerow(['test_name', 'expected_run_time (seconds)', 'actual_run_time (seconds)'])
+                csv_writer.writerow([self.test_name, expected_run_time, f'{actual_run_time:.2f}'])
+            csv_file.close()
 
     def finalize_test(self):
         if not self.test_passed():
             print('Testcase', self.test_name, 'failed', file=sys.stderr)
         else:
             print('Testcase', self.test_name, 'passed')
-        expected_run_time = self.get_expected_test_run_time()
         actual_run_time = time() - self.start_time
         self.result = (self.numerical_result, actual_run_time, self.result_details)
-        if actual_run_time >= expected_run_time*2:
-            print(f'Warning: Test performance of {self.test_name} should be faster', file=stderr)
+        if self.check_run_time:
+            self._execute_run_time_compare(actual_run_time)
         if self.clean_out_files:
             self._clean_generated_output_files()
         self._update_required_scheme_file_config_args(False)
@@ -246,7 +263,7 @@ class OutputTest(GeneralTest):
     stdout_ouf_file_suffix = '__stdout_output.txt'
 
     def __init__(self, test_name, test_queries_obj, expected_output_dir, clean_out_files, required_output_config_flag):
-        super().__init__(test_name, test_queries_obj, None, clean_out_files, required_output_config_flag)
+        super().__init__(test_name, test_queries_obj, None, clean_out_files, None, required_output_config_flag)
         self.expected_output_dir = expected_output_dir
         self.result_details = {}  # map from file name to comparison result (bool)
         self.clean_out_files = clean_out_files
@@ -346,7 +363,7 @@ class OutputTest(GeneralTest):
 # for fw-rules - activate assertions for testing in fwRulesTestMode
 class AssertionTest(GeneralTest):
     def __init__(self, test_name, test_queries_obj, clean_out_files, required_output_config_flag):
-        super().__init__(test_name, test_queries_obj, None, clean_out_files, required_output_config_flag)
+        super().__init__(test_name, test_queries_obj, None, clean_out_files, None, required_output_config_flag)
         self.assertion_error = None
 
     def run_test(self):
@@ -378,7 +395,7 @@ class TestFilesSpec(dict):
 
 
 class TestsRunner:
-    def __init__(self, spec_file, tests_type, action, clean_out_files):
+    def __init__(self, spec_file, tests_type, action, clean_out_files, check_run_time):
         self.spec_file = spec_file
         self.all_results = {}
         self.global_res = 0
@@ -386,6 +403,7 @@ class TestsRunner:
         self.action = action
         self.test_files_spec = None
         self.clean_out_files = clean_out_files
+        self.check_run_time = check_run_time
 
     @staticmethod
     def k8s_apply_resources(yaml_file):
@@ -397,7 +415,18 @@ class TestsRunner:
         self.k8s_apply_resources(cluster_config.get('pods', ''))
         self.k8s_apply_resources(cluster_config.get('policies', ''))
 
+    @staticmethod
+    def _remove_failed_run_time_file():
+        """
+        removes the tests_failed_runtime_check.csv if exists from previous run
+        """
+        file_name = "./tests_failed_runtime_check.csv"
+        if path.isfile(file_name):
+            os.remove(file_name)
+
     def run_tests(self):
+        if self.check_run_time:
+            self._remove_failed_run_time_file()
         with open(self.spec_file, 'r') as doc:
             spec_all = yaml.safe_load(doc)
             sepc_per_type = spec_all.get(self.tests_type, {})
@@ -443,7 +472,7 @@ class TestsRunner:
             required_output_config_flag = self.test_files_spec.activate_output_config_flag
             if self.tests_type in {'general', 'k8s_live_general'}:
                 test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res, self.clean_out_files,
-                                       required_output_config_flag)
+                                       self.check_run_time, required_output_config_flag)
             elif self.tests_type == 'fw_rules_assertions':
                 test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, self.clean_out_files,
                                          required_output_config_flag)
@@ -532,17 +561,23 @@ def main(argv=None):
                         default='run_tests',
                         help='Choose action')
     parser.add_argument('--dont_clean_output_files', action='store_true', help='Do not clean output files')
+    parser.add_argument('--check_run_time', action='store_true', help='Print tests_failed_runtime_check.csv, '
+                                                   'list of tests with unexpected run time performance')
 
     args = parser.parse_args(argv)
     test_type = args.type
     action = args.action
     clean_out_files = not args.dont_clean_output_files
+    check_run_time = args.check_run_time
     if action != 'run_tests' and test_type != 'output':
         print(f'action: {action} is not supported with test type: {test_type}')
         sys.exit(1)
+    # if check_run_time and test_type != 'general':
+    #     print(f'check_run_time flag is not supported with test type: {test_type}')
+    #     sys.exit(1)
 
     spec_file = 'all_tests_spec.yaml'
-    tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files)
+    tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files, check_run_time)
     tests_runner.run_tests()
     return tests_runner.global_res
 
