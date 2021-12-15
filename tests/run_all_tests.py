@@ -572,9 +572,9 @@ def main(argv=None):
     if action != 'run_tests' and test_type != 'output':
         print(f'action: {action} is not supported with test type: {test_type}')
         sys.exit(1)
-    # if check_run_time and test_type != 'general':
-    #     print(f'check_run_time flag is not supported with test type: {test_type}')
-    #     sys.exit(1)
+    if check_run_time and test_type != 'general':
+        print(f'check_run_time flag is not supported with test type: {test_type}')
+        sys.exit(1)
 
     spec_file = 'all_tests_spec.yaml'
     tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files, check_run_time)
