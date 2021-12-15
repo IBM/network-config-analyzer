@@ -5,13 +5,13 @@
 from dataclasses import dataclass
 import copy
 import itertools
+from enum import Enum
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
 from ConnectionSet import ConnectionSet
 from ConnectivityGraph import ConnectivityGraph
 from OutputConfiguration import OutputConfiguration
 from Peer import PeerSet, IpBlock
-from enum import Enum
 
 
 class QueryType(Enum):
@@ -562,6 +562,10 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         self.name1 = config1.name
         self.name2 = config2.name
 
+    @staticmethod
+    def get_query_type():
+        return QueryType.ComparisonToBaseConfigQuery
+
     def is_identical_topologies(self, check_same_policies=False):
         if self.config1.peer_container != self.config2.peer_container:
             return QueryAnswer(False, 'The two configurations have different network topologies '
@@ -666,7 +670,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
 
     @staticmethod
-    def compute_query_output(query_answer, cmd_line_flag=False):
+    def compute_query_output(query_answer, _):
         query_output = query_answer.output_result
         if not query_answer.bool_result:
             query_output += query_answer.output_explanation + '\n'
@@ -984,10 +988,6 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     Checking whether the connections allowed by config1 are contained in those allowed by config2
     """
 
-    @staticmethod
-    def get_query_type():
-        return QueryType.ComparisonToBaseConfigQuery
-
     def exec(self, only_captured=False):
         config1_peers = self.config1.peer_container.get_all_peers_group()
         peers_in_config1_not_in_config2 = config1_peers - self.config2.peer_container.get_all_peers_group()
@@ -1074,10 +1074,6 @@ class PermitsQuery(TwoNetworkConfigsQuery):
     Checking whether the connections explicitly allowed by config1 are allowed by config2
     """
 
-    @staticmethod
-    def get_query_type():
-        return QueryType.ComparisonToBaseConfigQuery
-
     def exec(self):
         if not self.config1:
             return QueryAnswer(False,
@@ -1109,9 +1105,6 @@ class InterferesQuery(TwoNetworkConfigsQuery):
     """
     Checking whether config2 extends config1's allowed connection for Pods captured by policies in config1
     """
-    @staticmethod
-    def get_query_type():
-        return QueryType.ComparisonToBaseConfigQuery
 
     def exec(self):
         query_answer = self.is_identical_topologies()
@@ -1195,17 +1188,13 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
 
 class ForbidsQuery(TwoNetworkConfigsQuery):
 
-    @staticmethod
-    def get_query_type():
-        return QueryType.ComparisonToBaseConfigQuery
-
     def exec(self):
         if not self.config1:
-            return QueryAnswer(False,'There are no NetworkPolicies in the given forbids config. '
+            return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
                                      'No traffic is specified as forbidden.')
         return IntersectsQuery(self.config1, self.config2).exec(True)
 
-    def compute_query_output(self, query_answer, cmd_line_flag=False):
+    def compute_query_output(self, query_answer, _):
         if query_answer.bool_result:
             query_output = self.config2.name + ' does not forbid connections specified in ' + \
                                         self.config1.name + ':' + query_answer.output_explanation
