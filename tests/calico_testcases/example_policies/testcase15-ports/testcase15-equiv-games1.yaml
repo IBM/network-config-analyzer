@@ -153,3 +153,18 @@ spec:
       notPorts:
       - 600
       selector: all()
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-enable-all-connections
+  namespace: kube-system
+spec:
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Allow
+
+  egress:
+    - action: Allow

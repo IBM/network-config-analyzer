@@ -16,6 +16,8 @@ class ConnectionSet:
     _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
     _icmp_protocols = {1, 58}
     port_supporting_protocols = {6, 17, 132}
+    _max_protocol_num = 255
+    _min_protocol_num = 1
 
     def __init__(self, allow_all=False):
         self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
@@ -42,7 +44,7 @@ class ConnectionSet:
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
 
     # TODO: should consider shorter notation (complement- 'all but ...' ) for yaml representation as well?
-    def get_connections_list(self, relevant_protocols):
+    def get_connections_list(self, relevant_protocols=None):
         """
         allowed connections representation, restricted to protocols from relevant_protocols
         :param set[int] relevant_protocols:  a set of protocols numbers or None
@@ -56,13 +58,10 @@ class ConnectionSet:
             res.append(str(self))
             return res
         protocols_set = set(self.allowed_protocols.keys())
-        # in k8s policy - restrict allowed protocols only to protocols supported by it
         if relevant_protocols is not None:
             protocols_set &= relevant_protocols
         for protocol in sorted(list(protocols_set)):
-            protocol_text = protocol #self.protocol_number_to_name(protocol)
-            if protocol in ConnectionSet._protocol_number_to_name_dict:
-                protocol_text = ConnectionSet._protocol_number_to_name_dict[protocol]
+            protocol_text = ConnectionSet._protocol_number_to_name_dict.get(protocol, protocol)
             protocol_obj = {'Protocol': protocol_text}
             properties = self.allowed_protocols[protocol]
             if not isinstance(properties, bool):
@@ -70,7 +69,7 @@ class ConnectionSet:
             res.append(protocol_obj)
         return res
 
-    def get_simplified_connections_str(self, relevant_protocols, use_complement_simplification):
+    def get_simplified_connections_str(self, relevant_protocols=None, use_complement_simplification=True):
         """
         Get a simplified representation of the connection set - choose shorter version between self and its complement.
         Restrict representation to relevant protocols, and use complement simplification when required.
@@ -186,6 +185,10 @@ class ConnectionSet:
         for key, properties in other.allowed_protocols.items():
             if key not in res.allowed_protocols:
                 res.allowed_protocols[key] = self.copy_properties(properties)
+
+        if res.is_all_connections():
+            res.allow_all = True
+            res.allowed_protocols.clear()
         return res
 
     def __sub__(self, other):
@@ -242,6 +245,10 @@ class ConnectionSet:
         for key in other.allowed_protocols.keys():
             if key not in self.allowed_protocols:
                 self.allowed_protocols[key] = self.copy_properties(other.allowed_protocols[key])
+
+        if self.is_all_connections():
+            self.allow_all = True
+            self.allowed_protocols.clear()
 
         return self
 
@@ -399,7 +406,7 @@ class ConnectionSet:
         :param list[int] excluded_protocols: (optional) list of protocol numbers to exclude
         :return: None
         """
-        for protocol in range(1, 256):
+        for protocol in range(ConnectionSet._min_protocol_num, ConnectionSet._max_protocol_num + 1):
             if excluded_protocols and protocol in excluded_protocols:
                 continue
             if self.protocol_supports_ports(protocol):
@@ -408,6 +415,19 @@ class ConnectionSet:
                 self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
             else:
                 self.allowed_protocols[protocol] = True
+
+    def is_all_connections(self):
+        """
+        check if self allows all connections, and can be replaced with allow_all flag
+        :rtype: bool
+        """
+        num_protocols = ConnectionSet._max_protocol_num - ConnectionSet._min_protocol_num + 1
+        if len(self.allowed_protocols) < num_protocols:
+            return False
+        for protocol in ConnectionSet.port_supporting_protocols | ConnectionSet._icmp_protocols:
+            if not self.allowed_protocols[protocol].is_all():
+                return False
+        return True
 
     def has_named_ports(self):
         """
