@@ -1,6 +1,5 @@
 global: cluster has 29 unique endpoints, 8 namespaces
 global: cluster has 29 unique endpoints, 8 namespaces
-
 output_config_tests/../example_policies/testcase7/testcase7-networkpolicy2.yaml and output_config_tests/../example_policies/testcase7/testcase7-networkpolicy1.yaml are not semantically equivalent.
 Changed connections between persistent peers:
 Added connections (based on topology from config: output_config_tests/../example_policies/testcase7/testcase7-networkpolicy1.yaml) :

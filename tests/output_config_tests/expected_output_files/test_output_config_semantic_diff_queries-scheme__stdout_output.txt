@@ -7,6 +7,7 @@ config_b_with_ipBlock: cluster has 5 unique endpoints, 2 namespaces
 Running query semantic_diff_identical
 no_policy and policy are semantically equivalent.
 
+
 Running query semantic_diff_a_to_b
 wrote query output to: semantic_diff_a_to_b.txt
 Running query semantic_diff_b_to_a

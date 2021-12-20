@@ -20,7 +20,6 @@ src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080,
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 
-
 poc3 and poc4 are not semantically equivalent.
 Changed connections between persistent peers:
 Added connections (based on topology from config: poc4) :

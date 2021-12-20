@@ -24,6 +24,8 @@
 |||ip block: 172.22.0.0/15|[kube-system]|[tier in (frontend)]|UDP 53,|
 |||ip block: 172.31.0.0/16|[kube-system]|[tier in (frontend)]|UDP 53,|
 
+
+
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |semantic_diff, config1: np1, config2: np4, key: Added connections between persistent peers||||||

@@ -13,4 +13,3 @@ src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutserv
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP 8080,
 src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080,
 
-

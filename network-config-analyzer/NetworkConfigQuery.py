@@ -5,12 +5,20 @@
 from dataclasses import dataclass
 import copy
 import itertools
+from enum import Enum
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
 from ConnectionSet import ConnectionSet
 from ConnectivityGraph import ConnectivityGraph
 from OutputConfiguration import OutputConfiguration
 from Peer import PeerSet, IpBlock
+
+
+class QueryType(Enum):
+    SingleConfigQuery = 0
+    ComparisonToBaseConfigQuery = 1
+    PairComparisonQuery = 2
+    PairwiseComparisonQuery = 3
 
 
 @dataclass
@@ -35,6 +43,10 @@ class BaseNetworkQuery:
     def __init__(self, output_config_obj):
         self.output_config = output_config_obj if output_config_obj is not None else OutputConfiguration()
 
+    @staticmethod
+    def get_supported_output_formats():
+        return None
+
 
 class NetworkConfigQuery(BaseNetworkQuery):
     """
@@ -47,6 +59,20 @@ class NetworkConfigQuery(BaseNetworkQuery):
         """
         super().__init__(output_config_obj)
         self.config = config
+
+    @staticmethod
+    def get_query_output(query_answer, only_explanation=False, add_explanation=False):
+        res = query_answer.numerical_result
+        if only_explanation:
+            return res, query_answer.output_explanation
+        query_output = query_answer.output_result
+        if add_explanation:
+            query_output += query_answer.output_explanation
+        return res, query_output
+
+    @staticmethod
+    def get_query_type():
+        return QueryType.SingleConfigQuery
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -76,6 +102,9 @@ class DisjointnessQuery(NetworkConfigQuery):
                            'There are policies capturing the same pods in ' + self.config.name,
                            full_explanation, len(non_disjoint_explanation_list))
 
+    def compute_query_output(self, query_answer):
+        return self.get_query_output(query_answer, False, not query_answer.bool_result)
+
 
 class EmptinessQuery(NetworkConfigQuery):
     """
@@ -101,6 +130,9 @@ class EmptinessQuery(NetworkConfigQuery):
                            'There are empty NetworkPolicies and/or empty ingress/egress rules in ' + self.config.name,
                            full_explanation, res)
 
+    def compute_query_output(self, query_answer):
+        return self.get_query_output(query_answer, query_answer.bool_result)
+
 
 class VacuityQuery(NetworkConfigQuery):
     """
@@ -109,17 +141,22 @@ class VacuityQuery(NetworkConfigQuery):
 
     def exec(self):
         vacuous_config = self.config.clone_without_policies('vacuousConfig')
-        vacuous_res = SemanticEquivalenceQuery(self.config, vacuous_config).exec()
+        vacuous_res = EquivalenceQuery(self.config, vacuous_config).exec()
         if not vacuous_res.bool_result:
             return QueryAnswer(vacuous_res.bool_result,
-                               output_result=f'Network configuration {self.config.name} is not vacuous')
+                               output_result=f'Network configuration {self.config.name} is not vacuous',
+                               numerical_result=vacuous_res.bool_result)
 
         if self.config.type == NetworkConfig.ConfigType.Calico:
             output_result = f'Network configuration {self.config.name} is vacuous - only the default connections,' \
                             f' as defined by profiles, are allowed '
         else:
             output_result = f'Network configuration {self.config.name} is vacuous - it allows all connections'
-        return QueryAnswer(bool_result=vacuous_res.bool_result, output_result=output_result)
+        return QueryAnswer(bool_result=vacuous_res.bool_result, output_result=output_result,
+                           numerical_result=vacuous_res.bool_result)
+
+    def compute_query_output(self, query_answer):
+        return self.get_query_output(query_answer)
 
 
 class RedundancyQuery(NetworkConfigQuery):
@@ -135,7 +172,7 @@ class RedundancyQuery(NetworkConfigQuery):
         if len(self.config.policies) > 1:
             for policy in self.config.policies.values():
                 config_without_policy = self.config.clone_without_policy(policy)
-                if SemanticEquivalenceQuery(self.config, config_without_policy).exec().bool_result:
+                if EquivalenceQuery(self.config, config_without_policy).exec().bool_result:
                     res += 1
                     redundant_policies.add(policy.full_name())
                     redundancy = f'NetworkPolicy {policy.full_name()} is redundant in {self.config.name}'
@@ -157,7 +194,7 @@ class RedundancyQuery(NetworkConfigQuery):
                 continue
             config_with_modified_policy = self.config.clone_without_policy(policy)
             config_with_modified_policy.add_policy(modified_policy)
-            equiv_result = SemanticEquivalenceQuery(self.config, config_with_modified_policy).exec()
+            equiv_result = EquivalenceQuery(self.config, config_with_modified_policy).exec()
             if equiv_result.bool_result:
                 redundancy = f'Ingress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
@@ -173,7 +210,7 @@ class RedundancyQuery(NetworkConfigQuery):
                 continue
             config_with_modified_policy = self.config.clone_without_policy(policy)
             config_with_modified_policy.add_policy(modified_policy)
-            if SemanticEquivalenceQuery(self.config, config_with_modified_policy).exec().bool_result:
+            if EquivalenceQuery(self.config, config_with_modified_policy).exec().bool_result:
                 redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
                 redundant_egress_rules.append(rule_index)
@@ -197,6 +234,9 @@ class RedundancyQuery(NetworkConfigQuery):
             output_explanation = '\n'.join(redundancies)
             return QueryAnswer(True, 'Redundancies found in ' + self.config.name, output_explanation, res)
         return QueryAnswer(False, 'No redundancy found in ' + self.config.name)
+
+    def compute_query_output(self, query_answer):
+        return self.get_query_output(query_answer, query_answer.bool_result)
 
 
 class SanityQuery(NetworkConfigQuery):
@@ -440,15 +480,20 @@ class SanityQuery(NetworkConfigQuery):
         return QueryAnswer(bool_result=(issues_counter == 0), output_result=output_result,
                            output_explanation=policies_issue + rules_issues, numerical_result=issues_counter)
 
+    def compute_query_output(self, query_answer):
+        return self.get_query_output(query_answer, False, (not query_answer.bool_result))
+
 
 class ConnectivityMapQuery(NetworkConfigQuery):
     """
     Print the connectivity graph in the form of firewall rules
     """
-
-    supported_output_formats = {'txt', 'yaml', 'csv', 'md', 'dot'}
+    @staticmethod
+    def get_supported_output_formats():
+        return {'txt', 'yaml', 'csv', 'md', 'dot'}
 
     def exec(self):
+        self.output_config.configName = self.config.name
         peers_to_compare = self.config.peer_container.get_all_peers_group()
         ref_ip_blocks = self.config.get_referenced_ip_blocks()
         peers_to_compare |= ref_ip_blocks
@@ -485,6 +530,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
         return res
 
+    def compute_query_output(self, query_answer):
+        return self.get_query_output(query_answer, query_answer.bool_result)
+
     @staticmethod
     def filter_istio_edge(peer2, conns):
         # currently only supporting authorization policies, that do not capture egress rules
@@ -513,6 +561,10 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         self.config2 = config2
         self.name1 = config1.name
         self.name2 = config2.name
+
+    @staticmethod
+    def get_query_type():
+        return QueryType.ComparisonToBaseConfigQuery
 
     def is_identical_topologies(self, check_same_policies=False):
         if self.config1.peer_container != self.config2.peer_container:
@@ -587,10 +639,14 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         return self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), self.config2.get_referenced_ip_blocks())
 
 
-class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
+class EquivalenceQuery(TwoNetworkConfigsQuery):
     """
     Check whether config1 and config2 allow exactly the same set of connections.
     """
+
+    @staticmethod
+    def get_query_type():
+        return QueryType.PairComparisonQuery
 
     def exec(self):
         query_answer = self.is_identical_topologies(True)
@@ -613,13 +669,26 @@ class SemanticEquivalenceQuery(TwoNetworkConfigsQuery):
                                        explanation)
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
 
+    @staticmethod
+    def compute_query_output(query_answer, _):
+        query_output = query_answer.output_result
+        if not query_answer.bool_result:
+            query_output += query_answer.output_explanation + '\n'
+        return not query_answer.bool_result, query_output
+
 
 class SemanticDiffQuery(TwoNetworkConfigsQuery):
     """
     Produces a report of changed connections (also for the case of two configurations of different network topologies)
     """
 
-    supported_output_formats = {'txt', 'yaml', 'csv', 'md'}
+    @staticmethod
+    def get_query_type():
+        return QueryType.PairComparisonQuery
+
+    @staticmethod
+    def get_supported_output_formats():
+        return {'txt', 'yaml', 'csv', 'md'}
 
     def get_explanation_from_conn_graph(self, is_added, conn_graph, is_first_connectivity_result):
         """
@@ -651,7 +720,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         explanation (str): a diff message
         """
         explanation = ''
-        add_explanation = self.output_config.outputFormat in SemanticDiffQuery.supported_output_formats
+        add_explanation = self.output_config.outputFormat in SemanticDiffQuery.get_supported_output_formats()
         res = 0
         for key in keys_list:
             conn_graph_added_conns = conn_graph_added_per_key[key]
@@ -861,11 +930,24 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                            output_explanation=explanation,
                            numerical_result=res)
 
+    def compute_query_output(self, query_answer, cmd_line_flag=False):
+        res = query_answer.numerical_result if not cmd_line_flag else not query_answer.bool_result
+        query_output = ''
+        if self.output_config.outputFormat == 'txt':
+            query_output += query_answer.output_result
+        if not query_answer.bool_result:
+            query_output += query_answer.output_explanation
+        return res, query_output
+
 
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
     """
     Checks whether the two configs have exactly the same set of policies (same names and same semantics)
     """
+
+    @staticmethod
+    def get_query_type():
+        return QueryType.PairComparisonQuery
 
     def exec(self):
         query_answer = self.is_identical_topologies(True)
@@ -888,13 +970,17 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
         for policy in self.config1.policies.values():
             single_policy_config1 = self.config1.clone_with_just_one_policy(policy.full_name())
             single_policy_config2 = self.config2.clone_with_just_one_policy(policy.full_name())
-            full_result = SemanticEquivalenceQuery(single_policy_config1, single_policy_config2).exec()
+            full_result = EquivalenceQuery(single_policy_config1, single_policy_config2).exec()
             if not full_result.bool_result:
                 output_result = policy.full_name() + ' is not equivalent in ' + self.name1 + \
                                 ' and in ' + self.name2
                 return QueryAnswer(False, output_result, full_result.output_explanation)
 
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are strongly equivalent.')
+
+    @staticmethod
+    def compute_query_output(query_answer, cmd_line_flag=False):
+        return EquivalenceQuery.compute_query_output(query_answer, cmd_line_flag)
 
 
 class ContainmentQuery(TwoNetworkConfigsQuery):
@@ -929,13 +1015,23 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                     return QueryAnswer(False, output_result, output_explanation)
 
         output_result = self.name1 + ' is contained in ' + self.name2
-        return QueryAnswer(True, output_result)
+        return QueryAnswer(True, output_result, numerical_result=1)
+
+    @staticmethod
+    def compute_query_output(query_answer, cmd_line_flag=False):
+        res = query_answer.numerical_result if not cmd_line_flag else not query_answer.bool_result
+        query_output = query_answer.output_result + query_answer.output_explanation + '\n'
+        return res, query_output
 
 
 class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
     """
     Checks containment in both sides (whether config1 is contained in config2 and vice versa)
     """
+
+    @staticmethod
+    def get_query_type():
+        return QueryType.PairComparisonQuery
 
     def exec(self):
         query_answer = self.is_identical_topologies(True)
@@ -968,6 +1064,10 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
                            output_result=f'Network configuration {self.name2} is a proper subset of {self.name1}.',
                            output_explanation=explanation_not_contained_self_other, numerical_result=1)
 
+    @staticmethod
+    def compute_query_output(query_answer, cmd_line_flag=False):
+        return ContainmentQuery.compute_query_output(query_answer, cmd_line_flag)
+
 
 class PermitsQuery(TwoNetworkConfigsQuery):
     """
@@ -975,11 +1075,30 @@ class PermitsQuery(TwoNetworkConfigsQuery):
     """
 
     def exec(self):
+        if not self.config1:
+            return QueryAnswer(False,
+                               output_result='There are no NetworkPolicies in the given permits config. '
+                                             'No traffic is specified as permitted.')
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer  # non-identical configurations are not comparable
 
         return ContainmentQuery(self.config1, self.config2).exec(True)
+
+    def compute_query_output(self, query_answer, cmd_line_flag=False):
+        res = 0
+        if not query_answer.bool_result:
+            if not query_answer.output_explanation:
+                query_output = query_answer.output_result
+            else:
+                res = 1
+                query_output = self.config2.name + ' does not permit connections specified in ' \
+                                            + self.config1.name + ':' + query_answer.output_explanation
+        else:
+            query_output = self.config2.name + ' permits all connections specified in ' + self.config1.name
+        if cmd_line_flag:
+            res = not query_answer.bool_result
+        return res, query_output
 
 
 class InterferesQuery(TwoNetworkConfigsQuery):
@@ -992,24 +1111,46 @@ class InterferesQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
+        peers_to_compare = self.config2.peer_container.get_all_peers_group()
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
-        captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
+        captured_pods = self.config2.get_captured_pods() | self.config1.get_captured_pods()
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
 
-                _, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
+                _, captured1_flag, conns1_captured, _ = self.config2.allowed_connections(peer1, peer2)
                 if not captured1_flag:
                     continue
-                _, captured2_flag, conns2_captured, _ = self.config2.allowed_connections(peer1, peer2)
+                _, captured2_flag, conns2_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if captured2_flag and not conns2_captured.contained_in(conns1_captured):
-                    output_explanation = f'{self.name2} extends the allowed connections from {peer1} to {peer2}\n' + \
-                                         conns2_captured.print_diff(conns1_captured, self.name2, self.name1)
-                    return QueryAnswer(True, self.name2 + ' interferes with ' + self.name1, output_explanation)
+                    output_explanation = f'{self.name1} extends the allowed connections from {peer1} to {peer2}\n' + \
+                                         conns2_captured.print_diff(conns1_captured, self.name1, self.name2)
+                    return QueryAnswer(True, self.name1 + ' interferes with ' + self.name2, output_explanation)
 
-        return QueryAnswer(False, self.name2 + ' does not interfere with ' + self.name1)
+        return QueryAnswer(False, self.name1 + ' does not interfere with ' + self.name2)
+
+    @staticmethod
+    def compute_query_output(query_answer, cmd_line_flag=False):
+        res = query_answer.bool_result if not cmd_line_flag else not query_answer.bool_result
+        query_output = query_answer.output_result
+        if query_answer.bool_result:
+            query_output += query_answer.output_explanation
+        return res, query_output
+
+
+class PairwiseInterferesQuery(TwoNetworkConfigsQuery):
+
+    @staticmethod
+    def get_query_type():
+        return QueryType.PairwiseComparisonQuery
+
+    def exec(self):
+        return InterferesQuery(self.config1, self.config2).exec()
+
+    @staticmethod
+    def compute_query_output(query_answer, cmd_line_flag=False):
+        return InterferesQuery.compute_query_output(query_answer, cmd_line_flag)
 
 
 class IntersectsQuery(TwoNetworkConfigsQuery):
@@ -1017,7 +1158,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
     Checking whether both configs allow the same connection between any pair of peers
     """
 
-    def exec(self, only_captured):
+    def exec(self, only_captured=True):
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer
@@ -1043,6 +1184,23 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
 
         return QueryAnswer(False, 'The connections allowed by ' + self.name1 +
                            ' do not intersect the connections allowed by ' + self.name2)
+
+
+class ForbidsQuery(TwoNetworkConfigsQuery):
+
+    def exec(self):
+        if not self.config1:
+            return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
+                                     'No traffic is specified as forbidden.')
+        return IntersectsQuery(self.config1, self.config2).exec(True)
+
+    def compute_query_output(self, query_answer, _):
+        if query_answer.bool_result:
+            query_output = self.config2.name + ' does not forbid connections specified in ' + \
+                                        self.config1.name + ':' + query_answer.output_explanation
+        else:
+            query_output = self.config2.name + ' forbids connections specified in ' + self.config1.name
+        return query_answer.bool_result, query_output
 
 
 class AllCapturedQuery(NetworkConfigQuery):
@@ -1084,3 +1242,6 @@ class AllCapturedQuery(NetworkConfigQuery):
         return QueryAnswer(bool_result=False,
                            output_result=f'There are workload resources not captured by any policy in {self.config.name}',
                            output_explanation=full_explanation, numerical_result=res)
+
+    def compute_query_output(self, query_answer):
+        return self.get_query_output(query_answer, False, not query_answer.bool_result)

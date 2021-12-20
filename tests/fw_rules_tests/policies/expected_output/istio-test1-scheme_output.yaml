@@ -83,7 +83,6 @@
       Ports:
       - 26257
 
-
 - query: 'istio-policy2, config: istio-policy2'
   rules:
   - src_ip_block:
@@ -135,5 +134,4 @@
       Ports:
       - 30
       - 50
-
 

@@ -58,7 +58,6 @@
     connection:
     - All connections
 
-
 - query: 'test_tier_and_app_label, config: test5'
   rules:
   - src_ip_block:
@@ -124,5 +123,4 @@
     - (has(app) and app not in (B)) and tier in (W,X)
     connection:
     - All connections
-
 
