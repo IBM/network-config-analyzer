@@ -18,7 +18,7 @@ class QueryType(Enum):
     SingleConfigQuery = 0
     ComparisonToBaseConfigQuery = 1
     PairComparisonQuery = 2
-    PairWiseComparisonQuery = 3
+    PairwiseComparisonQuery = 3
 
 
 @dataclass
@@ -1143,7 +1143,7 @@ class PairwiseInterferesQuery(TwoNetworkConfigsQuery):
 
     @staticmethod
     def get_query_type():
-        return QueryType.PairWiseComparisonQuery
+        return QueryType.PairwiseComparisonQuery
 
     def exec(self):
         return InterferesQuery(self.config1, self.config2).exec()
