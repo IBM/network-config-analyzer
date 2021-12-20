@@ -66,7 +66,7 @@ test,run_time(seconds)
 ./example_policies/tests-different-topologies/semanticDiff-multiple-resources-scheme.yaml,0.07
 ./example_policies/tests-different-topologies/semanticDiff-same-topologies-scheme.yaml,0.09
 ./example_policies/typoNotInTests/typoNotInTests-scheme.yaml,2.55
-./example_policies/withEndPort/withEndPort-scheme.yaml,0.10
+./example_policies/withEndPort/withEndPort-scheme.yaml,0.46
 ./example_policies/withIpBlock/withIpBlock-scheme.yaml,1.60
 ./example_policies/withIpBlock2/withIpBlock2-scheme.yaml,3.40
 ./example_policies/workload-resources-test/file-system-resource-test-scheme.yaml,0.1

@@ -1,10 +1,10 @@
 final fw rules for query: connectivity_map, config: np16:
 src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src ip block: 0.0.0.0/0 dst_ns: [kube-system-new] dst_pods: [!has(tier) or tier in (not_frontend_for_demo)] conn: All connections
-src ip block: 0.0.0.0/5 dst_ns: [kube-system-new] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system-new] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system-new] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system-new] dst_pods: [tier in (frontend)] conn: UDP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system-new] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system-new] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system-new] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system-new] dst_pods: [tier in (frontend)] conn: UDP 53
 src ip block: ::/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src ip block: ::/0 dst_ns: [kube-system-new] dst_pods: [!has(tier) or tier in (not_frontend_for_demo)] conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections

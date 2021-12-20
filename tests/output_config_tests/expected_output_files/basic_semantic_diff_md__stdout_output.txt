@@ -4,12 +4,12 @@ global: cluster has 29 unique endpoints, 8 namespaces
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |Added connections between persistent peers||||||
-||[default]|[*]|[kube-system]|[*]|All but TCP 53,UDP 53,|
+||[default]|[*]|[kube-system]|[*]|All but TCP 53,UDP 53|
 |Removed connections between persistent peers||||||
-||[kube-system,kube-system-dummy-to-ignore]|[*]|[kube-system]|[*]|TCP 53,UDP 53,|
+||[kube-system,kube-system-dummy-to-ignore]|[*]|[kube-system]|[*]|TCP 53,UDP 53|
 ||[vendor-system]|[*]|[kube-system]|[*]|All connections|
 |Removed connections between persistent peers and ipBlocks||||||
-|||ip block: 0.0.0.0/0|[kube-system]|[*]|TCP 53,UDP 53,|
-|||ip block: ::/0|[kube-system]|[*]|TCP 53,UDP 53,|
+|||ip block: 0.0.0.0/0|[kube-system]|[*]|TCP 53,UDP 53|
+|||ip block: ::/0|[kube-system]|[*]|TCP 53,UDP 53|
 
 

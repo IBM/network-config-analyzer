@@ -275,3 +275,18 @@ class CanonicalIntervalSet:
         interval = CanonicalIntervalSet.Interval(start, end)
         res.add_interval(interval)
         return res
+
+    def get_interval_set_list_numbers_and_ranges(self):
+        """
+        get a list representation of self which may contain int values (for single numbers) and
+        str values (for ranges)
+        :return: list of intervals strings or int values from self
+        :rtype: list
+        """
+        res = []
+        for interval in self:
+            if interval.start == interval.end:
+                res.append(interval.start)
+            else:
+                res.append(f'{interval.start}-{interval.end}')
+        return res
