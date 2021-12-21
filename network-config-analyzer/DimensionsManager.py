@@ -24,7 +24,8 @@ class DimensionsManager:
         def __init__(self):
             # TODO: verify alphabet for regex type dimensions, currently using one default alphabet
             #  currently valid chars are: ['.', '/', '-', 0-9, a-z, A-Z ]
-            self.default_dfa_alphabet_str = "[.\\w/\\-]*"
+            self.default_dfa_alphabet_chars = ".\\w/\\-"
+            self.default_dfa_alphabet_str = "[" + self.default_dfa_alphabet_chars + "]*"
             self.default_interval_domain_tuple = (0, 100000)
             self.domain_str_to_dfa_map = dict()
             dfa_all_words_default = self._get_dfa_from_alphabet_str(self.default_dfa_alphabet_str)

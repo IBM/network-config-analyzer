@@ -10,6 +10,7 @@ from PortSet import PortSet
 from MethodSet import MethodSet
 from MinDFA import MinDFA
 
+
 class TcpLikeProperties(CanonicalHyperCubeSet):
     """
     A class for holding a set of cubes, each defined over dimensions from TcpLikeProperties.dimensions_list
@@ -144,12 +145,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             if dim_domain == dim_values:
                 continue  # skip dimensions with all values allowed in a cube
             if dim == 'methods':
-                method_names = MethodSet.get_method_names_from_interval_set(dim_values)
-                compl_method_names = MethodSet.get_compl_method_names_from_interval_set(dim_values)
-                if len(method_names) <= len(compl_method_names):
-                    values_list = ', '.join(method for method in method_names)
-                else:
-                    values_list = 'all but ' + ', '.join(method for method in compl_method_names)
+                values_list = str(dim_values)
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = TcpLikeProperties.get_interval_set_list_obj(dim_values)
                 if is_txt:
@@ -313,4 +309,3 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             dim_item = item[i] if dim_name != 'methods' else MethodSet.all_methods_list[item[i]]
             res_list.append(f'{dim_name}={dim_item}')
         return '[' + ','.join(s for s in res_list) + ']'
-
