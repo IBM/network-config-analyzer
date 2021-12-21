@@ -150,12 +150,10 @@
     dst_pods:
     - app in (app-2)
     connection:
-    - Protocol: TCP
-    - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65535
-    - Protocol: SCTP
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
   - src_ip_block:
     - 10.12.0.0/14
     dst_ns:
@@ -163,12 +161,10 @@
     dst_pods:
     - app in (app-2)
     connection:
-    - Protocol: TCP
-    - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65535
-    - Protocol: SCTP
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
   - src_ip_block:
     - 0.0.0.0/5
     dst_ns:

@@ -132,16 +132,16 @@ src_ns: [default] src_pods: [*] dst ip block: ::/0 conn: All connections
 np1 and np2 are not semantically equivalent.
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np2) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP 53
 
 Removed connections (based on topology from config: np1) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [has(tier)] conn: UDP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [has(tier)] conn: UDP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [has(tier)] conn: UDP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [has(tier)] conn: UDP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [has(tier)] conn: UDP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [has(tier)] conn: UDP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [has(tier)] conn: UDP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [has(tier)] conn: UDP 53
 
 
 config_a_with_ipBlock and config_b_with_ipBlock are not semantically equivalent.
@@ -178,9 +178,9 @@ src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-1)] conn: All connec
 
 Removed connections (based on topology from config: config_a_with_ipBlock) :
 src ip block: 0.0.0.0/5 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
-src ip block: 10.0.0.0/13 dst_ns: [default] dst_pods: [app in (app-2)] conn: All but UDP 53,
+src ip block: 10.0.0.0/13 dst_ns: [default] dst_pods: [app in (app-2)] conn: All but UDP 53
 src ip block: 10.11.0.0/16 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
-src ip block: 10.12.0.0/14 dst_ns: [default] dst_pods: [app in (app-2)] conn: All but UDP 53,
+src ip block: 10.12.0.0/14 dst_ns: [default] dst_pods: [app in (app-2)] conn: All but UDP 53
 src ip block: 11.0.0.0/8 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
 src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
 

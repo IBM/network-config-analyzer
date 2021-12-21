@@ -1,31 +1,31 @@
 np1 and np2 are not semantically equivalent.
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np2) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
 
 Removed connections (based on topology from config: np1) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
 
 
 np1 and np3 are not semantically equivalent.
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np3) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
 
 Removed connections (based on topology from config: np1) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
 
 
 np2 and np3 have the same network topology and the same set of policies.
@@ -44,13 +44,13 @@ src_ns: [kube-system] src_pods: [tier in (frontend)] dst_ns: [kube-system] dst_p
 
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np4) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All but UDP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All but UDP 53
 src ip block: 10.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All but UDP 53,
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All but UDP 53
 src ip block: 172.21.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All but UDP 53,
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All but UDP 53
 src ip block: 172.30.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All but UDP 53,
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All but UDP 53
 src ip block: ::/0 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: All connections
 
 Removed connections (based on topology from config: np1) :
@@ -70,15 +70,15 @@ src_ns: [kube-system] src_pods: [tier in (frontend)] dst ip block: ::/0 conn: Al
 np1 and np2 are not semantically equivalent.
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np2) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: TCP 53
 
 Removed connections (based on topology from config: np1) :
-src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
-src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53,
+src ip block: 0.0.0.0/5 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 11.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 172.22.0.0/15 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
+src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)] conn: UDP 53
 
 

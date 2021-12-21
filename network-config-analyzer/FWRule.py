@@ -446,17 +446,17 @@ class FWRule:
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = str(self.conn)  # self.conn.get_connections_str()
+        conn_str = str(self.conn)
         return src_str + dst_str + ' conn: ' + conn_str
 
-    def get_rule_str(self, config_type):
+    def get_rule_str(self, use_complement_simplification):
         """
-        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
+        :param bool use_complement_simplification: flag for complement simplification in connection set rep
         :return: a string representation of the fw-rule, for output in txt format
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = self.get_connection_str(config_type)
+        conn_str = self.conn.get_simplified_connections_representation(True, use_complement_simplification)
         return src_str + dst_str + ' conn: ' + conn_str + '\n'
 
     def __hash__(self):
@@ -468,11 +468,11 @@ class FWRule:
     def __lt__(self, other):
         return str(self) < str(other)
 
-    def get_rule_component_str(self, component, config_type):
+    def get_rule_component_str(self, component, use_complement_simplification):
         """
         This function is used to produce a csv row for a fw-rule
         :param str component: a fw-rule required component  from components in rule_csv_header
-        :param NetworkConfig.ConfigType config_type:  for relevant protocols inference
+        :param bool use_complement_simplification: flag for complement simplification in connection set rep
         :return: string of the required rule component
         """
         if component == 'src_ns':
@@ -484,59 +484,22 @@ class FWRule:
         elif component == 'dst_pods':
             return str(self.dst) if isinstance(self.dst, IPBlockElement) else self.dst.get_pod_str()
         elif component == 'connection':
-            return self.get_connection_str(config_type)
+            return self.conn.get_simplified_connections_representation(True, use_complement_simplification)
         return ''
 
-    @staticmethod
-    def get_conn_str_configuration(config_type):
+    def get_rule_csv_row(self, use_complement_simplification):
         """
-        given config type, return the relevant parameters required for relevant representation of allowed connections.
-        :param NetworkConfig.ConfigType config_type:  for relevant protocols inference
-        :return: a tuple: (relevant_protocols, use_complement_simplification)
-            relevant_protocols: set of protocols to be used in str representation (or None for all)
-            use_complement_simplification: bool flag to indicate if use complement simplification when possible
-        """
-        relevant_protocols = None
-        use_complement_simplification = True
-        if config_type == NetworkConfig.ConfigType.K8s:
-            # for k8s policy - restrict allowed protocols only to protocols supported by it
-            relevant_protocols = ConnectionSet.port_supporting_protocols
-        if config_type == NetworkConfig.ConfigType.Istio:
-            # TODO: should restrict istio relevant protocols here?
-            # relevant_protocols = {ConnectionSet._protocol_name_to_number_dict['TCP']}
-            # for istio currently disabling the complement simplification (consider performance with regex attributes)
-            use_complement_simplification = False
-        return relevant_protocols, use_complement_simplification
-
-    def get_connection_str(self, config_type):
-        """
-        :param NetworkConfig.ConfigTyp config_type: for relevant protocols inference
-        :return: str : representation of the allowed connections for this rule
-        """
-        relevant_protocols, use_complement_simplification = self.get_conn_str_configuration(config_type)
-        return self.conn.get_simplified_connections_str(relevant_protocols, use_complement_simplification)
-
-    def get_connections_list(self, config_type):
-        """
-        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
-        :return: list : for yaml representation of the connection set
-        """
-        relevant_protocols, _ = self.get_conn_str_configuration(config_type)
-        return self.conn.get_connections_list(relevant_protocols)
-
-    def get_rule_csv_row(self, config_type):
-        """
-        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
+        :param bool use_complement_simplification: flag for complement simplification in connection set rep
         :return: a list of strings, representing the csv row for this fw-rule
         """
         row = []
         for component in FWRule.rule_csv_header:
-            row.append(self.get_rule_component_str(component, config_type))
+            row.append(self.get_rule_component_str(component, use_complement_simplification))
         return row
 
-    def get_rule_yaml_obj(self, config_type):
+    def get_rule_yaml_obj(self, use_complement_simplification):
         """
-        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
+        :param bool use_complement_simplification: flag for complement simplification in connection set rep
         :return:  a dict with content representing the fw-rule, for output in yaml format
         """
         src_ns_list = sorted([str(ns) for ns in self.src.ns_info])
@@ -545,7 +508,7 @@ class FWRule:
         dst_pods_list = self.dst.get_elem_yaml_obj() if not isinstance(self.dst, IPBlockElement) else None
         src_ip_block_list = sorted(self.src.get_elem_yaml_obj()) if isinstance(self.src, IPBlockElement) else None
         dst_ip_block_list = sorted(self.dst.get_elem_yaml_obj()) if isinstance(self.dst, IPBlockElement) else None
-        conn_list = self.get_connections_list(config_type)
+        conn_list = self.conn.get_simplified_connections_representation(False, use_complement_simplification)
 
         rule_obj = {}
         if src_ip_block_list is None and dst_ip_block_list is None:
@@ -574,16 +537,22 @@ class FWRule:
         csv: list of strings
         txt: string
         :param str req_format: a string of the required format, should be in supported_formats
-        :param NetworkConfig.ConfigType config_type: for relevant protocols inference
+        :param NetworkConfig.ConfigType config_type: the network configuration type
         :return: str of the fw-rule representation according to required format
         """
+        use_complement_simplification = self.use_connection_set_complement_simplification(config_type)
         if req_format == 'yaml':
-            return self.get_rule_yaml_obj(config_type)
+            return self.get_rule_yaml_obj(use_complement_simplification)
         if req_format in ['csv', 'md']:
-            return self.get_rule_csv_row(config_type)
+            return self.get_rule_csv_row(use_complement_simplification)
         if req_format == 'txt':
-            return self.get_rule_str(config_type)
+            return self.get_rule_str(use_complement_simplification)
         return None
+
+    @staticmethod
+    def use_connection_set_complement_simplification(config_type):
+        # currently disabling this for Istio config, since complement with regex may be time consuming computation
+        return config_type != NetworkConfig.ConfigType.Istio
 
     @staticmethod
     def create_fw_rules_from_base_elements(src, dst, connections):
