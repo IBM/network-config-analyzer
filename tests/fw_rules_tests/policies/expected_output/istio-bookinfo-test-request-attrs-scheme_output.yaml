@@ -25,7 +25,6 @@
         - 80
         methods: GET
 
-
 - query: 'connectivity-istio-test-methods-basic-2, config: istio-test-methods-basic-2'
   rules:
   - src_ns:
@@ -52,7 +51,6 @@
     - Protocol: TCP
       properties:
       - methods: all but GET
-
 
 - query: 'connectivity-istio-test-methods-paths-1, config: istio-test-methods-paths-1'
   rules:
@@ -113,7 +111,6 @@
         methods: all but PUT
         paths: all but /bad/path1, /bad/path3, /some/path2
         hosts: allowed-host.com
-
 
 - query: 'connectivity-istio-test-operation-deny-1, config: istio-test-operation-deny-1'
   rules:
@@ -186,7 +183,6 @@
       properties:
       - methods: all but GET
 
-
 - query: 'connectivity-istio-test-operation-allow-1, config: istio-test-operation-allow-1'
   rules:
   - src_ns:
@@ -204,5 +200,4 @@
         paths: /info[\--9A-Z_a-z]*
       - methods: POST
         paths: /data
-
 

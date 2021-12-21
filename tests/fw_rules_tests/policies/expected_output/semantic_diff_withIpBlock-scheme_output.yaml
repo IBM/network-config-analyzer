@@ -172,6 +172,8 @@
       Ports:
       - 53
 
+
+
 - query: 'semantic_diff, config1: np1, config2: np4, key: Added connections between
     persistent peers'
   rules:
@@ -232,12 +234,10 @@
     dst_pods:
     - tier in (frontend)
     connection:
-    - Protocol: TCP
-    - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65535
-    - Protocol: SCTP
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
   - src_ip_block:
     - 11.0.0.0/8
     dst_ns:
@@ -245,12 +245,10 @@
     dst_pods:
     - tier in (frontend)
     connection:
-    - Protocol: TCP
-    - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65535
-    - Protocol: SCTP
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
   - src_ip_block:
     - 172.22.0.0/15
     dst_ns:
@@ -258,12 +256,10 @@
     dst_pods:
     - tier in (frontend)
     connection:
-    - Protocol: TCP
-    - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65535
-    - Protocol: SCTP
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
   - src_ip_block:
     - 172.31.0.0/16
     dst_ns:
@@ -271,12 +267,10 @@
     dst_pods:
     - tier in (frontend)
     connection:
-    - Protocol: TCP
-    - Protocol: UDP
-      Ports:
-      - 1-52
-      - 54-65535
-    - Protocol: SCTP
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
   - src_ip_block:
     - 10.0.0.0/8
     dst_ns:

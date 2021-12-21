@@ -547,10 +547,11 @@ class CanonicalHyperCubeSet:
                         break
         return is_subset_count == len(self.layers)
 
-    # TODO: add argument to specify relevant dimensions, or change to active dimensions only?
-    def get_first_item(self):
+    def get_first_item(self, relevant_dimensions=None):
         """
-        get an item within one of self's cubes
+        :param list relevant_dimensions: list of dimensions to include in the result item
+        get an item of values within one of self's cubes.
+        returning an item with all dimensions in self.all_dimensions_list, if relevant_dimensions is None.
         :return: list[Union[int, str]]
         """
         if not self:
@@ -561,8 +562,9 @@ class CanonicalHyperCubeSet:
             cube = (self._get_cubes_list_from_layers())[0]
         cube = self._get_aligned_cube_by_new_active_dimensions(cube, self.active_dimensions, self.all_dimensions_list)
         res = []
-        for index, _ in enumerate(self.all_dim_types):
-            res.append(cube[index].rep())
+        for index, dim in enumerate(self.all_dimensions_list):
+            if (relevant_dimensions and dim in relevant_dimensions) or relevant_dimensions is None:
+                res.append(cube[index].rep())
         return res
 
     def clear(self):

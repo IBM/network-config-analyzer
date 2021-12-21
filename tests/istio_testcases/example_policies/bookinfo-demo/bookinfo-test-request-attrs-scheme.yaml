@@ -11,6 +11,10 @@ networkConfigList:
     networkPolicyList:
       - bookinfo-policy-test-methods-2.yaml
 
+  - name: istio-test-methods-basic-3
+    networkPolicyList:
+      - bookinfo-policy-test-methods-3.yaml
+
   - name: istio-test-methods-paths-1
     networkPolicyList:
       - bookinfo-policy-test-methods-paths.yaml
@@ -37,6 +41,13 @@ queries:
   - name: connectivity-istio-test-methods-basic-2
     connectivityMap:
       - istio-test-methods-basic-2
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: connectivity-istio-test-methods-basic-3
+    connectivityMap:
+      - istio-test-methods-basic-3
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
     expected: 0

@@ -11,6 +11,7 @@ from Peer import IpBlock, PeerSet
 from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
 from PortSet import PortSet
+from MethodSet import MethodSet
 from TcpLikeProperties import TcpLikeProperties
 
 
@@ -231,31 +232,42 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         return rule_ports
 
-    @staticmethod
-    def parse_str_value(str_val_input):
+    def _parse_str_value(self, str_val_input, dim_name, operation):
         """
         transform input regex/str to the format supported by greenery
         :param str str_val_input: the str/regex from input
+        :param str dim_name: the name of the dimension of str_val_input value
+        :param dict operation: the operation object being parsed
         :return: str: the result regex/str after conversion
         """
-        # TODO: for istio regex the "*" corresponds to any string but empty
-        # TODO: add some checks that input is valid : (1) characters valid (2) '*' only at prefix/suffix
-        res = str_val_input
-        res = res.replace(".", "[.]")
-        # TODO: refine legal characters by dimension domain, should not always use the default alphabet
-        res = res.replace("*", DimensionsManager().default_dfa_alphabet_str)
-        # res = res.replace("*", "[.\w/\-]*")
+        allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
+        allowed_chars_with_star_regex = "[*" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        if not re.fullmatch(allowed_chars_with_star_regex, str_val_input):
+            self.syntax_error(f'Illegal characters in {dim_name} {str_val_input} in {operation}')
+
+        res = str_val_input.replace(".", "[.]")
+        if '*' in res:
+            if res.count('*') > 1:
+                self.syntax_error(f'Only one asterisk is allowed in {dim_name} {res} in {operation}. ')
+            if res == '*':  # presence match
+                res = allowed_chars + "+"  # non-empty string of allowed chars
+            elif res.startswith('*') or res.endswith('*'):  # prefix/suffix match
+                res = res.replace("*", allowed_chars + '*')
+            else:
+                self.syntax_error(f'Illegal asterisk inside {dim_name} {res} in {operation}')
         return res
 
-    def get_values_list_regex(self, values_list):
+    def get_values_list_regex(self, values_list, dim_name, operation):
         """
         Given a list of regex str values, return one regex for the entire list (or between all its elements).
         (the goal is to minimize the number of calls to dfa_from_regex).
         :param list[str] values_list: a list of str values, each is a regex
+        :param dtr dim_name: the name of the dimension to which values_list belongs
+        :param dict operation: the operation object being parsed
         :return: str: the result regex str
         """
         assert len(values_list) > 0
-        return '|'.join(self.parse_str_value(str_value) for str_value in values_list)
+        return '|'.join(self._parse_str_value(str_value, dim_name, operation) for str_value in values_list)
 
     def parse_regex_dimension_values(self, dim_name, values_list, negative_values_list, operation_dict):
         """
@@ -274,14 +286,14 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if values_list is None and negative_values_list is None:
             return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
         if values_list is not None:
-            positive_regex = self.get_values_list_regex(values_list)
+            positive_regex = self.get_values_list_regex(values_list, dim_name, operation_dict)
             values_dfa = MinDFA.dfa_from_regex(positive_regex)
         else:
             values_dfa = entire_domain_dfa
 
         if negative_values_list is None:
             return values_dfa
-        negative_regex = self.get_values_list_regex(negative_values_list)
+        negative_regex = self.get_values_list_regex(negative_values_list, dim_name, operation_dict)
         negative_values_dfa = MinDFA.dfa_from_regex(negative_regex)
         res = values_dfa - negative_values_dfa
         if not res:
@@ -290,20 +302,61 @@ class IstioPolicyYamlParser(GenericYamlParser):
         return res
 
     @staticmethod
-    def _get_connection_set_from_properties(dest_ports, methods_dfa=None, paths_dfa=None, hosts_dfa=None):
+    def _get_connection_set_from_properties(dest_ports, method_set=MethodSet(True), paths_dfa=None, hosts_dfa=None):
         """
         get ConnectionSet with TCP allowed connections, corresponding to input properties cube
         :param PortSet dest_ports: ports set for dset_ports dimension
-        :param MinDFA methods_dfa: MinDFA obj for methods dimension
+        :param MethodSet method_set: methods set for methods dimension
         :param MinDFA paths_dfa: MinDFA obj for paths dimension
         :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
         :return: ConnectionSet with TCP allowed connections , corresponding to input properties cube
         """
-        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=methods_dfa,
+        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=method_set,
                                            paths=paths_dfa, hosts=hosts_dfa)
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
         return res
+
+    def _parse_method(self, method_str, operation):
+        """
+        parse a method component in a rule operation
+        :param str method_str: the method to parse
+        :param dict operation: the operation object being parsed
+        :return: MethodSet object holding parsed methods
+        """
+        res = MethodSet()
+        method_regex = self._parse_str_value(method_str, 'method', operation)
+        for method in MethodSet.all_methods_list:
+            if re.fullmatch(method_regex, method):
+                index = MethodSet.all_methods_list.index(method)
+                res.add_interval(MethodSet.Interval(index, index))
+
+        if not res:
+            if method_str:
+                self.warning("Illegal method '" + method_str + "' ignored", operation)
+            self.warning("Empty values for methods", operation)
+        return res
+
+    def _get_methods_set(self, operation):
+        """
+        get methods on a rule operation
+        :param dict operation: the operation containing 'methods' and 'notMethods' properties
+        :return: MethodSet object holding methods of the operation
+        """
+        methods_array = operation.get('methods')
+        if methods_array is not None:
+            rule_methods = MethodSet()
+            for method_str in methods_array:
+                rule_methods |= self._parse_method(method_str, operation)
+        else:
+            rule_methods = MethodSet(True)
+
+        not_methods_array = operation.get('notMethods')
+        if not_methods_array is not None:
+            for method_str in not_methods_array:
+                rule_methods -= self._parse_method(method_str, operation)
+
+        return rule_methods
 
     def parse_operation(self, operation_dict):
         """
@@ -329,12 +382,13 @@ class IstioPolicyYamlParser(GenericYamlParser):
         self.validate_dict_elem_has_non_empty_array_value(operation, 'to.operation')
 
         dst_ports = self.get_rule_ports(operation.get('ports'), operation.get('notPorts'))  # PortSet
-        methods_dfa = self.parse_regex_dimension_values("methods", operation.get("methods"),
-                                                        operation.get("notMethods"), operation)
-        paths_dfa = self.parse_regex_dimension_values("paths", operation.get("paths"), operation.get("notPaths"), operation)
-        hosts_dfa = self.parse_regex_dimension_values("hosts", operation.get("hosts"), operation.get("notHosts"), operation)
+        methods_set = self._get_methods_set(operation)
+        paths_dfa = self.parse_regex_dimension_values("paths", operation.get("paths"), operation.get("notPaths"),
+                                                      operation)
+        hosts_dfa = self.parse_regex_dimension_values("hosts", operation.get("hosts"), operation.get("notHosts"),
+                                                      operation)
 
-        return self._get_connection_set_from_properties(dst_ports, methods_dfa, paths_dfa, hosts_dfa)
+        return self._get_connection_set_from_properties(dst_ports, methods_set, paths_dfa, hosts_dfa)
 
     def parse_source(self, source_dict):
         """
@@ -429,7 +483,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         else:  # no 'to' in the rule => all connections allowed
             connections = ConnectionSet(True)
 
-        # condition possible result value: source-ip (from) , source-namespace (from) [Peerset], dstination.port (to) [ConnectionSet]
+        # condition possible result value: source-ip (from) , source-namespace (from) [Peerset], destination.port (to) [ConnectionSet]
         # should update either res_pods or connections according to the condition
         condition_array = rule.get('when')  # this array can be empty (unlike 'to' and 'from')
         # the combined condition ("AND" of all conditions) should be applied

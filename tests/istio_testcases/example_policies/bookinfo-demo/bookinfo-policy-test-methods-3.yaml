@@ -1,0 +1,106 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "details-viewer"
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: details
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
+      to:
+        - operation:
+            notMethods: ["*T"]
+
+---
+
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "reviews-viewer"
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: reviews
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
+      to:
+        - operation:
+            methods: ["GET", "P*"]
+            notMethods: ["G*"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "ratings-viewer"
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: ratings
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/default/sa/bookinfo-reviews"]
+      to:
+        - operation:
+            methods: ["*T"]
+            notMethods: ["G*"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-nothing
+  namespace: default
+spec:
+  action: ALLOW
+  # the rules field is not specified, and the policy will never match.
+
+---
+  apiVersion: security.istio.io/v1beta1
+  kind: AuthorizationPolicy
+  metadata:
+    name: "allow-all-methods"
+    namespace: default
+  spec:
+    selector:
+      matchLabels:
+        app: productpage
+    action: ALLOW
+    rules:
+      - from:
+          - source:
+              principals: [ "cluster.local/ns/default/sa/bookinfo-reviews" ]
+        to:
+          - operation:
+              methods: ['*']
+
+---
+  apiVersion: security.istio.io/v1beta1
+  kind: AuthorizationPolicy
+  metadata:
+    name: "allow-no-methods"
+    namespace: default
+  spec:
+    selector:
+      matchLabels:
+        app: productpage
+    action: ALLOW
+    rules:
+      - from:
+          - source:
+              principals: [ "cluster.local/ns/default/sa/bookinfo-details" ]
+        to:
+          - operation:
+              methods: ['DUMMY']

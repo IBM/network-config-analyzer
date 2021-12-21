@@ -1,3 +1,4 @@
+
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |semantic_diff, config1: config_a, config2: config_b, key: Lost connections between removed peers||||||
@@ -89,15 +90,15 @@
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
 |semantic_diff, config1: np1, config2: np2, key: Added connections between persistent peers and ipBlocks||||||
-|||ip block: 0.0.0.0/5|[kube-system]|[has(tier)]|TCP 53,|
-|||ip block: 11.0.0.0/8|[kube-system]|[has(tier)]|TCP 53,|
-|||ip block: 172.22.0.0/15|[kube-system]|[has(tier)]|TCP 53,|
-|||ip block: 172.31.0.0/16|[kube-system]|[has(tier)]|TCP 53,|
+|||ip block: 0.0.0.0/5|[kube-system]|[has(tier)]|TCP 53|
+|||ip block: 11.0.0.0/8|[kube-system]|[has(tier)]|TCP 53|
+|||ip block: 172.22.0.0/15|[kube-system]|[has(tier)]|TCP 53|
+|||ip block: 172.31.0.0/16|[kube-system]|[has(tier)]|TCP 53|
 |semantic_diff, config1: np1, config2: np2, key: Removed connections between persistent peers and ipBlocks||||||
-|||ip block: 0.0.0.0/5|[kube-system]|[has(tier)]|UDP 53,|
-|||ip block: 11.0.0.0/8|[kube-system]|[has(tier)]|UDP 53,|
-|||ip block: 172.22.0.0/15|[kube-system]|[has(tier)]|UDP 53,|
-|||ip block: 172.31.0.0/16|[kube-system]|[has(tier)]|UDP 53,|
+|||ip block: 0.0.0.0/5|[kube-system]|[has(tier)]|UDP 53|
+|||ip block: 11.0.0.0/8|[kube-system]|[has(tier)]|UDP 53|
+|||ip block: 172.22.0.0/15|[kube-system]|[has(tier)]|UDP 53|
+|||ip block: 172.31.0.0/16|[kube-system]|[has(tier)]|UDP 53|
 
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
@@ -122,8 +123,8 @@
 |||ip block: 11.0.0.0/8|[default]|[app in (app-1)]|All connections|
 |||ip block: ::/0|[default]|[app in (app-1)]|All connections|
 |semantic_diff, config1: config_a_with_ipBlock, config2: config_b_with_ipBlock, key: Removed connections between persistent peers and ipBlocks||||||
-|||ip block: 10.0.0.0/13|[default]|[app in (app-2)]|All but UDP 53,|
-|||ip block: 10.12.0.0/14|[default]|[app in (app-2)]|All but UDP 53,|
+|||ip block: 10.0.0.0/13|[default]|[app in (app-2)]|All but UDP 53|
+|||ip block: 10.12.0.0/14|[default]|[app in (app-2)]|All but UDP 53|
 |||ip block: 0.0.0.0/5|[default]|[app in (app-2)]|All connections|
 |||ip block: 10.11.0.0/16|[default]|[app in (app-2)]|All connections|
 |||ip block: 11.0.0.0/8|[default]|[app in (app-2)]|All connections|
