@@ -8,6 +8,7 @@ from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from DimensionsManager import DimensionsManager
 from PortSet import PortSet
 from MethodSet import MethodSet
+from MinDFA import MinDFA
 
 class TcpLikeProperties(CanonicalHyperCubeSet):
     """

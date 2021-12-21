@@ -152,7 +152,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
     def parse_key_values(self, key, values, not_values):
         """
         parse key and its values for a given condition component in a rule
-        :param string key: the specified key str
+        :param str key: the specified key str
         :param list values: a list of strings with values for this key
         :param list not_values: a list of strings with negative values for this key
         :return: PeerSet or ConnectionSet (depends on the key) with allowed values
