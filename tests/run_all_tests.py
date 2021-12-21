@@ -10,7 +10,6 @@ from time import time
 from pathlib import Path
 import yaml
 import csv
-from sys import stderr
 from ruamel.yaml import YAML
 from contextlib import redirect_stdout
 
@@ -503,7 +502,7 @@ class TestsRunner:
             return True
         if self.category + '_testcases' in test_file:
             return True
-        if not '_testcases' in test_file:
+        if '_testcases' not in test_file:
             return self._test_file_matches_category_output_tests(test_file)
         return False
 
@@ -600,7 +599,7 @@ def main(argv=None):
     if action != 'run_tests' and test_type != 'output':
         print(f'action: {action} is not supported with test type: {test_type}')
         sys.exit(1)
-    if category != '' and not test_type in {'general', 'output'} :
+    if category != '' and test_type not in {'general', 'output'}:
         print(f'category: {category} is not supported with test type: {test_type}')
     if check_run_time and test_type != 'general':
         print(f'check_run_time flag is not supported with test type: {test_type}')
