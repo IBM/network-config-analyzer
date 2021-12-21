@@ -208,7 +208,7 @@ class GeneralTest:
         with open(expected_time_file_name, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
-                current_test = row[0] if row[0].startswith('cmdline_') else os.path.abspath(row[0])
+                current_test = row[0] if 'cmdline_' in row[0] else os.path.abspath(row[0])
                 if current_test == self.test_name:
                     return float(row[1])
         csv_file.close()
@@ -510,17 +510,14 @@ class TestsRunner:
     # given a scheme file or a cmdline file, run all relevant tests
     def run_test_per_file(self, test_file):
         if self.test_files_spec.type == 'scheme':
-            run_flag = True
             if self.tests_type in {'general', 'fw_rules_assertions'}:
                 if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
-                    run_flag = False
-                if run_flag:
-                    scheme_obj_list = [SchemeFile(test_file, self._get_scheme_test_args(test_file))]
+                    return  # test file does not match the running category
+                scheme_obj_list = [SchemeFile(test_file, self._get_scheme_test_args(test_file))]
             else:
                 if self.tests_type == 'output' and not self._test_file_matches_category_output_tests(test_file):
-                        run_flag = False
-                if run_flag:
-                    scheme_obj_list = self.get_scheme_obj_list_for_test(test_file)
+                    return
+                scheme_obj_list = self.get_scheme_obj_list_for_test(test_file)
             self.create_and_run_test_obj(scheme_obj_list, 0)
 
         elif self.test_files_spec.type == 'cmdline':
