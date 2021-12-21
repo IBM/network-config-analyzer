@@ -1,6 +1,5 @@
 global: cluster has 5 unique endpoints, 2 namespaces
 global: cluster has 5 unique endpoints, 2 namespaces
-
 output_config_tests/../k8s_testcases/example_policies/tests-different-topologies/policy_a.yaml and output_config_tests/../k8s_testcases/example_policies/tests-different-topologies/policy_b.yaml are not semantically equivalent.
 Lost connections between removed peers:
 Removed connections (based on topology from config: output_config_tests/../k8s_testcases/example_policies/tests-different-topologies/policy_a.yaml) :
