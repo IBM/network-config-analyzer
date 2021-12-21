@@ -166,7 +166,6 @@
     connection:
     - All connections
 
-
 - query: 'connectivity_map_3, config: np3'
   rules:
   - src_ns:
@@ -238,5 +237,4 @@
     - '*'
     connection:
     - All connections
-
 

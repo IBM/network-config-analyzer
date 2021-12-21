@@ -1,28 +1,23 @@
 final fw rules for query: connectivity-istio-test-methods-basic-1, config: istio-test-methods-basic-1:
-src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'dst_ports': '80', 'methods': 'GET'},
-src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (reviews)] conn: TCP,
-
+src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'dst_ports': '80', 'methods': 'GET'}
+src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (reviews)] conn: TCP
 
 final fw rules for query: connectivity-istio-test-methods-basic-2, config: istio-test-methods-basic-2:
-src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'methods': 'all but GET'},
-src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (reviews)] conn: TCP {'methods': 'PUT'},
-
+src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'methods': 'all but GET'}
+src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (reviews)] conn: TCP {'methods': 'PUT'}
 
 final fw rules for query: connectivity-istio-test-methods-paths-1, config: istio-test-methods-paths-1:
-src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'dst_ports': '80', 'methods': 'GET', 'paths': '/good_path1, /good_path2, /some/path2', 'hosts': 'all but disallowed-host.com'},{'dst_ports': '80', 'methods': 'GET', 'paths': 'all but /bad/path1, /bad/path3, /good_path1, /good_path2, /some/path2', 'hosts': 'allowed-host.com'},{'dst_ports': '80', 'methods': 'PUT', 'paths': '/good_path1, /good_path2, /some/path2', 'hosts': 'all but disallowed-host.com'},{'dst_ports': '80', 'methods': 'all but GET, PUT', 'paths': 'all but /bad/path1, /bad/path3, /some/path2', 'hosts': 'allowed-host.com'},{'dst_ports': '90', 'methods': 'GET, PUT', 'paths': '/good_path1, /good_path2, /some/path2', 'hosts': 'all but disallowed-host.com'},{'dst_ports': '100', 'methods': 'all but PUT', 'paths': '/some/path3'},{'dst_ports': '100', 'methods': 'all but PUT', 'paths': 'all but /bad/path1, /bad/path3, /some/path2, /some/path3', 'hosts': 'allowed-host.com'},{'dst_ports': '100', 'methods': 'PUT', 'paths': '/some/path3'},{'dst_ports': '1-79,81-89,91-99,101-65535', 'methods': 'all but PUT', 'paths': 'all but /bad/path1, /bad/path3, /some/path2', 'hosts': 'allowed-host.com'},
-
+src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'dst_ports': '80', 'methods': 'GET', 'paths': '/good_path1, /good_path2, /some/path2', 'hosts': 'all but disallowed-host.com'},{'dst_ports': '80', 'methods': 'GET', 'paths': 'all but /bad/path1, /bad/path3, /good_path1, /good_path2, /some/path2', 'hosts': 'allowed-host.com'},{'dst_ports': '80', 'methods': 'PUT', 'paths': '/good_path1, /good_path2, /some/path2', 'hosts': 'all but disallowed-host.com'},{'dst_ports': '80', 'methods': 'all but GET, PUT', 'paths': 'all but /bad/path1, /bad/path3, /some/path2', 'hosts': 'allowed-host.com'},{'dst_ports': '90', 'methods': 'GET, PUT', 'paths': '/good_path1, /good_path2, /some/path2', 'hosts': 'all but disallowed-host.com'},{'dst_ports': '100', 'methods': 'all but PUT', 'paths': '/some/path3'},{'dst_ports': '100', 'methods': 'all but PUT', 'paths': 'all but /bad/path1, /bad/path3, /some/path2, /some/path3', 'hosts': 'allowed-host.com'},{'dst_ports': '100', 'methods': 'PUT', 'paths': '/some/path3'},{'dst_ports': '1-79,81-89,91-99,101-65535', 'methods': 'all but PUT', 'paths': 'all but /bad/path1, /bad/path3, /some/path2', 'hosts': 'allowed-host.com'}
 
 final fw rules for query: connectivity-istio-test-operation-deny-1, config: istio-test-operation-deny-1:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'},
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app not in (details)] conn: TCP,
-src ip block: ::/0 dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'},
-src ip block: ::/0 dst_ns: [default] dst_pods: [app not in (details)] conn: TCP,
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'},
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app not in (details)] conn: TCP,
-src_ns: [default] src_pods: [app in (details)] dst_ns: [default] dst_pods: [*] conn: TCP,
-
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'}
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app not in (details)] conn: TCP
+src ip block: ::/0 dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'}
+src ip block: ::/0 dst_ns: [default] dst_pods: [app not in (details)] conn: TCP
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'}
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app not in (details)] conn: TCP
+src_ns: [default] src_pods: [app in (details)] dst_ns: [default] dst_pods: [*] conn: TCP
 
 final fw rules for query: connectivity-istio-test-operation-allow-1, config: istio-test-operation-allow-1:
-src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'methods': 'GET', 'paths': '/info[\\--9A-Z_a-z]*'},{'methods': 'POST', 'paths': '/data'},
-
+src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'methods': 'GET', 'paths': '/info[\\--9A-Z_a-z]*'},{'methods': 'POST', 'paths': '/data'}
 

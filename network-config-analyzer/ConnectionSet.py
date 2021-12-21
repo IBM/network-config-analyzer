@@ -16,6 +16,8 @@ class ConnectionSet:
     _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
     _icmp_protocols = {1, 58}
     port_supporting_protocols = {6, 17, 132}
+    _max_protocol_num = 255
+    _min_protocol_num = 1
 
     def __init__(self, allow_all=False):
         self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
@@ -41,87 +43,82 @@ class ConnectionSet:
     def __hash__(self):
         return hash((frozenset(self.allowed_protocols.keys()), self.allow_all))
 
-    # TODO: should consider shorter notation (complement- 'all but ...' ) for yaml representation as well?
-    def get_connections_list(self, relevant_protocols):
-        """
-        allowed connections representation, restricted to protocols from relevant_protocols
-        :param set[int] relevant_protocols:  a set of protocols numbers or None
-        :return:  list with yaml representation of the connection set, to be used at fw-rules representation in yaml
-        """
-        res = []
-        if self.allow_all:
-            res.append(str(self))
-            return res
-        if not self.allowed_protocols:
-            res.append(str(self))
-            return res
-        protocols_set = set(self.allowed_protocols.keys())
-        # in k8s policy - restrict allowed protocols only to protocols supported by it
-        if relevant_protocols is not None:
-            protocols_set &= relevant_protocols
-        for protocol in sorted(list(protocols_set)):
-            protocol_text = protocol #self.protocol_number_to_name(protocol)
-            if protocol in ConnectionSet._protocol_number_to_name_dict:
-                protocol_text = ConnectionSet._protocol_number_to_name_dict[protocol]
-            protocol_obj = {'Protocol': protocol_text}
-            properties = self.allowed_protocols[protocol]
-            if not isinstance(properties, bool):
-                protocol_obj.update(properties.get_properties_obj())
-            res.append(protocol_obj)
-        return res
-
-    def get_simplified_connections_str(self, relevant_protocols, use_complement_simplification):
+    def get_simplified_connections_representation(self, is_str, use_complement_simplification=True):
         """
         Get a simplified representation of the connection set - choose shorter version between self and its complement.
-        Restrict representation to relevant protocols, and use complement simplification when required.
-        :param set[int] relevant_protocols:  a set of protocols numbers or None
-        :param bool use_complement_simplification: should use complement simplification when possible or not
-        :return: a string representation of the connection set, to be used at fw-rules representation in txt
+        representation as str is a string representation, and not str is representation as list of objects.
+        The representation is used at fw-rules representation of the connection.
+        :param bool is_str: should get str representation (True) or list representation (False)
+        :param bool use_complement_simplification: should choose shorter rep between self and complement
+        :return: the required representation of the connection set
+        :rtype Union[str, list]
         """
-        if self.allow_all:
-            return "All connections"
-        if not self.allowed_protocols:
-            return 'No connections'
-        self_str = self.get_connections_str(relevant_protocols)
+        if self.allow_all or not self.allowed_protocols:
+            return self._get_connections_representation(is_str)
+        self_rep = self._get_connections_representation(is_str)
         if not use_complement_simplification:
-            return self_str
-
-        # check the alternative of the complement str
+            return self_rep
+        # check the alternative of the complement
         complement = ConnectionSet(True) - self
-        complement_str = complement.get_connections_str(relevant_protocols)
-        # TODO: is there a better heuristic here?
-        if len(complement_str) < len(self_str):
-            return f'All but {complement_str}'
-        return self_str
+        complement_rep = complement._get_connections_representation(is_str)
+        if len(complement_rep) < len(self_rep):
+            return f'All but {complement_rep}' if is_str else [{"All but": complement_rep}]
+        return self_rep
 
-    def get_connections_str(self, relevant_protocols):
+    def _get_connections_representation(self, is_str):
         """
-        Get a string representation of the connection set
-        :param set[int] relevant_protocols: a set of protocols numbers or None
-        :return: a string representation of the connection set, to be used at fw-rules representation in txt
+        get the required representation of the connection set (str or list) for fw-rules output
+        :param bool is_str: should get str representation (True) or list representation (False)
+        :return: the required representation of the connection set
+        :rtype Union[str, list]
         """
-        if self.allow_all:
-            return "All connections"
-        if not self.allowed_protocols:
-            return 'No connections'
-        res = ''
-        protocols_set = set(self.allowed_protocols.keys())
-        if relevant_protocols is not None:
-            protocols_set &= relevant_protocols
-        protocols_numbers = CanonicalIntervalSet()
-        for protocol in sorted(list(protocols_set)):
-            if protocol not in ConnectionSet._protocol_number_to_name_dict:
-                interval = CanonicalIntervalSet.Interval(protocol, protocol)
-                protocols_numbers.add_interval(interval)
-            else:
+        if self.allow_all or not self.allowed_protocols:
+            return str(self) if is_str else [str(self)]
+        res = []
+        protocols_ranges = CanonicalIntervalSet()
+        for protocol in sorted(self.allowed_protocols):
+            if protocol in ConnectionSet._protocol_number_to_name_dict:
                 protocol_text = self.protocol_number_to_name(protocol)
                 properties = self.allowed_protocols[protocol]
-                if not isinstance(properties, bool) and not properties.is_all():
-                    res += protocol_text + ' ' + str(properties) + ','
-                else:
-                    res += protocol_text + ','
-        if protocols_numbers:
-            res += 'protocols numbers: ' + str(protocols_numbers)
+                res.append(self._get_protocol_with_properties_representation(is_str, protocol_text, properties))
+            else:
+                # collect allowed protocols numbers into ranges
+                # assuming no properties objects for protocols numbers
+                protocols_ranges.add_interval(CanonicalIntervalSet.Interval(protocol, protocol))
+        if protocols_ranges:
+            res += self._get_protocols_ranges_representation(is_str, protocols_ranges)
+        return ','.join(s for s in res) if is_str else res
+
+    @staticmethod
+    def _get_protocol_with_properties_representation(is_str, protocol_text, properties):
+        """
+        :param bool is_str: should get str representation (True) or list representation (False)
+        :param str protocol_text: str description of protocol
+        :param Union[bool, TcpLikeProperties, ICMPDataSet] properties: properties object of the protocol
+        :return: representation required for given pair of protocol and its properties
+        :rtype: Union[dict, str]
+        """
+        if not is_str:
+            protocol_obj = {'Protocol': protocol_text}
+            if not isinstance(properties, bool):
+                protocol_obj.update(properties.get_properties_obj())
+            return protocol_obj
+        # for str representation:
+        return protocol_text if isinstance(properties, bool) else ' '.join(filter(None, [protocol_text, str(properties)]))
+
+    @staticmethod
+    def _get_protocols_ranges_representation(is_str, protocols_ranges):
+        """
+        :param bool is_str: should get str representation (True) or list representation (False)
+        :param protocols_ranges:
+        :return:
+        :rtype: list
+        """
+        if is_str:
+            return [f'protocols numbers: {protocols_ranges}']
+        res = []
+        for protocols_range in protocols_ranges.get_interval_set_list_numbers_and_ranges():
+            res.append({'Protocol': protocols_range})
         return res
 
     def __str__(self):
@@ -186,6 +183,8 @@ class ConnectionSet:
         for key, properties in other.allowed_protocols.items():
             if key not in res.allowed_protocols:
                 res.allowed_protocols[key] = self.copy_properties(properties)
+
+        res.check_if_all_connections()
         return res
 
     def __sub__(self, other):
@@ -243,6 +242,7 @@ class ConnectionSet:
             if key not in self.allowed_protocols:
                 self.allowed_protocols[key] = self.copy_properties(other.allowed_protocols[key])
 
+        self.check_if_all_connections()
         return self
 
     def __isub__(self, other):
@@ -399,7 +399,7 @@ class ConnectionSet:
         :param list[int] excluded_protocols: (optional) list of protocol numbers to exclude
         :return: None
         """
-        for protocol in range(1, 256):
+        for protocol in range(ConnectionSet._min_protocol_num, ConnectionSet._max_protocol_num + 1):
             if excluded_protocols and protocol in excluded_protocols:
                 continue
             if self.protocol_supports_ports(protocol):
@@ -408,6 +408,30 @@ class ConnectionSet:
                 self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
             else:
                 self.allowed_protocols[protocol] = True
+
+    def check_if_all_connections(self):
+        """
+        update self if it allows all connections but not flagged with allow_all
+        """
+        if self.is_all_connections_without_allow_all():
+            self.allow_all = True
+            self.allowed_protocols.clear()
+
+    def is_all_connections_without_allow_all(self):
+        """
+        check if self is not flagged with allow_all, but still allows all connections, and thus should
+        be replaced with allow_all flag
+        :rtype: bool
+        """
+        if self.allow_all:
+            return False
+        num_protocols = ConnectionSet._max_protocol_num - ConnectionSet._min_protocol_num + 1
+        if len(self.allowed_protocols) < num_protocols:
+            return False
+        for protocol in ConnectionSet.port_supporting_protocols | ConnectionSet._icmp_protocols:
+            if not self.allowed_protocols[protocol].is_all():
+                return False
+        return True
 
     def has_named_ports(self):
         """
@@ -485,4 +509,4 @@ class ConnectionSet:
         res = ConnectionSet()
         res.add_all_connections([ConnectionSet._protocol_name_to_number_dict['TCP']])
         return res
-        #return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()
+        # return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()

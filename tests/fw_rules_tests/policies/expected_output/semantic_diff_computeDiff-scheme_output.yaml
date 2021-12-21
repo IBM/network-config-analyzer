@@ -10,16 +10,14 @@
     dst_pods:
     - account-command
     connection:
-    - Protocol: TCP
-      Ports:
-      - 1-8079
-      - 8081-9089
-      - 9091-65535
-    - Protocol: UDP
-      Ports:
-      - 1-8079
-      - 8081-65535
-    - Protocol: SCTP
+    - All but:
+      - Protocol: TCP
+        Ports:
+        - 8080
+        - 9090
+      - Protocol: UDP
+        Ports:
+        - 8080
 - query: 'semantic_diff, config1: new1, config2: old1, key: Removed connections between
     persistent peers'
   rules:
@@ -32,12 +30,10 @@
     dst_pods:
     - bank-ui
     connection:
-    - Protocol: TCP
-      Ports:
-      - 1-8079
-      - 8081-65535
-    - Protocol: UDP
-    - Protocol: SCTP
+    - All but:
+      - Protocol: TCP
+        Ports:
+        - 8080
 
 - query: 'semantic_diff, config1: new1a, config2: old1, key: Added connections between
     persistent peers'

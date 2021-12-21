@@ -1,0 +1,36 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-enable-egress-all-non-TCP-protocols
+  namespace: kube-system
+spec:
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Allow
+
+  egress:
+    - action: Allow
+      notProtocol: TCP
+
+---
+
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase15-enable-egress-TCP-all-ports-directly
+  namespace: kube-system
+spec:
+  types:
+    - Ingress
+    - Egress
+  ingress:
+    - action: Allow
+
+  egress:
+    - action: Allow
+      protocol: TCP
+      destination:
+        ports:
+          - 1:65535

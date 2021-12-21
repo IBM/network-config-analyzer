@@ -31,6 +31,11 @@ networkConfigList:
     networkPolicyList:
       - testcase15-equiv-games3.yaml
     expectedWarnings: 0
+
+  - name: equiv-games4
+    networkPolicyList:
+      - testcase15-equiv-games4.yaml
+    expectedWarnings: 0
     
   - name: named-ports-rectangles
     networkPolicyList:
@@ -238,4 +243,9 @@ queries:
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
     expected: 0
+
+  - name: equiv_new_1
+    equivalence:
+      - equiv-games4
+      - equiv-games1/kube-system/testcase15-enable-all-connections
     

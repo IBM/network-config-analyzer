@@ -102,30 +102,12 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if self.active_dimensions == ['dst_ports']:
             assert (len(self) == 1)
             for cube in self:
-                ports_list = self.get_interval_set_list_obj(cube[0])
+                ports_list = cube[0].get_interval_set_list_numbers_and_ranges()
                 ports_str = ','.join(str(ports_interval) for ports_interval in ports_list)
                 return ports_str
 
         cubes_dict_list = [self.get_cube_dict(cube, self.active_dimensions, True) for cube in self]
         return ','.join(str(cube_dict) for cube_dict in cubes_dict_list)
-
-    @staticmethod
-    def get_interval_set_list_obj(interval_set):
-        """
-        get list of ports from input interval set
-        the list may contain int values (for single ports) and str values (for port ranges)
-        e.g. if interval_set = {1-1,3-5}, then the output would be: [1, '3-5']
-        :param CanonicalIntervalSet interval_set: an interval-set object
-        :return: list of intervals or int values from input interval_set
-        :rtype: list
-        """
-        res = []
-        for interval in interval_set:
-            if interval.start == interval.end:
-                res.append(interval.start)
-            else:
-                res.append(f'{interval.start}-{interval.end}')
-        return res
 
     @staticmethod
     def get_cube_dict(cube, dims_list, is_txt=False):
@@ -147,7 +129,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             if dim == 'methods':
                 values_list = str(dim_values)
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
-                values_list = TcpLikeProperties.get_interval_set_list_obj(dim_values)
+                values_list = dim_values.get_interval_set_list_numbers_and_ranges()
                 if is_txt:
                     values_list = ','.join(str(interval) for interval in values_list)
             else:
@@ -280,6 +262,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         res.excluded_named_ports = self.excluded_named_ports.copy()
         return res
 
+    # TODO: update this function: a diff item is not necessarily a [source-destination pair] as used to be on PortSetPair
     def print_diff(self, other, self_name, other_name):
         """
         :param TcpLikeProperties other: Another PortSetPair object
@@ -292,20 +275,11 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         other_minus_self = other - self
         diff_str = self_name if self_minus_other else other_name
         if self_minus_other:
-            diff_str += f' allows communication on {self_minus_other._get_first_item_str()} while {other_name} does not'
+            item = self_minus_other.get_first_item()
+            diff_str += f' allows communication on {item} while {other_name} does not [source-destination pair] '
             return diff_str
         if other_minus_self:
-            diff_str += f' allows communication on {other_minus_self._get_first_item_str()} while {self_name} does not'
+            item = other_minus_self.get_first_item()
+            diff_str += f' allows communication on {item} while {self_name} does not [source-destination pair] '
             return diff_str
         return 'No diff.'
-
-    def _get_first_item_str(self):
-        """
-        :return: str of a first item in self
-        """
-        item = self.get_first_item(self.active_dimensions)
-        res_list = []
-        for i, dim_name in enumerate(self.active_dimensions):
-            dim_item = item[i] if dim_name != 'methods' else MethodSet.all_methods_list[item[i]]
-            res_list.append(f'{dim_name}={dim_item}')
-        return '[' + ','.join(s for s in res_list) + ']'

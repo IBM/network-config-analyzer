@@ -1,0 +1,140 @@
+test,run_time(seconds)
+./istio_testcases/example_policies/bookinfo-demo/bookinfo-test-request-attrs-scheme.yaml,3.33
+./istio_testcases/example_policies/bookinfo-demo/bookinfo-test-principals-scheme.yaml,0.15
+./istio_testcases/example_policies/test-istio-scheme-files-options/test-np-from-dir-scheme.yaml,0.09
+./calico_testcases/example_policies/calico-demo/comparsion-scheme.yaml,1.70
+./calico_testcases/example_policies/calico-demo/demo-forbids-scheme.yaml,1.94
+./calico_testcases/example_policies/calico-demo/demo-permits-scheme.yaml,0.15
+./calico_testcases/example_policies/calico-demo/interferes-scheme.yaml,0.46
+./calico_testcases/example_policies/calico-demo/sanity1-scheme.yaml ,0.73
+./calico_testcases/example_policies/calico-demo/sanity2-scheme.yaml ,0.18
+./calico_testcases/example_policies/calico-demo/sanity3-scheme.yaml ,6.64
+./calico_testcases/example_policies/testcase1/testcase1-scheme.yaml ,0.57
+./calico_testcases/example_policies/testcase10/testcase10-scheme.yaml,0.95
+./calico_testcases/example_policies/testcase11/testcase11-scheme.yaml,3.65
+./calico_testcases/example_policies/testcase12-interference/testcase12-interference-scheme.yaml,0.90
+./calico_testcases/example_policies/testcase13-protocol/testcase13-scheme.yaml,0.98
+./calico_testcases/example_policies/testcase14-icmp/testcase14-scheme.yaml,0.76
+./calico_testcases/example_policies/testcase15-ports/testcase15-scheme.yaml,21.99
+./calico_testcases/example_policies/testcase16-nets/testcase16-scheme.yaml,1.70
+./calico_testcases/example_policies/testcase17-sanity/testcase17-scheme.yaml,4.70
+./calico_testcases/example_policies/testcase18-pass/testcase18-scheme.yaml,14.22
+./calico_testcases/example_policies/testcase19-profiles/testcase19-scheme.yaml,16.48
+./calico_testcases/example_policies/testcase2/testcase2-scheme.yaml,0.27
+./calico_testcases/example_policies/testcase20-hostendpoint/testcase20-scheme.yaml,1.78
+./calico_testcases/example_policies/testcase21-with_k8s/testcase21-scheme.yaml,0.52
+./calico_testcases/example_policies/testcase22-forbids-permits/testcase22-scheme.yaml,4.37
+./calico_testcases/example_policies/testcase23-NetworkSet/testcase23-scheme.yaml,0.21
+./calico_testcases/example_policies/testcase24-selector-expression/testcase24-new-scheme.yaml,0.14
+./calico_testcases/example_policies/testcase24-selector-expression/testcase24-scheme.yaml,0.15
+./calico_testcases/example_policies/testcase2tag/testcase2tag-scheme.yaml,0.19
+./calico_testcases/example_policies/testcase3/testcase3-scheme.yaml,0.21
+./calico_testcases/example_policies/testcase4/testcase4-scheme.yaml,0.10
+./calico_testcases/example_policies/testcase5/testcase5-scheme.yaml,0.23
+./calico_testcases/example_policies/testcase6/testcase6-scheme.yaml,1.04
+./calico_testcases/example_policies/testcase7/testcase7-scheme.yaml,1.05
+./calico_testcases/example_policies/testcase8/testcase8-scheme.yaml,0.03
+./calico_testcases/example_policies/testcase9/testcase9-scheme.yaml,0.05
+./example_policies/all-captured-tests/captured-tests-scheme.yaml,0.04
+./example_policies/andOrCombinations/andOrCombinations-scheme.yaml,0.1
+./example_policies/demo/interferes/interferes-scheme.yaml,0.06
+./example_policies/demo/regression/regression-scheme.yaml,0.13
+./example_policies/demo/sanity/sanity-scheme.yaml,0.13
+./example_policies/demo_short/demo1-scheme.yaml,0.05
+./example_policies/demo_short/demo2-scheme.yaml,0.04
+./example_policies/demo_short/demo3-scheme.yaml,0.03
+./example_policies/emptinessTests/emptinessTests-scheme.yaml,0.25
+./example_policies/namedPorts/namedPorts-scheme.yaml,0.06
+./example_policies/network-policy-checks/network-policy-check-scheme.yaml,0.03
+./example_policies/testcase1/testcase1-scheme.yaml,0.28
+./example_policies/testcase10-json-version/testcase10-json-version-scheme.yaml,0.97
+./example_policies/testcase10-nameSpace-podSelector/testcase10-scheme.yaml,0.87
+./example_policies/testcase11-forbids-permits/testcase11-scheme.yaml,0.2
+./example_policies/testcase1_tag/testcase1tag-scheme.yaml,0.15
+./example_policies/testcase2/testcase2-scheme.yaml,0.23
+./example_policies/testcase3/testcase3-scheme.yaml,0.27
+./example_policies/testcase4/testcase4-scheme.yaml,0.1
+./example_policies/testcase5/testcase5-scheme.yaml,0.20
+./example_policies/testcase6/testcase6-scheme.yaml,0.05
+./example_policies/testcase7/testcase7-scheme.yaml,0.25
+./example_policies/testcase8/testcase8-scheme.yaml,0.04
+./example_policies/testcase9-sanity/testcase9-sanity-scheme.yaml,0.36
+./example_policies/tests-different-topologies/containment-permits-different-topologies-scheme.yaml,0.2
+./example_policies/tests-different-topologies/namedPorts-scheme.yaml,0.11
+./example_policies/tests-different-topologies/semanticDiff-different-topologies-scheme.yaml,0.25
+./example_policies/tests-different-topologies/semanticDiff-IpBlocks-different-topologies-scheme.yaml,46.7
+./example_policies/tests-different-topologies/semanticDiff-multiple-resources-scheme.yaml,0.07
+./example_policies/tests-different-topologies/semanticDiff-same-topologies-scheme.yaml,0.09
+./example_policies/typoNotInTests/typoNotInTests-scheme.yaml,2.55
+./example_policies/withEndPort/withEndPort-scheme.yaml,0.46
+./example_policies/withIpBlock/withIpBlock-scheme.yaml,1.60
+./example_policies/withIpBlock2/withIpBlock2-scheme.yaml,3.40
+./example_policies/workload-resources-test/file-system-resource-test-scheme.yaml,0.1
+./example_policies/workload-resources-test/git-resource-test-scheme.yaml,4.77
+./fw_rules_tests/policies/calico-testcase13-scheme.yaml,0.07
+./fw_rules_tests/policies/calico-testcase14-scheme.yaml,0.05
+./fw_rules_tests/policies/calico-testcase20-scheme.yaml,0.62
+./fw_rules_tests/policies/calico-testcase3-scheme.yaml,0.14
+./fw_rules_tests/policies/calico-testcase5-scheme.yaml,0.14
+./fw_rules_tests/policies/cyclonus-simple-example-scheme.yaml,0.07
+./fw_rules_tests/policies/istio-allow-all-scheme.yaml,0.69
+./fw_rules_tests/policies/istio-allow-nothing-scheme.yaml,2.10
+./fw_rules_tests/policies/istio-deny-all-scheme.yaml,0.70
+./fw_rules_tests/policies/istio-test1-scheme.yaml,1.61
+./fw_rules_tests/policies/label_expr_test_1-scheme.yaml,0.17
+./fw_rules_tests/policies/poc1-scheme.yaml,0.07
+./fw_rules_tests/policies/poc2-scheme.yaml,0.08
+./fw_rules_tests/policies/poc3-scheme.yaml,0.08
+./fw_rules_tests/policies/poc4-scheme.yaml,0.15
+./fw_rules_tests/policies/semantic_diff_computeDiff-scheme.yaml,0.07
+./fw_rules_tests/policies/semantic_diff_namedPorts-scheme.yaml,0.12
+./fw_rules_tests/policies/semantic_diff_poc-scheme.yaml,0.17
+./fw_rules_tests/policies/semantic_diff_withIpBlock-scheme.yaml,0.42
+./fw_rules_tests/policies/semantic_diff_with_different_topologies-scheme.yaml,0.24
+./fw_rules_tests/policies/test1-scheme.yaml,0.12
+./fw_rules_tests/policies/test10-scheme.yaml,0.22
+./fw_rules_tests/policies/test11-scheme.yaml,0.14
+./fw_rules_tests/policies/test12-scheme.yaml,0.11
+./fw_rules_tests/policies/test13-scheme.yaml,0.1
+./fw_rules_tests/policies/test14-scheme.yaml,0.09
+./fw_rules_tests/policies/test15-scheme.yaml,0.12
+./fw_rules_tests/policies/test16-scheme.yaml,0.19
+./fw_rules_tests/policies/test18-scheme.yaml,0.12
+./fw_rules_tests/policies/test19-scheme.yaml,0.06
+./fw_rules_tests/policies/test2-scheme.yaml,0.04
+./fw_rules_tests/policies/test20-scheme.yaml,0.05
+./fw_rules_tests/policies/test21-scheme.yaml,0.05
+./fw_rules_tests/policies/test22-scheme.yaml,0.05
+./fw_rules_tests/policies/test23-scheme.yaml,0.04
+./fw_rules_tests/policies/test24-scheme.yaml,0.03
+./fw_rules_tests/policies/test3-scheme.yaml,0.03
+./fw_rules_tests/policies/test4-scheme.yaml,0.05
+./fw_rules_tests/policies/test6-scheme.yaml,0.13
+./fw_rules_tests/policies/test7-scheme.yaml,0.15
+./fw_rules_tests/policies/test8-scheme.yaml,0.16
+./fw_rules_tests/policies/test9-scheme.yaml,0.22
+./fw_rules_tests/policies/calico-testcase15-scheme.yaml,0.08
+./istio_testcases/example_policies/bookinfo-demo/bookinfo-test-scheme.yaml,0.19
+./istio_testcases/example_policies/testcase1/testcase1-istio-scheme.yaml,6.39
+./istio_testcases/example_policies/testcase2/testcase2-istio-scheme.yaml,4.90
+./istio_testcases/example_policies/testcase3/testcase3-istio-scheme.yaml,1.95
+./fw_rules_tests/policies/istio-bookinfo-test-request-attrs-scheme.yaml,3.31
+./network-policy-checks-bad-path/network-policy-chech-bad-path-scheme.yaml,0.30
+./output_config_tests/override_out_format_only/test_output_config_connectivity_queries_override_out_format-scheme.yaml,0.22
+./output_config_tests/policies/test_output_config_connectivity_queries-scheme.yaml,0.24
+./output_config_tests/policies/test_output_config_semantic_diff_queries-scheme.yaml,0.4
+"cmdline_tests.yaml, query name: basic_sanity",0.05
+"cmdline_tests.yaml, query name: basic_connectivity",0.06
+"cmdline_tests.yaml, query name: basic_connectivity_yaml",0.07
+"cmdline_tests.yaml, query name: basic_equiv",0.05
+"cmdline_tests.yaml, query name: basic_semantic_diff",0.2
+"cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.05
+"cmdline_tests.yaml, query name: basic_interferes",0.05
+"cmdline_tests.yaml, query name: named_policy_interferes",0.03
+"cmdline_tests.yaml, query name: basic_forbids",0.03
+"cmdline_tests.yaml, query name: basic_permits",0.03
+"cmdline_tests.yaml, query name: git_resources",15.79
+"cmdline_tests.yaml, query name: return_0",0.03
+"cmdline_live_k8s_tests.yaml, query name: basic_sanity",5.11
+"cmdline_live_k8s_tests.yaml, query name: basic_connectivity",2.91
+"cmdline_live_k8s_tests.yaml, query name: basic_equiv",2.91
