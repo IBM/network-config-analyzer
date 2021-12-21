@@ -130,7 +130,6 @@ test,run_time(seconds)
 "k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.2
 "k8s_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.05
 "k8s_cmdline_tests.yaml, query name: basic_interferes",0.05
-"k8s_cmdline_tests.yaml, query name: named_policy_interferes",0.03
 "k8s_cmdline_tests.yaml, query name: basic_forbids",0.03
 "k8s_cmdline_tests.yaml, query name: basic_permits",0.03
 "k8s_cmdline_tests.yaml, query name: git_resources",15.79

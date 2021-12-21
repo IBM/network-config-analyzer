@@ -11,6 +11,11 @@ networkConfigList:
       - withEndPort-networkpolicy2.yaml
     expectedWarnings: 0
 
+  - name: np3
+    networkPolicyList:
+      - withEndPort-networkpolicy3.yaml
+    expectedWarnings: 0
+
 queries:
   - name: redundnacy_np2
     redundancy:
@@ -21,3 +26,32 @@ queries:
       - np1
       - np2
     expected: 0
+
+  - name: equivalence
+    equivalence:
+      - np3/kube-system/enable-all-protocols-with-all-ports
+      - np3/kube-system/enable-all-traffic
+    expected: 1
+
+  - name: semantic_diff
+    semanticDiff:
+      - np3/kube-system/enable-all-protocols-with-all-ports
+      - np3/kube-system/enable-all-traffic
+    expected: 2
+
+  - name: connectivity-1
+    connectivityMap:
+      - np3/kube-system/enable-all-protocols-with-all-ports
+    expected: 0
+
+  - name: connectivity-2
+    connectivityMap:
+      - np3/kube-system/enable-all-traffic
+    expected: 0
+
+  - name: equivalence
+    equivalence:
+      - np3/kube-system/enable-all-tcp-ver-one
+      - np3/kube-system/enable-all-tcp-ver-two
+    expected: 0
+

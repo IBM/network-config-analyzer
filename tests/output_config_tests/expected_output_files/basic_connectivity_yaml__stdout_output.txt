@@ -1,7 +1,6 @@
 global: cluster has 29 unique endpoints, 8 namespaces
 global: cluster has 29 unique endpoints, 8 namespaces
-
-- query: ''
+- query: ', config: output_config_tests/../example_policies/testcase8/testcase8-networkpolicy1.yaml'
   rules:
   - src_ip_block:
     - 0.0.0.0/0

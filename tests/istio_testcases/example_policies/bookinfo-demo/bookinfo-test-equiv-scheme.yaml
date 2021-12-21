@@ -1,0 +1,81 @@
+namespaceList: ../../example_podlist/bookinfo_ns_list.json
+podList: ../../example_podlist/bookinfo_deployments.yaml
+
+networkConfigList:
+  - name: istio-test-methods-4
+    networkPolicyList:
+      - bookinfo-policy-test-methods-4.yaml
+
+  - name: istio-test-methods-1
+    networkPolicyList:
+      - bookinfo-policy-test-methods-1.yaml
+
+  - name: istio-test-methods-3
+    networkPolicyList:
+      - bookinfo-policy-test-methods-3.yaml
+
+  - name: istio-test-methods-3-diff
+    networkPolicyList:
+      - bookinfo-policy-test-methods-3-differently-written.yaml
+
+
+queries:
+  - name: equiv-diff-methods
+    equivalence:
+      - istio-test-methods-4/default/details-viewer-allow-get
+      - istio-test-methods-4/default/details-viewer-allow-put
+    expected: 1
+
+  - name: equiv-diff-methods-1
+    equivalence:
+      - istio-test-methods-4/default/details-viewer-allow-put
+      - istio-test-methods-4/default/details-viewer-allow-get
+    expected: 1
+
+  - name: equiv-diff-methods-2
+    equivalence:
+      - istio-test-methods-1/default/allow-nothing
+      - istio-test-methods-1/default/details-viewer
+    expected: 1
+
+  - name: equiv-diff-methods-3
+    equivalence:
+      - istio-test-methods-4/default/details-viewer-allow-get-port-80
+      - istio-test-methods-4/default/details-viewer-allow-nothing
+    expected: 1
+
+  - name: equiv-diff-methods-4
+    equivalence:
+      - istio-test-methods-4/default/details-viewer-allow-get-port-80
+      - istio-test-methods-4/default/details-viewer-allow-get-port-8080
+    expected: 1
+
+  - name: equiv-diff-methods-details-viewer
+    equivalence:
+      - istio-test-methods-3/default/details-viewer
+      - istio-test-methods-3-diff/default/details-viewer
+    expected: 0
+
+  - name: equiv-diff-methods-reviews-viewer
+    equivalence:
+      - istio-test-methods-3/default/reviews-viewer
+      - istio-test-methods-3-diff/default/reviews-viewer
+    expected: 0
+
+  - name: equiv-diff-methods-ratings-viewer
+    equivalence:
+      - istio-test-methods-3/default/ratings-viewer
+      - istio-test-methods-3-diff/default/ratings-viewer
+    expected: 0
+
+  - name: equiv-diff-methods-allow-all-methods
+    equivalence:
+      - istio-test-methods-3/default/allow-all-methods
+      - istio-test-methods-3-diff/default/allow-all-methods
+    expected: 0
+
+  - name: equiv-diff-methods-allow-no-methods
+    equivalence:
+      - istio-test-methods-3/default/allow-no-methods
+      - istio-test-methods-3-diff/default/allow-no-methods
+    expected: 0
