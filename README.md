@@ -9,7 +9,7 @@ An analyzer for Network Policies and other connectivity-configuration resources
 where *scheme_file* is a yaml file describing what to verify.
 
 Scheme file structure is specified [here](docs/SchemeFileFormat.md).
-See an example scheme file [here](tests/example_policies/testcase1/testcase1-scheme.yaml).
+See an example scheme file [here](tests/k8s_testcases/example_policies/testcase1/testcase1-scheme.yaml).
 
 #### Running without a scheme file
 Various predefined queries can be performed without providing a scheme file, using the following command line configurations.

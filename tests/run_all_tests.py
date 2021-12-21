@@ -395,7 +395,7 @@ class TestFilesSpec(dict):
 
 
 class TestsRunner:
-    def __init__(self, spec_file, tests_type, action, clean_out_files, check_run_time):
+    def __init__(self, spec_file, tests_type, action, clean_out_files, check_run_time, category):
         self.spec_file = spec_file
         self.all_results = {}
         self.global_res = 0
@@ -404,6 +404,7 @@ class TestsRunner:
         self.test_files_spec = None
         self.clean_out_files = clean_out_files
         self.check_run_time = check_run_time
+        self.category = category
 
     @staticmethod
     def k8s_apply_resources(yaml_file):
@@ -486,13 +487,40 @@ class TestsRunner:
             elif self.action == 'override_expected_output':
                 test_obj.update_expected_output()
 
+    def _test_file_matches_category_output_tests(self, test_file):
+        # output tests run on files under fw_rules_tests and output_configs_tests dirs
+        if self.category == '':
+            return True
+        file_name = os.path.basename(test_file)
+        if file_name.startswith(self.category):
+            return True
+        if self.category == 'k8s' and not file_name.startswith(('calico', 'istio')):
+            return True
+        return False
+
+    def _test_file_matches_category_general_tests(self, test_file):
+        if self.category == '':
+            return True
+        if self.category + '_testcases' in test_file:
+            return True
+        if not '_testcases' in test_file:
+            return self._test_file_matches_category_output_tests(test_file)
+        return False
+
     # given a scheme file or a cmdline file, run all relevant tests
     def run_test_per_file(self, test_file):
         if self.test_files_spec.type == 'scheme':
+            run_flag = True
             if self.tests_type in {'general', 'fw_rules_assertions'}:
-                scheme_obj_list = [SchemeFile(test_file, self._get_scheme_test_args(test_file))]
+                if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
+                    run_flag = False
+                if run_flag:
+                    scheme_obj_list = [SchemeFile(test_file, self._get_scheme_test_args(test_file))]
             else:
-                scheme_obj_list = self.get_scheme_obj_list_for_test(test_file)
+                if self.tests_type == 'output' and not self._test_file_matches_category_output_tests(test_file):
+                        run_flag = False
+                if run_flag:
+                    scheme_obj_list = self.get_scheme_obj_list_for_test(test_file)
             self.create_and_run_test_obj(scheme_obj_list, 0)
 
         elif self.test_files_spec.type == 'cmdline':
@@ -502,7 +530,8 @@ class TestsRunner:
                     query_name = test.get('name', '')
                     cli_test_name = f'{os.path.basename(test_file)}, query name: {query_name}'
                     cliQuery = CliQuery(test, self.test_files_spec.root, cli_test_name)
-                    self.create_and_run_test_obj([cliQuery], test.get('expected', None))
+                    if self.category == '' or cli_test_name.startswith(self.category):
+                        self.create_and_run_test_obj([cliQuery], test.get('expected', None))
 
     @staticmethod
     def _get_scheme_test_args(test_file, out_format_arg=None, out_path_arg=None):
@@ -556,7 +585,8 @@ def main(argv=None):
     parser.add_argument('--type', choices=['general', 'k8s_live_general', 'output', 'fw_rules_assertions'],
                         help='Choose test types to run',
                         default='general')
-
+    parser.add_argument('--category', choices=['k8s', 'calico', 'istio'], help='Choose category of tests',
+                        default='')
     parser.add_argument('--action', choices=['run_tests', 'override_expected_output'],
                         default='run_tests',
                         help='Choose action')
@@ -566,18 +596,21 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
     test_type = args.type
+    category = args.category
     action = args.action
     clean_out_files = not args.dont_clean_output_files
     check_run_time = args.check_run_time
-    if action != 'run_tests' and test_type != 'output':
+    if action != 'run_tests' and not test_type in {'general', 'output'}:
         print(f'action: {action} is not supported with test type: {test_type}')
         sys.exit(1)
+    if category != '' and test_type != 'general':
+        print(f'category: {category} is not supported with test type: {test_type}')
     if check_run_time and test_type != 'general':
         print(f'check_run_time flag is not supported with test type: {test_type}')
         sys.exit(1)
 
     spec_file = 'all_tests_spec.yaml'
-    tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files, check_run_time)
+    tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files, check_run_time, category)
     tests_runner.run_tests()
     return tests_runner.global_res
 

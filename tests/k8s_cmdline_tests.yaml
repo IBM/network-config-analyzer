@@ -1,0 +1,97 @@
+- name: basic_sanity
+  args: >
+    --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+    --ns_list k8s_testcases/example_podlist/bank_ns_list.json
+    --pod_list k8s_testcases/example_podlist/bank_pod_list.json
+  expected: 1
+
+- name: basic_connectivity
+  args: >
+    --connectivity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+  expected: 0
+
+- name: basic_connectivity_yaml
+  args: >
+    --connectivity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+    -o yaml
+  expected: 0
+
+- name: basic_equiv
+  args: >
+    --equiv k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_np_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_semantic_diff
+  args: >
+    --semantic_diff k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_np_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+  expected: 1
+
+- name: different_topologies_semantic_diff
+  args: >
+    --semantic_diff k8s_testcases/example_policies/tests-different-topologies/policy_b.yaml
+    --ns_list different_topologies/ns_list_b.json
+    --pod_list different_topologies/pods_list_b.json
+
+    --base_np_list k8s_testcases/example_policies/tests-different-topologies/policy_a.yaml
+    --base_ns_list different_topologies/ns_list_a.json
+    --base_pod_list different_topologies/pods_list_a.json
+  expected: 1
+
+- name: basic_interferes
+  args: >
+    --interferes k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_np_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+  expected: 0
+
+- name: named_policy_interferes
+  args: >
+    --interferes enable-ingress-from-default
+    --base_np_list k8s_testcases/example_policies/testcase9-sanity/testcase9-sanity-between-policies.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_forbids
+  args: >
+    --forbids k8s_testcases/example_policies/testcase11-forbids-permits/testcase11-within-default.yaml
+    --base_np_list k8s_testcases/example_policies/testcase11-forbids-permits/testcase11-partly-within-default.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_permits
+  args: >
+    --permits k8s_testcases/example_policies/testcase11-forbids-permits/testcase11-within-default.yaml
+    --base_np_list k8s_testcases/example_policies/testcase11-forbids-permits/testcase11-partly-within-default.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+  expected: 1
+
+- name: git_resources
+  args: >
+    --sanity k8s_testcases/example_policies/all-captured-tests/some-captured-tests-networkpolicy.yaml
+    --ns_list https://github.com/IBM/network-config-analyzer/tree/master/tests/example_workload_resources/
+    --pod_list https://github.com/IBM/network-config-analyzer/tree/master/tests/example_workload_resources/
+  expected: 0
+
+- name: return_0
+  args: >
+    --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+    --return_0
+  expected: 0
