@@ -27,7 +27,6 @@
     connection:
     - All connections
 
-
 - query: 'connectivity_map, config: np_denyFirst'
   rules:
   - src_ns:
@@ -67,5 +66,4 @@
     - ::/0
     connection:
     - All connections
-
 

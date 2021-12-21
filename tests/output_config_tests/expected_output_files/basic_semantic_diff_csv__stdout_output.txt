@@ -1,6 +1,5 @@
 global: cluster has 29 unique endpoints, 8 namespaces
 global: cluster has 29 unique endpoints, 8 namespaces
-
 "query","src_ns","src_pods","dst_ns","dst_pods","connection",
 "Added connections between persistent peers","","","","","",
 "","[default]","[*]","[kube-system]","[*]","All but TCP 53,UDP 53",

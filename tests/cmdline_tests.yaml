@@ -57,14 +57,6 @@
     --pod_list example_podlist/pods_list.json
   expected: 0
 
-- name: named_policy_interferes
-  args: >
-    --interferes enable-ingress-from-default
-    --base_np_list example_policies/testcase9-sanity/testcase9-sanity-between-policies.yaml
-    --ns_list example_podlist/ns_list.json
-    --pod_list example_podlist/pods_list.json
-  expected: 1
-
 - name: basic_forbids
   args: >
     --forbids example_policies/testcase11-forbids-permits/testcase11-within-default.yaml

@@ -172,6 +172,8 @@
       Ports:
       - 53
 
+
+
 - query: 'semantic_diff, config1: np1, config2: np4, key: Added connections between
     persistent peers'
   rules:

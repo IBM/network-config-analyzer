@@ -29,7 +29,9 @@ src ip block: 172.31.0.0/16 dst_ns: [kube-system] dst_pods: [tier in (frontend)]
 
 
 np2 and np3 have the same network topology and the same set of policies.
+
 np4 and np4 have the same network topology and the same set of policies.
+
 np1 and np4 are not semantically equivalent.
 Changed connections between persistent peers:
 Added connections (based on topology from config: np4) :

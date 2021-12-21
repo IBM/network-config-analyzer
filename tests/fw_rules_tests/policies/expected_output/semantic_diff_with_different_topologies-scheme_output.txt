@@ -1,4 +1,5 @@
 no_policy and policy are semantically equivalent.
+
 config_a and config_b are not semantically equivalent.
 Lost connections between removed peers:
 Removed connections (based on topology from config: config_a) :

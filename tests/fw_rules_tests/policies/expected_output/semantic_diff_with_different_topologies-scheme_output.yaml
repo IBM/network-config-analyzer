@@ -1,3 +1,4 @@
+
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Lost connections
     between removed peers'
   rules:

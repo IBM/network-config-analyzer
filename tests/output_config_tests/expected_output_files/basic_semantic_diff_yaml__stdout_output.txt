@@ -1,6 +1,5 @@
 global: cluster has 29 unique endpoints, 8 namespaces
 global: cluster has 29 unique endpoints, 8 namespaces
-
 - query: Added connections between persistent peers
   rules:
   - src_ns:

@@ -6,7 +6,6 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
 
-
 - query: 'connectivity_map_3_stdout_yaml, config: np3'
   rules:
   - src_ns:
@@ -79,7 +78,6 @@ src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TC
     connection:
     - All connections
 
-
 "query","src_ns","src_pods","dst_ns","dst_pods","connection",
 "connectivity_map_3_stdout_csv, config: np3","","","","","",
 "","[default]","[*]","[kube-system-new]","[*]","TCP 85-90",
@@ -88,7 +86,6 @@ src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TC
 "","[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]","[*]","","ip block: 0.0.0.0/0","All connections",
 "","[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]","[*]","","ip block: ::/0","All connections",
 "","[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]","[*]","[default,ibm-system-new,kube-system-new-dummy-to-ignore]","[*]","All connections",
-
 
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
@@ -99,7 +96,6 @@ src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TC
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]||ip block: 0.0.0.0/0|All connections|
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]||ip block: ::/0|All connections|
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]|[default,ibm-system-new,kube-system-new-dummy-to-ignore]|[*]|All connections|
-
 
 // The Connectivity Graph of np3
 digraph np3 {
@@ -118,7 +114,6 @@ digraph np3 {
 	"default/cognetive-agents-js4qc" -> "kube-system-new/calico-node-mgdlr" [label=" TCP, 85-90" color="gold2" fontcolor="darkgreen"]
 	"default/cognetive-agents-js4qc" -> "kube-system-new/heapster-7df8cb8c66-zxkk2" [label=" TCP, 85-90" color="gold2" fontcolor="darkgreen"]
 }
-
 
 
 - query: 'connectivity_map_4_yaml, config: np4'
@@ -289,7 +284,6 @@ digraph np3 {
     connection:
     - All connections
 
-
 "query","src_ns","src_pods","dst_ns","dst_pods","connection",
 "connectivity_map_4_csv, config: np4","","","","","",
 "","[kube-system-new-dummy-to-ignore]","[*]","[kube-system-new]","[*]","TCP 80-88",
@@ -309,7 +303,6 @@ digraph np3 {
 "","[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]","[*]","","ip block: 0.0.0.0/0","All connections",
 "","[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]","[*]","","ip block: ::/0","All connections",
 "","[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]","[*]","[default,ibm-system-new,kube-system-new-dummy-to-ignore]","[*]","All connections",
-
 
 |query|src_ns|src_pods|dst_ns|dst_pods|connection|
 |---|---|---|---|---|---|
@@ -332,7 +325,6 @@ digraph np3 {
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]||ip block: 0.0.0.0/0|All connections|
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]||ip block: ::/0|All connections|
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]|[default,ibm-system-new,kube-system-new-dummy-to-ignore]|[*]|All connections|
-
 
 // The Connectivity Graph of np4
 digraph np4 {
@@ -378,7 +370,6 @@ digraph np3 {
 }
 
 
-
 final fw rules for query: connectivity_map_3_txt, config: np3:
 src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src ip block: ::/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
@@ -386,7 +377,6 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
-
 
 final fw rules for query: connectivity_map_3_txt_append, config: np4:
 src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
@@ -398,7 +388,6 @@ src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TC
 src_ns: [ibm-system-new] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 80-90
 src_ns: [kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 80-88
 
-
 final fw rules for query: connectivity_map_3_txt_append_2, config: np4:
 src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src ip block: ::/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
@@ -408,5 +397,4 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
 src_ns: [ibm-system-new] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 80-90
 src_ns: [kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 80-88
-
 

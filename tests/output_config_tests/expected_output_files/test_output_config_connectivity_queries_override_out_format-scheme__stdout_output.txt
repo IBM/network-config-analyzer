@@ -9,7 +9,6 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
 
 
-
 Running query connectivity_map_3_stdout_yaml
 final fw rules for query: connectivity_map_3_stdout_yaml, config: np3:
 src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
@@ -18,7 +17,6 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
-
 
 
 Running query connectivity_map_3_stdout_csv
@@ -31,7 +29,6 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
 
 
-
 Running query connectivity_map_3_stdout_md
 final fw rules for query: connectivity_map_3_stdout_md, config: np3:
 src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
@@ -40,7 +37,6 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
-
 
 
 Running query connectivity_map_3_stdout_dot
@@ -53,7 +49,6 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
 
 
-
 Running query connectivity_map_3_stdout_other
 final fw rules for query: connectivity_map_3_stdout_other, config: np3:
 src ip block: 0.0.0.0/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
@@ -62,7 +57,6 @@ src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 85-90
-
 
 
 Running query connectivity_map_4_yaml

@@ -32,7 +32,6 @@
     connection:
     - Protocol: TCP
 
-
 - query: 'istio-allow-nothing-2, config: istio-allow-nothing-2'
   rules:
   - src_ip_block:
@@ -67,8 +66,6 @@
     connection:
     - Protocol: TCP
 
-
 - query: 'istio-allow-nothing-3, config: istio-allow-nothing-3'
   rules: []
-
 
