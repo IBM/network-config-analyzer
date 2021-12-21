@@ -14,7 +14,7 @@ spec:
             principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
       to:
         - operation:
-            notMethods: ["GET"]
+            notMethods: ["*T"]
 
 ---
 
@@ -34,8 +34,8 @@ spec:
             principals: ["cluster.local/ns/default/sa/bookinfo-productpage"]
       to:
         - operation:
-            methods: ["GET", "PUT"]
-            notMethods: ["GET"]
+            methods: ["GET", "P*"]
+            notMethods: ["G*"]
 
 ---
 apiVersion: security.istio.io/v1beta1
@@ -54,8 +54,8 @@ spec:
             principals: ["cluster.local/ns/default/sa/bookinfo-reviews"]
       to:
         - operation:
-            methods: ["GET"] # TODO: if no methods allowed, is still plain TCP allowed?  are http-requests allowed/not allowed?
-            notMethods: ["GET"]
+            methods: ["*T"]
+            notMethods: ["G*"]
 
 ---
 apiVersion: security.istio.io/v1beta1
@@ -71,6 +71,25 @@ spec:
   apiVersion: security.istio.io/v1beta1
   kind: AuthorizationPolicy
   metadata:
+    name: "allow-all-methods"
+    namespace: default
+  spec:
+    selector:
+      matchLabels:
+        app: productpage
+    action: ALLOW
+    rules:
+      - from:
+          - source:
+              principals: [ "cluster.local/ns/default/sa/bookinfo-reviews" ]
+        to:
+          - operation:
+              methods: ['*']
+
+---
+  apiVersion: security.istio.io/v1beta1
+  kind: AuthorizationPolicy
+  metadata:
     name: "allow-no-methods"
     namespace: default
   spec:
@@ -81,7 +100,7 @@ spec:
     rules:
       - from:
           - source:
-              principals: [ "cluster.local/ns/default/sa/bookinfo-productpage" ]
+              principals: [ "cluster.local/ns/default/sa/bookinfo-details" ]
         to:
           - operation:
-              notMethods: ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH']
+              methods: ['DUMMY']
