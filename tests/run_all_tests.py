@@ -597,10 +597,10 @@ def main(argv=None):
     action = args.action
     clean_out_files = not args.dont_clean_output_files
     check_run_time = args.check_run_time
-    if action != 'run_tests' and not test_type in {'general', 'output'}:
+    if action != 'run_tests' and test_type != 'output':
         print(f'action: {action} is not supported with test type: {test_type}')
         sys.exit(1)
-    if category != '' and test_type != 'general':
+    if category != '' and not test_type in {'general', 'output'} :
         print(f'category: {category} is not supported with test type: {test_type}')
     if check_run_time and test_type != 'general':
         print(f'check_run_time flag is not supported with test type: {test_type}')
