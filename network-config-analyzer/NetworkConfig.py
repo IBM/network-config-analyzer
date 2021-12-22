@@ -53,7 +53,7 @@ class NetworkConfig:
         self.allowed_labels = set()
         peer_container.clear_pods_extra_labels()
         if from_buffer:
-            self._add_policies(entry, 'buffer', True)
+            self._add_policies(entry_list, 'buffer', True)
         else:
             for entry in entry_list or []:
                 self.add_policies_from_entry(entry)
