@@ -51,11 +51,12 @@ class NetworkConfig:
         self.referenced_ip_blocks = None
         self.type = config_type or NetworkConfig.ConfigType.Unknown
         self.allowed_labels = set()
-        if from_buffer:
-            entry_list = 'buffer: ' + entry_list
         peer_container.clear_pods_extra_labels()
-        for entry in entry_list or []:
-            self.add_policies_from_entry(entry)
+        if from_buffer:
+            self._add_policies(entry, 'buffer', True)
+        else:
+            for entry in entry_list or []:
+                self.add_policies_from_entry(entry)
         self._parse_policies_in_parse_queue()
 
     def __eq__(self, other):
