@@ -35,7 +35,7 @@ class NetworkConfig:
         Calico = 2
         Istio = 3
 
-    def __init__(self, name, peer_container, entry_list=None, config_type=None):
+    def __init__(self, name, peer_container, entry_list=None, config_type=None, buffer=None):
         """
         :param str name: A name for this config
         :param PeerContainer peer_container: The set of endpoints and their namespaces
@@ -52,8 +52,11 @@ class NetworkConfig:
         self.type = config_type or NetworkConfig.ConfigType.Unknown
         self.allowed_labels = set()
         peer_container.clear_pods_extra_labels()
-        for entry in entry_list or []:
-            self.add_policies_from_entry(entry)
+        if buffer is not None:
+            self._add_policies(buffer, 'buffer', True)
+        else:  # if entry_list is not None:
+            for entry in entry_list or []:
+                self.add_policies_from_entry(entry)
         self._parse_policies_in_parse_queue()
 
     def __eq__(self, other):
@@ -215,8 +218,6 @@ class NetworkConfig:
             self.add_policies_from_calico_cluster()
         elif entry == 'istio':
             self.add_istio_policies_from_k8s_cluster()
-        elif entry.startswith('buffer: '):
-            self._add_policies(entry[8:], 'buffer', True)
         elif not self.scan_entry_for_policies(entry):
             raise Exception(entry + ' is not a file or directory')
 

@@ -92,8 +92,8 @@ class PolicySetsResource(NCAResource):
 
         # noinspection PyBroadException
         try:
-            entry = 'buffer: ' + request.get_data().decode("utf-8")
-            network_config = NetworkConfig(new_policy_set, self.peer_container, [entry])
+            entry = request.get_data().decode("utf-8")
+            network_config = NetworkConfig(new_policy_set, self.peer_container, buffer=entry)
         except Exception:
             return 'Badly formed policy list', 400
 
