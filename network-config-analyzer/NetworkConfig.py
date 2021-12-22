@@ -218,8 +218,6 @@ class NetworkConfig:
             self.add_policies_from_calico_cluster()
         elif entry == 'istio':
             self.add_istio_policies_from_k8s_cluster()
-        elif entry.startswith('buffer: '):
-            self._add_policies(entry[8:], 'buffer', True)
         elif not self.scan_entry_for_policies(entry):
             raise Exception(entry + ' is not a file or directory')
 
