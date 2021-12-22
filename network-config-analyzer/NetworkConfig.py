@@ -51,7 +51,8 @@ class NetworkConfig:
         self.referenced_ip_blocks = None
         self.type = config_type or NetworkConfig.ConfigType.Unknown
         self.allowed_labels = set()
-        self.from_buffer = from_buffer
+        if from_buffer:
+            entry_list = 'buffer: ' + entry_list
         peer_container.clear_pods_extra_labels()
         for entry in entry_list or []:
             self.add_policies_from_entry(entry)
@@ -216,8 +217,8 @@ class NetworkConfig:
             self.add_policies_from_calico_cluster()
         elif entry == 'istio':
             self.add_istio_policies_from_k8s_cluster()
-        elif self.from_buffer:
-            self._add_policies(entry, 'buffer', True)
+        elif entry.startswith('buffer: '):
+            self._add_policies(entry[8:], 'buffer', True)
         elif not self.scan_entry_for_policies(entry):
             raise Exception(entry + ' is not a file or directory')
 
