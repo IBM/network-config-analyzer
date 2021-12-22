@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: k8s-netpol-report-test-pipeline-run-
+spec:
+  pipelineSpec:
+    workspaces:
+    - name: shared-workspace
+    tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+      - name: output
+        workspace: shared-workspace
+      params:
+      - name: url
+        value: https://github.com/shift-left-netconfig/online-boutique
+      - name: subdirectory
+        value: ""
+      - name: revision
+        value: set_netpols_1638888337
+      - name: deleteExisting
+        value: "true"
+    - name: make-netpols-reports
+      taskRef:
+        name: k8s-netpol-report
+      runAfter:
+      - fetch-repository
+      workspaces:
+      - name: source
+        workspace: shared-workspace
+    - name: post-pr-comment
+      taskRef:
+        name: github-add-comment
+      runAfter:
+      - make-netpols-reports
+      workspaces:
+      - name: comment-file
+        workspace: shared-workspace
+      params:
+      - name: REQUEST_URL
+        value: https://github.com/shift-left-netconfig/online-boutique/pull/45
+      - name: COMMENT_OR_FILE
+        value: "$(tasks.make-netpols-reports.results.connectivity-report-file)"
+  workspaces:
+  - name: shared-workspace
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Mi

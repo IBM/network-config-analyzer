@@ -1,0 +1,61 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: k8s-netpol-report
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/categories: "Kubernetes, Networking, Security"
+    tekton.dev/pipelines.minVersion: "0.17.0"
+    tekton.dev/tags: "Kubernetes, NetworkPolicy"
+    tekton.dev/platforms: "linux/amd64"
+    tekton.dev/displayName: "K8s NetworkPolicy Connectivity Report"
+spec:
+  description: >-
+    A task to produce a network-connectivity report of your K8s application
+  params:
+    - name: deployment-path
+      type: string
+      description: The path in the 'source' workspace where deployment yamls are
+      default: .
+    - name: netpol-path
+      type: string
+      description: The path in the 'source' workspace where the NetworkPolicy yamls are stored
+      default: .
+    - name: output-format
+      type: string
+      description: Connectivity report format (either "md", "yaml", "csv", "dot" or "txt")
+      default: md
+    - name: output-dir
+      type: string
+      description: The directory under 'source' workspace to write connectivity report file into.
+      default: netpol-report-output-dir
+  workspaces:
+    - name: source
+  results:
+    - name: connectivity-report-file
+      description: Path in 'sources' workspace of the connectivity report file
+  steps:
+    - name: make-result-dir # This step prepares the output directory, as NCA runs without root permissions.
+      image: ubuntu
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/sh
+        mkdir -p $(params.output-dir)
+        chmod a+w $(params.output-dir)
+    - name: produce-connectivity-report
+      image: ghcr.io/shift-left-netconfig/nca@sha256:027d750381811e0e2e0b6235dc471a13d56b57797c81a83efeffcb49e40f7914
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/sh
+
+        OUTFILE=$(params.output-dir)/connectivity_report.$(params.output-format)
+
+        python /nca/nca.py \
+          --connectivity $(params.netpol-path) \
+          --pod_list $(params.deployment-path) \
+          --ns_list $(params.deployment-path) \
+          --output_format $(params.output-format) \
+          --file_out $OUTFILE
+
+        printf '%s' "${OUTFILE}" | tee $(results.connectivity-report-file.path)
