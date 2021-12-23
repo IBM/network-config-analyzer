@@ -23,12 +23,12 @@ general:
     type: scheme
     root: ./
 
-  # 2: all cli queries in tests/cmdline_tests.yaml
+  # 2: all cli queries in tests/k8s_cmdline_tests.yaml
   - name: general_cmdline_tests
     type: cmdline
     root: ./
     files_list:
-      - cmdline_tests.yaml
+      - k8s_cmdline_tests.yaml
 
 #---------------------------------------------------------------------------------------------------------------------------------
 
@@ -104,13 +104,13 @@ output:
   # 6: use queries from cmdline tests (connectivity/semantic-diff) [no scheme-file, thus no outputConfig]
   # out_format and out_path as defined on each cli query args => (one output file or stdout per query, one output format)
   # covers various combinations : (no output args , only out_format arg, only out_path arg, both out_format and out_path args)
-  # applies to cli queries in tests/output_config_tests/output_cmdline_tests.yaml
+  # applies to cli queries in tests/output_config_tests/k8s_output_cmdline_tests.yaml
   - name: output_cmdline_tests
     type: cmdline
     root: output_config_tests/
     expected_output: ./output_config_tests/expected_output_files/
     files_list:
-      - output_cmdline_tests.yaml
+      - k8s_output_cmdline_tests.yaml
 
 #---------------------------------------------------------------------------------------------------------------------------------
 

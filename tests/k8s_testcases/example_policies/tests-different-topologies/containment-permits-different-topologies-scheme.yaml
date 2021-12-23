@@ -15,21 +15,21 @@ networkConfigList:
     expectedWarnings: 0
 
   - name: config_a_no_policy
-    namespaceList: ../../different_topologies/ns_list_a.json
-    podList: ../../different_topologies/pods_list_a.json
+    namespaceList: ../../../different_topologies/ns_list_a.json
+    podList: ../../../different_topologies/pods_list_a.json
     networkPolicyList: []
     expectedWarnings: 0
 
   - name: config_a
-    namespaceList: ../../different_topologies/ns_list_a.json
-    podList: ../../different_topologies/pods_list_a.json
+    namespaceList: ../../../different_topologies/ns_list_a.json
+    podList: ../../../different_topologies/pods_list_a.json
     networkPolicyList:
       - policy_a.yaml
     expectedWarnings: 0
 
   - name: config_b
-    namespaceList: ../../different_topologies/ns_list_b.json
-    podList: ../../different_topologies/pods_list_b.json
+    namespaceList: ../../../different_topologies/ns_list_b.json
+    podList: ../../../different_topologies/pods_list_b.json
     networkPolicyList:
       - policy_b.yaml
     expectedWarnings: 0
@@ -45,32 +45,32 @@ networkConfigList:
     expectedWarnings: 0
 
   - name: config_a_with_ipBlock
-    namespaceList: ../../different_topologies/ns_list_a.json
-    podList: ../../different_topologies/pods_list_a.json
+    namespaceList: ../../../different_topologies/ns_list_a.json
+    podList: ../../../different_topologies/pods_list_a.json
     networkPolicyList:
       - policy_a.yaml
       - policy_a_ipBlock.yaml
     expectedWarnings: 0
 
   - name: config_b_with_ipBlock
-    namespaceList: ../../different_topologies/ns_list_b.json
-    podList: ../../different_topologies/pods_list_b.json
+    namespaceList: ../../../different_topologies/ns_list_b.json
+    podList: ../../../different_topologies/pods_list_b.json
     networkPolicyList:
       - policy_b.yaml
       - policy_b_ipBlock.yaml
     expectedWarnings: 0
 
   - name: config_a_with_b_ipBlock
-    namespaceList: ../../different_topologies/ns_list_a.json
-    podList: ../../different_topologies/pods_list_a.json
+    namespaceList: ../../../different_topologies/ns_list_a.json
+    podList: ../../../different_topologies/pods_list_a.json
     networkPolicyList:
       - policy_b.yaml
       - policy_b_ipBlock.yaml
     expectedWarnings: 0
 
   - name: config_a_with_policy_b1
-    namespaceList: ../../different_topologies/ns_list_a.json
-    podList: ../../different_topologies/pods_list_a.json
+    namespaceList: ../../../different_topologies/ns_list_a.json
+    podList: ../../../different_topologies/pods_list_a.json
     networkPolicyList:
       - policy_b1.yaml
     expectedWarnings: 0
