@@ -439,22 +439,37 @@ class TestsRunner:
         if self.action == 'run_tests':
             self.print_results()
 
+    def print_test_result_details(self, test):
+        """
+        prints the name of test Passed/Failed (tets time)
+        :param str test : test name
+        :rtype float: the time it took to run the test
+        """
+        result = self.all_results[test]
+        print('{0:180} ({1:.2f} seconds)'.format(test, result[1]))
+        if result[2]:
+            print('Compared output files and their comparison result:')
+            for f, comparison_res in result[2].items():
+                print('{0:180}{1} '.format(f, comparison_res))
+        return result[1]
+
     def print_results(self):
+        passed_tests = [test for test, result in self.all_results.items() if result[0] == 0]
+        failed_tests = [test for test, result in self.all_results.items() if not result[0] == 0]
         print('\n\nSummary\n-------')
         total_time = 0.
-        for testcase, result in self.all_results.items():
-            print('{0:180}{1} ({2:.2f} seconds)'.format(testcase, 'Passed' if result[0] == 0 else 'Failed', result[1]))
-            # currently result[2] is results details, only relevant for output tests
-            if result[2]:
-                print('Compared output files and their comparison result:')
-                for f, comparison_res in result[2].items():
-                    print('{0:180}{1} '.format(f, comparison_res))
-            total_time += result[1]
+        print(f'\nPassed Tests: {len(passed_tests)}\n----------------')
+        for testcase in passed_tests:
+            total_time += self.print_test_result_details(testcase)
+
+        print(f'\n\nFailed Tests: {len(failed_tests)}\n----------------')
+        for testcase in failed_tests:
+            total_time += self.print_test_result_details(testcase)
 
         if self.global_res:
-            print('{0} tests failed ({1:.2f} seconds)'.format(self.global_res, total_time))
+            print('\n{0} tests failed ({1:.2f} seconds)'.format(self.global_res, total_time))
         else:
-            print('All tests passed ({:.2f} seconds)'.format(total_time))
+            print('\nAll tests passed ({:.2f} seconds)'.format(total_time))
 
     def run_tests_spec(self, tests_spec):
         self.test_files_spec = TestFilesSpec(tests_spec)
