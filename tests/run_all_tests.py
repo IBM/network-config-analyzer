@@ -33,6 +33,8 @@ script should be run with one of the following flags combinations:
                                  by default cleaning generated output files)
     --check_run_time    (will print a list of tests with unexpected run time 
                          performance in tests/tests_failed_runtime_check.csv)
+    --category          (when specified with one of the values: k8s, calico or istio, 
+                        the script will run the set of tests which are relevant to that category)
 
 """
 
