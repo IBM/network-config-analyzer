@@ -66,7 +66,7 @@ test,run_time(seconds)
 ./k8s_testcases/example_policies/tests-different-topologies/semanticDiff-multiple-resources-scheme.yaml,0.07
 ./k8s_testcases/example_policies/tests-different-topologies/semanticDiff-same-topologies-scheme.yaml,0.09
 ./k8s_testcases/example_policies/typoNotInTests/typoNotInTests-scheme.yaml,2.55
-./k8s_testcases/example_policies/withEndPort/withEndPort-scheme.yaml,0.10
+./k8s_testcases/example_policies/withEndPort/withEndPort-scheme.yaml,0.46
 ./k8s_testcases/example_policies/withIpBlock/withIpBlock-scheme.yaml,1.60
 ./k8s_testcases/example_policies/withIpBlock2/withIpBlock2-scheme.yaml,3.40
 ./k8s_testcases/example_policies/workload-resources-test/file-system-resource-test-scheme.yaml,0.1
