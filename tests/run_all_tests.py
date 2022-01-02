@@ -441,7 +441,8 @@ class TestsRunner:
 
     def print_test_result_details(self, test):
         """
-        prints the name of test Passed/Failed (tets time)
+        prints the name of test Passed/Failed (test run-time)
+        For output tests will also print the details about compared output files per test
         :param str test : test name
         :rtype float: the time it took to run the test
         """
