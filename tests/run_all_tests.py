@@ -448,6 +448,7 @@ class TestsRunner:
         """
         result = self.all_results[test]
         print('{0:180} ({1:.2f} seconds)'.format(test, result[1]))
+        # currently result[2] is results details, only relevant for output tests
         if result[2]:
             print('Compared output files and their comparison result:')
             for f, comparison_res in result[2].items():
