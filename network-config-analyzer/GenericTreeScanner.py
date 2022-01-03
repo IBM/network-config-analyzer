@@ -84,7 +84,7 @@ class TreeScannerFactory:
         """
         if entry.startswith('https://github'):
             return GitScanner(entry)
-        elif os.path.isfile(entry) or os.path.isdir(entry):
+        elif os.path.isfile(entry) or os.path.isdir(entry) or (entry.endswith('**') and os.path.isdir(entry[:-2])):
             return DirScanner(entry)
         else:
             return None

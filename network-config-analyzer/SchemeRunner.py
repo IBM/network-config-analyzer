@@ -96,7 +96,12 @@ class SchemeRunner(GenericYamlParser):
 
         entry_list = config_entry['networkPolicyList']
         for idx, entry in enumerate(entry_list):
-            entry_list[idx] = self._get_input_file(entry)
+            if entry.endswith('**'):
+                # ignoring the ** in order to get abspath, then re-adding them to the full path be used later
+                entry_list[idx] = self._get_input_file(entry[:-2])
+                entry_list[idx] += '/**'
+            else:
+                entry_list[idx] = self._get_input_file(entry)
 
         found_error = 0
         expected_error = config_entry.get('expectedError')
