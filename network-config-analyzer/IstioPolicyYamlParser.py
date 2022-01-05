@@ -141,9 +141,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
         """
         ns = None
         sa_name = None
-        # principal_str_example = "cluster.local/ns/default/sa/sleep"
         # TODO: support a more general pattern for principal str (prefix by istio trust-domain)
-        # TODO: tighter checks in parsing the principal str
+        #  current supported format example:  "cluster.local/ns/default/sa/sleep"
+        #  example for more general format: "spiffe://mytrustdomain.com/ns/default/sa/myname"
         principal_pattern = 'cluster.local/ns/([\\w-]+)/sa/([\\w-]+)'
         match = re.search(principal_pattern, principal_str)
         if match:
