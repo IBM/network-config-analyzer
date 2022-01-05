@@ -9,12 +9,12 @@ networkConfigList:
 
   - name: np1_from_ghe
     networkPolicyList:
-      - https://github.com/IBM/network-config-analyzer/tree/master/tests/example_policies/typoNotInTests
+      - https://github.com/IBM/network-config-analyzer/tree/master/tests/k8s_testcases/example_policies/typoNotInTests
     expectedWarnings: 1
 
   - name: np2_from_ghe
     networkPolicyList:
-      - https://github.com/IBM/network-config-analyzer/tree/master/tests/example_policies
+      - https://github.com/IBM/network-config-analyzer/tree/master/tests/k8s_testcases/example_policies
     expectedWarnings: 0
 
 queries:

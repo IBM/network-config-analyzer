@@ -10,7 +10,6 @@ from time import time
 from pathlib import Path
 import yaml
 import csv
-from sys import stderr
 from ruamel.yaml import YAML
 from contextlib import redirect_stdout
 
@@ -34,6 +33,8 @@ script should be run with one of the following flags combinations:
                                  by default cleaning generated output files)
     --check_run_time    (will print a list of tests with unexpected run time 
                          performance in tests/tests_failed_runtime_check.csv)
+    --category          (when specified with one of the values: k8s, calico or istio, 
+                        the script will run the set of tests which are relevant to that category)
 
 """
 
@@ -208,7 +209,7 @@ class GeneralTest:
         with open(expected_time_file_name, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
-                current_test = row[0] if row[0].startswith('cmdline_') else os.path.abspath(row[0])
+                current_test = row[0] if 'cmdline_' in row[0] else os.path.abspath(row[0])
                 if current_test == self.test_name:
                     return float(row[1])
         csv_file.close()
@@ -395,7 +396,7 @@ class TestFilesSpec(dict):
 
 
 class TestsRunner:
-    def __init__(self, spec_file, tests_type, action, clean_out_files, check_run_time):
+    def __init__(self, spec_file, tests_type, action, clean_out_files, check_run_time, category):
         self.spec_file = spec_file
         self.all_results = {}
         self.global_res = 0
@@ -404,6 +405,7 @@ class TestsRunner:
         self.test_files_spec = None
         self.clean_out_files = clean_out_files
         self.check_run_time = check_run_time
+        self.category = category
 
     @staticmethod
     def k8s_apply_resources(yaml_file):
@@ -437,22 +439,39 @@ class TestsRunner:
         if self.action == 'run_tests':
             self.print_results()
 
+    def print_test_result_details(self, test):
+        """
+        prints the name of test Passed/Failed (test run-time)
+        For output tests will also print the details about compared output files per test
+        :param str test : test name
+        :rtype float: the time it took to run the test
+        """
+        result = self.all_results[test]
+        print('{0:180} ({1:.2f} seconds)'.format(test, result[1]))
+        # currently result[2] is results details, only relevant for output tests
+        if result[2]:
+            print('Compared output files and their comparison result:')
+            for f, comparison_res in result[2].items():
+                print('{0:180}{1} '.format(f, comparison_res))
+        return result[1]
+
     def print_results(self):
+        passed_tests = [test for test, result in self.all_results.items() if result[0] == 0]
+        failed_tests = [test for test, result in self.all_results.items() if not result[0] == 0]
         print('\n\nSummary\n-------')
         total_time = 0.
-        for testcase, result in self.all_results.items():
-            print('{0:180}{1} ({2:.2f} seconds)'.format(testcase, 'Passed' if result[0] == 0 else 'Failed', result[1]))
-            # currently result[2] is results details, only relevant for output tests
-            if result[2]:
-                print('Compared output files and their comparison result:')
-                for f, comparison_res in result[2].items():
-                    print('{0:180}{1} '.format(f, comparison_res))
-            total_time += result[1]
+        print(f'\nPassed Tests: {len(passed_tests)}\n----------------')
+        for testcase in passed_tests:
+            total_time += self.print_test_result_details(testcase)
+
+        print(f'\n\nFailed Tests: {len(failed_tests)}\n----------------')
+        for testcase in failed_tests:
+            total_time += self.print_test_result_details(testcase)
 
         if self.global_res:
-            print('{0} tests failed ({1:.2f} seconds)'.format(self.global_res, total_time))
+            print('\n{0} tests failed ({1:.2f} seconds)'.format(self.global_res, total_time))
         else:
-            print('All tests passed ({:.2f} seconds)'.format(total_time))
+            print('\nAll tests passed ({:.2f} seconds)'.format(total_time))
 
     def run_tests_spec(self, tests_spec):
         self.test_files_spec = TestFilesSpec(tests_spec)
@@ -486,12 +505,36 @@ class TestsRunner:
             elif self.action == 'override_expected_output':
                 test_obj.update_expected_output()
 
+    def _test_file_matches_category_output_tests(self, test_file):
+        # output tests run on files under fw_rules_tests and output_configs_tests dirs
+        if self.category == '':
+            return True
+        file_name = os.path.basename(test_file)
+        if file_name.startswith(self.category):
+            return True
+        if self.category == 'k8s' and not file_name.startswith(('calico', 'istio')):
+            return True
+        return False
+
+    def _test_file_matches_category_general_tests(self, test_file):
+        if self.category == '':
+            return True
+        if self.category + '_testcases' in test_file:
+            return True
+        if '_testcases' not in test_file:
+            return self._test_file_matches_category_output_tests(test_file)
+        return False
+
     # given a scheme file or a cmdline file, run all relevant tests
     def run_test_per_file(self, test_file):
         if self.test_files_spec.type == 'scheme':
             if self.tests_type in {'general', 'fw_rules_assertions'}:
+                if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
+                    return  # test file does not match the running category
                 scheme_obj_list = [SchemeFile(test_file, self._get_scheme_test_args(test_file))]
             else:
+                if self.tests_type == 'output' and not self._test_file_matches_category_output_tests(test_file):
+                    return
                 scheme_obj_list = self.get_scheme_obj_list_for_test(test_file)
             self.create_and_run_test_obj(scheme_obj_list, 0)
 
@@ -502,7 +545,8 @@ class TestsRunner:
                     query_name = test.get('name', '')
                     cli_test_name = f'{os.path.basename(test_file)}, query name: {query_name}'
                     cliQuery = CliQuery(test, self.test_files_spec.root, cli_test_name)
-                    self.create_and_run_test_obj([cliQuery], test.get('expected', None))
+                    if self.category == '' or cli_test_name.startswith(self.category):
+                        self.create_and_run_test_obj([cliQuery], test.get('expected', None))
 
     @staticmethod
     def _get_scheme_test_args(test_file, out_format_arg=None, out_path_arg=None):
@@ -556,7 +600,8 @@ def main(argv=None):
     parser.add_argument('--type', choices=['general', 'k8s_live_general', 'output', 'fw_rules_assertions'],
                         help='Choose test types to run',
                         default='general')
-
+    parser.add_argument('--category', choices=['k8s', 'calico', 'istio'], help='Choose category of tests',
+                        default='')
     parser.add_argument('--action', choices=['run_tests', 'override_expected_output'],
                         default='run_tests',
                         help='Choose action')
@@ -566,18 +611,21 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
     test_type = args.type
+    category = args.category
     action = args.action
     clean_out_files = not args.dont_clean_output_files
     check_run_time = args.check_run_time
     if action != 'run_tests' and test_type != 'output':
         print(f'action: {action} is not supported with test type: {test_type}')
         sys.exit(1)
+    if category != '' and test_type not in {'general', 'output'}:
+        print(f'category: {category} is not supported with test type: {test_type}')
     if check_run_time and test_type != 'general':
         print(f'check_run_time flag is not supported with test type: {test_type}')
         sys.exit(1)
 
     spec_file = 'all_tests_spec.yaml'
-    tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files, check_run_time)
+    tests_runner = TestsRunner(spec_file, test_type, action, clean_out_files, check_run_time, category)
     tests_runner.run_tests()
     return tests_runner.global_res
 

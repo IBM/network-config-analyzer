@@ -32,6 +32,15 @@ class DirScanner(GenericTreeScanner):
             yield from self.check_and_yield_file(self.fs_path)
             return
 
-        for root, _, files in os.walk(self.fs_path):
+        if self.fs_path.endswith('**'):
+            yield from self._scan_dir_for_yamls(self.fs_path[:-2], True)
+            return
+        yield from self._scan_dir_for_yamls(self.fs_path, False)
+
+    def _scan_dir_for_yamls(self, dir_path, recursive):
+        for root, sub_dirs, files in os.walk(dir_path):
+            if recursive:
+                for sub_dir in sub_dirs:
+                    self._scan_dir_for_yamls(os.path.join(root, sub_dir), recursive)
             for file in files:
                 yield from self.check_and_yield_file(os.path.join(root, file))

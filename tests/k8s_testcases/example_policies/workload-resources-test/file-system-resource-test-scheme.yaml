@@ -1,5 +1,5 @@
-namespaceList: ../../example_workload_resources/
-podList: ../../example_workload_resources/
+namespaceList: ../../../example_workload_resources/
+podList: ../../../example_workload_resources/
 
 networkConfigList:
   - name: workload_resources_captured
