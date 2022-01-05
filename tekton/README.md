@@ -90,7 +90,7 @@ kubectl apply -f https://raw.githubusercontent.com/IBM/network-config-analyzer/m
 * **old-netpol-path**: The path in the 'old' workspace where the NetworkPolicy yamls are stored (_default:_ `.`)
 * **new-deployment-path**: The path in the 'new' workspace where deployment yamls are.  (_default:_ `.`)
 * **new-netpol-path**: The path in the 'new' workspace where the NetworkPolicy yamls are stored (_default:_ `.`)
-* **output-format**: Connectivity report format: either "md", "yaml" or "txt" (_default:_ `md`)
+* **output-format**: Connectivity-diff report format: either "md", "yaml" or "txt" (_default:_ `md`)
 * **output-dir**: The directory under 'new' workspace to write connectivity diff file into. (_default:_ `netpol-diff-output-dir`)
 
 ### Workspaces
@@ -106,13 +106,13 @@ The Task can be run on `linux/amd64`.
 
 ### Usage
 
-This TaskRun runs the Task to obtain a connectivity report for a previously checked-out app.
+This TaskRun runs the Task to obtain a connectivity-diff report between two previously-checked-out versions of an app.
 
 ```yaml
 apiVersion: tekton.dev/v1beta1
 kind: TaskRun
 metadata:
-  name: report-connectivity
+  name: diff-connectivity
 spec:
   taskRef:
     name: k8s-netpol-diff
