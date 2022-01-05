@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import re
+
 from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
 from GenericYamlParser import GenericYamlParser
@@ -64,39 +65,106 @@ class IstioPolicyYamlParser(GenericYamlParser):
 
         return res
 
-    def parse_ns_str(self, ns):
+    def _validate_istio_regex_pattern(self, regex_str):
+        """
+        validate input regex str is supported by istio authorization policies.
+        raise syntax error if invalid.
+        :param str regex_str: the input regex str to validate
+        """
+        if '*' in regex_str:
+            if not (regex_str.count('*') == 1 and (regex_str.startswith('*') or regex_str.endswith('*'))):
+                self.syntax_error(f'Illegal str value pattern: {regex_str}')
+
+    def _get_all_principals_str_list_from_topology(self):
+        """
+        Return all pods listed as principals strings in the format :
+        cluster.local/ns/{pod.namespace}/sa/{pod.service_account_name}
+        :rtype: list[str]
+        """
+        all_pods = self.peer_container.get_all_peers_group()
+        res = []
+        for peer in all_pods:
+            res.append(f"cluster.local/ns/{peer.namespace}/sa/{peer.service_account_name}")
+        return res
+
+    def _parse_istio_regex_from_enumerated_domain(self, regex_str, field_name):
+        """
+        get the list of matching enumerated domain values for an input regex str.
+        value matching for istio regex: https://istio.io/latest/docs/concepts/security/#value-matching
+        :param str regex_str: the input regex str
+        :param str field_name: the relevant field with enumerated domain (namespaces/principals/methods)
+        :return: the list of matching values
+        :rtype: list[str]
+        """
+        self._validate_istio_regex_pattern(regex_str)
+        values_list = []
+        if field_name == 'namespaces':
+            values_list = self.peer_container.get_all_namespaces_str_list()
+        elif field_name == 'principals':
+            values_list = self._get_all_principals_str_list_from_topology()
+        elif field_name == 'methods':
+            values_list = MethodSet.all_methods_list
+        if '*' not in regex_str:  # exact match
+            return [regex_str] if regex_str in values_list else []
+        elif regex_str == '*':  # presence match
+            return values_list
+        elif regex_str.startswith('*'):  # Suffix match
+            required_suffix = regex_str.replace('*', '')
+            return [val for val in values_list if val.endswith(required_suffix)]
+        elif regex_str.endswith('*'):  # Prefix match
+            required_prefix = regex_str.replace('*', '')
+            return [val for val in values_list if val.startswith(required_prefix)]
+        return []
+
+    def _parse_ns_str(self, ns):
         """
         parse a namespace string from source component in rule
         :param str ns: the namespace string
         :return: PeerSet: All pods in the namespace ns
         """
-        # TODO: value matching should be extended to regular expressions patterns
-        # TODO: when supporting this, can add validation that * is only used as prefix/suffix
-        if '*' in ns:
-            self.syntax_error(
-                'error parsing namespace regular expr: currently not supporting prefix/suffix patterns ', ns)
-        ns_obj = self.peer_container.get_namespace(ns)
-        return self.peer_container.get_namespace_pods(ns_obj)
+        ns_str_values = self._parse_istio_regex_from_enumerated_domain(ns, 'namespaces')
+        res = PeerSet()
+        if not ns_str_values:
+            self.warning(f"no match for namespace: {ns}")
+        for ns_str in ns_str_values:
+            ns_obj = self.peer_container.get_namespace(ns_str)
+            res |= self.peer_container.get_namespace_pods(ns_obj)
+        return res
 
-    def parse_principal_str(self, principal):
+    @staticmethod
+    def _get_principal_str_components(principal_str):
+        """
+        get the namespace and service account values from a principal str
+        :param str principal_str: the principal str
+        :return: the namespace and service account str values
+        """
+        ns = None
+        sa_name = None
+        # principal_str_example = "cluster.local/ns/default/sa/sleep"
+        # TODO: support a more general pattern for principal str (prefix by istio trust-domain)
+        # TODO: tighter checks in parsing the principal str
+        principal_pattern = 'cluster.local/ns/([\\w-]+)/sa/([\\w-]+)'
+        match = re.search(principal_pattern, principal_str)
+        if match:
+            ns = match.group(1)
+            sa_name = match.group(2)
+        return ns, sa_name
+
+    def _parse_principal_str(self, principal):
         """
         parse a principal string from source component in rule
         :param str principal: the principal str, currently assuming in format: "cluster.local/ns/<ns-str>/sa/<sa-str>"
         :return: PeerSet: All pods with the given ns + sa_name as extracted from principal str
         """
-        if '*' in principal:
-            self.syntax_error(
-                'error parsing principal regular expr: currently not supporting prefix/suffix patterns ', principal)
-        # principal_str_example = "cluster.local/ns/default/sa/sleep"
-        # TODO: support a more general pattern for principal str (prefix by istio trust-domain)
-        # TODO: tighter checks in parsing the principal str
-        principal_pattern = 'cluster.local/ns/([\\w-]+)/sa/([\\w-]+)'
-        match = re.search(principal_pattern, principal)
-        if match:
-            ns = match.group(1)
-            sa_name = match.group(2)
-            return self.peer_container.get_pods_with_service_account_name(sa_name, ns)
-        self.syntax_error(f'error parsing principal str: {principal}')
+        principal_str_values = self._parse_istio_regex_from_enumerated_domain(principal, 'principals')
+        res = PeerSet()
+        if not principal_str_values:
+            self.warning(f"no match for principal: {principal}")
+        for principal_str in principal_str_values:
+            ns, sa_name = self._get_principal_str_components(principal_str)
+            if ns and sa_name:
+                res |= self.peer_container.get_pods_with_service_account_name(sa_name, ns)
+        return res
 
     def parse_principals(self, principals_list, not_principals_list):
         """
@@ -108,9 +176,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
         """
         res = PeerSet() if principals_list is not None else self.peer_container.get_all_peers_group()
         for principal in principals_list or []:
-            res |= self.parse_principal_str(principal)
+            res |= self._parse_principal_str(principal)
         for principal in not_principals_list or []:
-            res -= self.parse_principal_str(principal)
+            res -= self._parse_principal_str(principal)
         return res
 
     def parse_namespaces(self, ns_list, not_ns_list):
@@ -126,9 +194,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
         not_ns_list = [] if not_ns_list is None else not_ns_list
         res = PeerSet()
         for ns in ns_list:
-            res |= self.parse_ns_str(ns)
+            res |= self._parse_ns_str(ns)
         for ns in not_ns_list:
-            res -= self.parse_ns_str(ns)
+            res -= self._parse_ns_str(ns)
         return res
 
     @staticmethod
@@ -245,16 +313,14 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if not re.fullmatch(allowed_chars_with_star_regex, str_val_input):
             self.syntax_error(f'Illegal characters in {dim_name} {str_val_input} in {operation}')
 
+        # convert str_val_input into regex format supported by greenery
         res = str_val_input.replace(".", "[.]")
         if '*' in res:
-            if res.count('*') > 1:
-                self.syntax_error(f'Only one asterisk is allowed in {dim_name} {res} in {operation}. ')
+            self._validate_istio_regex_pattern(res)
             if res == '*':  # presence match
                 res = allowed_chars + "+"  # non-empty string of allowed chars
             elif res.startswith('*') or res.endswith('*'):  # prefix/suffix match
                 res = res.replace("*", allowed_chars + '*')
-            else:
-                self.syntax_error(f'Illegal asterisk inside {dim_name} {res} in {operation}')
         return res
 
     def get_values_list_regex(self, values_list, dim_name, operation):
@@ -325,11 +391,10 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :return: MethodSet object holding parsed methods
         """
         res = MethodSet()
-        method_regex = self._parse_str_value(method_str, 'method', operation)
-        for method in MethodSet.all_methods_list:
-            if re.fullmatch(method_regex, method):
-                index = MethodSet.all_methods_list.index(method)
-                res.add_interval(MethodSet.Interval(index, index))
+        matching_methods = self._parse_istio_regex_from_enumerated_domain(method_str, 'methods')
+        for method in matching_methods:
+            index = MethodSet.all_methods_list.index(method)
+            res.add_interval(MethodSet.Interval(index, index))
 
         if not res:
             if method_str:

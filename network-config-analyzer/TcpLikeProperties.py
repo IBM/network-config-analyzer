@@ -262,7 +262,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         res.excluded_named_ports = self.excluded_named_ports.copy()
         return res
 
-    # TODO: update this function: a diff item is not necessarily a [source-destination pair] as used to be on PortSetPair
     def print_diff(self, other, self_name, other_name):
         """
         :param TcpLikeProperties other: Another PortSetPair object
@@ -275,11 +274,20 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         other_minus_self = other - self
         diff_str = self_name if self_minus_other else other_name
         if self_minus_other:
-            item = self_minus_other.get_first_item()
-            diff_str += f' allows communication on {item} while {other_name} does not [source-destination pair] '
+            diff_str += f' allows communication on {self_minus_other._get_first_item_str()} while {other_name} does not'
             return diff_str
         if other_minus_self:
-            item = other_minus_self.get_first_item()
-            diff_str += f' allows communication on {item} while {self_name} does not [source-destination pair] '
+            diff_str += f' allows communication on {other_minus_self._get_first_item_str()} while {self_name} does not'
             return diff_str
         return 'No diff.'
+
+    def _get_first_item_str(self):
+        """
+        :return: str of a first item in self
+        """
+        item = self.get_first_item(self.active_dimensions)
+        res_list = []
+        for i, dim_name in enumerate(self.active_dimensions):
+            dim_item = item[i] if dim_name != 'methods' else MethodSet.all_methods_list[item[i]]
+            res_list.append(f'{dim_name}={dim_item}')
+        return '[' + ','.join(s for s in res_list) + ']'

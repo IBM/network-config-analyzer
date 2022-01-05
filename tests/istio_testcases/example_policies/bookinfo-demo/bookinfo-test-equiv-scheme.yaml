@@ -18,6 +18,24 @@ networkConfigList:
     networkPolicyList:
       - bookinfo-policy-test-methods-3-differently-written.yaml
 
+  - name: istio-test-operation-regex
+    networkPolicyList:
+      - bookinfo-policy-test-operation-regex.yaml
+
+  - name: istio-test-enum-regex-match
+    networkPolicyList:
+      - bookinfo-policy-test-enum-regex-match.yaml
+
+  - name: istio-test-warning-no-regex-match-for-principal
+    networkPolicyList:
+      - bookinfo-policy-test-pircipals-no-match.yaml
+    expectedWarnings: 2  # "no match for principal" + "rule selects no pods"
+
+  - name: istio-test-warning-no-regex-match-for-ns
+    networkPolicyList:
+      - bookinfo-policy-test-ns-no-match.yaml
+    expectedWarnings: 1  # "no match for namespace"
+
 
 queries:
   - name: equiv-diff-methods
@@ -79,3 +97,56 @@ queries:
       - istio-test-methods-3/default/allow-no-methods
       - istio-test-methods-3-diff/default/allow-no-methods
     expected: 0
+
+  - name: istio-test-operation-regex-equiv1
+    equivalence:
+      - istio-test-operation-regex/default/allow-all-methods
+      - istio-test-operation-regex/default/allow-all
+    expected: 0
+
+  - name: connectivity-istio-test-regex-1
+    connectivityMap:
+      - istio-test-operation-regex/default/allow-all
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: connectivity-istio-test-regex-2
+    connectivityMap:
+      - istio-test-operation-regex/default/allow-all-methods
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: semantic_diff_istio-operation-regex
+    semanticDiff:
+      - istio-test-operation-regex/default/allow-all-methods
+      - istio-test-operation-regex/default/allow-all
+    expected: 0
+
+  - name: istio-test-operation-regex-equiv2
+    equivalence:
+      - istio-test-operation-regex/default/allow-all-paths
+      - istio-test-operation-regex/default/allow-all
+    expected: 1
+
+  - name: semantic_diff_istio-operation-regex-2
+    semanticDiff:
+      - istio-test-operation-regex/default/allow-all-paths
+      - istio-test-operation-regex/default/allow-all
+    expected: 2
+
+  - name: equiv-test-principals-regex-match
+    equivalence:
+      - istio-test-enum-regex-match/default/details-viewer-with-principal-regex
+      - istio-test-enum-regex-match/default/details-viewer-with-principal-exact
+    expected: 0
+
+  - name: equiv-test-ns-regex-match
+    equivalence:
+      - istio-test-enum-regex-match/default/details-viewer-with-ns-regex-1
+      - istio-test-enum-regex-match/default/details-viewer-with-ns-regex-2
+      - istio-test-enum-regex-match/default/details-viewer-with-ns-exact
+    expected: 0
+
+
