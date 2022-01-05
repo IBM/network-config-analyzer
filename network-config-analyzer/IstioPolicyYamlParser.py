@@ -104,6 +104,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
             values_list = self._get_all_principals_str_list_from_topology()
         elif field_name == 'methods':
             values_list = MethodSet.all_methods_list
+            
         if '*' not in regex_str:  # exact match
             return [regex_str] if regex_str in values_list else []
         elif regex_str == '*':  # presence match
