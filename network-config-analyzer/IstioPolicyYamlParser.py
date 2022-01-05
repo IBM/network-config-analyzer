@@ -113,7 +113,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
             required_suffix = regex_str[1:]
             return [val for val in values_list if val.endswith(required_suffix)]
         elif regex_str.endswith('*'):  # Prefix match
-            required_prefix = regex_str.replace('*', '')
+            required_prefix = regex_str[:-1]
             return [val for val in values_list if val.startswith(required_prefix)]
         return []
 
