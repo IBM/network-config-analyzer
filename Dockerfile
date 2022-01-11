@@ -5,6 +5,7 @@
 
 FROM python:3.8-alpine
 
+RUN python -m pip install -U pip wheel setuptools
 COPY requirements.txt /nca/
 RUN pip install -r /nca/requirements.txt
 
