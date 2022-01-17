@@ -23,10 +23,7 @@ The script runs tests based on tests specification in 'all_tests_spec.yaml'
 script should be run with one of the following flags combinations:
     run_all_tests.py --type=general --action=run_tests                  (default)
     run_all_tests.py --type=k8s_live_general  --action=run_tests
-    run_all_tests.py --type=output --action=run_tests
     run_all_tests.py --type=fw_rules_assertions --action=run_tests
-    run_all_tests.py --type=output --action=override_expected_output   (used for updating tests expected output or 
-                                                                        adding new tests with unknown expected output)
     
     optional flags:
     --dont_clean_output_files   (will save output files in tests/actual_output_files.
@@ -84,7 +81,7 @@ class CliQuery:
         if has_out_file_arg:
             return [out_file_arg_str]
         else:
-            stdout_file = self.query_name + OutputTest.stdout_ouf_file_suffix
+            stdout_file = self.query_name + GeneralTest.stdout_ouf_file_suffix
             self.stdout_redirection_path = stdout_file
             return [stdout_file]
 
@@ -111,7 +108,7 @@ class SchemeFile:
 
     def get_stdout_output_file(self):
         # stdout redirection is always a txt file
-        return os.path.basename(self.scheme_filename).replace(".yaml", OutputTest.stdout_ouf_file_suffix)
+        return os.path.basename(self.scheme_filename).replace(".yaml", GeneralTest.stdout_ouf_file_suffix)
 
     def update_arg_at_scheme_file_output_config(self, arg_name, arg_value):
         with open(self.scheme_filename, 'r') as scheme_file:
@@ -124,14 +121,6 @@ class SchemeFile:
                     query.update({'outputConfiguration': {arg_name: arg_value}})
         with open(self.scheme_filename, 'w') as scheme_file:
             yaml.dump(scheme, scheme_file, default_flow_style=False, sort_keys=False)
-
-    @staticmethod
-    def _get_query_type(query_dict):
-        if 'connectivityMap' in query_dict:
-            return 'connectivityMap'
-        if 'semanticDiff' in query_dict:
-            return 'semanticDiff'
-        return 'Other'
 
     # get expected output files from outputConfig / output file args, that are expected to be created
     # should be only the base file names, no full path
@@ -155,6 +144,8 @@ class SchemeFile:
 # general test: comparison of numerical result (nca return value) to expected value
 # most of the test flow is common to other tests types
 class GeneralTest:
+    stdout_ouf_file_suffix = '__stdout_output.txt'
+
     def __init__(self, test_name, test_queries_obj, expected_result, clean_out_files, check_run_time, required_output_config_flag):
         self.test_name = test_name  # str
         self.test_queries_obj = test_queries_obj  # SchemeFile or CliQuery
@@ -260,105 +251,105 @@ class GeneralTest:
 
 # output test: comparison of actual output files and/or stdout output to expected output files
 # relevant for queries: connectivity, semantic-diff
-class OutputTest(GeneralTest):
-    stdout_ouf_file_suffix = '__stdout_output.txt'
-
-    def __init__(self, test_name, test_queries_obj, expected_output_dir, clean_out_files, required_output_config_flag):
-        super().__init__(test_name, test_queries_obj, None, clean_out_files, None, required_output_config_flag)
-        self.expected_output_dir = expected_output_dir
-        self.result_details = {}  # map from file name to comparison result (bool)
-        self.clean_out_files = clean_out_files
-
-    def _clean_generated_output_files(self, after_test_run=True):
-        all_out_files = self.test_queries_obj.list_expected_output_files
-        if after_test_run:  # don't clean failed output tests after test run
-            if self.clean_out_files:
-                all_out_files = [f for f in all_out_files if self.result_details[f]]
-            else:
-                all_out_files = []
-        for out_file in all_out_files:
-            self._delete_output_file(out_file)
-            # create empty output files before test run (so even if out file not created, the empty ref file exists)
-            if not after_test_run:
-                filename = Path(TestsRunner.get_actual_out_file_path(out_file))
-                filename.touch(exist_ok=True)  # will create file, if it exists will do nothing
-
-    def initialize_test(self):
-        # due to 'append' behavior - for output test, make sure to delete output files from prev runs
-        self._clean_generated_output_files(False)
-        super().initialize_test()
-
-    def run_test(self):
-        if self.test_queries_obj.stdout_redirection_path:
-            with open(self.test_queries_obj.stdout_redirection_path, 'w') as f:
-                with redirect_stdout(f):
-                    res = self.run_nca()
-        else:
-            res = self.run_nca()
-        self.nca_res = res
-        self.move_output_files_to_dedicated_dir()
-
-    def _get_out_file_expected_and_actual(self, out_file):
-        expected_out_file = os.path.join(self.expected_output_dir, out_file)
-        actual_out_file = TestsRunner.get_actual_out_file_path(out_file)
-        return expected_out_file, actual_out_file
-
-    def evaluate_test_results(self):
-        self.numerical_result = 0
-        output_files = self.test_queries_obj.list_expected_output_files
-        for out_file in output_files:
-            expected_out_file, actual_out_file = self._get_out_file_expected_and_actual(out_file)
-            comparison_res = self.compare_files(actual_out_file, expected_out_file)
-
-            self.result_details[out_file] = comparison_res
-            if not comparison_res:
-                # consider as one test failure, even if multiple output files fail in comparison on this test
-                self.numerical_result = 1
-
-    # action is 'override_expected_output'
-    def update_expected_output(self):
-        # run test flow without its output
-        # TODO: redirect stderr also?
-        with contextlib.redirect_stdout(None):
-            self.run_all_test_flow({})
-        # based on test result, apply override / add new test expected output
-        if not self.test_passed():
-            for file, res in self.result_details.items():
-                expected_out_file, actual_out_file = self._get_out_file_expected_and_actual(file)
-                if not res:
-                    shutil.move(actual_out_file, expected_out_file)
-                    print(f'moving an out file from {actual_out_file} to {expected_out_file} ')
-        print(f'done with update_expected_output on test: {self.test_name}')
-
-    @staticmethod
-    def compare_files(output_filename, golden_filename):
-        """
-        Compares an output file from this test run to a golden-result file
-        :param str output_filename: An output file of the current run
-        :param str golden_filename: The golden-result file to compare against
-        :return bool: True if files are identical, False otherwise (and prints the first line that has a diff)
-        """
-        print('Comparing output file {0} to expected-results file {1}'.format(output_filename, golden_filename))
-        if not path.isfile(output_filename):
-            print(f'Error: Output file {output_filename} not found')
-            return False
-        with open(output_filename) as output_file:
-            output_file_lines = output_file.readlines()
-        try:
-            with open(golden_filename) as golden_file:
-                for golden_file_line_num, golden_file_line in enumerate(golden_file):
-                    if golden_file_line_num >= len(output_file_lines):
-                        print('Error: Expected results have more lines than actual results')
-                        return False
-                    if golden_file_line != output_file_lines[golden_file_line_num]:
-                        print('Error: Result mismatch at line {}'.format(golden_file_line_num + 1))
-                        print(golden_file_line)
-                        print(output_file_lines[golden_file_line_num])
-                        return False
-        except FileNotFoundError:
-            print('Error: Expected results file not found')
-            return False
-        return True
+# class OutputTest(GeneralTest):
+#     stdout_ouf_file_suffix = '__stdout_output.txt'
+#
+#     def __init__(self, test_name, test_queries_obj, expected_output_dir, clean_out_files, required_output_config_flag):
+#         super().__init__(test_name, test_queries_obj, None, clean_out_files, None, required_output_config_flag)
+#         self.expected_output_dir = expected_output_dir
+#         self.result_details = {}  # map from file name to comparison result (bool)
+#         self.clean_out_files = clean_out_files
+#
+#     def _clean_generated_output_files(self, after_test_run=True):
+#         all_out_files = self.test_queries_obj.list_expected_output_files
+#         if after_test_run:  # don't clean failed output tests after test run
+#             if self.clean_out_files:
+#                 all_out_files = [f for f in all_out_files if self.result_details[f]]
+#             else:
+#                 all_out_files = []
+#         for out_file in all_out_files:
+#             self._delete_output_file(out_file)
+#             # create empty output files before test run (so even if out file not created, the empty ref file exists)
+#             if not after_test_run:
+#                 filename = Path(TestsRunner.get_actual_out_file_path(out_file))
+#                 filename.touch(exist_ok=True)  # will create file, if it exists will do nothing
+#
+#     def initialize_test(self):
+#         # due to 'append' behavior - for output test, make sure to delete output files from prev runs
+#         self._clean_generated_output_files(False)
+#         super().initialize_test()
+#
+#     def run_test(self):
+#         if self.test_queries_obj.stdout_redirection_path:
+#             with open(self.test_queries_obj.stdout_redirection_path, 'w') as f:
+#                 with redirect_stdout(f):
+#                     res = self.run_nca()
+#         else:
+#             res = self.run_nca()
+#         self.nca_res = res
+#         self.move_output_files_to_dedicated_dir()
+#
+#     def _get_out_file_expected_and_actual(self, out_file):
+#         expected_out_file = os.path.join(self.expected_output_dir, out_file)
+#         actual_out_file = TestsRunner.get_actual_out_file_path(out_file)
+#         return expected_out_file, actual_out_file
+#
+#     def evaluate_test_results(self):
+#         self.numerical_result = 0
+#         output_files = self.test_queries_obj.list_expected_output_files
+#         for out_file in output_files:
+#             expected_out_file, actual_out_file = self._get_out_file_expected_and_actual(out_file)
+#             comparison_res = self.compare_files(actual_out_file, expected_out_file)
+#
+#             self.result_details[out_file] = comparison_res
+#             if not comparison_res:
+#                 # consider as one test failure, even if multiple output files fail in comparison on this test
+#                 self.numerical_result = 1
+#
+#     # action is 'override_expected_output'
+#     def update_expected_output(self):
+#         # run test flow without its output
+#         # TODO: redirect stderr also?
+#         with contextlib.redirect_stdout(None):
+#             self.run_all_test_flow({})
+#         # based on test result, apply override / add new test expected output
+#         if not self.test_passed():
+#             for file, res in self.result_details.items():
+#                 expected_out_file, actual_out_file = self._get_out_file_expected_and_actual(file)
+#                 if not res:
+#                     shutil.move(actual_out_file, expected_out_file)
+#                     print(f'moving an out file from {actual_out_file} to {expected_out_file} ')
+#         print(f'done with update_expected_output on test: {self.test_name}')
+#
+#     @staticmethod
+#     def compare_files(output_filename, golden_filename):
+#         """
+#         Compares an output file from this test run to a golden-result file
+#         :param str output_filename: An output file of the current run
+#         :param str golden_filename: The golden-result file to compare against
+#         :return bool: True if files are identical, False otherwise (and prints the first line that has a diff)
+#         """
+#         print('Comparing output file {0} to expected-results file {1}'.format(output_filename, golden_filename))
+#         if not path.isfile(output_filename):
+#             print(f'Error: Output file {output_filename} not found')
+#             return False
+#         with open(output_filename) as output_file:
+#             output_file_lines = output_file.readlines()
+#         try:
+#             with open(golden_filename) as golden_file:
+#                 for golden_file_line_num, golden_file_line in enumerate(golden_file):
+#                     if golden_file_line_num >= len(output_file_lines):
+#                         print('Error: Expected results have more lines than actual results')
+#                         return False
+#                     if golden_file_line != output_file_lines[golden_file_line_num]:
+#                         print('Error: Result mismatch at line {}'.format(golden_file_line_num + 1))
+#                         print(golden_file_line)
+#                         print(output_file_lines[golden_file_line_num])
+#                         return False
+#         except FileNotFoundError:
+#             print('Error: Expected results file not found')
+#             return False
+#         return True
 
 
 # for fw-rules - activate assertions for testing in fwRulesTestMode
@@ -495,15 +486,15 @@ class TestsRunner:
             elif self.tests_type == 'fw_rules_assertions':
                 test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, self.clean_out_files,
                                          required_output_config_flag)
-            elif self.tests_type == 'output':
-                test_obj = OutputTest(test_queries_obj.test_name, test_queries_obj,
-                                      self.test_files_spec.expected_output, self.clean_out_files,
-                                      required_output_config_flag)
+            # elif self.tests_type == 'output':
+            #     test_obj = OutputTest(test_queries_obj.test_name, test_queries_obj,
+            #                           self.test_files_spec.expected_output, self.clean_out_files,
+            #                           required_output_config_flag)
             # run test object with required action
             if self.action == 'run_tests':
                 self.global_res += test_obj.run_all_test_flow(self.all_results)
-            elif self.action == 'override_expected_output':
-                test_obj.update_expected_output()
+            # elif self.action == 'override_expected_output':
+            #     test_obj.update_expected_output()
 
     def _test_file_matches_category_output_tests(self, test_file):
         # output tests run on files under fw_rules_tests and output_configs_tests dirs
@@ -597,7 +588,7 @@ def main(argv=None):
     os.chdir(base_dir)
 
     parser = argparse.ArgumentParser(description='Testing network configuration analyzer')
-    parser.add_argument('--type', choices=['general', 'k8s_live_general', 'output', 'fw_rules_assertions'],
+    parser.add_argument('--type', choices=['general', 'k8s_live_general', 'fw_rules_assertions'],
                         help='Choose test types to run',
                         default='general')
     parser.add_argument('--category', choices=['k8s', 'calico', 'istio'], help='Choose category of tests',
@@ -615,10 +606,10 @@ def main(argv=None):
     action = args.action
     clean_out_files = not args.dont_clean_output_files
     check_run_time = args.check_run_time
-    if action != 'run_tests' and test_type != 'output':
-        print(f'action: {action} is not supported with test type: {test_type}')
-        sys.exit(1)
-    if category != '' and test_type not in {'general', 'output'}:
+    # if action != 'run_tests' and test_type != 'output':
+    #     print(f'action: {action} is not supported with test type: {test_type}')
+    #     sys.exit(1)
+    if category != '' and test_type != 'general':
         print(f'category: {category} is not supported with test type: {test_type}')
     if check_run_time and test_type != 'general':
         print(f'check_run_time flag is not supported with test type: {test_type}')

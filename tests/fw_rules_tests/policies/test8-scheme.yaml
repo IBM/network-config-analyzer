@@ -12,3 +12,4 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+  expectedOutput: expected_output/test8-scheme_output.txt

@@ -12,3 +12,5 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/test19-scheme_output.yaml

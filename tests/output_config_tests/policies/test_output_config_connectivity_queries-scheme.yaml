@@ -14,30 +14,35 @@ queries:
   connectivityMap:
   - np3
   expected: 0
+  expectedOutput: ../expected_output_files/connectivity_map_3_stdout_query_output.txt
 - name: connectivity_map_3_stdout_yaml
   connectivityMap:
   - np3
   expected: 0
   outputConfiguration:
     outputFormat: yaml
+  expectedOutput: ../expected_output_files/connectivity_map_3_stdout_yaml_query_output.yaml
 - name: connectivity_map_3_stdout_csv
   connectivityMap:
   - np3
   expected: 0
   outputConfiguration:
     outputFormat: csv
+  expectedOutput: ../expected_output_files/connectivity_map_3_stdout_csv_query_output.csv
 - name: connectivity_map_3_stdout_md
   connectivityMap:
   - np3
   expected: 0
   outputConfiguration:
     outputFormat: md
+  expectedOutput: ../expected_output_files/connectivity_map_3_stdout_md_query_output.md
 - name: connectivity_map_3_stdout_dot
   connectivityMap:
   - np3
   expected: 0
   outputConfiguration:
     outputFormat: dot
+  expectedOutput: ../expected_output_files/connectivity_map_3_stdout_dot_query_output.dot
 - name: connectivity_map_3_stdout_other
   connectivityMap:
   - np3
@@ -52,6 +57,7 @@ queries:
   outputConfiguration:
     outputFormat: yaml
     outputPath: connectivity_map_4_yaml_output.yaml
+  expectedOutput: ../expected_output_files/connectivity_map_4_yaml_output.yaml
 - name: connectivity_map_4_csv
   connectivityMap:
   - np4
@@ -60,6 +66,7 @@ queries:
   outputConfiguration:
     outputFormat: csv
     outputPath: connectivity_map_4_csv_output.csv
+  expectedOutput: ../expected_output_files/connectivity_map_4_csv_output.csv
 - name: connectivity_map_4_md
   connectivityMap:
   - np4
@@ -68,6 +75,7 @@ queries:
   outputConfiguration:
     outputFormat: md
     outputPath: connectivity_map_4_md_output.md
+  expectedOutput: ../expected_output_files/connectivity_map_4_md_output.md
 - name: connectivity_map_4_dot
   connectivityMap:
   - np4
@@ -76,6 +84,7 @@ queries:
   outputConfiguration:
     outputFormat: dot
     outputPath: connectivity_map_4_dot_output.dot
+  expectedOutput: ../expected_output_files/connectivity_map_4_dot_output.dot
 - name: connectivity_map_4_bad_out_format
   connectivityMap:
   - np4
@@ -90,12 +99,14 @@ queries:
   expected: 0
   outputConfiguration:
     outputPath: connectivity_map_3_txt_output.txt
+  expectedOutput: ../expected_output_files/connectivity_map_3_txt_output1.txt
 - name: connectivity_map_3_txt_append
   connectivityMap:
   - np4
   expected: 0
   outputConfiguration:
     outputPath: connectivity_map_3_txt_output.txt
+  expectedOutput: ../expected_output_files/connectivity_map_3_txt_output2.txt
 - name: connectivity_map_3_txt_append_2
   connectivityMap:
   - np4
@@ -103,3 +114,5 @@ queries:
   outputConfiguration:
     outputPath: connectivity_map_3_txt_output.txt
     outputFormat: txt
+  expectedOutput: ../expected_output_files/connectivity_map_3_txt_output3.txt
+

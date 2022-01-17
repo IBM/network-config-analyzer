@@ -1,4 +1,0 @@
-global: cluster has 29 unique endpoints, 8 namespaces
-global: cluster has 29 unique endpoints, 8 namespaces
-error: unexpected outputFormat in output configuration value [should be txt/yaml/csv],  value is: other
-other output format is not supported for this query

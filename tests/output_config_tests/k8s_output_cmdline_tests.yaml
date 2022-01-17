@@ -3,6 +3,8 @@
     --connectivity ../k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
+    --expected_output expected_output_files/basic_connectivity_txt_query_output.txt
+  expected: 0
 
 - name: basic_connectivity_txt
   args: >
@@ -10,6 +12,9 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o txt
+    --expected_output expected_output_files/basic_connectivity_txt_query_output.txt
+  expected: 0
+
 
 - name: basic_connectivity_yaml
   args: >
@@ -17,6 +22,8 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o yaml
+    --expected_output expected_output_files/basic_connectivity_yaml_query_output.txt
+  expected: 0
 
 - name: basic_connectivity_csv
   args: >
@@ -24,6 +31,8 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o csv
+    --expected_output expected_output_files/basic_connectivity_csv_query_output.txt
+  expected: 0
 
 - name: basic_connectivity_md
   args: >
@@ -31,6 +40,8 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o md
+    --expected_output expected_output_files/basic_connectivity_md_query_output.txt
+  expected: 0
 
 - name: basic_connectivity_dot
   args: >
@@ -38,6 +49,8 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o dot
+    --expected_output expected_output_files/basic_connectivity_dot_query_output.txt
+  expected: 0
 
 - name: basic_connectivity_other
   args: >
@@ -45,6 +58,7 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o other
+  expected: 0
 
 - name: basic_connectivity_file_arg
   args: >
@@ -52,6 +66,8 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -f basic_connectivity_file_arg.txt
+    --expected_output expected_output_files/basic_connectivity_file_arg.txt
+  expected: 0
 
 - name: basic_connectivity_file_arg_yaml
   args: >
@@ -60,6 +76,8 @@
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -f basic_connectivity_file_arg.yaml
     -o yaml
+    --expected_output expected_output_files/basic_connectivity_file_arg.yaml
+  expected: 0
 
 
 - name: basic_semantic_diff
@@ -68,6 +86,8 @@
     --base_np_list ../k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
+    --expected_output expected_output_files/basic_semantic_diff_query_output.txt
+  expected: 1
 
 - name: different_topologies_semantic_diff
   args: >
@@ -77,6 +97,8 @@
     --base_np_list ../k8s_testcases/example_policies/tests-different-topologies/policy_a.yaml
     --base_ns_list ../different_topologies/ns_list_a.json
     --base_pod_list ../different_topologies/pods_list_a.json
+    --expected_output expected_output_files/different_topologies_semantic_diff_query_output.txt
+  expected: 1
 
 - name: basic_semantic_diff_yaml
   args: >
@@ -85,6 +107,8 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o yaml
+    --expected_output expected_output_files/basic_semantic_diff_yaml_query_output.txt
+  expected: 1
 
 - name: basic_semantic_diff_csv
   args: >
@@ -93,6 +117,8 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o csv
+    --expected_output expected_output_files/basic_semantic_diff_csv_query_output.txt
+  expected: 1
 
 - name: basic_semantic_diff_md
   args: >
@@ -101,6 +127,8 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o md
+    --expected_output expected_output_files/basic_semantic_diff_md_query_output.txt
+  expected: 1
 
 - name: basic_semantic_diff_dot
   args: >
@@ -109,6 +137,7 @@
     --ns_list ../k8s_testcases/example_podlist/ns_list.json
     --pod_list ../k8s_testcases/example_podlist/pods_list.json
     -o dot
+  expected: 1
 
 
 

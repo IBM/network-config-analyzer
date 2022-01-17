@@ -16,9 +16,12 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase5_connectivity_map_allowFirst_query_output.yaml
 - name: connectivity_map
   connectivityMap:
   - np_denyFirst
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+  expectedOutput: expected_output/calico-testcase5_connectivity_map_denyFirst_query_output.txt

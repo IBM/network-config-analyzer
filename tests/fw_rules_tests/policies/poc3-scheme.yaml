@@ -13,3 +13,5 @@ queries:
   outputConfiguration:
     fwRulesFilterSystemNs: true
     fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/poc3-scheme_output.yaml

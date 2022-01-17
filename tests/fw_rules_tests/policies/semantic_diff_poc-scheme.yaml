@@ -21,3 +21,4 @@ queries:
   outputConfiguration:
     outputFormat: yaml
     fwRulesRunInTestMode: false
+  expectedOutput: expected_output/semantic_diff_poc-scheme_output.yaml

@@ -39,6 +39,7 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1_query_output.txt
 - name: semantic_diff_old1_new1a
   semanticDiff:
   - new1a
@@ -48,6 +49,7 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1a_query_output.txt
 - name: semantic_diff_old2_new2
   semanticDiff:
   - new2
@@ -56,6 +58,7 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_old2_new2_query_output.txt
 - name: semantic_diff_old3_new3
   semanticDiff:
   - new3
@@ -65,3 +68,4 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_old3_new3_query_output.txt

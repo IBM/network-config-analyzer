@@ -13,3 +13,4 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
+  expectedOutput: expected_output/test24-scheme_output.txt

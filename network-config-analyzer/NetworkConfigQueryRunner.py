@@ -7,11 +7,12 @@ class NetworkConfigQueryRunner:
     A Class for Running Queries
     """
 
-    def __init__(self, key_name, configs_array, output_configuration, network_configs=None):
+    def __init__(self, key_name, configs_array, expected_output, output_configuration, network_configs=None):
         self.query_name = f'{key_name[0].upper()+key_name[1:]}Query'
         self.configs_array = configs_array
         self.output_configuration = output_configuration
         self.network_configs = network_configs
+        self.expected_output_file = expected_output
 
     def _get_config(self, config_name):
         """
@@ -59,6 +60,8 @@ class NetworkConfigQueryRunner:
                 res, query_output = self._run_query_on_all_pairs()
 
         self.output_configuration.print_query_output(query_output, formats)
+        if self.expected_output_file is not None:
+            res += self._compare_actual_vs_expected_output(query_output)
         return res
 
     def _execute_one_config_query(self, query_type, config):
@@ -113,3 +116,24 @@ class NetworkConfigQueryRunner:
                     res += query_res
                     output += query_output + '\n'
         return res, output
+
+    def _compare_actual_vs_expected_output(self, query_output):
+        print('Comparing actual query output to expected-results file {0}'.format(self.expected_output_file))
+        actual_output_lines = query_output.split('\n')
+        try:
+            with open(self.expected_output_file, 'r') as golden_file:
+                for golden_file_line_num, golden_file_line in enumerate(golden_file):
+                    if golden_file_line_num >= len(actual_output_lines):
+                        print('Error, Comparing Result Failed: Expected results have more lines than actual results')
+                        return 1
+                    if golden_file_line.rstrip() != actual_output_lines[golden_file_line_num]:
+                        print(f'Error, Comparing Result Failed: Result mismatch at line {golden_file_line_num + 1} ')
+                        print(golden_file_line)
+                        print(actual_output_lines[golden_file_line_num])
+                        return 1
+        except FileNotFoundError:
+            print('Error: Expected results file not found')
+            return 1
+
+        print('Comparing Results Passed')
+        return 0

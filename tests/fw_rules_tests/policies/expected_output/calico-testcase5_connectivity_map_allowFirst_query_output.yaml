@@ -1,0 +1,28 @@
+- query: 'connectivity_map, config: np_allowFirst'
+  rules:
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - ::/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - has(tier)
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections

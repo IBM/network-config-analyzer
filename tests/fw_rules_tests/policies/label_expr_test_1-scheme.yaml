@@ -52,6 +52,8 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesOverrideAllowedLabels: app
+    outputFormat: yaml
+  expectedOutput: expected_output/label_expr_test_1-test_app_label_query_output.yaml
 - name: test_tier_and_app_label
   connectivityMap:
   - test5
@@ -65,3 +67,4 @@ queries:
     fwRulesRunInTestMode: false
     fwRulesOverrideAllowedLabels: app:tier
     fwRulesGroupByLabelSinglePod: true
+  expectedOutput: expected_output/label_expr_test_1-test_tier_and_app_label_query_output.txt

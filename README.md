@@ -69,6 +69,8 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 - `--file_out <file name>`\
   A file path to redirect output into.\
   *shorthand* `-f`
+- `--expected_output <file name>`\
+  A file path to the expected query output.\
 - `--pr_url <URL>`\
    Write output as GitHub PR comment. URL points to the relevant comments resource in the GitHub API.\
    e.g., https://api.github.com/repos/shift-left-netconfig/online-boutique/issues/1/comments

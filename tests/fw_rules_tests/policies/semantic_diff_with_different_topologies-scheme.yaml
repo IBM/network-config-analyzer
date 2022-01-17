@@ -58,6 +58,7 @@ queries:
     fwRulesGroupByLabelSinglePod: true
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_identical_query_output.txt
 - name: semantic_diff_a_to_b
   semanticDiff:
   - config_a
@@ -68,6 +69,7 @@ queries:
     fwRulesGroupByLabelSinglePod: true
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_query_output.txt
 - name: semantic_diff_b_to_a
   semanticDiff:
   - config_b
@@ -78,6 +80,7 @@ queries:
     fwRulesGroupByLabelSinglePod: true
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_b_to_a_query_output.txt
 - name: semantic_diff_disjoint_old1_config_a
   semanticDiff:
   - old1
@@ -88,6 +91,7 @@ queries:
     fwRulesGroupByLabelSinglePod: true
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_disjoint_old1_config_a_query_output.txt
 - name: semantic_diff_np1_np2
   semanticDiff:
   - np1
@@ -98,6 +102,7 @@ queries:
     fwRulesGroupByLabelSinglePod: true
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_np1_np2_query_output.txt
 - name: semantic_diff_a_to_b_with_ipBlock
   semanticDiff:
   - config_a_with_ipBlock
@@ -108,3 +113,4 @@ queries:
     fwRulesGroupByLabelSinglePod: true
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_with_ipBlock_query_output.txt

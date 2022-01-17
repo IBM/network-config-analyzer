@@ -19,11 +19,14 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_4_output.txt
 - name: connectivity_map_3
   connectivityMap:
   - np3
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
-    outputFormat: txt
+    outputFormat: md
     outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_3_output.md
+

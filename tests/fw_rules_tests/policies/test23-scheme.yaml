@@ -13,3 +13,5 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+  expectedOutput: expected_output/test23-scheme_output.yaml

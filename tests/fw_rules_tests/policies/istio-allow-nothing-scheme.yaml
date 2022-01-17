@@ -17,18 +17,23 @@ queries:
 - name: istio-allow-nothing-1
   connectivityMap:
   - istio-allow-nothing-1
-  expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/istio-allow-nothing-1_query_output.yaml
+  expected: 0
 - name: istio-allow-nothing-2
   connectivityMap:
   - istio-allow-nothing-2
-  expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+  expectedOutput: expected_output/istio-allow-nothing-2_query_output.txt
+  expected: 0
 - name: istio-allow-nothing-3
   connectivityMap:
   - istio-allow-nothing-3
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/istio-allow-nothing-3_query_output.yaml

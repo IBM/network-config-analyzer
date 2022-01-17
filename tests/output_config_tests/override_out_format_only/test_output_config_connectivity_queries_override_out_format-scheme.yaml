@@ -50,52 +50,59 @@ queries:
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: yaml
+    outputFormat: txt
     outputPath: connectivity_map_4_yaml_output_override_out_format.yaml
+  expectedOutput: ../expected_output_files/connectivity_map_4_yaml_output_override_out_format.yaml
 - name: connectivity_map_4_csv
   connectivityMap:
   - np4
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: csv
+    outputFormat: txt
     outputPath: connectivity_map_4_csv_output_override_out_format.csv
+  expectedOutput: ../expected_output_files/connectivity_map_4_csv_output_override_out_format.csv
 - name: connectivity_map_4_md
   connectivityMap:
   - np4
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: md
+    outputFormat: txt
     outputPath: connectivity_map_4_md_output_override_out_format.md
+  expectedOutput: ../expected_output_files/connectivity_map_4_md_output_override_out_format.md
 - name: connectivity_map_4_dot
   connectivityMap:
   - np4
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: dot
+    outputFormat: txt
     outputPath: connectivity_map_4_dot_output_override_out_format.dot
+  expectedOutput: ../expected_output_files/connectivity_map_4_dot_output_override_out_format.dot
 - name: connectivity_map_4_bad_out_format
   connectivityMap:
   - np4
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: txtt
+    outputFormat: txt
     outputPath: connectivity_map_4_bad_output_override_out_format.txt
+  expectedOutput: ../expected_output_files/connectivity_map_4_bad_output_override_out_format.txt
 - name: connectivity_map_3_txt
   connectivityMap:
   - np3
   expected: 0
   outputConfiguration:
     outputPath: connectivity_map_3_txt_output_override_out_format.txt
+  expectedOutput: ../expected_output_files/connectivity_map_3_txt_output_override_out_format_query1.txt
 - name: connectivity_map_3_txt_append
   connectivityMap:
   - np4
   expected: 0
   outputConfiguration:
     outputPath: connectivity_map_3_txt_output_override_out_format.txt
+  expectedOutput: ../expected_output_files/connectivity_map_3_txt_output_override_out_format_query2.txt
 - name: connectivity_map_3_txt_append_2
   connectivityMap:
   - np4
@@ -103,3 +110,4 @@ queries:
   outputConfiguration:
     outputPath: connectivity_map_3_txt_output_override_out_format.txt
     outputFormat: txt
+  expectedOutput: ../expected_output_files/connectivity_map_3_txt_output_override_out_format_query3.txt

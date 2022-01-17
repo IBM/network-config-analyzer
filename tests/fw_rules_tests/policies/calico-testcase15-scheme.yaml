@@ -11,5 +11,6 @@ queries:
       - ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2-equiv
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
-      #outputFormat: yaml
+      outputFormat: yaml
+    expectedOutput: expected_output/calico-testcase15-scheme_output.yaml
     expected: 0

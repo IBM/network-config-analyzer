@@ -69,7 +69,7 @@ def _do_every(period, func, *args):
         time.sleep(next(sleep_for))
 
 
-def _execute_single_config_query(query_name, np1_list, peer_container, output_config):
+def _execute_single_config_query(query_name, np1_list, peer_container, output_config, expected_output):
     """
     Runs a query on single set of policies
     :param str query_name: the name of the arg.query
@@ -79,10 +79,10 @@ def _execute_single_config_query(query_name, np1_list, peer_container, output_co
     :rtype: int
     """
     network_config1 = NetworkConfig(np1_list, peer_container, [np1_list])
-    return NetworkConfigQueryRunner(query_name, [network_config1], output_config).run_query() > 0
+    return NetworkConfigQueryRunner(query_name, [network_config1], expected_output, output_config).run_query() > 0
 
 
-def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config):
+def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output):
     """
     Runs an pair configs query between two sets of policies
     :param str query_name: the name of the arg.query
@@ -96,7 +96,7 @@ def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location
     """
     network_config1 = NetworkConfig(np1_list_location, base_peer_container, [np1_list_location])
     network_config2 = NetworkConfig(np2_list_location, peer_container, [np2_list_location])
-    return NetworkConfigQueryRunner(query_name, [network_config1, network_config2], output_config).run_query(True)
+    return NetworkConfigQueryRunner(query_name, [network_config1, network_config2], expected_output, output_config).run_query(True)
 
 
 def run_args(args):
@@ -117,30 +117,32 @@ def run_args(args):
     peer_container = PeerContainer(ns_list, pod_list)
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
                                          'outputPath': args.file_out or None, 'prURL': args.pr_url or None})
+    expected_output = args.expected_output or None
     if args.equiv:
         return _execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list, base_peer_container,
-                                           peer_container, output_config)
+                                           peer_container, output_config, expected_output)
 
     if args.interferes:
         return _execute_pair_configs_query('interferes', args.interferes, base_np_list, base_peer_container,
-                                           peer_container, output_config)
+                                           peer_container, output_config, expected_output)
 
     if args.forbids:
         return _execute_pair_configs_query('forbids', base_np_list, args.forbids, base_peer_container,
-                                           peer_container, output_config)
+                                           peer_container, output_config, expected_output)
 
     if args.permits:
         return _execute_pair_configs_query('permits', base_np_list, args.permits, base_peer_container,
-                                           peer_container, output_config)
+                                           peer_container, output_config, expected_output)
 
     if args.connectivity:
-        return _execute_single_config_query('connectivityMap', args.connectivity, peer_container, output_config)
+        return _execute_single_config_query('connectivityMap', args.connectivity, peer_container,
+                                            output_config, expected_output)
 
     if args.semantic_diff:
         return _execute_pair_configs_query('semanticDiff', base_np_list, args.semantic_diff, base_peer_container,
-                                           peer_container, output_config)
+                                           peer_container, output_config, expected_output)
 
-    return _execute_single_config_query('sanity', args.sanity or 'k8s', peer_container, output_config)
+    return _execute_single_config_query('sanity', args.sanity or 'k8s', peer_container, output_config, expected_output)
 
 
 def nca_main(argv=None):
@@ -192,6 +194,7 @@ def nca_main(argv=None):
     parser.add_argument('--output_format', '-o', type=str,
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
+    parser.add_argument('--expected_output', type=str, help='A file path of the expected query output')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
 

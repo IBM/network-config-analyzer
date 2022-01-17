@@ -175,7 +175,8 @@ class SchemeRunner(GenericYamlParser):
         allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0,
                             'redundancy': 0, 'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0,
                             'sanity': 0, 'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0,
-                            'expected': 0, 'allCaptured': 0, 'connectivityMap': 0, 'outputConfiguration': 0}
+                            'expected': 0, 'expectedOutput': 0, 'allCaptured': 0, 'connectivityMap': 0,
+                            'outputConfiguration': 0}
 
         for query in query_array:
             res = 0
@@ -183,10 +184,10 @@ class SchemeRunner(GenericYamlParser):
             query_name = query['name']
             print('Running query', query_name)
             output_config_obj = self.get_query_output_config_obj(query)
-
+            expected_output = self._get_input_file(query.get('expectedOutput', None))
             for query_key in query.keys():
-                if query_key not in ['name', 'expected', 'outputConfiguration']:
-                    res += NetworkConfigQueryRunner(query_key, query[query_key], output_config_obj,
+                if query_key not in ['name', 'expected', 'outputConfiguration', 'expectedOutput']:
+                    res += NetworkConfigQueryRunner(query_key, query[query_key], expected_output, output_config_obj,
                                                     self.network_configs).run_query()
             if 'expected' in query:
                 expected = query['expected']
