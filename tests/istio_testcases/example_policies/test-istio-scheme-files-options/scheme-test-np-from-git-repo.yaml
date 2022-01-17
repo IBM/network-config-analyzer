@@ -5,8 +5,8 @@ podList: ../../example_podlist/bookinfo_pods_list.json
 networkConfigList:
   - name: istio-test-git-repo-files
     networkPolicyList:
-      - https://github.com/IBM/network-config-analyzer/blob/istio_support_documentation/tests/fw_rules_tests/policies/istio-allow-all-policy.yaml
-      - https://github.com/IBM/network-config-analyzer/blob/istio_support_documentation/tests/fw_rules_tests/policies/istio-allow-nothing-policy.yaml
+      - https://github.com/IBM/network-config-analyzer/blob/master/tests/fw_rules_tests/policies/istio-allow-all-policy.yaml
+      - https://github.com/IBM/network-config-analyzer/blob/master/tests/fw_rules_tests/policies/istio-allow-nothing-policy.yaml
 
 queries:
   - name: connectivity-istio-test

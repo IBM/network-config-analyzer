@@ -26,7 +26,7 @@ networkConfigList:
     networkPolicyList:
       - testcase2-policy-5.yaml
     expectedWarnings: 0
-    expectedError: 1
+    expectedError: 0
 
   - name: istio6
     networkPolicyList:

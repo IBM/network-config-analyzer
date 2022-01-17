@@ -1,0 +1,71 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: k8s-netpol-diff-test-pipeline-run-
+spec:
+  pipelineSpec:
+    workspaces:
+    - name: old-workspace
+    - name: new-workspace
+    tasks:
+    - name: fetch-old-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+      - name: output
+        workspace: old-workspace
+      params:
+      - name: url
+        value: https://github.com/np-guard/online-boutique
+    - name: fetch-new-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+      - name: output
+        workspace: new-workspace
+      params:
+      - name: url
+        value: https://github.com/np-guard/online-boutique
+      - name: revision
+        value: set_netpols_1638888337
+    - name: make-netpols-diff
+      taskRef:
+        name: k8s-netpol-diff
+      runAfter:
+      - fetch-old-repository
+      - fetch-new-repository
+      workspaces:
+      - name: old
+        workspace: old-workspace
+      - name: new
+        workspace: new-workspace
+    - name: post-pr-comment
+      taskRef:
+        name: github-add-comment
+      runAfter:
+      - make-netpols-diff
+      workspaces:
+      - name: comment-file
+        workspace: new-workspace
+      params:
+      - name: REQUEST_URL
+        value: https://github.com/np-guard/online-boutique/pull/45
+      - name: COMMENT_OR_FILE
+        value: "$(tasks.make-netpols-diff.results.connectivity-diff-file)"
+  workspaces:  # Using two PersistentVolumeClaim in one task requires setting "disable-affinity-assistant" to "true" in Tekton's feature-flags ConfigMap
+  - name: old-workspace
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Mi
+  - name: new-workspace
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Mi

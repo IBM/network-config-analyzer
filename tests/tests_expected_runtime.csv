@@ -118,7 +118,7 @@ test,run_time(seconds)
 ./istio_testcases/example_policies/testcase1/testcase1-istio-scheme.yaml,6.39
 ./istio_testcases/example_policies/testcase2/testcase2-istio-scheme.yaml,4.90
 ./istio_testcases/example_policies/testcase3/testcase3-istio-scheme.yaml,1.95
-./istio_testcases/example_policies/bookinfo-demo/bookinfo-test-equiv-scheme.yaml,0.09
+./istio_testcases/example_policies/bookinfo-demo/bookinfo-test-equiv-scheme.yaml,0.34
 ./fw_rules_tests/policies/istio-bookinfo-test-request-attrs-scheme.yaml,3.31
 ./k8s_testcases/network-policy-checks-bad-path/network-policy-check-bad-path-scheme.yaml,0.30
 ./output_config_tests/override_out_format_only/test_output_config_connectivity_queries_override_out_format-scheme.yaml,0.22

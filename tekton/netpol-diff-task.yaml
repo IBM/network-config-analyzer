@@ -1,0 +1,73 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: k8s-netpol-diff
+  labels:
+    app.kubernetes.io/version: "0.1"
+  annotations:
+    tekton.dev/categories: "Kubernetes, Networking, Security"
+    tekton.dev/pipelines.minVersion: "0.17.0"
+    tekton.dev/tags: "Kubernetes, NetworkPolicy"
+    tekton.dev/platforms: "linux/amd64"
+    tekton.dev/displayName: "K8s NetworkPolicy Diff Report"
+spec:
+  description: >-
+    A task to produce a network-connectivity diff of your K8s application
+  params:
+    - name: old-deployment-path
+      type: string
+      description: The path in the 'old' workspace where deployment yamls are
+      default: .
+    - name: old-netpol-path
+      type: string
+      description: The path in the 'old' workspace where the NetworkPolicy yamls are stored
+      default: .
+    - name: new-deployment-path
+      type: string
+      description: The path in the 'new' workspace where deployment yamls are
+      default: .
+    - name: new-netpol-path
+      type: string
+      description: The path in the 'new' workspace where the NetworkPolicy yamls are stored
+      default: .
+    - name: output-format
+      type: string
+      description: Connectivity diff format (either "md", "yaml" or "txt")
+      default: md
+    - name: output-dir
+      type: string
+      description: The directory under 'new' workspace to write connectivity diff file into.
+      default: netpol-diff-output-dir
+  workspaces:
+    - name: old
+    - name: new
+  results:
+    - name: connectivity-diff-file
+      description: Path in 'new' workspace of the connectivity diff file
+  steps:
+    - name: make-result-dir # This step prepares the output directory, as NCA runs without root permissions.
+      image: ubuntu
+      workingDir: $(workspaces.new.path)
+      script: |
+        #!/bin/sh
+        mkdir -p $(params.output-dir)
+        chmod a+w $(params.output-dir)
+    - name: produce-diff-report
+      image: ghcr.io/np-guard/nca@sha256:027d750381811e0e2e0b6235dc471a13d56b57797c81a83efeffcb49e40f7914
+      workingDir: $(workspaces.new.path)
+      script: |
+        #!/bin/sh
+
+        OUTFILE=$(params.output-dir)/diff_report.$(params.output-format)
+
+        python /nca/nca.py \
+          --semantic_diff $(params.new-netpol-path) \
+          --pod_list $(params.new-deployment-path) \
+          --ns_list $(params.new-deployment-path) \
+          --base_np_list $(workspaces.old.path)/$(params.old-netpol-path) \
+          --base_pod_list $(workspaces.old.path)/$(params.old-deployment-path) \
+          --base_ns_list $(workspaces.old.path)/$(params.old-deployment-path) \
+          --output_format $(params.output-format) \
+          --file_out $OUTFILE
+
+        printf '%s' "${OUTFILE}" | tee $(results.connectivity-diff-file.path)
