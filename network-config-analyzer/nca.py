@@ -69,7 +69,7 @@ def _do_every(period, func, *args):
         time.sleep(next(sleep_for))
 
 
-def _execute_single_config_query(query_name, np1_list, peer_container, output_config, expected_output):
+def _execute_single_config_query(query_name, np1_list, peer_container, output_config, expected_output=None):
     """
     Runs a query on single set of policies
     :param str query_name: the name of the arg.query
@@ -82,7 +82,7 @@ def _execute_single_config_query(query_name, np1_list, peer_container, output_co
     return NetworkConfigQueryRunner(query_name, [network_config1], expected_output, output_config).run_query() > 0
 
 
-def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output):
+def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output=None):
     """
     Runs an pair configs query between two sets of policies
     :param str query_name: the name of the arg.query
@@ -120,19 +120,19 @@ def run_args(args):
     expected_output = args.expected_output or None
     if args.equiv:
         return _execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list, base_peer_container,
-                                           peer_container, output_config, expected_output)
+                                           peer_container, output_config)
 
     if args.interferes:
         return _execute_pair_configs_query('interferes', args.interferes, base_np_list, base_peer_container,
-                                           peer_container, output_config, expected_output)
+                                           peer_container, output_config)
 
     if args.forbids:
         return _execute_pair_configs_query('forbids', base_np_list, args.forbids, base_peer_container,
-                                           peer_container, output_config, expected_output)
+                                           peer_container, output_config)
 
     if args.permits:
         return _execute_pair_configs_query('permits', base_np_list, args.permits, base_peer_container,
-                                           peer_container, output_config, expected_output)
+                                           peer_container, output_config)
 
     if args.connectivity:
         return _execute_single_config_query('connectivityMap', args.connectivity, peer_container,
@@ -142,7 +142,7 @@ def run_args(args):
         return _execute_pair_configs_query('semanticDiff', base_np_list, args.semantic_diff, base_peer_container,
                                            peer_container, output_config, expected_output)
 
-    return _execute_single_config_query('sanity', args.sanity or 'k8s', peer_container, output_config, expected_output)
+    return _execute_single_config_query('sanity', args.sanity or 'k8s', peer_container, output_config)
 
 
 def nca_main(argv=None):
@@ -194,7 +194,8 @@ def nca_main(argv=None):
     parser.add_argument('--output_format', '-o', type=str,
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
-    parser.add_argument('--expected_output', type=str, help='A file path of the expected query output')
+    parser.add_argument('--expected_output', type=str, help='A file path of the expected query output,'
+                                                            'relevant only with --connectivity and --semantic_diff')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
 
