@@ -48,8 +48,6 @@ jobs:
         env:
           GHE_TOKEN: ${{ github.token }}
         run: python tests/run_all_tests.py --type=general
-      - name: Run output comparison tests
-        run:  python tests/run_all_tests.py --type=output
       - name: Run fw-rules assertions tests
         run:  python tests/run_all_tests.py --type=fw_rules_assertions
       - name: Create kind cluster
