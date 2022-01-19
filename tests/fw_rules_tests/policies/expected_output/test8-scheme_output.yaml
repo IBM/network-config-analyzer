@@ -1,0 +1,70 @@
+- query: 'connectivity_map, config: np8'
+  rules:
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - default
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - default
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    - ibm-system-new
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    - ibm-system-new
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - ::/0
+    connection:
+    - All connections
+  - src_ns:
+    - default
+    - ibm-system-new
+    - kube-system-new
+    - kube-system-new-dummy-to-ignore
+    src_pods:
+    - '*'
+    dst_ns:
+    - default
+    - ibm-system-new
+    - kube-system-new-dummy-to-ignore
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system-new
+    src_pods:
+    - (has(app) and app not in (ibm-file-plugin,ibm-keepalived-watcher))
+    dst_ns:
+    - kube-system-new
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+

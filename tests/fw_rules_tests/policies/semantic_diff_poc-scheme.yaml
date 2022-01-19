@@ -12,7 +12,6 @@ networkConfigList:
   expectedWarnings: 0
 
 queries:
-
 - name: semantic_diff_poc3_empty
   semanticDiff:
   - allow_all
@@ -22,3 +21,30 @@ queries:
     outputFormat: yaml
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/semantic_diff_poc-scheme_output.yaml
+- name: semantic_diff_poc3_empty
+  semanticDiff:
+  - allow_all
+  - poc3
+  expected: 2
+  outputConfiguration:
+    outputFormat: txt
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/semantic_diff_poc-scheme_output.txt
+- name: semantic_diff_poc3_empty
+  semanticDiff:
+  - allow_all
+  - poc3
+  expected: 2
+  outputConfiguration:
+    outputFormat: md
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/semantic_diff_poc-scheme_output.md
+- name: semantic_diff_poc3_empty
+  semanticDiff:
+  - allow_all
+  - poc3
+  expected: 2
+  outputConfiguration:
+    outputFormat: csv
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/semantic_diff_poc-scheme_output.csv

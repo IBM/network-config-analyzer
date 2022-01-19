@@ -14,3 +14,10 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: yaml
   expectedOutput: expected_output/test7-scheme_output.yaml
+- name: connectivity_map
+  connectivityMap:
+  - np7
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/test7-scheme_output.txt

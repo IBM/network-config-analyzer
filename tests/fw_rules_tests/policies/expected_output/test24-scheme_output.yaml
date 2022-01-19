@@ -1,0 +1,25 @@
+- query: 'connectivity_map, config: np24'
+  rules:
+  - src_ns:
+    - default
+    src_pods:
+    - has(common)
+    dst_ns:
+    - default
+    dst_pods:
+    - has(app)
+    connection:
+    - Protocol: UDP
+      Ports:
+      - 53
+  - src_ns:
+    - default
+    src_pods:
+    - test in (C)
+    dst_ns:
+    - default
+    dst_pods:
+    - has(app)
+    connection:
+    - All connections
+

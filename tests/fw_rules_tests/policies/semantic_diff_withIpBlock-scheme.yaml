@@ -29,6 +29,40 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_ipblocks_equivalence_query_output.txt
+- name: semantic_diff_ipblocks_equivalence
+  semanticDiff:
+  - np1
+  - np2
+  - np3
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks_equivalence_query_output.yaml
+- name: semantic_diff_ipblocks_equivalence
+  semanticDiff:
+  - np1
+  - np2
+  - np3
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks_equivalence_query_output.md
+- name: semantic_diff_ipblocks_equivalence
+  semanticDiff:
+  - np1
+  - np2
+  - np3
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks_equivalence_query_output.csv
+
 - name: semantic_diff_ipblocks__np4_with_itself
   semanticDiff:
   - np4
@@ -39,6 +73,7 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_ipblocks__np4_with_itself_query_output.txt
+
 - name: semantic_diff_ipblocks__np1_np4
   semanticDiff:
   - np1
@@ -49,6 +84,37 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_ipblocks__np1_np4_query_output.txt
+- name: semantic_diff_ipblocks__np1_np4
+  semanticDiff:
+  - np1
+  - np4
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks__np1_np4_query_output.yaml
+- name: semantic_diff_ipblocks__np1_np4
+  semanticDiff:
+  - np1
+  - np4
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks__np1_np4_query_output.md
+- name: semantic_diff_ipblocks__np1_np4
+  semanticDiff:
+  - np1
+  - np4
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks__np1_np4_query_output.csv
+
 - name: semantic_diff_ipblocks_np1_np2
   semanticDiff:
   - np1
@@ -59,3 +125,33 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_ipblocks_np1_np2_query_output.txt
+- name: semantic_diff_ipblocks_np1_np2
+  semanticDiff:
+  - np1
+  - np2
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks_np1_np2_query_output.yaml
+- name: semantic_diff_ipblocks_np1_np2
+  semanticDiff:
+  - np1
+  - np2
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks_np1_np2_query_output.md
+- name: semantic_diff_ipblocks_np1_np2
+  semanticDiff:
+  - np1
+  - np2
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_ipblocks_np1_np2_query_output.csv

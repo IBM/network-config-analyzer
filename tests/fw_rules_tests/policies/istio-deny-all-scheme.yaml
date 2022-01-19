@@ -13,3 +13,11 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/istio-deny-all-scheme_output.txt
+- name: istio-deny-all-yaml
+  connectivityMap:
+  - istio-deny-all
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/istio-deny-all-scheme_output.yaml

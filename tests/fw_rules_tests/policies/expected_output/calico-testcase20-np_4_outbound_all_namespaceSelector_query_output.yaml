@@ -1,4 +1,4 @@
-- query: 'np_4_outbound_all_namespaceSelector, config: np_4_outbound_all_namespaceSelector'
+- query: 'np_4_outbound_all_namespaceSelector_yaml, config: np_4_outbound_all_namespaceSelector'
   rules:
   - src_ip_block:
     - 0.0.0.0/0

@@ -21,7 +21,15 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/calico-testcase3_connectivity_map_onlyAllow_query_output.txt
-- name: connectivity_map
+- name: connectivity_map_yaml
+  connectivityMap:
+  - np_onlyAllow
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase3_connectivity_map_onlyAllow_query_output.yaml
+- name: connectivity_map_yaml
   connectivityMap:
   - np_FirstDenySubset
   expected: 0
@@ -31,8 +39,23 @@ queries:
   expectedOutput: expected_output/calico-testcase3_connectivity_map_FirstDenySubset_query_output.yaml
 - name: connectivity_map
   connectivityMap:
+  - np_FirstDenySubset
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/calico-testcase3_connectivity_map_FirstDenySubset_query_output.txt
+- name: connectivity_map
+  connectivityMap:
   - np_firstAllowSuperSet
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/calico-testcase3_connectivity_map_firstAllowSuperSet_query_output.txt
+- name: connectivity_map_yaml
+  connectivityMap:
+  - np_firstAllowSuperSet
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase3_connectivity_map_firstAllowSuperSet_query_output.yaml

@@ -18,6 +18,13 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: yaml
   expectedOutput: expected_output/poc4_scheme_connectivity_map_query_output.yaml
+- name: connectivity_map
+  connectivityMap:
+  - poc4
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/poc4_scheme_connectivity_map_query_output.txt
 - name: semantic_diff_poc4_poc3
   semanticDiff:
   - poc3
@@ -26,3 +33,12 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/poc4_scheme_semantic_diff_poc4_poc3_query_output.txt
+- name: semantic_diff_poc4_poc3
+  semanticDiff:
+  - poc3
+  - poc4
+  expected: 1
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/poc4_scheme_semantic_diff_poc4_poc3_query_output.yaml

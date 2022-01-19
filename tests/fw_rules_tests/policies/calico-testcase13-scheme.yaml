@@ -14,3 +14,11 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
   expectedOutput: expected_output/calico-testcase13-scheme_output.txt
+- name: open-default-TCP-test
+  connectivityMap:
+  - open-default-TCP
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase13-scheme_output.yaml

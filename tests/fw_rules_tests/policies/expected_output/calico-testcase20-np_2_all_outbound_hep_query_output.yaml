@@ -1,4 +1,4 @@
-- query: 'np_2_all_outbound_hep, config: np_2_outbound_hep_all_ep'
+- query: 'np_2_all_outbound_hep_yaml, config: np_2_outbound_hep_all_ep'
   rules:
   - src_ip_block:
     - 0.0.0.0/0

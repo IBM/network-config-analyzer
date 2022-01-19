@@ -13,3 +13,11 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/test14-scheme_output.txt
+- name: connectivity_map
+  connectivityMap:
+  - np14
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/test14-scheme_output.yaml

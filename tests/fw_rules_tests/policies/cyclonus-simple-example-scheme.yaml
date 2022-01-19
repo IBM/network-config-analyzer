@@ -19,3 +19,11 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/cyclonus-simple-example-scheme_output.txt
+- name: connectivity_map_yaml
+  connectivityMap:
+  - cyclonus-simple-example
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/cyclonus-simple-example-scheme_output.yaml

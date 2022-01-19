@@ -20,6 +20,15 @@ queries:
     fwRulesGroupByLabelSinglePod: true
     outputFormat: yaml
   expectedOutput: expected_output/istio-test1-scheme_query1_output.yaml
+- name: istio-policy1
+  connectivityMap:
+  - istio-policy1
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesOverrideAllowedLabels: app
+    fwRulesGroupByLabelSinglePod: true
+  expectedOutput: expected_output/istio-test1-scheme_query1_output.txt
 - name: istio-policy2
   connectivityMap:
   - istio-policy2
@@ -29,3 +38,13 @@ queries:
     fwRulesOverrideAllowedLabels: app
     fwRulesGroupByLabelSinglePod: true
   expectedOutput: expected_output/istio-test1-scheme_query2_output.txt
+- name: istio-policy2
+  connectivityMap:
+  - istio-policy2
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesOverrideAllowedLabels: app
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+  expectedOutput: expected_output/istio-test1-scheme_query2_output.yaml

@@ -13,3 +13,11 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/calico-testcase14-scheme_output.txt
+- name: match-icmp-also-within-default-test-yaml
+  connectivityMap:
+  - match-icmp-also-within-default
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase14-scheme_output.yaml

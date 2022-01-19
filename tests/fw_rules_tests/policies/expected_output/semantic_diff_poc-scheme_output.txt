@@ -1,0 +1,33 @@
+allow_all and poc3 are not semantically equivalent.
+Changed connections between persistent peers:
+Removed connections (based on topology from config: allow_all) :
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [adservice] conn: All but TCP 9555
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app in (emailservice,recommendationservice)] conn: All but TCP 8080
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app in (paymentservice,shippingservice)] conn: All but TCP 50051
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [cartservice] conn: All but TCP 7070
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [checkoutservice] conn: All but TCP 5050
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [currencyservice] conn: All but TCP 7000
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [productcatalogservice] conn: All but TCP 3550
+src_ns: [default] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All but UDP 53
+src_ns: [default] src_pods: [*] dst_ns: [kube-system] dst_pods: [etcd-operator] conn: All connections
+src_ns: [default] src_pods: [app not in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [default,kube-system] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [cartservice] dst_ns: [default] dst_pods: [*] conn: All but TCP 6379
+src_ns: [default] src_pods: [cartservice] dst_ns: [default] dst_pods: [app not in (cartservice,loadgenerator,redis-cart)] conn: All connections
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [app in (adservice,frontend,recommendationservice,redis-cart)] conn: All connections
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [app in (emailservice,paymentservice,redis-cart)] conn: All connections
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [*] conn: All but TCP 8080
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [app not in (frontend,loadgenerator)] conn: All connections
+src_ns: [default] src_pods: [recommendationservice] dst_ns: [default] dst_pods: [*] conn: All but TCP 3550
+src_ns: [default] src_pods: [recommendationservice] dst_ns: [default] dst_pods: [app not in (loadgenerator,productcatalogservice,recommendationservice)] conn: All connections
+src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All but TCP 8080
+src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [app not in (frontend)] conn: All connections
+
+Changed connections between persistent peers and ipBlocks:
+Removed connections (based on topology from config: allow_all) :
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All but TCP 8080
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app not in (frontend)] conn: All connections
+src ip block: ::/0 dst_ns: [default] dst_pods: [*] conn: All but TCP 8080
+src ip block: ::/0 dst_ns: [default] dst_pods: [app not in (frontend)] conn: All connections
+src_ns: [default] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [*] dst ip block: ::/0 conn: All connections

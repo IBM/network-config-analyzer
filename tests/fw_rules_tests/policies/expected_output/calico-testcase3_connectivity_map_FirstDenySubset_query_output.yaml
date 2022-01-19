@@ -1,4 +1,4 @@
-- query: 'connectivity_map, config: np_FirstDenySubset'
+- query: 'connectivity_map_yaml, config: np_FirstDenySubset'
   rules:
   - src_ns:
     - kube-system

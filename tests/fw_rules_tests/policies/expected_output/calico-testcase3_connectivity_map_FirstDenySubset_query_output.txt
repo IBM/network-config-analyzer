@@ -1,0 +1,2 @@
+final fw rules for query: connectivity_map, config: np_FirstDenySubset:
+src_ns: [kube-system] src_pods: [app in (helm,keepalived-watcher,vpn)] dst_ns: [kube-system] dst_pods: [has(tier)] conn: TCP

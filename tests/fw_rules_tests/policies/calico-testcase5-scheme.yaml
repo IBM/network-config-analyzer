@@ -10,7 +10,7 @@ networkConfigList:
   - calico-testcase5-denyFirst.yaml
   expectedWarnings: 0
 queries:
-- name: connectivity_map
+- name: connectivity_map_yaml
   connectivityMap:
   - np_allowFirst
   expected: 0
@@ -20,8 +20,23 @@ queries:
   expectedOutput: expected_output/calico-testcase5_connectivity_map_allowFirst_query_output.yaml
 - name: connectivity_map
   connectivityMap:
+  - np_allowFirst
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/calico-testcase5_connectivity_map_allowFirst_query_output.txt
+- name: connectivity_map
+  connectivityMap:
   - np_denyFirst
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/calico-testcase5_connectivity_map_denyFirst_query_output.txt
+- name: connectivity_map_yaml
+  connectivityMap:
+  - np_denyFirst
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase5_connectivity_map_denyFirst_query_output.yaml

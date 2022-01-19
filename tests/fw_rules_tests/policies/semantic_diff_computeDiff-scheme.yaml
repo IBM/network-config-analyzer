@@ -40,6 +40,47 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_old1_new1_query_output.txt
+- name: semantic_diff_old1_new1_csv
+  semanticDiff:
+  - new1
+  - old1
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1_query_output.csv
+- name: semantic_diff_old1_new1_dot
+  semanticDiff:
+  - new1
+  - old1
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: dot
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1_query_output.dot
+- name: semantic_diff_old1_new1_md
+  semanticDiff:
+  - new1
+  - old1
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1_query_output.md
+- name: semantic_diff_old1_new1_yaml
+  semanticDiff:
+  - new1
+  - old1
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1_query_output.yaml
+
 - name: semantic_diff_old1_new1a
   semanticDiff:
   - new1a
@@ -50,6 +91,37 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_old1_new1a_query_output.txt
+- name: semantic_diff_old1_new1a_csv
+  semanticDiff:
+  - new1a
+  - old1
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1a_query_output.csv
+- name: semantic_diff_old1_new1a_md
+  semanticDiff:
+  - new1a
+  - old1
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1a_query_output.md
+- name: semantic_diff_old1_new1a_yaml
+  semanticDiff:
+  - new1a
+  - old1
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1a_query_output.yaml
+
 - name: semantic_diff_old2_new2
   semanticDiff:
   - new2
@@ -59,6 +131,34 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_old2_new2_query_output.txt
+- name: semantic_diff_old2_new2_csv
+  semanticDiff:
+  - new2
+  - old2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old2_new2_query_output.csv
+- name: semantic_diff_old2_new2_md
+  semanticDiff:
+  - new2
+  - old2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old2_new2_query_output.md
+- name: semantic_diff_old2_new2_yaml
+  semanticDiff:
+  - new2
+  - old2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old2_new2_query_output.yaml
+
 - name: semantic_diff_old3_new3
   semanticDiff:
   - new3

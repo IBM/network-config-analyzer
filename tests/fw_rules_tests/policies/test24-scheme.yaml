@@ -14,3 +14,12 @@ queries:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
   expectedOutput: expected_output/test24-scheme_output.txt
+- name: connectivity_map
+  connectivityMap:
+  - np24
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+  expectedOutput: expected_output/test24-scheme_output.yaml

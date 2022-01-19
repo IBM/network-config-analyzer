@@ -59,6 +59,51 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_identical_query_output.txt
+- name: semantic_diff_identical
+  semanticDiff:
+  - no_policy
+  - policy
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_identical_query_output.yaml
+- name: semantic_diff_identical
+  semanticDiff:
+  - no_policy
+  - policy
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_identical_query_output.md
+- name: semantic_diff_identical
+  semanticDiff:
+  - no_policy
+  - policy
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: dot
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_identical_query_output.dot
+- name: semantic_diff_identical
+  semanticDiff:
+  - no_policy
+  - policy
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_identical_query_output.csv
+
 - name: semantic_diff_a_to_b
   semanticDiff:
   - config_a
@@ -70,6 +115,51 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_a_to_b_query_output.txt
+- name: semantic_diff_a_to_b
+  semanticDiff:
+  - config_a
+  - config_b
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_query_output.yaml
+- name: semantic_diff_a_to_b
+  semanticDiff:
+  - config_a
+  - config_b
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_query_output.md
+- name: semantic_diff_a_to_b
+  semanticDiff:
+  - config_a
+  - config_b
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: dot
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_query_output.dot
+- name: semantic_diff_a_to_b
+  semanticDiff:
+  - config_a
+  - config_b
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_query_output.csv
+
 - name: semantic_diff_b_to_a
   semanticDiff:
   - config_b
@@ -81,6 +171,40 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_b_to_a_query_output.txt
+- name: semantic_diff_b_to_a
+  semanticDiff:
+  - config_b
+  - config_a
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_b_to_a_query_output.yaml
+- name: semantic_diff_b_to_a
+  semanticDiff:
+  - config_b
+  - config_a
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_b_to_a_query_output.md
+- name: semantic_diff_b_to_a
+  semanticDiff:
+  - config_b
+  - config_a
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_b_to_a_query_output.csv
+
 - name: semantic_diff_disjoint_old1_config_a
   semanticDiff:
   - old1
@@ -92,6 +216,40 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_disjoint_old1_config_a_query_output.txt
+- name: semantic_diff_disjoint_old1_config_a
+  semanticDiff:
+  - old1
+  - config_a
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_disjoint_old1_config_a_query_output.yaml
+- name: semantic_diff_disjoint_old1_config_a
+  semanticDiff:
+  - old1
+  - config_a
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_disjoint_old1_config_a_query_output.md
+- name: semantic_diff_disjoint_old1_config_a
+  semanticDiff:
+  - old1
+  - config_a
+  expected: 4
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_disjoint_old1_config_a_query_output.csv
+
 - name: semantic_diff_np1_np2
   semanticDiff:
   - np1
@@ -103,6 +261,40 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_np1_np2_query_output.txt
+- name: semantic_diff_np1_np2
+  semanticDiff:
+  - np1
+  - np2
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_np1_np2_query_output.yaml
+- name: semantic_diff_np1_np2
+  semanticDiff:
+  - np1
+  - np2
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_np1_np2_query_output.md
+- name: semantic_diff_np1_np2
+  semanticDiff:
+  - np1
+  - np2
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_np1_np2_query_output.csv
+
 - name: semantic_diff_a_to_b_with_ipBlock
   semanticDiff:
   - config_a_with_ipBlock
@@ -114,3 +306,36 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_a_to_b_with_ipBlock_query_output.txt
+- name: semantic_diff_a_to_b_with_ipBlock
+  semanticDiff:
+  - config_a_with_ipBlock
+  - config_b_with_ipBlock
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_with_ipBlock_query_output.yaml
+- name: semantic_diff_a_to_b_with_ipBlock
+  semanticDiff:
+  - config_a_with_ipBlock
+  - config_b_with_ipBlock
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_with_ipBlock_query_output.md
+- name: semantic_diff_a_to_b_with_ipBlock
+  semanticDiff:
+  - config_a_with_ipBlock
+  - config_b_with_ipBlock
+  expected: 10
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesGroupByLabelSinglePod: true
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_a_to_b_with_ipBlock_query_output.csv
