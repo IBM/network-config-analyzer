@@ -72,7 +72,7 @@ class ConnectivityGraph:
         edge_lines = set()
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
-                if src_peer != dst_peer and not connections.allow_all and connections:
+                if src_peer != dst_peer and connections:
                     src_peer_name, _ = self._get_peer_name(src_peer)
                     dst_peer_name, _ = self._get_peer_name(dst_peer)
                     line = '\t'
