@@ -6,7 +6,7 @@
 from collections import defaultdict
 from ClusterInfo import ClusterInfo
 from ConnectionSet import ConnectionSet
-from Peer import Peer, IpBlock, ClusterEP
+from Peer import Peer, IpBlock, ClusterEP, Pod
 from MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 
 
@@ -39,8 +39,21 @@ class ConnectivityGraph:
         :param ConnectionSet connections: The allowed connections from source_peer to dest_peer
         :return: None
         """
-
         self.connections_to_peers[connections].append((source_peer, dest_peer))
+
+    def _get_peer_name(self, peer):
+        """
+        Get the name of a peer object for connectivity graph + flag indicating if it is ip-block
+        :param Peer peer: the peer object
+        :return: tuple(str, bool)
+        str: the peer name
+        bool: flag to indicate if peer is ip-block (True) or not (False)
+        """
+        if isinstance(peer, IpBlock):
+            return peer.get_cidr_list_str(), True
+        if self.output_config.connectivityByDeployments and isinstance(peer, Pod):
+            return peer.workload_name, False
+        return str(peer), False
 
     def get_connectivity_dot_format_str(self):
         """
@@ -52,29 +65,24 @@ class ConnectivityGraph:
             output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
         peer_lines = []
         for peer in self.cluster_info.all_peers:
-            if isinstance(peer, IpBlock):
-                peer_lines.append(f'\t\"{peer.get_cidr_list_str()}\" [label=\"{peer.get_cidr_list_str()}\" color=\"red2\" fontcolor=\"red2\"]\n')
-            else:
-                peer_lines.append(f'\t\"{str(peer)}\" [label=\"{str(peer)}\" color=\"blue\" fontcolor=\"blue\"]\n')
+            peer_name, is_ip_block = self._get_peer_name(peer)
+            peer_color = "red2" if is_ip_block else "blue"
+            peer_lines.append(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
 
-        edge_lines = []
+        edge_lines = set()
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
-                if src_peer != dst_peer and not connections.allow_all:
+                if src_peer != dst_peer and not connections.allow_all and connections:
+                    src_peer_name, _ = self._get_peer_name(src_peer)
+                    dst_peer_name, _ = self._get_peer_name(dst_peer)
                     line = '\t'
-                    if isinstance(src_peer, IpBlock):
-                        line += f'\"{src_peer.get_cidr_list_str()}\"'
-                    else:
-                        line += f'\"{str(src_peer)}\"'
+                    line += f'\"{src_peer_name}\"'
                     line += ' -> '
-                    if isinstance(dst_peer, IpBlock):
-                        line += f'\"{dst_peer.get_cidr_list_str()}\"'
-                    else:
-                        line += f'\"{str(dst_peer)}\"'
+                    line += f'\"{dst_peer_name}\"'
                     conn_str = str(connections).replace("Protocol:", "")
                     line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
-                    edge_lines.append(line)
-        output_result += ''.join(line for line in sorted(peer_lines)) + ''.join(line for line in sorted(edge_lines)) + '}\n\n'
+                    edge_lines.add(line)
+        output_result += ''.join(line for line in sorted(peer_lines)) + ''.join(line for line in sorted(list(edge_lines))) + '}\n\n'
         return output_result
 
     def get_minimized_firewall_rules(self):
@@ -90,9 +98,19 @@ class ConnectivityGraph:
 
         if self.output_config.fwRulesRunInTestMode:
             # print the original connectivity graph
+            lines = set()
             for connections, peer_pairs in connections_sorted_by_size:
                 for src_peer, dst_peer in peer_pairs:
-                    print(f'src: {src_peer}, dest: {dst_peer}, allowed conns: {connections}')
+                    src_peer_name, _ = self._get_peer_name(src_peer)
+                    dst_peer_name, _ = self._get_peer_name(dst_peer)
+                    # on level of deployments, omit the 'all connections' between a pod to itself
+                    # a connection between deployment to itself is derived from connection between 2 different pods of
+                    # the same deployment
+                    if src_peer == dst_peer and self.output_config.connectivityByDeployments:
+                        continue
+                    lines.add(f'src: {src_peer_name}, dest: {dst_peer_name}, allowed conns: {connections}')
+            for line in lines:
+                print(line)
             print('======================================================')
         # compute the minimized firewall rules
         return self._minimize_firewall_rules(connections_sorted_by_size)
