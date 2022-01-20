@@ -58,15 +58,15 @@ class NetworkConfigQueryRunner:
 
             else:  # pairWiseInterferes
                 res, query_output = self._run_query_on_all_pairs()
-
+        comparing_err = 0
         self.output_configuration.print_query_output(query_output, formats)
         if self.expected_output_file is not None:
             if self.query_name in {'ConnectivityMapQuery', 'SemanticDiffQuery'}:
-                res += self._compare_actual_vs_expected_output(query_output)
+                comparing_err = self._compare_actual_vs_expected_output(query_output)
             else:
                 print(f'Warning: expectedOutput is not relevant for {self.query_name}. '
                       'Output compare will not occur')
-        return res
+        return res, comparing_err
 
     def _execute_one_config_query(self, query_type, config):
         query_to_exec = getattr(NetworkConfigQuery, query_type)(config, self.output_configuration)

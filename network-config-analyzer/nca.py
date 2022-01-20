@@ -79,7 +79,8 @@ def _execute_single_config_query(query_name, np1_list, peer_container, output_co
     :rtype: int
     """
     network_config1 = NetworkConfig(np1_list, peer_container, [np1_list])
-    return NetworkConfigQueryRunner(query_name, [network_config1], expected_output, output_config).run_query() > 0
+    res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1], expected_output, output_config).run_query()
+    return (res > 0) + comparing_err
 
 
 def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output=None):
@@ -96,7 +97,8 @@ def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location
     """
     network_config1 = NetworkConfig(np1_list_location, base_peer_container, [np1_list_location])
     network_config2 = NetworkConfig(np2_list_location, peer_container, [np2_list_location])
-    return NetworkConfigQueryRunner(query_name, [network_config1, network_config2], expected_output, output_config).run_query(True)
+    res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1, network_config2], expected_output, output_config).run_query(True)
+    return res + comparing_err
 
 
 def run_args(args):

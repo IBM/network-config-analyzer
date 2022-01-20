@@ -180,6 +180,7 @@ class SchemeRunner(GenericYamlParser):
 
         for query in query_array:
             res = 0
+            comparing_err = 0
             self.check_fields_validity(query, 'query', allowed_elements)
             query_name = query['name']
             print('Running query', query_name)
@@ -187,10 +188,13 @@ class SchemeRunner(GenericYamlParser):
             expected_output = self._get_input_file(query.get('expectedOutput', None))
             for query_key in query.keys():
                 if query_key not in ['name', 'expected', 'outputConfiguration', 'expectedOutput']:
-                    res += NetworkConfigQueryRunner(query_key, query[query_key], expected_output, output_config_obj,
-                                                    self.network_configs).run_query()
+                    res, comparing_err = NetworkConfigQueryRunner(query_key, query[query_key], expected_output,
+                                                                    output_config_obj, self.network_configs).run_query()
+
             if 'expected' in query:
                 expected = query['expected']
                 if res != expected:
                     self.warning(f'Unexpected result for query {query_name}: Expected {expected}, got {res}\n', query)
                     self.global_res += 1
+
+            self.global_res += comparing_err
