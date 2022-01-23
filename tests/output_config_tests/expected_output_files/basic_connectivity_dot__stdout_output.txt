@@ -1,7 +1,7 @@
 global: cluster has 29 unique endpoints, 8 namespaces
 global: cluster has 29 unique endpoints, 8 namespaces
 // The Connectivity Graph of output_config_tests/../k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-digraph output_config_tests/../k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml {
+digraph output_config_tests/../k8s_testcases/example_policies/testcase8/testcase8_networkpolicy1.yaml {
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
 	"::/0" [label="::/0" color="red2" fontcolor="red2"]
 	"default/cog-agents-d54st" [label="default/cog-agents-d54st" color="blue" fontcolor="blue"]
