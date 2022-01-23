@@ -108,7 +108,7 @@ Running query connectivity_map_3_stdout_md
 
 Running query connectivity_map_3_stdout_dot
 // The Connectivity Graph of np3
-digraph np3 {
+digraph {
 	HEADER [shape="box" label=< <B>connectivity_map_3_stdout_dot/np3</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
 	"::/0" [label="::/0" color="red2" fontcolor="red2"]

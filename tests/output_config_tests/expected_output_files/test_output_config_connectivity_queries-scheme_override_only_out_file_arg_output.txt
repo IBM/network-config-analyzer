@@ -98,7 +98,7 @@ src_ns: [default] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TC
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]|[default,ibm-system-new,kube-system-new-dummy-to-ignore]|[*]|All connections|
 
 // The Connectivity Graph of np3
-digraph np3 {
+digraph {
 	HEADER [shape="box" label=< <B>connectivity_map_3_stdout_dot/np3</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
 	"::/0" [label="::/0" color="red2" fontcolor="red2"]
@@ -381,7 +381,7 @@ digraph np3 {
 ||[default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore]|[*]|[default,ibm-system-new,kube-system-new-dummy-to-ignore]|[*]|All connections|
 
 // The Connectivity Graph of np4
-digraph np4 {
+digraph {
 	HEADER [shape="box" label=< <B>connectivity_map_4_dot/np4</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
 	"::/0" [label="::/0" color="red2" fontcolor="red2"]
@@ -460,7 +460,7 @@ digraph np4 {
 
 
 // The Connectivity Graph of np3
-digraph np3 {
+digraph {
 	HEADER [shape="box" label=< <B>connectivity_map_4_dot/np3</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
 	"::/0" [label="::/0" color="red2" fontcolor="red2"]
