@@ -55,12 +55,18 @@ class ConnectivityGraph:
             return peer.workload_name, False
         return str(peer), False
 
+    def _get_dot_format_graph_name(self):
+        """
+        :return: str : the digraph name for dot format
+        """
+        return self.output_config.configName.replace("-", "_")
+
     def get_connectivity_dot_format_str(self):
         """
         :return: a string with content of dot format for connectivity graph
         """
         output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
-        output_result += f'digraph {self.output_config.configName} ' + '{\n'
+        output_result += f'digraph {self._get_dot_format_graph_name()} ' + '{\n'
         if self.output_config.queryName and self.output_config.configName:
             output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
         peer_lines = set()
