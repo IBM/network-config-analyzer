@@ -63,11 +63,11 @@ class ConnectivityGraph:
         output_result += f'digraph {self.output_config.configName} ' + '{\n'
         if self.output_config.queryName and self.output_config.configName:
             output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
-        peer_lines = []
+        peer_lines = set()
         for peer in self.cluster_info.all_peers:
             peer_name, is_ip_block = self._get_peer_name(peer)
             peer_color = "red2" if is_ip_block else "blue"
-            peer_lines.append(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
+            peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
 
         edge_lines = set()
         for connections, peer_pairs in self.connections_to_peers.items():
@@ -82,7 +82,7 @@ class ConnectivityGraph:
                     conn_str = str(connections).replace("Protocol:", "")
                     line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
                     edge_lines.add(line)
-        output_result += ''.join(line for line in sorted(peer_lines)) + ''.join(line for line in sorted(list(edge_lines))) + '}\n\n'
+        output_result += ''.join(line for line in sorted(list(peer_lines))) + ''.join(line for line in sorted(list(edge_lines))) + '}\n\n'
         return output_result
 
     def get_minimized_firewall_rules(self):
