@@ -32,6 +32,12 @@ class PeerContainer:
         EndWith = 4
 
     def __init__(self, ns_resources=None, peer_resources=None, config_name='global'):
+        """
+        create a PeerContainer object
+        :param list ns_resources: the list of namespace resources
+        :param list peer_resources: the list of peer resources
+        :param str config_name: the config name
+        """
         self.peer_set = PeerSet()
         self.namespaces = {}  # mapping from namespace name to the actual K8sNamespace object
         self.representative_peers = {}
