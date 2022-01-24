@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test_docker:
+  test-docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,37 +20,47 @@ jobs:
           push: false
       - name: Check Docker image
         run: docker run ${{ steps.build_docker.outputs.digest }} -h
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v2.3.1
-        with:
-          python-version: 3.8
-          architecture: x64
-          cache: pip
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 pytest
-          pip install -r requirements.txt
+      - uses: ./.github/actions/setup-nca-env
+      - run: pip install flake8 pytest
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup-nca-env
       - name: Run unit tests
         run: python tests/run_unittests.py
+  all-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup-nca-env
       - name: Run all tests
         env:
           GHE_TOKEN: ${{ github.token }}
         run: python tests/run_all_tests.py --type=general
+  output-comparison-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup-nca-env
       - name: Run output comparison tests
         run:  python tests/run_all_tests.py --type=output
+  fw-rules-assertion-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup-nca-env
       - name: Run fw-rules assertions tests
         run:  python tests/run_all_tests.py --type=fw_rules_assertions
+  live-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup-nca-env
       - name: Create kind cluster
         uses: helm/kind-action@v1.2.0
       - name: Run live-k8s tests
