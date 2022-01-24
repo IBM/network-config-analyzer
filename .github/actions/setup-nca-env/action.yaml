@@ -9,3 +9,4 @@ runs:
       architecture: x64
       cache: pip
   - run: pip install -r requirements.txt
+    shell: bash
