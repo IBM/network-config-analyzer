@@ -7,6 +7,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/setup-nca-env
       - name: update expected output files
         run:  python tests/run_all_tests.py --type=output --action=override_expected_output
