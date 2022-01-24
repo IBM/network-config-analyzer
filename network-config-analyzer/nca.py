@@ -111,8 +111,8 @@ def run_args(args):
         return SchemeRunner(args.scheme, args.output_format, args.file_out).run_scheme()
 
     base_np_list = args.base_np_list or 'k8s'
-    ns_list = args.ns_list or 'k8s'
-    pod_list = args.pod_list or 'k8s'
+    ns_list = args.ns_list or ['k8s']
+    pod_list = args.pod_list or ['k8s']
     base_peer_container = PeerContainer(args.base_ns_list or ns_list, args.base_pod_list or pod_list)
     peer_container = PeerContainer(ns_list, pod_list)
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
