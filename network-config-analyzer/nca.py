@@ -118,7 +118,7 @@ def run_args(args):
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
                                          'outputPath': args.file_out or None,
                                          'prURL': args.pr_url or None,
-                                         'connectivityByDeployments': args.connectivity_by_deployments})
+                                         'outputEndpoints': args.output_endpoints})
     if args.equiv:
         return _execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list, base_peer_container,
                                            peer_container, output_config)
@@ -196,7 +196,7 @@ def nca_main(argv=None):
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
-    parser.add_argument('--connectivity_by_deployments', action='store_true', help='For connectivity query set the endpoints as deployments instead of pods')
+    parser.add_argument('--output_endpoints', choices=['pods', 'deployments'], help='Choose endpoints type in output (pods/deployments)', default='deployments')
 
     args = parser.parse_args(argv)
 

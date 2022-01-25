@@ -7,11 +7,19 @@ networkConfigList:
       - auth_policies.yaml
 
 queries:
-  - name: connectivity-bookinfo-demo
+  - name: connectivity-bookinfo-demo-by-pods
     connectivityMap:
       - bookinfo-demo
     outputConfiguration:
       outputFormat: dot
-      connectivityByDeployments: true
+      outputEndpoints: pods
     expected: 0
     # TODO: add expected output
+
+  - name: connectivity-bookinfo-demo-by-deployments
+    connectivityMap:
+      - bookinfo-demo
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+    expected: 0

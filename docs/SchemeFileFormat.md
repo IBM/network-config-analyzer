@@ -55,13 +55,25 @@ Each query object instructs the tool to run a specific check on one or more sets
 |vacuity|Checks whether the set of policies changes cluster default behavior|list of [config set](#configsets) names|
 |sanity|Checks all NetworkConfigs for sanity check - includes emptiness, vacuity and redundancies|list of [config set](#configsets) names|
 |allCaptured|Checks that all pods are captured by at least one NetworkPolicy|list of [config set](#configsets) names|
+|connectivityMap|Reports a summary of the allowed connections in the cluster|list of [config set](#configsets) names| 
 |expected|The expected sum of returned results by all sub-queries in this query (a warning is issued on mismatch)|integer|
+|outputConfiguration| A dict object with the required output configuration|[outputConfig](#outputconfig) object|
 
 #### <a name="configsets"></a>Config sets
 Each entry in the list of config sets should be either
 * __Full set__ - The name of a [NetworkConfig object](#NetworkConfigobject) _OR_
 * __Single policy__ - Use the form `<set name>/<namespace>/<policy>`.
 For example: `my_set/prod_ns/deny_all_policy`
+
+
+#### <a name="outputconfig"></a>Output Configuration object
+The supported entries in the outputConfiguration object are as follows:
+
+| Field | Description | Value |
+|-------|-------------|-------|
+|outputFormat|Output format specification.|string [ txt / yaml / csv / md / dot ] |
+|outputPath|A file path to redirect output into.|string|
+|outputEndpoints|Choose endpoints type in output.|string [ pods / deployments ]|
 
 #### Returned value for each sub-query:
 * _emptiness_ -  Count of empty selectors/rules found in all sets of policies

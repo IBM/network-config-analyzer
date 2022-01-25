@@ -1,0 +1,69 @@
+namespaceList: ../podlist/test_fw_rules_pod_list.yaml
+podList: ../podlist/test_fw_rules_pod_list.yaml
+networkConfigList:
+  - name: np25
+    networkPolicyList:
+      - test25-networkpolicy.yaml
+    expectedWarnings: 0
+queries:
+  - name: connectivity_map_by_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputEndpoints: deployments
+
+  - name: connectivity_map_by_pods_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputEndpoints: pods
+
+  - name: connectivity_map_by_deployments_yaml
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: yaml
+      outputEndpoints: deployments
+
+  - name: connectivity_map_by_pods_yaml
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: yaml
+      outputEndpoints: pods
+
+  - name: connectivity_map_by_deployments_csv
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: csv
+      outputEndpoints: deployments
+
+  - name: connectivity_map_by_pods_csv
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: csv
+      outputEndpoints: pods
+
+  - name: connectivity_map_by_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+
+  - name: connectivity_map_by_pods_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods

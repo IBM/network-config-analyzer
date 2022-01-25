@@ -339,7 +339,7 @@ class MinimizeCsFwRules:
         # TODO: should avoid having single pods remaining without labels grouping
         # (2) add rules for remaining single pods:
         for pod in remaining_pods:
-            single_pod_elem = PodElement(pod)
+            single_pod_elem = PodElement(pod, self.output_config.outputEndpoints == 'deployments')
             if is_src_fixed:
                 fw_rule = FWRule(fixed_elem, single_pod_elem, self.connections)
             else:
@@ -679,12 +679,7 @@ class MinimizeFWRules:
         rules_list = self._get_all_rules_list_in_req_format(req_format)
 
         if req_format == 'txt':
-            # TODO: remove duplicate rules earlier? (rules with different pods mapped to the same pod owner)
-            # current issue is that we use topologies with pods of the same owner but different labels, so cannot consider
-            # fw-rules elemnts of pod with same owner as identical
-            output_rules = sorted(list(set(rules_list)))
-            # output_rules = sorted(rules_list)
-            res = ''.join(line for line in output_rules)
+            res = ''.join(line for line in sorted(rules_list))
             if add_txt_header:
                 res = f'final fw rules for query: {query_name}:\n' + res
             return res
@@ -715,15 +710,31 @@ class MinimizeFWRules:
 
     def _get_all_rules_list_in_req_format(self, req_format):
         """
-        :param req_format: a string of the required format, should be in FWRule.supported_formats
+        Get a sorted list of rules in required format:
+        txt -> list of str objects
+        yaml -> list of dict objects
+        csv/md -> list of list objects
+        :param str req_format: the required format, should be in FWRule.supported_formats
         :return: a list of objects representing the fw-rules in the required format
+        :rtype: Union[list[str], list[dict], list[list]]
+
+        The removal of duplicates is relevant for the case where output is in level of deployments, and creating
+        duplications in rules where single pods are mapped to the same deployment name.
+        This may happen when a deployment has more than one pod, and the grouping by label is not applied to it.
+        (for example, when the pods are selected by named ports and not by podSelector with label, there may not be
+        'allowed' relevant input labels available).
         """
-        res = []
+        rules_list = []
         all_connections = sorted(self.fw_rules_map.keys())
         for connection in all_connections:
             connection_rules = sorted(self.fw_rules_map[connection])
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                res.append(rule.get_rule_in_req_format(req_format, self.cluster_info.config_type))
-        return res
+                rule_obj = rule.get_rule_in_req_format(req_format, self.cluster_info.config_type)
+                # TODO: remove duplicate rules earlier? (rules with different pods mapped to the same pod owner)
+                # current issue is that we use topologies with pods of the same owner but different labels, so cannot consider
+                # fw-rules elements of pod with same owner as identical
+                if (self.output_config.outputEndpoints == 'deployments' and rule_obj not in rules_list) or(self.output_config.outputEndpoints == 'pods'):
+                    rules_list.append(rule_obj)
+        return rules_list

@@ -51,7 +51,7 @@ class ConnectivityGraph:
         """
         if isinstance(peer, IpBlock):
             return peer.get_cidr_list_str(), True
-        if self.output_config.connectivityByDeployments and isinstance(peer, Pod):
+        if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
             return peer.workload_name, False
         return str(peer), False
 
@@ -106,7 +106,7 @@ class ConnectivityGraph:
                     # on level of deployments, omit the 'all connections' between a pod to itself
                     # a connection between deployment to itself is derived from connection between 2 different pods of
                     # the same deployment
-                    if src_peer == dst_peer and self.output_config.connectivityByDeployments:
+                    if src_peer == dst_peer and self.output_config.outputEndpoints == 'deployments':
                         continue
                     lines.add(f'src: {src_peer_name}, dest: {dst_peer_name}, allowed conns: {connections}')
             for line in lines:
