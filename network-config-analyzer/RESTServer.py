@@ -142,6 +142,7 @@ class RestServer:
     def __init__(self, ns_list, pod_list):
         self.app = Flask(__name__)
         self.policy_sets_map = {}
+        # TODO: support service list and add it to peer_container
         self.peer_container = PeerContainer(ns_list, pod_list)
         self.add_url_rule('/all', AllResource, 'all')
         self.add_url_rule('/namespaces', NamespacesResource, 'namespaces')

@@ -10,6 +10,7 @@ from ruamel.yaml import YAML
 from OutputConfiguration import OutputConfiguration
 from PeerContainer import PeerContainer
 from GenericYamlParser import GenericYamlParser
+from K8sYamlParser import K8sYamlParser
 from NetworkConfig import NetworkConfig
 from NetworkConfigQueryRunner import NetworkConfigQueryRunner
 
@@ -82,14 +83,22 @@ class SchemeRunner(GenericYamlParser):
 
         ns_list = config_entry.get('namespaceList')
         pod_list = config_entry.get('podList')
-        if ns_list or pod_list:  # a local resource file exist
+        srv_list = config_entry.get('serviceList')
+        if ns_list or pod_list or srv_list:  # a local resource file exist
             if not ns_list:  # use global resource file
                 ns_list = self.scheme.get('namespaceList', 'k8s')
             if not pod_list:  # use global resource file
                 pod_list = self.scheme.get('podList', 'k8s')
+            if not srv_list:  # use global resource file
+#                srv_list = self.scheme.get('serviceList', 'k8s') # should we try to load from live cluster?
+                srv_list = self.scheme.get('serviceList')
             pod_list = self._handle_resources_list(pod_list)
             ns_list = self._handle_resources_list(ns_list)
             peer_container = PeerContainer(ns_list, pod_list, config_name)
+            if srv_list:
+                srv_list = self._handle_resources_list(srv_list)
+                services = K8sYamlParser.parse_service_resources(srv_list, peer_container)
+                peer_container.set_services(services)
         else:
             # deepcopy is required since NetworkConfig's constructor may change peer_container
             peer_container = copy.deepcopy(peer_container_global)
@@ -137,13 +146,19 @@ class SchemeRunner(GenericYamlParser):
         :return: The number of queries with unexpected result + number of configs with unexpected number of warnings
         :rtype: int
         """
-        allowed_keys = {'networkConfigList': 1, 'namespaceList': 0, 'podList': 0, 'queries': 0}
+        allowed_keys = {'networkConfigList': 1, 'namespaceList': 0, 'podList': 0, 'serviceList': 0, 'queries': 0}
         self.check_fields_validity(self.scheme, 'scheme', allowed_keys)
 
         # global resource files
         pod_list = self._handle_resources_list(self.scheme.get('podList', 'k8s'))
         ns_list = self._handle_resources_list(self.scheme.get('namespaceList', 'k8s'))
         peer_container = PeerContainer(ns_list, pod_list)
+#        srv_list = self.scheme.get('serviceList', 'k8s') # should we try to load from live cluster?
+        srv_list = self.scheme.get('serviceList')
+        if srv_list:
+            srv_list = self._handle_resources_list(srv_list)
+            services = K8sYamlParser.parse_service_resources(srv_list, peer_container)
+            peer_container.set_services(services)
 
         for config_entry in self.scheme.get('networkConfigList', []):
             self._add_config(config_entry, peer_container)

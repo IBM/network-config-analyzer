@@ -9,6 +9,7 @@ from enum import Enum
 import yaml
 from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
+from K8sService import K8sService
 from CmdlineRunner import CmdlineRunner
 from GenericTreeScanner import TreeScannerFactory
 
@@ -34,6 +35,7 @@ class PeerContainer:
     def __init__(self, ns_resources=None, peer_resources=None, config_name='global'):
         self.peer_set = PeerSet()
         self.namespaces = {}  # mapping from namespace name to the actual K8sNamespace object
+        self.services = {}  # mapping from service name to the actual K8sService object
         self.representative_peers = {}
         if ns_resources:
             self._set_namespace_list(ns_resources)
@@ -42,7 +44,8 @@ class PeerContainer:
 
     def __eq__(self, other):
         if isinstance(other, PeerContainer):
-            return self.peer_set == other.peer_set and self.namespaces == other.namespaces
+            return self.peer_set == other.peer_set and self.namespaces == other.namespaces \
+                   and self.services == other.services
         return NotImplemented
 
     @staticmethod
@@ -165,6 +168,24 @@ class PeerContainer:
 
         print(f'{config_name}: cluster has {self.get_num_peers()} unique endpoints, '
               f'{self.get_num_namespaces()} namespaces')
+
+    def set_services(self, srv_list):
+        for srv in srv_list:
+            self.services[srv.name] = srv
+
+    def get_service(self, srv_name):
+        """
+        Get a K8sService object for a given service name.
+        :return: A relevant K8sService or None
+        :rtype: K8sService
+        """
+        if srv_name not in self.services:
+            print('Service', srv_name, 'is missing from the network configuration', file=stderr)
+            return None
+        return self.services[srv_name]
+
+    def get_services(self):
+        return self.services
 
     def delete_all_namespaces(self):
         if self.get_num_peers() > 0:  # Only delete namespaces if no peers are present
