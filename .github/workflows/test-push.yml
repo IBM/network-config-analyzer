@@ -46,7 +46,7 @@ jobs:
       - name: Run all tests
         env:
           GHE_TOKEN: ${{ github.token }}
-        run: python tests/run_all_tests.py --type=general
+        run: python tests/run_all_tests.py --type=general --check_run_time
       - name: Run output comparison tests
         run:  python tests/run_all_tests.py --type=output
       - name: Run fw-rules assertions tests
