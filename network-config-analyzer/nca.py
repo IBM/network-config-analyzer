@@ -69,21 +69,25 @@ def _do_every(period, func, *args):
         time.sleep(next(sleep_for))
 
 
-def _execute_single_config_query(query_name, np1_list, peer_container, output_config, expected_output=None):
+def _execute_single_config_query(query_name, np1_list, peer_container, output_config, expected_output=None, create_files=False, update_files=False):
     """
     Runs a query on single set of policies
     :param str query_name: the name of the arg.query
     :param str np1_list: set of policies
     :param PeerContainer peer_container: set of peers
     :param OutputConfiguration output_config: dict object
+    :param str expected_output: a file path to the expected output
+    :param bool create_files: indicates if to create an expected output
+    :param bool update_files: indicates if to override the expected output files
     :rtype: int
     """
     network_config1 = NetworkConfig(np1_list, peer_container, [np1_list])
-    res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1], expected_output, output_config).run_query()
+    res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1], expected_output, output_config,
+                                                  create_files, update_files).run_query()
     return (res > 0) + comparing_err
 
 
-def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output=None):
+def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output=None, create_files=False, update_files=False):
     """
     Runs an pair configs query between two sets of policies
     :param str query_name: the name of the arg.query
@@ -92,25 +96,32 @@ def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location
     :param PeerContainer base_peer_container: set of base peers
     :param PeerContainer peer_container: set of peers
     :param OutputConfiguration output_config: dict object
+    :param str expected_output: a file path to the expected output
+    :param bool create_files: indicates if to create an expected output
+    :param bool update_files: indicates if to override the expected output files
     :return: result of executing the query
     :rtype: int
     """
     network_config1 = NetworkConfig(np1_list_location, base_peer_container, [np1_list_location])
     network_config2 = NetworkConfig(np2_list_location, peer_container, [np2_list_location])
-    res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1, network_config2], expected_output, output_config).run_query(True)
+    res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1, network_config2], expected_output,
+                                                  output_config, create_files, update_files).run_query(True)
     return res + comparing_err
 
 
-def run_args(args):
+def run_args(args, create_files=False, update_files=False):
     """
     Given the parsed cmdline, decide what to run
     :param Namespace args: argparse-style parsed cmdline
+    :param bool create_files: indicates if to create an expected output
+    :param bool update_files: indicates if to override the expected output files
+     create_files and update_files are relevant only for connectivityMap and semanticDiff
     :return: The number of queries with unexpected value (if a scheme file is used) or
              the query result (if command-line queries are used)
     :rtype: int
     """
     if args.scheme:
-        return SchemeRunner(args.scheme, args.output_format, args.file_out).run_scheme()
+        return SchemeRunner(args.scheme, args.output_format, args.file_out, create_files, update_files).run_scheme()
 
     base_np_list = args.base_np_list or 'k8s'
     ns_list = args.ns_list or 'k8s'
@@ -138,19 +149,21 @@ def run_args(args):
 
     if args.connectivity:
         return _execute_single_config_query('connectivityMap', args.connectivity, peer_container,
-                                            output_config, expected_output)
+                                            output_config, expected_output, create_files, update_files)
 
     if args.semantic_diff:
         return _execute_pair_configs_query('semanticDiff', base_np_list, args.semantic_diff, base_peer_container,
-                                           peer_container, output_config, expected_output)
+                                           peer_container, output_config, expected_output, create_files, update_files)
 
     return _execute_single_config_query('sanity', args.sanity or 'k8s', peer_container, output_config)
 
 
-def nca_main(argv=None):
+def nca_main(argv=None, create_files=False, update_files=False):
     """
     This is the single entry point for NCA
     :param list[str] argv: command-line arguments (None means using sys.argv)
+    :param bool create_files: indicates if to create an expected output
+    :param bool update_files: indicates if to override the expected output files
     :return: The number of queries with unexpected value (if a scheme file is used) or
              the query result (if command-line queries are used)
     :rtype: int
@@ -210,7 +223,7 @@ def nca_main(argv=None):
         return RestServer(args.ns_list, args.pod_list).run()
 
     if args.period <= 0:
-        ret_val = run_args(args)
+        ret_val = run_args(args, create_files, update_files)
         return 0 if args.return_0 else ret_val
 
     _do_every(args.period * 60, run_args, args)

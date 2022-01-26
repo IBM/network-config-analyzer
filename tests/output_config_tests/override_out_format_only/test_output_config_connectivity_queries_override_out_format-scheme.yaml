@@ -50,7 +50,7 @@ queries:
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: txt
+    outputFormat: yaml
     outputPath: connectivity_map_4_yaml_output_override_out_format.yaml
   expectedOutput: ../expected_output_files/connectivity_map_4_yaml_output_override_out_format.yaml
 - name: connectivity_map_4_csv
@@ -59,7 +59,7 @@ queries:
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: txt
+    outputFormat: csv
     outputPath: connectivity_map_4_csv_output_override_out_format.csv
   expectedOutput: ../expected_output_files/connectivity_map_4_csv_output_override_out_format.csv
 - name: connectivity_map_4_md
@@ -68,7 +68,7 @@ queries:
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: txt
+    outputFormat: md
     outputPath: connectivity_map_4_md_output_override_out_format.md
   expectedOutput: ../expected_output_files/connectivity_map_4_md_output_override_out_format.md
 - name: connectivity_map_4_dot
@@ -77,7 +77,7 @@ queries:
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: txt
+    outputFormat: dot
     outputPath: connectivity_map_4_dot_output_override_out_format.dot
   expectedOutput: ../expected_output_files/connectivity_map_4_dot_output_override_out_format.dot
 - name: connectivity_map_4_bad_out_format
@@ -86,7 +86,7 @@ queries:
   - np3
   expected: 0
   outputConfiguration:
-    outputFormat: txt
+    outputFormat: txtt
     outputPath: connectivity_map_4_bad_output_override_out_format.txt
   expectedOutput: ../expected_output_files/connectivity_map_4_bad_output_override_out_format.txt
 - name: connectivity_map_3_txt

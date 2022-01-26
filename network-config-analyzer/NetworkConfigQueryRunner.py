@@ -7,12 +7,14 @@ class NetworkConfigQueryRunner:
     A Class for Running Queries
     """
 
-    def __init__(self, key_name, configs_array, expected_output, output_configuration, network_configs=None):
+    def __init__(self, key_name, configs_array, expected_output, output_configuration, network_configs=None, create_files=False, update_files=False):
         self.query_name = f'{key_name[0].upper()+key_name[1:]}Query'
         self.configs_array = configs_array
         self.output_configuration = output_configuration
         self.network_configs = network_configs
         self.expected_output_file = expected_output
+        self.create_files = create_files
+        self.update_files = update_files
 
     def _get_config(self, config_name):
         """
@@ -126,18 +128,31 @@ class NetworkConfigQueryRunner:
         actual_output_lines = query_output.split('\n')
         try:
             with open(self.expected_output_file, 'r') as golden_file:
+                if self.update_files:
+                    self._create_or_update_query_output_file(query_output)
+                    return 0
                 for golden_file_line_num, golden_file_line in enumerate(golden_file):
                     if golden_file_line_num >= len(actual_output_lines):
-                        print('Error, Comparing Result Failed: Expected results have more lines than actual results')
+                        print('Error: Expected results have more lines than actual results')
+                        print('Comparing Result Failed \n')
                         return 1
                     if golden_file_line.rstrip() != actual_output_lines[golden_file_line_num]:
-                        print(f'Error, Comparing Result Failed: Result mismatch at line {golden_file_line_num + 1} ')
+                        print(f'Error: Result mismatch at line {golden_file_line_num + 1} ')
                         print(golden_file_line)
                         print(actual_output_lines[golden_file_line_num])
+                        print('Comparing Result Failed \n')
                         return 1
         except FileNotFoundError:
-            print('Error: Expected results file not found')
+            if self.create_files:
+                self._create_or_update_query_output_file(query_output)
+                return 0
+            print('Error: Expected output file not found')
             return 1
 
-        print('Comparing Results Passed')
+        print('Comparing Results Passed \n')
         return 0
+
+    def _create_or_update_query_output_file(self, query_output):
+        output_file = open(self.expected_output_file, 'w')
+        output_file.write(query_output)
+
