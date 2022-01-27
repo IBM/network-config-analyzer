@@ -47,6 +47,11 @@ jobs:
         env:
           GHE_TOKEN: ${{ github.token }}
         run: python tests/run_all_tests.py --type=general --check_run_time
+      - name: Upload failed run-time tests file
+        uses: actions/upload-artifact@v2
+        with:
+          name: failed-run-time-check-file
+          path: ./tests/tests_failed_runtime_check.csv
       - name: Run output comparison tests
         run:  python tests/run_all_tests.py --type=output
       - name: Run fw-rules assertions tests
