@@ -52,6 +52,7 @@ jobs:
         with:
           name: failed-run-time-check-file
           path: ./tests/tests_failed_runtime_check.csv
+          if-no-files-found: ignore
       - name: Run output comparison tests
         run:  python tests/run_all_tests.py --type=output
       - name: Run fw-rules assertions tests
