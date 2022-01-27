@@ -52,6 +52,7 @@ jobs:
         with:
           default_author: github_actions
           message: 'Adding Failed Run Time Check'
+          add: '*.csv'
       - name: Run output comparison tests
         run:  python tests/run_all_tests.py --type=output
       - name: Run fw-rules assertions tests
