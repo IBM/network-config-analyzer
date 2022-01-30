@@ -50,13 +50,13 @@ class K8sService:
     def __str__(self):
         return self.name
 
-    def set_type(self, type):
+    def set_type(self, service_type):
         """
         Set a service label
-        :param ServiceType type: The service type
+        :param ServiceType service_type: The service type
         :return: None
         """
-        self.type = type
+        self.type = service_type
 
     def add_selector(self, key, value):
         """
@@ -73,7 +73,7 @@ class K8sService:
         :param ServicePort servicePort: The port to add by the key servicePort.port
         :return: True iff successfully added the port, i.e. the port with this name did not exist
         """
-        if self.ports.get(servicePort.name) is not None:
+        if self.ports.get(servicePort.name):
             return False
         self.ports[servicePort.name] = servicePort
         return True

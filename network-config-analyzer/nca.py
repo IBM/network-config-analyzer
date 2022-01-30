@@ -113,7 +113,6 @@ def run_args(args):
     base_np_list = args.base_np_list or 'k8s'
     ns_list = args.ns_list or ['k8s']
     pod_list = args.pod_list or ['k8s']
-    # TODO: support service list and add it to peer_container
     base_peer_container = PeerContainer(args.base_ns_list or ns_list, args.base_pod_list or pod_list)
     peer_container = PeerContainer(ns_list, pod_list)
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',

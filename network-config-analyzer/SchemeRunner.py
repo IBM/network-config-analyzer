@@ -10,7 +10,7 @@ from ruamel.yaml import YAML
 from OutputConfiguration import OutputConfiguration
 from PeerContainer import PeerContainer
 from GenericYamlParser import GenericYamlParser
-from K8sYamlParser import K8sYamlParser
+from K8sServiceYamlParser import K8sServiceYamlParser
 from NetworkConfig import NetworkConfig
 from NetworkConfigQueryRunner import NetworkConfigQueryRunner
 
@@ -97,7 +97,7 @@ class SchemeRunner(GenericYamlParser):
             peer_container = PeerContainer(ns_list, pod_list, config_name)
             if srv_list:
                 srv_list = self._handle_resources_list(srv_list)
-                services = K8sYamlParser.parse_service_resources(srv_list, peer_container)
+                services = K8sServiceYamlParser.parse_service_resources(srv_list, peer_container)
                 peer_container.set_services(services)
         else:
             # deepcopy is required since NetworkConfig's constructor may change peer_container
@@ -157,7 +157,7 @@ class SchemeRunner(GenericYamlParser):
         srv_list = self.scheme.get('serviceList')
         if srv_list:
             srv_list = self._handle_resources_list(srv_list)
-            services = K8sYamlParser.parse_service_resources(srv_list, peer_container)
+            services = K8sServiceYamlParser.parse_service_resources(srv_list, peer_container)
             peer_container.set_services(services)
 
         for config_entry in self.scheme.get('networkConfigList', []):
