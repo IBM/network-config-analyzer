@@ -21,13 +21,13 @@ class K8sService:
         """
         Represents a K8s Service port
         """
-        def __init__(self, port, targetPort, protocol, name=''):
+        def __init__(self, port, target_port, protocol, name=''):
             self.port = port
             # a target port may be given either as a number or as a string (named port)
-            if isinstance(targetPort, int):
-                self.targetPortNumber = targetPort
+            if isinstance(target_port, int):
+                self.target_port_number = target_port
             else:
-                self.targetPortName = targetPort
+                self.target_port_name = target_port
             self.protocol = protocol
             self.name = name
 
