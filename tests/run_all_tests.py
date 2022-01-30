@@ -6,7 +6,7 @@ import sys
 import os
 from fnmatch import fnmatch
 from os import path
-from time import time
+import time
 from pathlib import Path
 import yaml
 import csv
@@ -172,7 +172,7 @@ class GeneralTest:
         self._update_required_scheme_file_config_args(True)
         print('------------------------------------')
         print('Running testcase', self.test_name)
-        self.start_time = time()
+        self.start_time = time.time()
 
     def run_all_test_flow(self, all_results):
         # should be overriden by inheriting classes
@@ -234,7 +234,7 @@ class GeneralTest:
             print('Testcase', self.test_name, 'failed', file=sys.stderr)
         else:
             print('Testcase', self.test_name, 'passed')
-        actual_run_time = time() - self.start_time
+        actual_run_time = time.time() - self.start_time
         self.result = (self.numerical_result, actual_run_time, self.result_details)
         if self.check_run_time:
             self._execute_run_time_compare(actual_run_time)
@@ -416,6 +416,7 @@ class TestsRunner:
     def set_k8s_cluster_config(self, cluster_config):
         self.k8s_apply_resources(cluster_config.get('pods', ''))
         self.k8s_apply_resources(cluster_config.get('policies', ''))
+        time.sleep(10) # make sure all pods are up and running
 
     @staticmethod
     def _remove_failed_run_time_file():
