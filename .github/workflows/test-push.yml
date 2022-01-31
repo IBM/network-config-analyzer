@@ -46,7 +46,13 @@ jobs:
       - name: Run all tests
         env:
           GHE_TOKEN: ${{ github.token }}
-        run: python tests/run_all_tests.py --type=general
+        run: python tests/run_all_tests.py --type=general --check_run_time
+      - name: Upload failed run-time tests file
+        uses: actions/upload-artifact@v2
+        with:
+          name: failed-run-time-check-file
+          path: ./tests/tests_failed_runtime_check.csv
+          if-no-files-found: ignore 
   output-comparison-tests:
     runs-on: ubuntu-latest
     steps:
