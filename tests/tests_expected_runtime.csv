@@ -37,7 +37,7 @@ test,run_time(seconds)
 ./k8s_testcases/example_policies/workload-resources-test/git-resource-test-scheme.yaml,2.97
 ./k8s_testcases/network-policy-checks-bad-path/network-policy-check-bad-path-scheme.yaml,0.29
 ./calico_testcases/example_policies/calico-demo/comparsion-scheme.yaml,1.49
-./calico_testcases/example_policies/calico-demo/demo-forbids-scheme.yaml,0.81
+./calico_testcases/example_policies/calico-demo/demo-forbids-scheme.yaml,2.07
 ./calico_testcases/example_policies/calico-demo/demo-permits-scheme.yaml,0.12
 ./calico_testcases/example_policies/calico-demo/interferes-scheme.yaml,1.10
 ./calico_testcases/example_policies/calico-demo/sanity1-scheme.yaml,0.70
@@ -120,7 +120,7 @@ test,run_time(seconds)
 ./istio_testcases/example_policies/testcase1/testcase1-istio-scheme.yaml,7.52
 ./istio_testcases/example_policies/testcase2/testcase2-istio-scheme.yaml,5.95
 ./istio_testcases/example_policies/testcase3/testcase3-istio-scheme.yaml,1.87
-./output_config_tests/override_out_format_only/test_output_config_connectivity_queries_override_out_format-scheme.yaml[-otxt-f],0.34
+./output_config_tests/override_out_format_only/test_output_config_connectivity_queries_override_out_format-scheme.yaml [ -o txt  -f  ],0.34
 ./output_config_tests/policies/test_output_config_connectivity_queries-scheme.yaml,0.31
 ./output_config_tests/policies/test_output_config_semantic_diff_queries-scheme.yaml,0.42
 "k8s_cmdline_tests.yaml, query name: basic_sanity",0.06
