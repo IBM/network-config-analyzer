@@ -23,7 +23,6 @@ class OutputFilesFlags:
             self.create_expected_files = create_files
 
         def set_clean_actual_out_files(self, clean_files):
-            print(f'clean is {clean_files}')
             self.clean_actual_files = clean_files
 
         def set_running_all_tests(self, regression_flag):
