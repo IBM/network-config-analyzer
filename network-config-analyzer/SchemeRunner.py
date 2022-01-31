@@ -19,13 +19,11 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    def __init__(self, scheme_file_name, output_format=None, output_path=None, create_files=False, update_files=False):
+    def __init__(self, scheme_file_name, output_format=None, output_path=None):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
         self.output_config_from_cli_args = dict()
-        self.create_files = create_files
-        self.update_files = update_files
         if output_format is not None:
             self.output_config_from_cli_args['outputFormat'] = output_format
         if output_path is not None:
@@ -41,6 +39,8 @@ class SchemeRunner(GenericYamlParser):
         """
         Attempts to locate a file specified in the scheme file (possibly relatively to the scheme file)
         :param str given_path: A relative/absolute path to the file
+        :param bool out_flag: Indicates if the function is called with expected_output file,
+        its absolute path needed even if it doesn't exist
         :return: A path where the file can be located
         :rtype: str
         """
@@ -191,12 +191,13 @@ class SchemeRunner(GenericYamlParser):
             for query_key in query.keys():
                 if query_key not in ['name', 'expected', 'outputConfiguration', 'expectedOutput']:
                     res, comparing_err = NetworkConfigQueryRunner(query_key, query[query_key], expected_output,
-                              output_config_obj, self.network_configs, self.create_files, self.update_files).run_query()
+                                                                  output_config_obj, self.network_configs).run_query()
 
             if 'expected' in query:
                 expected = query['expected']
                 if res != expected:
                     self.warning(f'Unexpected result for query {query_name}: Expected {expected}, got {res}\n', query)
                     self.global_res += 1
-
-            self.global_res += comparing_err
+            if comparing_err != 0:
+                self.warning(f'Unexpected output comparing result for query {query_name} ')
+                self.global_res += comparing_err

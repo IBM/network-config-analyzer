@@ -121,7 +121,7 @@ test,run_time(seconds)
 ./istio_testcases/example_policies/testcase1/testcase1-istio-scheme.yaml,6.04
 ./istio_testcases/example_policies/testcase2/testcase2-istio-scheme.yaml,4.62
 ./istio_testcases/example_policies/testcase3/testcase3-istio-scheme.yaml,1.43
-./output_config_tests/override_out_format_only/test_output_config_connectivity_queries_override_out_format-scheme.yaml,0.26
+./output_config_tests/override_out_format_only/test_output_config_connectivity_queries_override_out_format-scheme.yaml [ -o txt  -f  ],0.26
 ./output_config_tests/policies/test_output_config_connectivity_queries-scheme.yaml,0.26
 ./output_config_tests/policies/test_output_config_semantic_diff_queries-scheme.yaml,0.34
 "k8s_cmdline_tests.yaml, query name: basic_sanity",0.04
@@ -135,3 +135,18 @@ test,run_time(seconds)
 "k8s_cmdline_tests.yaml, query name: basic_permits",0.02
 "k8s_cmdline_tests.yaml, query name: git_resources",6.43
 "k8s_cmdline_tests.yaml, query name: return_0",0.03
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity",0.06
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_txt",0.05
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.04
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_csv",0.03
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_md",0.04
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_dot",0.05
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_other",0.05
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_file_arg",0.06
+"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_file_arg_yaml",0.09
+"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff",0.25
+"k8s_output_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.05
+"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.18
+"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.17
+"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.18
+"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff_dot",0.22

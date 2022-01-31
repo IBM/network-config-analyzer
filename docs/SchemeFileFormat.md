@@ -56,6 +56,7 @@ Each query object instructs the tool to run a specific check on one or more sets
 |sanity|Checks all NetworkConfigs for sanity check - includes emptiness, vacuity and redundancies|list of [config set](#configsets) names|
 |allCaptured|Checks that all pods are captured by at least one NetworkPolicy|list of [config set](#configsets) names|
 |expected|The expected sum of returned results by all sub-queries in this query (a warning is issued on mismatch)|integer|
+|expectedOutput|The file path of the expected output of this query|string|
 
 #### <a name="configsets"></a>Config sets
 Each entry in the list of config sets should be either

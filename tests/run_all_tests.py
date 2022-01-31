@@ -1,12 +1,10 @@
 import argparse
-import shutil
 import traceback
 import sys
 import os
 from fnmatch import fnmatch
 from os import path
 from time import time
-from pathlib import Path
 import yaml
 import csv
 from ruamel.yaml import YAML
@@ -15,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'network-config-analyzer'))
 from nca import nca_main
 from CmdlineRunner import CmdlineRunner
+from OutputFilesFlags import OutputFilesFlags
 
 """
 The script runs tests based on tests specification in 'all_tests_spec.yaml'
@@ -22,7 +21,6 @@ script should be run with one of the following types:
     run_all_tests.py --type=general (default)
     run_all_tests.py --type=k8s_live_general  
     run_all_tests.py --type=fw_rules_assertions 
-    run_all_test.py --type=output_configuration
     
     optional flags:
     --dont_clean_output_files   (will save output files in tests/actual_output_files.
@@ -75,20 +73,12 @@ class CliQuery:
         self.query_name = self.test_dict['name']
         self.test_name = test_name
         self.args_obj = TestArgs(test_dict['args'].split(), cli_tests_base_dir)
-        self.list_expected_output_files = self._get_list_of_expected_output_files()
-
-    # should be only the base file names, no full path
-    def _get_list_of_expected_output_files(self):
-        has_out_file_arg, out_file_arg_str = self.args_obj.has_out_file_arg()
-        if has_out_file_arg:
-            return [out_file_arg_str]
 
 
 class SchemeFile:
     def __init__(self, scheme_filename, test_args):
         self.scheme_filename = scheme_filename
         self.args_obj = TestArgs(test_args)
-        self.list_expected_output_files = self._get_list_of_expected_output_files()
         self.test_name = self.get_test_name()
 
     # get an informative test name, which includes cli args if used, apart from the scheme file name
@@ -115,27 +105,12 @@ class SchemeFile:
         with open(self.scheme_filename, 'w') as scheme_file:
             yaml.dump(scheme, scheme_file, default_flow_style=False, sort_keys=False)
 
-    # get expected output files from outputConfig / output file args, that are expected to be created
-    # should be only the base file names, no full path
-    def _get_list_of_expected_output_files(self):
-        expected_output_files_for_valid_queries = set()
-        has_out_file_arg, out_file_arg = self.args_obj.has_out_file_arg()
-        if has_out_file_arg:
-            return [out_file_arg]
-        with open(self.scheme_filename, 'r') as scheme_file:
-            scheme = yaml.safe_load(scheme_file)
-            for query in scheme.get('queries', []):
-                actual_out_path = query.get('outputConfiguration', {}).get('outputPath', None)
-                if actual_out_path:
-                    expected_output_files_for_valid_queries.add(actual_out_path)
-        return list(expected_output_files_for_valid_queries)
-
 
 # general test: comparison of numerical result (nca return value) to expected value
 # most of the test flow is common to other tests types
 class GeneralTest:
 
-    def __init__(self, test_name, test_queries_obj, expected_result, clean_out_files, check_run_time, required_output_config_flag, create_files, update_files):
+    def __init__(self, test_name, test_queries_obj, expected_result, check_run_time, required_output_config_flag):
         self.test_name = test_name  # str
         self.test_queries_obj = test_queries_obj  # SchemeFile or CliQuery
         self.result = None  # tuple of (numerical result, test runtime)
@@ -143,11 +118,8 @@ class GeneralTest:
         self.start_time = None
         self.nca_res = None
         self.expected_result = expected_result  # integer - expected return value from nca
-        self.clean_out_files = clean_out_files
         self.check_run_time = check_run_time
         self.required_output_config_flag = required_output_config_flag
-        self.create_files = create_files
-        self.update_files = update_files
 
     def initialize_test(self):
         self._update_required_scheme_file_config_args(True)
@@ -168,19 +140,10 @@ class GeneralTest:
         return self.numerical_result == 0
 
     def run_nca(self):
-        return nca_main(self.test_queries_obj.args_obj.args, self.create_files, self.update_files)
-
-    def move_output_files_to_dedicated_dir(self):
-        # move actual out file from current dir to actual_output_files dir
-        if self.test_queries_obj.list_expected_output_files is not None:
-            for out_file in self.test_queries_obj.list_expected_output_files:
-                actual_out_file = TestsRunner.get_actual_out_file_path(out_file)
-                if Path(os.path.basename(actual_out_file)).exists():
-                    shutil.move(os.path.basename(actual_out_file), actual_out_file)
+        return nca_main(self.test_queries_obj.args_obj.args)
 
     def run_test(self):
         self.nca_res = self.run_nca()  # either run a scheme or a query, with relevant args
-        self.move_output_files_to_dedicated_dir()
 
     # update self.numerical_result, return true if test passed
     def evaluate_test_results(self):
@@ -220,19 +183,7 @@ class GeneralTest:
         self.result = (self.numerical_result, actual_run_time)
         if self.check_run_time:
             self._execute_run_time_compare(actual_run_time)
-        if self.clean_out_files:
-            self._clean_generated_output_files()
         self._update_required_scheme_file_config_args(False)
-
-    def _clean_generated_output_files(self):
-        if self.test_queries_obj.list_expected_output_files is not None:
-            for out_file in self.test_queries_obj.list_expected_output_files:
-                self._delete_output_file(out_file)
-
-    def _delete_output_file(self, out_file):
-        out_file_actual = TestsRunner.get_actual_out_file_path(out_file)
-        if path.isfile(out_file_actual):
-            os.remove(out_file_actual)
 
     def _update_required_scheme_file_config_args(self, before_test_run):
         if self.required_output_config_flag is not None:
@@ -243,8 +194,8 @@ class GeneralTest:
 
 # for fw-rules - activate assertions for testing in fwRulesTestMode
 class AssertionTest(GeneralTest):
-    def __init__(self, test_name, test_queries_obj, clean_out_files, required_output_config_flag, create_files, update_files):
-        super().__init__(test_name, test_queries_obj, None, clean_out_files, None, required_output_config_flag, create_files, update_files)
+    def __init__(self, test_name, test_queries_obj, required_output_config_flag):
+        super().__init__(test_name, test_queries_obj, None, None, required_output_config_flag)
         self.assertion_error = None
 
     def run_test(self):
@@ -256,20 +207,14 @@ class AssertionTest(GeneralTest):
             tb_info = traceback.extract_tb(tb)
             filename, line, func, text = tb_info[-1]
             self.assertion_error = f'An error occurred on file {filename} line {line} in statement {text}'
-        self.move_output_files_to_dedicated_dir()
 
     def evaluate_test_results(self):
         self.numerical_result = 0 if self.assertion_error is None else 1
 
 
-class OutputConfigTest(GeneralTest):
-    def __init__(self, test_name, test_queries_obj, expected_res, clean_out_files, required_output_config_flag, create_files, update_files):
-        super().__init__(test_name, test_queries_obj, expected_res, clean_out_files, None, required_output_config_flag, create_files, update_files)
-
-
 class TestFilesSpec(dict):
     def __init__(self, tests_spec_dict=None):
-        default_tests_spec = {'type': None, 'root': None, 'expected_output': None, 'out_format_arg': None,
+        default_tests_spec = {'type': None, 'root': None, 'out_format_arg': None,
                               'add_out_path_arg': False, 'files_list': None, 'out_path_arg_suffix': '_output',
                               'activate_output_config_flag': None, 'excluded_dirs': None}
         super().__init__(default_tests_spec)
@@ -281,17 +226,14 @@ class TestFilesSpec(dict):
 
 
 class TestsRunner:
-    def __init__(self, spec_file, tests_type, clean_out_files, check_run_time, category, create_files, update_files):
+    def __init__(self, spec_file, tests_type, check_run_time, category):
         self.spec_file = spec_file
         self.all_results = {}
         self.global_res = 0
         self.tests_type = tests_type  # general / k8s_live_general / output / fw_rules_assertions
         self.test_files_spec = None
-        self.clean_out_files = clean_out_files
         self.check_run_time = check_run_time
         self.category = category
-        self.create_files = create_files
-        self.update_files = update_files
 
     @staticmethod
     def k8s_apply_resources(yaml_file):
@@ -317,8 +259,8 @@ class TestsRunner:
             self._remove_failed_run_time_file()
         with open(self.spec_file, 'r') as doc:
             spec_all = yaml.safe_load(doc)
-            sepc_per_type = spec_all.get(self.tests_type, {})
-            for test_spec in sepc_per_type:
+            spec_per_type = spec_all.get(self.tests_type, {})
+            for test_spec in spec_per_type:
                 if self.tests_type == 'k8s_live_general':
                     self.set_k8s_cluster_config(test_spec.get('cluster_config', {}))
                 self.run_tests_spec(test_spec)
@@ -362,7 +304,8 @@ class TestsRunner:
                 if self.test_files_spec.type == 'scheme' and not fnmatch(file, '*-scheme.yaml'):
                     continue
                 file_path = os.path.join(os.path.abspath(root), file)
-                if self.test_files_spec.excluded_dirs and any(dir_name in file_path for dir_name in self.test_files_spec.excluded_dirs):
+                if self.test_files_spec.excluded_dirs \
+                        and any(dir_name in file_path for dir_name in self.test_files_spec.excluded_dirs):
                     continue
                 self.run_test_per_file(file_path)
 
@@ -372,14 +315,11 @@ class TestsRunner:
             test_obj = None
             required_output_config_flag = self.test_files_spec.activate_output_config_flag
             if self.tests_type in {'general', 'k8s_live_general'}:
-                test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res, self.clean_out_files,
-                             self.check_run_time, required_output_config_flag, self.create_files, self.update_files)
+                test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res,
+                                       self.check_run_time, required_output_config_flag)
             elif self.tests_type == 'fw_rules_assertions':
-                test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, self.clean_out_files,
-                                         required_output_config_flag, self.create_files, self.update_files)
-            elif self.tests_type == 'output_configuration':
-                test_obj = OutputConfigTest(test_queries_obj.test_name, test_queries_obj, expected_res,
-                                self.clean_out_files, required_output_config_flag, self.create_files, self.update_files)
+                test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, required_output_config_flag)
+
             self.global_res += test_obj.run_all_test_flow(self.all_results)
 
     def _test_file_matches_category_by_file_name(self, test_file):
@@ -405,12 +345,10 @@ class TestsRunner:
     # given a scheme file or a cmdline file, run all relevant tests
     def run_test_per_file(self, test_file):
         if self.test_files_spec.type == 'scheme':
-            if self.tests_type in {'general', 'fw_rules_assertions'}:
-                if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
-                    return  # test file does not match the running category
-                scheme_obj_list = [SchemeFile(test_file, self._get_scheme_test_args(test_file))]
-            else:
-                scheme_obj_list = self.get_scheme_obj_list_for_test(test_file)
+            if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
+                return  # test file does not match the running category
+            scheme_obj_list = self.get_scheme_obj_list_for_test(test_file)
+
             self.create_and_run_test_obj(scheme_obj_list, 0)
 
         elif self.test_files_spec.type == 'cmdline':
@@ -457,21 +395,13 @@ class TestsRunner:
             return os.path.basename(test_file).replace(".yaml", suffix)
         return None
 
-    @staticmethod
-    def get_actual_output_dir():
-        return os.path.join('.', 'actual_output_files')
-
-    @staticmethod
-    def get_actual_out_file_path(out_file):
-        return os.path.join(TestsRunner.get_actual_output_dir(), out_file)
-
 
 def main(argv=None):
     base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
     os.chdir(base_dir)
 
     parser = argparse.ArgumentParser(description='Testing network configuration analyzer')
-    parser.add_argument('--type', choices=['general', 'k8s_live_general', 'fw_rules_assertions', 'output_configuration'],
+    parser.add_argument('--type', choices=['general', 'k8s_live_general', 'fw_rules_assertions'],
                         help='Choose test types to run',
                         default='general')
     parser.add_argument('--category', choices=['k8s', 'calico', 'istio'], help='Choose category of tests',
@@ -486,10 +416,11 @@ def main(argv=None):
     args = parser.parse_args(argv)
     test_type = args.type
     category = args.category
-    clean_out_files = not args.dont_clean_output_files
     check_run_time = args.check_run_time
-    create_files = args.create_expected_output_files
-    update_files = args.override_expected_output_files
+    OutputFilesFlags().set_create_expected_out_files(args.create_expected_output_files)
+    OutputFilesFlags().set_update_expected_out_files(args.override_expected_output_files)
+    OutputFilesFlags().set_clean_actual_out_files(not args.dont_clean_output_files)
+    OutputFilesFlags().set_running_all_tests(True)
     if category != '' and test_type != 'general':
         print(f'category: {category} is not supported with test type: {test_type}')
     if check_run_time and test_type != 'general':
@@ -497,7 +428,7 @@ def main(argv=None):
         sys.exit(1)
 
     spec_file = 'all_tests_spec.yaml'
-    tests_runner = TestsRunner(spec_file, test_type, clean_out_files, check_run_time, category, create_files, update_files)
+    tests_runner = TestsRunner(spec_file, test_type, check_run_time, category)
     tests_runner.run_tests()
     return tests_runner.global_res
 
