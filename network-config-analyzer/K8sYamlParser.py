@@ -5,13 +5,9 @@
 
 import re
 import Peer
-import yaml
 from GenericYamlParser import GenericYamlParser
 from PeerContainer import PeerContainer
 from K8sNamespace import K8sNamespace
-from K8sService import K8sService
-from CmdlineRunner import CmdlineRunner
-from GenericTreeScanner import TreeScannerFactory
 
 
 class K8sYamlParser(GenericYamlParser):
@@ -81,7 +77,7 @@ class K8sYamlParser(GenericYamlParser):
             self.syntax_error(f'invalid key "{key_label}", a label key name must be no more than 63 characters',
                               key_container)
         pattern = r"([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]"
-        if re.fullmatch(pattern, key_label) is None:
+        if re.fullmatch(pattern, name) is None:
             self.syntax_error(f'invalid key "{key_label}", a label key name part must consist of alphanumeric '
                               f'characters, "-", "_" or ".", and must start and end with an alphanumeric character',
                               key_container)
