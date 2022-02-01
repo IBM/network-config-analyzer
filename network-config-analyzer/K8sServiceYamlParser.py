@@ -78,10 +78,11 @@ class K8sServiceYamlParser(K8sYamlParser):
                 else:
                     self.check_port_syntax(target_port, True, 'Service targetPort')
                 name = port.get('name', '')
-                self.check_dns_label_name(name, srv_object)
+                if name:
+                    self.check_dns_label_name(name, srv_object)
                 if not service.add_port(K8sService.ServicePort(port_id, target_port,
                                                                port.get('protocol', 'TCP'), name)):
-                    self.warning(f'The port {name} is not unique in Service {srv_object}. Ignoring the port')
+                    self.warning(f'The port {name} is not unique in Service {service.name}. Ignoring the port')
                 else:
                     if isinstance(target_port, str):
                         # check if all pods include this named port, and remove those that don't
@@ -89,9 +90,9 @@ class K8sServiceYamlParser(K8sYamlParser):
                         for pod in service.target_pods:
                             pod_named_port = pod.named_ports.get(target_port)
                             if not pod_named_port:
-                                self.warning(f'The named port {target_port} referenced in Service {srv_object}' 
-                                             ' is not defined in the pod {pod}. Ignoring the pod')
-                                pods_to_remove |= pod
+                                self.warning(f'The named port {target_port} referenced in Service {service.name}' 
+                                             f' is not defined in the pod {pod}. Ignoring the pod')
+                                pods_to_remove.add(pod)
                         service.target_pods -= pods_to_remove
         return service
 
@@ -140,7 +141,16 @@ class K8sServiceYamlParser(K8sYamlParser):
                 for yaml_file in yaml_files:
                     parser = K8sServiceYamlParser(yaml_file)
                     for srv_code in yaml_file.data:
-                        if isinstance(srv_code, dict) and srv_code.get('kind') in {'Service'}:
+                        if not isinstance(srv_code, dict):
+                            continue
+                        kind = srv_code.get('kind')
+                        if kind in {'List'}:
+                            for srv_item in srv_code.get('items', []):
+                                if isinstance(srv_item, dict) and srv_item.get('kind') in {'Service'}:
+                                    service = parser.parse_service(srv_item, peer_container)
+                                    if service:
+                                        res.append(service)
+                        elif kind in {'Service'}:
                             service = parser.parse_service(srv_code, peer_container)
                             if service:
                                 res.append(service)
