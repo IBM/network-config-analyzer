@@ -180,7 +180,7 @@ class GeneralTest:
         else:
             print('Testcase', self.test_name, 'passed')
         actual_run_time = time.time() - self.start_time
-        self.result = (self.numerical_result, actual_run_time, self.result_details)
+        self.result = (self.numerical_result, actual_run_time)
         if self.check_run_time:
             self._execute_run_time_compare(actual_run_time)
         self._update_required_scheme_file_config_args(False)
