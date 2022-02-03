@@ -48,3 +48,6 @@ class OutputFilesFlags:
 
     def __getattr__(self, attr):
         return getattr(self.instance, attr)
+        
+    def __setattr__(self, name, value):
+        return setattr(self.instance, name, value)        
