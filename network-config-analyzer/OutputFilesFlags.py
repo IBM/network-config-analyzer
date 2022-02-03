@@ -16,30 +16,6 @@ class OutputFilesFlags:
             self.clean_actual_files = True
             self.running_all_tests = False
 
-        def set_update_expected_out_files(self, update_files):
-            self.update_expected_files = update_files
-
-        def set_create_expected_out_files(self, create_files):
-            self.create_expected_files = create_files
-
-        def set_clean_actual_out_files(self, clean_files):
-            self.clean_actual_files = clean_files
-
-        def set_running_all_tests(self, regression_flag):
-            self.running_all_tests = regression_flag
-
-        def get_update_expected_out_files(self):
-            return self.update_expected_files
-
-        def get_create_expected_out_files(self):
-            return self.create_expected_files
-
-        def get_clean_actual_out_files(self):
-            return self.clean_actual_files
-
-        def get_running_all_tests(self):
-            return self.running_all_tests
-
     instance = None
 
     def __init__(self):

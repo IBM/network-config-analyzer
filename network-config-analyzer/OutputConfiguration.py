@@ -52,7 +52,7 @@ class OutputConfiguration(dict):
                 with open(path, "a") as f:
                     f.write(output)
                 print(f'wrote query output to: {path}')
-                if OutputFilesFlags().get_running_all_tests():
+                if OutputFilesFlags().running_all_tests:
                     self.clean_or_move_output_file_to_dedicated_dir()
             except FileNotFoundError:
                 print(f"FileNotFoundError: configured outputPath is: {path}")
@@ -91,7 +91,7 @@ class OutputConfiguration(dict):
         actual_out_file = self.get_actual_out_file_path(self.outputPath)
         if Path(self.outputPath).exists():
             shutil.move(self.outputPath, actual_out_file)
-        if OutputFilesFlags().get_clean_actual_out_files():
+        if OutputFilesFlags().clean_actual_files:
             os.remove(actual_out_file)  # moved before removing, inorder to ensure no files from previous runs still stored
 
     @staticmethod

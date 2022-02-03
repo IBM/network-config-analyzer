@@ -418,10 +418,10 @@ def main(argv=None):
     test_type = args.type
     category = args.category
     check_run_time = args.check_run_time
-    OutputFilesFlags().set_create_expected_out_files(args.create_expected_output_files)
-    OutputFilesFlags().set_update_expected_out_files(args.override_expected_output_files)
-    OutputFilesFlags().set_clean_actual_out_files(not args.dont_clean_output_files)
-    OutputFilesFlags().set_running_all_tests(True)
+    OutputFilesFlags().create_expected_files = args.create_expected_output_files
+    OutputFilesFlags().update_expected_files = args.override_expected_output_files
+    OutputFilesFlags().clean_actual_files = not args.dont_clean_output_files
+    OutputFilesFlags().running_all_tests = True
     if category != '' and test_type != 'general':
         print(f'category: {category} is not supported with test type: {test_type}')
     if check_run_time and test_type != 'general':

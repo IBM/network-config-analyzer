@@ -127,7 +127,7 @@ class NetworkConfigQueryRunner:
         actual_output_lines = query_output.split('\n')
         try:
             with open(self.expected_output_file, 'r') as golden_file:
-                if OutputFilesFlags().get_update_expected_out_files():
+                if OutputFilesFlags().update_expected_files:
                     self._create_or_update_query_output_file(query_output)
                     return 0
                 for golden_file_line_num, golden_file_line in enumerate(golden_file):
@@ -142,7 +142,7 @@ class NetworkConfigQueryRunner:
                         print('Comparing Result Failed \n')
                         return 1
         except FileNotFoundError:
-            if OutputFilesFlags().get_create_expected_out_files():
+            if OutputFilesFlags().create_expected_files:
                 self._create_or_update_query_output_file(query_output)
                 return 0
             print('Error: Expected output file not found')
