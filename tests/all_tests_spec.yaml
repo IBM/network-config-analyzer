@@ -1,26 +1,18 @@
-# specification of files from which should generate tests (+ which output args to use)
+# specification of files from which should generate tests:
 # each spec consists of args as follows:
 #   name: just for documentation, describe test purposes
 #   type: scheme / cmdline
 #   root: root dir of scheme files (or cmdline_tests files) to use (recursively)
-#   excluded_dirs: sub dirs to be excluded from the root
 #   files_list: test only files from this list (not all files that are found from the root dir) [mandatory for cmdline tests]
 
 # additional args relevant only for k8s_live_general tests:
 # cluster_config: dict of the form {pods: pods_yaml_path , policies: policies_yaml_path}
-
-# additional args relevant only for tests under output_config_tests with scheme file:
-#   out_format_arg: list of args e.g., ['txt', 'yaml'], to be used to override outputConfig outFormat with cli arg (generating test instance per each arg)
-#   add_out_path_arg: flag to indicate if should override outputConfig outPath with cli arg
-#   out_path_arg_suffix: if using add_out_path_arg, can determine the suffix of the out path arg file (prefix is corresponding to scheme file name)
 
 #---------------------------------------------------------------------------------------------------------------------------------
 general:
   # 1:  all scheme files in tests/   (including all sub-dirs)
   - name: all_scheme_tests
     type: scheme
-    excluded_dirs:
-      - output_config_tests
     root: ./
 
   # 2: all cli queries in tests/k8s_cmdline_tests.yaml
@@ -29,31 +21,6 @@ general:
     root: ./
     files_list:
       - k8s_cmdline_tests.yaml
-
-  #3: override only out file arg (use outputConfig from scheme files for out format) => (one output file per test, multiple output formats within this file content)
-  # applies to all scheme files in tests/output_config_tests/policies/
-  - name: output_config_only_out_file_arg_overriden
-    type: scheme
-    root: output_config_tests/policies/
-    add_out_path_arg: true
-    out_path_arg_suffix: '_override_only_out_file_arg_output'
-
-  #4: override only out format arg (use outputConfig from scheme files for out file / stdout) => (multiple output files per test, one output format)
-  # applies to all scheme files in tests/output_config_tests/override_out_format_only/
-  - name: output_config_only_out_format_arg_overriden
-    type: scheme
-    root: output_config_tests/override_out_format_only/
-    out_format_arg: [ 'txt' ]
-
-  # 5: use queries from cmdline tests (connectivity/semantic-diff) [no scheme-file, thus no outputConfig]
-  # out_format and out_path as defined on each cli query args => (one output file or stdout per query, one output format)
-  # covers various combinations : (no output args , only out_format arg, only out_path arg, both out_format and out_path args)
-  # applies to cli queries in tests/output_config_tests/k8s_output_cmdline_tests.yaml
-  - name: output_cmdline_tests
-    type: cmdline
-    root: output_config_tests/
-    files_list:
-      - k8s_output_cmdline_tests.yaml
 
 #---------------------------------------------------------------------------------------------------------------------------------
 k8s_live_general:

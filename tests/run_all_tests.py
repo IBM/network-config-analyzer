@@ -216,7 +216,7 @@ class TestFilesSpec(dict):
     def __init__(self, tests_spec_dict=None):
         default_tests_spec = {'type': None, 'root': None, 'out_format_arg': None,
                               'add_out_path_arg': False, 'files_list': None, 'out_path_arg_suffix': '_output',
-                              'activate_output_config_flag': None, 'excluded_dirs': None}
+                              'activate_output_config_flag': None}
         super().__init__(default_tests_spec)
         if tests_spec_dict is not None:
             self.update(tests_spec_dict)
@@ -305,9 +305,6 @@ class TestsRunner:
                 if self.test_files_spec.type == 'scheme' and not fnmatch(file, '*-scheme.yaml'):
                     continue
                 file_path = os.path.join(os.path.abspath(root), file)
-                if self.test_files_spec.excluded_dirs \
-                        and any(dir_name in file_path for dir_name in self.test_files_spec.excluded_dirs):
-                    continue
                 self.run_test_per_file(file_path)
 
     def create_and_run_test_obj(self, test_queries_obj_list, expected_res):

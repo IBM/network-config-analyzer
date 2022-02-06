@@ -120,32 +120,25 @@ test,run_time(seconds)
 ./istio_testcases/example_policies/testcase1/testcase1-istio-scheme.yaml,7.52
 ./istio_testcases/example_policies/testcase2/testcase2-istio-scheme.yaml,5.95
 ./istio_testcases/example_policies/testcase3/testcase3-istio-scheme.yaml,1.87
-./output_config_tests/override_out_format_only/test_output_config_connectivity_queries_override_out_format-scheme.yaml [ -o txt  -f  ],0.34
-./output_config_tests/policies/test_output_config_connectivity_queries-scheme.yaml,0.31
-./output_config_tests/policies/test_output_config_semantic_diff_queries-scheme.yaml,0.42
 "k8s_cmdline_tests.yaml, query name: basic_sanity",0.06
 "k8s_cmdline_tests.yaml, query name: basic_connectivity",0.06
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.06
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.07
 "k8s_cmdline_tests.yaml, query name: basic_equiv",0.05
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.22
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.23
 "k8s_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.03
 "k8s_cmdline_tests.yaml, query name: basic_interferes",0.03
 "k8s_cmdline_tests.yaml, query name: basic_forbids",0.03
 "k8s_cmdline_tests.yaml, query name: basic_permits",0.03
 "k8s_cmdline_tests.yaml, query name: git_resources",6.25
 "k8s_cmdline_tests.yaml, query name: return_0",0.04
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity",0.06
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_txt",0.07
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.07
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_csv",0.07
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_md",0.06
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_dot",0.05
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_other",0.08
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_file_arg",0.07
-"k8s_output_cmdline_tests.yaml, query name: basic_connectivity_file_arg_yaml",0.07
-"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff",0.23
-"k8s_output_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.03
-"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.24
-"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.23
-"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.24
-"k8s_output_cmdline_tests.yaml, query name: basic_semantic_diff_dot",0.23
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_txt",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_csv",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_md",0.06
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_dot",0.05
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_other",0.08
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_file_arg",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_file_arg_yaml",0.07
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.24
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.23
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.24
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_dot",0.23
