@@ -403,7 +403,7 @@ class PeerContainer:
         kind = ep_list.get('kind')
         if kind in ['PodList', 'List']:  # 'List' for the case of live cluster
             for endpoint in ep_list.get('items', []):
-                if kind == 'PodList' or (isinstance(endpoint, dict) and endpoint.get('kind') in {'Pod'}):
+                if kind == 'PodList' or (isinstance(endpoint, dict) and endpoint.get('kind') in {'Pod', 'Deployment'}):
                     self._add_pod_from_yaml(endpoint)
         elif kind in PeerContainer.pod_creation_resources:
             self._add_pod_from_workload_yaml(ep_list)
