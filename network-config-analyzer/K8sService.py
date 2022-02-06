@@ -31,9 +31,9 @@ class K8sService:
             self.protocol = protocol
             self.name = name
 
-    def __init__(self, name):
+    def __init__(self, name, namespace):
         self.name = name
-        self.labels = {}  # Storing the namespace labels in a dict as key-value pairs
+        self.namespace = namespace
         self.type = self.ServiceType.ClusterIP
         self.selector = {}
         self.ports = {}  # a map from service port name to ServicePort object

@@ -41,12 +41,12 @@ class K8sServiceYamlParser(K8sYamlParser):
         srv_name = metadata.get('name')
         if not srv_name:
             return None
-        self.check_dns_subdomain_name(srv_name, metadata)
+        srv_namespace = metadata.get('namespace')
         service_spec = srv_object.get('spec')
         if not service_spec:
             self.warning(f'Spec is missing or null in Service {srv_name}. Ignoring the service')
             return None
-        service = K8sService(srv_name)
+        service = K8sService(srv_name, srv_namespace)
         service_type = service_spec.get('type', 'ClusterIP')
         if service_type == 'ExternalName':
             service.set_type(K8sService.ServiceType.ExternalName)
@@ -55,7 +55,7 @@ class K8sServiceYamlParser(K8sYamlParser):
         elif service_type == 'LoadBalancer':
             service.set_type(K8sService.ServiceType.LoadBalancer)
         else:
-            service.set_type(K8sService.ServiceType.ClusterIP) # the default type
+            service.set_type(K8sService.ServiceType.ClusterIP)  # the default type
 
         selector = service_spec.get('selector')
         if selector:
@@ -63,7 +63,8 @@ class K8sServiceYamlParser(K8sYamlParser):
                 self.check_label_key_syntax(key, selector)
                 self.check_label_value_syntax(val, key, selector)
                 service.add_selector(key, val)
-                service.target_pods |= peer_container.get_peers_with_label(key, [val])
+                service.target_pods |= peer_container.get_peers_with_label(key, [val], PeerContainer.FilterActionType.In,
+                                                                           service.namespace)
 
         ports = service_spec.get('ports')
         if ports is not None:
@@ -71,15 +72,10 @@ class K8sServiceYamlParser(K8sYamlParser):
                 port_id = port.get('port')
                 if not port_id:
                     continue
-                self.check_port_syntax(port_id, False, 'Service port')
                 target_port = port.get('targetPort')
                 if not target_port:
                     target_port = port_id
-                else:
-                    self.check_port_syntax(target_port, True, 'Service targetPort')
                 name = port.get('name', '')
-                if name:
-                    self.check_dns_label_name(name, srv_object)
                 if not service.add_port(K8sService.ServicePort(port_id, target_port,
                                                                port.get('protocol', 'TCP'), name)):
                     self.warning(f'The port {name} is not unique in Service {service.name}. Ignoring the port')

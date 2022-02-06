@@ -142,7 +142,7 @@ class SchemeRunner(GenericYamlParser):
         :return: The number of queries with unexpected result + number of configs with unexpected number of warnings
         :rtype: int
         """
-        allowed_keys = {'networkConfigList': 1, 'namespaceList': 0, 'podList': 0, 'serviceList': 0, 'queries': 0}
+        allowed_keys = {'networkConfigList': 1, 'namespaceList': 0, 'podList': 0, 'queries': 0}
         self.check_fields_validity(self.scheme, 'scheme', allowed_keys)
 
         # global resource files

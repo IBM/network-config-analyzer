@@ -1,6 +1,5 @@
 namespaceList: ../podlist/ns_list.json
 podList: ../podlist/pods_list.json
-serviceList: ../podlist/kubernetes-manifests.yaml
 networkConfigList:
 - name: np1
   networkPolicyList:
