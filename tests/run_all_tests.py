@@ -55,17 +55,6 @@ class TestArgs:
                 return True, arg_val
         return False, ''
 
-    # assuming that out_file as arg to cli test is a base name, with no path involved
-    def has_out_file_arg(self):
-        return self.get_arg_value(['-f', '--file_out'])
-
-    def has_out_format_arg(self):
-        return self.get_arg_value(['-o', '--output_format'])
-
-    def has_out_format_arg_with_val(self, out_format_val):
-        _, actual_val = self.has_out_format_arg()
-        return actual_val == out_format_val
-
 
 class CliQuery:
     def __init__(self, test_dict, cli_tests_base_dir, test_name):
@@ -76,25 +65,13 @@ class CliQuery:
 
 
 class SchemeFile:
-    def __init__(self, scheme_filename, test_args):
-        self.scheme_filename = scheme_filename
+    def __init__(self, scheme_filename):
+        self.test_name = scheme_filename
+        test_args = ['--scheme', self.test_name]
         self.args_obj = TestArgs(test_args)
-        self.test_name = self.get_test_name()
-
-    # get an informative test name, which includes cli args if used, apart from the scheme file name
-    def get_test_name(self):
-        has_out_format, out_format = self.args_obj.has_out_format_arg()
-        has_out_file, out_file = self.args_obj.has_out_file_arg()
-        args_str = ''
-        if has_out_format:
-            args_str += f' -o {out_format} '
-        if has_out_format:
-            args_str += f' -f {os.path.basename(out_file)} '
-        test_name = f'{self.scheme_filename} [{args_str}]' if args_str else self.scheme_filename
-        return test_name
 
     def update_arg_at_scheme_file_output_config(self, arg_name, arg_value):
-        with open(self.scheme_filename, 'r') as scheme_file:
+        with open(self.test_name, 'r') as scheme_file:
             scheme = yaml.safe_load(scheme_file)
             for query in scheme['queries']:
                 if 'outputConfiguration' in query:
@@ -102,7 +79,7 @@ class SchemeFile:
                     output_config.update({arg_name: arg_value})
                 else:
                     query.update({'outputConfiguration': {arg_name: arg_value}})
-        with open(self.scheme_filename, 'w') as scheme_file:
+        with open(self.test_name, 'w') as scheme_file:
             yaml.dump(scheme, scheme_file, default_flow_style=False, sort_keys=False)
 
 
@@ -214,9 +191,7 @@ class AssertionTest(GeneralTest):
 
 class TestFilesSpec(dict):
     def __init__(self, tests_spec_dict=None):
-        default_tests_spec = {'type': None, 'root': None, 'out_format_arg': None,
-                              'add_out_path_arg': False, 'files_list': None, 'out_path_arg_suffix': '_output',
-                              'activate_output_config_flag': None}
+        default_tests_spec = {'type': None, 'root': None, 'files_list': None, 'activate_output_config_flag': None}
         super().__init__(default_tests_spec)
         if tests_spec_dict is not None:
             self.update(tests_spec_dict)
@@ -244,7 +219,7 @@ class TestsRunner:
     def set_k8s_cluster_config(self, cluster_config):
         self.k8s_apply_resources(cluster_config.get('pods', ''))
         self.k8s_apply_resources(cluster_config.get('policies', ''))
-        time.sleep(10) # make sure all pods are up and running
+        time.sleep(10)  # make sure all pods are up and running
 
     @staticmethod
     def _remove_failed_run_time_file():
@@ -307,21 +282,20 @@ class TestsRunner:
                 file_path = os.path.join(os.path.abspath(root), file)
                 self.run_test_per_file(file_path)
 
-    def create_and_run_test_obj(self, test_queries_obj_list, expected_res):
-        for test_queries_obj in test_queries_obj_list:
-            # create test object
-            test_obj = None
-            required_output_config_flag = self.test_files_spec.activate_output_config_flag
-            if self.tests_type in {'general', 'k8s_live_general'}:
-                test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res,
-                                       self.check_run_time, required_output_config_flag)
-            elif self.tests_type == 'fw_rules_assertions':
-                test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, required_output_config_flag)
+    def create_and_run_test_obj(self, test_queries_obj, expected_res):
+        # create test object
+        test_obj = None
+        required_output_config_flag = self.test_files_spec.activate_output_config_flag
+        if self.tests_type in {'general', 'k8s_live_general'}:
+            test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res,
+                                   self.check_run_time, required_output_config_flag)
+        elif self.tests_type == 'fw_rules_assertions':
+            test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, required_output_config_flag)
 
-            self.global_res += test_obj.run_all_test_flow(self.all_results)
+        self.global_res += test_obj.run_all_test_flow(self.all_results)
 
     def _test_file_matches_category_by_file_name(self, test_file):
-        # for tests files under fw_rules_tests and output_configs_tests dirs
+        # for tests files under fw_rules_tests
         if self.category == '':
             return True
         file_name = os.path.basename(test_file)
@@ -345,9 +319,7 @@ class TestsRunner:
         if self.test_files_spec.type == 'scheme':
             if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
                 return  # test file does not match the running category
-            scheme_obj_list = self.get_scheme_obj_list_for_test(test_file)
-
-            self.create_and_run_test_obj(scheme_obj_list, 0)
+            self.create_and_run_test_obj(SchemeFile(test_file), 0)
 
         elif self.test_files_spec.type == 'cmdline':
             with open(test_file) as doc:
@@ -357,41 +329,7 @@ class TestsRunner:
                     cli_test_name = f'{os.path.basename(test_file)}, query name: {query_name}'
                     cliQuery = CliQuery(test, self.test_files_spec.root, cli_test_name)
                     if self.category == '' or cli_test_name.startswith(self.category):
-                        self.create_and_run_test_obj([cliQuery], test.get('expected', 0))
-
-    @staticmethod
-    def _get_scheme_test_args(test_file, out_format_arg=None, out_path_arg=None):
-        res = ['--scheme', test_file]
-        if out_format_arg is not None:
-            res.append('-o')
-            res.append(out_format_arg)
-        if out_path_arg is not None:
-            res.append('-f')
-            res.append(out_path_arg)
-        return res
-
-    # may require to create multiple tests for scheme file, if out_format_arg_list has > 1 out formats to test with
-    def get_scheme_obj_list_for_test(self, test_file):
-        res = []
-        if self.test_files_spec.out_format_arg:
-            for out_format in self.test_files_spec.out_format_arg:
-                out_file_arg = self.get_out_file_arg(test_file, out_format)
-                test_args = self._get_scheme_test_args(test_file, out_format, out_file_arg)
-                scheme_obj = SchemeFile(test_file, test_args)
-                res.append(scheme_obj)
-        else:
-            out_file_arg = self.get_out_file_arg(test_file)
-            test_args = self._get_scheme_test_args(test_file, None, out_file_arg)
-            scheme_obj = SchemeFile(test_file, test_args)
-            res = [scheme_obj]
-        return res
-
-    # relevant for a scheme file, when overriding outputConfig with out_file_arg from cli
-    def get_out_file_arg(self, test_file, out_format='txt'):
-        if self.test_files_spec.add_out_path_arg:
-            suffix = f'{self.test_files_spec.out_path_arg_suffix}.{out_format}'
-            return os.path.basename(test_file).replace(".yaml", suffix)
-        return None
+                        self.create_and_run_test_obj(cliQuery, test.get('expected', 0))
 
 
 def main(argv=None):
