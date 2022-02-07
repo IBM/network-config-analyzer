@@ -25,7 +25,7 @@ def _valid_path(path_location, allow_ghe=False, allowed_platforms=None):
     :rtype: str
     :raises: argparse.ArgumentTypeError when path is invalid
     """
-    if allow_ghe and path_location.startswith('https://github'):
+    if allow_ghe and path_location.startswith(('https://github', 'https://raw.githubusercontent')):
         return path_location
     if allowed_platforms and path_location in allowed_platforms:
         return path_location

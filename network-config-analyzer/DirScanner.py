@@ -13,7 +13,7 @@ class DirScanner(GenericTreeScanner):
     """
 
     def __init__(self, fs_path):
-        GenericTreeScanner.__init__(self, GenericTreeScanner.ScannerType.FileSystemPath)
+        GenericTreeScanner.__init__(self)
         self.fs_path = fs_path
 
     def check_and_yield_file(self, file_path):
