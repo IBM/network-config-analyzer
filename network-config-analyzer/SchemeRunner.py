@@ -19,10 +19,15 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    def __init__(self, scheme_file_name):
+    def __init__(self, scheme_file_name, output_format=None, output_path=None):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
+        self.output_config_from_cli_args = dict()
+        if output_format is not None:
+            self.output_config_from_cli_args['outputFormat'] = output_format
+        if output_path is not None:
+            self.output_config_from_cli_args['outputPath'] = output_path
 
         with open(scheme_file_name) as scheme_file:
             yaml = YAML()
@@ -148,14 +153,15 @@ class SchemeRunner(GenericYamlParser):
         self.run_queries(self.scheme.get('queries', []))
         return self.global_res
 
-    @staticmethod
-    def get_query_output_config_obj(query):
+    def get_query_output_config_obj(self, query):
         """
-        return an output config object based on scheme query
+        return an output config object based on scheme query and cli arguments
         :param query: a query dict object from scheme file
         :return: an OutputConfiguration object
         """
         output_configuration_dict = dict(query.get('outputConfiguration', {}))
+        # output config from cli args overrides config from scheme file (if both exist)
+        output_configuration_dict.update(self.output_config_from_cli_args)
         output_config_obj = OutputConfiguration(output_configuration_dict, query['name'])
         return output_config_obj
 
