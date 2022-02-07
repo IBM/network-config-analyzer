@@ -60,22 +60,6 @@
     --expected_output expected_cmdline_output_files/basic_connectivity_dot_query_output.txt
   expected: 0
 
-- name: basic_connectivity_other
-  args: >
-    --connectivity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
-    -o other
-  expected: 0
-
-- name: basic_connectivity_file_arg
-  args: >
-    --connectivity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
-    --expected_output expected_cmdline_output_files/basic_connectivity_file_arg.txt
-  expected: 0
-
 - name: basic_equiv
   args: >
     --equiv k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
@@ -132,15 +116,6 @@
     --pod_list k8s_testcases/example_podlist/pods_list.json
     -o md
     --expected_output expected_cmdline_output_files/basic_semantic_diff_md_query_output.txt
-  expected: 1
-
-- name: basic_semantic_diff_dot
-  args: >
-    --semantic_diff k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
-    --base_np_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
-    -o dot
   expected: 1
 
 - name: basic_interferes

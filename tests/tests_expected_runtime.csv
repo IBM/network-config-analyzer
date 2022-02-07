@@ -135,10 +135,6 @@ test,run_time(seconds)
 "k8s_cmdline_tests.yaml, query name: basic_connectivity_csv",0.07
 "k8s_cmdline_tests.yaml, query name: basic_connectivity_md",0.06
 "k8s_cmdline_tests.yaml, query name: basic_connectivity_dot",0.05
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_other",0.08
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_file_arg",0.07
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_file_arg_yaml",0.07
 "k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.24
 "k8s_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.23
 "k8s_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.24
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_dot",0.23
