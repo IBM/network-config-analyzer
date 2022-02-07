@@ -114,7 +114,7 @@ def run_args(args):
     :rtype: int
     """
     if args.scheme:
-        return SchemeRunner(args.scheme).run_scheme()
+        return SchemeRunner(args.scheme, args.output_format, args.file_out).run_scheme()
 
     base_np_list = args.base_np_list or 'k8s'
     ns_list = args.ns_list or ['k8s']
