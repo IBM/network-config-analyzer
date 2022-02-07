@@ -23,8 +23,6 @@ script should be run with one of the following types:
     run_all_tests.py --type=fw_rules_assertions 
     
     optional flags:
-    --dont_clean_output_files   (will save output files in tests/actual_output_files.
-                                 by default cleaning generated output files)
     --check_run_time    (will print a list of tests with unexpected run time 
                          performance in tests/tests_failed_runtime_check.csv)
     --category          (when specified with one of the values: k8s, calico or istio, 
@@ -342,7 +340,6 @@ def main(argv=None):
                         default='general')
     parser.add_argument('--category', choices=['k8s', 'calico', 'istio'], help='Choose category of tests',
                         default='')
-    parser.add_argument('--dont_clean_output_files', action='store_true', help='Do not clean output files')
     parser.add_argument('--create_expected_output_files', action='store_true', help='Add missing expected output files')
     parser.add_argument('--override_expected_output_files',
                         action='store_true', help='update existing expected output files')
@@ -355,8 +352,6 @@ def main(argv=None):
     check_run_time = args.check_run_time
     OutputFilesFlags().create_expected_files = args.create_expected_output_files
     OutputFilesFlags().update_expected_files = args.override_expected_output_files
-    OutputFilesFlags().clean_actual_files = not args.dont_clean_output_files
-    OutputFilesFlags().running_all_tests = True
     if category != '' and test_type != 'general':
         print(f'category: {category} is not supported with test type: {test_type}')
     if check_run_time and test_type != 'general':

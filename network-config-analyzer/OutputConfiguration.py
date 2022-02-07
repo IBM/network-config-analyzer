@@ -5,10 +5,7 @@
 
 import json
 import os
-import shutil
-from pathlib import Path
 from urllib import request
-from OutputFilesFlags import OutputFilesFlags
 
 
 class OutputConfiguration(dict):
@@ -52,8 +49,6 @@ class OutputConfiguration(dict):
                 with open(path, "a") as f:
                     f.write(output)
                 print(f'wrote query output to: {path}')
-                if OutputFilesFlags().running_all_tests:
-                    self.clean_or_move_output_file_to_dedicated_dir()
             except FileNotFoundError:
                 print(f"FileNotFoundError: configured outputPath is: {path}")
         elif self.prURL is not None:
@@ -86,17 +81,3 @@ class OutputConfiguration(dict):
                 print("request succeeded, status = ", resp.status, "message = ", resp.read())
 
             return resp.status
-
-    def clean_or_move_output_file_to_dedicated_dir(self):
-        actual_out_file = self.get_actual_out_file_path(self.outputPath)
-        if Path(self.outputPath).exists():
-            shutil.move(self.outputPath, actual_out_file)
-        if OutputFilesFlags().clean_actual_files:
-            os.remove(actual_out_file)  # moved before removing, inorder to ensure no files from previous runs still stored
-
-    @staticmethod
-    def get_actual_output_dir():
-        return os.path.join('.', 'actual_output_files')
-
-    def get_actual_out_file_path(self, out_file):
-        return os.path.join(self.get_actual_output_dir(), out_file)

@@ -13,8 +13,6 @@ class OutputFilesFlags:
         def __init__(self):
             self.create_expected_files = False
             self.update_expected_files = False
-            self.clean_actual_files = True
-            self.running_all_tests = False
 
     instance = None
 
