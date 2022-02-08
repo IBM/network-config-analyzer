@@ -72,7 +72,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             key = key_val_match.group(1)
             equality = key_val_match.group(2)
             val = key_val_match.group(3)
-            action = PeerContainer.FilterActionType.In if equality == '=' else PeerContainer.FilterActionType.NotIn
+            action = self.FilterActionType.In if equality == '=' else self.FilterActionType.NotIn
             self.allowed_labels.add(key)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_label(key, [val], action)
@@ -85,7 +85,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             key = in_match.group(1)
             no_not = in_match.group(2) is None
             values = re.findall("'([\\w.\\-/]*)'", expr)
-            action = PeerContainer.FilterActionType.In if no_not else PeerContainer.FilterActionType.NotIn
+            action = self.FilterActionType.In if no_not else self.FilterActionType.NotIn
             self.allowed_labels.add(key)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_label(key, values, action)
@@ -97,11 +97,11 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if str_match:
             key = str_match.group(1)
             substr = str_match.group(3)
-            action = PeerContainer.FilterActionType.Contain
+            action = self.FilterActionType.Contain
             if str_match.group(2).startswith('starts'):
-                action = PeerContainer.FilterActionType.StartWith
+                action = self.FilterActionType.StartWith
             elif str_match.group(2).startswith('ends'):
-                action = PeerContainer.FilterActionType.EndWith
+                action = self.FilterActionType.EndWith
             self.allowed_labels.add(key)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_label(key, [substr], action)

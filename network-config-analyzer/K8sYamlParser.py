@@ -4,7 +4,6 @@
 #
 
 import re
-from enum import Enum
 import Peer
 from GenericYamlParser import GenericYamlParser
 from K8sNamespace import K8sNamespace
@@ -14,16 +13,6 @@ class K8sYamlParser(GenericYamlParser):
     """
     A generic parser for k8s resources
     """
-
-    class FilterActionType(Enum):
-        """
-        Allowed actions for Calico's network policy rules
-        """
-        In = 0
-        NotIn = 1
-        Contain = 2
-        StartWith = 3
-        EndWith = 4
 
     def __init__(self, yaml_file_name=''):
         """
@@ -132,7 +121,7 @@ class K8sYamlParser(GenericYamlParser):
             values = requirement.get('values')
             if not values:
                 self.syntax_error('A requirement with In/NotIn operator but without values', requirement)
-            action = K8sYamlParser.FilterActionType.In if operator == 'In' else K8sYamlParser.FilterActionType.NotIn
+            action = self.FilterActionType.In if operator == 'In' else self.FilterActionType.NotIn
             if namespace_selector:
                 return peer_container.get_namespace_pods_with_label(key, values, action)
             return peer_container.get_peers_with_label(key, values, action)
