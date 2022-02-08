@@ -79,3 +79,6 @@ For example: `my_set/prod_ns/deny_all_policy`
 * _vacuity_ - Count of vacuous sets
 * _sanity_ - Count of sanity issues
 * _allCaptured_ - Count of non-captured pods
+
+#### Exit code meaning :
+The exit code of running a scheme-file represents the number of queries that their result did not match the given expected result or/and their output did not match the given expected output file contents.
