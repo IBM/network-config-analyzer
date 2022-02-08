@@ -200,4 +200,4 @@ class SchemeRunner(GenericYamlParser):
                     self.global_res += 1
             if comparing_err != 0:
                 self.warning(f'Unexpected output comparing result for query {query_name} ')
-                self.global_res += comparing_err
+                self.global_res += 1
