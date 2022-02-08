@@ -82,7 +82,7 @@ def _execute_single_config_query(query_name, np1_list, peer_container, output_co
     network_config1 = NetworkConfig(np1_list, peer_container, [np1_list])
     res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1], expected_output,
                                                   output_config).run_query()
-    return res + comparing_err
+    return (res > 0) + comparing_err
 
 
 def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output=None):

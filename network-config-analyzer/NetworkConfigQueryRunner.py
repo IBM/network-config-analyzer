@@ -40,7 +40,7 @@ class NetworkConfigQueryRunner:
         """
         runs the query based on the self.query_name
         :param bool cmd_line_flag: indicates if the query arg is given in the cmd-line
-        rtype: int
+        rtype: (int, int)
         """
         query_to_exec = getattr(NetworkConfigQuery, self.query_name)  # for calling static methods
         formats = query_to_exec.get_supported_output_formats()
