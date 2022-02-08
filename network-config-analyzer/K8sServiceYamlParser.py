@@ -3,15 +3,14 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-import Peer
 import yaml
 from K8sService import K8sService
 from CmdlineRunner import CmdlineRunner
 from GenericTreeScanner import TreeScannerFactory
-from K8sYamlParser import K8sYamlParser
+from GenericYamlParser import GenericYamlParser
 
 
-class K8sServiceYamlParser(K8sYamlParser):
+class K8sServiceYamlParser(GenericYamlParser):
     """
     A parser for k8s service resources
     """
@@ -20,7 +19,7 @@ class K8sServiceYamlParser(K8sYamlParser):
         """
         :param str service_file_name: The name of the yaml file containing K8s service resources
         """
-        K8sYamlParser.__init__(self, service_file_name)
+        GenericYamlParser.__init__(self, service_file_name)
 
     def parse_service(self, srv_object):
         """
@@ -73,17 +72,6 @@ class K8sServiceYamlParser(K8sYamlParser):
                 if not service.add_port(K8sService.ServicePort(port_id, target_port,
                                                                port.get('protocol', 'TCP'), name)):
                     self.warning(f'The port {name} is not unique in Service {service.name}. Ignoring the port')
-                else:
-                    if isinstance(target_port, str):
-                        # check if all pods include this named port, and remove those that don't
-                        pods_to_remove = Peer.PeerSet()
-                        for pod in service.target_pods:
-                            pod_named_port = pod.named_ports.get(target_port)
-                            if not pod_named_port:
-                                self.warning(f'The named port {target_port} referenced in Service {service.name}' 
-                                             f' is not defined in the pod {pod}. Ignoring the pod')
-                                pods_to_remove.add(pod)
-                        service.target_pods -= pods_to_remove
         return service
 
     @staticmethod

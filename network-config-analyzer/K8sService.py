@@ -6,13 +6,14 @@
 from enum import Enum
 import Peer
 
+
 class K8sService:
     """
     Represents a K8s Service, storing its parameters
     """
 
     class ServiceType(Enum):
-        ClusterIP = 0 # default
+        ClusterIP = 0  # default
         NodePort = 1
         LoadBalancer = 2
         ExternalName = 3
@@ -23,11 +24,7 @@ class K8sService:
         """
         def __init__(self, port, target_port, protocol, name=''):
             self.port = port
-            # a target port may be given either as a number or as a string (named port)
-            if isinstance(target_port, int):
-                self.target_port_number = target_port
-            else:
-                self.target_port_name = target_port
+            self.target_port = target_port  # a target port may be a number or a string (named port)
             self.protocol = protocol
             self.name = name
 
@@ -67,13 +64,13 @@ class K8sService:
         """
         self.selector[key] = value
 
-    def add_port(self, servicePort):
+    def add_port(self, service_port):
         """
         Add a service port
-        :param ServicePort servicePort: The port to add by the key servicePort.port
+        :param ServicePort service_port: The port to add by the key servicePort.port
         :return: True iff successfully added the port, i.e. the port with this name did not exist
         """
-        if self.ports.get(servicePort.name):
+        if self.ports.get(service_port.name):
             return False
-        self.ports[servicePort.name] = servicePort
+        self.ports[service_port.name] = service_port
         return True

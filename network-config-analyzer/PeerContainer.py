@@ -7,7 +7,7 @@ import yaml
 from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
 from K8sService import K8sService
-from K8sYamlParser import K8sYamlParser
+from GenericYamlParser import GenericYamlParser
 from K8sServiceYamlParser import K8sServiceYamlParser
 from CmdlineRunner import CmdlineRunner
 from GenericTreeScanner import TreeScannerFactory
@@ -155,8 +155,22 @@ class PeerContainer:
         """
         for srv in srv_list:
             for key, val in srv.selector.items():
-                srv.target_pods |= self.get_peers_with_label(key, [val], K8sYamlParser.FilterActionType.In,
+                srv.target_pods |= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
                                                              srv.namespace)
+            # remove target_pods that don't contain named ports referenced by target_ports
+            for port in srv.ports.values():
+                if not isinstance(port.target_port, str):
+                    continue
+                # check if all pods include this named port, and remove those that don't
+                pods_to_remove = PeerSet()
+                for pod in srv.target_pods:
+                    pod_named_port = pod.named_ports.get(port.target_port)
+                    if not pod_named_port:
+                        print(f'Warning: The named port {port.target_port} referenced in Service {srv.name}'
+                              f' is not defined in the pod {pod}. Ignoring the pod')
+                        pods_to_remove.add(pod)
+                srv.target_pods -= pods_to_remove
+
             self.services[srv.name] = srv
 
     def get_service(self, srv_name):
@@ -416,7 +430,7 @@ class PeerContainer:
         for peer in self.peer_set:
             peer.clear_extra_labels()
 
-    def get_peers_with_label(self, key, values, action=K8sYamlParser.FilterActionType.In, namespace=None):
+    def get_peers_with_label(self, key, values, action=GenericYamlParser.FilterActionType.In, namespace=None):
         """
         Return all peers that have a specific key-value label (in a specific namespace)
         :param str key: The relevant key
@@ -431,20 +445,20 @@ class PeerContainer:
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
             if namespace is not None and peer.namespace != namespace:
                 continue
-            if action == K8sYamlParser.FilterActionType.In:
+            if action == GenericYamlParser.FilterActionType.In:
                 if peer.labels.get(key) in values or peer.extra_labels.get(key) in values:
                     res.add(peer)
-            elif action == K8sYamlParser.FilterActionType.NotIn:
+            elif action == GenericYamlParser.FilterActionType.NotIn:
                 if peer.labels.get(key) not in values and peer.extra_labels.get(key) not in values:
                     res.add(peer)
-            elif action == K8sYamlParser.FilterActionType.Contain:
+            elif action == GenericYamlParser.FilterActionType.Contain:
                 if values[0] in peer.labels.get(key, '') or values[0] in peer.extra_labels.get(key, ''):
                     res.add(peer)
-            elif action == K8sYamlParser.FilterActionType.StartWith:
+            elif action == GenericYamlParser.FilterActionType.StartWith:
                 if peer.labels.get(key, '').startswith(values[0]) or peer.extra_labels.get(key, '').startswith(
                         values[0]):
                     res.add(peer)
-            elif action == K8sYamlParser.FilterActionType.EndWith:
+            elif action == GenericYamlParser.FilterActionType.EndWith:
                 if peer.labels.get(key, '').endswith(values[0]) or peer.extra_labels.get(key, '').endswith(values[0]):
                     res.add(peer)
         return res
@@ -465,7 +479,7 @@ class PeerContainer:
                 res.add(peer)
         return res
 
-    def get_namespace_pods_with_label(self, key, values, action=K8sYamlParser.FilterActionType.In):
+    def get_namespace_pods_with_label(self, key, values, action=GenericYamlParser.FilterActionType.In):
         """
         Return all pods in namespace with a given key-value label
         :param str key: The relevant key
@@ -479,19 +493,19 @@ class PeerContainer:
                 continue
             # Note: It seems as if the semantics of NotIn is "either key does not exist, or its value is not in values"
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-            if action == K8sYamlParser.FilterActionType.In:
+            if action == GenericYamlParser.FilterActionType.In:
                 if peer.namespace.labels.get(key, '') in values:
                     res.add(peer)
-            elif action == K8sYamlParser.FilterActionType.NotIn:
+            elif action == GenericYamlParser.FilterActionType.NotIn:
                 if peer.namespace.labels.get(key, '') not in values:
                     res.add(peer)
-            elif action == K8sYamlParser.FilterActionType.Contain:
+            elif action == GenericYamlParser.FilterActionType.Contain:
                 if values[0] in peer.namespace.labels.get(key, ''):
                     res.add(peer)
-            elif action == K8sYamlParser.FilterActionType.StartWith:
+            elif action == GenericYamlParser.FilterActionType.StartWith:
                 if peer.namespace.labels.get(key, '').startswith(values[0]):
                     res.add(peer)
-            elif action == K8sYamlParser.FilterActionType.EndWith:
+            elif action == GenericYamlParser.FilterActionType.EndWith:
                 if peer.namespace.labels.get(key, '').endswith(values[0]):
                     res.add(peer)
         return res
