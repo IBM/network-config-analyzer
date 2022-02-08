@@ -5,7 +5,6 @@
 
 import Peer
 import yaml
-from PeerContainer import PeerContainer
 from K8sService import K8sService
 from CmdlineRunner import CmdlineRunner
 from GenericTreeScanner import TreeScannerFactory
@@ -23,11 +22,10 @@ class K8sServiceYamlParser(K8sYamlParser):
         """
         K8sYamlParser.__init__(self, service_file_name)
 
-    def parse_service(self, srv_object, peer_container):
+    def parse_service(self, srv_object):
         """
         Parses a service resource object and creates a K8sService object
         :param dict srv_object: the service object to parse
-        :param PeerContainer peer_container: the peer container in which pods of the service are located
         :return: K8sService object or None
         """
         if srv_object.get('kind') != 'Service':
@@ -60,11 +58,7 @@ class K8sServiceYamlParser(K8sYamlParser):
         selector = service_spec.get('selector')
         if selector:
             for key, val in selector.items():
-                self.check_label_key_syntax(key, selector)
-                self.check_label_value_syntax(val, key, selector)
                 service.add_selector(key, val)
-                service.target_pods |= peer_container.get_peers_with_label(key, [val], PeerContainer.FilterActionType.In,
-                                                                           service.namespace)
 
         ports = service_spec.get('ports')
         if ports is not None:
@@ -93,13 +87,11 @@ class K8sServiceYamlParser(K8sYamlParser):
         return service
 
     @staticmethod
-    def load_services_from_live_cluster(peer_container):
+    def load_services_from_live_cluster():
         """
         Loads and parses service resources from live cluster
-        :param PeerContainer peer_container: the peer container in which pods of the service are located
         :return: The list of parsed services in K8sService format
         """
-        PeerContainer.locate_kube_config_file()
         yaml_file = CmdlineRunner.get_k8s_resources('service')
         srv_resources = yaml.load(yaml_file, Loader=yaml.SafeLoader)
         if not isinstance(srv_resources, dict):
@@ -107,13 +99,13 @@ class K8sServiceYamlParser(K8sYamlParser):
         parser = K8sServiceYamlParser('k8s')
         res = []
         for srv_code in srv_resources.get('items', []):
-            service = parser.parse_service(srv_code, peer_container)
+            service = parser.parse_service(srv_code)
             if service:
                 res.append(service)
         return res
 
     @staticmethod
-    def parse_service_resources(srv_resources_list, peer_container):
+    def parse_service_resources(srv_resources_list):
         """
         Parses the set of services in the container from one of the following resources:
          - git path of yaml file or a directory with yamls
@@ -121,15 +113,14 @@ class K8sServiceYamlParser(K8sYamlParser):
          - query of the cluster
         :param list srv_resources_list: The service resource to be used.
             If set to 'k8s', will query cluster using kubectl
-        :param PeerContainer peer_container: the peer container in which pods of the service are located
         :return: The list of parsed services in K8sService format
         """
+        res = []
         for srv_resources in srv_resources_list:
             # load from live cluster
             if srv_resources == 'k8s':
-                return K8sServiceYamlParser.load_services_from_live_cluster(peer_container)
+                res.extend(K8sServiceYamlParser.load_services_from_live_cluster())
             else:
-                res = []
                 resource_scanner = TreeScannerFactory.get_scanner(srv_resources)
                 if resource_scanner is None:
                     continue
@@ -143,11 +134,11 @@ class K8sServiceYamlParser(K8sYamlParser):
                         if kind in {'List'}:
                             for srv_item in srv_code.get('items', []):
                                 if isinstance(srv_item, dict) and srv_item.get('kind') in {'Service'}:
-                                    service = parser.parse_service(srv_item, peer_container)
+                                    service = parser.parse_service(srv_item)
                                     if service:
                                         res.append(service)
                         elif kind in {'Service'}:
-                            service = parser.parse_service(srv_code, peer_container)
+                            service = parser.parse_service(srv_code)
                             if service:
                                 res.append(service)
-                return res
+        return res

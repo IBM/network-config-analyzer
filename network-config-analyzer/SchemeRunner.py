@@ -92,9 +92,6 @@ class SchemeRunner(GenericYamlParser):
             pod_list = self._handle_resources_list(pod_list)
             ns_list = self._handle_resources_list(ns_list)
             peer_container = PeerContainer(ns_list, pod_list, config_name)
-            # look for service resources under 'pod_list' files
-            services = K8sServiceYamlParser.parse_service_resources(pod_list, peer_container)
-            peer_container.set_services(services)
         else:
             # deepcopy is required since NetworkConfig's constructor may change peer_container
             peer_container = copy.deepcopy(peer_container_global)
@@ -149,9 +146,6 @@ class SchemeRunner(GenericYamlParser):
         pod_list = self._handle_resources_list(self.scheme.get('podList', 'k8s'))
         ns_list = self._handle_resources_list(self.scheme.get('namespaceList', 'k8s'))
         peer_container = PeerContainer(ns_list, pod_list)
-        # look for service resources under 'pod_list' files
-        services = K8sServiceYamlParser.parse_service_resources(pod_list, peer_container)
-        peer_container.set_services(services)
 
         for config_entry in self.scheme.get('networkConfigList', []):
             self._add_config(config_entry, peer_container)

@@ -2,14 +2,13 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-from fnmatch import fnmatch
-import os
 from sys import stderr
-from enum import Enum
 import yaml
 from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
 from K8sService import K8sService
+from K8sYamlParser import K8sYamlParser
+from K8sServiceYamlParser import K8sServiceYamlParser
 from CmdlineRunner import CmdlineRunner
 from GenericTreeScanner import TreeScannerFactory
 
@@ -21,16 +20,6 @@ class PeerContainer:
     """
     pod_creation_resources = ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob',
                               'ReplicationController']
-
-    class FilterActionType(Enum):
-        """
-        Allowed actions for Calico's network policy rules
-        """
-        In = 0
-        NotIn = 1
-        Contain = 2
-        StartWith = 3
-        EndWith = 4
 
     def __init__(self, ns_resources=None, peer_resources=None, config_name='global'):
         """
@@ -47,6 +36,9 @@ class PeerContainer:
             self._set_namespace_list(ns_resources)
         if peer_resources:
             self._set_peer_list(peer_resources, config_name)
+            # look for service resources under 'peer_resources' files
+            services = K8sServiceYamlParser.parse_service_resources(peer_resources)
+            self.set_services_and_populate_target_pods(services)
 
     def __eq__(self, other):
         if isinstance(other, PeerContainer):
@@ -54,33 +46,12 @@ class PeerContainer:
                    and self.services == other.services
         return NotImplemented
 
-    @staticmethod
-    def locate_kube_config_file():
-        """
-        Locates the kubectl configuration file and stores it in the environment variable KUBECONFIG
-        :return:  None
-        """
-        default_location = os.path.expanduser(os.environ.get('KUBECONFIG', '~/.kube/config'))
-        if os.path.exists(default_location):
-            os.environ['KUBECONFIG'] = default_location
-            return
-
-        home_dir = os.path.expanduser('~/.kube')
-        for file in os.listdir(home_dir):
-            if fnmatch(file, 'kube-config*.yml'):
-                kube_config_file = os.path.join(home_dir, file)
-                os.environ['KUBECONFIG'] = kube_config_file
-                return
-        raise Exception('Failed to locate Kubernetes configuration files')
-
     def load_ns_from_live_cluster(self):
-        self.locate_kube_config_file()
         yaml_file = CmdlineRunner.get_k8s_resources('namespace')
         ns_code = yaml.load(yaml_file, Loader=yaml.SafeLoader)
         self.set_namespaces(ns_code)
 
     def load_peer_from_k8s_live_cluster(self):
-        self.locate_kube_config_file()
         peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
         self.add_eps_from_list(peer_code)
 
@@ -175,8 +146,17 @@ class PeerContainer:
         print(f'{config_name}: cluster has {self.get_num_peers()} unique endpoints, '
               f'{self.get_num_namespaces()} namespaces')
 
-    def set_services(self, srv_list):
+    def set_services_and_populate_target_pods(self, srv_list):
+        """
+        Populates services from the given service list,
+        and for every service computes and populates its target pods.
+        :param list srv_list: list of service in K8sService format
+        :return: None
+        """
         for srv in srv_list:
+            for key, val in srv.selector.items():
+                srv.target_pods |= self.get_peers_with_label(key, [val], K8sYamlParser.FilterActionType.In,
+                                                             srv.namespace)
             self.services[srv.name] = srv
 
     def get_service(self, srv_name):
@@ -436,7 +416,7 @@ class PeerContainer:
         for peer in self.peer_set:
             peer.clear_extra_labels()
 
-    def get_peers_with_label(self, key, values, action=FilterActionType.In, namespace=None):
+    def get_peers_with_label(self, key, values, action=K8sYamlParser.FilterActionType.In, namespace=None):
         """
         Return all peers that have a specific key-value label (in a specific namespace)
         :param str key: The relevant key
@@ -451,20 +431,20 @@ class PeerContainer:
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
             if namespace is not None and peer.namespace != namespace:
                 continue
-            if action == self.FilterActionType.In:
+            if action == K8sYamlParser.FilterActionType.In:
                 if peer.labels.get(key) in values or peer.extra_labels.get(key) in values:
                     res.add(peer)
-            elif action == self.FilterActionType.NotIn:
+            elif action == K8sYamlParser.FilterActionType.NotIn:
                 if peer.labels.get(key) not in values and peer.extra_labels.get(key) not in values:
                     res.add(peer)
-            elif action == self.FilterActionType.Contain:
+            elif action == K8sYamlParser.FilterActionType.Contain:
                 if values[0] in peer.labels.get(key, '') or values[0] in peer.extra_labels.get(key, ''):
                     res.add(peer)
-            elif action == self.FilterActionType.StartWith:
+            elif action == K8sYamlParser.FilterActionType.StartWith:
                 if peer.labels.get(key, '').startswith(values[0]) or peer.extra_labels.get(key, '').startswith(
                         values[0]):
                     res.add(peer)
-            elif action == self.FilterActionType.EndWith:
+            elif action == K8sYamlParser.FilterActionType.EndWith:
                 if peer.labels.get(key, '').endswith(values[0]) or peer.extra_labels.get(key, '').endswith(values[0]):
                     res.add(peer)
         return res
@@ -485,7 +465,7 @@ class PeerContainer:
                 res.add(peer)
         return res
 
-    def get_namespace_pods_with_label(self, key, values, action=FilterActionType.In):
+    def get_namespace_pods_with_label(self, key, values, action=K8sYamlParser.FilterActionType.In):
         """
         Return all pods in namespace with a given key-value label
         :param str key: The relevant key
@@ -499,19 +479,19 @@ class PeerContainer:
                 continue
             # Note: It seems as if the semantics of NotIn is "either key does not exist, or its value is not in values"
             # Reference: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-            if action == self.FilterActionType.In:
+            if action == K8sYamlParser.FilterActionType.In:
                 if peer.namespace.labels.get(key, '') in values:
                     res.add(peer)
-            elif action == self.FilterActionType.NotIn:
+            elif action == K8sYamlParser.FilterActionType.NotIn:
                 if peer.namespace.labels.get(key, '') not in values:
                     res.add(peer)
-            elif action == self.FilterActionType.Contain:
+            elif action == K8sYamlParser.FilterActionType.Contain:
                 if values[0] in peer.namespace.labels.get(key, ''):
                     res.add(peer)
-            elif action == self.FilterActionType.StartWith:
+            elif action == K8sYamlParser.FilterActionType.StartWith:
                 if peer.namespace.labels.get(key, '').startswith(values[0]):
                     res.add(peer)
-            elif action == self.FilterActionType.EndWith:
+            elif action == K8sYamlParser.FilterActionType.EndWith:
                 if peer.namespace.labels.get(key, '').endswith(values[0]):
                     res.add(peer)
         return res
