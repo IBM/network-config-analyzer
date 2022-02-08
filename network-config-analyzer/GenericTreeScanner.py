@@ -5,7 +5,6 @@
 
 import os
 import abc
-from enum import Enum
 from dataclasses import dataclass
 from ruamel.yaml import YAML, error
 from sys import stderr
@@ -24,16 +23,8 @@ class GenericTreeScanner(abc.ABC):
     """
     A base class for reading yaml files
     """
-
-    class ScannerType(Enum):
-        """
-        A class that represents what to be scanned
-        """
-        GitUrl = 0
-        FileSystemPath = 1
-
-    def __init__(self, scanner_type):
-        self.scanner_type = scanner_type
+    def __init__(self):
+        pass
 
     @abc.abstractmethod
     def get_yamls(self):
@@ -49,14 +40,16 @@ class GenericTreeScanner(abc.ABC):
         extension = os.path.splitext(file_name)[1]
         return extension in {'.yaml', '.yml', '.json'}
 
-    def _yield_yaml_file(self, path, stream):
+    @staticmethod
+    def _yield_yaml_file(path, stream, from_repo=False):
         """
         yields the yaml file for its data
         :param str path: the path of the file
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
+        :param bool from_repo: indicates if the given path is from a repository
         """
         decoded_stream = stream
-        if self.scanner_type == GenericTreeScanner.ScannerType.GitUrl:
+        if from_repo:
             decoded_stream = stream.decoded_content
         yaml = YAML(typ="safe")
         try:
@@ -82,7 +75,7 @@ class TreeScannerFactory:
         factory method to determine what scanner to build
         :param str entry: the entry (path/url) to be scanned
         """
-        if entry.startswith('https://github'):
+        if entry.startswith(('https://github', GitScanner.raw_github_content_prefix)):
             return GitScanner(entry)
         elif os.path.isfile(entry) or os.path.isdir(entry) or (entry.endswith('**') and os.path.isdir(entry[:-2])):
             return DirScanner(entry)
