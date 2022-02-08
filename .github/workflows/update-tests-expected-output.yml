@@ -12,7 +12,7 @@ jobs:
       - name: update or add expected output files
         run:  python tests/run_all_tests.py --type=general ----override_expected_output_files --create_expected_output_files
       - name: Commit changes
-        uses: EndBug/add-and-commit@v8.0.1
+        uses: EndBug/add-and-commit@v8.0.2
         with:
           default_author: github_actions
           message: 'Updating and Adding tests expected output files'

@@ -37,6 +37,11 @@ networkConfigList:
       - https://github.com/IBM/network-config-analyzer/blob/master/tests/k8s_testcases/example_policies/withIpBlock2/withIpBlock2-networkpolicy5.yaml
     expectedWarnings: 0
 
+  - name: np5_from_raw_ghe
+    networkPolicyList:
+      - https://raw.githubusercontent.com/IBM/network-config-analyzer/master/tests/k8s_testcases/example_policies/withIpBlock2/withIpBlock2-networkpolicy5.yaml
+    expectedWarnings: 0
+
   - name: np5-ipv6
     networkPolicyList:
       - withIpBlock2-networkpolicy5-IPv6.yaml
@@ -163,6 +168,13 @@ queries:
     equivalence:
       - np5
       - np5_from_ghe
+    expected: 0
+
+# comparing against the same file, but taken from raw GHE content
+  - name: compare_with_raw_ghe
+    equivalence:
+      - np5
+      - np5_from_raw_ghe
     expected: 0
 
 # none should be redundant
