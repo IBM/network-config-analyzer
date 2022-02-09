@@ -5,6 +5,7 @@
 from dataclasses import dataclass
 import copy
 import itertools
+import  os
 from enum import Enum
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
@@ -493,7 +494,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         return {'txt', 'yaml', 'csv', 'md', 'dot'}
 
     def exec(self):
-        self.output_config.configName = self.config.name
+        self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
+            self.config.name
         peers_to_compare = self.config.peer_container.get_all_peers_group()
         ref_ip_blocks = self.config.get_referenced_ip_blocks()
         peers_to_compare |= ref_ip_blocks
@@ -559,8 +561,8 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         super().__init__(output_config_obj)
         self.config1 = config1
         self.config2 = config2
-        self.name1 = config1.name
-        self.name2 = config2.name
+        self.name1 = os.path.basename(config1.name) if config1.name.startswith('./') else config1.name
+        self.name2 = os.path.basename(config2.name) if config2.name.startswith('./') else config2.name
 
     @staticmethod
     def get_query_type():
@@ -698,7 +700,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                for the current semantic-diff query
         :return: explanation (str) with fw-rules summarizing added/removed connections
         """
-        topology_config_name = self.config2.name if is_added else self.config1.name
+        topology_config_name = self.name2 if is_added else self.name1
         line_header_txt = 'Added' if is_added else 'Removed'
         fw_rules = conn_graph.get_minimized_firewall_rules()
         # for csv format, adding the csv header only for the first connectivity fw-rules computation

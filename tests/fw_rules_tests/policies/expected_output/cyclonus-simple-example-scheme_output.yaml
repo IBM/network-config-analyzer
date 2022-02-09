@@ -1,4 +1,4 @@
-- query: 'connectivity_map, config: cyclonus-simple-example'
+- query: 'connectivity_map_yaml, config: cyclonus-simple-example'
   rules:
   - src_ip_block:
     - 0.0.0.0/0

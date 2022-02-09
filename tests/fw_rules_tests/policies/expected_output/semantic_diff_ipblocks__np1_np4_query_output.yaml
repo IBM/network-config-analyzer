@@ -1,0 +1,220 @@
+- query: 'semantic_diff, config1: np1, config2: np4, key: Added connections between
+    persistent peers'
+  rules:
+  - src_ns:
+    - default
+    - kube-system-dummy-to-ignore
+    - vendor-system
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '!has(tier) or tier in (not_frontend_for_demo)'
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All connections
+- query: 'semantic_diff, config1: np1, config2: np4, key: Removed connections between
+    persistent peers'
+  rules:
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ns:
+    - default
+    - kube-system-dummy-to-ignore
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '!has(tier) or tier in (not_frontend_for_demo)'
+    connection:
+    - All connections
+- query: 'semantic_diff, config1: np1, config2: np4, key: Added connections between
+    persistent peers and ipBlocks'
+  rules:
+  - src_ip_block:
+    - 0.0.0.0/5
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
+  - src_ip_block:
+    - 11.0.0.0/8
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
+  - src_ip_block:
+    - 172.22.0.0/15
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
+  - src_ip_block:
+    - 172.31.0.0/16
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All but:
+      - Protocol: UDP
+        Ports:
+        - 53
+  - src_ip_block:
+    - 10.0.0.0/8
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All connections
+  - src_ip_block:
+    - 172.21.0.0/16
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All connections
+  - src_ip_block:
+    - 172.30.0.0/16
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - tier in (frontend)
+    connection:
+    - All connections
+- query: 'semantic_diff, config1: np1, config2: np4, key: Removed connections between
+    persistent peers and ipBlocks'
+  rules:
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 0.0.0.0/3
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.1/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.11/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.13/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.15/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.17/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.3/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.5/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.7/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - 49.50.0.9/32
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - tier in (frontend)
+    dst_ip_block:
+    - ::/0
+    connection:
+    - All connections

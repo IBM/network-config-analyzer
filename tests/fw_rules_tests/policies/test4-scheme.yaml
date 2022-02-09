@@ -19,6 +19,66 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_4_output.txt
+- name: connectivity_map_4
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_4_output.yaml
+- name: connectivity_map_4
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_4_output.md
+- name: connectivity_map_4
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: dot
+    outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_4_output.dot
+- name: connectivity_map_4
+  connectivityMap:
+  - np4
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_4_output.csv
+
+- name: connectivity_map_3
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_3_output.md
+- name: connectivity_map_3
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_3_output.yaml
 - name: connectivity_map_3
   connectivityMap:
   - np3
@@ -27,3 +87,22 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_3_output.txt
+- name: connectivity_map_3
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: dot
+    outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_3_output.dot
+- name: connectivity_map_3
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/test4-scheme_query_connectivity_map_3_output.csv

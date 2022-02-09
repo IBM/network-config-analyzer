@@ -1,0 +1,122 @@
+- query: 'np_2_all_outbound_hep_yaml, config: np_2_outbound_hep_all_ep'
+  rules:
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - None
+    dst_pods:
+    - has(vendor.role)
+    connection:
+    - All connections
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - None
+    dst_pods:
+    - has(vendor.role)
+    connection:
+    - All connections
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - None
+    src_pods:
+    - has(vendor.role)
+    dst_ip_block:
+    - 198.51.100.0/22
+    connection:
+    - All connections
+  - src_ns:
+    - None
+    src_pods:
+    - has(vendor.role)
+    dst_ip_block:
+    - 198.51.200.0/27
+    connection:
+    - All connections
+  - src_ns:
+    - None
+    src_pods:
+    - has(vendor.role)
+    dst_ip_block:
+    - 203.0.113.0/24
+    connection:
+    - All connections
+  - src_ns:
+    - None
+    src_pods:
+    - has(vendor.role)
+    dst_ip_block:
+    - 203.0.115.0/29
+    connection:
+    - All connections
+  - src_ns:
+    - None
+    src_pods:
+    - has(vendor.role)
+    dst_ns:
+    - None
+    dst_pods:
+    - has(vendor.role)
+    connection:
+    - All connections
+  - src_ns:
+    - None
+    src_pods:
+    - has(vendor.role)
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - 0.0.0.0/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ip_block:
+    - ::/0
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ns:
+    - None
+    dst_pods:
+    - has(vendor.role)
+    connection:
+    - All connections
+  - src_ns:
+    - kube-system
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system
+    dst_pods:
+    - '*'
+    connection:
+    - All connections

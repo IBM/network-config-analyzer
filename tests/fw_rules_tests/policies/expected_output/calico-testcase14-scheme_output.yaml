@@ -1,4 +1,4 @@
-- query: 'match-icmp-also-within-default-test, config: match-icmp-also-within-default'
+- query: 'match-icmp-also-within-default-test-yaml, config: match-icmp-also-within-default'
   rules:
   - src_ns:
     - kube-system

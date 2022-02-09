@@ -29,7 +29,6 @@ queries:
     expected: 0
     outputConfiguration:
       outputFormat: dot
-      outputPath: connectivityMap.dot
       fwRulesRunInTestMode: false
 
   - name: sanity

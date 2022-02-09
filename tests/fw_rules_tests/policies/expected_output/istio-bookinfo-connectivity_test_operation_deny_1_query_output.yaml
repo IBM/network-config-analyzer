@@ -1,0 +1,70 @@
+- query: 'connectivity-istio-test-operation-deny-1, config: istio-test-operation-deny-1'
+  rules:
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - default
+    dst_pods:
+    - app not in (details)
+    connection:
+    - Protocol: TCP
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - default
+    dst_pods:
+    - app not in (details)
+    connection:
+    - Protocol: TCP
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - default
+    dst_pods:
+    - app not in (details)
+    connection:
+    - Protocol: TCP
+  - src_ns:
+    - default
+    src_pods:
+    - app in (details)
+    dst_ns:
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      properties:
+      - methods: all but GET
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      properties:
+      - methods: all but GET
+  - src_ns:
+    - default
+    src_pods:
+    - '*'
+    dst_ns:
+    - default
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+      properties:
+      - methods: all but GET

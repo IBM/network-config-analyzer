@@ -35,10 +35,12 @@ class SchemeRunner(GenericYamlParser):
             if not isinstance(self.scheme, dict):
                 self.syntax_error("The scheme's top-level object must be a map")
 
-    def _get_input_file(self, given_path):
+    def _get_input_file(self, given_path, out_flag=False):
         """
         Attempts to locate a file specified in the scheme file (possibly relatively to the scheme file)
         :param str given_path: A relative/absolute path to the file
+        :param bool out_flag: Indicates if the function is called with expected_output file,
+        its absolute path needed even if it doesn't exist
         :return: A path where the file can be located
         :rtype: str
         """
@@ -50,7 +52,7 @@ class SchemeRunner(GenericYamlParser):
             return given_path
         base_dir = path.dirname(path.realpath(self.yaml_file_name))
         input_file = base_dir + path.sep + given_path
-        if path.exists(input_file):
+        if path.exists(input_file) or out_flag:
             return input_file
         return given_path
 
@@ -175,21 +177,27 @@ class SchemeRunner(GenericYamlParser):
         allowed_elements = {'name': 1, 'equivalence': 0, 'strongEquivalence': 0, 'semanticDiff': 0, 'containment': 0,
                             'redundancy': 0, 'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0,
                             'sanity': 0, 'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0,
-                            'expected': 0, 'allCaptured': 0, 'connectivityMap': 0, 'outputConfiguration': 0}
+                            'expected': 0, 'expectedOutput': 0, 'allCaptured': 0, 'connectivityMap': 0,
+                            'outputConfiguration': 0}
 
         for query in query_array:
             res = 0
+            comparing_err = 0
             self.check_fields_validity(query, 'query', allowed_elements)
             query_name = query['name']
             print('Running query', query_name)
             output_config_obj = self.get_query_output_config_obj(query)
-
+            expected_output = self._get_input_file(query.get('expectedOutput', None), True)
             for query_key in query.keys():
-                if query_key not in ['name', 'expected', 'outputConfiguration']:
-                    res += NetworkConfigQueryRunner(query_key, query[query_key], output_config_obj,
-                                                    self.network_configs).run_query()
+                if query_key not in ['name', 'expected', 'outputConfiguration', 'expectedOutput']:
+                    res, comparing_err = NetworkConfigQueryRunner(query_key, query[query_key], expected_output,
+                                                                  output_config_obj, self.network_configs).run_query()
+
             if 'expected' in query:
                 expected = query['expected']
                 if res != expected:
                     self.warning(f'Unexpected result for query {query_name}: Expected {expected}, got {res}\n', query)
                     self.global_res += 1
+            if comparing_err != 0:
+                self.warning(f'Unexpected output comparing result for query {query_name} ')
+                self.global_res += 1

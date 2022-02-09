@@ -1,0 +1,5 @@
+final fw rules for query: connectivity_map, config: np_denyFirst:
+src_ns: [kube-system] src_pods: [(has(app) and app not in (kube-fluentd,public-cre08b89c167414305a1afb205d0bd346f-alb1))] dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
+src_ns: [kube-system] src_pods: [has(tier)] dst_ns: [kube-system] dst_pods: [*] conn: All but TCP
