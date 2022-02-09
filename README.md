@@ -79,7 +79,7 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 
 #### Exit Code Meaning:
 The exit value of running a command-line without a scheme is combined from two factors:
-1. The result of running the query (0/1)
+1. The result of running the query (0/1) as specified [here](docs/CmdLineQueriesResults.md)
 2. The result of comparing the query output with the expected output file contents (if given)
 
 And it can be in the range 0 to 3 as followed:

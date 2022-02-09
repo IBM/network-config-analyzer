@@ -81,4 +81,8 @@ For example: `my_set/prod_ns/deny_all_policy`
 * _allCaptured_ - Count of non-captured pods
 
 #### Exit code meaning :
-The exit code of running a scheme-file represents the number of queries that their result did not match the given expected result or/and their output did not match the given expected output file contents.
+The exit code of running a scheme-file queries is the count of:
+* NetworkConfigs with mismatching number of expectedWarnings (only networkConfigs that run in queries are counted)
+* NetworkConfigs with mismatching number of expectedError (only networkConfigs that run in queries are counted)
+* Queries that their result did not match the given expected result 
+* Queries that their output did not match the given expected output file contents.
