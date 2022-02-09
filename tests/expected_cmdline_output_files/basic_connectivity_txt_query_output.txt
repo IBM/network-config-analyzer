@@ -1,4 +1,4 @@
-final fw rules for query: , config: ./k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml:
+final fw rules for query: , config: testcase8-networkpolicy1.yaml:
 src ip block: 0.0.0.0/0 dst_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] dst_pods: [*] conn: All connections
 src ip block: ::/0 dst_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] dst_pods: [*] conn: All connections
 src_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
