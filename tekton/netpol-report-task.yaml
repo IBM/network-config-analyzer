@@ -39,23 +39,35 @@ spec:
     - name: make-result-dir # This step prepares the output directory, as NCA runs without root permissions.
       image: ubuntu
       workingDir: $(workspaces.source.path)
+      env:
+      - name: PARAMS_OUTPUT_DIR
+        value: $(params.output-dir)
       script: |
         #!/bin/sh
-        mkdir -p $(params.output-dir)
-        chmod a+w $(params.output-dir)
+        mkdir -p "$PARAMS_OUTPUT_DIR"
+        chmod a+w "$PARAMS_OUTPUT_DIR"
     - name: produce-connectivity-report
       image: ghcr.io/np-guard/nca@sha256:027d750381811e0e2e0b6235dc471a13d56b57797c81a83efeffcb49e40f7914
       workingDir: $(workspaces.source.path)
+      env:
+      - name: PARAMS_OUTPUT_DIR
+        value: $(params.output-dir)
+      - name: PARAMS_OUTPUT_FORMAT
+        value: $(params.output-format)
+      - name: PARAMS_DEPLOYMENT_PATH
+        value: $(params.deployment-path)
+      - name: PARAMS_NETPOL_PATH
+        value: $(params.netpol-path)
       script: |
         #!/bin/sh
 
-        OUTFILE=$(params.output-dir)/connectivity_report.$(params.output-format)
+        OUTFILE="$PARAMS_OUTPUT_DIR/connectivity_report.$PARAMS_OUTPUT_FORMAT"
 
         python /nca/nca.py \
-          --connectivity $(params.netpol-path) \
-          --pod_list $(params.deployment-path) \
-          --ns_list $(params.deployment-path) \
-          --output_format $(params.output-format) \
+          --connectivity "$PARAMS_NETPOL_PATH" \
+          --pod_list "$PARAMS_DEPLOYMENT_PATH" \
+          --ns_list "$PARAMS_DEPLOYMENT_PATH" \
+          --output_format "$PARAMS_OUTPUT_FORMAT" \
           --file_out $OUTFILE
 
         printf '%s' "${OUTFILE}" | tee $(results.connectivity-report-file.path)

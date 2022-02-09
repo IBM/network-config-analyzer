@@ -48,26 +48,42 @@ spec:
     - name: make-result-dir # This step prepares the output directory, as NCA runs without root permissions.
       image: ubuntu
       workingDir: $(workspaces.new.path)
+      env:
+      - name: PARAMS_OUTPUT_DIR
+        value: $(params.output-dir)
       script: |
         #!/bin/sh
-        mkdir -p $(params.output-dir)
-        chmod a+w $(params.output-dir)
+        mkdir -p "$PARAMS_OUTPUT_DIR"
+        chmod a+w "$PARAMS_OUTPUT_DIR"
     - name: produce-diff-report
       image: ghcr.io/np-guard/nca@sha256:027d750381811e0e2e0b6235dc471a13d56b57797c81a83efeffcb49e40f7914
       workingDir: $(workspaces.new.path)
+      env:
+      - name: PARAMS_OUTPUT_DIR
+        value: $(params.output-dir)
+      - name: PARAMS_OUTPUT_FORMAT
+        value: $(params.output-format)
+      - name: PARAMS_NEW_DEPLOYMENT_PATH
+        value: $(params.new-deployment-path)
+      - name: PARAMS_NEW_NETPOL_PATH
+        value: $(params.new-netpol-path)
+      - name: PARAMS_OLD_DEPLOYMENT_PATH
+        value: $(workspaces.old.path)/$(params.old-deployment-path)
+      - name: PARAMS_OLD_NETPOL_PATH
+        value: $(workspaces.old.path)/$(params.old-netpol-path)
       script: |
         #!/bin/sh
 
-        OUTFILE=$(params.output-dir)/diff_report.$(params.output-format)
+        OUTFILE="$PARAMS_OUTPUT_DIR/diff_report.$PARAMS_OUTPUT_FORMAT"
 
         python /nca/nca.py \
-          --semantic_diff $(params.new-netpol-path) \
-          --pod_list $(params.new-deployment-path) \
-          --ns_list $(params.new-deployment-path) \
-          --base_np_list $(workspaces.old.path)/$(params.old-netpol-path) \
-          --base_pod_list $(workspaces.old.path)/$(params.old-deployment-path) \
-          --base_ns_list $(workspaces.old.path)/$(params.old-deployment-path) \
-          --output_format $(params.output-format) \
+          --semantic_diff "$PARAMS_NEW_NETPOL_PATH" \
+          --pod_list "$PARAMS_NEW_DEPLOYMENT_PATH" \
+          --ns_list "$PARAMS_NEW_DEPLOYMENT_PATH" \
+          --base_np_list "$PARAMS_OLD_NETPOL_PATH" \
+          --base_pod_list "$PARAMS_OLD_DEPLOYMENT_PATH" \
+          --base_ns_list "$PARAMS_OLD_DEPLOYMENT_PATH" \
+          --output_format "$PARAMS_OUTPUT_FORMAT" \
           --file_out $OUTFILE
 
         printf '%s' "${OUTFILE}" | tee $(results.connectivity-diff-file.path)
