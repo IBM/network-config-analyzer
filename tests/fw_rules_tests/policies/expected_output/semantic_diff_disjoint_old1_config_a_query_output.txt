@@ -1,0 +1,25 @@
+old1 and config_a are not semantically equivalent.
+Lost connections between removed peers:
+Removed connections (based on topology from config: old1) :
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
+
+Lost connections between removed peers and ipBlocks:
+Removed connections (based on topology from config: old1) :
+src ip block: 0.0.0.0/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
+src ip block: ::/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst ip block: ::/0 conn: All connections
+
+New connections between added peers:
+Added connections (based on topology from config: config_a) :
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app not in (app-1)] conn: All connections
+src_ns: [default] src_pods: [app in (app-1,app-2)] dst_ns: [default] dst_pods: [*] conn: All connections
+
+New connections between added peers and ipBlocks:
+Added connections (based on topology from config: config_a) :
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app not in (app-1)] conn: All connections
+src ip block: ::/0 dst_ns: [default] dst_pods: [app not in (app-1)] conn: All connections
+src_ns: [default] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [*] dst ip block: ::/0 conn: All connections
+
+

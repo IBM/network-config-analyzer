@@ -15,7 +15,7 @@ spec:
         workspace: shared-workspace
       params:
       - name: url
-        value: https://github.com/shift-left-netconfig/online-boutique
+        value: https://github.com/np-guard/online-boutique
       - name: subdirectory
         value: ""
       - name: revision
@@ -40,7 +40,7 @@ spec:
         workspace: shared-workspace
       params:
       - name: REQUEST_URL
-        value: https://github.com/shift-left-netconfig/online-boutique/pull/45
+        value: https://github.com/np-guard/online-boutique/pull/45
       - name: COMMENT_OR_FILE
         value: "$(tasks.make-netpols-reports.results.connectivity-report-file)"
   workspaces:

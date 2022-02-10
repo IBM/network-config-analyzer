@@ -1,4 +1,4 @@
-- query: 'connectivity_map, config: poc1'
+- query: 'connectivity_map_yaml, config: poc1'
   rules:
   - src_ns:
     - default

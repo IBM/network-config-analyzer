@@ -1,0 +1,2 @@
+no_policy and policy are semantically equivalent.
+

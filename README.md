@@ -1,3 +1,5 @@
+[![.github/workflows/test-push.yml](https://github.com/IBM/network-config-analyzer/actions/workflows/test-push.yml/badge.svg)](https://github.com/IBM/network-config-analyzer/actions/workflows/test-push.yml)
+[![.github/workflows/codeql-analysis.yml](https://github.com/IBM/network-config-analyzer/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/IBM/network-config-analyzer/actions/workflows/codeql-analysis.yml)
 # Network Config Analyzer
 An analyzer for Network Policies and other connectivity-configuration resources
 
@@ -69,6 +71,8 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 - `--file_out <file name>`\
   A file path to redirect output into.\
   *shorthand* `-f`
+- `--expected_output <file name>`\
+  A file path to the expected query output (for connectivity or semantic_diff queries).\
 - `--pr_url <URL>`\
    Write output as GitHub PR comment. URL points to the relevant comments resource in the GitHub API.\
    e.g., https://api.github.com/repos/shift-left-netconfig/online-boutique/issues/1/comments
@@ -76,6 +80,16 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
   Choose endpoints type in output (pods/deployments).\
   *default:* deployments
 
+#### Exit Code Meaning:
+The exit value of running a command-line without a scheme is combined from two factors:
+1. The result of running the query (0/1) as specified [here](docs/CmdLineQueriesResults.md)
+2. The result of comparing the query output with the expected output file contents (if given)
+
+And it can be in the range 0 to 3 as followed:
+  - 0 : query result is 0, output comparison passed.
+  - 1 : query result is 1, output comparison passed.
+  - 2 : query result is 0, output comparison failed.
+  - 3 : query result is 1, output comparison failed.
 ## Installation
 ```commandline
 git clone https://github.com/IBM/network-config-analyzer.git

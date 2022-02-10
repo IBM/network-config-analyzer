@@ -1,4 +1,4 @@
-- query: 'istio-allow-all, config: istio-allow-all'
+- query: 'istio-allow-all_yaml, config: istio-allow-all'
   rules:
   - src_ip_block:
     - 0.0.0.0/0

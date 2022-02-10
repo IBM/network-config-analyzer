@@ -1,5 +1,6 @@
 import NetworkConfigQuery
 from NetworkConfig import NetworkConfig
+from OutputFilesFlags import OutputFilesFlags
 
 
 class NetworkConfigQueryRunner:
@@ -7,11 +8,12 @@ class NetworkConfigQueryRunner:
     A Class for Running Queries
     """
 
-    def __init__(self, key_name, configs_array, output_configuration, network_configs=None):
+    def __init__(self, key_name, configs_array, expected_output, output_configuration, network_configs=None):
         self.query_name = f'{key_name[0].upper()+key_name[1:]}Query'
         self.configs_array = configs_array
         self.output_configuration = output_configuration
         self.network_configs = network_configs
+        self.expected_output_file = expected_output
 
     def _get_config(self, config_name):
         """
@@ -38,7 +40,7 @@ class NetworkConfigQueryRunner:
         """
         runs the query based on the self.query_name
         :param bool cmd_line_flag: indicates if the query arg is given in the cmd-line
-        rtype: int
+        rtype: (int, int)
         """
         query_to_exec = getattr(NetworkConfigQuery, self.query_name)  # for calling static methods
         formats = query_to_exec.get_supported_output_formats()
@@ -57,9 +59,15 @@ class NetworkConfigQueryRunner:
 
             else:  # pairWiseInterferes
                 res, query_output = self._run_query_on_all_pairs()
-
+        comparing_err = 0
         self.output_configuration.print_query_output(query_output, formats)
-        return res
+        if self.expected_output_file is not None:
+            if self.query_name in {'ConnectivityMapQuery', 'SemanticDiffQuery'}:
+                comparing_err = self._compare_actual_vs_expected_output(query_output)
+            else:
+                print(f'Warning: expectedOutput is not relevant for {self.query_name}. '
+                      'Output compare will not occur')
+        return res, comparing_err
 
     def _execute_one_config_query(self, query_type, config):
         query_to_exec = getattr(NetworkConfigQuery, query_type)(config, self.output_configuration)
@@ -113,3 +121,36 @@ class NetworkConfigQueryRunner:
                     res += query_res
                     output += query_output + '\n'
         return res, output
+
+    def _compare_actual_vs_expected_output(self, query_output):
+        print('Comparing actual query output to expected-results file {0}'.format(self.expected_output_file))
+        actual_output_lines = query_output.split('\n')
+        try:
+            with open(self.expected_output_file, 'r') as golden_file:
+                if OutputFilesFlags().update_expected_files:
+                    self._create_or_update_query_output_file(query_output)
+                    return 0
+                for golden_file_line_num, golden_file_line in enumerate(golden_file):
+                    if golden_file_line_num >= len(actual_output_lines):
+                        print('Error: Expected results have more lines than actual results')
+                        print('Comparing Result Failed \n')
+                        return 1
+                    if golden_file_line.rstrip() != actual_output_lines[golden_file_line_num]:
+                        print(f'Error: Result mismatch at line {golden_file_line_num + 1} ')
+                        print(golden_file_line)
+                        print(actual_output_lines[golden_file_line_num])
+                        print('Comparing Result Failed \n')
+                        return 1
+        except FileNotFoundError:
+            if OutputFilesFlags().create_expected_files:
+                self._create_or_update_query_output_file(query_output)
+                return 0
+            print('Error: Expected output file not found')
+            return 1
+
+        print('Comparing Results Passed \n')
+        return 0
+
+    def _create_or_update_query_output_file(self, query_output):
+        output_file = open(self.expected_output_file, 'w')
+        output_file.write(query_output)

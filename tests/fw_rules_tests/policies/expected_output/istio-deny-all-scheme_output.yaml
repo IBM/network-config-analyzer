@@ -1,4 +1,4 @@
-- query: 'istio-deny-all, config: istio-deny-all'
+- query: 'istio-deny-all-yaml, config: istio-deny-all'
   rules:
   - src_ip_block:
     - 0.0.0.0/0

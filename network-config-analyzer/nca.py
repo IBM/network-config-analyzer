@@ -25,7 +25,7 @@ def _valid_path(path_location, allow_ghe=False, allowed_platforms=None):
     :rtype: str
     :raises: argparse.ArgumentTypeError when path is invalid
     """
-    if allow_ghe and path_location.startswith('https://github'):
+    if allow_ghe and path_location.startswith(('https://github', 'https://raw.githubusercontent')):
         return path_location
     if allowed_platforms and path_location in allowed_platforms:
         return path_location
@@ -69,20 +69,24 @@ def _do_every(period, func, *args):
         time.sleep(next(sleep_for))
 
 
-def _execute_single_config_query(query_name, np1_list, peer_container, output_config):
+def _execute_single_config_query(query_name, np1_list, peer_container, output_config, expected_output=None):
     """
     Runs a query on single set of policies
     :param str query_name: the name of the arg.query
     :param str np1_list: set of policies
     :param PeerContainer peer_container: set of peers
     :param OutputConfiguration output_config: dict object
+    :param str expected_output: a file path to the expected output
     :rtype: int
     """
     network_config1 = NetworkConfig(np1_list, peer_container, [np1_list])
-    return NetworkConfigQueryRunner(query_name, [network_config1], output_config).run_query() > 0
+    res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1], expected_output,
+                                                  output_config).run_query()
+    expected_res_bit = res > 0
+    return 2*comparing_err + expected_res_bit
 
 
-def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config):
+def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output=None):
     """
     Runs an pair configs query between two sets of policies
     :param str query_name: the name of the arg.query
@@ -91,12 +95,15 @@ def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location
     :param PeerContainer base_peer_container: set of base peers
     :param PeerContainer peer_container: set of peers
     :param OutputConfiguration output_config: dict object
+    :param str expected_output: a file path to the expected output
     :return: result of executing the query
     :rtype: int
     """
     network_config1 = NetworkConfig(np1_list_location, base_peer_container, [np1_list_location])
     network_config2 = NetworkConfig(np2_list_location, peer_container, [np2_list_location])
-    return NetworkConfigQueryRunner(query_name, [network_config1, network_config2], output_config).run_query(True)
+    res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1, network_config2], expected_output,
+                                                  output_config).run_query(True)
+    return 2*comparing_err + res
 
 
 def run_args(args):
@@ -119,6 +126,7 @@ def run_args(args):
                                          'outputPath': args.file_out or None,
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints})
+    expected_output = args.expected_output or None
     if args.equiv:
         return _execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list, base_peer_container,
                                            peer_container, output_config)
@@ -136,11 +144,12 @@ def run_args(args):
                                            peer_container, output_config)
 
     if args.connectivity:
-        return _execute_single_config_query('connectivityMap', args.connectivity, peer_container, output_config)
+        return _execute_single_config_query('connectivityMap', args.connectivity, peer_container,
+                                            output_config, expected_output)
 
     if args.semantic_diff:
         return _execute_pair_configs_query('semanticDiff', base_np_list, args.semantic_diff, base_peer_container,
-                                           peer_container, output_config)
+                                           peer_container, output_config, expected_output)
 
     return _execute_single_config_query('sanity', args.sanity or 'k8s', peer_container, output_config)
 
@@ -194,6 +203,8 @@ def nca_main(argv=None):
     parser.add_argument('--output_format', '-o', type=str,
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
+    parser.add_argument('--expected_output', type=str, help='A file path of the expected query output,'
+                                                            'relevant only with --connectivity and --semantic_diff')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
     parser.add_argument('--output_endpoints', choices=['pods', 'deployments'], help='Choose endpoints type in output (pods/deployments)', default='deployments')

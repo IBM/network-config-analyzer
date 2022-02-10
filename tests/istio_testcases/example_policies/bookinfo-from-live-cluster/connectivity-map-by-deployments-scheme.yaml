@@ -14,7 +14,7 @@ queries:
       outputFormat: dot
       outputEndpoints: pods
     expected: 0
-    # TODO: add expected output
+    expectedOutput: ../../expected_output/connectivity-bookinfo-demo-by-pods.dot
 
   - name: connectivity-bookinfo-demo-by-deployments
     connectivityMap:
@@ -23,3 +23,4 @@ queries:
       outputFormat: dot
       outputEndpoints: deployments
     expected: 0
+    expectedOutput: ../../expected_output/connectivity-bookinfo-demo-by-deployments.dot

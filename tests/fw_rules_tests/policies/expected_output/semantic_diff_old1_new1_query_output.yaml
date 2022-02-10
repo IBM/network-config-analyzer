@@ -1,0 +1,37 @@
+- query: 'semantic_diff, config1: new1, config2: old1, key: Added connections between
+    persistent peers'
+  rules:
+  - src_ns:
+    - demo
+    src_pods:
+    - bank-ui
+    dst_ns:
+    - demo
+    dst_pods:
+    - account-command
+    connection:
+    - All but:
+      - Protocol: TCP
+        Ports:
+        - 8080
+        - 9090
+      - Protocol: UDP
+        Ports:
+        - 8080
+- query: 'semantic_diff, config1: new1, config2: old1, key: Removed connections between
+    persistent peers'
+  rules:
+  - src_ns:
+    - demo
+    src_pods:
+    - account-query
+    dst_ns:
+    - demo
+    dst_pods:
+    - bank-ui
+    connection:
+    - All but:
+      - Protocol: TCP
+        Ports:
+        - 8080
+

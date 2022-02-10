@@ -57,7 +57,11 @@ Each query object instructs the tool to run a specific check on one or more sets
 |allCaptured|Checks that all pods are captured by at least one NetworkPolicy|list of [config set](#configsets) names|
 |connectivityMap|Reports a summary of the allowed connections in the cluster|list of [config set](#configsets) names| 
 |expected|The expected sum of returned results by all sub-queries in this query (a warning is issued on mismatch)|integer|
+|expectedOutput|The file path of the expected output of this query (for connectivityMap or semanticDiff queries) |string|
 |outputConfiguration| A dict object with the required output configuration|[outputConfig](#outputconfig) object|
+
+
+
 
 #### <a name="configsets"></a>Config sets
 Each entry in the list of config sets should be either
@@ -80,7 +84,7 @@ The supported entries in the outputConfiguration object are as follows:
 * _redundancy_ - Count of redundant policies/rules found in all sets of policies
 * _equivalence_ - Count of non-equivalent comparisons
 * _strongEquivalence_ - Count of non-equivalent comparisons
-* _semanticDiff_ - Count of removed/added connections
+* _semanticDiff_ - Count of categories with changed connections
 * _forbids_ - Count of sets explicitly specifying connections which the first set allows
 * _permits_ - Count of sets explicitly specifying connections which the first set denies
 * _interferes_ - Count of sets interfering with the first set
@@ -90,3 +94,11 @@ The supported entries in the outputConfiguration object are as follows:
 * _vacuity_ - Count of vacuous sets
 * _sanity_ - Count of sanity issues
 * _allCaptured_ - Count of non-captured pods
+* _connectivityMap_ - 0
+
+#### Exit code meaning :
+The exit code of running a scheme-file queries is the count of:
+* NetworkConfigs with mismatching number of expectedWarnings (only networkConfigs that run in queries are counted)
+* NetworkConfigs with mismatching number of expectedError (only networkConfigs that run in queries are counted)
+* Queries that their result did not match the given expected result 
+* Queries that their output did not match the given expected output file contents.

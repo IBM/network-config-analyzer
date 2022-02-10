@@ -1,0 +1,2 @@
+np3_named_ports and np4_named_ports are semantically equivalent.
+

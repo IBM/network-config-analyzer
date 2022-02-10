@@ -1,0 +1,34 @@
+- query: 'istio-allow-nothing-1, config: istio-allow-nothing-1'
+  rules:
+  - src_ip_block:
+    - 0.0.0.0/0
+    dst_ns:
+    - kube-system
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+  - src_ip_block:
+    - ::/0
+    dst_ns:
+    - kube-system
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+  - src_ns:
+    - default
+    - kube-system
+    - vendor-system
+    src_pods:
+    - '*'
+    dst_ns:
+    - kube-system
+    - vendor-system
+    dst_pods:
+    - '*'
+    connection:
+    - Protocol: TCP
+

@@ -33,27 +33,75 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+  expectedOutput: expected_output/calico-testcase20-Eran_gnps_query_output.txt
+- name: Eran_gnps_yaml
+  connectivityMap:
+  - Eran_gnps
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase20-Eran_gnps_query_output.yaml
+- name: np_1_globalEmpty_with_profiles_yaml
+  connectivityMap:
+  - np_1_globalEmpty_with_profiles
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase20-np_1_globalEmpty_with_profiles_query_output.yaml
 - name: np_1_globalEmpty_with_profiles
   connectivityMap:
   - np_1_globalEmpty_with_profiles
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+  expectedOutput: expected_output/calico-testcase20-np_1_globalEmpty_with_profiles_query_output.txt
+- name: np_2_all_outbound_hep_yaml
+  connectivityMap:
+  - np_2_outbound_hep_all_ep
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase20-np_2_all_outbound_hep_query_output.yaml
 - name: np_2_all_outbound_hep
   connectivityMap:
   - np_2_outbound_hep_all_ep
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+  expectedOutput: expected_output/calico-testcase20-np_2_all_outbound_hep_query_output.txt
 - name: np_3_outbound_hep_to_wep
   connectivityMap:
   - np_3_outbound_hep_to_wep
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+  expectedOutput: expected_output/calico-testcase20-np_3_outbound_hep_to_wep_query_output.txt
+- name: np_3_outbound_hep_to_wep_yaml
+  connectivityMap:
+  - np_3_outbound_hep_to_wep
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase20-np_3_outbound_hep_to_wep_query_output.yaml
+- name: np_4_outbound_all_namespaceSelector_yaml
+  connectivityMap:
+  - np_4_outbound_all_namespaceSelector
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/calico-testcase20-np_4_outbound_all_namespaceSelector_query_output.yaml
 - name: np_4_outbound_all_namespaceSelector
   connectivityMap:
   - np_4_outbound_all_namespaceSelector
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: txt
+  expectedOutput: expected_output/calico-testcase20-np_4_outbound_all_namespaceSelector_query_output.txt

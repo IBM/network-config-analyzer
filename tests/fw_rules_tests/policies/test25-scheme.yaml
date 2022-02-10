@@ -12,6 +12,7 @@ queries:
     expected: 0
     outputConfiguration:
       outputEndpoints: deployments
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_deployments_txt.txt
 
   - name: connectivity_map_by_pods_txt
     connectivityMap:
@@ -19,6 +20,7 @@ queries:
     expected: 0
     outputConfiguration:
       outputEndpoints: pods
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_pods_txt.txt
 
   - name: connectivity_map_by_deployments_yaml
     connectivityMap:
@@ -27,6 +29,7 @@ queries:
     outputConfiguration:
       outputFormat: yaml
       outputEndpoints: deployments
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_deployments_yaml.yaml
 
   - name: connectivity_map_by_pods_yaml
     connectivityMap:
@@ -35,6 +38,7 @@ queries:
     outputConfiguration:
       outputFormat: yaml
       outputEndpoints: pods
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_pods_yaml.yaml
 
   - name: connectivity_map_by_deployments_csv
     connectivityMap:
@@ -43,6 +47,7 @@ queries:
     outputConfiguration:
       outputFormat: csv
       outputEndpoints: deployments
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_deployments_csv.csv
 
   - name: connectivity_map_by_pods_csv
     connectivityMap:
@@ -51,6 +56,7 @@ queries:
     outputConfiguration:
       outputFormat: csv
       outputEndpoints: pods
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_pods_csv.csv
 
   - name: connectivity_map_by_deployments_dot
     connectivityMap:
@@ -59,6 +65,7 @@ queries:
     outputConfiguration:
       outputFormat: dot
       outputEndpoints: deployments
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_deployments_dot.dot
 
   - name: connectivity_map_by_pods_dot
     connectivityMap:
@@ -67,3 +74,4 @@ queries:
     outputConfiguration:
       outputFormat: dot
       outputEndpoints: pods
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_pods_dot.dot
