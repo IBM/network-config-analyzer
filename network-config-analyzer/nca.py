@@ -123,13 +123,9 @@ def run_args(args):
     base_peer_container = PeerContainer(args.base_ns_list or ns_list, args.base_pod_list or pod_list)
     peer_container = PeerContainer(ns_list, pod_list)
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
-<<<<<<< HEAD
                                          'outputPath': args.file_out or None,
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints})
-=======
-                                         'outputPath': args.file_out or None, 'prURL': args.pr_url or None})
->>>>>>> master
     expected_output = args.expected_output or None
     if args.equiv:
         return _execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list, base_peer_container,
