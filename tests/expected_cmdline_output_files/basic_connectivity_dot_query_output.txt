@@ -34,4 +34,3 @@ digraph testcase8-networkpolicy1.yaml {
 }
 
 
-

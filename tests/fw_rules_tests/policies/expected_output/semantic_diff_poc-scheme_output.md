@@ -29,3 +29,4 @@
 |||ip block: ::/0|[default]|[app not in (frontend)]|All connections|
 ||[default]|[*]||ip block: 0.0.0.0/0|All connections|
 ||[default]|[*]||ip block: ::/0|All connections|
+

@@ -31,3 +31,5 @@ src_ns: [kube-system] src_pods: [tier in (frontend)] dst ip block: 49.50.0.5/32 
 src_ns: [kube-system] src_pods: [tier in (frontend)] dst ip block: 49.50.0.7/32 conn: All connections
 src_ns: [kube-system] src_pods: [tier in (frontend)] dst ip block: 49.50.0.9/32 conn: All connections
 src_ns: [kube-system] src_pods: [tier in (frontend)] dst ip block: ::/0 conn: All connections
+
+
