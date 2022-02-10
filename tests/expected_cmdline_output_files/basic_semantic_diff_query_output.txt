@@ -13,4 +13,3 @@ src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: TCP 53,UDP 53
 src ip block: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: TCP 53,UDP 53
 
 
-

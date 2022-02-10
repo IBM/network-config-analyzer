@@ -48,3 +48,5 @@ src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn:
 src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
 src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: ::/0 conn: All connections
+
+

@@ -70,3 +70,4 @@ src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connection
 src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [has(vendor.role)] conn: ICMP,TCP 52311,UDP 52311,protocols numbers: 112
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
+

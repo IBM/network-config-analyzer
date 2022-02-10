@@ -5,3 +5,4 @@
 ||[demo]|[bank-ui]|[demo]|[account-command]|All connections|
 |semantic_diff, config1: new1a, config2: old1, key: Removed connections between persistent peers||||||
 ||[demo]|[account-query]|[demo]|[bank-ui]|UDP 8080|
+

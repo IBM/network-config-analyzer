@@ -21,3 +21,5 @@ src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app not in (app-1)] conn: A
 src ip block: ::/0 dst_ns: [default] dst_pods: [app not in (app-1)] conn: All connections
 src_ns: [default] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [*] dst ip block: ::/0 conn: All connections
+
+

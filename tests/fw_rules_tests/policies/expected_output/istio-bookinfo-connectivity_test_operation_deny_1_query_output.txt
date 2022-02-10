@@ -6,3 +6,4 @@ src ip block: ::/0 dst_ns: [default] dst_pods: [app not in (details)] conn: TCP
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'}
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app not in (details)] conn: TCP
 src_ns: [default] src_pods: [app in (details)] dst_ns: [default] dst_pods: [*] conn: TCP
+

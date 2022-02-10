@@ -57,3 +57,4 @@
         methods: all but PUT
         paths: all but /bad/path1, /bad/path3, /some/path2
         hosts: allowed-host.com
+

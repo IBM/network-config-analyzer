@@ -1,3 +1,4 @@
 final fw rules for query: connectivity-istio-test-methods-basic-1, config: istio-test-methods-basic-1:
 src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (details)] conn: TCP {'dst_ports': '80', 'methods': 'GET'}
 src_ns: [default] src_pods: [app in (productpage)] dst_ns: [default] dst_pods: [app in (reviews)] conn: TCP
+

@@ -15,3 +15,4 @@
         paths: /info[\--9A-Z_a-z]*
       - methods: POST
         paths: /data
+

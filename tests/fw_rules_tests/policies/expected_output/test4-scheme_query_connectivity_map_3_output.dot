@@ -15,3 +15,5 @@ digraph np3 {
 	"default/cognetive-agents-js4qc" -> "kube-system-new/calico-node-mgdlr" [label=" TCP, 85-90" color="gold2" fontcolor="darkgreen"]
 	"default/cognetive-agents-js4qc" -> "kube-system-new/heapster-7df8cb8c66-zxkk2" [label=" TCP, 85-90" color="gold2" fontcolor="darkgreen"]
 }
+
+
