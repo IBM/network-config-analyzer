@@ -76,9 +76,12 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 - `--pr_url <URL>`\
    Write output as GitHub PR comment. URL points to the relevant comments resource in the GitHub API.\
    e.g., https://api.github.com/repos/shift-left-netconfig/online-boutique/issues/1/comments
+<<<<<<< HEAD
 - `--output_endpoints`\
   Choose endpoints type in output (pods/deployments).\
   *default:* deployments
+=======
+>>>>>>> master
 
 #### Exit Code Meaning:
 The exit value of running a command-line without a scheme is combined from two factors:

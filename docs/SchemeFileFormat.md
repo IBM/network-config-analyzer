@@ -58,10 +58,13 @@ Each query object instructs the tool to run a specific check on one or more sets
 |connectivityMap|Reports a summary of the allowed connections in the cluster|list of [config set](#configsets) names| 
 |expected|The expected sum of returned results by all sub-queries in this query (a warning is issued on mismatch)|integer|
 |expectedOutput|The file path of the expected output of this query (for connectivityMap or semanticDiff queries) |string|
+<<<<<<< HEAD
 |outputConfiguration| A dict object with the required output configuration|[outputConfig](#outputconfig) object|
 
 
 
+=======
+>>>>>>> master
 
 #### <a name="configsets"></a>Config sets
 Each entry in the list of config sets should be either
@@ -94,7 +97,10 @@ The supported entries in the outputConfiguration object are as follows:
 * _vacuity_ - Count of vacuous sets
 * _sanity_ - Count of sanity issues
 * _allCaptured_ - Count of non-captured pods
+<<<<<<< HEAD
 * _connectivityMap_ - 0
+=======
+>>>>>>> master
 
 #### Exit code meaning :
 The exit code of running a scheme-file queries is the count of:
