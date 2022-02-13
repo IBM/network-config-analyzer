@@ -156,8 +156,10 @@ class PeerContainer:
             # check and update namespace
             srv.namespace = self.get_namespace(srv.namespace.name)
             # populate target ports
+            if srv.selector:
+                srv.target_pods = self.peer_set
             for key, val in srv.selector.items():
-                srv.target_pods |= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
+                srv.target_pods &= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
                                                              srv.namespace)
             # remove target_pods that don't contain named ports referenced by target_ports
             for port in srv.ports.values():
