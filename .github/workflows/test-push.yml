@@ -53,12 +53,6 @@ jobs:
           name: failed-run-time-check-file
           path: ./tests/tests_failed_runtime_check.csv
           if-no-files-found: ignore 
-  output-comparison-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: ./.github/actions/setup-nca-env
-      - run:  python tests/run_all_tests.py --type=output
   fw-rules-assertion-tests:
     runs-on: ubuntu-latest
     steps:

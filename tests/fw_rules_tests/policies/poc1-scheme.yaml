@@ -14,3 +14,44 @@ queries:
     outputFormat: txt
     outputPath: null
     fwRulesRunInTestMode: false
+  expectedOutput: expected_output/poc1-scheme_output.txt
+- name: connectivity_map_yaml
+  connectivityMap:
+    - poc1
+  expected: 0
+  outputConfiguration:
+    outputFormat: yaml
+    outputPath: null
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/poc1-scheme_output.yaml
+- name: connectivity_map_dot
+  connectivityMap:
+  - poc1
+  expected: 0
+  outputConfiguration:
+    outputFormat: dot
+    outputPath: null
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/poc1-scheme_output.dot
+- name: connectivity_map_csv
+  connectivityMap:
+  - poc1
+  expected: 0
+  outputConfiguration:
+    outputFormat: csv
+    outputPath: null
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/poc1-scheme_output.csv
+- name: connectivity_map_md
+  connectivityMap:
+  - poc1
+  expected: 0
+  outputConfiguration:
+    outputFormat: md
+    outputPath: null
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/poc1-scheme_output.md
+
+
+
+

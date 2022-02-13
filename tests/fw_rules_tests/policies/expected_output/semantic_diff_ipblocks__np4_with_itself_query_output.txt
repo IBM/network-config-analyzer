@@ -1,0 +1,2 @@
+np4 and np4 have the same network topology and the same set of policies.
+

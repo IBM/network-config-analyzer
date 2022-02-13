@@ -1,0 +1,16 @@
+- query: 'semantic_diff, config1: poc3, config2: poc4, key: Added connections between
+    persistent peers'
+  rules:
+  - src_ns:
+    - default
+    src_pods:
+    - loadgenerator
+    dst_ns:
+    - default
+    dst_pods:
+    - frontend
+    connection:
+    - Protocol: TCP
+      Ports:
+      - 23
+

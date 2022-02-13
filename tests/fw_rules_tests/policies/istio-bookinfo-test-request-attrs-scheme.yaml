@@ -22,15 +22,21 @@ networkConfigList:
     networkPolicyList:
       - istio-bookinfo-policy-test-operation-allow-example-1.yaml
 
-
-
-
 queries:
   - name: connectivity-istio-test-methods-basic-1
     connectivityMap:
       - istio-test-methods-basic-1
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
+      outputFormat: yaml
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_methods_basic_1_query_output.yaml
+    expected: 0
+  - name: connectivity-istio-test-methods-basic-1
+    connectivityMap:
+      - istio-test-methods-basic-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_methods_basic_1_query_output.txt
     expected: 0
 
   - name: connectivity-istio-test-methods-basic-2
@@ -38,6 +44,15 @@ queries:
       - istio-test-methods-basic-2
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_methods_basic_2_query_output.txt
+    expected: 0
+  - name: connectivity-istio-test-methods-basic-2
+    connectivityMap:
+      - istio-test-methods-basic-2
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+      outputFormat: yaml
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_methods_basic_2_query_output.yaml
     expected: 0
 
   - name: connectivity-istio-test-methods-paths-1
@@ -45,6 +60,15 @@ queries:
       - istio-test-methods-paths-1
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
+      outputFormat: yaml
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_methods_paths_1_query_output.yaml
+    expected: 0
+  - name: connectivity-istio-test-methods-paths-1
+    connectivityMap:
+      - istio-test-methods-paths-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_methods_paths_1_query_output.txt
     expected: 0
 
   - name: connectivity-istio-test-operation-deny-1
@@ -52,6 +76,15 @@ queries:
       - istio-test-operation-deny-1
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
+      outputFormat: yaml
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_operation_deny_1_query_output.yaml
+    expected: 0
+  - name: connectivity-istio-test-operation-deny-1
+    connectivityMap:
+      - istio-test-operation-deny-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_operation_deny_1_query_output.txt
     expected: 0
 
   - name: connectivity-istio-test-operation-allow-1
@@ -59,4 +92,13 @@ queries:
       - istio-test-operation-allow-1
     outputConfiguration:
       fwRulesGroupByLabelSinglePod: true
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_operation_allow_1_query_output.txt
+    expected: 0
+  - name: connectivity-istio-test-operation-allow-1
+    connectivityMap:
+      - istio-test-operation-allow-1
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+      outputFormat: yaml
+    expectedOutput: expected_output/istio-bookinfo-connectivity_test_operation_allow_1_query_output.yaml
     expected: 0

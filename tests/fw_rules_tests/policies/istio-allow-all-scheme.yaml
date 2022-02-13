@@ -12,3 +12,12 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+  expectedOutput: expected_output/istio-allow-all-scheme_output.txt
+- name: istio-allow-all_yaml
+  connectivityMap:
+  - istio-allow-all
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/istio-allow-all-scheme_output.yaml

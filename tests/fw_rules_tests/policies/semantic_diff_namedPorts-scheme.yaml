@@ -31,6 +31,48 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_named_ports_np1_and_np2_query_output.txt
+- name: semantic_diff_named_ports_np1_and_np2_csv
+  semanticDiff:
+  - np1_named_ports
+  - np2_named_ports
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: csv
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_named_ports_np1_and_np2_query_output.csv
+- name: semantic_diff_named_ports_np1_and_np2_dot
+  semanticDiff:
+  - np1_named_ports
+  - np2_named_ports
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: dot
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_named_ports_np1_and_np2_query_output.dot
+- name: semantic_diff_named_ports_np1_and_np2_md
+  semanticDiff:
+  - np1_named_ports
+  - np2_named_ports
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: md
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_named_ports_np1_and_np2_query_output.md
+- name: semantic_diff_named_ports_np1_and_np2_yaml
+  semanticDiff:
+  - np1_named_ports
+  - np2_named_ports
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_named_ports_np1_and_np2_query_output.yaml
+
 - name: semantic_diff_named_ports_np3_and_np4
   semanticDiff:
   - np3_named_ports
@@ -40,3 +82,4 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
     outputPath: null
+  expectedOutput: expected_output/semantic_diff_named_ports_np3_and_np4_query_output.txt

@@ -12,3 +12,12 @@ queries:
   expected: 0
   outputConfiguration:
     fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/test21-scheme_output.yaml
+- name: connectivity_map
+  connectivityMap:
+  - np21
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/test21-scheme_output.txt
