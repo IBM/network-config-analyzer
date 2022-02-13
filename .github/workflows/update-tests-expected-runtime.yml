@@ -17,8 +17,8 @@ jobs:
           echo "::set-output name=changed_tests::$(git diff 'tests/**/*-scheme.yaml' 'tests/k8s_cmdline_tests.yaml' --name-only --diff-filter=AM ${{ github.event.pull_request.base.sha }} ${{ github.sha }})"
   lint:
     runs-on: ubuntu-latest
-      needs: changedfiles
-      if: ${{needs.changedfiles.outputs.changed_tests}}
-      steps:
-        - name: echo changed tests
-          run: echo ${{needs.changedfiles.outputs.changed_tests}}
+    needs: changedfiles
+    if: ${{needs.changedfiles.outputs.changed_tests}}
+    steps:
+      - name: echo changed tests
+        run: echo ${{needs.changedfiles.outputs.changed_tests}}
