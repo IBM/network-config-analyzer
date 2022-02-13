@@ -723,18 +723,21 @@ class MinimizeFWRules:
         This may happen when a deployment has more than one pod, and the grouping by label is not applied to it.
         (for example, when the pods are selected by named ports and not by podSelector with label, there may not be
         'allowed' relevant input labels available).
+        # TODO: remove duplicate rules earlier? (rules with different pods mapped to the same pod owner)
+        # current issue is that we use topologies with pods of the same owner but different labels, so cannot consider
+        # fw-rules elements of pod with same owner as identical
         """
         rules_list = []
         all_connections = sorted(self.fw_rules_map.keys())
         for connection in all_connections:
             connection_rules = sorted(self.fw_rules_map[connection])
+            rules_dict = dict()  # use to avoid duplicates
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
                 rule_obj = rule.get_rule_in_req_format(req_format, self.cluster_info.config_type)
-                # TODO: remove duplicate rules earlier? (rules with different pods mapped to the same pod owner)
-                # current issue is that we use topologies with pods of the same owner but different labels, so cannot consider
-                # fw-rules elements of pod with same owner as identical
-                if (self.output_config.outputEndpoints == 'deployments' and rule_obj not in rules_list) or(self.output_config.outputEndpoints == 'pods'):
+                if (self.output_config.outputEndpoints == 'deployments' and str(rule_obj) not in rules_dict) or (
+                        self.output_config.outputEndpoints == 'pods'):
                     rules_list.append(rule_obj)
+                    rules_dict[str(rule_obj)] = 1
         return rules_list

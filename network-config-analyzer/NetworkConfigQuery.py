@@ -1215,7 +1215,6 @@ class AllCapturedQuery(NetworkConfigQuery):
         :param Pod pod: a pod object
         :rtype str
         """
-        # TODO: move this to Pod level?
         return pod.workload_name if self.output_config.outputEndpoints == 'deployments' else str(pod)
 
     def _get_uncaptured_resources_explanation(self, uncaptured_pods, is_ingress):
