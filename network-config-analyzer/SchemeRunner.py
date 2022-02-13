@@ -10,7 +10,6 @@ from ruamel.yaml import YAML
 from OutputConfiguration import OutputConfiguration
 from PeerContainer import PeerContainer
 from GenericYamlParser import GenericYamlParser
-from K8sServiceYamlParser import K8sServiceYamlParser
 from NetworkConfig import NetworkConfig
 from NetworkConfigQueryRunner import NetworkConfigQueryRunner
 
@@ -88,7 +87,6 @@ class SchemeRunner(GenericYamlParser):
                 ns_list = self.scheme.get('namespaceList', 'k8s')
             if not pod_list:  # use global resource file
                 pod_list = self.scheme.get('podList', 'k8s')
-
             pod_list = self._handle_resources_list(pod_list)
             ns_list = self._handle_resources_list(ns_list)
             peer_container = PeerContainer(ns_list, pod_list, config_name)

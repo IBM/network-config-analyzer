@@ -5,6 +5,7 @@
 
 from enum import Enum
 import Peer
+from K8sNamespace import K8sNamespace
 
 
 class K8sService:
@@ -28,9 +29,9 @@ class K8sService:
             self.protocol = protocol
             self.name = name
 
-    def __init__(self, name, namespace):
+    def __init__(self, name, namespace_name):
         self.name = name
-        self.namespace = namespace
+        self.namespace = K8sNamespace(namespace_name)
         self.type = self.ServiceType.ClusterIP
         self.selector = {}
         self.ports = {}  # a map from service port name to ServicePort object
@@ -38,7 +39,7 @@ class K8sService:
 
     def __eq__(self, other):
         if isinstance(other, K8sService):
-            return self.name == other.name
+            return self.name == other.name and self.namespace == other.namespace
         return NotImplemented
 
     def __hash__(self):
@@ -46,6 +47,9 @@ class K8sService:
 
     def __str__(self):
         return self.name
+
+    def full_name(self):
+        return self.namespace.name + '/' + self.name
 
     def set_type(self, service_type):
         """

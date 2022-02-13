@@ -6,7 +6,6 @@ from sys import stderr
 import yaml
 from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
-from K8sService import K8sService
 from GenericYamlParser import GenericYamlParser
 from K8sServiceYamlParser import K8sServiceYamlParser
 from CmdlineRunner import CmdlineRunner
@@ -154,6 +153,9 @@ class PeerContainer:
         :return: None
         """
         for srv in srv_list:
+            # check and update namespace
+            srv.namespace = self.get_namespace(srv.namespace.name)
+            # populate target ports
             for key, val in srv.selector.items():
                 srv.target_pods |= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
                                                              srv.namespace)
@@ -171,21 +173,7 @@ class PeerContainer:
                         pods_to_remove.add(pod)
                 srv.target_pods -= pods_to_remove
 
-            self.services[srv.name] = srv
-
-    def get_service(self, srv_name):
-        """
-        Get a K8sService object for a given service name.
-        :return: A relevant K8sService or None
-        :rtype: K8sService
-        """
-        if srv_name not in self.services:
-            print('Service', srv_name, 'is missing from the network configuration', file=stderr)
-            return None
-        return self.services[srv_name]
-
-    def get_services(self):
-        return self.services
+            self.services[srv.full_name()] = srv
 
     def delete_all_namespaces(self):
         if self.get_num_peers() > 0:  # Only delete namespaces if no peers are present
