@@ -124,21 +124,34 @@ class GeneralTest:
     def evaluate_test_results(self):
         self.numerical_result = 1 if self.nca_res != self.expected_result else 0
 
-    def _get_expected_test_run_time(self):
-        expected_time_file_name = "./tests_expected_runtime.csv"
-        with open(expected_time_file_name, 'r') as csv_file:
+    def _get_expected_test_run_time(self, expected_time_file):
+        with open(expected_time_file, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
+                if not row:
+                    continue
                 current_test = row[0] if 'cmdline_' in row[0] else os.path.abspath(row[0])
                 if current_test == self.test_name:
                     return float(row[1])
         csv_file.close()
-        return 0.0
+        return None  # returning None means the test doesn't exist in the file
+
+    def _add_test_to_expected_runtime_file(self, expected_time_file, actual_run_time):
+        with open(expected_time_file, 'a') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            test_to_add = f'"{self.test_name}"' if self.test_name.startswith('cmdline_') \
+                else os.path.relpath(self.test_name)
+            csv_writer.writerow([test_to_add, f'{actual_run_time:.2f}'])
+        csv_file.close()
 
     def _execute_run_time_compare(self, actual_run_time):
+        expected_time_file_name = "./tests_expected_runtime.csv"
         output_file = "./tests_failed_runtime_check.csv"
         write_header = False
-        expected_run_time = self._get_expected_test_run_time()
+        expected_run_time = self._get_expected_test_run_time(expected_time_file_name)
+        if expected_run_time is None:  # a new test, add to expected runtime file
+            expected_run_time = actual_run_time
+            self._add_test_to_expected_runtime_file(expected_time_file_name, actual_run_time)
         if actual_run_time >= expected_run_time * 2:
             if not path.isfile(output_file):
                 write_header = True
