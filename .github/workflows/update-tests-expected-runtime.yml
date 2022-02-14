@@ -18,7 +18,7 @@ jobs:
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$(git diff  --name-only --diff-filter=AM )"
+          echo "::set-output name=changed_tests::$(git diff  --name-only --diff-filter=AM ${{ github.base_ref }} ${{ github.sha }})"
   lint:
     runs-on: ubuntu-latest
     needs: changedfiles
