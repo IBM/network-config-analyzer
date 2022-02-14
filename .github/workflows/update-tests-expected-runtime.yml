@@ -8,21 +8,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  changedfiles:
+  changedtests:
     runs-on: ubuntu-latest
-    outputs:
-      changed_tests: ${{ steps.changes.outputs.changed_tests}}
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/setup-nca-env
-      - name: get added or modified tests
-        id: changes
-        run: |
-          echo "::set-output name=changed_tests::$(git diff  --name-only --diff-filter=AM ${{ github.base_ref }} ${{ github.sha }})"
-  lint:
-    runs-on: ubuntu-latest
-    needs: changedfiles
-    if: ${{needs.changedfiles.outputs.changed_tests}}
-    steps:
-      - name: echo changed tests
-        run: echo ${{needs.changedfiles.outputs.changed_tests}}
+      - uses: technote-space/get-diff-action@v6
+      - uses: technote-space/get-diff-action@v6
+          with:
+            PATTERNS: |
+              tests/**/*-scheme.yaml
+            FILES: |
+              tests/k8s_cmdline_tests.yaml
+      - run: echo ${{ env.GIT_DIFF }}
