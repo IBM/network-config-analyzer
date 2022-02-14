@@ -15,9 +15,9 @@ jobs:
       - uses: ./.github/actions/setup-nca-env
       - uses: technote-space/get-diff-action@v6
       - uses: technote-space/get-diff-action@v6
-          with:
-            PATTERNS: |
-              tests/**/*-scheme.yaml
-            FILES: |
-              tests/k8s_cmdline_tests.yaml
+        with:
+          PATTERNS: |
+            tests/**/*-scheme.yaml
+          FILES: |
+            tests/k8s_cmdline_tests.yaml
       - run: echo ${{ env.GIT_DIFF }}
