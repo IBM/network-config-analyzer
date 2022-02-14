@@ -383,6 +383,7 @@ class PeerContainer:
         if kind in ['PodList', 'List']:  # 'List' for the case of live cluster
             for endpoint in ep_list.get('items', []):
                 self._add_pod_from_yaml(endpoint)
+        # TODO: why not adding a Pod from yaml?
         elif kind in PeerContainer.pod_creation_resources:
             self._add_pod_from_workload_yaml(ep_list)
         elif kind in ['WorkloadEndpointList', 'HostEndpointList']:

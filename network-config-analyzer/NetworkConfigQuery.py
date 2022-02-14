@@ -1210,6 +1210,28 @@ class AllCapturedQuery(NetworkConfigQuery):
     Check that all pods are captured
     """
 
+    def _get_pod_name(self, pod):
+        """
+        :param Pod pod: a pod object
+        :rtype str
+        """
+        return pod.workload_name if self.output_config.outputEndpoints == 'deployments' else str(pod)
+
+    def _get_uncaptured_resources_explanation(self, uncaptured_pods, is_ingress):
+        """
+        get numerical result + str explanation for ingress/egress uncaptured pods
+        :param PeerSet uncaptured_pods: the set of uncaptured
+        :param bool is_ingress: flag indicating if pods are not captured by any policy that affects ingress or egress
+        :return: (int,str): (the number of uncaptured resources , explanation str)
+        """
+        if not uncaptured_pods:
+            return 0, ''
+        uncaptured_resources = set(self._get_pod_name(pod) for pod in uncaptured_pods)  # no duplicate resources in the set
+        resources_list_str = ', '.join(e for e in uncaptured_resources)
+        xgress_str = 'ingress' if is_ingress else 'egress'
+        explanation = f'These workload resources are not captured by any policy that affects {xgress_str}: {resources_list_str}\n'
+        return len(uncaptured_resources), explanation
+
     def exec(self):
         existing_pods = self.config.peer_container.get_all_peers_group()
 
@@ -1226,23 +1248,13 @@ class AllCapturedQuery(NetworkConfigQuery):
                                output_result='All pods are captured by at least one policy in ' + self.config.name,
                                numerical_result=0)
 
-        full_explanation = ''
-        res = 0
-        if uncaptured_ingress_pods:
-            uncaptured_ingress_resources = set(
-                pod.workload_name for pod in uncaptured_ingress_pods)  # no duplicate resources in the set
-            res += len(uncaptured_ingress_resources)
-            resources = ', '.join(e for e in uncaptured_ingress_resources)
-            full_explanation += f'These workload resources are not captured by any policy that affects ingress: {resources}\n'
-        if uncaptured_egress_pods:
-            uncaptured_egress_resources = set(
-                pod.workload_name for pod in uncaptured_egress_pods)  # no duplicate resources in the set
-            res += len(uncaptured_egress_resources)
-            resources = ', '.join(e for e in uncaptured_egress_resources)
-            full_explanation += f'These workload resources are not captured by any policy that affects egress: {resources}\n'
+        res_ingress, explanation_ingress = self._get_uncaptured_resources_explanation(uncaptured_ingress_pods, True)
+        res_egress, explanation_egress = self._get_uncaptured_resources_explanation(uncaptured_egress_pods, False)
+        res = res_ingress + res_egress
+        full_explanation = explanation_ingress + explanation_egress
 
         return QueryAnswer(bool_result=False,
-                           output_result=f'There are workload resources not captured by any policy in {self.config.name}',
+                           output_result=f'There are workload resources not captured by any policy in {self.config.name}\n',
                            output_explanation=full_explanation, numerical_result=res)
 
     def compute_query_output(self, query_answer):
