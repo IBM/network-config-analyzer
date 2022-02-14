@@ -12,3 +12,10 @@ queries:
     allCaptured:
       - workload_resources_captured
     expected: 44
+
+  - name: all-captured-2
+    allCaptured:
+      - workload_resources_captured
+    outputConfiguration:
+      outputEndpoints: pods
+    expected: 68

@@ -1,0 +1,31 @@
+// The Connectivity Graph of bookinfo-demo
+digraph {
+	HEADER [shape="box" label=< <B>connectivity-bookinfo-demo-by-pods/bookinfo-demo</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
+	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
+	"::/0" [label="::/0" color="red2" fontcolor="red2"]
+	"default/details-v1-79f774bdb9-tw7sj" [label="default/details-v1-79f774bdb9-tw7sj" color="blue" fontcolor="blue"]
+	"default/productpage-v1-6b746f74dc-kkzzk" [label="default/productpage-v1-6b746f74dc-kkzzk" color="blue" fontcolor="blue"]
+	"default/ratings-v1-b6994bb9-gl27w" [label="default/ratings-v1-b6994bb9-gl27w" color="blue" fontcolor="blue"]
+	"default/reviews-v1-545db77b95-2ps7q" [label="default/reviews-v1-545db77b95-2ps7q" color="blue" fontcolor="blue"]
+	"default/reviews-v2-7bf8c9648f-7v7ps" [label="default/reviews-v2-7bf8c9648f-7v7ps" color="blue" fontcolor="blue"]
+	"default/reviews-v3-84779c7bbc-lfjvk" [label="default/reviews-v3-84779c7bbc-lfjvk" color="blue" fontcolor="blue"]
+	"istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label="istio-system/istio-ingressgateway-55d9fb9f-f4mzz" color="blue" fontcolor="blue"]
+	"0.0.0.0/0" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
+	"::/0" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
+	"default/details-v1-79f774bdb9-tw7sj" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
+	"default/productpage-v1-6b746f74dc-kkzzk" -> "default/details-v1-79f774bdb9-tw7sj" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
+	"default/productpage-v1-6b746f74dc-kkzzk" -> "default/reviews-v1-545db77b95-2ps7q" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
+	"default/productpage-v1-6b746f74dc-kkzzk" -> "default/reviews-v2-7bf8c9648f-7v7ps" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
+	"default/productpage-v1-6b746f74dc-kkzzk" -> "default/reviews-v3-84779c7bbc-lfjvk" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
+	"default/productpage-v1-6b746f74dc-kkzzk" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
+	"default/ratings-v1-b6994bb9-gl27w" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v1-545db77b95-2ps7q" -> "default/ratings-v1-b6994bb9-gl27w" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v1-545db77b95-2ps7q" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v2-7bf8c9648f-7v7ps" -> "default/ratings-v1-b6994bb9-gl27w" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v2-7bf8c9648f-7v7ps" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v3-84779c7bbc-lfjvk" -> "default/ratings-v1-b6994bb9-gl27w" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
+	"default/reviews-v3-84779c7bbc-lfjvk" -> "istio-system/istio-ingressgateway-55d9fb9f-f4mzz" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
+	"istio-system/istio-ingressgateway-55d9fb9f-f4mzz" -> "default/productpage-v1-6b746f74dc-kkzzk" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
+}
+
+

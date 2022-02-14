@@ -1,0 +1,207 @@
+apiVersion: v1
+items:
+  - apiVersion: security.istio.io/v1beta1
+    kind: AuthorizationPolicy
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/last-applied-configuration: |
+          {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"deny-all","namespace":"default"},"spec":{}}
+      creationTimestamp: "2022-01-19T20:37:49Z"
+      generation: 1
+      managedFields:
+        - apiVersion: security.istio.io/v1beta1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:annotations:
+                .: {}
+                f:kubectl.kubernetes.io/last-applied-configuration: {}
+            f:spec: {}
+          manager: kubectl
+          operation: Update
+          time: "2022-01-19T20:37:49Z"
+      name: deny-all
+      namespace: default
+      resourceVersion: "8514124"
+      uid: d5288594-70af-4a0e-825c-396d2c4f6a6f
+    spec: {}
+  - apiVersion: security.istio.io/v1beta1
+    kind: AuthorizationPolicy
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/last-applied-configuration: |
+          {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"details-viewer","namespace":"default"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/default/sa/bookinfo-productpage"]}}],"to":[{"operation":{"methods":["GET"]}}]}],"selector":{"matchLabels":{"app":"details"}}}}
+      creationTimestamp: "2022-01-20T06:40:23Z"
+      generation: 1
+      managedFields:
+        - apiVersion: security.istio.io/v1beta1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:annotations:
+                .: {}
+                f:kubectl.kubernetes.io/last-applied-configuration: {}
+            f:spec:
+              .: {}
+              f:rules: {}
+              f:selector:
+                .: {}
+                f:matchLabels:
+                  .: {}
+                  f:app: {}
+          manager: kubectl
+          operation: Update
+          time: "2022-01-20T06:40:23Z"
+      name: details-viewer
+      namespace: default
+      resourceVersion: "8594548"
+      uid: 6a61ea66-931d-463b-a4b6-0e90094bf7e0
+    spec:
+      rules:
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/default/sa/bookinfo-productpage
+          to:
+            - operation:
+                methods:
+                  - GET
+      selector:
+        matchLabels:
+          app: details
+  - apiVersion: security.istio.io/v1beta1
+    kind: AuthorizationPolicy
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/last-applied-configuration: |
+          {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"productpage-viewer","namespace":"default"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"]}}],"to":[{"operation":{"methods":["GET"]}}]}],"selector":{"matchLabels":{"app":"productpage"}}}}
+      creationTimestamp: "2022-01-19T20:57:37Z"
+      generation: 1
+      managedFields:
+        - apiVersion: security.istio.io/v1beta1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:annotations:
+                .: {}
+                f:kubectl.kubernetes.io/last-applied-configuration: {}
+            f:spec:
+              .: {}
+              f:rules: {}
+              f:selector:
+                .: {}
+                f:matchLabels:
+                  .: {}
+                  f:app: {}
+          manager: kubectl
+          operation: Update
+          time: "2022-01-19T20:57:37Z"
+      name: productpage-viewer
+      namespace: default
+      resourceVersion: "8516768"
+      uid: 7952215f-4bce-44e2-bfa9-f60fcfe7bea6
+    spec:
+      rules:
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account
+          to:
+            - operation:
+                methods:
+                  - GET
+      selector:
+        matchLabels:
+          app: productpage
+  - apiVersion: security.istio.io/v1beta1
+    kind: AuthorizationPolicy
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/last-applied-configuration: |
+          {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"ratings-viewer","namespace":"default"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/default/sa/bookinfo-reviews"]}}],"to":[{"operation":{"methods":["GET"]}}]}],"selector":{"matchLabels":{"app":"ratings"}}}}
+      creationTimestamp: "2022-01-20T06:41:51Z"
+      generation: 1
+      managedFields:
+        - apiVersion: security.istio.io/v1beta1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:annotations:
+                .: {}
+                f:kubectl.kubernetes.io/last-applied-configuration: {}
+            f:spec:
+              .: {}
+              f:rules: {}
+              f:selector:
+                .: {}
+                f:matchLabels:
+                  .: {}
+                  f:app: {}
+          manager: kubectl
+          operation: Update
+          time: "2022-01-20T06:41:51Z"
+      name: ratings-viewer
+      namespace: default
+      resourceVersion: "8594748"
+      uid: ea8da05a-e5fe-4e1b-b059-f0e65c132428
+    spec:
+      rules:
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/default/sa/bookinfo-reviews
+          to:
+            - operation:
+                methods:
+                  - GET
+      selector:
+        matchLabels:
+          app: ratings
+  - apiVersion: security.istio.io/v1beta1
+    kind: AuthorizationPolicy
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/last-applied-configuration: |
+          {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"reviews-viewer","namespace":"default"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/default/sa/bookinfo-productpage"]}}],"to":[{"operation":{"methods":["GET"]}}]}],"selector":{"matchLabels":{"app":"reviews"}}}}
+      creationTimestamp: "2022-01-20T06:41:06Z"
+      generation: 1
+      managedFields:
+        - apiVersion: security.istio.io/v1beta1
+          fieldsType: FieldsV1
+          fieldsV1:
+            f:metadata:
+              f:annotations:
+                .: {}
+                f:kubectl.kubernetes.io/last-applied-configuration: {}
+            f:spec:
+              .: {}
+              f:rules: {}
+              f:selector:
+                .: {}
+                f:matchLabels:
+                  .: {}
+                  f:app: {}
+          manager: kubectl
+          operation: Update
+          time: "2022-01-20T06:41:06Z"
+      name: reviews-viewer
+      namespace: default
+      resourceVersion: "8594647"
+      uid: f66f4b07-cfd1-43ad-8e6d-7eb29bbe2eee
+    spec:
+      rules:
+        - from:
+            - source:
+                principals:
+                  - cluster.local/ns/default/sa/bookinfo-productpage
+          to:
+            - operation:
+                methods:
+                  - GET
+      selector:
+        matchLabels:
+          app: reviews
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""

@@ -123,7 +123,9 @@ def run_args(args):
     base_peer_container = PeerContainer(args.base_ns_list or ns_list, args.base_pod_list or pod_list)
     peer_container = PeerContainer(ns_list, pod_list)
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
-                                         'outputPath': args.file_out or None, 'prURL': args.pr_url or None})
+                                         'outputPath': args.file_out or None,
+                                         'prURL': args.pr_url or None,
+                                         'outputEndpoints': args.output_endpoints})
     expected_output = args.expected_output or None
     if args.equiv:
         return _execute_pair_configs_query('twoWayContainment', args.equiv, base_np_list, base_peer_container,
@@ -205,6 +207,7 @@ def nca_main(argv=None):
                                                             'relevant only with --connectivity and --semantic_diff')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
+    parser.add_argument('--output_endpoints', choices=['pods', 'deployments'], help='Choose endpoints type in output (pods/deployments)', default='deployments')
 
     args = parser.parse_args(argv)
 
