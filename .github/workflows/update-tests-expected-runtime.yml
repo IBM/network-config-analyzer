@@ -14,10 +14,19 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/setup-nca-env
       - uses: technote-space/get-diff-action@v6
-      - uses: technote-space/get-diff-action@v6
         with:
           PATTERNS: |
             tests/**/*-scheme.yaml
           FILES: |
             tests/k8s_cmdline_tests.yaml
       - run: echo ${{ env.GIT_DIFF }}
+  testsArtifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: run-all-log
+      - name: Display structure of downloaded files
+        run: ls -R
+
