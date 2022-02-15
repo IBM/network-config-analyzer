@@ -1,8 +1,6 @@
 name: update-tests-expected-runtime
-
 on:
-  workflow_dispatch:
-
+  workflow_dispatch
 jobs:
 #  changedtests:
 #    runs-on: ubuntu-latest
