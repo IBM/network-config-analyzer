@@ -1,0 +1,77 @@
+namespaceList: ../podlist/test_fw_rules_pod_list.yaml
+podList: ../podlist/test_fw_rules_pod_list.yaml
+networkConfigList:
+  - name: np25
+    networkPolicyList:
+      - test25-networkpolicy.yaml
+    expectedWarnings: 0
+queries:
+  - name: connectivity_map_by_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputEndpoints: deployments
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_deployments_txt.txt
+
+  - name: connectivity_map_by_pods_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputEndpoints: pods
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_pods_txt.txt
+
+  - name: connectivity_map_by_deployments_yaml
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: yaml
+      outputEndpoints: deployments
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_deployments_yaml.yaml
+
+  - name: connectivity_map_by_pods_yaml
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: yaml
+      outputEndpoints: pods
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_pods_yaml.yaml
+
+  - name: connectivity_map_by_deployments_csv
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: csv
+      outputEndpoints: deployments
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_deployments_csv.csv
+
+  - name: connectivity_map_by_pods_csv
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: csv
+      outputEndpoints: pods
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_pods_csv.csv
+
+  - name: connectivity_map_by_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_deployments_dot.dot
+
+  - name: connectivity_map_by_pods_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+    expectedOutput: expected_output/test25-scheme_connectivity_map_by_pods_dot.dot

@@ -223,13 +223,14 @@ class PodElement(FWRuleElement):
     This is the class for single pod element in fw-rule
     """
 
-    def __init__(self, element):
+    def __init__(self, element, output_as_deployment=True):
         """
         Create a PodElement object
         :param element: the element of type Pod
         """
         super().__init__({element.namespace})
         self.element = element
+        self.output_as_deployment = output_as_deployment
 
     def get_elem_yaml_obj(self):
         """
@@ -248,7 +249,7 @@ class PodElement(FWRuleElement):
         return pod name :using elem.owner_name for Pod elem (if exists), and elem.name for HostEP
         :return: string representing pod element name
         """
-        if isinstance(self.element, Pod) and self.element.owner_name:
+        if self.output_as_deployment and isinstance(self.element, Pod) and self.element.owner_name:
             return self.element.owner_name
         return self.element.name
 
@@ -538,7 +539,7 @@ class FWRule:
         txt: string
         :param str req_format: a string of the required format, should be in supported_formats
         :param NetworkConfig.ConfigType config_type: the network configuration type
-        :return: str of the fw-rule representation according to required format
+        :return: Union[str,dict,list] the fw-rule representation according to required format
         """
         use_complement_simplification = self.use_connection_set_complement_simplification(config_type)
         if req_format == 'yaml':
