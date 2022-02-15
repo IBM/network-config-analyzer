@@ -16,11 +16,13 @@ jobs:
       changed_tests: ${{ steps.changes.outputs.changed_tests}}
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/setup-nca-env
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM origin/master ${{github.ref}}))| grep -e *-scheme.yaml -e *_cmdline_tests.yaml)"
+          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master ${{github.ref}}))| grep -e *-scheme.yaml -e *_cmdline_tests.yaml)"
   lint:
     runs-on: ubuntu-latest
     # require the first job to have ran
