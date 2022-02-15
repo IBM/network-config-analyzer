@@ -8,15 +8,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  changedtests:
+#  changedtests:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: ./.github/actions/setup-nca-env
+#      - uses: technote-space/get-diff-action@v6
+#        with:
+#          PATTERNS: |
+#            tests/**/*-scheme.yaml
+#          FILES: |
+#            tests/k8s_cmdline_tests.yaml
+#      - run: echo ${{ env.GIT_DIFF }}
+  runlog:
     runs-on: ubuntu-latest
-    steps:
+      steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/setup-nca-env
-      - uses: technote-space/get-diff-action@v6
+      - name: Upload run log
+        uses: actions/upload-artifact@v2
         with:
-          PATTERNS: |
-            tests/**/*-scheme.yaml
-          FILES: |
-            tests/k8s_cmdline_tests.yaml
-      - run: echo ${{ env.GIT_DIFF }}
+          name: run-alltests-log
+          path: tests/run_log.txt
