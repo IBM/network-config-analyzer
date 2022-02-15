@@ -1,10 +1,10 @@
 name: update-tests-expected-runtime
 
 on:
-  # push is only for testing
-  push:
-    branches:
-      - issue_134_b_mechanism_to_update_run_time
+#  # push is only for testing
+#  push:
+#    branches:
+#      - issue_134_b_mechanism_to_update_run_time
   workflow_dispatch:
 
 jobs:
