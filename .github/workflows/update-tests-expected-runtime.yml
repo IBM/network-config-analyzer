@@ -21,10 +21,12 @@ jobs:
         id: changes
         run: |
           echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master))| grep -e *-scheme.yaml -e *_cmdline_tests.yaml)"
-#        with:
-#          PATTERNS: |
-#            tests/**/*-scheme.yaml
-#          FILES: |
-#            tests/k8s_cmdline_tests.yaml
-#      - run: echo ${{ env.GIT_DIFF }}
-
+  lint:
+    runs-on: ubuntu-latest
+    # require the first job to have ran
+    needs: changed-tests
+    # only run there are changed files
+    if: ${{needs.changed-tests.outputs.changed_tests}}
+    steps:
+      - name: echo changed files
+        run: echo ${{needs.changed-tests.outputs.changed_tests}}
