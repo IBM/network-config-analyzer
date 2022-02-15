@@ -9,6 +9,7 @@ Utility class to execute the cmdline executables 'kubectl' and 'calicoctl'
 
 import subprocess
 import os
+from fnmatch import fnmatch
 
 
 class CmdlineRunner:
@@ -55,12 +56,32 @@ class CmdlineRunner:
         return CmdlineRunner.run_and_get_output(cmdline_list)
 
     @staticmethod
+    def locate_kube_config_file():
+        """
+        Locates the kubectl configuration file and stores it in the environment variable KUBECONFIG
+        :return:  None
+        """
+        default_location = os.path.expanduser(os.environ.get('KUBECONFIG', '~/.kube/config'))
+        if os.path.exists(default_location):
+            os.environ['KUBECONFIG'] = default_location
+            return
+
+        home_dir = os.path.expanduser('~/.kube')
+        for file in os.listdir(home_dir):
+            if fnmatch(file, 'kube-config*.yml'):
+                kube_config_file = os.path.join(home_dir, file)
+                os.environ['KUBECONFIG'] = kube_config_file
+                return
+        raise Exception('Failed to locate Kubernetes configuration files')
+
+    @staticmethod
     def get_k8s_resources(resource):
         """
         Run kubectl to get the list of available instances of a given resource
         :param str resource: The name of the resource
         :return: The output of 'kubectl get' (should be a list-resource)
         """
+        CmdlineRunner.locate_kube_config_file()
         cmdline_list = ['kubectl', 'get', resource, '-o=json']
         if resource in ['networkPolicy', 'authorizationPolicy', 'pod']:
             cmdline_list.append('--all-namespaces')

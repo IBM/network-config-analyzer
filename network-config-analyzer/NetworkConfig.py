@@ -199,7 +199,6 @@ class NetworkConfig:
         return True
 
     def add_policies_from_k8s_cluster(self):
-        PeerContainer.locate_kube_config_file()
         self._add_policies(CmdlineRunner.get_k8s_resources('networkPolicy'), 'kubectl', True)
 
     def add_policies_from_calico_cluster(self):
@@ -208,7 +207,6 @@ class NetworkConfig:
         self._add_policies(CmdlineRunner.get_calico_resources('globalNetworkPolicy'), 'calicoctl', True)
 
     def add_istio_policies_from_k8s_cluster(self):
-        PeerContainer.locate_kube_config_file()
         self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl', True)
 
     def add_policies_from_entry(self, entry):

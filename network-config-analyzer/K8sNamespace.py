@@ -8,7 +8,7 @@ class K8sNamespace:
     Represents a K8s Namespace, storing its name and labels
     """
     def __init__(self, name):
-        self.name = name
+        self.name = name if name else 'default'
         self.labels = {}  # Storing the namespace labels in a dict as key-value pairs
 
     def __eq__(self, other):
