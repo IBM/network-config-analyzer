@@ -47,6 +47,10 @@ jobs:
         env:
           GHE_TOKEN: ${{ github.token }}
         run: python tests/run_all_tests.py --type=general --check_run_time | tee tests/run_log.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: run-alltests-log
+          path: tests/run_log.txt
       - name: Upload failed run-time tests file
         uses: actions/upload-artifact@v2
         with:

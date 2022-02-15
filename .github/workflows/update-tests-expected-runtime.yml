@@ -1,26 +1,29 @@
 name: update-tests-expected-runtime
 on:
-  workflow_dispatch
+  workflow_dispatch: # manual triggering , runs only on master branch
+  workflow_run: # for local testing
+    workflows: [test-push]
+    types:
+      - completed
+    branches:
+      - 'issue_134_b_mechanism_to_update_run_time'
+
 jobs:
-#  changedtests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#      - uses: ./.github/actions/setup-nca-env
-#      - uses: technote-space/get-diff-action@v6
+  changed-tests:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_tests: ${{ steps.changes.outputs.changed_tests}}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-nca-env
+      - name: get added or modified tests
+        id: changes
+        run: |
+          echo "::set-output name=changed_tests::$((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master))"
 #        with:
 #          PATTERNS: |
 #            tests/**/*-scheme.yaml
 #          FILES: |
 #            tests/k8s_cmdline_tests.yaml
 #      - run: echo ${{ env.GIT_DIFF }}
-  runlog:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: ./.github/actions/setup-nca-env
-      - name: Upload run log
-        uses: actions/upload-artifact@v2
-        with:
-          name: run-alltests-log
-          path: tests/run_log.txt
+
