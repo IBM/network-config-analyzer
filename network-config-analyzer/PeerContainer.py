@@ -389,6 +389,8 @@ class PeerContainer:
             for endpoint in ep_list.get('items', []):
                 if kind == 'PodList' or (isinstance(endpoint, dict) and endpoint.get('kind') in {'Pod', 'Deployment'}):
                     self._add_pod_from_yaml(endpoint)
+                self._add_pod_from_yaml(endpoint)
+        # TODO: why not adding a Pod from yaml?
         elif kind in PeerContainer.pod_creation_resources:
             self._add_pod_from_workload_yaml(ep_list)
         elif kind in ['WorkloadEndpointList', 'HostEndpointList']:

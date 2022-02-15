@@ -36,6 +36,11 @@ networkConfigList:
       - bookinfo-policy-test-ns-no-match.yaml
     expectedWarnings: 1  # "no match for namespace"
 
+  - name: istio-test-equiv-properties-cubes
+    networkPolicyList:
+      - bookinfo-policy-test-equiv-properties-cubes.yaml
+
+
 
 queries:
   - name: equiv-diff-methods
@@ -147,6 +152,12 @@ queries:
       - istio-test-enum-regex-match/default/details-viewer-with-ns-regex-1
       - istio-test-enum-regex-match/default/details-viewer-with-ns-regex-2
       - istio-test-enum-regex-match/default/details-viewer-with-ns-exact
+    expected: 0
+
+  - name: equiv-test-properties-cubes
+    equivalence:
+      - istio-test-equiv-properties-cubes/default/details-viewer-cube-1
+      - istio-test-equiv-properties-cubes/default/details-viewer-cube-2
     expected: 0
 
 

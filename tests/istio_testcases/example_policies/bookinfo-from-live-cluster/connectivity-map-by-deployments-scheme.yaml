@@ -1,0 +1,26 @@
+namespaceList: topology/
+podList: topology/
+
+networkConfigList:
+  - name: bookinfo-demo
+    networkPolicyList:
+      - auth_policies.yaml
+
+queries:
+  - name: connectivity-bookinfo-demo-by-pods
+    connectivityMap:
+      - bookinfo-demo
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+    expected: 0
+    expectedOutput: ../../expected_output/connectivity-bookinfo-demo-by-pods.dot
+
+  - name: connectivity-bookinfo-demo-by-deployments
+    connectivityMap:
+      - bookinfo-demo
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+    expected: 0
+    expectedOutput: ../../expected_output/connectivity-bookinfo-demo-by-deployments.dot
