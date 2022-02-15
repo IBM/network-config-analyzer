@@ -85,7 +85,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             self.syntax_error(f'invalid key "{key_label}", a label key name must be no more than 63 characters',
                               key_container)
         pattern = r"([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9]"
-        if re.fullmatch(pattern, key_label) is None:
+        if re.fullmatch(pattern, name) is None:
             self.syntax_error(f'invalid key "{key_label}", a label key name part must consist of alphanumeric '
                               f'characters, "-", "_" or ".", and must start and end with an alphanumeric character',
                               key_container)
@@ -128,7 +128,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             values = requirement.get('values')
             if not values:
                 self.syntax_error('A requirement with In/NotIn operator but without values', requirement)
-            action = PeerContainer.FilterActionType.In if operator == 'In' else PeerContainer.FilterActionType.NotIn  
+            action = self.FilterActionType.In if operator == 'In' else self.FilterActionType.NotIn
             if namespace_selector:
                 return self.peer_container.get_namespace_pods_with_label(key, values, action)
             return self.peer_container.get_peers_with_label(key, values, action)
@@ -204,9 +204,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
         try:
             res.add(Peer.IpBlock(block['cidr'], block.get('except')))
         except ValueError as e:
-            self.syntax_error(e.args, block)
+            self.syntax_error(str(e.args), block)
         except TypeError as e:
-            self.syntax_error(e.args, block)
+            self.syntax_error(str(e.args), block)
         return res
 
     def parse_peer(self, peer):

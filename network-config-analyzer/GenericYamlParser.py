@@ -5,6 +5,7 @@
 
 from sys import stderr
 from ruamel.yaml import comments
+from enum import Enum
 
 from DimensionsManager import DimensionsManager
 
@@ -13,6 +14,15 @@ class GenericYamlParser:
     """
     A base class for yaml parsers, providing basic services
     """
+    class FilterActionType(Enum):
+        """
+        Allowed actions for Calico's network policy rules
+        """
+        In = 0
+        NotIn = 1
+        Contain = 2
+        StartWith = 3
+        EndWith = 4
 
     def __init__(self, yaml_file_name=''):
         """
