@@ -1,6 +1,6 @@
 name: update-tests-expected-runtime
 on:
-  workflow_dispatch: # manual triggering , runs only on master branch
+  #workflow_dispatch: # manual triggering , runs only on master branch
   workflow_run: # for local testing
     workflows: [test-push]
     types:
