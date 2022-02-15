@@ -20,7 +20,7 @@ jobs:
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master))| grep tests/**/*-scheme.yaml tests/k8s_cmdline_tests.yaml)"
+          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master))| grep *-scheme.yaml *k8s_cmdline_tests.yaml)"
 #        with:
 #          PATTERNS: |
 #            tests/**/*-scheme.yaml
