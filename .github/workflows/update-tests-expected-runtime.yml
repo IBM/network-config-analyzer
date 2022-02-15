@@ -11,15 +11,16 @@ on:
 jobs:
   changed-tests:
     runs-on: ubuntu-latest
-    outputs:
-      changed_tests: ${{ steps.changes.outputs.changed_tests}}
+#    outputs:
+#      changed_tests: ${{ steps.changes.outputs.changed_tests}}
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/setup-nca-env
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master))"
+          echo " hello "
+#          echo "::set-output name=changed_tests::$((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master))"
 #        with:
 #          PATTERNS: |
 #            tests/**/*-scheme.yaml
