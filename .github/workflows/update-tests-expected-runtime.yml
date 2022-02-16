@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       - uses: ./.github/actions/setup-nca-env
       - name: get added or modified tests
         id: changes
