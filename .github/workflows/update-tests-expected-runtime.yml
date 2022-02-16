@@ -22,7 +22,7 @@ jobs:
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM ${{ github.event.pull_request.base.sha }} ${{github.event.pull_request.head.sha}}))| grep -e *-scheme.yaml -e *_cmdline_tests.yaml)"
+          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM ${{ github.event.pull_request.base.sha }} ))| grep -e *-scheme.yaml -e *_cmdline_tests.yaml)"
   lint:
     runs-on: ubuntu-latest
     # require the first job to have ran
