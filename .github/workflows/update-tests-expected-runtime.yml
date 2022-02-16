@@ -17,9 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - uses: ./.github/actions/setup-nca-env
       - name: get added or modified tests
+        env:
+          GHE_TOKEN: ${{ github.token }}
         id: changes
         run: |
           echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM ${{ github.event.pull_request.base.sha }} ))| grep -e *-scheme.yaml -e *_cmdline_tests.yaml)"
