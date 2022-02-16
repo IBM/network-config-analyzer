@@ -24,7 +24,7 @@ jobs:
           GHE_TOKEN: ${{ github.token }}
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM ${{ github.event.pull_request.base.sha }}))| grep -e '*-scheme.yaml')"
+          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM ${{ github.event.pull_request.base.sha }}))| grep -e *-scheme.yaml | xargs)"
   lint:
     runs-on: ubuntu-latest
     # require the first job to have ran
