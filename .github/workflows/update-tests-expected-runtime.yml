@@ -1,11 +1,12 @@
 name: update-tests-expected-runtime
 on:
   pull_request: # for local testing
+  workflow_dispatch: # manual triggering , runs only on master branch too
   workflow_run: # works only on master branch
     workflows: [test-push]
     types:
       - completed
-  workflow_dispatch: # manual triggering , runs only on master branch too
+
 
 jobs:
   changed-tests:
@@ -20,7 +21,7 @@ jobs:
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master))"
+          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master)) | grep -E '*-scheme\.yaml$')"
   lint:
     runs-on: ubuntu-latest
     # require the first job to have ran
