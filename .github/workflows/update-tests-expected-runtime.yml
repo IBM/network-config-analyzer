@@ -29,3 +29,12 @@ jobs:
     steps:
       - name: echo changed files
         run: echo ${{needs.changed-tests.outputs.changed_tests}}
+  run-log:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: test-push.yml
+          workflow_conclusion: success
+          name: run-alltests-log
+          search_artifacts: true #for testing
