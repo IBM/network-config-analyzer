@@ -1,11 +1,11 @@
 name: update-tests-expected-runtime
 on:
-  #pull_request: # for local testing
+  pull_request: # for local testing
   workflow_run: # works only on master branch
     workflows: [test-push]
     types:
       - completed
-  workflow_dispatch: # manual triggering
+  workflow_dispatch: # manual triggering , runs only on master branch too
 
 jobs:
   changed-tests:
@@ -18,11 +18,11 @@ jobs:
           fetch-depth: 0
       - uses: ./.github/actions/setup-nca-env
       - name: get added or modified tests
-        env:
-          GHE_TOKEN: ${{ github.token }}
         id: changes
         run: |
           echo "::set-output name=changed_tests::$((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master))"
+  run-log:
+
   lint:
     runs-on: ubuntu-latest
     # require the first job to have ran
