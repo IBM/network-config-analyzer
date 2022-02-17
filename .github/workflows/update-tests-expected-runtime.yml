@@ -6,8 +6,6 @@ on:
     workflows: [test-push]
     types:
       - completed
-
-
 jobs:
   changed-tests:
     runs-on: ubuntu-latest
@@ -21,7 +19,7 @@ jobs:
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master)) | grep -E '*-scheme\.yaml$')"
+          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master)) | grep -E '*-scheme\.yaml')"
   lint:
     runs-on: ubuntu-latest
     # require the first job to have ran
