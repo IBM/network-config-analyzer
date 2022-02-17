@@ -19,7 +19,7 @@ jobs:
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master)) | grep -E '*-scheme\.yaml\|k8s_cmdline_tests\.yaml' | xargs)"
+          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master)) | grep -E '*-scheme\.yaml|k8s_cmdline_tests.yaml' | xargs)"
   lint:
     runs-on: ubuntu-latest
     # require the first job to have ran
