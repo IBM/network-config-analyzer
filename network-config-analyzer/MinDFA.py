@@ -7,11 +7,11 @@ from greenery.lego import parse, from_fsm
 
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
-class MinDFA(fsm):
+class MinDFA:
     """
     MinDFA is a wrapper class for greenery.fsm , to support the api required for dimensions in hypercube-set
     (similar to CanonicalIntervalSet)
-    It extends greenery.fsm, and has the following additional members:
+    It holds an fsm object of type greenery.fsm, and has the following additional members:
     - is_all_words: flag (ternary-logic) to indicate if it is known for this DFA if its language is all words or not.
     - complement_dfa: either None (if complement dfa is unknown) or another MinDFA object which complements this
                       dfa to all words.
@@ -58,24 +58,12 @@ class MinDFA(fsm):
         complement_dfa: MinDFA of the complement dfa of self, e.g: relevant when doing subtraction from 'all'.
                         for performance improvement (avoid computation of complement if could use this member instead).
         """
-        super().__init__(alphabet, states, initial, finals, map)
+        self.fsm = fsm(initial, finals, alphabet, states, map)
         self.is_all_words = MinDFA.Ternary.UNKNOWN
         self.complement_dfa = None
 
-    def __setattr__(self, name, value):
-        """
-        The fsm object is immutable, and for minDFA only the new members can be set.
-        """
-        if name in {"is_all_words", "complement_dfa"}:
-            self.__dict__[name] = value
-        else:
-            super().__setattr__(name, value)
-        return self
-
-    # this function is for testing only
-    def get_fsm(self):
-        res = fsm(self.alphabet, self.states, self.initial, self.finals, self.map)
-        return res
+    def __contains__(self, string):
+        return string in self.fsm
 
     @staticmethod
     def dfa_from_fsm(f):
@@ -90,7 +78,7 @@ class MinDFA(fsm):
     def __eq__(self, other):
         if not isinstance(other, MinDFA):
             return False
-        res = self.states == other.states and self.initial == other.initial and self.finals == other.finals and self.map == other.map
+        res = self.fsm.states == other.fsm.states and self.fsm.initial == other.fsm.initial and self.fsm.finals == other.fsm.finals and self.fsm.map == other.fsm.map
         return res
 
     def __ne__(self, other):
@@ -149,7 +137,7 @@ class MinDFA(fsm):
         return NotImplemented
 
     def __hash__(self):
-        return hash((frozenset(self.states), frozenset(self.finals), frozenset(self.map), self.initial))
+        return hash((frozenset(self.fsm.states), frozenset(self.fsm.finals), frozenset(self.fsm.map), self.fsm.initial))
 
     def _get_strings_set_str(self):
         """
@@ -158,8 +146,8 @@ class MinDFA(fsm):
         :rtype: str
         """
         str_values = []
-        str_generator = self.strings()
-        for _ in range(0, len(self)):
+        str_generator = self.fsm.strings()
+        for _ in range(0, len(self.fsm)):
             str_val = next(str_generator)
             str_val_new = ''.join(ch for ch in str_val)
             str_values.append(str_val_new)
@@ -173,7 +161,7 @@ class MinDFA(fsm):
         if self.is_all_words == MinDFA.Ternary.TRUE:
             return False
         try:
-            len(self)
+            len(self.fsm)
             return True
         except OverflowError:
             return False
@@ -190,17 +178,17 @@ class MinDFA(fsm):
         if self.is_all_words == MinDFA.Ternary.TRUE:
             return "*"
         # TODO: consider performance implications of this conversion from MinDFA to regex
-        return str(from_fsm(self))
+        return str(from_fsm(self.fsm))
 
     def get_fsm_str(self):
         """
         get a string representation for this DFA from greenery.fsm str method: states and transition table.
         :rtype: str
         """
-        return super().__str__()
+        return str(self.fsm)
 
     def __bool__(self):
-        return not self.empty()
+        return not self.fsm.empty()
 
     def contained_in(self, other):
         """
@@ -213,7 +201,7 @@ class MinDFA(fsm):
         if self.is_all_words == MinDFA.Ternary.TRUE and other.is_all_words == MinDFA.Ternary.FALSE:
             return False
         # TODO: if both are finite-len, can use set containment on accepted words?
-        return self.issubset(other)
+        return self.fsm.issubset(other.fsm)
 
     # operators within fsm already apply reduce() (minimization)
     def __or__(self, other):
@@ -221,7 +209,7 @@ class MinDFA(fsm):
             return self
         if other.is_all_words == MinDFA.Ternary.TRUE:
             return other
-        fsm_res = super().__or__(other)
+        fsm_res = self.fsm | other.fsm
         res = MinDFA.dfa_from_fsm(fsm_res)
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
@@ -232,14 +220,14 @@ class MinDFA(fsm):
             return other
         if other.is_all_words == MinDFA.Ternary.TRUE:
             return self
-        fsm_res = super().__and__(other)
+        fsm_res = self.fsm & other.fsm
         res = MinDFA.dfa_from_fsm(fsm_res)
         if self.is_all_words == MinDFA.Ternary.FALSE or other.is_all_words == MinDFA.Ternary.FALSE:
             res.is_all_words = MinDFA.Ternary.FALSE
         return res
 
     def __sub__(self, other):
-        fsm_res = super().__sub__(other)
+        fsm_res = self.fsm - other.fsm
         res = MinDFA.dfa_from_fsm(fsm_res)
         if other.is_all_words == MinDFA.Ternary.TRUE:
             res.is_all_words = MinDFA.Ternary.FALSE
@@ -261,6 +249,6 @@ class MinDFA(fsm):
         """
         if not self:
             return NotImplemented
-        str_generator = self.strings()
+        str_generator = self.fsm.strings()
         str_val = next(str_generator)
         return ''.join(ch for ch in str_val)
