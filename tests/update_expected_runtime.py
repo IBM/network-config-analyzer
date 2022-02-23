@@ -8,6 +8,7 @@ def _get_new_run_time(test_name, run_log):
         lines = f.readlines()
     passed_tests = False
     for line in lines:
+        print(line) # for testing
         if 'Passed Tests:' in line:
             passed_tests = True
         if passed_tests:  # getting the runtime of test from the log's summary
