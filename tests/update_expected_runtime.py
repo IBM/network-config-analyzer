@@ -73,8 +73,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
     run_log = args.run_log
     modified_tests_list = args.changed_tests
+    print(f'{modified_tests_list}') # for testing
     if not run_log or not modified_tests_list:
-        print(' missing on of the args') #  for testing
+        print(' missing on of the args')  # for testing
         return 0  # nothing to do
 
     _update_tests_runtime(run_log, modified_tests_list)
