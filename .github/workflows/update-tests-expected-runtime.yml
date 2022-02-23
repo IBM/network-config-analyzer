@@ -36,6 +36,7 @@ jobs:
           search_artifacts: true #for testing
       - name: run script to update expected run time
         run: python tests/update_expected_runtime.py --run_log tests/run_log.txt --changed_tests ${{needs.changed-tests.outputs.changed_tests}}
+      - run: rm tests/run_log.txt
       - name: Commit changes
         uses: EndBug/add-and-commit@v8.0.2
         with:
