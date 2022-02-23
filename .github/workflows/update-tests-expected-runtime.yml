@@ -1,11 +1,11 @@
 name: update-tests-expected-runtime
 on:
   pull_request: # for local testing
-  workflow_dispatch: # manual triggering , runs only on master branch too
-  workflow_run: # works only on master branch
-    workflows: [test-push]
-    types:
-      - completed
+#  workflow_dispatch: # manual triggering , doesn't run on local branch
+#  workflow_run: # doesn't run on local branch
+#    workflows: [test-push]
+#    types:
+#      - completed
 jobs:
   changed-tests:
     runs-on: ubuntu-latest
@@ -19,22 +19,31 @@ jobs:
       - name: get added or modified tests
         id: changes
         run: |
-          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=ACRM master)) | grep -E '*-scheme\.yaml|k8s_cmdline_tests.yaml' | xargs)"
-  lint:
+          echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=AMRD master)) | grep -E '*-scheme\.yaml|k8s_cmdline_tests.yaml' | xargs)"
+  update-tests-runtime:
     runs-on: ubuntu-latest
-    # require the first job to have ran
     needs: changed-tests
-    # only run there are changed files
     if: ${{needs.changed-tests.outputs.changed_tests}}
     steps:
-      - name: echo changed files
-        run: echo ${{needs.changed-tests.outputs.changed_tests}}
-  run-log:
-    runs-on: ubuntu-latest
-    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-nca-env
       - uses: dawidd6/action-download-artifact@v2
         with:
           workflow: test-push.yml
           workflow_conclusion: success
           name: run-alltests-log
           search_artifacts: true #for testing
+      - name: run script to update expected run time
+        run: python tests/update_expected_runtime.py --run_log tests/run_log.txt --changed_tests needs.changed-tests.outputs.changed_tests
+  commit_expected_tests_runtime_file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/setup-nca-env
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v8.0.2
+        with:
+          default_author: github_actions
+          message: 'Updating the tests_expected_runtime.csv file'
+
+
