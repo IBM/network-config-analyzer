@@ -14,7 +14,7 @@ def _get_new_run_time(test_name, run_log):
             if test_name in line:
                 return line.split('(')[1].split(' ')[0]
 
-    return 0.00  # should not get here
+    return ''  # should not get here
 
 
 def _update_run_time_in_row(row, new_run_time):
