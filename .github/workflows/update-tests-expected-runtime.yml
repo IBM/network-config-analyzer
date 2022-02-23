@@ -32,7 +32,7 @@ jobs:
           workflow: test-push.yml
           workflow_conclusion: success
           name: run-alltests-log
-          path: tests/run_log.txt
+          path: tests/
           search_artifacts: true #for testing
       - name: run script to update expected run time
         run: python tests/update_expected_runtime.py --run_log tests/run_log.txt --changed_tests ${{needs.changed-tests.outputs.changed_tests}}
