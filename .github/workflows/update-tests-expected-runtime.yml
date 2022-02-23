@@ -41,5 +41,6 @@ jobs:
         with:
           default_author: github_actions
           message: 'Updating the tests_expected_runtime.csv file'
+          push: false # for testing
 
 
