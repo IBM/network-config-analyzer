@@ -32,9 +32,10 @@ jobs:
           workflow: test-push.yml
           workflow_conclusion: success
           name: run-alltests-log
+          path: tests/run_log.txt
           search_artifacts: true #for testing
       - name: run script to update expected run time
-        run: python tests/update_expected_runtime.py --run_log run_log.txt --changed_tests ${{needs.changed-tests.outputs.changed_tests}}
+        run: python tests/update_expected_runtime.py --run_log tests/run_log.txt --changed_tests ${{needs.changed-tests.outputs.changed_tests}}
   commit_expected_tests_runtime_file:
     runs-on: ubuntu-latest
     steps:
