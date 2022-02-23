@@ -20,15 +20,6 @@ jobs:
         id: changes
         run: |
           echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=AMRD master)) | grep -E '*-scheme\.yaml|k8s_cmdline_tests.yaml' | xargs)"
-  type-list:
-    runs-on: ubuntu-latest
-    # require the first job to have ran
-    needs: changed-tests
-    # only run there are changed files
-    if: ${{needs.changed-tests.outputs.changed_tests}}
-    steps:
-      - name: echo changed files
-        run: echo ${{needs.changed-tests.outputs.changed_tests}}
   update-tests-runtime:
     runs-on: ubuntu-latest
     needs: changed-tests
@@ -43,7 +34,7 @@ jobs:
           name: run-alltests-log
           search_artifacts: true #for testing
       - name: run script to update expected run time
-        run: python tests/update_expected_runtime.py --run_log tests/run_log.txt --changed_tests ${{needs.changed-tests.outputs.changed_tests}}
+        run: python tests/update_expected_runtime.py --run_log run_log.txt --changed_tests ${{needs.changed-tests.outputs.changed_tests}}
   commit_expected_tests_runtime_file:
     runs-on: ubuntu-latest
     steps:
