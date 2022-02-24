@@ -48,8 +48,8 @@ class TestMinDFA(unittest.TestCase):
         print(res1)
         self.assertFalse(res1)
 
-        dfa6 = dfa6.get_fsm()
-        dfa4 = dfa4.get_fsm()
+        dfa6 = dfa6.fsm
+        dfa4 = dfa4.fsm
         res2 = dfa6.equivalent(dfa4)
         print(res2)
         self.assertTrue(res2)
@@ -164,9 +164,9 @@ class TestMinDFA(unittest.TestCase):
         d = dict()
         d[dfa1] = "put"
         self.assertEqual(d[dfa1], d[dfa2])
-        self.assertEqual(dfa1.alphabet, dfa2.alphabet)
+        self.assertEqual(dfa1.fsm.alphabet, dfa2.fsm.alphabet)
         dfa3 = dfa1 & all2
-        self.assertNotEqual(dfa1.alphabet, dfa3.alphabet)
+        self.assertNotEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
         self.assertEqual(d[dfa1], d[dfa3])
 
     '''
