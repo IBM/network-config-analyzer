@@ -59,3 +59,4 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: yaml
   expectedOutput: expected_output/calico-testcase3_connectivity_map_firstAllowSuperSet_query_output.yaml
+# testing
