@@ -13,7 +13,6 @@ from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
 from PortSet import PortSet
 from MethodSet import MethodSet
-from TcpLikeProperties import TcpLikeProperties
 
 
 class IstioPolicyYamlParser(GenericYamlParser):
@@ -366,22 +365,6 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if not res:
             # adding a warning for empty dfa, which implies empty connection set for this rule's operation
             self.warning(f'Empty values for {dim_name} within operation', operation_dict)
-        return res
-
-    @staticmethod
-    def _get_connection_set_from_properties(dest_ports, method_set=MethodSet(True), paths_dfa=None, hosts_dfa=None):
-        """
-        get ConnectionSet with TCP allowed connections, corresponding to input properties cube
-        :param PortSet dest_ports: ports set for dset_ports dimension
-        :param MethodSet method_set: methods set for methods dimension
-        :param MinDFA paths_dfa: MinDFA obj for paths dimension
-        :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
-        :return: ConnectionSet with TCP allowed connections , corresponding to input properties cube
-        """
-        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=method_set,
-                                           paths=paths_dfa, hosts=hosts_dfa)
-        res = ConnectionSet()
-        res.add_connections('TCP', tcp_properties)
         return res
 
     def _parse_method(self, method_str, operation):

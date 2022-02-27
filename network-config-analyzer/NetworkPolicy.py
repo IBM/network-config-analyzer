@@ -24,6 +24,7 @@ class NetworkPolicy:
         CalicoGlobalNetworkPolicy = 3
         CalicoProfile = 4
         IstioAuthorizationPolicy = 10
+        Ingress = 20
         List = 500
 
     def __init__(self, name, namespace):
@@ -119,6 +120,8 @@ class NetworkPolicy:
                 policy_type = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
         elif kind == 'NetworkPolicy':
             policy_type = NetworkPolicy.PolicyType.K8sNetworkPolicy
+        elif kind == 'Ingress':
+            policy_type = NetworkPolicy.PolicyType.Ingress
 
         return policy_type
 

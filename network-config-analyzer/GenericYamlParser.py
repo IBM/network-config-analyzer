@@ -6,8 +6,11 @@
 from sys import stderr
 from ruamel.yaml import comments
 from enum import Enum
-
 from DimensionsManager import DimensionsManager
+from TcpLikeProperties import TcpLikeProperties
+from MethodSet import MethodSet
+from ConnectionSet import ConnectionSet
+from PortSet import PortSet
 
 
 class GenericYamlParser:
@@ -162,3 +165,19 @@ class GenericYamlParser:
         is_valid, err_message = DimensionsManager().validate_value_by_domain(value, dim_name, value_name)
         if not is_valid:
             self.syntax_error(err_message, array)
+
+    @staticmethod
+    def _get_connection_set_from_properties(dest_ports, method_set=MethodSet(False), paths_dfa=None, hosts_dfa=None):
+        """
+        get ConnectionSet with TCP allowed connections, corresponding to input properties cube
+        :param PortSet dest_ports: ports set for dset_ports dimension
+        :param MethodSet method_set: methods set for methods dimension
+        :param MinDFA paths_dfa: MinDFA obj for paths dimension
+        :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
+        :return: ConnectionSet with TCP allowed connections , corresponding to input properties cube
+        """
+        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=method_set,
+                                           paths=paths_dfa, hosts=hosts_dfa)
+        res = ConnectionSet()
+        res.add_connections('TCP', tcp_properties)
+        return res

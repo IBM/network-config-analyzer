@@ -8,6 +8,7 @@ from Peer import PeerSet, Pod, IpBlock, HostEP
 from K8sNamespace import K8sNamespace
 from GenericYamlParser import GenericYamlParser
 from K8sServiceYamlParser import K8sServiceYamlParser
+from K8sService import K8sService
 from CmdlineRunner import CmdlineRunner
 from GenericTreeScanner import TreeScannerFactory
 
@@ -145,6 +146,16 @@ class PeerContainer:
         print(f'{config_name}: cluster has {self.get_num_peers()} unique endpoints, '
               f'{self.get_num_namespaces()} namespaces')
 
+    def get_service_by_name_and_ns(self, name, ns):
+        """
+        Returns a service with a given name and a given namespace
+        :param name: the service name
+        :param ns: the service namespace
+        :return: The K8sService object
+        """
+        full_name = K8sService.service_full_name(name, ns)
+        return self.services.get(full_name)
+
     def set_services_and_populate_target_pods(self, srv_list):
         """
         Populates services from the given service list,
@@ -174,7 +185,8 @@ class PeerContainer:
                               f' is not defined in the pod {pod}. Ignoring the pod')
                         pods_to_remove.add(pod)
                 srv.target_pods -= pods_to_remove
-
+            if not srv.target_pods:
+                print(f'Warning: The service {srv.name} does not reference any pod')
             self.services[srv.full_name()] = srv
 
     def delete_all_namespaces(self):
@@ -528,6 +540,18 @@ class PeerContainer:
         for peer in self.peer_set:
             if peer.namespace == namespace:
                 res.add(peer)
+        return res
+
+    def get_pods_with_service_name_containing_given_string(self, name_substring):
+        """
+        Returns all pods that belong to services whose name contains the given substring
+        :param str name_substring: the service name substring
+        :return: PeerSet
+        """
+        res = PeerSet()
+        for key, val in self.services.items():
+            if name_substring in key:
+                res |= val.target_pods
         return res
 
     def get_pods_with_service_account_name(self, sa_name, namespace_str):
