@@ -1,11 +1,6 @@
 name: resets-tests-expected-runtime
 on:
-  pull_request: # for testing
   workflow_dispatch: # manual triggering
-#  workflow_run:
-#    workflows: [test-push]
-#    types:
-#      - completed
 jobs:
   reset_all_tests_runtime:
     runs-on: ubuntu-latest
