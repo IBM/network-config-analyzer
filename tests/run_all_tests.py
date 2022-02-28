@@ -148,6 +148,8 @@ class GeneralTest:
                     csv_writer.writerow(['test_name', 'expected_run_time (seconds)', 'actual_run_time (seconds)'])
                 csv_writer.writerow([self.test_name, expected_run_time, f'{actual_run_time:.2f}'])
             csv_file.close()
+            if actual_run_time > expected_run_time * 5:
+                raise Exception(f'Conducted Performance issue, {self.test_name} took too long to finish ')
 
     def finalize_test(self):
         if not self.test_passed():

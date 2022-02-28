@@ -1,4 +1,4 @@
-name: resets-tests-expected-runtime
+name: reset-tests-expected-runtime
 on:
   workflow_dispatch: # manual triggering
 jobs:
@@ -13,7 +13,7 @@ jobs:
           workflow_conclusion: success
           name: run-alltests-log
           path: tests/
-      - name: run script to update expected run time file
+      - name: run script to update expected run time for all tests
         run: python tests/update_expected_runtime.py --changed_tests ALL_TESTS
       - run: rm tests/run_log.txt
       - name: Commit changes
