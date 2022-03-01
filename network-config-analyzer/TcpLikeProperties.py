@@ -22,18 +22,18 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     The representation with named ports is considered a mid-representation, and is required due to the late binding
     of the named ports to real ports numbers.
     The method convert_named_ports is responsible for applying this late binding, and is called by a policy's method
-    allowed_connections(), to get the the actual policy's allowed connections, given src peer, dest peer and direction ingress/egress.
-    Given a specific context of dest peer, the pod's named ports mapping is known, and used for the named ports conversion.
+    allowed_connections() to get policy's allowed connections, given <src, dest> peers and direction ingress/egress
+    Given a specific dest-peer context, the pod's named ports mapping is known, and used for the named ports conversion.
     Some of the operators for TcpLikeProperties are not supported for objects with (included and excluded) named ports.
     For example, in the general case, the result for (all but port "x") | (all but port 10) has 2 options:
         (1) if the dest pod has named port "x" mapped to 10 -> the result would be: (all but port 10)
         (2) otherwise, the result would be: (all ports)
     Thus, for the 'or' operator, the assumption is that excluded named ports is empty for both input objects.
-    Some methods, such as bool(), str(), may not return accurate results on objects with named ports (included/excluded),
+    Some methods, such as bool(), str(), may not return accurate results on objects with named ports (included/excluded)
     since they depend on the late binding with actual dest pod context.
     The current actual flow for using named ports is limited for the following:
-    (1) k8s: only positive named ports, only dest named ports (no src ports), and only use of 'or' operators between these objects.
-    (2) calico: positive and negative named ports, only dest named ports (no src ports), and no use of operators between these objects.
+    (1) k8s: only +ve named ports, no src named ports, and only use of 'or' operators between these objects.
+    (2) calico: +ve and -ve named ports, no src named ports, and no use of operators between these objects.
     """
 
     dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts"]
@@ -156,7 +156,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
-                  self.excluded_named_ports == other.excluded_named_ports
+                self.excluded_named_ports == other.excluded_named_ports
             return res
         return NotImplemented
 
@@ -242,13 +242,15 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             real_port = named_ports.get(port)
             if real_port and real_port[1] == protocol:
                 real_port_number = real_port[0]
-                rectangle = [my_named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
+                rectangle = [my_named_ports[port],
+                             CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
                 self.add_cube(rectangle)
         for port in my_excluded_named_ports:
             real_port = named_ports.get(port)
             if real_port and real_port[1] == protocol:
                 real_port_number = real_port[0]
-                rectangle = [my_excluded_named_ports[port], CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
+                rectangle = [my_excluded_named_ports[port],
+                             CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
                 self.add_hole(rectangle)
 
     def copy(self):

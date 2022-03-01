@@ -51,7 +51,7 @@ class NamespaceResource(NCAResource):
         if ns_name not in self.peer_container.get_namespaces().keys():
             return f'Namespace {escape(ns_name)} does not exist', 404
         # ns = self.peer_container.get_namespace(ns_name)
-        return {ns_name:  'OK'}
+        return {ns_name: 'OK'}
 
 
 class PodListResource(NCAResource):

@@ -78,7 +78,8 @@ class MinDFA:
     def __eq__(self, other):
         if not isinstance(other, MinDFA):
             return False
-        res = self.fsm.states == other.fsm.states and self.fsm.initial == other.fsm.initial and self.fsm.finals == other.fsm.finals and self.fsm.map == other.fsm.map
+        res = self.fsm.states == other.fsm.states and self.fsm.initial == other.fsm.initial and \
+            self.fsm.finals == other.fsm.finals and self.fsm.map == other.fsm.map
         return res
 
     def __ne__(self, other):
