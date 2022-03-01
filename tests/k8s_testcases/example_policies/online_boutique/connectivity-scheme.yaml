@@ -53,11 +53,11 @@ queries:
     #  outputPath: online_boutique_orig_synthesis_res.dot
     expectedOutput: ../../expected_output/orig_online_boutique_synthesis_res_connectivity_map.txt
 
-  - name: semantic_diff_online_boutique_new_vs_snythesized_new
+  - name: semantic_diff_online_boutique_new_vs_synthesized_new
     semanticDiff:
       - new_online_boutique
       - new_online_synthesis_res
-    expectedOutput: ../../expected_output/semantic_diff_online_boutique_new_vs_snythesized_new.txt
+    expectedOutput: ../../expected_output/semantic_diff_online_boutique_new_vs_synthesized_new.txt
 
 
   - name: semantic_diff_online_boutique_new_synthesized_vs_orig_synthesized
