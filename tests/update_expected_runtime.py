@@ -79,6 +79,15 @@ def _add_cmdline_tests_to_file():
 
 
 def _update_tests_runtime(modified_tests_list):
+    """
+    This function updates tests_expected_runtime.csv file for tests that were changed in recent commits.
+    :param modified_tests_list: taken from the output of 'git diff' command. Includes:
+    Added tests - a new row of test name and its runtime will be added to the file for each new test.
+    Modified tests - this function updates the last runtime of the modified tests in the expected runtime file.
+    Renamed tests -  this function adds a new row with the new name of the renamed test in tests_expected_runtime.csv,
+    the row with the old name will not be removed as it will not appear in the git diff cmd output.
+    Deleted tests - this function removes the rows of deleted tests in tests_expected_runtime.csv.
+    """
     lines_to_delete = []
     lines_to_update = []
     cmdline_flag = False
