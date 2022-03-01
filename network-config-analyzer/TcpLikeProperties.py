@@ -109,6 +109,9 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         cubes_dict_list = [self.get_cube_dict(cube, self.active_dimensions, True) for cube in self]
         return ','.join(str(cube_dict) for cube_dict in cubes_dict_list)
 
+    def __hash__(self):
+        return super().__hash__()
+
     @staticmethod
     def get_cube_dict(cube, dims_list, is_txt=False):
         """
