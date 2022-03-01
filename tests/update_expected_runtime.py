@@ -75,7 +75,7 @@ def _add_cmdline_tests_to_file():
     lines = _get_run_log_summary_lines()
     for line in lines:
         if 'cmdline_' in line:
-            _add_test_to_expected_runtime_file(_get_test_name_from_line(line), _get_test_run_time_from_line())
+            _add_test_to_expected_runtime_file(_get_test_name_from_line(line), _get_test_run_time_from_line(line))
 
 
 def _update_tests_runtime(modified_tests_list):
