@@ -1,0 +1,221 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: frontend-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/loadgenerator
+    to:
+    - operation:
+        ports:
+        - '8080'
+  selector:
+    matchLabels:
+      app: frontend
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: adservice-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend
+    to:
+    - operation:
+        ports:
+        - '9555'
+  selector:
+    matchLabels:
+      app: adservice
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: checkoutservice-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend
+    to:
+    - operation:
+        ports:
+        - '5050'
+  selector:
+    matchLabels:
+      app: checkoutservice
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: cartservice-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/checkoutservice
+    to:
+    - operation:
+        ports:
+        - '7070'
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend
+    to:
+    - operation:
+        ports:
+        - '7070'
+  selector:
+    matchLabels:
+      app: cartservice
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: currencyservice-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/checkoutservice
+    to:
+    - operation:
+        ports:
+        - '7000'
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend
+    to:
+    - operation:
+        ports:
+        - '7000'
+  selector:
+    matchLabels:
+      app: currencyservice
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: emailservice-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/checkoutservice
+    to:
+    - operation:
+        ports:
+        - '8080'
+  selector:
+    matchLabels:
+      app: emailservice
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: loadgenerator-authpol
+spec:
+  rules: []
+  selector:
+    matchLabels:
+      app: loadgenerator
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: paymentservice-authpol
+spec:
+  rules: []
+  selector:
+    matchLabels:
+      app: paymentservice
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: productcatalogservice-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/checkoutservice
+    to:
+    - operation:
+        ports:
+        - '3550'
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend
+    to:
+    - operation:
+        ports:
+        - '3550'
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/recommendationservice
+    to:
+    - operation:
+        ports:
+        - '3550'
+  selector:
+    matchLabels:
+      app: productcatalogservice
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: recommendationservice-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend
+    to:
+    - operation:
+        ports:
+        - '8080'
+  selector:
+    matchLabels:
+      app: recommendationservice
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: shippingservice-authpol
+spec:
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/checkoutservice
+    to:
+    - operation:
+        ports:
+        - '50051'
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/default/sa/frontend
+    to:
+    - operation:
+        ports:
+        - '50051'
+  selector:
+    matchLabels:
+      app: shippingservice

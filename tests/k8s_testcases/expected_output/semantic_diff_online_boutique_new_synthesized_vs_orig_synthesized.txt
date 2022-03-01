@@ -1,0 +1,11 @@
+orig_online_boutique_synthesis_res and new_online_synthesis_res are not semantically equivalent.
+Lost connections between removed peers and persistent peers:
+Removed connections (based on topology from config: orig_online_boutique_synthesis_res) :
+src_ns: [default] src_pods: [cartservice] dst_ns: [default] dst_pods: [redis-cart] conn: TCP 6379
+
+Changed connections between persistent peers and ipBlocks:
+Removed connections (based on topology from config: orig_online_boutique_synthesis_res) :
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src ip block: ::/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+
+
