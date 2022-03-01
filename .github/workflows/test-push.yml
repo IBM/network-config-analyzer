@@ -27,7 +27,7 @@ jobs:
       - uses: ./.github/actions/setup-nca-env
       - run: pip install flake8
       - name: Lint with flake8
-        run: flake8 network-config-analyzer --count --max-complexity=10 --max-line-length=127 --statistics --ignore E402,F401,C901
+        run: flake8 network-config-analyzer --count --max-complexity=15 --max-line-length=127 --statistics --ignore F401
 
   unit-tests:
     runs-on: ubuntu-latest
