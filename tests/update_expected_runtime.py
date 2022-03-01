@@ -130,6 +130,9 @@ def _reset_expected_runtime_file():
 
 
 def _reset_tests_runtime():
+    """
+    This function updates tests_expected_runtime.csv file by resetting the runtime of all existing tests.
+    """
     print('Resetting all tests with their last runtime...')
     _reset_expected_runtime_file()
     lines = _get_run_log_summary_lines()
