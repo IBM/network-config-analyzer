@@ -238,7 +238,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
 
         if pod_selector is not None:
             selected_pods = self.parse_label_selector(pod_selector) & res
-            if pod_selector and selected_pods == res:
+            if pod_selector and selected_pods == res and res:
                 self.warning('A podSelector selects all pods in the current namespace; it should better be removed.',
                              pod_selector)
             res = selected_pods

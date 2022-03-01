@@ -31,7 +31,7 @@ networkConfigList:
   - name: old1
     networkPolicyList:
       - old1.yaml
-    expectedWarnings: 8
+    expectedWarnings: 6
 
   - name: np1
     networkPolicyList:
