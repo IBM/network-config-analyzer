@@ -104,7 +104,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
             values_list = self._get_all_principals_str_list_from_topology()
         elif field_name == 'methods':
             values_list = MethodSet.all_methods_list
-            
+
         if '*' not in regex_str:  # exact match
             return [regex_str] if regex_str in values_list else []
         elif regex_str == '*':  # presence match
@@ -549,7 +549,8 @@ class IstioPolicyYamlParser(GenericYamlParser):
         else:  # no 'to' in the rule => all connections allowed
             connections = ConnectionSet(True)
 
-        # condition possible result value: source-ip (from) , source-namespace (from) [Peerset], destination.port (to) [ConnectionSet]
+        # condition possible result value:
+        #         source-ip (from) , source-namespace (from) [Peerset], destination.port (to) [ConnectionSet]
         # should update either res_pods or connections according to the condition
         condition_array = rule.get('when')  # this array can be empty (unlike 'to' and 'from')
         # the combined condition ("AND" of all conditions) should be applied

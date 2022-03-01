@@ -185,6 +185,7 @@ class HostEP(ClusterEP):
     def is_global_peer(self):
         return True
 
+
 class IPNetworkAddress:
     """
     This class represents an arbitrary network address (either IPv4 or IPv6)
@@ -298,7 +299,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
     def get_cidr_list(self):
         cidr_list = []
         for interval in self.interval_set:
-            startip = interval.start.address.__class__(interval.start) # either IPv4AAddress or IPv6Address
+            startip = interval.start.address.__class__(interval.start)  # either IPv4AAddress or IPv6Address
             endip = interval.end.address.__class__(interval.end)
             cidr = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
             cidr_list.append(str(cidr[0]))
@@ -340,12 +341,14 @@ class IpBlock(Peer, CanonicalIntervalSet):
 
     def add_cidr(self, cidr, exceptions=None):
         ipn = ip_network(cidr, False)  # strict is False as k8s API shows an example CIDR where host bits are set
-        self.add_interval(CanonicalIntervalSet.Interval(IPNetworkAddress(ipn.network_address), IPNetworkAddress(ipn.broadcast_address)))
+        self.add_interval(CanonicalIntervalSet.Interval(IPNetworkAddress(ipn.network_address),
+                                                        IPNetworkAddress(ipn.broadcast_address)))
         for exception in exceptions or []:
             exception_n = ip_network(exception, False)
             # the following line has no effect - only used to raise an exception when exception_n is not within cidr
             exception_n.subnet_of(ipn)
-            hole = CanonicalIntervalSet.Interval(IPNetworkAddress(exception_n.network_address), IPNetworkAddress(exception_n.broadcast_address))
+            hole = CanonicalIntervalSet.Interval(IPNetworkAddress(exception_n.network_address),
+                                                 IPNetworkAddress(exception_n.broadcast_address))
             self.add_hole(hole)
 
     def get_peer_set(self):

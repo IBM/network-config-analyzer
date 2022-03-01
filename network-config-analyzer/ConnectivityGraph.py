@@ -62,7 +62,8 @@ class ConnectivityGraph:
         output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
         output_result += 'digraph ' + '{\n'
         if self.output_config.queryName and self.output_config.configName:
-            output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
+            output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/' \
+                             f'{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
         peer_lines = set()
         for peer in self.cluster_info.all_peers:
             peer_name, is_ip_block = self._get_peer_name(peer)
@@ -82,7 +83,8 @@ class ConnectivityGraph:
                     conn_str = str(connections).replace("Protocol:", "")
                     line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
                     edge_lines.add(line)
-        output_result += ''.join(line for line in sorted(list(peer_lines))) + ''.join(line for line in sorted(list(edge_lines))) + '}\n\n'
+        output_result += ''.join(line for line in sorted(list(peer_lines))) + \
+                         ''.join(line for line in sorted(list(edge_lines))) + '}\n\n'
         return output_result
 
     def get_minimized_firewall_rules(self):
@@ -133,9 +135,8 @@ class ConnectivityGraph:
             # TODO: figure out why we have pairs with (ip,ip) ?
             peer_pairs_filtered = self._get_peer_pairs_filtered(peer_pairs)
             peer_pairs_in_containing_connections = cs_containment_map[connections]
-            fw_rules, results_per_info = minimize_cs.compute_minimized_fw_rules_per_connection(connections,
-                                                                                               peer_pairs_filtered,
-                                                                                               peer_pairs_in_containing_connections)
+            fw_rules, results_per_info = minimize_cs.compute_minimized_fw_rules_per_connection(
+                connections, peer_pairs_filtered, peer_pairs_in_containing_connections)
             fw_rules_map[connections] = fw_rules
             results_map[connections] = results_per_info
 

@@ -105,7 +105,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.allowed_labels.add(key)
             if is_namespace_selector:
                 return all_peers & self.peer_container.get_namespace_pods_with_label(key, [substr], action)
-            return all_peers & self.peer_container.get_peers_with_label(key, [substr],  action)
+            return all_peers & self.peer_container.get_peers_with_label(key, [substr], action)
 
         self.syntax_error('Invalid expression', origin_map)
         return None
@@ -124,7 +124,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         while expression.startswith('(') and expression.endswith(')'):
             n_brackets = 0
             do_not_remove = False
-            for c in expression[0:len(expression)-1]:
+            for c in expression[0:len(expression) - 1]:
                 if c == '(':
                     n_brackets += 1
                 if c == ')':
@@ -198,7 +198,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 all_peers = self.peer_container.get_all_peers_group(include_globals=include_globals)
             else:
                 all_peers = self.peer_container.get_namespace_pods(namespace)
-            return all_peers - self._recursive_parse_label_selector(label_selector[1:], origin_map, namespace, namespace_selector)
+            return all_peers - self._recursive_parse_label_selector(label_selector[1:], origin_map, namespace,
+                                                                    namespace_selector)
 
         # there is no operator, parsing the expression:
         return self._parse_selector_expr(splitted_expr[0], origin_map, namespace, namespace_selector)
@@ -220,7 +221,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         selector_type = 'namespaceSelector' if namespace_selector else 'selector'
         if not res:
             self.warning(selector_type + ' selects no endpoints.', origin_map)
-        elif res == self.peer_container.get_all_peers_group(include_globals=not namespace_selector) and label_selector and label_selector != 'all()' and 'global()' not in label_selector:
+        elif res == self.peer_container.get_all_peers_group(include_globals=not namespace_selector) and \
+                label_selector and label_selector != 'all()' and 'global()' not in label_selector:
             self.warning(selector_type + ' selects all endpoints - better delete or use "all()".', origin_map)
 
         return res
@@ -351,7 +353,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         :rtype: PeerSet, PortSet
         """
         allowed_elements = {'nets': 0, 'notNets': 0, 'selector': 0, 'notSelector': 0,
-                            'namespaceSelector': 0,  'ports': 0, 'notPorts': 0, 'serviceAccounts': 2}
+                            'namespaceSelector': 0, 'ports': 0, 'notPorts': 0, 'serviceAccounts': 2}
         self.check_fields_validity(entity_rule, 'network policy peer', allowed_elements)
 
         return self._get_rule_peers(entity_rule), self._get_rule_ports(entity_rule, protocol_supports_ports)

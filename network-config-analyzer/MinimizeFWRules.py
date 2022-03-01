@@ -126,7 +126,7 @@ class MinimizeCsFwRules:
         covered_peer_pairs_union = self.peer_pairs | self.peer_pairs_in_containing_connections
 
         all_pods_set = set(src for (src, dst) in self.peer_pairs if isinstance(src, ClusterEP)) | \
-                       set(dst for (src, dst) in self.peer_pairs if isinstance(dst, ClusterEP))
+            set(dst for (src, dst) in self.peer_pairs if isinstance(dst, ClusterEP))
         for pod in all_pods_set:
             covered_peer_pairs_union |= {(pod, pod)}
         self.covered_peer_pairs_union = covered_peer_pairs_union
@@ -255,7 +255,8 @@ class MinimizeCsFwRules:
         Implements pods grouping by labels in a single namespace.
         :param pods_set: the set of pods for grouping.
         :param ns: the namespace
-        :param extra_pods_set: additional pods that can be used for completing the grouping (originated in containing connections).
+        :param extra_pods_set: additional pods that can be used for completing the grouping
+                               (originated in containing connections).
         :return:
         chosen_rep:  a list of tuples (key,values,ns) -- as the chosen representation for grouping the pods.
         remaining_pods: set of pods from pods_list that are not included in the grouping result
@@ -281,7 +282,8 @@ class MinimizeCsFwRules:
                 pods_with_label_val_from_pods_list = all_pods_per_label_val & all_pods_set
                 pods_with_label_val_from_original_pods_list = all_pods_per_label_val & pods_set
                 # allow to "borrow" from extra_pods_set only if at least one pod is also in original pods_set
-                if all_pods_per_label_val == pods_with_label_val_from_pods_list and pods_with_label_val_from_original_pods_list:
+                if all_pods_per_label_val == pods_with_label_val_from_pods_list and \
+                        pods_with_label_val_from_original_pods_list:
                     fully_covered_label_values |= {v}
                     pods_with_fully_covered_label_values |= pods_with_label_val_from_pods_list
             # TODO: is it OK to ignore label-grouping if only one pod is involved?
@@ -438,7 +440,7 @@ class MinimizeCsFwRules:
 
         if pod_and_pod_labels_elems:
             # grouping of pod and pod-labels elements
-            # TODO: currently adding this due to example in test24, where single pod-labels elem is replaced by another grouping
+            # TODO: currently adding this due to example in test24: a single pod-labels elem is replaced by another grouping
             if len(pod_and_pod_labels_elems) == 1 and isinstance(list(pod_and_pod_labels_elems)[0], PodLabelsElement):
                 elem = list(pod_and_pod_labels_elems)[0]
                 fw_rule = FWRule(fixed_elem, elem, self.connections) if src_first else FWRule(elem, fixed_elem,
