@@ -1,3 +1,6 @@
+namespaceList: new_online_boutique_manifests/
+podList: new_online_boutique_manifests/
+
 networkConfigList:
   - name: new_online_boutique
     podList: ./new_online_boutique_manifests/
