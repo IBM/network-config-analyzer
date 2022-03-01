@@ -36,7 +36,7 @@ class CalicoPolicyRule:
 
     def __eq__(self, other):
         return self.src_peers == other.src_peers and self.dst_peers == other.dst_peers and \
-               self.connections == other.connections and self.action == other.action
+            self.connections == other.connections and self.action == other.action
 
     def contained_in(self, other):
         """

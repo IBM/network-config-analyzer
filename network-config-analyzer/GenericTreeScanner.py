@@ -55,8 +55,8 @@ class GenericTreeScanner(abc.ABC):
         try:
             yield YamlFile(yaml.load_all(decoded_stream), path)
         except error.MarkedYAMLError as parse_error:
-            print(parse_error.problem_mark.name + ':' + str(parse_error.problem_mark.line) + ':' +
-                  str(parse_error.problem_mark.column) + ':', 'Parse Error:', parse_error.problem, file=stderr)
+            print(f'{parse_error.problem_mark.name}:{parse_error.problem_mark.line}:{parse_error.problem_mark.column}:',
+                  'Parse Error:', parse_error.problem, file=stderr)
             return
         except error.YAMLError:
             print('Bad yaml file:', path, file=stderr)

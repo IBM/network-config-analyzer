@@ -25,7 +25,7 @@ class PortSet:
     def __eq__(self, other):
         if isinstance(other, PortSet):
             return self.port_set == other.port_set and self.named_ports == other.named_ports and \
-                   self.excluded_named_ports == other.excluded_named_ports
+                self.excluded_named_ports == other.excluded_named_ports
         return NotImplemented
 
     def __bool__(self):
