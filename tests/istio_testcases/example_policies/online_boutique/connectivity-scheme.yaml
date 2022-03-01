@@ -1,0 +1,57 @@
+networkConfigList:
+  - name: new_online_boutique
+    podList: ./new_online_boutique_manifests_istio/
+    namespaceList: ./new_online_boutique_manifests_istio/
+    networkPolicyList:
+      - ./new_online_boutique_manifests_istio/
+    expectedWarnings: 0
+
+  - name: new_online_boutique_synthesis_res
+    podList: ./new_online_boutique_manifests_istio/
+    namespaceList: ./new_online_boutique_manifests_istio/
+    networkPolicyList:
+      - synthesis_res_istio_new_online_boutique_with_sa.yaml
+    expectedWarnings: 0
+
+  - name: new_online_boutique_synthesis_res_with_baseline_restrict_access_to_payment_service
+    podList: ./new_online_boutique_manifests_istio/
+    namespaceList: ./new_online_boutique_manifests_istio/
+    networkPolicyList:
+      - online-boutique-with-sa-istio-auth-policies-restrict_access_to_payment-baseline.yaml
+    expectedWarnings: 0
+
+queries:
+  - name: new_online_boutique_connectivity_map
+    connectivityMap:
+      - new_online_boutique
+    expected: 0
+    #outputConfiguration:
+    #  outputFormat: dot
+    #  outputPath: online_boutique_new_istio_policies.dot
+    expectedOutput: ../../expected_output/new_online_boutique_connectivity_map.txt
+
+  - name: new_online_boutique_synth_res_connectivity_map
+    connectivityMap:
+      - new_online_boutique_synthesis_res
+    expected: 0
+    #outputConfiguration:
+    #  outputFormat: dot
+    #  outputPath: online_boutique_new_istio_policies_synthesis_res.dot
+    expectedOutput: ../../expected_output/new_online_boutique_synth_res_connectivity_map.txt
+
+  - name: semantic_diff_online_boutique_new_input_vs_synth_res
+    semanticDiff:
+      - new_online_boutique
+      - new_online_boutique_synthesis_res
+    expectedOutput: ../../expected_output/semantic_diff_online_boutique_new_input_vs_synth_res.txt
+
+  - name: new_online_boutique_synth_res_connectivity_map_with_baseline_rule
+    connectivityMap:
+      - new_online_boutique_synthesis_res_with_baseline_restrict_access_to_payment_service
+    expectedOutput: ../../expected_output/new_online_boutique_synth_res_connectivity_map_with_baseline_rule.txt
+
+  - name: semantic_diff_online_boutique_new_synth_res_vs_synth_with_baseline_res
+    semanticDiff:
+      - new_online_boutique_synthesis_res
+      - new_online_boutique_synthesis_res_with_baseline_restrict_access_to_payment_service
+    expectedOutput: ../../expected_output/semantic_diff_online_boutique_new_synth_res_vs_synth_with_baseline_res.txt
