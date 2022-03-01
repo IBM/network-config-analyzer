@@ -113,7 +113,7 @@ def _update_tests_runtime(modified_tests_list):
                     else:  # Modified Tests
                         lines_to_update.append((line_number, test))
             if not found_test:  # Added Tests / Renamed Tests (the new name)
-                print(f'Adding new row for {test_name} with its expected runtime')
+                print(f'Adding new row for {test} with its expected runtime')
                 _add_test_to_expected_runtime_file(test_name, _get_new_run_time(test_name))
 
     if lines_to_update or lines_to_delete:
