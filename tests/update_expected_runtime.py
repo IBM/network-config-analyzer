@@ -28,7 +28,7 @@ def _get_test_name_from_line(line):
 
 def _get_test_run_time_from_line(line):
     run_time = line.split('(')[1].split(' ')[0]
-    # we multiply the runtime of tests in the special_test_cases tuple, since their running time may vary for each run
+    # multiplying the runtime of tests in the special_test_cases tuple, since their running time may vary for each run
     test_name = _get_test_name_from_line(line)
     if test_name.endswith(special_test_cases):
         run_time = format(float(run_time) * 2, '.2f')
