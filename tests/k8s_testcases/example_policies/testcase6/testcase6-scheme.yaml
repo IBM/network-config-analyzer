@@ -50,13 +50,3 @@ queries:
       - np2
       - np1
     expected: 0
-  - name: containment_np1_and_np2_test2
-    containment:
-      - np1
-      - np2
-    expected: 0
-  - name: containment_np2_and_np1_test2
-    containment:
-      - np2
-      - np1
-    expected: 0
