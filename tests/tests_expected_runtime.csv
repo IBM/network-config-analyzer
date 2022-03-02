@@ -19,7 +19,7 @@ test,run_time(seconds)
 ./k8s_testcases/example_policies/testcase3/testcase3-scheme.yaml,0.41
 ./k8s_testcases/example_policies/testcase4/testcase4-scheme.yaml,0.11
 ./k8s_testcases/example_policies/testcase5/testcase5-scheme.yaml,0.20
-./k8s_testcases/example_policies/testcase6/testcase6-scheme.yaml,0.04
+./k8s_testcases/example_policies/testcase6/testcase6-scheme.yaml,0.07
 ./k8s_testcases/example_policies/testcase7/testcase7-scheme.yaml,0.33
 ./k8s_testcases/example_policies/testcase8/testcase8-scheme.yaml,0.05
 ./k8s_testcases/example_policies/testcase9-sanity/testcase9-sanity-scheme.yaml,0.40
@@ -118,25 +118,28 @@ test,run_time(seconds)
 ./istio_testcases/example_policies/bookinfo-demo/bookinfo-test-principals-scheme.yaml,0.18
 ./istio_testcases/example_policies/test-istio-scheme-files-options/test-np-from-dir-scheme.yaml,0.10
 ./istio_testcases/example_policies/bookinfo-demo/bookinfo-test-equiv-scheme.yaml,0.36
-./istio_testcases/example_policies/testcase1/testcase1-istio-scheme.yaml,7.52
 ./istio_testcases/example_policies/testcase2/testcase2-istio-scheme.yaml,5.95
 ./istio_testcases/example_policies/testcase3/testcase3-istio-scheme.yaml,1.87
 ./istio_testcases/example_policies/bookinfo-from-live-cluster/connectivity-map-by-deployments-scheme.yaml,0.3
-"k8s_cmdline_tests.yaml, query name: basic_sanity",0.06
-"k8s_cmdline_tests.yaml, query name: basic_connectivity",0.06
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.07
-"k8s_cmdline_tests.yaml, query name: basic_equiv",0.05
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.23
+calico_testcases/example_policies/testcase1/testcase1-old-scheme.yaml,0.74
+fw_rules_tests/policies/new-test-1-scheme.yaml,0.36
+"k8s_cmdline_tests.yaml, query name: basic_sanity",0.09
+"k8s_cmdline_tests.yaml, query name: basic_connectivity",0.08
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_txt",0.08
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.08
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_csv",0.09
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_md",0.08
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_dot",0.07
+"k8s_cmdline_tests.yaml, query name: basic_equiv",0.10
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.24
 "k8s_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.03
-"k8s_cmdline_tests.yaml, query name: basic_interferes",0.03
-"k8s_cmdline_tests.yaml, query name: basic_forbids",0.03
-"k8s_cmdline_tests.yaml, query name: basic_permits",0.03
-"k8s_cmdline_tests.yaml, query name: git_resources",7.5
-"k8s_cmdline_tests.yaml, query name: return_0",0.04
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_txt",0.07
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_csv",0.07
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_md",0.06
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_dot",0.05
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.24
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.23
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.24
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.25
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.25
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.25
+"k8s_cmdline_tests.yaml, query name: basic_interferes",0.04
+"k8s_cmdline_tests.yaml, query name: basic_forbids",0.05
+"k8s_cmdline_tests.yaml, query name: basic_permits",0.06
+"k8s_cmdline_tests.yaml, query name: git_resources",15.03
+"k8s_cmdline_tests.yaml, query name: return_0",0.05
+"k8s_cmdline_tests.yaml, query name: basic_permits_second_test",0.04
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml_second_test",0.26
