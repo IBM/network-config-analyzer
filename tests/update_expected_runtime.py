@@ -6,7 +6,7 @@ import argparse
 # global variables - files names
 run_log = 'tests/run_log.txt'
 expected_time_file = 'tests/tests_expected_runtime.csv'
-
+special_test_cases = ('git-resource-test-scheme.yaml', 'git_resources')
 
 def _get_run_log_summary_lines():
     # getting the runtime of test from the log's summary
@@ -27,7 +27,12 @@ def _get_test_name_from_line(line):
 
 
 def _get_test_run_time_from_line(line):
-    return line.split('(')[1].split(' ')[0]
+    run_time = line.split('(')[1].split(' ')[0]
+    # we multiply the runtime of tests in the special_test_cases tuple, since their running time may vary for each run
+    test_name = _get_test_name_from_line(line)
+    if test_name.endswith(special_test_cases):
+        run_time = format(float(run_time) * 2, '.2f')
+    return run_time
 
 
 def _get_new_run_time(test_name):
