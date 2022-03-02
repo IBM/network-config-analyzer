@@ -6,7 +6,7 @@ import argparse
 # global variables - files names
 run_log = 'tests/run_log.txt'
 expected_time_file = 'tests/tests_expected_runtime.csv'
-
+special_test_cases = ('git-resource-test-scheme.yaml', 'git_resources')
 
 def _get_run_log_summary_lines():
     # getting the runtime of test from the log's summary
@@ -27,7 +27,12 @@ def _get_test_name_from_line(line):
 
 
 def _get_test_run_time_from_line(line):
-    return line.split('(')[1].split(' ')[0]
+    run_time = line.split('(')[1].split(' ')[0]
+    # multiplying the runtime of tests in the special_test_cases tuple, since their running time may vary for each run
+    test_name = _get_test_name_from_line(line)
+    if test_name.endswith(special_test_cases):
+        run_time = format(float(run_time) * 2, '.2f')
+    return run_time
 
 
 def _get_new_run_time(test_name):
@@ -84,6 +89,8 @@ def _update_tests_runtime(modified_tests_list):
     :param modified_tests_list: taken from the output of 'git diff' command. Includes:
     Added tests - a new row of test name and its runtime will be added to the file for each new test.
     Modified tests - this function updates the last runtime of the modified tests in the expected runtime file.
+    Note that if the cmdline tests file (k8s_cmdline_tests.yaml) was modified, the function will reset and update
+    the runtime for all the queries in the file not only the modified/new ones.
     Renamed tests -  this function adds a new row with the new name of the renamed test in tests_expected_runtime.csv,
     the row with the old name will not be removed as it will not appear in the git diff cmd output.
     Deleted tests - this function removes the rows of deleted tests in tests_expected_runtime.csv.
@@ -141,6 +148,17 @@ def _reset_tests_runtime():
             _add_test_to_expected_runtime_file(_get_test_name_from_line(line), _get_test_run_time_from_line(line))
 
 
+def _sort_expected_runtime_file_lines():
+    with open(expected_time_file, 'r') as f:
+        lines = f.readlines()
+    lines_to_sort = lines[1:]
+    lines_to_sort.sort()
+    with open(expected_time_file, 'w', newline='') as f:
+        f.write(lines[0])
+        for line in lines_to_sort:
+            f.write(line)
+
+
 def main(argv=None):
     base_dir = os.path.split(os.path.abspath(os.path.dirname(sys.argv[0])))[0]
     os.chdir(base_dir)
@@ -156,6 +174,7 @@ def main(argv=None):
     else:
         _update_tests_runtime(modified_tests_list)
 
+    _sort_expected_runtime_file_lines()
     print('Updating tests_expected_runtime.csv file was successfully completed')
     return 0
 
