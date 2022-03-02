@@ -84,6 +84,8 @@ def _update_tests_runtime(modified_tests_list):
     :param modified_tests_list: taken from the output of 'git diff' command. Includes:
     Added tests - a new row of test name and its runtime will be added to the file for each new test.
     Modified tests - this function updates the last runtime of the modified tests in the expected runtime file.
+    Note that if the cmdline tests file (k8s_cmdline_tests.yaml) was modified, the function will reset and update
+    the runtime for all the queries in the file not only the modified/new ones.
     Renamed tests -  this function adds a new row with the new name of the renamed test in tests_expected_runtime.csv,
     the row with the old name will not be removed as it will not appear in the git diff cmd output.
     Deleted tests - this function removes the rows of deleted tests in tests_expected_runtime.csv.
