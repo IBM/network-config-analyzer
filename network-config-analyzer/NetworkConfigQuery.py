@@ -413,7 +413,7 @@ class SanityQuery(NetworkConfigQuery):
                                   f', its deny rules are covered by NetworkPolicy {contain_deny_policy.full_name()}\n'
         return redundant_text
 
-    def exec(self):
+    def exec(self):   # noqa: C901
         if not self.config:
             return QueryAnswer(False, f'No NetworkPolicies in {self.config.name}. Nothing to check sanity on.', '', 1)
         has_conflicting_policies, conflict_explanation = self.has_conflicting_policies_with_same_order()
@@ -768,7 +768,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         config_type = self.config1.type if self.config1.type != NetworkConfig.ConfigType.Unknown else self.config2.type
         return ConnectivityGraph(topology_peers, allowed_labels, output_config, config_type)
 
-    def compute_diff(self):
+    def compute_diff(self):   # noqa: C901
         """
        Compute changed connections as following:
 
@@ -785,7 +785,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
        5.1. new connections between added peers
        5.2. new connections between added peers and ipBlocks
 
-       Some of the section might be empty and can be dropped.
+       Some sections might be empty and can be dropped.
 
        :return:
         res (int): number of categories with diffs
