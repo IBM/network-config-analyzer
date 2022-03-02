@@ -63,8 +63,8 @@ class GenericTreeScanner(abc.ABC):
             return
 
 
-from GitScanner import GitScanner
-from DirScanner import DirScanner
+from GitScanner import GitScanner  # noqa: E402
+from DirScanner import DirScanner  # noqa: E402
 
 
 class TreeScannerFactory:

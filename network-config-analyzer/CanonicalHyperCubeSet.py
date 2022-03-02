@@ -465,7 +465,7 @@ class CanonicalHyperCubeSet:
         obj_from_cube = self._create_from_cube_aux(self.all_dimensions_list, sub_cube_required, self.active_dimensions)
         return obj_from_cube == self
 
-    def _contained_in_aux(self, other, all_active_dims):
+    def _contained_in_aux(self, other, all_active_dims):  # noqa: C901
         """
         recursive function to check containment between CanonicalHyperCubeSet objects.
         :type other: CanonicalHyperCubeSet
