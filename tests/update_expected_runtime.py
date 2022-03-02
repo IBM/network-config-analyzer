@@ -141,6 +141,17 @@ def _reset_tests_runtime():
             _add_test_to_expected_runtime_file(_get_test_name_from_line(line), _get_test_run_time_from_line(line))
 
 
+def _sort_expected_runtime_file_lines():
+    with open(expected_time_file, 'r') as f:
+        lines = f.readlines()
+    lines_to_sort = lines[1:]
+    lines_to_sort.sort()
+    with open(expected_time_file, 'w', newline='') as f:
+        f.write(lines[0])
+        for line in lines_to_sort:
+            f.write(line)
+
+
 def main(argv=None):
     base_dir = os.path.split(os.path.abspath(os.path.dirname(sys.argv[0])))[0]
     os.chdir(base_dir)
@@ -156,6 +167,7 @@ def main(argv=None):
     else:
         _update_tests_runtime(modified_tests_list)
 
+    _sort_expected_runtime_file_lines()
     print('Updating tests_expected_runtime.csv file was successfully completed')
     return 0
 
