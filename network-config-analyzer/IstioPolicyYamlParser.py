@@ -4,6 +4,7 @@
 #
 import re
 
+from K8sNamespace import K8sNamespace
 from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
 from GenericYamlParser import GenericYamlParser
@@ -35,7 +36,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         # TODO: is this relevant for istio? (default namespace ?)
-        self.namespace = peer_container.get_namespace('default')  # value to be replaced if the netpol has ns defined
+        self.namespace = K8sNamespace('default')  # value to be replaced if the auth-policy has ns defined
         self.allowed_labels = set()
 
     def parse_label_selector(self, label_selector):
