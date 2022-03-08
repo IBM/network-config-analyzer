@@ -16,6 +16,8 @@ from K8sNetworkPolicy import K8sNetworkPolicy
 from CalicoNetworkPolicy import CalicoNetworkPolicy
 from IstioNetworkPolicy import IstioNetworkPolicy
 from IstioPolicyYamlParser import IstioPolicyYamlParser
+from IngressPolicy import IngressPolicy
+from IngressPolicyYamlParser import IngressPolicyYamlParser
 from ConnectionSet import ConnectionSet
 from CmdlineRunner import CmdlineRunner
 from GenericTreeScanner import TreeScannerFactory
@@ -34,6 +36,7 @@ class NetworkConfig:
         K8s = 1
         Calico = 2
         Istio = 3
+        Ingress = 4
 
     def __init__(self, name, peer_container, entry_list=None, config_type=None, buffer=None):
         """
@@ -47,6 +50,7 @@ class NetworkConfig:
         self._parse_queue = deque()  # This deque makes sure Profiles get parsed first (because of 'labelToApply')
         self.policies = {}
         self.sorted_policies = []
+        self.ingress_sorted_policies = []
         self.profiles = {}
         self.referenced_ip_blocks = None
         self.type = config_type or NetworkConfig.ConfigType.Unknown
@@ -105,6 +109,8 @@ class NetworkConfig:
             return NetworkConfig.ConfigType.Calico
         if isinstance(policy, IstioNetworkPolicy):
             return NetworkConfig.ConfigType.Istio
+        if isinstance(policy, IngressPolicy):
+            return NetworkConfig.ConfigType.Ingress
         return NetworkConfig.ConfigType.Unknown
 
     def add_policy(self, policy):
@@ -120,13 +126,16 @@ class NetworkConfig:
         policy_type = self._get_policy_type(policy)
         if policy_type == NetworkConfig.ConfigType.Unknown:
             raise Exception('Unknown policy type')
-        if self.type == NetworkConfig.ConfigType.Unknown:
+        if self.type == NetworkConfig.ConfigType.Unknown or self.type == NetworkConfig.ConfigType.Ingress:
             self.type = policy_type
-        elif self.type != policy_type:
+        elif self.type != policy_type and policy_type != NetworkConfig.ConfigType.Ingress:
             raise Exception('Cannot mix NetworkPolicies from different platforms')
 
         self.policies[policy.full_name()] = policy
-        insort(self.sorted_policies, policy)
+        if policy_type == NetworkConfig.ConfigType.Ingress:
+            insort(self.ingress_sorted_policies, policy)
+        else:
+            insort(self.sorted_policies, policy)
 
     def add_exclusive_policy_given_profiles(self, policy, profiles):
         self.profiles = profiles
@@ -150,6 +159,10 @@ class NetworkConfig:
                 self.allowed_labels |= parsed_element.allowed_labels
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
+                self.add_policy(parsed_element.parse_policy())
+                self.allowed_labels |= parsed_element.allowed_labels
+            elif policy_type == NetworkPolicy.PolicyType.Ingress:
+                parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
                 self.allowed_labels |= parsed_element.allowed_labels
             else:
@@ -200,6 +213,7 @@ class NetworkConfig:
 
     def add_policies_from_k8s_cluster(self):
         self._add_policies(CmdlineRunner.get_k8s_resources('networkPolicy'), 'kubectl', True)
+        self._add_policies(CmdlineRunner.get_k8s_resources('ingress'), 'kubectl', True)
 
     def add_policies_from_calico_cluster(self):
         self._add_policies(CmdlineRunner.get_calico_resources('profile'), 'calicoctl', True)
@@ -259,7 +273,7 @@ class NetworkConfig:
         :rtype: Peer.PeerSet
         """
         captured_pods = Peer.PeerSet()
-        for policy in self.sorted_policies:
+        for policy in self.sorted_policies + self.ingress_sorted_policies:
             captured_pods |= policy.selected_peers
 
         for profile in self.profiles.values():
@@ -274,7 +288,7 @@ class NetworkConfig:
         :rtype: Peer.PeerSet
         """
         affected_pods = Peer.PeerSet()
-        for policy in self.sorted_policies:
+        for policy in self.sorted_policies + self.ingress_sorted_policies:
             if (is_ingress and policy.affects_ingress) or (not is_ingress and policy.affects_egress):
                 affected_pods |= policy.selected_peers
 
@@ -328,7 +342,7 @@ class NetworkConfig:
 
         policy_captured = False
         has_allow_policies_for_target = False
-        for policy in self.sorted_policies:
+        for policy in self.sorted_policies + self.ingress_sorted_policies:
             policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
             assert isinstance(policy_conns, PolicyConnections)
             if policy_conns.captured:

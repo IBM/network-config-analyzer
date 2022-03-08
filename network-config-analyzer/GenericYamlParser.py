@@ -167,7 +167,7 @@ class GenericYamlParser:
             self.syntax_error(err_message, array)
 
     @staticmethod
-    def _get_connection_set_from_properties(dest_ports, method_set=MethodSet(False), paths_dfa=None, hosts_dfa=None):
+    def _get_connection_set_from_properties(dest_ports, method_set=MethodSet(True), paths_dfa=None, hosts_dfa=None):
         """
         get ConnectionSet with TCP allowed connections, corresponding to input properties cube
         :param PortSet dest_ports: ports set for dset_ports dimension

@@ -178,6 +178,13 @@ class NetworkPolicy:
         return self.rule_containing(other_policy, other_policy.egress_rules[other_egress_rule_index - 1],
                                     other_egress_rule_index, self.egress_rules)
 
+    def referenced_ip_blocks(self):
+        """
+        Returns ip blocks referenced by this policy, or empty PeerSet
+        :return: PeerSet of the referenced ip blocks
+        """
+        return PeerSet()  # default value, can be overridden in derived classes
+
 
 @dataclass
 class PolicyConnections:
