@@ -142,12 +142,14 @@ class GeneralTest:
         if actual_run_time >= expected_run_time * 2:
             if not path.isfile(output_file):
                 write_header = True
-            with open(output_file, 'a') as csv_file:
+            with open(output_file, 'a', newline='') as csv_file:
                 csv_writer = csv.writer(csv_file)
                 if write_header:
                     csv_writer.writerow(['test_name', 'expected_run_time (seconds)', 'actual_run_time (seconds)'])
                 csv_writer.writerow([self.test_name, expected_run_time, f'{actual_run_time:.2f}'])
             csv_file.close()
+            if expected_run_time > 0 and actual_run_time > expected_run_time * 5:
+                raise Exception(f'Conducted Performance issue, {self.test_name} took too long to finish ')
 
     def finalize_test(self):
         if not self.test_passed():

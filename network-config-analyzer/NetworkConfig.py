@@ -410,7 +410,7 @@ class NetworkConfig:
         denied_conns = ingress_conns.denied_conns | egress_conns.denied_conns
         allowed_conns = ingress_conns.all_allowed_conns & egress_conns.all_allowed_conns
         # captured connections are where at least one if ingress / egress is captured
-        allowed_captured_conns = (ingress_conns.allowed_conns & egress_conns.all_allowed_conns) | (
-                egress_conns.allowed_conns & ingress_conns.all_allowed_conns)
+        allowed_captured_conns = (ingress_conns.allowed_conns & egress_conns.all_allowed_conns) | \
+            (egress_conns.allowed_conns & ingress_conns.all_allowed_conns)
 
         return allowed_conns, captured_flag, allowed_captured_conns, denied_conns

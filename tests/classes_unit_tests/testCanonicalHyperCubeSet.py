@@ -40,11 +40,11 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         print(dfa_put.get_fsm_str())
         print(dfa_put_2.get_fsm_str())
         # super().__init__(alphabet, states, initial, finals, map)
-        print(dfa_put.alphabet == dfa_put_2.alphabet)
-        print(dfa_put.states == dfa_put_2.states)
-        print(dfa_put.initial == dfa_put_2.initial)
-        print(dfa_put.finals == dfa_put_2.finals)
-        print(dfa_put.map == dfa_put_2.map)
+        print(dfa_put.fsm.alphabet == dfa_put_2.fsm.alphabet)
+        print(dfa_put.fsm.states == dfa_put_2.fsm.states)
+        print(dfa_put.fsm.initial == dfa_put_2.fsm.initial)
+        print(dfa_put.fsm.finals == dfa_put_2.fsm.finals)
+        print(dfa_put.fsm.map == dfa_put_2.fsm.map)
 
     def test_create_from_cube(self):
         s = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("PUT")], ["methods_dfa"])

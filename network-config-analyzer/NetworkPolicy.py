@@ -42,13 +42,14 @@ class NetworkPolicy:
 
     def __eq__(self, other):
         if type(self) == type(other):
-            return self.name == other.name and \
-                   self.namespace == other.namespace and \
-                   self.affects_egress == other.affects_egress and \
-                   self.affects_ingress == other.affects_ingress and \
-                   self.selected_peers == other.selected_peers and \
-                   self.ingress_rules == other.ingress_rules and \
-                   self.egress_rules == other.egress_rules
+            return \
+                self.name == other.name and \
+                self.namespace == other.namespace and \
+                self.affects_egress == other.affects_egress and \
+                self.affects_ingress == other.affects_ingress and \
+                self.selected_peers == other.selected_peers and \
+                self.ingress_rules == other.ingress_rules and \
+                self.egress_rules == other.egress_rules
         return NotImplemented
 
     def full_name(self, config_name=None):
@@ -191,8 +192,8 @@ class PolicyConnections:
     """
     A class to contain the effect of applying policies to a pair of peers
     """
-    captured: bool  # Whether the policy(ies) allowed captured connections captured one of the peers (can also have empty captured-conns with captured==True)
+    captured: bool  # Whether policy(ies) selectors captured relevant peers (can have empty allowed-conns with captured==True)
     allowed_conns: ConnectionSet = ConnectionSet()  # Connections allowed (and captured) by the policy(ies)
     denied_conns: ConnectionSet = ConnectionSet()  # Connections denied by the policy(ies)
     pass_conns: ConnectionSet = ConnectionSet()  # Connections specified as PASS by the policy(ies)
-    all_allowed_conns: ConnectionSet = ConnectionSet() # all (captured+ non-captured) Connections allowed by the policy(ies)
+    all_allowed_conns: ConnectionSet = ConnectionSet()  # all (captured+ non-captured) Connections allowed by the policy(ies)

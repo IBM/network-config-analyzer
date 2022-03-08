@@ -1,0 +1,30 @@
+new_online_boutique and new_online_boutique_synthesis_res are not semantically equivalent.
+Changed connections between persistent peers:
+Added connections (based on topology from config: new_online_boutique_synthesis_res) :
+src_ns: [default] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 1-8079,8081-65535
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP {'dst_ports': '7070', 'methods': 'POST', 'paths': 'all but /hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'},{'dst_ports': '7070', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP {'dst_ports': '7000', 'methods': 'POST', 'paths': 'all but /hipstershop.CurrencyService/Convert, /hipstershop.CurrencyService/GetSupportedCurrencies'},{'dst_ports': '7000', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: TCP {'dst_ports': '50051', 'methods': 'POST', 'paths': 'all but /hipstershop.ShippingService/GetQuote, /hipstershop.ShippingService/ShipOrder'},{'dst_ports': '50051', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP {'dst_ports': '3550', 'methods': 'POST', 'paths': 'all but /hipstershop.ProductCatalogService/GetProduct, /hipstershop.ProductCatalogService/ListProducts'},{'dst_ports': '3550', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: TCP {'dst_ports': '8080', 'methods': 'POST', 'paths': 'all but /hipstershop.EmailService/SendOrderConfirmation'},{'dst_ports': '8080', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [paymentservice] conn: TCP {'dst_ports': '50051', 'methods': 'POST', 'paths': 'all but /hipstershop.PaymentService/Charge'},{'dst_ports': '50051', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] conn: TCP {'dst_ports': '9555', 'methods': 'POST', 'paths': 'all but /hipstershop.AdService/GetAds'},{'dst_ports': '9555', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP {'dst_ports': '5050', 'methods': 'POST', 'paths': 'all but /hipstershop.CheckoutService/PlaceOrder'},{'dst_ports': '5050', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP {'dst_ports': '8080', 'methods': 'POST', 'paths': 'all but /hipstershop.RecommendationService/ListRecommendations'},{'dst_ports': '8080', 'methods': 'all but POST'}
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'all but GET, POST'}
+
+Removed connections (based on topology from config: new_online_boutique) :
+src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
+src_ns: [asm-ingress] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'GET, POST'}
+src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP {'dst_ports': '1-7069,7071-65535', 'methods': 'POST', 'paths': '/hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'}
+
+Changed connections between persistent peers and ipBlocks:
+Added connections (based on topology from config: new_online_boutique_synthesis_res) :
+src ip block: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 1-8079,8081-65535
+src ip block: ::/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 1-8079,8081-65535
+
+Removed connections (based on topology from config: new_online_boutique) :
+src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
+src ip block: ::/0 dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
+
+

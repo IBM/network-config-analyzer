@@ -485,16 +485,16 @@ class ConnectionSet:
         for protocol, properties in self.allowed_protocols.items():
             if protocol not in other.allowed_protocols:
                 return self_name + ' allows communication using protocol ' + self.protocol_number_to_name(protocol) + \
-                       ' while ' + other_name + ' does not.'
+                    ' while ' + other_name + ' does not.'
             other_properties = other.allowed_protocols[protocol]
             if properties != other_properties:
                 return self.protocol_number_to_name(protocol) + ' protocol - ' + \
-                       properties.print_diff(other_properties, self_name, other_name)
+                    properties.print_diff(other_properties, self_name, other_name)
 
         for protocol in other.allowed_protocols:
             if protocol not in self.allowed_protocols:
                 return other_name + ' allows communication using protocol ' + self.protocol_number_to_name(protocol) + \
-                       ' while ' + self_name + ' does not.'
+                    ' while ' + self_name + ' does not.'
 
         return 'No diff.'
 

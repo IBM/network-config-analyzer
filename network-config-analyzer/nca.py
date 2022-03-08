@@ -83,12 +83,13 @@ def _execute_single_config_query(query_name, np1_list, peer_container, output_co
     res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1], expected_output,
                                                   output_config).run_query()
     expected_res_bit = res > 0
-    return 2*comparing_err + expected_res_bit
+    return 2 * comparing_err + expected_res_bit
 
 
-def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container, output_config, expected_output=None):
+def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location, base_peer_container, peer_container,
+                                output_config, expected_output=None):
     """
-    Runs an pair configs query between two sets of policies
+    Runs a query between two network configs
     :param str query_name: the name of the arg.query
     :param str np1_list_location: First set of policies
     :param str np2_list_location:  Second set of policies
@@ -103,7 +104,7 @@ def _execute_pair_configs_query(query_name, np1_list_location, np2_list_location
     network_config2 = NetworkConfig(np2_list_location, peer_container, [np2_list_location])
     res, comparing_err = NetworkConfigQueryRunner(query_name, [network_config1, network_config2], expected_output,
                                                   output_config).run_query(True)
-    return 2*comparing_err + res
+    return 2 * comparing_err + res
 
 
 def run_args(args):
@@ -179,26 +180,26 @@ def nca_main(argv=None):
     manual_or_automatic.add_argument('--equiv', type=_network_policies_valid_path,
                                      help='Network policies (file/dir/GHE url/cluster-type) for equivalence checking')
     manual_or_automatic.add_argument('--interferes', type=str, help='Network policies '
-                                                                    '(policy name/file/dir/GHE url/cluster-type) for interference checking')
+                                     '(policy name/file/dir/GHE url/cluster-type) for interference checking')
     manual_or_automatic.add_argument('--forbids', type=str, help='Network policies '
-                                                                 '(policy name/file/dir/GHE url/cluster-type) specifying forbidden connections')
+                                     '(policy name/file/dir/GHE url/cluster-type) specifying forbidden connections')
     manual_or_automatic.add_argument('--permits', type=str, help='Network policies '
-                                                                 '(policy name/file/dir/GHE url/cluster-type) specifying permitted connections')
+                                     '(policy name/file/dir/GHE url/cluster-type) specifying permitted connections')
     manual_or_automatic.add_argument('--daemon', action='store_true', help='Run NCA as a daemon with REST API')
     parser.add_argument('--base_np_list', '-b', type=_network_policies_valid_path, default='k8s',
                         help='Filesystem or GHE location of base network policies '
                              'for equiv/interferes/forbids/permits/semantic_diff check (default: k8s cluster)')
     parser.add_argument('--base_pod_list', '-pb', type=_pod_list_valid_path, action='append',
-                        help='A file/GHE url/cluster-type to read old pod list from. Used for semantic_diff check, '
-                             'may be used multiple times')
+                        help='A file/GHE url/cluster-type to read old pod list from. Used for semantic_diff '
+                             '(may be specified multiple times)')
     parser.add_argument('--base_ns_list', '-nb', type=_namespace_list_valid_path, action='append',
-                        help='A file/GHE url/cluster-type to read old namespace list from. Used for semantic_diff check, '
-                             'may be used multiple times')
+                        help='A file/GHE url/cluster-type to read old namespace list from. Used for semantic_diff '
+                             '(may be used multiple times)')
     parser.add_argument('--ns_list', '-n', type=_namespace_list_valid_path, action='append',
-                        help='A file/GHE url/cluster-type to read namespace list from. '
-                             'This option may be specified multiple times')
+                        help='A file/GHE url/cluster-type to read namespace list from '
+                             '(may be specified multiple times)')
     parser.add_argument('--pod_list', '-p', type=_pod_list_valid_path, action='append',
-                        help='A file/GHE url/cluster-type to read pod list from. This option may be specified multiple times')
+                        help='A file/GHE url/cluster-type to read pod list from (may be specified multiple times)')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
@@ -207,7 +208,8 @@ def nca_main(argv=None):
                                                             'relevant only with --connectivity and --semantic_diff')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
-    parser.add_argument('--output_endpoints', choices=['pods', 'deployments'], help='Choose endpoints type in output (pods/deployments)', default='deployments')
+    parser.add_argument('--output_endpoints', choices=['pods', 'deployments'],
+                        help='Choose endpoints type in output (pods/deployments)', default='deployments')
 
     args = parser.parse_args(argv)
 
