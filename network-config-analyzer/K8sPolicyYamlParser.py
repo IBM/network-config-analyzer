@@ -27,7 +27,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         GenericYamlParser.__init__(self, policy_file_name)
         self.policy = policy
         self.peer_container = peer_container
-        self.namespace = peer_container.get_namespace('default')  # value to be replaced if the netpol has ns defined
+        self.namespace = None
         self.allowed_labels = set()
 
     def check_dns_subdomain_name(self, value, key_container):
@@ -399,6 +399,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         if 'namespace' in policy_metadata and policy_metadata['namespace'] is not None:
             self.check_dns_label_name(policy_metadata['namespace'], policy_metadata)
             self.namespace = self.peer_container.get_namespace(policy_metadata['namespace'])
+        else:
+            self.namespace = self.peer_container.get_namespace('default')
         res_policy = K8sNetworkPolicy(policy_metadata['name'], self.namespace)
 
         if 'spec' not in self.policy or self.policy['spec'] is None:

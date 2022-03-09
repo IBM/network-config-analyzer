@@ -34,8 +34,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         GenericYamlParser.__init__(self, policy_file_name)
         self.policy = policy
         self.peer_container = peer_container
-        # TODO: is this relevant for istio? (default namespace ?)
-        self.namespace = peer_container.get_namespace('default')  # value to be replaced if the netpol has ns defined
+        self.namespace = None
         self.allowed_labels = set()
 
     def parse_label_selector(self, label_selector):
@@ -598,13 +597,11 @@ class IstioPolicyYamlParser(GenericYamlParser):
             raise Exception('Unsupported apiVersion: ' + api_version)
         self.check_fields_validity(self.policy, 'AuthorizationPolicy', {'kind': 1, 'metadata': 1, 'spec': 1,
                                                                         'apiVersion': 0, 'api_version': 0})
-        if 'name' not in self.policy['metadata']:
+        metadata = self.policy['metadata']
+        if 'name' not in metadata:
             self.syntax_error('AuthorizationPolicy has no name', self.policy)
-        # TODO: what if namespace is not specified in istio policy?
-        if 'namespace' in self.policy['metadata']:
-            self.namespace = self.peer_container.get_namespace(self.policy['metadata']['namespace'])
-
-        res_policy = IstioNetworkPolicy(self.policy['metadata']['name'], self.namespace)
+        self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
+        res_policy = IstioNetworkPolicy(metadata['name'], self.namespace)
 
         policy_spec = self.policy['spec']
         # currently not supporting provider
