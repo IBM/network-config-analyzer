@@ -4,7 +4,6 @@
 #
 import re
 
-from K8sNamespace import K8sNamespace
 from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
 from GenericYamlParser import GenericYamlParser
