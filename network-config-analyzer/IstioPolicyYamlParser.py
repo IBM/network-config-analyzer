@@ -600,10 +600,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         metadata = self.policy['metadata']
         if 'name' not in metadata:
             self.syntax_error('AuthorizationPolicy has no name', self.policy)
-        if 'namespace' in metadata:
-            self.namespace = self.peer_container.get_namespace(metadata['namespace'])
-        else:
-            self.namespace = self.peer_container.get_namespace('default')
+        self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
         res_policy = IstioNetworkPolicy(metadata['name'], self.namespace)
 
         policy_spec = self.policy['spec']
