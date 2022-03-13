@@ -175,7 +175,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
                 path_regex = '/*'
         paths_dfa = self.parse_regex_dimension_values("paths", path_regex, path)
         connections = self._get_connection_set_from_properties(ports, paths_dfa=paths_dfa, hosts_dfa=hosts_dfa)
-        return IngressPolicyRule(peers, connections, IngressPolicyRule.ActionType.Allow), paths_dfa
+        return IngressPolicyRule(peers, connections), paths_dfa
 
     def _make_default_and_deny_rules(self, hosts_dfa, paths_dfa=None):
         """
@@ -184,7 +184,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
         :param MinDFA paths_dfa: the paths for the default rule
         :return: the list of created IngressPolicy rules
         """
-        rules = []
+        allow_rules = []
+        deny_rules = []
         if self.default_backend_peers:
             other_ports = PortSet(True)
             other_ports -= self.default_backend_ports
@@ -197,9 +198,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
                 conns = self._get_connection_set_from_properties(self.default_backend_ports, hosts_dfa=hosts_dfa)
                 denied_conns = self._get_connection_set_from_properties(other_ports, hosts_dfa=hosts_dfa)
 
-            rules.append(IngressPolicyRule(self.default_backend_peers, conns, IngressPolicyRule.ActionType.Allow))
-            rules.append(IngressPolicyRule(self.peer_container.get_all_peers_group(), denied_conns,
-                                           IngressPolicyRule.ActionType.Deny))
+            allow_rules.append(IngressPolicyRule(self.default_backend_peers, conns))
+            deny_rules.append(IngressPolicyRule(self.peer_container.get_all_peers_group(), denied_conns))
         else:
             all_ports = PortSet(True)
             if paths_dfa:
@@ -208,16 +208,15 @@ class IngressPolicyYamlParser(GenericYamlParser):
             else:
                 denied_conns = self._get_connection_set_from_properties(all_ports, hosts_dfa=hosts_dfa)
 
-            rules.append(IngressPolicyRule(self.peer_container.get_all_peers_group(), denied_conns,
-                                           IngressPolicyRule.ActionType.Deny))
-        return rules
+            deny_rules.append(IngressPolicyRule(self.peer_container.get_all_peers_group(), denied_conns))
+        return allow_rules, deny_rules
 
     def parse_rule(self, rule):
         """
         Parses a single ingress rule, producing a number of IngressPolicyRules (per path).
         :param dict rule: The rule resource
-        :return: A tuple containing a list of IngressPolicyRules with the proper PeerSet and ConnectionSet,
-                 and a dfa for hosts
+        :return: A tuple containing two lists of IngressPolicyRules (allow rules and deny rules)
+                 with the proper PeerSet and ConnectionSet, and a dfa for hosts
         """
         if rule is None:
             self.syntax_error('Ingress rule cannot be null. ')
@@ -226,45 +225,52 @@ class IngressPolicyYamlParser(GenericYamlParser):
         self.check_fields_validity(rule, 'ingress rule', allowed_elements)
         hosts_dfa = self.parse_regex_dimension_values("hosts", rule.get("host"), rule)
         paths_array = self.get_key_array_and_validate_not_empty(rule.get('http'), 'paths')
-        ingress_rules = []
+        ingress_allow_rules = []
+        ingress_deny_rules = []
         if paths_array is not None:
             all_paths_dfa = None
             for path in paths_array:
                 # TODO: implement path priority rules
                 # every path is converted to IngressPolicyRule
                 ingress_policy_rule, paths_dfa = self.parse_ingress_path(path, hosts_dfa)
-                ingress_rules.append(ingress_policy_rule)
+                ingress_allow_rules.append(ingress_policy_rule)
                 if not all_paths_dfa:
                     all_paths_dfa = paths_dfa
                 else:
                     all_paths_dfa = all_paths_dfa | paths_dfa  # pick all captured paths
             # for this host, every path not captured by the above paths goes to the default backend or is denied
             paths_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('paths') - all_paths_dfa
-            ingress_rules += self._make_default_and_deny_rules(hosts_dfa, paths_remainder_dfa)
-
+            allow_rules, deny_rules = self._make_default_and_deny_rules(hosts_dfa, paths_remainder_dfa)
+            ingress_allow_rules += allow_rules
+            ingress_deny_rules += deny_rules
         else:  # no paths --> everything for this host goes to the default backend or is denied
-            ingress_rules += self._make_default_and_deny_rules(hosts_dfa)
-        return ingress_rules, hosts_dfa
+            allow_rules, deny_rules = self._make_default_and_deny_rules(hosts_dfa)
+            ingress_allow_rules += allow_rules
+            ingress_deny_rules += deny_rules
+        return ingress_allow_rules, ingress_deny_rules, hosts_dfa
 
     def parse_policy(self):
         """
-        Parses the input object to create an IngressPolicy object
-        :return: an IngressPolicy object with proper egress_rules or None for wrong input object
+        Parses the input object to create two IngressPolicy objects (one for allow and one for deny)
+        :return: a tuple of IngressPolicy objects with proper egress_rules or (None, None) for wrong input object
         """
         if not isinstance(self.policy, dict):
             self.syntax_error('Top ds is not a map')
         if self.policy.get('kind') != 'Ingress':
-            return None  # Not an Ingress object
+            return None, None  # Not an Ingress object
         self.check_fields_validity(self.policy, 'Ingress', {'kind': 1, 'metadata': 1, 'spec': 1,
                                                             'apiVersion': 1, 'status': 0})
         if 'k8s' not in self.policy['apiVersion']:
-            return None  # apiVersion is not properly set
+            return None, None  # apiVersion is not properly set
         if 'name' not in self.policy['metadata']:
             self.syntax_error('Ingress has no name', self.policy)
         if 'namespace' in self.policy['metadata']:
             self.namespace = self.peer_container.get_namespace(self.policy['metadata']['namespace'])
 
-        res_policy = IngressPolicy(self.policy['metadata']['name'], self.namespace)
+        res_allow_policy = IngressPolicy(self.policy['metadata']['name'] + '/allow', self.namespace,
+                                         IngressPolicy.ActionType.Allow)
+        res_deny_policy = IngressPolicy(self.policy['metadata']['name'] + '/deny', self.namespace,
+                                        IngressPolicy.ActionType.Deny)
 
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],
@@ -273,21 +279,23 @@ class IngressPolicyYamlParser(GenericYamlParser):
 
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
                                                                                     True)
-        res_policy.affects_ingress = False
-        res_policy.affects_egress = True
         # TODO extend to other ingress controllers
-        res_policy.selected_peers = \
+        res_allow_policy.selected_peers = \
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
+        res_deny_policy.selected_peers = res_allow_policy.selected_peers
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):
-            rules, hosts_dfa = self.parse_rule(ingress_rule)
-            res_policy.add_rules(rules)
+            allow_rules, deny_rules, hosts_dfa = self.parse_rule(ingress_rule)
+            res_allow_policy.add_rules(allow_rules)
+            res_deny_policy.add_rules(deny_rules)
             if not all_hosts_dfa:
                 all_hosts_dfa = hosts_dfa
             else:
                 all_hosts_dfa = all_hosts_dfa | hosts_dfa
         # every host not captured by the ingress rules goes to the default backend or is denied
         hosts_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('hosts') - all_hosts_dfa
-        res_policy.add_rules(self._make_default_and_deny_rules(hosts_remainder_dfa))
-        res_policy.findings = self.warning_msgs
-        return res_policy
+        allow_rules, deny_rules = self._make_default_and_deny_rules(hosts_remainder_dfa)
+        res_allow_policy.add_rules(allow_rules)
+        res_deny_policy.add_rules(deny_rules)
+        res_allow_policy.findings = self.warning_msgs
+        return res_allow_policy, res_deny_policy

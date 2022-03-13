@@ -33,7 +33,7 @@ queries:
   - name: sanity
     sanity:
       - np1
-    expected: 3
+    expected: 2
 
   - name: compare_np1_and_np2
     twoWayContainment:
@@ -60,7 +60,7 @@ queries:
     redundancy:
       - np1
       - np2
-    expected: 6
+    expected: 4
   - name: pairwiseInterferes_np1_and_np2
     pairwiseInterferes:
       - np1

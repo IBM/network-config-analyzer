@@ -50,7 +50,8 @@ class NetworkConfig:
         self._parse_queue = deque()  # This deque makes sure Profiles get parsed first (because of 'labelToApply')
         self.policies = {}
         self.sorted_policies = []
-        self.ingress_sorted_policies = []
+        self.ingress_allow_policies = []
+        self.ingress_deny_policies = []
         self.profiles = {}
         self.referenced_ip_blocks = None
         self.type = config_type or NetworkConfig.ConfigType.Unknown
@@ -133,7 +134,10 @@ class NetworkConfig:
 
         self.policies[policy.full_name()] = policy
         if policy_type == NetworkConfig.ConfigType.Ingress:
-            insort(self.ingress_sorted_policies, policy)
+            if policy.action == IngressPolicy.ActionType.Allow:
+                insort(self.ingress_allow_policies, policy)
+            else:
+                insort(self.ingress_deny_policies, policy)
         else:
             insort(self.sorted_policies, policy)
 
@@ -163,7 +167,9 @@ class NetworkConfig:
                 self.allowed_labels |= parsed_element.allowed_labels
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
-                self.add_policy(parsed_element.parse_policy())
+                allow_policy, deny_policy = parsed_element.parse_policy()
+                self.add_policy(allow_policy)
+                self.add_policy(deny_policy)
                 self.allowed_labels |= parsed_element.allowed_labels
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
@@ -273,7 +279,7 @@ class NetworkConfig:
         :rtype: Peer.PeerSet
         """
         captured_pods = Peer.PeerSet()
-        for policy in self.sorted_policies + self.ingress_sorted_policies:
+        for policy in self.ingress_deny_policies + self.sorted_policies + self.ingress_allow_policies:
             captured_pods |= policy.selected_peers
 
         for profile in self.profiles.values():
@@ -288,7 +294,7 @@ class NetworkConfig:
         :rtype: Peer.PeerSet
         """
         affected_pods = Peer.PeerSet()
-        for policy in self.sorted_policies + self.ingress_sorted_policies:
+        for policy in self.sorted_policies + self.ingress_allow_policies + self.ingress_deny_policies:
             if (is_ingress and policy.affects_ingress) or (not is_ingress and policy.affects_egress):
                 affected_pods |= policy.selected_peers
 
@@ -342,7 +348,7 @@ class NetworkConfig:
 
         policy_captured = False
         has_allow_policies_for_target = False
-        for policy in self.sorted_policies + self.ingress_sorted_policies:
+        for policy in self.sorted_policies + self.ingress_allow_policies + self.ingress_deny_policies:
             policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
             assert isinstance(policy_conns, PolicyConnections)
             if policy_conns.captured:

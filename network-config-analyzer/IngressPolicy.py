@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from enum import Enum
+from enum import IntEnum
 from NetworkPolicy import PolicyConnections, NetworkPolicy
 from ConnectionSet import ConnectionSet
 
@@ -12,25 +12,16 @@ class IngressPolicyRule:
     """
     A class representing a single ingress rule in an Ingress object
     """
-    class ActionType(Enum):
-        """
-        Everything that is not defined in Ingress rule's backend or in the default backend is denied
-        """
-        Deny = 0
-        Allow = 1
-
-    def __init__(self, peer_set, connections, action):
+    def __init__(self, peer_set, connections):
         """
         :param Peer.PeerSet peer_set: The set of peers this rule allows connection to
         :param ConnectionSet connections: The set of connections allowed by this rule
         """
         self.peer_set = peer_set
         self.connections = connections
-        self.action = action
 
     def __eq__(self, other):
-        return self.peer_set == other.peer_set and self.connections == other.connections \
-               and self.action == other.action
+        return self.peer_set == other.peer_set and self.connections == other.connections
 
     def contained_in(self, other):
         """
@@ -48,17 +39,30 @@ class IngressPolicy(NetworkPolicy):
     and the rules are egress_rules.
     """
 
-    def __init__(self, name, namespace):
+    class ActionType(IntEnum):
+        """
+        Everything that is not defined in Ingress rule's backend or in the default backend is denied
+        """
+        Deny = 0
+        Allow = 1
+
+    def __init__(self, name, namespace, action):
+        """
+        :param str name: Ingress name
+        :param K8sNamespace namespace: the namespace containing this ingress
+        :param ActionType action: Allow/Deny
+        """
         super().__init__(name, namespace)
         self.affects_ingress = False
         self.affects_egress = True
+        self.action = action
 
     def __eq__(self, other):
         return super().__eq__(other)
 
     def __lt__(self, other):  # required so we can evaluate the policies according to their order
         if isinstance(other, IngressPolicy):
-            return self.full_name() < other.full_name()
+            return self.action < other.action or self.full_name() < other.full_name()
         return NotImplemented
 
     def add_rules(self, rules):
@@ -88,16 +92,12 @@ class IngressPolicy(NetworkPolicy):
 
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
+        conns = allowed_conns if self.action == IngressPolicy.ActionType.Allow else denied_conns
         for rule in self.egress_rules:
             if to_peer in rule.peer_set:
                 rule_conns = rule.connections.copy()  # we need a copy because convert_named_ports is destructive
                 rule_conns.convert_named_ports(to_peer.get_named_ports())
-                if rule.action == IngressPolicyRule.ActionType.Allow:
-                    rule_conns -= denied_conns
-                    allowed_conns |= rule_conns
-                elif rule.action == IngressPolicyRule.ActionType.Deny:
-                    rule_conns -= allowed_conns
-                    denied_conns |= rule_conns
+                conns |= rule_conns
 
         return PolicyConnections(True, allowed_conns, denied_conns)
 
@@ -129,7 +129,7 @@ class IngressPolicy(NetworkPolicy):
         :rtype: IngressPolicy
         """
         assert not ingress_rule
-        res = IngressPolicy(self.name, self.namespace)
+        res = IngressPolicy(self.name, self.namespace, self.action)
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress
