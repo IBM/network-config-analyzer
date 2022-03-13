@@ -42,7 +42,7 @@ class PeerContainer:
 
     def __eq__(self, other):
         if isinstance(other, PeerContainer):
-            return self.peer_set == other.peer_set and self.namespaces == other.namespaces \
+            return self.peer_set == other.peer_set and self.namespaces == other.namespaces\
                    and self.services == other.services
         return NotImplemented
 
