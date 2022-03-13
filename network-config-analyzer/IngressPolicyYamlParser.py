@@ -101,7 +101,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
         service = backend.get('service')
         if resource and service:
             self.syntax_error(f'Resource and service are not mutually exclusive'
-                              'in the ingress {"default" if is_default else ""} backend', backend)
+                              f'in the ingress {"default" if is_default else ""} backend', backend)
         if resource:
             self.warning('Resource is not yet supported in an ingress backend. Ignoring', backend)
             return (None, PortSet(True)) if is_default else (None, None)
@@ -115,7 +115,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
         port_number = service_port.get('number')
         if port_name and port_number:
             self.syntax_error('Port name and port number are mutually exclusive' 
-                              'in the ingress {"default" if is_default else ""} backend', service)
+                              f'in the ingress {"default" if is_default else ""} backend', service)
         if port_number:
             self.validate_value_in_domain(port_number, 'dst_ports', backend, 'Port number')
         srv = self.peer_container.get_service_by_name_and_ns(service_name, self.namespace)
