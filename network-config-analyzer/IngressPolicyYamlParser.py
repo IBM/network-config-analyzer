@@ -114,7 +114,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
         port_name = service_port.get('name')
         port_number = service_port.get('number')
         if port_name and port_number:
-            self.syntax_error('Port name and port number are mutually exclusive' 
+            self.syntax_error(f'Port name and port number are mutually exclusive'
                               f'in the ingress {"default" if is_default else ""} backend', service)
         if port_number:
             self.validate_value_in_domain(port_number, 'dst_ports', backend, 'Port number')
