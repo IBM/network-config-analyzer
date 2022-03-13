@@ -80,11 +80,11 @@ class IngressPolicy(NetworkPolicy):
         :rtype: PolicyConnections
         """
 
-        if is_ingress:
-            return PolicyConnections(False)
         captured = from_peer in self.selected_peers
         if not captured:
             return PolicyConnections(False)
+        if is_ingress:
+            return PolicyConnections(True, ConnectionSet(True))
 
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
@@ -119,13 +119,16 @@ class IngressPolicy(NetworkPolicy):
 
         return emptiness_explanation, set(), empty_rules
 
-    def clone_without_rule(self, rule_to_exclude):
+    def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """
         Makes a copy of 'self' without a given policy rule
         :param IngressPolicyRule rule_to_exclude: The one rule not to include in the copy
+        :param bool ingress_rule: Whether the rule is an ingress or egress rule
+        (for compatibility with network policies)
         :return: A copy of 'self' without the provided rule
         :rtype: IngressPolicy
         """
+        assert not ingress_rule
         res = IngressPolicy(self.name, self.namespace)
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
