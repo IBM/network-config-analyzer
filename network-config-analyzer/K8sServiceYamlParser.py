@@ -3,10 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-import yaml
 from K8sService import K8sService
-from CmdlineRunner import CmdlineRunner
-from GenericTreeScanner import TreeScannerFactory
 from GenericYamlParser import GenericYamlParser
 
 
@@ -70,60 +67,3 @@ class K8sServiceYamlParser(GenericYamlParser):
                                                                port.get('protocol', 'TCP'), name)):
                     self.warning(f'The port {name} is not unique in Service {service.name}. Ignoring the port')
         return service
-
-    @staticmethod
-    def load_services_from_live_cluster():
-        """
-        Loads and parses service resources from live cluster
-        :return: The list of parsed services in K8sService format
-        """
-        yaml_file = CmdlineRunner.get_k8s_resources('service')
-        srv_resources = yaml.load(yaml_file, Loader=yaml.SafeLoader)
-        if not isinstance(srv_resources, dict):
-            return []
-        parser = K8sServiceYamlParser('k8s')
-        res = []
-        for srv_code in srv_resources.get('items', []):
-            service = parser.parse_service(srv_code)
-            if service:
-                res.append(service)
-        return res
-
-    @staticmethod
-    def parse_service_resources(srv_resources_list):
-        """
-        Parses the set of services in the container from one of the following resources:
-         - git path of yaml file or a directory with yamls
-         - local file (yaml or json) or a local directory containing yamls
-         - query of the cluster
-        :param list srv_resources_list: The service resource to be used.
-            If set to 'k8s', will query cluster using kubectl
-        :return: The list of parsed services in K8sService format
-        """
-        res = []
-        for srv_resources in srv_resources_list:
-            # load from live cluster
-            if srv_resources == 'k8s':
-                res.extend(K8sServiceYamlParser.load_services_from_live_cluster())
-            else:
-                resource_scanner = TreeScannerFactory.get_scanner(srv_resources)
-                if resource_scanner is None:
-                    continue
-                yaml_files = resource_scanner.get_yamls()
-                for yaml_file in yaml_files:
-                    parser = K8sServiceYamlParser(yaml_file)
-                    for srv_code in yaml_file.data:
-                        if not isinstance(srv_code, dict):
-                            continue
-                        kind = srv_code.get('kind')
-                        if kind in {'List'}:
-                            for srv_item in srv_code.get('items', []):
-                                if isinstance(srv_item, dict) and srv_item.get('kind') in {'Service'}:
-                                    service = parser.parse_service(srv_item)
-                                    if service:
-                                        res.append(service)
-                        elif kind in {'Service'}:
-                            service = parser.parse_service(srv_code)
-                            if service:
-                                res.append(service)
-        return res
