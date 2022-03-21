@@ -31,8 +31,8 @@ class PeerContainer:
 
     def __eq__(self, other):
         if isinstance(other, PeerContainer):
-            return self.peer_set == other.peer_set and self.namespaces == other.namespaces and self.services_list == \
-                   other.services_list
+            return self.peer_set == other.peer_set and self.namespaces == other.namespaces \
+                and self.services_list == other.services_list
         return NotImplemented
 
     def delete_all_namespaces(self):
