@@ -7,7 +7,8 @@ class ResourcesHandler:
     This class gets all resources (network policies, pods, namespaces...) from cmdline arguments or scheme files entries
     and using the Resources Parser, parses the input entries to finally build the Network Configs
     """
-    def __init__(self, base_np_list, base_resource_list, base_ns_list, base_pod_list, np_list, resource_list, ns_list, pod_list, config_name='global'):
+    def __init__(self, base_np_list, base_resource_list, base_ns_list, base_pod_list, np_list, resource_list, ns_list,
+                 pod_list, config_name='global'):
         self.base_ns_list = base_ns_list or ns_list
         self.base_pod_list = base_pod_list or pod_list
         self.base_np_list = base_np_list or np_list
