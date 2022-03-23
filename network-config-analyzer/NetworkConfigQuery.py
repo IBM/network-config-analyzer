@@ -1200,7 +1200,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
         query_output = query_answer.output_result + '\n'
         if query_answer.numerical_result == 0:
             query_output += f'{self.config2.name} does not forbid connections specified in {self.config1.name}: ' \
-                        f'{query_answer.output_explanation}'
+                f'{query_answer.output_explanation}'
         else:
             query_output += f'{self.config2.name} forbids connections specified in {self.config1.name}'
         return res, query_output
