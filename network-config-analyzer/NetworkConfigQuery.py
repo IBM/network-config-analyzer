@@ -233,7 +233,7 @@ class RedundancyQuery(NetworkConfigQuery):
 
         if res > 0:
             output_explanation = '\n'.join(redundancies)
-            return QueryAnswer(True, 'Redundancies found in ' + self.config.name, output_explanation, res)
+            return QueryAnswer(True, 'Redundancies found in ' + self.config.name + '\n', output_explanation, res)
         return QueryAnswer(False, 'No redundancy found in ' + self.config.name)
 
     def compute_query_output(self, query_answer):
