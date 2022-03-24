@@ -129,7 +129,7 @@ class EmptinessQuery(NetworkConfigQuery):
         full_explanation = '\n'.join(full_explanation_list)
         return QueryAnswer(res > 0,
                            'There are empty NetworkPolicies and/or empty ingress/egress rules in ' + self.config.name,
-                           full_explanation, res)
+                           '\n' + full_explanation, res)
 
     def compute_query_output(self, query_answer):
         return self.get_query_output(query_answer, add_explanation=query_answer.bool_result)
