@@ -503,7 +503,7 @@ class PeerSet(set):
         assert len(self.sorted_peer_list) == len(self)
         res = []
         for interval in peer_inteval_set:
-            for ind in range(interval.start, interval.end+1):
+            for ind in range(interval.start, interval.end + 1):
                 res.append(self.sorted_peer_list[ind])
         return res
 
@@ -514,7 +514,7 @@ class PeerSet(set):
         """
         assert len(self.sorted_peer_list) == len(self)
         res = CanonicalIntervalSet()
-        res.add_interval(CanonicalIntervalSet.Interval(0, len(self.sorted_peer_list)-1))
+        res.add_interval(CanonicalIntervalSet.Interval(0, len(self.sorted_peer_list) - 1))
         return res
 
     def is_whole_range(self, peer_interval_set):

@@ -21,7 +21,7 @@ class K8sServiceYamlParser(GenericYamlParser):
         """
         GenericYamlParser.__init__(self, service_file_name)
 
-    def parse_service(self, srv_object):
+    def parse_service(self, srv_object):  # noqa: C901
         """
         Parses a service resource object and creates a K8sService object
         :param dict srv_object: the service object to parse
