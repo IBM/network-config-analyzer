@@ -10,7 +10,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-ingress-deny-egress-within-namespace
+  name: allow-all-within-namespace
   namespace: ingress-nginx
 spec:
   podSelector:

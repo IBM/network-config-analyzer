@@ -23,6 +23,8 @@ queries:
   - name: connectivity_map
     connectivityMap:
     - ip
+    - np1/ingress-nginx/allow-all-within-namespace
+    - np1/ingress-nginx/allow-webhook-via-ingress
     - np1
     - np2
     expected: 0
@@ -44,7 +46,7 @@ queries:
     strongEquivalence:
       - np1
       - np2
-    expected: 1
+    expected: 0
   - name: np1_and_np1_are_strongly_equivalent
     strongEquivalence:
       - np1
@@ -52,15 +54,15 @@ queries:
     expected: 0
   - name: compare_specific_policies_in_np1_and_np2
     equivalence:
-      - np1/ingress-nginx/allow-egress-deny-ingress-within-namespace
-      - np2/ingress-nginx/allow-ingress-deny-egress-within-namespace
+      - np1/ingress-nginx/allow-all-within-namespace
+      - np2/ingress-nginx/allow-all-within-namespace
       - np1/ingress-nginx/allow-webhook-via-ingress
     expected: 2
   - name: redundancy_np1_and_np2
     redundancy:
       - np1
       - np2
-    expected: 4
+    expected: 3
   - name: pairwiseInterferes_np1_and_np2
     pairwiseInterferes:
       - np1

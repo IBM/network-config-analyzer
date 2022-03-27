@@ -348,7 +348,7 @@ class NetworkConfig:
 
         policy_captured = False
         has_allow_policies_for_target = False
-        for policy in self.sorted_policies + self.ingress_allow_policies + self.ingress_deny_policies:
+        for policy in self.ingress_deny_policies + self.sorted_policies + self.ingress_allow_policies:
             policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
             assert isinstance(policy_conns, PolicyConnections)
             if policy_conns.captured:
@@ -379,7 +379,8 @@ class NetworkConfig:
 
         allowed_non_captured_conns = ConnectionSet()
         if not policy_captured:
-            if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Unknown]:
+            if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress,
+                             NetworkConfig.ConfigType.Unknown]:
                 allowed_non_captured_conns = ConnectionSet(True)  # default Allow-all ingress in k8s or in case of no policy
             else:
                 if self.profiles:

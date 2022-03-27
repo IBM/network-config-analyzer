@@ -8,6 +8,7 @@ from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from DimensionsManager import DimensionsManager
 from PortSet import PortSet
 from MethodSet import MethodSet
+from Peer import PeerSet
 from MinDFA import MinDFA
 
 
@@ -36,10 +37,11 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     (2) calico: +ve and -ve named ports, no src named ports, and no use of operators between these objects.
     """
 
-    dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts"]
+    dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"]
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
-    def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=MethodSet(True), paths=None, hosts=None):
+    def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=MethodSet(True), paths=None, hosts=None,
+                 peers=None, base_peer_set=None):
         """
         This will create all cubes made of the input arguments ranges/regex values.
         :param PortSet source_ports: The set of source ports (as a set of intervals/ranges)
@@ -47,11 +49,15 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :param MethodSet methods: the set of http request methods
         :param MinDFA paths: The dfa of http request paths
         :param MinDFA hosts: The dfa of http request hosts
+        :param CanonicalIntervalSet peers: the set of (target) peers
+        :param PeerSet base_peer_set: the base peer set which is referenced by the indices in 'peers'
         """
         super().__init__(TcpLikeProperties.dimensions_list)
+        assert not peers or base_peer_set
 
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
+        self.base_peer_set = base_peer_set if base_peer_set else PeerSet()
 
         # create the cube from input arguments
         cube = []
@@ -71,6 +77,9 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if hosts is not None:
             cube.append(hosts)
             active_dims.append("hosts")
+        if peers is not None:
+            cube.append(peers)
+            active_dims.append("peers")
 
         if not active_dims:
             self.set_all()
@@ -106,24 +115,22 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                 ports_str = ','.join(str(ports_interval) for ports_interval in ports_list)
                 return ports_str
 
-        cubes_dict_list = [self.get_cube_dict(cube, self.active_dimensions, True) for cube in self]
+        cubes_dict_list = [self.get_cube_dict(cube, True) for cube in self]
         return ','.join(str(cube_dict) for cube_dict in cubes_dict_list)
 
     def __hash__(self):
         return super().__hash__()
 
-    @staticmethod
-    def get_cube_dict(cube, dims_list, is_txt=False):
+    def get_cube_dict(self, cube, is_txt=False):
         """
         represent the properties cube as dict objet, for output generation as yaml/txt format
         :param list cube: the values of the input cube
-        :param list dims_list: the list of dimensions for the input cube
         :param bool is_txt: flag indicating if output is for txt or yaml format
         :return: the cube properties in dict representation
         :rtype: dict
         """
         cube_dict = {}
-        for i, dim in enumerate(dims_list):
+        for i, dim in enumerate(self.active_dimensions):
             dim_values = cube[i]
             dim_type = DimensionsManager().get_dimension_type_by_name(dim)
             dim_domain = DimensionsManager().get_dimension_domain_by_name(dim)
@@ -131,6 +138,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                 continue  # skip dimensions with all values allowed in a cube
             if dim == 'methods':
                 values_list = str(dim_values)
+            elif dim == "peers":
+                values_list = self.base_peer_set.get_peer_list_by_indices(dim_values)
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = dim_values.get_interval_set_list_numbers_and_ranges()
                 if is_txt:
@@ -149,7 +158,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             return {}
         cubs_dict_list = []
         for cube in self:
-            cube_dict = self.get_cube_dict(cube, self.active_dimensions)
+            cube_dict = self.get_cube_dict(cube)
             cubs_dict_list.append(cube_dict)
         if self.active_dimensions == ['dst_ports']:
             assert len(cubs_dict_list) == 1
@@ -158,6 +167,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
+            assert self.base_peer_set == other.base_peer_set
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
@@ -179,12 +189,14 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return res
 
     def __iand__(self, other):
+        assert not isinstance(other, TcpLikeProperties) or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__iand__(other)
         return self
 
     def __ior__(self, other):
+        assert not isinstance(other, TcpLikeProperties) or self.base_peer_set == other.base_peer_set
         assert not self.excluded_named_ports
         assert not isinstance(other, TcpLikeProperties) or not other.excluded_named_ports
         super().__ior__(other)
@@ -201,6 +213,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return self
 
     def __isub__(self, other):
+        assert not isinstance(other, TcpLikeProperties) or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__isub__(other)
@@ -212,6 +225,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
+        assert not isinstance(other, TcpLikeProperties) or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not other.has_named_ports()
         return super().contained_in(other)
@@ -265,6 +279,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
         res.named_ports = self.named_ports.copy()
         res.excluded_named_ports = self.excluded_named_ports.copy()
+        res.base_peer_set = self.base_peer_set.copy()
         return res
 
     def print_diff(self, other, self_name, other_name):

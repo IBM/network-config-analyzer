@@ -22,6 +22,9 @@ class Peer:
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
 
+    def full_name(self):
+        return self.namespace.name + '/' + self.name if self.namespace else self.name
+
     def set_label(self, key, value):
         """
         Add a label to the endpoint
@@ -368,6 +371,7 @@ class PeerSet(set):
 
     def __init__(self, peer_set=None):
         super().__init__(peer_set or set())
+        self.sorted_peer_list = []  # for converting PeerSet to CanonicalIntervalSet
 
     def __contains__(self, item):
         if isinstance(item, IpBlock):  # a special check here because an IpBlock may be contained in another IpBlock
@@ -390,6 +394,7 @@ class PeerSet(set):
         # TODO: shallow copy or deep copy?
         # res = PeerSet(set(elem.copy() for elem in self))
         res = PeerSet(super().copy())
+        res.sorted_peer_list = self.sorted_peer_list
         return res
 
     # TODO: what is expected for ipblock name/namespace result on intersection?
@@ -433,6 +438,14 @@ class PeerSet(set):
         res -= other
         return res
 
+    def __hash__(self):
+        """
+        Note: PeerSet is a mutable type. Use with caution!
+        :return: hash value for this object.
+        """
+        self.update_sorted_peer_list()
+        return hash(','.join(str(peer.full_name()) for peer in self.sorted_peer_list))
+
     def rep(self):
         """
         Returns a representing peer from the set of peers
@@ -458,3 +471,65 @@ class PeerSet(set):
             if isinstance(elem, IpBlock):
                 res |= elem
         return res
+
+    def update_sorted_peer_list(self):
+        """
+        create self.sorted_peer_list from non IpBlock pods
+        :return: None
+        """
+        self.sorted_peer_list = sorted(list(elem for elem in self), key=by_full_name)
+
+    def get_peer_interval_of(self, peer_set):
+        """
+        Calculates interval set of a given peer_set, based on the self peer_set
+        :param PeerSet peer_set: the peer_set to be converted to the interval set
+        :return: CanonicalIntervalSet for the peer_set
+        """
+        res = CanonicalIntervalSet()
+        if len(self.sorted_peer_list) != len(self):
+            # should update sorted_peer_list
+            self.update_sorted_peer_list()
+        for index, peer in enumerate(self.sorted_peer_list):
+            if peer in peer_set:
+                res.add_interval(CanonicalIntervalSet.Interval(index, index))
+        return res
+
+    def get_peer_list_by_indices(self, peer_inteval_set):
+        """
+        Return peer list from interval set of indices
+        :param peer_inteval_set: the interval set of indices into the sorted peer list
+        :return: the list of peers referenced by the indices in the interval set
+        """
+        assert len(self.sorted_peer_list) == len(self)
+        res = []
+        for interval in peer_inteval_set:
+            for ind in range(interval.start, interval.end+1):
+                res.append(self.sorted_peer_list[ind])
+        return res
+
+    def get_all_peers_interval(self):
+        """
+        Returns the interval of all peers
+        :return: CanonicalIntervalSet of all peers
+        """
+        assert len(self.sorted_peer_list) == len(self)
+        res = CanonicalIntervalSet()
+        res.add_interval(CanonicalIntervalSet.Interval(0, len(self.sorted_peer_list)-1))
+        return res
+
+    def is_whole_range(self, peer_interval_set):
+        """
+        Returns True iff the given peer interval set includes all peers
+        :param peer_interval_set: the given peer interval set
+        :return: bool whether the given interval set includes all peers
+        """
+        return peer_interval_set == self.get_all_peers_interval()
+
+
+def by_full_name(elem):
+    """
+    Used for sorting peer list
+    :param elem: Peer
+    :return: Peer's name (the key being used by the sort)
+    """
+    return elem.full_name()
