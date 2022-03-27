@@ -1198,10 +1198,10 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
     def compute_query_output(self, query_answer, cmd_line_flag=False):
         res = not query_answer.numerical_result if cmd_line_flag else query_answer.bool_result
         query_output = query_answer.output_result + '\n'
-        if query_answer.bool_result and query_answer.numerical_result == 0:
+        if query_answer.bool_result:
             query_output += f'{self.config2.name} does not forbid connections specified in {self.config1.name}: ' \
                 f'{query_answer.output_explanation}'
-        else:
+        elif query_answer.numerical_result == 1:
             query_output += f'{self.config2.name} forbids connections specified in {self.config1.name}'
         return res, query_output
 
