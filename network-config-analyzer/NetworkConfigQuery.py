@@ -147,10 +147,10 @@ class EmptinessQuery(NetworkConfigQuery):
         full_explanation = '\n'.join(full_explanation_list)
         return QueryAnswer(res > 0,
                            'There are empty NetworkPolicies and/or empty ingress/egress rules in ' + self.config.name,
-                           full_explanation, res)
+                           '\n' + full_explanation, res)
 
     def compute_query_output(self, query_answer):
-        return self.get_query_output(query_answer, query_answer.bool_result)
+        return self.get_query_output(query_answer, add_explanation=query_answer.bool_result)
 
 
 class VacuityQuery(NetworkConfigQuery):
@@ -251,11 +251,11 @@ class RedundancyQuery(NetworkConfigQuery):
 
         if res > 0:
             output_explanation = '\n'.join(redundancies)
-            return QueryAnswer(True, 'Redundancies found in ' + self.config.name, output_explanation, res)
+            return QueryAnswer(True, 'Redundancies found in ' + self.config.name + '\n', output_explanation, res)
         return QueryAnswer(False, 'No redundancy found in ' + self.config.name)
 
     def compute_query_output(self, query_answer):
-        return self.get_query_output(query_answer, query_answer.bool_result)
+        return self.get_query_output(query_answer, add_explanation=query_answer.bool_result)
 
 
 class SanityQuery(NetworkConfigQuery):
@@ -551,7 +551,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         return res
 
     def compute_query_output(self, query_answer):
-        return self.get_query_output(query_answer, query_answer.bool_result)
+        return self.get_query_output(query_answer, only_explanation=query_answer.bool_result)
 
     @staticmethod
     def filter_istio_edge(peer2, conns):
@@ -956,8 +956,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         query_output = ''
         if self.output_config.outputFormat == 'txt':
             query_output += query_answer.output_result
-        if not query_answer.bool_result:
-            query_output += query_answer.output_explanation
+        query_output += query_answer.output_explanation
         return res, query_output
 
 
@@ -1065,7 +1064,7 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
         explanation_not_contained_other_self = \
             contained_2_in_1.output_result + ':\n\t' + contained_2_in_1.output_explanation
         if contained_1_in_2.bool_result and contained_2_in_1.bool_result:
-            return QueryAnswer(bool_result=False,
+            return QueryAnswer(bool_result=True,
                                output_result=f'The two network configurations {self.name1} and {self.name2} '
                                              'are semantically equivalent.',
                                numerical_result=3)
@@ -1203,7 +1202,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                     return QueryAnswer(True, self.name2 + ' intersects with ' + self.name1, output_explanation)
 
         return QueryAnswer(False, f'The connections allowed by {self.name1}'
-                                  f' do not intersect the connections allowed by {self.name2}')
+                                  f' do not intersect the connections allowed by {self.name2}', numerical_result=1)
 
 
 class ForbidsQuery(TwoNetworkConfigsQuery):
@@ -1214,13 +1213,15 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
                                       'No traffic is specified as forbidden.')
         return IntersectsQuery(self.config1, self.config2).exec(True)
 
-    def compute_query_output(self, query_answer, _):
+    def compute_query_output(self, query_answer, cmd_line_flag=False):
+        res = not query_answer.numerical_result if cmd_line_flag else query_answer.bool_result
+        query_output = query_answer.output_result + '\n'
         if query_answer.bool_result:
-            query_output = f'{self.config2.name} does not forbid connections specified in {self.config1.name}:' \
-                           f'{query_answer.output_explanation}'
-        else:
-            query_output = f'{self.config2.name} forbids connections specified in {self.config1.name}'
-        return query_answer.bool_result, query_output
+            query_output += f'{self.config2.name} does not forbid connections specified in {self.config1.name}: ' \
+                f'{query_answer.output_explanation}'
+        elif query_answer.numerical_result == 1:
+            query_output += f'{self.config2.name} forbids connections specified in {self.config1.name}'
+        return res, query_output
 
 
 class AllCapturedQuery(NetworkConfigQuery):
