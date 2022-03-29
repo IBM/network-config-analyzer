@@ -23,12 +23,6 @@ networkConfigList:
     expectedWarnings: 0
 
 queries:
-  - name: equivalence
-    equivalence:
-      - np1
-      - np2
-      - np3
-    expected: 2
   - name: equivalence_np4_with_itself
     equivalence:
       - np4
