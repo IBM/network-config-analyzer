@@ -137,3 +137,25 @@ class IngressPolicy(NetworkPolicy):
             if rule != rule_to_exclude:
                 res.add_egress_rule(rule)
         return res
+
+    def has_allow_rules(self):
+        """
+        :return: Whether the policy has rules that allow connections.
+        :rtype: bool
+        """
+        if self.action == IngressPolicy.ActionType.Allow:
+            for rule in self.egress_rules:
+                if rule.peer_set:
+                    return True
+        return False
+
+    def has_deny_rules(self):
+        """
+        :return: Whether the policy has deny rules
+        :rtype: bool
+        """
+        if self.action == IngressPolicy.ActionType.Deny:
+            for rule in self.egress_rules:
+                if rule.peer_set:
+                    return True
+        return False

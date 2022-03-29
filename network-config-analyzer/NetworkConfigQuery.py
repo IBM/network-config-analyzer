@@ -9,6 +9,7 @@ import os
 from enum import Enum
 from NetworkConfig import NetworkConfig
 from NetworkPolicy import NetworkPolicy
+from IngressPolicy import IngressPolicy
 from ConnectionSet import ConnectionSet
 from ConnectivityGraph import ConnectivityGraph
 from OutputConfiguration import OutputConfiguration
@@ -48,6 +49,14 @@ class BaseNetworkQuery:
     def get_supported_output_formats():
         return None
 
+    def policy_title(self, policy):
+        """
+        Return the title of the given policy, including the type name and the policy name
+        :param policy: the given policy
+        :return: the title of the policy
+        """
+        return ("Ingress resource " if isinstance(policy, IngressPolicy) else "Network policy ") + policy.full_name()
+
 
 class NetworkConfigQuery(BaseNetworkQuery):
     """
@@ -75,6 +84,15 @@ class NetworkConfigQuery(BaseNetworkQuery):
     def get_query_type():
         return QueryType.SingleConfigQuery
 
+    def policy_title(self, policy):
+        """
+        Return the title of the given policy, including the type name and the policy name
+        :param policy: the given policy
+        :return: the title of the policy
+        """
+        return ("Ingress resource " if isinstance(policy, IngressPolicy) else "Network policy ") \
+               + policy.full_name(self.config.name)
+
 
 class DisjointnessQuery(NetworkConfigQuery):
     """
@@ -91,8 +109,8 @@ class DisjointnessQuery(NetworkConfigQuery):
                     break
                 intersection = policy1.selected_peers & policy2.selected_peers
                 if intersection:
-                    non_disjoint_explanation = f'The captured pods of NetworkPolicy {policy1.full_name()} ' \
-                                               f'and NetworkPolicy {policy2.full_name()} ' \
+                    non_disjoint_explanation = f'The captured pods of {self.policy_title(policy1)} ' \
+                                               f'and {self.policy_title(policy2)} ' \
                                                f'are overlapping. E.g., both capture {intersection.rep()}'
                     non_disjoint_explanation_list.append(non_disjoint_explanation)
 
@@ -118,7 +136,7 @@ class EmptinessQuery(NetworkConfigQuery):
         for policy in self.config.policies.values():
             emptiness_list = []
             if policy.is_policy_empty():
-                emptiness_list.append(f'NetworkPolicy {policy.full_name(self.config.name)} does not select any pods')
+                emptiness_list.append(f'{self.policy_title(policy)} does not select any pods')
             empty_rules_explanation, _, _ = policy.has_empty_rules(self.config.name)
             emptiness_list.extend(empty_rules_explanation)
             res += len(emptiness_list)
@@ -176,7 +194,7 @@ class RedundancyQuery(NetworkConfigQuery):
                 if EquivalenceQuery(self.config, config_without_policy).exec().bool_result:
                     res += 1
                     redundant_policies.add(policy.full_name())
-                    redundancy = f'NetworkPolicy {policy.full_name()} is redundant in {self.config.name}'
+                    redundancy = f'{self.policy_title(policy)} is redundant in {self.config.name}'
                     redundancies.append(redundancy)
         return redundant_policies, redundancies
 
@@ -188,7 +206,7 @@ class RedundancyQuery(NetworkConfigQuery):
         for rule_index, ingress_rule in enumerate(policy.ingress_rules, start=1):
             modified_policy = policy.clone_without_rule(ingress_rule, True)
             if len(modified_policy.ingress_rules) < len(policy.ingress_rules) - 1:
-                redundancy = f'Ingress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
+                redundancy = f'Ingress rule no. {rule_index} in {self.policy_title(policy)} is redundant ' \
                              f'in {self.config.name}'
                 redundancies.append(redundancy)
                 redundant_ingress_rules.append(rule_index)
@@ -197,14 +215,14 @@ class RedundancyQuery(NetworkConfigQuery):
             config_with_modified_policy.add_policy(modified_policy)
             equiv_result = EquivalenceQuery(self.config, config_with_modified_policy).exec()
             if equiv_result.bool_result:
-                redundancy = f'Ingress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
+                redundancy = f'Ingress rule no. {rule_index} in {self.policy_title(policy)} is redundant ' \
                              f'in {self.config.name}'
                 redundancies.append(redundancy)
                 redundant_ingress_rules.append(rule_index)
         for rule_index, egress_rule in enumerate(policy.egress_rules, start=1):
             modified_policy = policy.clone_without_rule(egress_rule, False)
             if len(modified_policy.egress_rules) < len(policy.egress_rules) - 1:
-                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
+                redundancy = f'Egress rule no. {rule_index} in {self.policy_title(policy)} is redundant ' \
                              f'in {self.config.name}'
                 redundancies.append(redundancy)
                 redundant_egress_rules.append(rule_index)
@@ -212,7 +230,7 @@ class RedundancyQuery(NetworkConfigQuery):
             config_with_modified_policy = self.config.clone_without_policy(policy)
             config_with_modified_policy.add_policy(modified_policy)
             if EquivalenceQuery(self.config, config_with_modified_policy).exec().bool_result:
-                redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
+                redundancy = f'Egress rule no. {rule_index} in {self.policy_title(policy)} is redundant ' \
                              f'in {self.config.name}'
                 redundant_egress_rules.append(rule_index)
                 redundancies.append(redundancy)
@@ -260,8 +278,8 @@ class SanityQuery(NetworkConfigQuery):
                 else:  # policy has same priority as policies in curr_set
                     for other_policy in curr_set:
                         if policy.is_conflicting(other_policy):
-                            conflict_str = 'Policies {} and {} have same order but conflicting rules. Behavior is ' \
-                                           'undefined.'.format(policy.full_name(), other_policy.full_name())
+                            conflict_str = '{} and {} have same order but conflicting rules. Behavior is ' \
+                                           'undefined.'.format(self.policy_title(policy), self.policy_title(other_policy))
                             policy.add_finding(conflict_str)
                             other_policy.add_finding(conflict_str)
                             return True, conflict_str
@@ -354,7 +372,7 @@ class SanityQuery(NetworkConfigQuery):
         :rtype: str
         """
         redundant_text = 'In' if is_ingress else 'E'
-        redundant_text += f'gress rule no. {rule_index} in NetworkPolicy {policy.full_name()} ' \
+        redundant_text += f'gress rule no. {rule_index} in {self.policy_title(policy)} ' \
                           f'is redundant in {self.config.name}'
         containing_policy, containing_index, containing_contradict = \
             self.other_rule_containing(policy, rule_index, is_ingress)
@@ -366,7 +384,7 @@ class SanityQuery(NetworkConfigQuery):
         if containing_policy == policy:
             redundant_text += ' of its NetworkPolicy'
         else:
-            redundant_text += f' of NetworkPolicy {containing_policy.full_name()}'
+            redundant_text += f' of {self.policy_title(containing_policy)}'
         if containing_contradict:
             redundant_text += '\n\tNote that the action of the containing rule and the rule are different.'
         return redundant_text + '\n'
@@ -378,7 +396,7 @@ class SanityQuery(NetworkConfigQuery):
         :return: A text explaining why the policy is redundant
         :rtype: str
         """
-        redundant_text = f'NetworkPolicy {policy.full_name()} is redundant'
+        redundant_text = f'{self.policy_title(policy)} is redundant'
         single_policy_config = self.config.clone_with_just_one_policy(policy.full_name())
         if VacuityQuery(single_policy_config).exec().bool_result:
             if self.config.type == NetworkConfig.ConfigType.Calico:
@@ -402,15 +420,15 @@ class SanityQuery(NetworkConfigQuery):
         if (has_allow_rules and contain_allow_policy is None) or (has_deny_rules and contain_deny_policy is None):
             return redundant_text + '\n'
         if not has_deny_rules:
-            redundant_text += f': it is contained in NetworkPolicy {contain_allow_policy.full_name()}\n'
+            redundant_text += f': it is contained in {self.policy_title(contain_allow_policy)}\n'
         elif not has_allow_rules:
-            redundant_text += f': it is contained in NetworkPolicy {contain_deny_policy.full_name()}\n'
+            redundant_text += f': it is contained in {self.policy_title(contain_deny_policy)}\n'
         else:
             if contain_deny_policy == contain_allow_policy:
-                redundant_text += f': it is contained in NetworkPolicy {contain_allow_policy.full_name()}\n'
+                redundant_text += f': it is contained in {self.policy_title(contain_allow_policy)}\n'
             else:
-                redundant_text += f': its allow rules are covered by NetworkPolicy {contain_allow_policy.full_name()}' \
-                                  f', its deny rules are covered by NetworkPolicy {contain_deny_policy.full_name()}\n'
+                redundant_text += f': its allow rules are covered by {self.policy_title(contain_allow_policy)}' \
+                                  f', its deny rules are covered by {self.policy_title(contain_deny_policy)}\n'
         return redundant_text
 
     def exec(self):   # noqa: C901
@@ -433,7 +451,7 @@ class SanityQuery(NetworkConfigQuery):
         for policy in self.config.policies.values():
             if policy.is_policy_empty():
                 issues_counter += 1
-                empty_issue = f'NetworkPolicy {policy.full_name()} is empty - it does not select any pods\n'
+                empty_issue = f'{self.policy_title(policy)} is empty - it does not select any pods\n'
                 policies_issue += empty_issue
                 policy.add_finding(empty_issue)
                 continue
@@ -975,7 +993,7 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
             single_policy_config2 = self.config2.clone_with_just_one_policy(policy.full_name())
             full_result = EquivalenceQuery(single_policy_config1, single_policy_config2).exec()
             if not full_result.bool_result:
-                output_result = f'{policy.full_name()} is not equivalent in {self.name1} and in {self.name2}'
+                output_result = f'{self.policy_title(policy)} is not equivalent in {self.name1} and in {self.name2}'
                 return QueryAnswer(False, output_result, full_result.output_explanation)
 
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are strongly equivalent.')

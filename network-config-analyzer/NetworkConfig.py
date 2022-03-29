@@ -244,7 +244,7 @@ class NetworkConfig:
         :return: A clone of the config without any policies
         :rtype: NetworkConfig
         """
-        res = NetworkConfig(name, self.peer_container, [], self.type)
+        res = NetworkConfig(name, self.peer_container, [], NetworkConfig.ConfigType.Unknown)
         res.profiles = self.profiles
         return res
 
@@ -344,11 +344,12 @@ class NetworkConfig:
         """
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
+        ingress_denied_conns = ConnectionSet()
         pass_conns = ConnectionSet()
 
         policy_captured = False
         has_allow_policies_for_target = False
-        for policy in self.ingress_deny_policies + self.sorted_policies + self.ingress_allow_policies:
+        for policy in self.ingress_deny_policies + self.sorted_policies:
             policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
             assert isinstance(policy_conns, PolicyConnections)
             if policy_conns.captured:
@@ -358,6 +359,8 @@ class NetworkConfig:
                 policy_conns.denied_conns -= allowed_conns
                 policy_conns.denied_conns -= pass_conns
                 denied_conns |= policy_conns.denied_conns
+                if isinstance(policy, IngressPolicy) and policy.action == IngressPolicy.ActionType.Deny:
+                    ingress_denied_conns |= policy_conns.denied_conns
                 policy_conns.allowed_conns -= denied_conns
                 policy_conns.allowed_conns -= pass_conns
                 allowed_conns |= policy_conns.allowed_conns
@@ -369,7 +372,8 @@ class NetworkConfig:
             # for istio initialize non-captured conns with non-TCP connections
             allowed_non_captured_conns = ConnectionSet.get_non_tcp_connections()
             if not is_ingress:
-                allowed_non_captured_conns = ConnectionSet(True)  # egress currently always allowed and not captured
+                # egress currently always allowed and not captured (unless denied by Ingress resource)
+                allowed_non_captured_conns = ConnectionSet(True) - ingress_denied_conns
             elif not has_allow_policies_for_target:
                 # add connections allowed by default that are not captured
                 allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
@@ -378,10 +382,13 @@ class NetworkConfig:
                                      all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
         allowed_non_captured_conns = ConnectionSet()
-        if not policy_captured:
+        if not policy_captured or (self.type == NetworkConfig.ConfigType.Ingress and not is_ingress):
             if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress,
                              NetworkConfig.ConfigType.Unknown]:
-                allowed_non_captured_conns = ConnectionSet(True)  # default Allow-all ingress in k8s or in case of no policy
+                # default Allow-all (not denied by ingress) in k8s or in case of no policy
+                all_conns = ConnectionSet()
+                all_conns.add_all_connections_of_protocol('TCP')
+                allowed_non_captured_conns = all_conns - ingress_denied_conns
             else:
                 if self.profiles:
                     allowed_non_captured_conns = self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
