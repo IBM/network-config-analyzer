@@ -5,11 +5,13 @@ on:
 
 permissions:
   actions: read
-  contents: write
+  contents: read
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
       - uses: ./.github/actions/setup-nca-env
