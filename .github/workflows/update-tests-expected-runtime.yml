@@ -5,7 +5,7 @@ on:
 
 permissions:
   actions: read
-  contents: write
+  contents: read
 
 jobs:
   changed-tests:
@@ -23,6 +23,8 @@ jobs:
           echo "::set-output name=changed_tests::$(((git fetch origin master:master) && (git diff --name-only --diff-filter=AMRD master)) | grep -E '*-scheme\.yaml|k8s_cmdline_tests.yaml' | xargs)"
   update-tests-runtime:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: changed-tests
     if: ${{needs.changed-tests.outputs.changed_tests}}
     steps:

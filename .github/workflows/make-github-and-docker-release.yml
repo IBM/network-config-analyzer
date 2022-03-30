@@ -9,13 +9,15 @@ on:
         default: 0.0.0
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 jobs:
   push_to_registry:
     name: Push a Docker image to the Docker Hub and create a github release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - name: Print the version number
         run: |
