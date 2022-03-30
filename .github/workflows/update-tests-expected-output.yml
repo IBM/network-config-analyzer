@@ -3,17 +3,24 @@ name: update-tests-expected-output
 on:
   workflow_dispatch:
 
+permissions:
+  actions: read
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
       - uses: ./.github/actions/setup-nca-env
       - name: update or add expected output files
         run:  python tests/run_all_tests.py --type=general --override_expected_output_files --create_expected_output_files
+        env:
+          GHE_TOKEN: ${{ github.token }}
       - name: Commit changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          default_author: github_actions
-          message: 'Updating and Adding tests expected output files'
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email '${{ github.actor }}@users.noreply.github.com'
+          git add tests
+          git diff-index --quiet HEAD || ( git commit -m"Updating and Adding tests expected output files" && git push )
 
