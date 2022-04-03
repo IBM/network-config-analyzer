@@ -386,8 +386,11 @@ class NetworkConfig:
             if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress,
                              NetworkConfig.ConfigType.Unknown]:
                 # default Allow-all (not denied by ingress) in k8s or in case of no policy
-                all_conns = ConnectionSet()
-                all_conns.add_all_connections_of_protocol('TCP')
+                if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress]:
+                    all_conns = ConnectionSet()
+                    all_conns.add_all_connections_of_protocol('TCP')
+                else:
+                    all_conns = ConnectionSet(True)
                 allowed_non_captured_conns = all_conns - ingress_denied_conns
             else:
                 if self.profiles:
