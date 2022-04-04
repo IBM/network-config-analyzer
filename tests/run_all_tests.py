@@ -360,7 +360,6 @@ def main(argv=None):
         print(f'check_run_time flag is not supported with test type: {test_type}')
         sys.exit(1)
 
-    return 1
     spec_file = 'all_tests_spec.yaml'
     tests_runner = TestsRunner(spec_file, test_type, check_run_time, category)
     tests_runner.run_tests()
