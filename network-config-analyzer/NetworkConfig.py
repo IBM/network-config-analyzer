@@ -127,7 +127,8 @@ class NetworkConfig:
         policy_type = self._get_policy_type(policy)
         if policy_type == NetworkConfig.ConfigType.Unknown:
             raise Exception('Unknown policy type')
-        if self.type == NetworkConfig.ConfigType.Unknown or self.type == NetworkConfig.ConfigType.Ingress:
+        if self.type == NetworkConfig.ConfigType.Unknown or not self.policies or \
+                self.type == NetworkConfig.ConfigType.Ingress:
             self.type = policy_type
         elif self.type != policy_type and policy_type != NetworkConfig.ConfigType.Ingress:
             raise Exception('Cannot mix NetworkPolicies from different platforms')
@@ -244,7 +245,7 @@ class NetworkConfig:
         :return: A clone of the config without any policies
         :rtype: NetworkConfig
         """
-        res = NetworkConfig(name, self.peer_container, [], NetworkConfig.ConfigType.Unknown)
+        res = NetworkConfig(name, self.peer_container, [], self.type)
         res.profiles = self.profiles
         return res
 
