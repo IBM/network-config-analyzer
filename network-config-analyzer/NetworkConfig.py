@@ -168,9 +168,7 @@ class NetworkConfig:
                 self.allowed_labels |= parsed_element.allowed_labels
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
-                allow_policy, deny_policy = parsed_element.parse_policy()
-                self.add_policy(allow_policy)
-                self.add_policy(deny_policy)
+                self.add_policy(parsed_element.parse_policy())
                 self.allowed_labels |= parsed_element.allowed_labels
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
@@ -348,9 +346,14 @@ class NetworkConfig:
         ingress_denied_conns = ConnectionSet()
         pass_conns = ConnectionSet()
 
+        if not is_ingress:
+            for policy in self.ingress_deny_policies:
+                policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
+                ingress_denied_conns |= policy_conns.denied_conns
+
         policy_captured = False
         has_allow_policies_for_target = False
-        for policy in self.ingress_deny_policies + self.sorted_policies:
+        for policy in self.sorted_policies:
             policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
             assert isinstance(policy_conns, PolicyConnections)
             if policy_conns.captured:
@@ -360,8 +363,6 @@ class NetworkConfig:
                 policy_conns.denied_conns -= allowed_conns
                 policy_conns.denied_conns -= pass_conns
                 denied_conns |= policy_conns.denied_conns
-                if isinstance(policy, IngressPolicy) and policy.action == IngressPolicy.ActionType.Deny:
-                    ingress_denied_conns |= policy_conns.denied_conns
                 policy_conns.allowed_conns -= denied_conns
                 policy_conns.allowed_conns -= pass_conns
                 allowed_conns |= policy_conns.allowed_conns
@@ -383,21 +384,18 @@ class NetworkConfig:
                                      all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
         allowed_non_captured_conns = ConnectionSet()
-        if not policy_captured or (self.type == NetworkConfig.ConfigType.Ingress and not is_ingress):
+        if not policy_captured:
             if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress,
                              NetworkConfig.ConfigType.Unknown]:
                 # default Allow-all (not denied by ingress) in k8s or in case of no policy
-                if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress]:
-                    all_conns = ConnectionSet()
-                    all_conns.add_all_connections_of_protocol('TCP')
-                else:
-                    all_conns = ConnectionSet(True)
-                allowed_non_captured_conns = all_conns - ingress_denied_conns
+                allowed_non_captured_conns = ConnectionSet(True)
             else:
                 if self.profiles:
                     allowed_non_captured_conns = self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
         elif pass_conns:
             allowed_conns |= pass_conns & self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
+        allowed_conns -= ingress_denied_conns
+        allowed_non_captured_conns -= ingress_denied_conns
         return PolicyConnections(policy_captured, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 

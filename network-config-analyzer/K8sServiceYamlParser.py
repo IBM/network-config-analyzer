@@ -27,11 +27,8 @@ class K8sServiceYamlParser(GenericYamlParser):
         :param dict srv_object: the service object to parse
         :return: K8sService object or None
         """
-        if srv_object.get('kind') != 'Service':
-            return None  # Not a Service object
-        api_version = srv_object.get('apiVersion')
-        if api_version != 'v1':
-            return None  # apiVersion is not properly set
+        if srv_object.get('kind') != 'Service' or srv_object.get('apiVersion') != 'v1':
+            return None  # Not a v1 Service object
         metadata = srv_object.get('metadata')
         if not metadata:
             return None

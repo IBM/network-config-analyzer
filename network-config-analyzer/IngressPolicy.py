@@ -88,7 +88,7 @@ class IngressPolicy(NetworkPolicy):
         if not captured:
             return PolicyConnections(False)
         if is_ingress:
-            return PolicyConnections(True, ConnectionSet(True))
+            return PolicyConnections(False)
 
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()

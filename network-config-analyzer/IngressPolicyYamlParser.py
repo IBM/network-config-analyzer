@@ -8,10 +8,11 @@ from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
 from GenericYamlParser import GenericYamlParser
 from IngressPolicy import IngressPolicy, IngressPolicyRule
-from Peer import PeerSet
+from Peer import PeerSet, IpBlock
 from PeerContainer import PeerContainer
 from PortSet import PortSet
 from MethodSet import MethodSet
+from ConnectionSet import ConnectionSet
 from TcpLikeProperties import TcpLikeProperties
 
 
@@ -143,6 +144,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
         """
         assert peers
         base_peer_set = self.peer_container.peer_set
+        base_peer_set.add(IpBlock.get_all_ips_block())
         peers_interval = base_peer_set.get_peer_interval_of(peers)
         tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=MethodSet(True),
                                            paths=paths_dfa, hosts=hosts_dfa, peers=peers_interval,
@@ -226,9 +228,14 @@ class IngressPolicyYamlParser(GenericYamlParser):
         :param TcpLikeProperties allowed_conns: the given allowed connections
         :return: the list of deny IngressPolicyRules
         """
-        all_conns = self._make_tcp_like_properties(PortSet(True), self.peer_container.peer_set)
+        all_peers_and_ip_blocks = self.peer_container.peer_set | set(IpBlock.get_all_ips_block())
+        all_conns = self._make_tcp_like_properties(PortSet(True), all_peers_and_ip_blocks)
         denied_conns = all_conns - allowed_conns
-        return self._make_rules_from_conns(denied_conns)
+        res = self._make_rules_from_conns(denied_conns)
+        # Add deny rule for all protocols but TCP , relevant for all peers and ip blocks
+        non_TCP_conns = ConnectionSet.get_non_tcp_connections()
+        res.append(IngressPolicyRule(all_peers_and_ip_blocks, non_TCP_conns))
+        return res
 
     def _make_rules_from_conns(self, tcp_conns):
         """
@@ -313,23 +320,21 @@ class IngressPolicyYamlParser(GenericYamlParser):
     def parse_policy(self):
         """
         Parses the input object to create two IngressPolicy objects (one for allow and one for deny)
-        :return: a tuple of IngressPolicy objects with proper egress_rules or (None, None) for wrong input object
+        :return: IngressPolicy object with proper deny egress_rules, or None for wrong input object
         """
         if not isinstance(self.policy, dict):
             self.syntax_error('Top ds is not a map')
         if self.policy.get('kind') != 'Ingress':
-            return None, None  # Not an Ingress object
+            return None  # Not an Ingress object
         self.check_fields_validity(self.policy, 'Ingress', {'kind': 1, 'metadata': 1, 'spec': 1,
                                                             'apiVersion': 1, 'status': 0})
         if 'k8s' not in self.policy['apiVersion']:
-            return None, None  # apiVersion is not properly set
+            return None  # apiVersion is not properly set
         if 'name' not in self.policy['metadata']:
             self.syntax_error('Ingress has no name', self.policy)
         if 'namespace' in self.policy['metadata']:
             self.namespace = self.peer_container.get_namespace(self.policy['metadata']['namespace'])
 
-        res_allow_policy = IngressPolicy(self.policy['metadata']['name'] + '/allow', self.namespace,
-                                         IngressPolicy.ActionType.Allow)
         res_deny_policy = IngressPolicy(self.policy['metadata']['name'] + '/deny', self.namespace,
                                         IngressPolicy.ActionType.Deny)
 
@@ -341,9 +346,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
                                                                                     True)
         # TODO extend to other ingress controllers
-        res_allow_policy.selected_peers = \
+        res_deny_policy.selected_peers = \
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
-        res_deny_policy.selected_peers = res_allow_policy.selected_peers
         allowed_conns = None
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):
@@ -365,7 +369,6 @@ class IngressPolicyYamlParser(GenericYamlParser):
             allowed_conns = default_conns
         assert allowed_conns
 
-        res_allow_policy.add_rules(self._make_allow_rules(allowed_conns))
         res_deny_policy.add_rules(self._make_deny_rules(allowed_conns))
-        res_allow_policy.findings = self.warning_msgs
-        return res_allow_policy, res_deny_policy
+        res_deny_policy.findings = self.warning_msgs
+        return res_deny_policy

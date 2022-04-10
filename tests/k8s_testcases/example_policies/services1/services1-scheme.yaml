@@ -7,6 +7,12 @@ networkConfigList:
       - policies.yaml
     expectedWarnings: 0
 
+  - name: np0
+    networkPolicyList:
+      - services1-networkpolicy0.yaml
+      - policies.yaml
+    expectedWarnings: 0
+
   - name: np1
     networkPolicyList:
       - services1-networkpolicy1.yaml
@@ -23,25 +29,26 @@ queries:
   - name: connectivity_map
     connectivityMap:
     - ip
-    - np1/ingress-nginx/allow-all-within-namespace
-    - np1/ingress-nginx/allow-webhook-via-ingress
+    - np0
     - np1
     - np2
     expected: 0
     outputConfiguration:
       outputFormat: txt
       fwRulesRunInTestMode: false
+    expectedOutput: ../expected_output/services1_connectivity_map.txt
 
   - name: sanity
     sanity:
       - np1
-    expected: 3
+    expected: 2
 
   - name: compare_np1_and_np2
     twoWayContainment:
       - np1
       - np2
-    expected: 0
+    expected: 1
+
   - name: np1_and_np2_are_not_strongly_equivalent
     strongEquivalence:
       - np1
@@ -52,22 +59,25 @@ queries:
       - np1
       - np1
     expected: 0
+
   - name: compare_specific_policies_in_np1_and_np2
     equivalence:
       - np1/ingress-nginx/allow-all-within-namespace
       - np2/ingress-nginx/allow-all-within-namespace
       - np1/ingress-nginx/allow-webhook-via-ingress
     expected: 2
+
   - name: redundancy_np1_and_np2
     redundancy:
       - np1
       - np2
-    expected: 5
+    expected: 4
+
   - name: pairwiseInterferes_np1_and_np2
     pairwiseInterferes:
       - np1
       - np2
-    expected: 2
+    expected: 1
 
   - name: not_empty
     emptiness:
@@ -83,7 +93,8 @@ queries:
     containment:
       - np1
       - np2
-    expected: 0
+    expected: 1
+
   - name: containment_np2_and_np1
     containment:
       - np2

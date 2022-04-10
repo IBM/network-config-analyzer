@@ -284,6 +284,8 @@ class IpBlock(Peer, CanonicalIntervalSet):
             self.interval_set.append(interval)
         elif cidr:
             self.add_cidr(cidr, exceptions)
+        if not self.name:
+            self.name = self.get_cidr_list_str()
 
     def is_global_peer(self):
         return self.is_global
