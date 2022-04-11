@@ -320,7 +320,6 @@ class IpBlock(Peer, CanonicalIntervalSet):
             return str(self)
         return self.get_cidr_list_str()
 
-
     @staticmethod
     def get_all_ips_block():
         """
