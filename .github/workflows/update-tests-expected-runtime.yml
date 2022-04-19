@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@dcd71f646680f2efd8db4afa5ad64fdcba30e748
       - uses: ./.github/actions/setup-nca-env
-      - uses: dawidd6/action-download-artifact@575b1e4167df67acf7e692af784566618b23c71e
+      - uses: dawidd6/action-download-artifact@b2abf1705491048a2d7074f7d90513044fd25d39
         with:
           workflow: test-push.yml
           workflow_conclusion: success
