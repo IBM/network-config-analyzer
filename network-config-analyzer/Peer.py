@@ -301,13 +301,24 @@ class IpBlock(Peer, CanonicalIntervalSet):
         for interval in self.interval_set:
             startip = interval.start.address.__class__(interval.start)  # either IPv4AAddress or IPv6Address
             endip = interval.end.address.__class__(interval.end)
-            cidr = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
-            cidr_list.append(str(cidr[0]))
+            cidrs = [ipaddr for ipaddr in ipaddress.summarize_address_range(startip, endip)]
+            cidr_list += [str(cidr) for cidr in cidrs]
         return cidr_list
 
     def get_cidr_list_str(self):
         cidr_list = self.get_cidr_list()
         return ','.join(str(cidr) for cidr in cidr_list)
+
+    def get_ip_range_or_cidr_str(self):
+        """
+        Get str for self with shorter notation - either as ip range or as cidr
+        :rtype str
+        """
+        num_cidrs = len(self.get_cidr_list())
+        num_ranges = len(self.interval_set)
+        if num_ranges * 2 <= num_cidrs:
+            return str(self)
+        return self.get_cidr_list_str()
 
     @staticmethod
     def get_all_ips_block():

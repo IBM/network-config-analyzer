@@ -1,5 +1,5 @@
 PyGithub==1.54.1
 ruamel.yaml==0.17.21
-Flask==2.0.3
+Flask==2.1.1
 PyYAML==6.0
-greenery==3.3.5
+greenery==3.3.6
