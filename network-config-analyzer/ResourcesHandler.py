@@ -86,8 +86,7 @@ class ResourcesParser:
             ns_resource = ns_list
             if resource_list:
                 print('Warning: namespaces will be taken from the provided namespace list key.'
-                      'input resources provided with resource list key '
-                      'will be ignored when finding namespaces')
+                      'input resources provided with resource list key will be ignored when finding namespaces')
         else:
             ns_resource = resource_list
 
@@ -95,8 +94,7 @@ class ResourcesParser:
             pod_resource = pod_list
             if resource_list:
                 print('Warning: pods and services will be taken from the provided pod list key. '
-                      'input resources provided with resource list key will be ignored '
-                      'when finding pods and services')
+                      'input resources provided with resource list key will be ignored when finding pods and services')
         else:
             pod_resource = resource_list
 
@@ -129,8 +127,7 @@ class ResourcesParser:
             self._parse_resources_path(np_list, np_flag=True)
             if resource_list:
                 print('Warning: policies will be taken from the provided networkPolicy list key. '
-                      'input resources provided with resource list key will be ignored '
-                      'when finding network policies')
+                      'input resources provided with resource list key will be ignored when finding network policies')
         elif resource_list:
             print(f'Finding policies in {resource_list}')
             self._parse_resources_path(resource_list, np_flag=True)
