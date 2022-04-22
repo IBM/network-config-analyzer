@@ -85,18 +85,18 @@ class ResourcesParser:
         if ns_list:
             ns_resource = ns_list
             if resource_list:
-                print(f'Warning: namespaces will be taken from the provided namespace list key.'
-                      f'input resources provided with resource list key '
-                      f'will be ignored when finding namespaces')
+                print('Warning: namespaces will be taken from the provided namespace list key.'
+                      'input resources provided with resource list key '
+                      'will be ignored when finding namespaces')
         else:
             ns_resource = resource_list
 
         if pod_list:
             pod_resource = pod_list
             if resource_list:
-                print(f'Warning: pods and services will be taken from the provided pod list key. '
-                      f'input resources provided with resource list key will be ignored '
-                      f'when finding pods and services')
+                print('Warning: pods and services will be taken from the provided pod list key. '
+                      'input resources provided with resource list key will be ignored '
+                      'when finding pods and services')
         else:
             pod_resource = resource_list
 
@@ -128,9 +128,9 @@ class ResourcesParser:
         if np_list and np_list != ['']:
             self._parse_resources_path(np_list, np_flag=True)
             if resource_list:
-                print(f'Warning: policies will be taken from the provided networkPolicy list key. '
-                      f'input resources provided with resource list key will be ignored '
-                      f'when finding network policies')
+                print('Warning: policies will be taken from the provided networkPolicy list key. '
+                      'input resources provided with resource list key will be ignored '
+                      'when finding network policies')
         elif resource_list:
             print(f'Finding policies in {resource_list}')
             self._parse_resources_path(resource_list, np_flag=True)
