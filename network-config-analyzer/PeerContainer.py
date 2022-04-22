@@ -2,6 +2,8 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+
+from sys import stderr
 from Peer import PeerSet, Pod, IpBlock
 from K8sNamespace import K8sNamespace
 from GenericYamlParser import GenericYamlParser
@@ -10,29 +12,28 @@ from GenericYamlParser import GenericYamlParser
 class PeerContainer:
     """
     This class holds a representation of the network topology: peers , namespaces and services
-    It contains all the topology containers and used to get any information from these containers
+    It contains all the topology objects and used to get their info, e.g to filter the eps by labels and by namespaces
     """
 
     def __init__(self, peer_set, namespaces, services_list, representative_peers):
         """
         create a PeerContainer object
-        :param PeerSet peer_set: the existing peers
-        :param dict namespaces: the existing namespaces
-        :param list services_list: the existing services list, based on it ,
+        :param PeerSet peer_set: the parsed peers from input resources
+        :param dict namespaces: the parsed namespaces from input resources
+        :param list services_list: the parsed services list from input resources, based on it ,
         the services dict is created after populating target pods
-        :param dict representative_peers: the existing representative peers
+        :param dict representative_peers: the parsed representative peers
         """
         self.peer_set = peer_set
         self.representative_peers = representative_peers
         self.namespaces = namespaces  # mapping from namespace name to the actual K8sNamespace object
-        self.services_list = services_list  # mapping from service name to the actual K8sService object
-        self.services = {}
-        self._set_services_and_populate_target_pods()
+        self.services = {}  # mapping from service name to the actual K8sService object
+        self._set_services_and_populate_target_pods(services_list)
 
     def __eq__(self, other):
         if isinstance(other, PeerContainer):
             return self.peer_set == other.peer_set and self.namespaces == other.namespaces \
-                and self.services_list == other.services_list
+                and self.services == other.services
         return NotImplemented
 
     def delete_all_namespaces(self):
@@ -45,6 +46,17 @@ class PeerContainer:
         return self.namespaces
 
     def get_namespace(self, namespace):
+        """
+         Get a K8sNamespace object for a given namespace name. If namespace is missing, then add it to the
+         container's namespaces, sources for new namespaces may be networkpolicies or config queries
+        :param str namespace: The name of the required namespace
+        :return: A relevant K8sNamespace
+        :rtype: K8sNamespace
+        """
+        if namespace not in self.namespaces:
+            print('Namespace', namespace, 'is missing from the network configuration', file=stderr)
+            k8s_ns = K8sNamespace(namespace)
+            self.namespaces[namespace] = k8s_ns
         return self.namespaces[namespace]
 
     def delete_all_peers(self):
@@ -228,13 +240,14 @@ class PeerContainer:
     def get_all_namespaces_str_list(self):
         return list(self.namespaces.keys())
 
-    def _set_services_and_populate_target_pods(self):
+    def _set_services_and_populate_target_pods(self, service_list):
         """
-        Populates services from the existing service list,
+        Populates services from the given service list,
         and for every service computes and populates its target pods.
+        :param list service_list: list of service in K8sService format
         :return: None
         """
-        for srv in self.services_list:
+        for srv in service_list:
             # populate target ports
             if srv.selector:
                 srv.target_pods = self.peer_set

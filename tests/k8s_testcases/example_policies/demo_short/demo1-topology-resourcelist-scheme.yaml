@@ -1,6 +1,6 @@
-namespaceList: ../../example_podlist/ns_list.json
-podList: ../../example_podlist/pods_list.json
-resourceList: to_be_ignored.yaml
+resourceList:
+  - ../../example_podlist/ns_list.json
+  - ../../example_podlist/pods_list.json
 
 networkConfigList:
   - name: sanity_np1

@@ -6,12 +6,15 @@ It should contain at least the `networkConfigList` and the `queries` fields.
 |-------|-------------|-------|---------|
 |namespaceList|A globally-scoped list of namespaces in the cluster|directory, git-repo or yaml/json file|Cluster namespaces|
 |podList|A globally-scoped list of pods in the cluster|directory, git-repo or yaml/json file|Cluster pods|
+|resourceList|A globally-scoped list of namespaces and pods - will be ignored in case namespaceList and podList are provided|directory, git-repo or yaml/json file|Cluster pods and namespaces
 |networkConfigList|A list of network configurations and policies to reason about|list of [NetworkConfig](#NetworkConfigobject) objects|
 |queries|Queries for the tool to run|list of [Query](#queryobject) objects|
 
 ### <a name="NetworkConfigobject"></a>NetworkConfig object
 Each NetworkConfig object represents a specific network configuration.
-It should contain at least the `name` and the `networkPolicyList` fields.
+It should contain at least the `name` and the `networkPolicyList`/`resourceList` fields.
+`resourceList` field may contain entries that refer to namespaces, pods and NetworkPolicies.
+A specific field will override the relevant content of `resourceList`.
 
 | Field | Description | Value | Default |
 |-------|-------------|-------|---------|
@@ -19,6 +22,7 @@ It should contain at least the `name` and the `networkPolicyList` fields.
 |namespaceList|A specific list of namespaces|directory, git-repo or yaml/json file|global namespaceList|
 |podList|A specific list of pods|directory, git-repo or yaml/json file|global podList|
 |networkPolicyList|A list of sources for NetworkPolicies|list of sources |
+|resourceList|A specific list of sources of pods, namespaces and NetworkPolicies, will be ignored if namespaceList and podList and networkPolicyList are provided|list of sources|
 |expectedWarnings|The expected sum of returned warnings for all resources of this configuration (an error is issued on mismatch)|integer |
 |expectedError|indicates if there is an expected error from a networkPolicy|0/1|
 

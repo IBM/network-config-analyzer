@@ -1,119 +1,46 @@
-from Peer import PeerSet, Pod, IpBlock, HostEP
-from K8sNamespace import K8sNamespace
-from GenericTreeScanner import TreeScannerFactory
-from PeerContainer import PeerContainer
-from K8sServiceYamlParser import K8sServiceYamlParser
-from CmdlineRunner import CmdlineRunner
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+
 from sys import stderr
 import yaml
-
-
-class ResourcesParser:
-    """
-    This class parses the input resources for topology (pods, namespaces, services) and policies.
-    Using the topology parsers, it builds the Representative Peer Containers.
-    """
-    def __init__(self, ns_list, pod_list, resource_list, config_name):
-        # self.np_list = np_list  # in this PR not parsing  for policies here, first testing topologies parsing
-        self.ns_list = ns_list
-        self.pod_list = pod_list
-        self.resource_list = resource_list
-
-        self.config_name = config_name
-
-        # self.policies_finder = PoliciesFinder()
-        self.pods_finder = PodsFinder()
-        self.ns_finder = NameSpacesFinder()
-        self.services_finder = ServicesFinder()
-
-        self._parse_lists()
-
-    def _parse_lists(self):
-        """
-        Chooses to parse the namespaces from the ns_list if exists in the input resources.
-        the pods and services: from pod_list if exist in the input resources
-        if the specified lists do not exist, parses them from the resources list
-        if no resources are given get topology from live cluster
-        """
-        ns_list_flag = False
-        pod_list_flag = False
-        if self.ns_list:
-            self._parse_resources_path(self.ns_list, ns_flag=True)
-        else:
-            ns_list_flag = True
-        if self.pod_list:
-            self._parse_resources_path(self.pod_list, pod_flag=True)
-        else:
-            pod_list_flag = True
-
-        if ns_list_flag or pod_list_flag:
-            if self.resource_list:
-                self._parse_resources_path(self.resource_list, ns_flag=ns_list_flag, pod_flag=pod_list_flag)
-            else:
-                self._load_resources_from_k8s_live_cluster(ns_list_flag, pod_list_flag)
-
-    def _parse_resources_path(self, resource_list, ns_flag=False, pod_flag=False):
-        """
-        parsing the resources path / live cluster using the Finder classes
-        """
-        for resource_item in resource_list:
-            if resource_item == 'k8s':
-                self._load_resources_from_k8s_live_cluster(ns_flag, pod_flag)
-            elif pod_flag and resource_item == 'calico':
-                self.pods_finder.load_peer_from_calico_resource(self.ns_finder)
-            else:
-                resource_scanner = TreeScannerFactory.get_scanner(resource_item)
-                if resource_scanner is None:
-                    continue
-                yaml_files = resource_scanner.get_yamls()
-                for yaml_file in yaml_files:
-                    for res_code in yaml_file.data:
-                        if ns_flag:
-                            self.ns_finder.parse_yaml_code_for_ns(res_code)
-                        if pod_flag:
-                            self.pods_finder.add_eps_from_list(res_code, self.ns_finder)
-                            self.services_finder.parse_yaml_code_for_service(res_code, yaml_file, self.ns_finder)
-        # TODO:
-        # if any of the containers is still empty load relevant source from live cluster
-
-        print(f'{self.config_name}: cluster has {len(self.pods_finder.peer_set)} unique endpoints, '
-              f'{len(self.ns_finder.namespaces)} namespaces')
-
-    def _load_resources_from_k8s_live_cluster(self, ns_flag=False, pod_flag=False):
-        if ns_flag:
-            self.ns_finder.load_ns_from_live_cluster()
-        if pod_flag:
-            self.pods_finder.load_peer_from_k8s_live_cluster(self.ns_finder)
-            self.services_finder.load_services_from_live_cluster(self.ns_finder)
-
-    def build_peer_container(self):
-        return PeerContainer(self.pods_finder.peer_set, self.ns_finder.namespaces, self.services_finder.services_list,
-                             self.pods_finder.representative_peers)
+from Peer import PeerSet, Pod, IpBlock, HostEP
+from K8sNamespace import K8sNamespace
+from K8sServiceYamlParser import K8sServiceYamlParser
+from CmdlineRunner import CmdlineRunner
 
 
 class PodsFinder:
+    """
+    This class is responsible for populating the pods from the relevant input resources
+    it builds a PeerSet and map of representative_peers to be used in the PeerContainer later.
+    Resources that contain eps, may be:
+    - git path of yaml file or a directory with yamls
+    - local file (yaml or json) or a local directory containing yamls
+    """
     pod_creation_resources = ['Deployment', 'ReplicaSet', 'StatefulSet', 'DaemonSet', 'Job', 'CronJob',
                               'ReplicationController']
 
     def __init__(self):
+        self.namespaces_finder = None
         self.peer_set = PeerSet()
         self.representative_peers = {}
 
-    def load_peer_from_calico_resource(self, ns_finder):
+    def load_peer_from_calico_resource(self):
         for peer_type in ['wep', 'hep', 'networkset', 'globalnetworkset']:
             peer_code = yaml.load(CmdlineRunner.get_calico_resources(peer_type),
                                   Loader=yaml.SafeLoader)
-            self.add_eps_from_list(peer_code, ns_finder)
+            self.add_eps_from_list(peer_code)
 
-    def load_peer_from_k8s_live_cluster(self, ns_finder):
+    def load_peer_from_k8s_live_cluster(self):
         peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
-        self.add_eps_from_list(peer_code, ns_finder)
+        self.add_eps_from_list(peer_code)
 
-    def add_eps_from_list(self, ep_list, ns_finder):
+    def add_eps_from_list(self, ep_list):
         """
         Takes a resource-list object and adds all endpoints in the list to the container
         :param ep_list: A resource list object
-        :param ns_finder: the representation of namespaces we have
         :return: None
         """
         if not ep_list:
@@ -121,31 +48,31 @@ class PodsFinder:
 
         if not isinstance(ep_list, dict):
             for ep_sub_list in ep_list:  # we must have a list of lists here - call recursively for each list
-                self.add_eps_from_list(ep_sub_list, ns_finder)
+                self.add_eps_from_list(ep_sub_list)
             return
 
         kind = ep_list.get('kind')
         if kind in ['PodList', 'List']:  # 'List' for the case of live cluster
             for endpoint in ep_list.get('items', []):
                 if kind == 'PodList' or (isinstance(endpoint, dict) and endpoint.get('kind') in {'Pod', 'Deployment'}):
-                    self._add_pod_from_yaml(endpoint, ns_finder)
+                    self._add_pod_from_yaml(endpoint)
         elif kind in PodsFinder.pod_creation_resources:
-            self._add_pod_from_workload_yaml(ep_list, ns_finder)
+            self._add_pod_from_workload_yaml(ep_list)
         elif kind in ['WorkloadEndpointList', 'HostEndpointList']:
             is_calico_wep = kind == 'WorkloadEndpointList'
             is_calico_hep = kind == 'HostEndpointList'
             for endpoint in ep_list.get('items', []):
                 if is_calico_wep:
-                    self._add_wep_from_yaml(endpoint, ns_finder)
+                    self._add_wep_from_yaml(endpoint)
                 elif is_calico_hep:
                     self._add_hep_from_yaml(endpoint)
         elif kind in ['NetworkSetList', 'GlobalNetworkSetList']:
             for networkset in ep_list.get('items', []):
-                self._add_networkset_from_yaml(networkset, ns_finder)
+                self._add_networkset_from_yaml(networkset)
         elif kind in ['NetworkSet', 'GlobalNetworkSet']:
-            self._add_networkset_from_yaml(ep_list, ns_finder)
+            self._add_networkset_from_yaml(ep_list)
 
-    def _add_pod_from_yaml(self, pod_object, ns_finder):
+    def _add_pod_from_yaml(self, pod_object):
         """
         Add a K8s Pod to the container based on the given resource instance
         :param dict pod_object: The pod object to add
@@ -153,7 +80,7 @@ class PodsFinder:
         """
         metadata = pod_object.get('metadata', {})
         pod_name = metadata.get('name', '')
-        pod_namespace = ns_finder.get_or_update_namespace(metadata.get('namespace', 'default'))
+        pod_namespace = self.namespaces_finder.get_or_update_namespace(metadata.get('namespace', 'default'))
         kind = pod_object.get('kind')
 
         owner_name = ''
@@ -197,7 +124,7 @@ class PodsFinder:
         self.representative_peers[canonical_form] = peers_with_same_canonical_form + 1
         self.peer_set.add(peer)
 
-    def _add_pod_from_workload_yaml(self, workload_resource, ns_finder):
+    def _add_pod_from_workload_yaml(self, workload_resource):
         """
         Add K8s Pods to the container based on the given workload resource
         Reference: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#podtemplatespec-v1-core
@@ -206,7 +133,7 @@ class PodsFinder:
         """
         metadata = workload_resource.get('metadata', {})
         workload_name = metadata.get('name', '')
-        pod_namespace = ns_finder.get_or_update_namespace(metadata.get('namespace', 'default'))
+        pod_namespace = self.namespaces_finder.get_or_update_namespace(metadata.get('namespace', 'default'))
 
         workload_spec = workload_resource.get('spec', {})
         replicas = workload_spec.get('replicas', 1)
@@ -237,7 +164,7 @@ class PodsFinder:
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
             self._add_peer(pod)
 
-    def _add_networkset_from_yaml(self, networkset_object, ns_finder):
+    def _add_networkset_from_yaml(self, networkset_object):
         """
         Add a Calico NetworkSet to the container based on the given resource instance
         :param dict networkset_object: The networkSet object to add
@@ -255,7 +182,7 @@ class PodsFinder:
             namespace = None
         else:
             namespace_name = metadata.get('namespace', 'default')
-            namespace = ns_finder.get_or_update_namespace(namespace_name)
+            namespace = self.namespaces_finder.get_or_update_namespace(namespace_name)
         ipb = IpBlock(name=name, namespace=namespace, is_global=is_global)
         labels = metadata.get('labels', {})
         if not labels:
@@ -290,7 +217,7 @@ class PodsFinder:
 
         self._add_peer(hep)
 
-    def _add_wep_from_yaml(self, wep_object, ns_finder):
+    def _add_wep_from_yaml(self, wep_object):
         """
         Add a Calico WorkloadEndpoint to the container based on the given resource instance
         :param dict wep_object: The wep object to add
@@ -298,7 +225,7 @@ class PodsFinder:
         """
         metadata = wep_object.get('metadata', {})
         spec = wep_object.get('spec', {})
-        wep_namespace = ns_finder.get_or_update_namespace(metadata.get('namespace', 'default'))
+        wep_namespace = self.namespaces_finder.get_or_update_namespace(metadata.get('namespace', 'default'))
         wep_name = spec.get('pod', '')
         wep = Pod(wep_name, wep_namespace)
         # TODO: handle Pod's serviceAccountName: A wep definition includes a pod field which points to the
@@ -318,6 +245,12 @@ class PodsFinder:
 
 
 class NameSpacesFinder:
+    """
+    This class is responsible for populating the namespaces from relevant input resources.
+    Resources that contain namespaces, may be:
+    - git path of yaml file or a directory with yamls
+    - local file (yaml or json) or a local directory containing yamls
+    """
     def __init__(self):
         self.namespaces = {}
 
@@ -367,17 +300,24 @@ class NameSpacesFinder:
         :rtype: K8sNamespace
         """
         if ns_name not in self.namespaces:
-            print('Namespace', ns_name, 'is missing from the network configuration', file=stderr)
             namespace = K8sNamespace(ns_name)
             self.namespaces[ns_name] = namespace
         return self.namespaces[ns_name]
 
 
 class ServicesFinder:
+    """
+    This class is responsible for populating the services in the relevant input resources
+    Resources that contain services, may be:
+    - git path of yaml file or a directory with yamls
+    - local file (yaml or json) or a local directory containing yamls
+    """
+
     def __init__(self):
+        self.namespaces_finder = None
         self.services_list = []
 
-    def load_services_from_live_cluster(self, ns_finder):
+    def load_services_from_live_cluster(self):
         """
         Loads and parses service resources from live cluster
         :return: The list of parsed services in K8sService format
@@ -390,10 +330,10 @@ class ServicesFinder:
         for srv_code in srv_resources.get('items', []):
             service = parser.parse_service(srv_code)
             if service:
-                service.namespace = ns_finder.get_or_update_namespace(service.namespace.name)
+                service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace.name)
                 self.services_list.append(service)
 
-    def parse_yaml_code_for_service(self, res_code, yaml_file, ns_finder):
+    def parse_yaml_code_for_service(self, res_code, yaml_file):
         parser = K8sServiceYamlParser(yaml_file)
         if not isinstance(res_code, dict):
             return
@@ -403,13 +343,10 @@ class ServicesFinder:
                 if isinstance(srv_item, dict) and srv_item.get('kind') in {'Service'}:
                     service = parser.parse_service(srv_item)
                     if service:
-                        service.namespace = ns_finder.get_or_update_namespace(service.namespace.name)
+                        service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace.name)
                         self.services_list.append(service)
         elif kind in {'Service'}:
             service = parser.parse_service(res_code)
             if service:
-                service.namespace = ns_finder.get_or_update_namespace(service.namespace.name)
+                service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace.name)
                 self.services_list.append(service)
-
-# TODO:
-# class PoliciesFinder:

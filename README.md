@@ -15,20 +15,21 @@ See an example scheme file [here](tests/k8s_testcases/example_policies/testcase1
 
 #### Running without a scheme file
 Various predefined queries can be performed without providing a scheme file, using the following command line configurations.
-- `--sanity <NetworkPolicy set>` \
+Note: The <Networkpolicy set> in the following lines, can be provided instead within the --resource_list switch.
+- `--sanity [<NetworkPolicy set>]` \
 Running several sanity checks on the given set of NetworkPolicies
-- `--equiv <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+- `--equiv [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
 Semantically comparing two sets of NetworkPolicy sets to decide whether they allow exactly the same traffic
-- `--interferes <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+- `--interferes [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
 Checking whether the given set of NetworkPolicies interferes with the base set of NetworkPolicies 
 (allows more traffic between relevant endpoints)
-- `--permits <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+- `--permits [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
 Checking whether the base set of NetworkPolicies permits the traffic explicitly specified in the given set of NetworkPolicies
-- `--forbids <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+- `--forbids [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
 Checking whether the base set of NetworkPolicies forbids the traffic explicitly specified in the given set of NetworkPolicies
-- `--connectivity <NetworkPolicy set>` \
+- `--connectivity [<NetworkPolicy set>]` \
 Get the list of allowed connections as firewall rules on the given set of NetworkPolicies
-- `--semantic_diff <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`\
+- `--semantic_diff [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
 Get the connectivity semantic difference as firewall rules between two sets of NetworkPolicy sets
 
 `<NetworkPolicy set>` should be one of:
@@ -47,17 +48,23 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
   *default:* The result of `kubectl get netpol -A`\
   *shorthand:* `-b`
 - `--ns_list <path to file or 'k8s'>`\
-  Allows specifying a file to take the list of namespaces from\
+  Allows specifying files to take the list of namespaces from\
   *default:* the result of `kubectl get ns`\
   *shorthand:* `-n`
 - `--pod_list <path to a file, 'calico' or 'k8s'>`\
   Specifies where to take the list of pods/endpoints from\
   *default:* the result of `kubectl get pods -A`\
   *shorthand*: `-p`
+- `--resource_list <a networkpolicy path from the list above or path to file or 'k8s'>`\
+  Allows specifying paths to take lists of namespaces, pods and NetworkPolicies from\
+  *shorthand:* `-r`
+
 - `--base_ns_list <path to file or 'k8s'>`\
-  Specifies a file with list of namespaces to compare against in `--semantic_diff`
+  Specifies files with list of namespaces to compare against in `--semantic_diff`
 - `--base_pod_list  <path to a file, 'calico' or 'k8s'>`\
-  Specifies a file with list of pods/endpoints to compare against in `--semantic_diff`
+  Specifies files with list of pods/endpoints to compare against in `--semantic_diff`
+- `--base_resource_list <a networkpolicy path from the list above or path to file or 'k8s'>`\
+  Specifies paths with list of lists of namespaces, pods and NetworkPolicies to compare against in `--semantic_diff`
 - `--ghe_token <token>`\
   A valid token to access a GHE repository
 - `--period <minutes>`\

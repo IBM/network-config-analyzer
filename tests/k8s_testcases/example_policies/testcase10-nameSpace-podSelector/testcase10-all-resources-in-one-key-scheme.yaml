@@ -1,0 +1,24 @@
+
+networkConfigList:
+  - name: np
+    resourceList:
+      - testcase10-networkpolicy.yaml
+      - ../../example_podlist/ns_list_for_testcase10.json
+      - ../../example_podlist/pods_list.json
+    expectedWarnings: 2
+
+  - name: np2
+    networkPolicyList:
+      - testcase10-networkpolicy.yaml
+    resourceList:
+      - testcase10-networkpolicy.yaml
+      - ../../example_podlist/ns_list_for_testcase10.json
+      - ../../example_podlist/pods_list.json
+    expectedWarnings: 2
+
+
+queries:
+  - name: sanity_all
+    sanity:
+      - np
+    expected: 1

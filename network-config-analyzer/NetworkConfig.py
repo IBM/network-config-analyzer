@@ -5,27 +5,29 @@
 
 from bisect import insort
 from enum import Enum
-from collections import deque
-from ruamel.yaml import YAML
+from dataclasses import dataclass
 import Peer
 from PeerContainer import PeerContainer
 from NetworkPolicy import PolicyConnections, NetworkPolicy
-from K8sPolicyYamlParser import K8sPolicyYamlParser
-from CalicoPolicyYamlParser import CalicoPolicyYamlParser
-from K8sNetworkPolicy import K8sNetworkPolicy
-from CalicoNetworkPolicy import CalicoNetworkPolicy
 from IstioNetworkPolicy import IstioNetworkPolicy
-from IstioPolicyYamlParser import IstioPolicyYamlParser
 from ConnectionSet import ConnectionSet
-from CmdlineRunner import CmdlineRunner
-from GenericTreeScanner import TreeScannerFactory
+
+
+@dataclass
+class PoliciesContainer:
+    """
+    A class for holding policies, profiles etc.
+    """
+    policies: dict
+    sorted_policies: list
+    profiles: dict
+    allowed_labels: set
 
 
 class NetworkConfig:
     """
     Represents a network configuration - the set of endpoints, their partitioning to namespaces and a set of policies
     that limit the allowed connectivity.
-    The class contains several ways to build the set of policies (from cluster, from file-system, from GitHub).
     The class also contains the core algorithm of computing allowed connections between two endpoints.
     """
 
@@ -35,29 +37,22 @@ class NetworkConfig:
         Calico = 2
         Istio = 3
 
-    def __init__(self, name, peer_container, entry_list=None, config_type=None, buffer=None):
+    def __init__(self, name, peer_container, policies_container, config_type=None):
         """
         :param str name: A name for this config
         :param PeerContainer peer_container: The set of endpoints and their namespaces
-        :param list entry_list: A list of entries to generate the policies from
+        :param PoliciesContainer policies_container : The container of policies, profiles,
+        sorted policies and allowed labels
         :param ConfigType config_type: The type of configuration
         """
         self.name = name
         self.peer_container = peer_container
-        self._parse_queue = deque()  # This deque makes sure Profiles get parsed first (because of 'labelToApply')
-        self.policies = {}
-        self.sorted_policies = []
-        self.profiles = {}
+        self.policies = policies_container.policies or {}
+        self.sorted_policies = policies_container.sorted_policies or []
+        self.profiles = policies_container.profiles or {}
+        self.allowed_labels = policies_container.allowed_labels or set()
         self.referenced_ip_blocks = None
         self.type = config_type or NetworkConfig.ConfigType.Unknown
-        self.allowed_labels = set()
-        peer_container.clear_pods_extra_labels()
-        if buffer is not None:
-            self._add_policies(buffer, 'buffer', True)
-        else:  # if entry_list is not None:
-            for entry in entry_list or []:
-                self.add_policies_from_entry(entry)
-        self._parse_policies_in_parse_queue()
 
     def __eq__(self, other):
         if not isinstance(other, NetworkConfig):
@@ -97,135 +92,15 @@ class NetworkConfig:
                     res.append(policy)
         return res
 
-    @staticmethod
-    def _get_policy_type(policy):
-        if isinstance(policy, K8sNetworkPolicy):
-            return NetworkConfig.ConfigType.K8s
-        if isinstance(policy, CalicoNetworkPolicy):
-            return NetworkConfig.ConfigType.Calico
-        if isinstance(policy, IstioNetworkPolicy):
-            return NetworkConfig.ConfigType.Istio
-        return NetworkConfig.ConfigType.Unknown
-
-    def add_policy(self, policy):
-        """
-        This should be the only place where we add policies to the config's set of policies
-        :param policy: The policy to add
-        :return: None
-        """
-        if not policy:
-            return
-        if policy.full_name() in self.policies:
-            raise Exception('A policy named ' + policy.full_name() + ' already exists')
-        policy_type = self._get_policy_type(policy)
-        if policy_type == NetworkConfig.ConfigType.Unknown:
-            raise Exception('Unknown policy type')
-        if self.type == NetworkConfig.ConfigType.Unknown:
-            self.type = policy_type
-        elif self.type != policy_type:
-            raise Exception('Cannot mix NetworkPolicies from different platforms')
-
-        self.policies[policy.full_name()] = policy
-        insort(self.sorted_policies, policy)
-
-    def add_exclusive_policy_given_profiles(self, policy, profiles):
-        self.profiles = profiles
-        self.add_policy(policy)
-
-    def _add_profile(self, profile):
-        if not profile:
-            return
-        if profile.full_name() in self.profiles:
-            raise Exception('A profile named ' + profile.full_name() + ' already exists')
-        self.profiles[profile.full_name()] = profile
-
-    def _parse_policies_in_parse_queue(self):
-        for policy, file_name, policy_type in self._parse_queue:
-            if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
-                parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
-                self._add_profile(parsed_element.parse_policy())
-            elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
-                parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
-                self.add_policy(parsed_element.parse_policy())
-                self.allowed_labels |= parsed_element.allowed_labels
-            elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
-                parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
-                self.add_policy(parsed_element.parse_policy())
-                self.allowed_labels |= parsed_element.allowed_labels
-            else:
-                parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
-                self.add_policy(parsed_element.parse_policy())
-                self.allowed_labels |= parsed_element.allowed_labels
-
-    def _add_policy_to_parse_queue(self, policy_object, file_name):
-        policy_type = NetworkPolicy.get_policy_type(policy_object)
-        if policy_type == NetworkPolicy.PolicyType.Unknown:
-            return
-        if policy_type == NetworkPolicy.PolicyType.List:
-            self._add_policies_to_parse_queue(policy_object.get('items', []), file_name)
-        elif policy_type == NetworkPolicy.PolicyType.CalicoProfile:
-            self._parse_queue.appendleft((policy_object, file_name, policy_type))  # profiles must be parsed first
-        else:
-            self._parse_queue.append((policy_object, file_name, policy_type))
-
-    def _add_policies_to_parse_queue(self, policy_list, file_name):
-        for policy in policy_list:
-            self._add_policy_to_parse_queue(policy, file_name)
-
-    def _add_policies(self, doc, file_name, is_list=False):
-        yaml = YAML()
-        code = yaml.load_all(doc)
-        if is_list:
-            for policy_list in code:
-                if isinstance(policy_list, dict):
-                    self._add_policies_to_parse_queue(policy_list.get('items', []), file_name)
-                else:  # we got a list of lists, e.g., when combining calico np, gnp and profiles
-                    for policy_list_list in policy_list:
-                        if isinstance(policy_list_list, dict):
-                            self._add_policies_to_parse_queue(policy_list_list.get('items', []), file_name)
-        else:
-            self._add_policies_to_parse_queue(code, file_name)
-
-    def scan_entry_for_policies(self, entry):
-        entry_scanner = TreeScannerFactory.get_scanner(entry)
-        if entry_scanner is None:
-            return False
-        yaml_files = entry_scanner.get_yamls()
-        if not yaml_files:
-            return False
-        for yaml_file in yaml_files:
-            for policy in yaml_file.data:
-                self._add_policy_to_parse_queue(policy, yaml_file.path)
-        return True
-
-    def add_policies_from_k8s_cluster(self):
-        self._add_policies(CmdlineRunner.get_k8s_resources('networkPolicy'), 'kubectl', True)
-
-    def add_policies_from_calico_cluster(self):
-        self._add_policies(CmdlineRunner.get_calico_resources('profile'), 'calicoctl', True)
-        self._add_policies(CmdlineRunner.get_calico_resources('networkPolicy'), 'calicoctl', True)
-        self._add_policies(CmdlineRunner.get_calico_resources('globalNetworkPolicy'), 'calicoctl', True)
-
-    def add_istio_policies_from_k8s_cluster(self):
-        self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl', True)
-
-    def add_policies_from_entry(self, entry):
-        if entry == 'k8s':
-            self.add_policies_from_k8s_cluster()
-        elif entry == 'calico':
-            self.add_policies_from_calico_cluster()
-        elif entry == 'istio':
-            self.add_istio_policies_from_k8s_cluster()
-        elif not self.scan_entry_for_policies(entry):
-            raise Exception(entry + ' is not a file or directory')
-
     def clone_without_policies(self, name):
         """
         :return: A clone of the config without any policies
         :rtype: NetworkConfig
         """
-        res = NetworkConfig(name, self.peer_container, [], self.type)
-        res.profiles = self.profiles
+        policies_container = PoliciesContainer(policies={}, sorted_policies=[], profiles=self.profiles,
+                                               allowed_labels=set())
+        res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container,
+                            config_type=self.type)
         return res
 
     def clone_without_policy(self, policy_to_exclude):
@@ -237,7 +112,7 @@ class NetworkConfig:
         res = self.clone_without_policies(self.name)
         for other_policy in self.policies.values():
             if other_policy != policy_to_exclude:
-                res.add_policy(other_policy)
+                res.append_policy_to_config(other_policy)
         return res
 
     def clone_with_just_one_policy(self, name_of_policy_to_include):
@@ -250,7 +125,7 @@ class NetworkConfig:
             raise Exception('No policy named ' + name_of_policy_to_include + ' in ' + self.name)
 
         res = self.clone_without_policies(self.name + '/' + name_of_policy_to_include)
-        res.add_policy(self.policies[name_of_policy_to_include])
+        res.append_policy_to_config(self.policies[name_of_policy_to_include])
         return res
 
     def get_captured_pods(self):
@@ -400,3 +275,14 @@ class NetworkConfig:
             (egress_conns.allowed_conns & ingress_conns.all_allowed_conns)
 
         return allowed_conns, captured_flag, allowed_captured_conns, denied_conns
+
+    def append_policy_to_config(self, policy):
+        """
+        appends a policy to an existing config
+        :param NetworkPolicy policy: The policy to append
+        :return: None
+        """
+        if not policy:
+            return
+        self.policies[policy.full_name()] = policy
+        insort(self.sorted_policies, policy)
