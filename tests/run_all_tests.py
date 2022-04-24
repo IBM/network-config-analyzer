@@ -1,6 +1,7 @@
 import argparse
 import traceback
 import sys
+from sys import stderr
 import os
 from fnmatch import fnmatch
 from os import path
@@ -247,9 +248,9 @@ class TestsRunner:
 
         self.print_results()
         if self.check_run_time and self.new_tests_error:
-            raise Exception('Some tests were not found in the tests_expected_runtime.csv file.\n'
+            print('Some tests were not found in the tests_expected_runtime.csv file.\n'
                             'You may update the file by running either run update-tests-expected-runtime.yml '
-                            'or reset-tests-expected-runtime.yml workflows')
+                            'or reset-tests-expected-runtime.yml workflows', file=stderr)
 
     def print_test_result_details(self, test):
         """
