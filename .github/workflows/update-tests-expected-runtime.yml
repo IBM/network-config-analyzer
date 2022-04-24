@@ -33,7 +33,7 @@ jobs:
       - uses: dawidd6/action-download-artifact@b2abf1705491048a2d7074f7d90513044fd25d39
         with:
           workflow: test-push.yml
-          workflow_conclusion: success
+          workflow_conclusion: completed
           name: run-alltests-log
           path: tests/
       - name: run script to update expected run time
