@@ -247,11 +247,6 @@ class TestsRunner:
 
         self.print_results()
 
-        if self.check_run_time and self.new_tests_error:
-            print('Error : Some tests were not found in the tests_expected_runtime.csv file.\n'
-                            'You may update the file by running either run update-tests-expected-runtime.yml '
-                            'or reset-tests-expected-runtime.yml workflows')
-
     def print_test_result_details(self, test):
         """
         prints the name of test Passed/Failed (test run-time)
@@ -279,6 +274,11 @@ class TestsRunner:
             print('\n{0} tests failed ({1:.2f} seconds)'.format(self.global_res, total_time))
         else:
             print('\nAll tests passed ({:.2f} seconds)'.format(total_time))
+
+        if self.check_run_time and self.new_tests_error:
+            print('\nError : Some tests were not found in the tests_expected_runtime.csv file.\n'
+                  'You may update the file by running either run update-tests-expected-runtime.yml '
+                  'or reset-tests-expected-runtime.yml workflows')
 
     def run_tests_spec(self, tests_spec):
         self.test_files_spec = TestFilesSpec(tests_spec)
