@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from dataclasses import dataclass
-import copy
 import itertools
 import os
 from enum import Enum
@@ -413,7 +412,7 @@ class SanityQuery(NetworkConfigQuery):
                                   f', its deny rules are covered by NetworkPolicy {contain_deny_policy.full_name()}\n'
         return redundant_text
 
-    def exec(self):   # noqa: C901
+    def exec(self):  # noqa: C901
         if not self.config:
             return QueryAnswer(False, f'No NetworkPolicies in {self.config.name}. Nothing to check sanity on.', '', 1)
         has_conflicting_policies, conflict_explanation = self.has_conflicting_policies_with_same_order()
@@ -488,6 +487,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     """
     Print the connectivity graph in the form of firewall rules
     """
+
     @staticmethod
     def get_supported_output_formats():
         return {'txt', 'yaml', 'csv', 'md', 'dot'}
@@ -496,17 +496,14 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
         peers_to_compare = self.config.peer_container.get_all_peers_group()
-        ref_ip_blocks = self.config.get_referenced_ip_blocks()
-        peers_to_compare |= ref_ip_blocks
-        # add the complement of ref_ip_blocks
-        complement = IpBlock.get_all_ips_block()
-        for ip in ref_ip_blocks:
-            complement -= ip
-        complement_peer_set = PeerSet()
-        complement_peer_set |= complement.split()
-        peers_to_compare |= complement_peer_set
 
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config, self.config.type)
+        ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
+                                                   IpBlock.get_all_ips_block_peer_set())
+
+        peers_to_compare |= ref_ip_blocks
+
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config,
+                                       self.config.type)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
                 if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
@@ -578,67 +575,14 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                                      'topology and the same set of policies.\n')
         return QueryAnswer(True)
 
-    @staticmethod
-    def add_interval_to_list(interval, non_overlapping_interval_list):
-        """
-        Adding an interval to the list of non-overlapping blocks while maintaining the invariants
-        :param IpBlock interval: The interval to add
-        :param list[IpBlock] non_overlapping_interval_list: The existing list the interval should be added to
-        :return: None
-        """
-        to_add = []
-        for idx, ip_block in enumerate(non_overlapping_interval_list):
-            if not ip_block.overlaps(interval):
-                continue
-            intersection = ip_block & interval
-            interval -= intersection
-            if ip_block != intersection:
-                to_add.append(intersection)
-                non_overlapping_interval_list[idx] -= intersection
-            if not interval:
-                break
-
-        non_overlapping_interval_list += interval.split()
-        non_overlapping_interval_list += to_add
-
-    def disjoint_ip_blocks(self, ip_blocks1, ip_blocks2):
-        """
-        Takes all (atomic) ip-ranges in both ip-blocks and returns a new set of ip-ranges where
-        each ip-range is:
-        1. a subset of an ip-range in either ip-blocks AND
-        2. cannot be partially intersected by an ip-range in either ip-blocks AND
-        3. is maximal (extending the range to either side will violate either 1 or 2)
-        :param ip_blocks1: A set of ip blocks
-        :param ip_blocks2: A set of ip blocks
-        :return: A set of ip ranges as specified above
-        :rtype: PeerSet
-        """
-        # deepcopy is required since add_interval_to_list() changes the 'interval' argument
-        ip_blocks_set = copy.deepcopy(ip_blocks1)
-        ip_blocks_set |= copy.deepcopy(ip_blocks2)
-        ip_blocks = sorted(ip_blocks_set, key=IpBlock.ip_count)
-
-        # making sure the resulting list does not contain overlapping ipBlocks
-        blocks_with_no_overlap = []
-        for interval in ip_blocks:
-            self.add_interval_to_list(interval, blocks_with_no_overlap)
-
-        res = PeerSet()
-        for ip_block in blocks_with_no_overlap:
-            res.add(ip_block)
-
-        if not res:
-            res.add(IpBlock.get_all_ips_block())
-
-        return res
-
     def disjoint_referenced_ip_blocks(self):
         """
         Returns disjoint ip-blocks in the policies of both configs
         :return: A set of disjoint ip-blocks
         :rtype: PeerSet
         """
-        return self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), self.config2.get_referenced_ip_blocks())
+        return IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(),
+                                          self.config2.get_referenced_ip_blocks())
 
 
 class EquivalenceQuery(TwoNetworkConfigsQuery):
@@ -768,7 +712,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         config_type = self.config1.type if self.config1.type != NetworkConfig.ConfigType.Unknown else self.config2.type
         return ConnectivityGraph(topology_peers, allowed_labels, output_config, config_type)
 
-    def compute_diff(self):   # noqa: C901
+    def compute_diff(self):  # noqa: C901
         """
        Compute changed connections as following:
 
@@ -798,10 +742,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
-        all_ip_blocks = PeerSet()
-        all_ip_blocks.add(IpBlock.get_all_ips_block())
-        old_ip_blocks = self.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(), all_ip_blocks)
-        new_ip_blocks = self.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(), all_ip_blocks)
+        old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(),
+                                                   IpBlock.get_all_ips_block_peer_set())
+        new_ip_blocks = IpBlock.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(),
+                                                   IpBlock.get_all_ips_block_peer_set())
 
         conn_graph_removed_per_key = dict()
         conn_graph_added_per_key = dict()
@@ -862,7 +806,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
         # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
         key = 'Changed connections between persistent peers and ipBlocks'
-        disjoint_ip_blocks = self.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks)
+        disjoint_ip_blocks = IpBlock.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks)
         peers = captured_pods | disjoint_ip_blocks
         keys_list.append(key)
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, False)
@@ -1094,7 +1038,7 @@ class PermitsQuery(TwoNetworkConfigsQuery):
             else:
                 res = 1
                 query_output = self.config2.name + ' does not permit connections specified in ' + \
-                    self.config1.name + ':' + query_answer.output_explanation
+                               self.config1.name + ':' + query_answer.output_explanation
         else:
             query_output = self.config2.name + ' permits all connections specified in ' + self.config1.name
         if cmd_line_flag:
@@ -1200,7 +1144,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
         query_output = query_answer.output_result + '\n'
         if query_answer.bool_result:
             query_output += f'{self.config2.name} does not forbid connections specified in {self.config1.name}: ' \
-                f'{query_answer.output_explanation}'
+                            f'{query_answer.output_explanation}'
         elif query_answer.numerical_result == 1:
             query_output += f'{self.config2.name} forbids connections specified in {self.config1.name}'
         return res, query_output

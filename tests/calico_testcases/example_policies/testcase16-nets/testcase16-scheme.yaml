@@ -106,3 +106,9 @@ queries:
       - equiv-ranges-containment-games/kube-system/testcase16-simple-all-range
       - equiv-ranges-containment-games/kube-system/testcase16-Allow-ingress-All-egress-TCP
     expected: 0
+
+# connectivity map test (requires disjoint ip blocks)
+  - name: connectivity_map_testcase16
+    connectivityMap:
+      - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller
+    expectedOutput: expected_output/testcase16-scheme_output.txt
