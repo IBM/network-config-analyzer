@@ -246,10 +246,12 @@ class TestsRunner:
                 self.run_tests_spec(test_spec)
 
         self.print_results()
+
         if self.check_run_time and self.new_tests_error:
-            raise Exception('Some tests were not found in the tests_expected_runtime.csv file.\n'
+            print('Error : Some tests were not found in the tests_expected_runtime.csv file.\n'
                             'You may update the file by running either run update-tests-expected-runtime.yml '
                             'or reset-tests-expected-runtime.yml workflows')
+            return 1
 
     def print_test_result_details(self, test):
         """
