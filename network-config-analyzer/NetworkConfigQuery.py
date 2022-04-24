@@ -1037,10 +1037,10 @@ class PermitsQuery(TwoNetworkConfigsQuery):
                 query_output = query_answer.output_result
             else:
                 res = 1
-                query_output = self.config2.name + ' does not permit connections specified in ' + \
-                               self.config1.name + ':' + query_answer.output_explanation
+                query_output = f'{self.config2.name} does not permit connections specified in {self.config1.name}:'
+                query_output += query_answer.output_explanation
         else:
-            query_output = self.config2.name + ' permits all connections specified in ' + self.config1.name
+            query_output = f'{self.config2.name} permits all connections specified in {self.config1.name}'
         if cmd_line_flag:
             res = not query_answer.bool_result
         return res, query_output
