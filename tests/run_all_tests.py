@@ -251,7 +251,6 @@ class TestsRunner:
             print('Error : Some tests were not found in the tests_expected_runtime.csv file.\n'
                             'You may update the file by running either run update-tests-expected-runtime.yml '
                             'or reset-tests-expected-runtime.yml workflows')
-            return 1
 
     def print_test_result_details(self, test):
         """
@@ -375,7 +374,7 @@ def main(argv=None):
     spec_file = 'all_tests_spec.yaml'
     tests_runner = TestsRunner(spec_file, test_type, check_run_time, category)
     tests_runner.run_tests()
-    return tests_runner.global_res
+    return tests_runner.global_res or tests_runner.new_tests_error
 
 
 if __name__ == "__main__":
