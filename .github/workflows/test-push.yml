@@ -48,7 +48,9 @@ jobs:
         env:
           GHE_TOKEN: ${{ github.token }}
         run: python tests/run_all_tests.py --type=general --check_run_time | tee tests/run_log.txt ; test ${PIPESTATUS[0]} -eq 0
-      - uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
+      - name: upload run_all_tests log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
         with:
           name: run-alltests-log
           path: tests/run_log.txt

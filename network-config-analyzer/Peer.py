@@ -2,7 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+import copy
 import ipaddress
 from ipaddress import ip_network
 from sys import stderr
@@ -208,28 +208,28 @@ class IPNetworkAddress:
             return NotImplemented
         if self.address._version == other.address._version:
             return self.address < other.address
-        return self.address._version < other.address._version    # IPv4 < IPv6
+        return self.address._version < other.address._version  # IPv4 < IPv6
 
     def __le__(self, other):
         if not isinstance(other, IPNetworkAddress):
             return NotImplemented
         if self.address._version == other.address._version:
             return self.address <= other.address
-        return self.address._version < other.address._version    # IPv4 < IPv6
+        return self.address._version < other.address._version  # IPv4 < IPv6
 
     def __gt__(self, other):
         if not isinstance(other, IPNetworkAddress):
             return NotImplemented
         if self.address._version == other.address._version:
             return self.address > other.address
-        return self.address._version > other.address._version    # IPv6 > IPv4
+        return self.address._version > other.address._version  # IPv6 > IPv4
 
     def __ge__(self, other):
         if not isinstance(other, IPNetworkAddress):
             return NotImplemented
         if self.address._version == other.address._version:
             return self.address >= other.address
-        return self.address._version > other.address._version    # IPv6 > IPv4
+        return self.address._version > other.address._version  # IPv6 > IPv4
 
     def __add__(self, other):
         if not isinstance(other, int):
@@ -330,6 +330,16 @@ class IpBlock(Peer, CanonicalIntervalSet):
         res.add_cidr('::/0')
         return res
 
+    @staticmethod
+    def get_all_ips_block_peer_set():
+        """
+        :return: The full range of ipv4 and ipv6 addresses
+        :rtype: PeerSet
+        """
+        res = PeerSet()
+        res.add(IpBlock.get_all_ips_block())
+        return res
+
     def split(self):
         """
         Splits self's set of ip ranges into multiple IpBlock objects, each containing a single range
@@ -367,6 +377,61 @@ class IpBlock(Peer, CanonicalIntervalSet):
         :return: get PeerSet from IpBlock (empty set if IpBlock is empty)
         """
         return PeerSet({self}) if self else PeerSet()
+
+    @staticmethod
+    def _add_interval_to_list(interval, non_overlapping_interval_list):
+        """
+        Adding an interval to the list of non-overlapping blocks while maintaining the invariants
+        :param IpBlock interval: The interval to add
+        :param list[IpBlock] non_overlapping_interval_list: The existing list the interval should be added to
+        :return: None
+        """
+        to_add = []
+        for idx, ip_block in enumerate(non_overlapping_interval_list):
+            if not ip_block.overlaps(interval):
+                continue
+            intersection = ip_block & interval
+            interval -= intersection
+            if ip_block != intersection:
+                to_add.append(intersection)
+                non_overlapping_interval_list[idx] -= intersection
+            if not interval:
+                break
+
+        non_overlapping_interval_list += interval.split()
+        non_overlapping_interval_list += to_add
+
+    @staticmethod
+    def disjoint_ip_blocks(ip_blocks1, ip_blocks2):
+        """
+        Takes all (atomic) ip-ranges in both ip-blocks and returns a new set of ip-ranges where
+        each ip-range is:
+        1. a subset of an ip-range in either ip-blocks AND
+        2. cannot be partially intersected by an ip-range in either ip-blocks AND
+        3. is maximal (extending the range to either side will violate either 1 or 2)
+        :param ip_blocks1: A set of ip blocks
+        :param ip_blocks2: A set of ip blocks
+        :return: A set of ip ranges as specified above
+        :rtype: PeerSet
+        """
+        # deepcopy is required since add_interval_to_list() changes the 'interval' argument
+        ip_blocks_set = copy.deepcopy(ip_blocks1)
+        ip_blocks_set |= copy.deepcopy(ip_blocks2)
+        ip_blocks = sorted(ip_blocks_set, key=IpBlock.ip_count)
+
+        # making sure the resulting list does not contain overlapping ipBlocks
+        blocks_with_no_overlap = []
+        for interval in ip_blocks:
+            IpBlock._add_interval_to_list(interval, blocks_with_no_overlap)
+
+        res = PeerSet()
+        for ip_block in blocks_with_no_overlap:
+            res.add(ip_block)
+
+        if not res:
+            res.add(IpBlock.get_all_ips_block())
+
+        return res
 
 
 class PeerSet(set):

@@ -92,6 +92,7 @@ class GeneralTest:
         self.numerical_result = None  # assigned with numerical result after test run
         self.start_time = None
         self.nca_res = None
+        self.new_tests_error = 0
         self.expected_result = expected_result  # integer - expected return value from nca
         self.check_run_time = check_run_time
         self.required_output_config_flag = required_output_config_flag
@@ -109,7 +110,7 @@ class GeneralTest:
         self.evaluate_test_results()
         self.finalize_test()
         all_results[self.test_name] = self.result
-        return self.numerical_result
+        return self.numerical_result, self.new_tests_error
 
     def test_passed(self):
         return self.numerical_result == 0
@@ -139,6 +140,8 @@ class GeneralTest:
         output_file = "./tests_failed_runtime_check.csv"
         write_header = False
         expected_run_time = self._get_expected_test_run_time()
+        if expected_run_time == 0.0:
+            self.new_tests_error += 1
         if actual_run_time >= expected_run_time * 2:
             if not path.isfile(output_file):
                 write_header = True
@@ -205,6 +208,7 @@ class TestsRunner:
         self.spec_file = spec_file
         self.all_results = {}
         self.global_res = 0
+        self.new_tests_error = 0
         self.tests_type = tests_type  # general / k8s_live_general / output / fw_rules_assertions
         self.test_files_spec = None
         self.check_run_time = check_run_time
@@ -271,6 +275,11 @@ class TestsRunner:
         else:
             print('\nAll tests passed ({:.2f} seconds)'.format(total_time))
 
+        if self.check_run_time and self.new_tests_error:
+            print('\nError : Some tests were not found in the tests_expected_runtime.csv file.\n'
+                  'You may update the file by running either run update-tests-expected-runtime.yml '
+                  'or reset-tests-expected-runtime.yml workflows')
+
     def run_tests_spec(self, tests_spec):
         self.test_files_spec = TestFilesSpec(tests_spec)
         for root, _, files in os.walk(self.test_files_spec.root):
@@ -292,7 +301,9 @@ class TestsRunner:
         elif self.tests_type == 'fw_rules_assertions':
             test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, required_output_config_flag)
 
-        self.global_res += test_obj.run_all_test_flow(self.all_results)
+        numerical_res, new_tests_err = test_obj.run_all_test_flow(self.all_results)
+        self.global_res += numerical_res
+        self.new_tests_error += new_tests_err
 
     def _test_file_matches_category_by_file_name(self, test_file):
         # for tests files under fw_rules_tests
@@ -363,7 +374,7 @@ def main(argv=None):
     spec_file = 'all_tests_spec.yaml'
     tests_runner = TestsRunner(spec_file, test_type, check_run_time, category)
     tests_runner.run_tests()
-    return tests_runner.global_res
+    return tests_runner.global_res or tests_runner.new_tests_error
 
 
 if __name__ == "__main__":

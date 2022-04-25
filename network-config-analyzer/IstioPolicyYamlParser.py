@@ -35,7 +35,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = None
-        self.allowed_labels = set()
+        self.referenced_labels = set()
 
     def parse_label_selector(self, label_selector):
         """
@@ -57,7 +57,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if match_labels:
             for key, val in match_labels.items():
                 res &= self.peer_container.get_peers_with_label(key, [val])
-            self.allowed_labels.add(':'.join(match_labels.keys()))
+            self.referenced_labels.add(':'.join(match_labels.keys()))
 
         if not res:
             self.warning('A podSelector selects no pods. Better use "podSelector: Null"', label_selector)
@@ -629,5 +629,6 @@ class IstioPolicyYamlParser(GenericYamlParser):
             self.syntax_error("DENY action without rules is meaningless as it will never be triggered")
 
         res_policy.findings = self.warning_msgs
+        res_policy.referenced_labels = self.referenced_labels
 
         return res_policy
