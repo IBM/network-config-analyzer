@@ -28,7 +28,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.policy = policy
         self.peer_container = peer_container
         self.namespace = None
-        self.allowed_labels = set()
+        self.referenced_labels = set()
 
     def check_dns_subdomain_name(self, value, key_container):
         """
@@ -169,7 +169,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 else:
                     res &= self.peer_container.get_peers_with_label(key, [val])
                 keys_set.add(key)
-            self.allowed_labels.add(':'.join(keys_set))
+            self.referenced_labels.add(':'.join(keys_set))
 
         match_expressions = label_selector.get('matchExpressions')
         if match_expressions:
@@ -178,7 +178,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 res &= self.parse_label_selector_requirement(requirement, namespace_selector)
                 key = requirement['key']
                 keys_set.add(key)
-            self.allowed_labels.add(':'.join(keys_set))
+            self.referenced_labels.add(':'.join(keys_set))
 
         if not res:
             if namespace_selector:
@@ -440,4 +440,5 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 res_policy.add_egress_rule(self.parse_egress_rule(egress_rule))
 
         res_policy.findings = self.warning_msgs
+        res_policy.referenced_labels = self.referenced_labels
         return res_policy
