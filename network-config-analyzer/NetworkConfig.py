@@ -98,7 +98,7 @@ class NetworkConfig:
         :rtype: NetworkConfig
         """
         policies_container = PoliciesContainer(policies={}, sorted_policies=[], profiles=self.profiles,
-                                               allowed_labels=set())
+                                               allowed_labels=self.allowed_labels)
         res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container,
                             config_type=self.type)
         return res
