@@ -67,6 +67,8 @@ class PoliciesFinder:
         self.policies_container.policies[policy.full_name()] = policy
         insort(self.policies_container.sorted_policies, policy)
 
+        self.policies_container.allowed_labels |= policy.referenced_labels
+
     @staticmethod
     def _get_policy_type(policy):
         if isinstance(policy, K8sNetworkPolicy):
@@ -96,15 +98,12 @@ class PoliciesFinder:
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
-                self.policies_container.allowed_labels |= parsed_element.allowed_labels
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
-                self.policies_container.allowed_labels |= parsed_element.allowed_labels
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
-                self.policies_container.allowed_labels |= parsed_element.allowed_labels
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
         policy_type = NetworkPolicy.get_policy_type(policy_object)
