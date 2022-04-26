@@ -515,9 +515,7 @@ class PeerSet(set):
         :return: CanonicalIntervalSet of all peers
         """
         assert len(self.sorted_peer_list) == len(self)
-        res = CanonicalIntervalSet()
-        res.add_interval(CanonicalIntervalSet.Interval(0, len(self.sorted_peer_list) - 1))
-        return res
+        return CanonicalIntervalSet.get_interval_set(0, len(self.sorted_peer_list) - 1)
 
     def is_whole_range(self, peer_interval_set):
         """

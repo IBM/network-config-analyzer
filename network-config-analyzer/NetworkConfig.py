@@ -50,7 +50,6 @@ class NetworkConfig:
         self._parse_queue = deque()  # This deque makes sure Profiles get parsed first (because of 'labelToApply')
         self.policies = {}
         self.sorted_policies = []
-        self.ingress_allow_policies = []
         self.ingress_deny_policies = []
         self.profiles = {}
         self.referenced_ip_blocks = None
@@ -135,10 +134,8 @@ class NetworkConfig:
 
         self.policies[policy.full_name()] = policy
         if policy_type == NetworkConfig.ConfigType.Ingress:
-            if policy.action == IngressPolicy.ActionType.Allow:
-                insort(self.ingress_allow_policies, policy)
-            else:
-                insort(self.ingress_deny_policies, policy)
+            assert policy.action == IngressPolicy.ActionType.Deny
+            insort(self.ingress_deny_policies, policy)
         else:
             insort(self.sorted_policies, policy)
 
@@ -169,7 +166,6 @@ class NetworkConfig:
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
-                self.allowed_labels |= parsed_element.allowed_labels
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
@@ -278,12 +274,16 @@ class NetworkConfig:
         :rtype: Peer.PeerSet
         """
         captured_pods = Peer.PeerSet()
-        for policy in self.ingress_deny_policies + self.sorted_policies + self.ingress_allow_policies:
+        for policy in self.sorted_policies:
             captured_pods |= policy.selected_peers
 
         for profile in self.profiles.values():
             captured_pods |= profile.selected_peers
 
+        # consider ingress only if the config contains only ingress policies
+        if not self.sorted_policies and not self.profiles:
+            for ingress in self.ingress_deny_policies:
+                captured_pods |= ingress.selected_peers
         return captured_pods
 
     def get_affected_pods(self, is_ingress):
@@ -293,7 +293,7 @@ class NetworkConfig:
         :rtype: Peer.PeerSet
         """
         affected_pods = Peer.PeerSet()
-        for policy in self.sorted_policies + self.ingress_allow_policies + self.ingress_deny_policies:
+        for policy in self.sorted_policies:
             if (is_ingress and policy.affects_ingress) or (not is_ingress and policy.affects_egress):
                 affected_pods |= policy.selected_peers
 
@@ -396,6 +396,9 @@ class NetworkConfig:
             allowed_conns |= pass_conns & self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
         allowed_conns -= ingress_denied_conns
         allowed_non_captured_conns -= ingress_denied_conns
+        # It's enough that ingress impacts allowed_conns.
+        # We don't want to mix the denied_conns of the network policy by ingress,
+        # we want to preserve the specific network policy's denied connections for the output report.
         return PolicyConnections(policy_captured, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 

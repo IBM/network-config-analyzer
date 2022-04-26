@@ -100,8 +100,13 @@ class DisjointnessQuery(NetworkConfigQuery):
     """
 
     def exec(self):
+        if self.config.type == NetworkConfig.ConfigType.Ingress:
+            return QueryAnswer(bool_result=False,
+                               output_result=f'Ignoring DisjointnessQuery for {self.config.name} with Ingress only',
+                               numerical_result=0)
+
         non_disjoint_explanation_list = []
-        for policy1 in self.config.sorted_policies:
+        for policy1 in self.config.sorted_policies:  # Ignoring ingress_deny_policies (not relevant for the query)
             if policy1.is_policy_empty():
                 continue
             for policy2 in self.config.sorted_policies:
@@ -131,9 +136,14 @@ class EmptinessQuery(NetworkConfigQuery):
     """
 
     def exec(self):
+        if self.config.type == NetworkConfig.ConfigType.Ingress:
+            return QueryAnswer(bool_result=False,
+                               output_result=f'Ignoring EmptinessQuery for {self.config.name} with Ingress only',
+                               numerical_result=0)
+
         res = 0
         full_explanation_list = []
-        for policy in self.config.policies.values():
+        for policy in self.config.sorted_policies:  # Ignoring ingress_deny_policies (not relevant for the query)
             emptiness_list = []
             if policy.is_policy_empty():
                 emptiness_list.append(f'{self.policy_title(policy)} does not select any pods')
@@ -1255,11 +1265,17 @@ class AllCapturedQuery(NetworkConfigQuery):
     def exec(self):
         existing_pods = self.config.peer_container.get_all_peers_group()
 
+        if self.config.type == NetworkConfig.ConfigType.Ingress:
+            return QueryAnswer(bool_result=False,
+                               output_result=f'Ignoring AllCapturedQuery for {self.config.name} with Ingress only',
+                               numerical_result=len(existing_pods))
+
         if not self.config:
             return QueryAnswer(bool_result=False,
                                output_result='Flat network in ' + self.config.name,
                                numerical_result=len(existing_pods))
 
+        # self.config.get_affected_pods ignores ingress_deny_policies (not relevant for the query)
         uncaptured_ingress_pods = existing_pods - self.config.get_affected_pods(is_ingress=True)
         uncaptured_egress_pods = existing_pods - self.config.get_affected_pods(is_ingress=False)
 

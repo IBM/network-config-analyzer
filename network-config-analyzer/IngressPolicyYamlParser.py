@@ -30,10 +30,9 @@ class IngressPolicyYamlParser(GenericYamlParser):
         GenericYamlParser.__init__(self, ingress_file_name)
         self.policy = policy
         self.peer_container = peer_container
-        self.namespace = peer_container.get_namespace('default')  # value to be replaced if ingress has ns defined
+        self.namespace = None
         self.default_backend_peers = PeerSet()
         self.default_backend_ports = PortSet()
-        self.allowed_labels = set()
 
     def _validate_ingress_regex_pattern(self, regex_str, is_host):
         """
@@ -273,8 +272,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
                 peers_to_conns[peer_set] |= new_conns  # optimize conns for the same peers
             else:
                 peers_to_conns[peer_set] = new_conns
-        for peer_list, conns in peers_to_conns.items():
-            res.append(IngressPolicyRule(PeerSet(set(peer_list)), conns))
+        for peer_set, conns in peers_to_conns.items():
+            res.append(IngressPolicyRule(peer_set, conns))
         return res
 
     def parse_rule(self, rule):
@@ -319,7 +318,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
 
     def parse_policy(self):
         """
-        Parses the input object to create two IngressPolicy objects (one for allow and one for deny)
+        Parses the input object to create  IngressPolicy object (with deny rules only)
         :return: IngressPolicy object with proper deny egress_rules, or None for wrong input object
         """
         if not isinstance(self.policy, dict):
@@ -332,8 +331,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
             return None  # apiVersion is not properly set
         if 'name' not in self.policy['metadata']:
             self.syntax_error('Ingress has no name', self.policy)
-        if 'namespace' in self.policy['metadata']:
-            self.namespace = self.peer_container.get_namespace(self.policy['metadata']['namespace'])
+        self.namespace = self.peer_container.get_namespace(self.policy['metadata'].get('namespace', 'default'))
 
         res_deny_policy = IngressPolicy(self.policy['metadata']['name'] + '/deny', self.namespace,
                                         IngressPolicy.ActionType.Deny)
@@ -341,7 +339,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],
                              'rules': [0, list], 'TLS': [0, dict]}
-        self.check_fields_validity(policy_spec, 'istio authorization policy spec', allowed_spec_keys)
+        self.check_fields_validity(policy_spec, 'Ingress spec', allowed_spec_keys)
 
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
                                                                                     True)

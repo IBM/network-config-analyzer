@@ -30,7 +30,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-webhook-via-ingress
+  name: allow-webhook-via-egress
   namespace: ingress-nginx
 spec:
   podSelector:

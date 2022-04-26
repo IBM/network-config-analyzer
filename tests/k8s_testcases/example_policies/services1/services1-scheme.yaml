@@ -40,6 +40,7 @@ queries:
 
   - name: sanity
     sanity:
+      - ip
       - np1
     expected: 2
 
@@ -53,7 +54,8 @@ queries:
     strongEquivalence:
       - np1
       - np2
-    expected: 0
+    expected: 1
+
   - name: np1_and_np1_are_strongly_equivalent
     strongEquivalence:
       - np1
@@ -81,13 +83,17 @@ queries:
 
   - name: not_empty
     emptiness:
+      - ip
       - np1
       - np2
     expected: 0
+
   - name: not_vacuous
     vacuity:
+      - ip
       - np1
       - np2
+    expected: 0
 
   - name: containment_np1_and_np2
     containment:
