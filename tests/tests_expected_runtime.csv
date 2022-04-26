@@ -117,6 +117,7 @@ k8s_testcases/example_policies/emptinessTests/emptinessTests-scheme.yaml,0.30
 k8s_testcases/example_policies/namedPorts/namedPorts-scheme.yaml,0.07
 k8s_testcases/example_policies/network-policy-checks/network-policy-check-scheme.yaml,0.04
 k8s_testcases/example_policies/online_boutique/connectivity-scheme.yaml,0.47
+k8s_testcases/example_policies/services1/services1-scheme.yaml,8.88
 k8s_testcases/example_policies/testcase1/testcase1-scheme.yaml,0.31
 k8s_testcases/example_policies/testcase10-json-version/testcase10-json-version-scheme.yaml,0.99
 k8s_testcases/example_policies/testcase10-nameSpace-podSelector/testcase10-scheme.yaml,0.99
