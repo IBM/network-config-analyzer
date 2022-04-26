@@ -50,7 +50,7 @@ class ConnectivityGraph:
         bool: flag to indicate if peer is ip-block (True) or not (False)
         """
         if isinstance(peer, IpBlock):
-            return peer.get_cidr_list_str(), True
+            return peer.get_ip_range_or_cidr_str(), True
         if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
             return peer.workload_name, False
         return str(peer), False

@@ -382,7 +382,7 @@ class IPBlockElement(FWRuleElement):
         :return: string of the represented element
         """
         # return 'ip block: ' + str(self.element)
-        return 'ip block: ' + self.element.get_cidr_list_str()
+        return 'ip block: ' + self.element.get_ip_range_or_cidr_str()
 
     def get_elem_str(self, is_src):
         """

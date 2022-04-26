@@ -139,6 +139,8 @@ class NetworkConfig:
         else:
             insort(self.sorted_policies, policy)
 
+        self.allowed_labels |= policy.referenced_labels
+
     def add_exclusive_policy_given_profiles(self, policy, profiles):
         self.profiles = profiles
         self.add_policy(policy)
@@ -158,7 +160,6 @@ class NetworkConfig:
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
-                self.allowed_labels |= parsed_element.allowed_labels
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
@@ -169,7 +170,6 @@ class NetworkConfig:
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
-                self.allowed_labels |= parsed_element.allowed_labels
 
     def _add_policy_to_parse_queue(self, policy_object, file_name):
         policy_type = NetworkPolicy.get_policy_type(policy_object)

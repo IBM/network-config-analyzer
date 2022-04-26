@@ -1,0 +1,5 @@
+final fw rules for query: connectivity_map_testcase16, config: equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller:
+src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [has(tier)] conn: All connections
+src ip block: ::/0 dst_ns: [kube-system] dst_pods: [has(tier)] conn: All connections
+src_ns: [kube-system] src_pods: [has(tier)] dst ip block: 64.0.0.0-255.255.255.255 conn: TCP
+
