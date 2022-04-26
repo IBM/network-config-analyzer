@@ -163,7 +163,6 @@ class NetworkConfig:
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
-                self.allowed_labels |= parsed_element.allowed_labels
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 self.add_policy(parsed_element.parse_policy())
