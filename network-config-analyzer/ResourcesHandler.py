@@ -20,10 +20,9 @@ class ResourcesHandler:
 
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global'):
         """
-        first tries to build a peer_container using the input resources (NetworkConfigs's resources)
-        if fails, it uses the global peer container otherwise build it from the k8s live cluster peers.
-        then parse the input resources for policies
-        and builds the network config accordingly
+        First tries to build a peer_container using the input resources (NetworkConfigs's resources)
+        If fails, it uses the global peer container otherwise build it from the k8s live cluster peers.
+        Then parse the input resources for policies and builds the network config accordingly.
         :param Union[list[str], None] np_list: networkPolicies entries
         :param list ns_list: entries to take namespaces from or None
         :param list pod_list: entries to take pods and services from or None
