@@ -24,7 +24,7 @@ class ResourcesHandler:
         if fails, it uses the global peer container otherwise build it from the k8s live cluster peers.
         then parse the input resources for policies
         and builds the network config accordingly
-        :param list np_list: networkPolicies entries or None
+        :param Union[list[str], None] np_list: networkPolicies entries
         :param list ns_list: entries to take namespaces from or None
         :param list pod_list: entries to take pods and services from or None
         :param list resource_list: entries to take pods/namespaces/policies from if the specific list is None or None
