@@ -28,8 +28,8 @@ class PoliciesFinder:
         self.type = NetworkConfig.ConfigType.Unknown
         self.peer_container = None
 
-    def set_peer_container(self, peers):
-        self.peer_container = peers
+    def set_peer_container(self, peer_container):
+        self.peer_container = peer_container
         self.peer_container.clear_pods_extra_labels()
 
     def load_policies_from_buffer(self, buffer):
