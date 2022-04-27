@@ -138,6 +138,8 @@ class SchemeRunner(GenericYamlParser):
         global_resource_list = self._handle_resources_list(self.scheme.get('resourceList', None))
         resources_handler = ResourcesHandler()
         resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list)
+
+        # specified configs (non-global)
         for config_entry in self.scheme.get('networkConfigList', []):
             self._add_config(config_entry, resources_handler)
 
