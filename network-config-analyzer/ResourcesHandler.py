@@ -66,8 +66,8 @@ class ResourcesHandler:
             config_name = np_list[0] or resource_list[0]
         # build and return the networkConfig
         return NetworkConfig(name=config_name, peer_container=peer_container,
-                                       policies_container=resources_parser.policies_finder.policies_container,
-                                       config_type=resources_parser.policies_finder.type)
+                             policies_container=resources_parser.policies_finder.policies_container,
+                             config_type=resources_parser.policies_finder.type)
 
     def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list):
         """
