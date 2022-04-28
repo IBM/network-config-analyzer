@@ -25,8 +25,8 @@ class ResourcesHandler:
     """
     def __init__(self):
         self.global_peer_container = None
-        self.global_pods_finder = None
-        self.global_ns_finder = None
+        self.global_pods_finder = PodsFinder()
+        self.global_ns_finder = NamespacesFinder()
 
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global'):
         """
