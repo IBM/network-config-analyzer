@@ -31,13 +31,13 @@ class PodsFinder:
         for peer_type in ['wep', 'hep', 'networkset', 'globalnetworkset']:
             peer_code = yaml.load(CmdlineRunner.get_calico_resources(peer_type),
                                   Loader=yaml.SafeLoader)
-            self.add_eps_from_list(peer_code)
+            self.add_eps_from_yaml(peer_code)
 
     def load_peer_from_k8s_live_cluster(self):
         peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.SafeLoader)
-        self.add_eps_from_list(peer_code)
+        self.add_eps_from_yaml(peer_code)
 
-    def add_eps_from_list(self, ep_list):
+    def add_eps_from_yaml(self, ep_list):
         """
         Takes a resource-list object and adds all endpoints in the list to the container
         :param ep_list: A resource list object
@@ -48,7 +48,7 @@ class PodsFinder:
 
         if not isinstance(ep_list, dict):
             for ep_sub_list in ep_list:  # we must have a list of lists here - call recursively for each list
-                self.add_eps_from_list(ep_sub_list)
+                self.add_eps_from_yaml(ep_sub_list)
             return
 
         kind = ep_list.get('kind')
@@ -244,7 +244,7 @@ class PodsFinder:
         self._add_peer(wep)
 
 
-class NameSpacesFinder:
+class NamespacesFinder:
     """
     This class is responsible for populating the namespaces from relevant input resources.
     Resources that contain namespaces, may be:
@@ -300,6 +300,7 @@ class NameSpacesFinder:
         :rtype: K8sNamespace
         """
         if ns_name not in self.namespaces:
+            print('Namespace', ns_name, 'is missing from the peer container', file=stderr)
             namespace = K8sNamespace(ns_name)
             self.namespaces[ns_name] = namespace
         return self.namespaces[ns_name]

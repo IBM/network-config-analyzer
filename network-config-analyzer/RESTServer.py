@@ -63,7 +63,7 @@ class PodListResource(NCAResource):
             return 'Badly formed json in POST request', 400
         json_data = request.get_json()
         self.resources_parser.pods_finder.namespaces_finder = self.resources_parser.ns_finder
-        self.resources_parser.pods_finder.add_eps_from_list(json_data)
+        self.resources_parser.pods_finder.add_eps_from_yaml(json_data)
         peer_container = self.resources_parser.build_peer_container()
         return f'{len(peer_container.get_all_peers_group())} pods loaded.', 201
 

@@ -23,12 +23,16 @@ class PoliciesFinder:
     The class contains several ways to build the set of policies (from cluster, from file-system, from GitHub).
     """
     def __init__(self):
-        self.policies_container = PoliciesContainer(policies={}, sorted_policies=[], profiles={}, allowed_labels=set())
+        self.policies_container = PoliciesContainer(policies={}, sorted_policies=[], profiles={})
         self._parse_queue = deque()
         self.type = NetworkConfig.ConfigType.Unknown
         self.peer_container = None
 
     def set_peer_container(self, peer_container):
+        """
+        Sets the peer_container class member as it is needed when parsing the policies
+        :param Peer Container peer_container: a peer container with all topology objects from the input resources
+        """
         self.peer_container = peer_container
         self.peer_container.clear_pods_extra_labels()
 
@@ -46,7 +50,7 @@ class PoliciesFinder:
     def load_istio_policies_from_k8s_cluster(self):
         self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl', True)
 
-    def add_policy(self, policy):
+    def _add_policy(self, policy):
         """
         This should be the only place where we add policies to the config's set of policies from input resources
         :param policy: The policy to add
@@ -67,8 +71,6 @@ class PoliciesFinder:
         self.policies_container.policies[policy.full_name()] = policy
         insort(self.policies_container.sorted_policies, policy)
 
-        self.policies_container.allowed_labels |= policy.referenced_labels
-
     @staticmethod
     def _get_policy_type(policy):
         if isinstance(policy, K8sNetworkPolicy):
@@ -81,7 +83,7 @@ class PoliciesFinder:
 
     def add_exclusive_policy_given_profiles(self, policy, profiles):
         self.policies_container.profiles = profiles
-        self.add_policy(policy)
+        self._add_policy(policy)
 
     def _add_profile(self, profile):
         if not profile:
@@ -97,13 +99,13 @@ class PoliciesFinder:
                 self._add_profile(parsed_element.parse_policy())
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
-                self.add_policy(parsed_element.parse_policy())
+                self._add_policy(parsed_element.parse_policy())
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
-                self.add_policy(parsed_element.parse_policy())
+                self._add_policy(parsed_element.parse_policy())
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
-                self.add_policy(parsed_element.parse_policy())
+                self._add_policy(parsed_element.parse_policy())
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
         policy_type = NetworkPolicy.get_policy_type(policy_object)

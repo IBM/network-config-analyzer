@@ -21,7 +21,6 @@ class PoliciesContainer:
     policies: dict
     sorted_policies: list
     profiles: dict
-    allowed_labels: set
 
 
 class NetworkConfig:
@@ -50,7 +49,9 @@ class NetworkConfig:
         self.policies = policies_container.policies or {}
         self.sorted_policies = policies_container.sorted_policies or []
         self.profiles = policies_container.profiles or {}
-        self.allowed_labels = policies_container.allowed_labels or set()
+        self.allowed_labels = set()
+        if self.policies:
+            self._set_allowed_labels()
         self.referenced_ip_blocks = None
         self.type = config_type or NetworkConfig.ConfigType.Unknown
 
@@ -65,6 +66,10 @@ class NetworkConfig:
 
     def __bool__(self):
         return len(self.policies) > 0
+
+    def _set_allowed_labels(self):
+        for policy in self.policies.values():
+            self.allowed_labels |= policy.referenced_labels
 
     def get_num_findings(self):
         """
@@ -97,8 +102,7 @@ class NetworkConfig:
         :return: A clone of the config without any policies
         :rtype: NetworkConfig
         """
-        policies_container = PoliciesContainer(policies={}, sorted_policies=[], profiles=self.profiles,
-                                               allowed_labels=self.allowed_labels)
+        policies_container = PoliciesContainer(policies={}, sorted_policies=[], profiles=self.profiles)
         res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container,
                             config_type=self.type)
         return res
@@ -285,4 +289,5 @@ class NetworkConfig:
         if not policy:
             return
         self.policies[policy.full_name()] = policy
+        self.allowed_labels |= policy.referenced_labels
         insort(self.sorted_policies, policy)
