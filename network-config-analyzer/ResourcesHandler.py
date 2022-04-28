@@ -25,6 +25,8 @@ class ResourcesHandler:
     """
     def __init__(self):
         self.global_peer_container = None
+        self.global_pods_finder = None
+        self.global_ns_finder = None
 
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global'):
         """
@@ -42,11 +44,17 @@ class ResourcesHandler:
 
         # build peer container
         resources_parser = ResourcesParser()
-        if resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list):
+        success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
+        if success or res_type:
+            if res_type == ResourceType.Pods:  # found only pods in the specific config, use the global namespaces
+                resources_parser.ns_finder = self.global_ns_finder
+            elif res_type == ResourceType.Namespaces:
+                # found only namespaces in the specific config, use the global pods
+                resources_parser.pods_finder = self.global_pods_finder
             peer_container = resources_parser.build_peer_container(config_name)
-        elif self.global_peer_container:
+        elif self.global_peer_container:  # no specific peer container, use the global one
             peer_container = self.global_peer_container
-        else:
+        else:  # the specific networkConfig has no topology input resources (not private, neither global)
             print('loading topology objects from k8s live cluster')
             resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
             peer_container = resources_parser.build_peer_container(config_name)
@@ -63,15 +71,26 @@ class ResourcesHandler:
 
     def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list):
         """
-        builds the global peer container based on global input resources
+        builds the global peer container based on global input resources,
+        it also saves the global pods and namespaces finder, to use in case specific configs missing one of them
         :param Union[list[str], None] global_ns_list: global namespaces entries
         :param Union[list[str], None] global_pod_list: global pods entries
         :param Union[list[str], None] global_resource_list: list of global entries of namespaces/pods to handle
         in case specific list is None
         """
         resources_parser = ResourcesParser()
-        if resources_parser.parse_lists_for_topology(global_ns_list, global_pod_list, global_resource_list):
+        success, res_type = resources_parser.parse_lists_for_topology(global_ns_list, global_pod_list,
+                                                                      global_resource_list)
+        if success:
             self.global_peer_container = resources_parser.build_peer_container()
+            self.global_pods_finder = resources_parser.pods_finder
+            self.global_ns_finder = resources_parser.ns_finder
+        elif res_type == ResourceType.Pods:
+            # in case the global resources has only pods (can not build global peerContainer)
+            self.global_pods_finder = resources_parser.pods_finder
+        elif res_type == ResourceType.Namespaces:
+            # in case the global resources has only namespaces (can not build global peerContainer)
+            self.global_ns_finder = resources_parser.ns_finder
 
 
 class ResourcesParser:
@@ -88,7 +107,15 @@ class ResourcesParser:
         """
         Chooses to parse the namespaces from the ns_list if exists in the input resources.
         the pods and services: from pod_list if exist in the input resources
-        if the specified lists do not exist, parses them from the resources list
+        if the specified lists do not exist, try to parse from the resources list (if exists)
+        :param Union[list[str], None] ns_list: namespaces entry
+        :param Union[list[str], None] pod_list: pods entry
+        :param Union[list[str], None] resource_list: resources entry
+        :rtype bool, ResourceType: returns if succeeds or fails to find any topology objectsas following:
+        True, 0 : if succeeds to find both namespaces and peers
+        False, ResourceType.Pods: if succeeds to find only pods
+        False, ResourceType.Namespaces: if succeeds to find only namespaces
+        False, 0: if fails to find both namespaces and pods
         """
         if ns_list:
             ns_resource = ns_list
@@ -106,21 +133,26 @@ class ResourcesParser:
         else:
             pod_resource = resource_list
 
-        if pod_resource is None or ns_resource is None:
-            return False  # can not build peer container
+        if pod_resource is None and ns_resource is None:  # no resources to parse
+            return False, 0
 
-        if pod_resource == resource_list and pod_resource == ns_resource:  # both in resourceList
-            print(f'Finding topology objects in {resource_list}')
+        if pod_resource == resource_list and pod_resource == ns_resource:  # both may exist in resourceList
             self._parse_resources_path(resource_list,
                                        [ResourceType.Namespaces, ResourceType.Pods])
-        else:  # we always want to parse for namespaces first
-            self._parse_resources_path(ns_resource, [ResourceType.Namespaces])
-            self._parse_resources_path(pod_resource, [ResourceType.Pods])
+        else:  # we always want to parse for namespaces first (if exists)
+            if ns_resource:
+                self._parse_resources_path(ns_resource, [ResourceType.Namespaces])
+            if pod_resource:
+                self._parse_resources_path(pod_resource, [ResourceType.Pods])
 
-        if len(self.pods_finder.peer_set) == 0 or len(self.ns_finder.namespaces) == 0:
-            return False  # can not build peer container
-
-        return True
+        if len(self.pods_finder.peer_set) > 0 and len(self.ns_finder.namespaces) > 0:
+            return True, 0
+        elif len(self.pods_finder.peer_set) == 0 and len(self.ns_finder.namespaces) > 0:
+            return False, ResourceType.Namespaces
+        elif len(self.pods_finder.peer_set) > 0 and len(self.ns_finder.namespaces) == 0:
+            return False, ResourceType.Pods
+        else:
+            return False, 0
 
     def parse_lists_for_policies(self, np_list, resource_list, peer_container):
         """
@@ -136,7 +168,6 @@ class ResourcesParser:
                 print('Warning: policies will be taken from the provided networkPolicy list key. '
                       'input resources provided with resource list key will be ignored when finding network policies')
         elif resource_list:
-            print(f'Finding policies in {resource_list}')
             self._parse_resources_path(resource_list, [ResourceType.Policies])
 
     def _parse_resources_path(self, resource_list, resource_flags):
