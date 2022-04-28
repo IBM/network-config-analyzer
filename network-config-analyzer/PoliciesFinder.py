@@ -37,18 +37,18 @@ class PoliciesFinder:
         self.peer_container.clear_pods_extra_labels()
 
     def load_policies_from_buffer(self, buffer):
-        self._add_policies(buffer, 'buffer', True)
+        self._add_policies(buffer, 'buffer')
 
     def load_policies_from_k8s_cluster(self):
-        self._add_policies(CmdlineRunner.get_k8s_resources('networkPolicy'), 'kubectl', True)
+        self._add_policies(CmdlineRunner.get_k8s_resources('networkPolicy'), 'kubectl')
 
     def load_policies_from_calico_cluster(self):
-        self._add_policies(CmdlineRunner.get_calico_resources('profile'), 'calicoctl', True)
-        self._add_policies(CmdlineRunner.get_calico_resources('networkPolicy'), 'calicoctl', True)
-        self._add_policies(CmdlineRunner.get_calico_resources('globalNetworkPolicy'), 'calicoctl', True)
+        self._add_policies(CmdlineRunner.get_calico_resources('profile'), 'calicoctl')
+        self._add_policies(CmdlineRunner.get_calico_resources('networkPolicy'), 'calicoctl')
+        self._add_policies(CmdlineRunner.get_calico_resources('globalNetworkPolicy'), 'calicoctl')
 
     def load_istio_policies_from_k8s_cluster(self):
-        self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl', True)
+        self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl')
 
     def _add_policy(self, policy):
         """
@@ -80,10 +80,6 @@ class PoliciesFinder:
         if isinstance(policy, IstioNetworkPolicy):
             return NetworkConfig.ConfigType.Istio
         return NetworkConfig.ConfigType.Unknown
-
-    def add_exclusive_policy_given_profiles(self, policy, profiles):
-        self.policies_container.profiles = profiles
-        self._add_policy(policy)
 
     def _add_profile(self, profile):
         if not profile:
@@ -122,16 +118,14 @@ class PoliciesFinder:
         for policy in policy_list:
             self.parse_yaml_code_for_policy(policy, file_name)
 
-    def _add_policies(self, doc, file_name, is_list=False):
+    def _add_policies(self, doc, file_name):
         yaml1 = YAML()
         code = yaml1.load_all(doc)
-        if is_list:
-            for policy_list in code:
-                if isinstance(policy_list, dict):
-                    self._add_policies_to_parse_queue(policy_list.get('items', []), file_name)
-                else:  # we got a list of lists, e.g., when combining calico np, gnp and profiles
-                    for policy_list_list in policy_list:
-                        if isinstance(policy_list_list, dict):
-                            self._add_policies_to_parse_queue(policy_list_list.get('items', []), file_name)
-        else:
-            self._add_policies_to_parse_queue(code, file_name)
+        for policy_list in code:
+            if isinstance(policy_list, dict):
+                self._add_policies_to_parse_queue(policy_list.get('items', []), file_name)
+            else:  # we got a list of lists, e.g., when combining calico np, gnp and profiles
+                for policy_list_list in policy_list:
+                    if isinstance(policy_list_list, dict):
+                        self._add_policies_to_parse_queue(policy_list_list.get('items', []), file_name)
+
