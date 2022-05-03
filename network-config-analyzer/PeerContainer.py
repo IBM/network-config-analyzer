@@ -182,6 +182,10 @@ class PeerContainer:
                         print(f'Warning: The named port {port.target_port} referenced in Service {srv.name}'
                               f' is not defined in the pod {pod}. Ignoring the pod')
                         pods_to_remove.add(pod)
+                    elif pod_named_port[1] != port.protocol:
+                        print(f'Warning: The protocol {port.protocol} in the named port {port.target_port} referenced in Service {srv.name}'
+                              f' does not match the protocol {pod_named_port[1]} defined in the pod {pod}. Ignoring the pod')
+                        pods_to_remove.add(pod)
                 srv.target_pods -= pods_to_remove
             if not srv.target_pods:
                 print(f'Warning: The service {srv.name} does not reference any pod')

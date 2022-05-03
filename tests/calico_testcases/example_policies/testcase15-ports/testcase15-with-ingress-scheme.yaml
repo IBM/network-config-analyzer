@@ -1,0 +1,271 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/service_and_ingress_resources
+
+networkConfigList:
+  - name: ip
+    networkPolicyList:
+      - ingress_list.yaml
+    expectedWarnings: 0
+
+  - name: global-simple
+    networkPolicyList:
+      - testcase15-global-simple.yaml
+    expectedWarnings: 0
+
+  - name: global-not-simple
+    networkPolicyList:
+      - testcase15-global-not-simple.yaml
+    expectedWarnings: 0
+
+  - name: named-ports
+    networkPolicyList:
+      - testcase15-named-ports.yaml
+    expectedWarnings: 12
+
+  - name: equiv-games1
+    networkPolicyList:
+      - testcase15-equiv-games1.yaml
+    expectedWarnings: 0
+
+  - name: equiv-games2
+    networkPolicyList:
+      - testcase15-equiv-games2.yaml
+    expectedWarnings: 0
+    
+  - name: equiv-games3
+    networkPolicyList:
+      - testcase15-equiv-games3.yaml
+    expectedWarnings: 0
+
+  - name: equiv-games4
+    networkPolicyList:
+      - testcase15-equiv-games4.yaml
+    expectedWarnings: 0
+    
+  - name: named-ports-rectangles
+    networkPolicyList:
+      - testcase15-named-ports-rectangles.yaml
+    expectedWarnings: 0
+
+queries:
+  - name: connectivity_map
+    connectivityMap:
+      - ip
+      - global-simple/testcase15-global-ports-simple-match-ingress-egress
+      - global-simple/testcase15-global-ports-simple-mismatch-ingress-egress
+      - global-simple
+      - global-not-simple/testcase15-global-ports-not-simple-match-ingress-egress
+      - global-not-simple/testcase15-global-ports-not-simple-mismatch-ingress-egress
+      - global-not-simple
+
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+      outputEndpoints: pods
+    expected: 0
+
+  - name: no_empty_policies
+    emptiness:
+      - global-simple
+      - global-not-simple
+      - equiv-games1
+      - equiv-games2
+      - named-ports
+    expected: 0
+
+  - name: non_vacous_policies
+    vacuity:
+      - global-simple/testcase15-global-ports-simple-match-ingress-egress
+      - global-not-simple/testcase15-global-ports-not-simple-match-ingress-egress
+      - equiv-games1/kube-system/testcase15-simple-enable-TCP-101-104-from-301
+      - equiv-games1/kube-system/testcase15-messy-enable-TCP-101-104-from-301
+      - equiv-games1/kube-system/testcase15-enable-egress-TCP-all-ports-directly
+      - equiv-games1/kube-system/testcase15-enable-egress-TCP-all-ports-implicit
+      - equiv-games1/kube-system/testcase15-messy-enable-TCP-101-104
+      - equiv-games1
+      - named-ports/kube-system/testcase15-allPorts-using-noPorts-no-existing-named-ports
+      - named-ports/kube-system/testcase15-ingress-egress-match-via-named-ports
+      - named-ports/kube-system/testcase15-match-namedports-labels-policy-namedport
+      - named-ports/kube-system/testcase15-match-namedports-labels-policy-label
+      - named-ports/kube-system/testcase15-specific-TCP-UDP-named-ports
+      - named-ports/kube-system/testcase15-TCP-UDP-egress
+      - named-ports/kube-system/testcase15-named-ports-allow-protocol-deny-lower
+      - named-ports/kube-system/testcase15-named-ports-conflicting-deny-ports-lower
+      - named-ports/kube-system/testcase15-all-dns-named-ports-via-name
+      - named-ports/kube-system/testcase15-all-dns-named-ports-via-numbers
+    expected: 0
+
+  - name: vacous_policies
+    vacuity:
+      - global-simple/testcase15-global-ports-simple-mismatch-ingress-egress
+      - global-not-simple/testcase15-global-ports-not-simple-mismatch-ingress-egress
+      - named-ports/kube-system/testcase15-vacuous-no-exist-named-ports
+      - named-ports/kube-system/testcase15-ingress-egress-mismatch-via-named-ports
+      - named-ports/kube-system/testcase15-named-ports-no-match-protocol
+      - named-ports/kube-system/testcase15-named-ports-allow-protocol-deny-higher
+      - named-ports/kube-system/testcase15-named-ports-conflicting-deny-ports-higher
+    expected: 7
+
+  - name: equiv_all_ports
+    equivalence:
+      - equiv-games1/kube-system/testcase15-enable-egress-TCP-all-ports-directly
+      - equiv-games1/kube-system/testcase15-enable-egress-TCP-all-ports-implicit
+    expected: 0
+
+  - name: equiv_all_ports_via_named_ports
+    equivalence:
+      - named-ports/kube-system/testcase15-allPorts-explicit
+      - named-ports/kube-system/testcase15-allPorts-using-noPorts-no-existing-named-ports
+    expected: 0
+
+
+  - name: equiv_TCP-101-104
+    equivalence:
+      - equiv-games1/kube-system/testcase15-simple-enable-TCP-101-104-from-301
+      - equiv-games1/kube-system/testcase15-messy-enable-TCP-101-104-from-301
+    expected: 0
+
+  - name: none-equiv_additional_ports
+    equivalence:
+      - equiv-games1/kube-system/testcase15-simple-enable-TCP-101-104-from-301
+      - equiv-games1/kube-system/testcase15-messy-enable-TCP-101-104
+    expected: 1
+
+  - name: contained_additional_ports
+    containment:
+      - equiv-games1/kube-system/testcase15-simple-enable-TCP-101-104-from-301
+      - equiv-games1/kube-system/testcase15-messy-enable-TCP-101-104
+    expected: 1
+
+  - name: redundant_policies_all_since_dup_and_contain # not-working
+    redundancy:
+      - equiv-games1
+#    expected: 5  # The number of redundancies is non-deterministic, because policies have no order field
+
+
+  - name: equiv_different-writing
+    equivalence:
+      - equiv-games2/kube-system/testcase15-different-ranges-writing1
+      - equiv-games2/kube-system/testcase15-different-ranges-writing2
+    expected: 0
+
+  - name: none-equiv_different_ranges_writing_additional_port
+    equivalence:
+      - equiv-games2/kube-system/testcase15-different-ranges-writing1
+      - equiv-games2/kube-system/testcase15-different-ranges-writing-slightly-bigger
+    expected: 1
+
+  - name: containment_different_ranges_writing_additional_port
+    containment:
+      - equiv-games2/kube-system/testcase15-different-ranges-writing-slightly-bigger
+      - equiv-games2/kube-system/testcase15-different-ranges-writing1
+      - equiv-games2/kube-system/testcase15-different-ranges-writing2
+    expected: 2
+
+  - name: equiv_different_ranges_writing_redundant  # 2 equiv policies should be redundant
+    redundancy:
+      - equiv-games2
+      - equiv-games2/kube-system/testcase15-different-ranges-writing1
+      - equiv-games2/kube-system/testcase15-different-ranges-writing2
+    expected: 6
+
+  - name: sanity_equiv_different_ranges_writing_redundant  # 2 equiv policies should be redundant
+    sanity:
+      - equiv-games2
+    expected: 3
+
+  - name: equiv-match-named-ports-and-labels
+    equivalence:
+      - named-ports/kube-system/testcase15-match-namedports-labels-policy-namedport
+      - named-ports/kube-system/testcase15-match-namedports-labels-policy-label
+    expected: 0
+
+  - name: specific-named-ports-neq-TCP-UDP
+    equivalence:
+      - named-ports/kube-system/testcase15-specific-TCP-UDP-named-ports
+      - named-ports/kube-system/testcase15-TCP-UDP-egress
+    expected: 1
+
+  - name: specific-named-ports-contained-TCP-UDP # not working. Should be contained.
+    containment:
+      - named-ports/kube-system/testcase15-TCP-UDP-egress
+      - named-ports/kube-system/testcase15-specific-TCP-UDP-named-ports
+    expected: 1
+
+  - name: all-dns-named-ports-via-names-contained-via-number
+    containment:
+      - named-ports/kube-system/testcase15-all-dns-named-ports-via-numbers
+      - named-ports/kube-system/testcase15-all-dns-named-ports-via-name
+    expected: 1
+
+
+  - name: all-dns-named-ports-via-names-not-contain-via-number
+    containment:
+      - named-ports/kube-system/testcase15-all-dns-named-ports-via-name
+      - named-ports/kube-system/testcase15-all-dns-named-ports-via-numbers
+    expected: 0
+    
+  - name: equiv_new_TCP-101-104-ver1
+    equivalence:
+      - equiv-games3/kube-system/testcase15-new-simple-enable-TCP-101-104-from-301
+      - equiv-games3/kube-system/testcase15-new-messy-enable-TCP-101-104-from-301-src-no-151
+    expected: 0
+  - name: equiv_new_TCP-101-104-ver2
+    equivalence:
+      - equiv-games3/kube-system/testcase15-new-simple-enable-TCP-101-104-from-301
+      - equiv-games3/kube-system/testcase15-new-messy-enable-TCP-101-104-from-301-src-151
+    expected: 1    
+  - name: equiv_new_TCP-rectangles-test
+    equivalence:
+      - equiv-games3/kube-system/testcase15-new-simple-rectangle-test-1
+      - equiv-games3/kube-system/testcase15-new-simple-rectangle-test-2
+    expected: 1    
+  - name: equiv_new_TCP-all-ports
+    equivalence:
+      - equiv-games3/kube-system/testcase15-new-simple-rectangle-test-5
+      - equiv-games3/kube-system/testcase15-new-simple-rectangle-test-3
+    expected: 1
+  - name: equiv_new_TCP-all-ports
+    equivalence:
+      - equiv-games3/kube-system/testcase15-new-simple-rectangle-test-5
+      - equiv-games3/kube-system/testcase15-new-simple-rectangle-test-4
+    expected: 0    
+  - name: non_vacous_policies
+    vacuity:
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-1
+    expected: 0
+  - name: equiv_1
+    equivalence:
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-1
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-1-equiv
+    expected: 0  
+  - name: equiv_2
+    equivalence:
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2-equiv
+    expected: 0   
+  - name: equiv_3
+    equivalence:
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-3
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-3-equiv
+    expected: 0          
+  - name: equiv_4
+    equivalence:
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-4
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-4-equiv    
+  - name: non_equiv_1
+    equivalence:
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-complex-1
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-no-connections
+    expected: 1
+  - name: connectivity_map_1
+    connectivityMap:
+      - named-ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2-equiv
+    outputConfiguration:
+      fwRulesGroupByLabelSinglePod: true
+    expected: 0
+
+  - name: equiv_new_1
+    equivalence:
+      - equiv-games4
+      - equiv-games1/kube-system/testcase15-enable-all-connections
+    

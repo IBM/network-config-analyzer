@@ -134,8 +134,9 @@ class IngressPolicyYamlParser(GenericYamlParser):
 
     def _make_tcp_like_properties(self, dest_ports, peers, paths_dfa=None, hosts_dfa=None):
         """
-        get TcpLikeProperties with TCP allowed connections, corresponding to input properties cube
-        :param PortSet dest_ports: ports set for dest_ports dimension
+        get TcpLikeProperties with TCP allowed connections, corresponding to input properties cube.
+        TcpLikeProperties should not contain named ports: substitute them with corresponding port numbers, per peer
+        :param PortSet dest_ports: ports set for dest_ports dimension (possibly containing named ports)
         :param PeerSet peers: the set of (target) peers
         :param MinDFA paths_dfa: MinDFA obj for paths dimension
         :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
@@ -144,10 +145,38 @@ class IngressPolicyYamlParser(GenericYamlParser):
         assert peers
         base_peer_set = self.peer_container.peer_set
         base_peer_set.add(IpBlock.get_all_ips_block())
-        peers_interval = base_peer_set.get_peer_interval_of(peers)
-        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=MethodSet(True),
-                                           paths=paths_dfa, hosts=hosts_dfa, peers=peers_interval,
-                                           base_peer_set=base_peer_set)
+        if not dest_ports.named_ports:
+            peers_interval = base_peer_set.get_peer_interval_of(peers)
+            return TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=MethodSet(True),
+                                     paths=paths_dfa, hosts=hosts_dfa, peers=peers_interval,
+                                     base_peer_set=base_peer_set)
+        assert not dest_ports.port_set
+        assert len(dest_ports.named_ports) == 1
+        port = list(dest_ports.named_ports)[0]
+        tcp_properties = None
+        for peer in peers:
+            named_ports = peer.get_named_ports()
+            real_port = named_ports.get(port)
+            if not real_port:
+                self.warning(f'Missing named port {port} in the pod {peer}. Ignoring the pod')
+                continue
+            if real_port[1] != 'TCP':
+                self.warning(f'Illegal protocol {real_port[1]} in the named port {port} ingress target pod {peer}.'
+                             f'Ignoring the pod')
+                continue
+            peer_in_set = PeerSet()
+            peer_in_set.add(peer)
+            ports = PortSet()
+            ports.add_port(real_port[0])
+            props = TcpLikeProperties(source_ports=PortSet(True), dest_ports=ports, methods=MethodSet(True),
+                                      paths=paths_dfa, hosts=hosts_dfa,
+                                      peers=base_peer_set.get_peer_interval_of(peer_in_set),
+                                      base_peer_set=base_peer_set)
+            if tcp_properties:
+                tcp_properties |= props
+            else:
+                tcp_properties = props
+
         return tcp_properties
 
     def parse_ingress_path(self, path, hosts_dfa):
@@ -354,10 +383,13 @@ class IngressPolicyYamlParser(GenericYamlParser):
                 allowed_conns = conns
             else:
                 allowed_conns |= conns
-            if not all_hosts_dfa:
-                all_hosts_dfa = hosts_dfa
+            if hosts_dfa:
+                if not all_hosts_dfa:
+                    all_hosts_dfa = hosts_dfa
+                else:
+                    all_hosts_dfa = all_hosts_dfa | hosts_dfa
             else:
-                all_hosts_dfa = all_hosts_dfa | hosts_dfa
+                all_hosts_dfa = DimensionsManager().get_dimension_domain_by_name('hosts')
         # every host not captured by the ingress rules goes to the default backend
         hosts_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('hosts') - all_hosts_dfa
         default_conns = self._make_default_connections(hosts_remainder_dfa)
