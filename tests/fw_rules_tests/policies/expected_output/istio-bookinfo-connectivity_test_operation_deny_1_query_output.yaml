@@ -5,7 +5,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app not in (details)
+    - app=details
     connection:
     - Protocol: TCP
   - src_ip_block:
@@ -13,7 +13,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app not in (details)
+    - app=details
     connection:
     - Protocol: TCP
   - src_ns:
@@ -23,13 +23,13 @@
     dst_ns:
     - default
     dst_pods:
-    - app not in (details)
+    - app=details
     connection:
     - Protocol: TCP
   - src_ns:
     - default
     src_pods:
-    - app in (details)
+    - app=details
     dst_ns:
     - default
     dst_pods:

@@ -4,21 +4,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-3)
+    - app=app-3
     dst_ns:
     - default
     dst_pods:
-    - app in (app-4)
+    - app=app-4
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - app in (app-4)
+    - app=app-4
     dst_ns:
     - default
     dst_pods:
-    - app in (app-3)
+    - app=app-3
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Lost connections
@@ -85,11 +85,11 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-0)
+    - app=app-0
     dst_ns:
     - default
     dst_pods:
-    - app in (app-1)
+    - app=app-1
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Removed connections
@@ -98,11 +98,11 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-0)
+    - app=app-0
     dst_ns:
     - default
     dst_pods:
-    - app in (app-2)
+    - app=app-2
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Added connections
@@ -113,7 +113,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (app-1)
+    - app=app-1
     connection:
     - All connections
   - src_ip_block:
@@ -121,7 +121,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (app-1)
+    - app=app-1
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: Removed connections
@@ -132,7 +132,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (app-2)
+    - app=app-2
     connection:
     - All connections
   - src_ip_block:
@@ -140,7 +140,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (app-2)
+    - app=app-2
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: New connections
@@ -172,21 +172,21 @@
   - src_ns:
     - default
     src_pods:
-    - app in (app-5)
+    - app=app-5
     dst_ns:
     - default
     dst_pods:
-    - app in (app-6)
+    - app=app-6
     connection:
     - All connections
   - src_ns:
     - default
     src_pods:
-    - app in (app-6)
+    - app=app-6
     dst_ns:
     - default
     dst_pods:
-    - app in (app-5)
+    - app=app-5
     connection:
     - All connections
 - query: 'semantic_diff, config1: config_a, config2: config_b, key: New connections

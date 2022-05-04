@@ -6,10 +6,10 @@ src_ns: [default] src_pods: [cog-local-analyzer-7d77fb55cc] dst_ns: [default] ds
 
 Lost connections between removed peers and ipBlocks:
 Removed connections (based on topology from config: policy_a.yaml) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
-src_ns: [default] src_pods: [app in (app-3,app-4)] dst ip block: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [app in (app-3,app-4)] dst ip block: ::/0 conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
+src_ns: [default] src_pods: [app in (app-3,app-4)] dst: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [app in (app-3,app-4)] dst: ::/0 conn: All connections
 
 Lost connections between removed peers and persistent peers:
 Removed connections (based on topology from config: policy_a.yaml) :
@@ -25,12 +25,12 @@ src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents
 
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: policy_b.yaml) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
 
 Removed connections (based on topology from config: policy_a.yaml) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [cog-agents] conn: All connections
 
 New connections between persistent peers and added peers:
 Added connections (based on topology from config: policy_b.yaml) :
@@ -43,9 +43,9 @@ src_ns: [default] src_pods: [cog-agents] dst_ns: [default] dst_pods: [cog-agents
 
 New connections between added peers and ipBlocks:
 Added connections (based on topology from config: policy_b.yaml) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
-src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: ::/0 conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
+src_ns: [default] src_pods: [app in (app-5,app-6)] dst: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [app in (app-5,app-6)] dst: ::/0 conn: All connections
 
 
