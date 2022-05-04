@@ -7,7 +7,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - has(has_named_port)
+    - has_named_port=dns-local
     connection:
     - Protocol: UDP
       properties:

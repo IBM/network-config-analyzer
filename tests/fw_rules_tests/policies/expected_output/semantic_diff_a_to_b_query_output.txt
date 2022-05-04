@@ -1,15 +1,15 @@
 config_a and config_b are not semantically equivalent.
 Lost connections between removed peers:
 Removed connections (based on topology from config: config_a) :
-src_ns: [default] src_pods: [app in (app-3)] dst_ns: [default] dst_pods: [app in (app-4)] conn: All connections
-src_ns: [default] src_pods: [app in (app-4)] dst_ns: [default] dst_pods: [app in (app-3)] conn: All connections
+src_ns: [default] src_pods: [app=app-3] dst_ns: [default] dst_pods: [app=app-4] conn: All connections
+src_ns: [default] src_pods: [app=app-4] dst_ns: [default] dst_pods: [app=app-3] conn: All connections
 
 Lost connections between removed peers and ipBlocks:
 Removed connections (based on topology from config: config_a) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
-src_ns: [default] src_pods: [app in (app-3,app-4)] dst ip block: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [app in (app-3,app-4)] dst ip block: ::/0 conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [app in (app-3,app-4)] conn: All connections
+src_ns: [default] src_pods: [app in (app-3,app-4)] dst: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [app in (app-3,app-4)] dst: ::/0 conn: All connections
 
 Lost connections between removed peers and persistent peers:
 Removed connections (based on topology from config: config_a) :
@@ -18,19 +18,19 @@ src_ns: [default] src_pods: [app not in (app-3,app-4)] dst_ns: [default] dst_pod
 
 Changed connections between persistent peers:
 Added connections (based on topology from config: config_b) :
-src_ns: [default] src_pods: [app in (app-0)] dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
+src_ns: [default] src_pods: [app=app-0] dst_ns: [default] dst_pods: [app=app-1] conn: All connections
 
 Removed connections (based on topology from config: config_a) :
-src_ns: [default] src_pods: [app in (app-0)] dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
+src_ns: [default] src_pods: [app=app-0] dst_ns: [default] dst_pods: [app=app-2] conn: All connections
 
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: config_b) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-1)] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app=app-1] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [app=app-1] conn: All connections
 
 Removed connections (based on topology from config: config_a) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-2)] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app=app-2] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [app=app-2] conn: All connections
 
 New connections between persistent peers and added peers:
 Added connections (based on topology from config: config_b) :
@@ -39,14 +39,14 @@ src_ns: [default] src_pods: [app not in (app-5,app-6)] dst_ns: [default] dst_pod
 
 New connections between added peers:
 Added connections (based on topology from config: config_b) :
-src_ns: [default] src_pods: [app in (app-5)] dst_ns: [default] dst_pods: [app in (app-6)] conn: All connections
-src_ns: [default] src_pods: [app in (app-6)] dst_ns: [default] dst_pods: [app in (app-5)] conn: All connections
+src_ns: [default] src_pods: [app=app-5] dst_ns: [default] dst_pods: [app=app-6] conn: All connections
+src_ns: [default] src_pods: [app=app-6] dst_ns: [default] dst_pods: [app=app-5] conn: All connections
 
 New connections between added peers and ipBlocks:
 Added connections (based on topology from config: config_b) :
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
-src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [app in (app-5,app-6)] dst ip block: ::/0 conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [app in (app-5,app-6)] conn: All connections
+src_ns: [default] src_pods: [app in (app-5,app-6)] dst: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [app in (app-5,app-6)] dst: ::/0 conn: All connections
 
 

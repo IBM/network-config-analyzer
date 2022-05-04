@@ -35,7 +35,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '!has(app) or app in (dev)'
+    - '!has(app) or app=dev'
     connection:
     - All connections
 
@@ -46,7 +46,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (dev)
+    - app=dev
     connection:
     - All connections
   - src_ip_block:

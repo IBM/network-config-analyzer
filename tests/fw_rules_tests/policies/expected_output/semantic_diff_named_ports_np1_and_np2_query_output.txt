@@ -5,7 +5,7 @@ src_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] src_pods
 
 Changed connections between persistent peers and ipBlocks:
 Added connections (based on topology from config: np2_named_ports) :
-src ip block: 0.0.0.0/0 dst_ns: [kube-system-dummy-to-ignore] dst_pods: [kube-dns-amd64-d66bf76db] conn: TCP 10054
-src ip block: ::/0 dst_ns: [kube-system-dummy-to-ignore] dst_pods: [kube-dns-amd64-d66bf76db] conn: TCP 10054
+src: 0.0.0.0/0 dst_ns: [kube-system-dummy-to-ignore] dst_pods: [kube-dns-amd64-d66bf76db] conn: TCP 10054
+src: ::/0 dst_ns: [kube-system-dummy-to-ignore] dst_pods: [kube-dns-amd64-d66bf76db] conn: TCP 10054
 
 

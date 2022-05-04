@@ -64,13 +64,16 @@ class LabelExpr:
         shorter_values_list = values
         containment_str = 'in'
         prefix_expr = ''
-        if len(complement_values) < len(values):
+        if complement_values and len(complement_values) < len(values):
             shorter_values_list = complement_values
             containment_str = 'not in'
             if ns_has_pods_without_label_k:
                 prefix_expr = f'has({k}) and '
         vals_str = ','.join(v for v in sorted(list(shorter_values_list)))
-        label_containment_expr = f'{k} {containment_str} ({vals_str})'
+        if len(shorter_values_list) == 1:
+            label_containment_expr = f'{k}={vals_str}'
+        else:
+            label_containment_expr = f'{k} {containment_str} ({vals_str})'
         return f'({prefix_expr}{label_containment_expr})' if prefix_expr else label_containment_expr
 
     def get_values_expr_str_per_simple_key(self, k, values):
@@ -91,7 +94,7 @@ class LabelExpr:
         if ClusterInfo.invalid_val in self.map_simple_keys_to_all_values[k]:
             ns_has_pods_without_label_k = True
         if valid_values:
-            if valid_values == all_valid_values:
+            if valid_values == all_valid_values and len(all_valid_values) > 1:
                 expr_str_list.append(self.get_all_valid_values_expr_str(k))
             else:
                 complement_values = all_valid_values - valid_values
@@ -106,7 +109,7 @@ class LabelExpr:
         """
         # reasoning of original key (possibly composed key)
         all_valid_values = set(v for v in self.all_values if ClusterInfo.invalid_val not in v)
-        if self.values == all_valid_values:
+        if self.values == all_valid_values and len(all_valid_values) > 1:
             # returns an expression of all valid values (e.g. has(app) and has(tier) )
             return self.get_all_valid_values_expr_str(self.key)
 
@@ -381,15 +384,14 @@ class IPBlockElement(FWRuleElement):
         """
         :return: string of the represented element
         """
-        # return 'ip block: ' + str(self.element)
-        return 'ip block: ' + self.element.get_ip_range_or_cidr_str()
+        return self.element.get_ip_range_or_cidr_str()
 
     def get_elem_str(self, is_src):
         """
         :param is_src: bool flag to indicate if element is src (True) or dst (False)
         :return: string of the represented element with src or dst description of fields
         """
-        prefix = 'src ' if is_src else 'dst '
+        prefix = 'src: ' if is_src else 'dst: '
         suffix = ' ' if is_src else ''
         return prefix + str(self) + suffix
 

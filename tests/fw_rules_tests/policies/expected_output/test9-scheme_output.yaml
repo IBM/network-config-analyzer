@@ -5,7 +5,7 @@
     dst_ns:
     - default
     dst_pods:
-    - has(app) and tier in (analyzer)
+    - app=skydive and tier=analyzer
     connection:
     - All connections
   - src_ip_block:
@@ -23,7 +23,7 @@
     dst_ns:
     - default
     dst_pods:
-    - has(app) and tier in (analyzer)
+    - app=skydive and tier=analyzer
     connection:
     - All connections
   - src_ip_block:
@@ -39,7 +39,7 @@
   - src_ns:
     - default
     src_pods:
-    - has(app) and tier in (analyzer)
+    - app=skydive and tier=analyzer
     dst_ip_block:
     - 0.0.0.0/0
     connection:
@@ -47,7 +47,7 @@
   - src_ns:
     - default
     src_pods:
-    - has(app) and tier in (analyzer)
+    - app=skydive and tier=analyzer
     dst_ip_block:
     - ::/0
     connection:
@@ -55,7 +55,7 @@
   - src_ns:
     - default
     src_pods:
-    - has(app) and tier in (analyzer)
+    - app=skydive and tier=analyzer
     dst_ns:
     - default
     - ibm-system-new
@@ -94,7 +94,7 @@
     dst_ns:
     - default
     dst_pods:
-    - has(app) and tier in (analyzer)
+    - app=skydive and tier=analyzer
     connection:
     - All connections
   - src_ns:
