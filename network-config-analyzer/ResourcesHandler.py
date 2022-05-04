@@ -28,7 +28,7 @@ class ResourcesHandler:
         self.global_pods_finder = PodsFinder()
         self.global_ns_finder = NamespacesFinder()
 
-    def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global'):
+    def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', k8s_np_flag=False):
         """
         First tries to build a peer_container using the input resources (NetworkConfigs's resources)
         If fails, it uses the global peer container otherwise build it from the k8s live cluster peers.
@@ -39,6 +39,7 @@ class ResourcesHandler:
         :param Union[list[str], None] resource_list: entries to read pods/namespaces/policies from
         if the specific list is None
         :param str config_name: name of the config
+        :param bool k8s_np_flag: get policies from k8s live cluster if they are not found in the input resources
         :rtype NetworkConfig
         """
 
@@ -60,7 +61,7 @@ class ResourcesHandler:
             peer_container = resources_parser.build_peer_container(config_name)
 
         # parse for policies
-        resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
+        resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container,k8s_np_flag)
 
         if config_name == 'global':
             if np_list and np_list != ['']:
@@ -158,12 +159,13 @@ class ResourcesParser:
         else:
             return False, 0
 
-    def parse_lists_for_policies(self, np_list, resource_list, peer_container):
+    def parse_lists_for_policies(self, np_list, resource_list, peer_container, k8s_np_flag):
         """
         parses policies from np_list resource if exists, otherwise parses the resource_list for policies
         :param np_list: list of entries of networkPolicies
         :param resource_list: list of entries
         :param peer_container: the existing PeerContainer
+        :param bool k8s_np_flag: get policies from k8s live cluster if they are not found in the input resources
         """
         self.policies_finder.set_peer_container(peer_container)
         if np_list and np_list != ['']:
@@ -173,8 +175,10 @@ class ResourcesParser:
                       'input resources provided with resource list key will be ignored when finding network policies')
         elif resource_list:
             self._parse_resources_path(resource_list, [ResourceType.Policies])
-        if self.policies_finder.has_empty_containers():
-            self.policies_finder.load_policies_from_k8s_cluster()
+            # if np list is not given and there are no policies in the resource list but k8s_np_flag is True
+            # then load policies from live cluster
+            if k8s_np_flag and self.policies_finder.has_empty_containers():
+                self.policies_finder.load_policies_from_k8s_cluster()
 
     def _parse_resources_path(self, resource_list, resource_flags):
         """

@@ -175,7 +175,7 @@ def run_args(args):
         base_ns_list = args.base_ns_list or ns_list
         base_pod_list = args.base_pod_list or pod_list
         base_network_config = resources_handler.get_network_config(base_np_list, base_ns_list, base_pod_list,
-                                                                   base_resource_list)
+                                                                   base_resource_list, k8s_np_flag=True)
         if base_as_second:
             network_configs_array = [network_config, base_network_config]
         else:
