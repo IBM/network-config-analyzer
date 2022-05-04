@@ -23,7 +23,7 @@ class PoliciesFinder:
     The class contains several ways to build the set of policies (from cluster, from file-system, from GitHub).
     """
     def __init__(self):
-        self.policies_container = PoliciesContainer(policies={}, sorted_policies=[], profiles={})
+        self.policies_container = PoliciesContainer()
         self._parse_queue = deque()
         self.type = NetworkConfig.ConfigType.Unknown
         self.peer_container = None
