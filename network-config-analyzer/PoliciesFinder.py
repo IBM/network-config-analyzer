@@ -128,3 +128,7 @@ class PoliciesFinder:
                 for policy_list_list in policy_list:
                     if isinstance(policy_list_list, dict):
                         self._add_policies_to_parse_queue(policy_list_list.get('items', []), file_name)
+
+    def has_empty_containers(self):
+        return not len(self.policies_container.policies) or \
+               not len(self.policies_container.profiles)

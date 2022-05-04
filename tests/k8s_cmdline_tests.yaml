@@ -253,3 +253,40 @@
     --pod_list k8s_testcases/example_podlist/pods_list.json
     --resource_list k8s_testcases/example_podlist/bank_pod_list.json
   expected: 1
+
+- name: basic_equiv_networkpolicies_with_resource_list
+  args: >
+    --equiv
+    --resource_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_resource_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_equiv_topology_with_resource_list
+  args: >
+    --equiv k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_np_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --resource_list  k8s_testcases/example_podlist/ns_list.json
+    --resource_list  k8s_testcases/example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_equiv_all_with_resource_list_except_base_np
+  args: >
+    --equiv
+    --resource_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_np_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --resource_list  k8s_testcases/example_podlist/ns_list.json
+    --resource_list  k8s_testcases/example_podlist/pods_list.json
+  expected: 1
+
+- name: basic_equiv_all_with_resources_list
+  args: >
+    --equiv
+    --resource_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
+    --base_resource_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
+    --resource_list  k8s_testcases/example_podlist/ns_list.json
+    --resource_list  k8s_testcases/example_podlist/pods_list.json
+    --base_resource_list k8s_testcases/example_podlist/ns_list.json
+    --base_resource_list k8s_testcases/example_podlist/pods_list.json
+  expected: 1

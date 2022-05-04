@@ -63,7 +63,10 @@ class ResourcesHandler:
         resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
 
         if config_name == 'global':
-            config_name = np_list[0] or resource_list[0]
+            if np_list and np_list != ['']:
+                config_name = np_list[0]
+            elif resource_list:
+                config_name = resource_list[0]
         # build and return the networkConfig
         return NetworkConfig(name=config_name, peer_container=peer_container,
                              policies_container=resources_parser.policies_finder.policies_container,
@@ -170,6 +173,8 @@ class ResourcesParser:
                       'input resources provided with resource list key will be ignored when finding network policies')
         elif resource_list:
             self._parse_resources_path(resource_list, [ResourceType.Policies])
+        if self.policies_finder.has_empty_containers():
+            self.policies_finder.load_policies_from_k8s_cluster()
 
     def _parse_resources_path(self, resource_list, resource_flags):
         """

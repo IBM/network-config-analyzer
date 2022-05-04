@@ -170,7 +170,7 @@ def run_args(args):
     resources_handler = ResourcesHandler()
     network_config = resources_handler.get_network_config(np_list, ns_list, pod_list, resource_list)
     if pair_query_flag:
-        base_np_list = args.base_np_list or ['k8s']
+        base_np_list = args.base_np_list
         base_resource_list = args.base_resource_list or resource_list
         base_ns_list = args.base_ns_list or ns_list
         base_pod_list = args.base_pod_list or pod_list
