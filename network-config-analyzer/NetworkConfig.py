@@ -18,9 +18,9 @@ class PoliciesContainer:
     """
     A class for holding policies, profiles etc.
     """
-    policies: dict
-    sorted_policies: list
-    profiles: dict
+    policies: dict = field(default_factory=dict)
+    sorted_policies: list = field(default_factory=list)
+    profiles: dict = field(default_factory=dict)
 
 
 class NetworkConfig:
