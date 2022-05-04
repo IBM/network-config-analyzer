@@ -102,7 +102,7 @@ class NetworkConfig:
         :return: A clone of the config without any policies
         :rtype: NetworkConfig
         """
-        policies_container = PoliciesContainer(policies={}, sorted_policies=[], profiles=self.profiles)
+        policies_container = PoliciesContainer(profiles=self.profiles)
         res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container,
                             config_type=self.type)
         return res
