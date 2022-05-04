@@ -41,7 +41,7 @@ class NetworkConfig:
         :param str name: A name for this config
         :param PeerContainer peer_container: The set of endpoints and their namespaces
         :param PoliciesContainer policies_container : The container of policies, profiles,
-        sorted policies and allowed labels
+        and sorted policies
         :param ConfigType config_type: The type of configuration
         """
         self.name = name
