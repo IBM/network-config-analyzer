@@ -5,7 +5,7 @@
 
 from bisect import insort
 from enum import Enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import Peer
 from PeerContainer import PeerContainer
 from NetworkPolicy import PolicyConnections, NetworkPolicy
