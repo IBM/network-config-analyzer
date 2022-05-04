@@ -5,6 +5,6 @@
 "","[kube-system,kube-system-dummy-to-ignore]","[*]","[kube-system]","[*]","TCP 53,UDP 53",
 "","[vendor-system]","[*]","[kube-system]","[*]","All connections",
 "Removed connections between persistent peers and ipBlocks","","","","","",
-"","","ip block: 0.0.0.0/0","[kube-system]","[*]","TCP 53,UDP 53",
-"","","ip block: ::/0","[kube-system]","[*]","TCP 53,UDP 53",
+"","","0.0.0.0/0","[kube-system]","[*]","TCP 53,UDP 53",
+"","","::/0","[kube-system]","[*]","TCP 53,UDP 53",
 

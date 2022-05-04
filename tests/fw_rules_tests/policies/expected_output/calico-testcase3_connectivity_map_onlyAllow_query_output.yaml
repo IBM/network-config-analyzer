@@ -7,7 +7,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - has(tier)
+    - tier=frontend
     connection:
     - Protocol: TCP
 

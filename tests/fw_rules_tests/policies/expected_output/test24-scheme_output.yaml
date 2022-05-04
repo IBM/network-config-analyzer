@@ -3,11 +3,11 @@
   - src_ns:
     - default
     src_pods:
-    - has(common)
+    - common=M
     dst_ns:
     - default
     dst_pods:
-    - has(app)
+    - app=skydive
     connection:
     - Protocol: UDP
       Ports:
@@ -15,11 +15,11 @@
   - src_ns:
     - default
     src_pods:
-    - test in (C)
+    - test=C
     dst_ns:
     - default
     dst_pods:
-    - has(app)
+    - app=skydive
     connection:
     - All connections
 
