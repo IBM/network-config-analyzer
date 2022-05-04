@@ -111,7 +111,8 @@ class ResourcesParser:
         :param Union[list[str], None] ns_list: namespaces entry
         :param Union[list[str], None] pod_list: pods entry
         :param Union[list[str], None] resource_list: resources entry
-        :rtype bool, ResourceType: returns if succeeds or fails to find any topology objectsas following:
+        :rtype (bool, ResourceType)
+        returns if succeeds or fails to find any topology objects as following:
         True, 0 : if succeeds to find both namespaces and peers
         False, ResourceType.Pods: if succeeds to find only pods
         False, ResourceType.Namespaces: if succeeds to find only namespaces
