@@ -61,7 +61,7 @@ class ResourcesHandler:
             peer_container = resources_parser.build_peer_container(config_name)
 
         # parse for policies
-        resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container,k8s_np_flag)
+        resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container, k8s_np_flag)
 
         if config_name == 'global':
             if np_list and np_list != ['']:
