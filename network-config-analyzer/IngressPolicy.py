@@ -95,9 +95,8 @@ class IngressPolicy(NetworkPolicy):
         conns = allowed_conns if self.action == IngressPolicy.ActionType.Allow else denied_conns
         for rule in self.egress_rules:
             if to_peer in rule.peer_set:
-                rule_conns = rule.connections.copy()  # we need a copy because convert_named_ports is destructive
-                rule_conns.convert_named_ports(to_peer.get_named_ports())
-                conns |= rule_conns
+                assert not rule.connections.has_named_ports()
+                conns |= rule.connections
 
         return PolicyConnections(True, allowed_conns, denied_conns)
 

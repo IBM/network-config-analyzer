@@ -402,11 +402,11 @@ class CanonicalHyperCubeSet:
         :return: result for 'other' (which may be copied and changed or not)
         """
         if self.active_dimensions == other.active_dimensions:
-            return other
+            return other.copy()
         required_active_dimensions = set(self.active_dimensions + other.active_dimensions)
         self._set_active_dimensions(required_active_dimensions)
         if set(other.active_dimensions) == required_active_dimensions:
-            return other
+            return other.copy()
         # should not change active dimensions for 'other' during the computation of operation between self and other
         other_copy = other.copy()
         other_copy._set_active_dimensions(required_active_dimensions)
@@ -720,6 +720,20 @@ class CanonicalHyperCubeSet:
         self.active_dimensions = new_active_dimensions
         new_layers[dim_all_values].build_new_active_dimensions(new_active_dimensions[1:])
         self.layers = new_layers
+
+    def _check_active_dimensions(self):
+        """
+        Debug function that recursively checks that all layers have the same active dimensions
+        :return: None
+        """
+        act_dim = None
+        for sub_elem in self.layers.values():
+            if isinstance(sub_elem, CanonicalHyperCubeSet):
+                sub_elem._check_active_dimensions()
+                if act_dim:
+                    assert act_dim == sub_elem.active_dimensions
+                else:
+                    act_dim = sub_elem.active_dimensions
 
     def _remove_some_active_dimensions(self, new_active_dimensions):
         """
