@@ -14,7 +14,7 @@ spec:
         path: "/"
         backend:
           service:
-            name: kube-fluentd
+            name: calico-node
             port:
               number: 80
   - host: second.bar.com

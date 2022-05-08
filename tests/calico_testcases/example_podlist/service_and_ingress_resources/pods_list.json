@@ -443,6 +443,11 @@
                 "containerPort": 8443,
                 "name": "webhook",
                 "protocol": "TCP"
+              },
+              {
+                "containerPort": 210,
+                "name": "calico-node-port",
+                "protocol": "TCP"
               }
             ]
           }
@@ -494,6 +499,11 @@
                 "containerPort": 8443,
                 "name": "webhook",
                 "protocol": "TCP"
+              },
+              {
+                "containerPort": 210,
+                "name": "calico-node-port",
+                "protocol": "TCP"
               }
             ]
           }
@@ -541,6 +551,11 @@
               {
                 "containerPort": 8443,
                 "name": "webhook",
+                "protocol": "TCP"
+              },
+              {
+                "containerPort": 210,
+                "name": "calico-node-port",
                 "protocol": "TCP"
               }
             ]
@@ -636,8 +651,9 @@
         "name": "keepalived-watcher-57ghx",
         "namespace": "kube-system",
         "labels": {
+          "app": "keepalived-watcher",
+          "app.kubernetes.io/name": "ingress-nginx",
           "tier": "frontend",
-          "app": "file-plugin",
           "controller-revision-hash": "1304143331",
           "pod-template-generation": "3"
         },
@@ -735,11 +751,11 @@
         "name": "keepalived-watcher-wczq8",
         "namespace": "kube-system",
         "labels": {
-          "controller-revision-hash": "1304143331",
-          "pod-template-generation": "3",
           "app": "keepalived-watcher",
           "app.kubernetes.io/name": "ingress-nginx",
-          "tier": "frontend"
+          "tier": "frontend",
+          "controller-revision-hash": "1304143331",
+          "pod-template-generation": "3"
         },
         "ownerReferences": [
           {
@@ -965,6 +981,11 @@
                 "containerPort": 8443,
                 "name": "webhook",
                 "protocol": "TCP"
+              },
+              {
+                "containerPort": 102,
+                "name": "my_watcher_port",
+                "protocol": "TCP"
               }
             ]
           }
@@ -1018,7 +1039,7 @@
               },
               {
                 "name": "dns-tcp",
-                "containerPort": 53,
+                "containerPort": 213,
                 "protocol": "TCP"
               }
             ]
@@ -1082,7 +1103,7 @@
               },
               {
                 "name": "dns-tcp",
-                "containerPort": 53,
+                "containerPort": 213,
                 "protocol": "TCP"
               }
             ]

@@ -143,7 +143,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
         :return: TcpLikeProperties with TCP allowed connections, corresponding to input properties cube
         """
         assert peers
-        base_peer_set = self.peer_container.peer_set
+        base_peer_set = self.peer_container.peer_set.copy()
         base_peer_set.add(IpBlock.get_all_ips_block())
         if not dest_ports.named_ports:
             peers_interval = base_peer_set.get_peer_interval_of(peers)
@@ -291,7 +291,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
                 else:
                     assert False
             if not peer_set:
-                peer_set = self.peer_container.peer_set
+                peer_set = self.peer_container.peer_set.copy()
             port_set = PortSet()
             port_set.port_set = ports
             port_set.named_ports = tcp_conns.named_ports

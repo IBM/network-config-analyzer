@@ -66,9 +66,15 @@ spec:
     - appProtocol: http
       name: http
       nodePort: 30308
-      port: 80
+      port: 70
       protocol: TCP
       targetPort: http
+
+    - appProtocol: TCP
+      name: TCP
+      port: 80
+      protocol: TCP
+      targetPort: calico-node-port
 ---
 
 apiVersion: v1
@@ -122,7 +128,7 @@ spec:
       nodePort: 30308
       port: 80
       protocol: TCP
-      targetPort: http
+      targetPort: my_watcher_port
 ---
 
 apiVersion: v1
