@@ -1,8 +1,8 @@
 ```
 python network-config-analyzer/nca.py --daemon &
-curl -X POST -H "Content-Type: application/json" -d @tests/example_podlist/ns_list.json localhost:5000/namespace_list
-curl -X POST -H "Content-Type: application/json" -d @tests/example_podlist/pods_list.json localhost:5000/pod_list
-curl -X POST -H "Content-Type: application/json" -d @tests/example_policies/testcase1/testcase1-networkpolicy1.json localhost:5000/policy_sets
+curl -X POST -H "Content-Type: application/json" -d @tests/k8s_testcases/example_podlist/ns_list.json localhost:5000/namespace_list
+curl -X POST -H "Content-Type: application/json" -d @tests/k8s_testcases/example_podlist/pods_list.json localhost:5000/pod_list
+curl -X POST -H "Content-Type: application/json" -d @tests/k8s_testcases/example_policies/testcase1/testcase1-networkpolicy1.json localhost:5000/policy_sets
 curl localhost:5000/policy_sets/set_0/findings
 ```
 
