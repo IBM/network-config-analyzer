@@ -38,7 +38,7 @@ def _network_policies_valid_path(path_location):
     """
     validation for paths of Network policies in the command line
     """
-    if not path_location:
+    if not path_location:  # when empty, expecting policies from resources list
         return path_location
     return _valid_path(path_location, allow_ghe=True, allowed_platforms=['k8s', 'calico', 'istio'])
 
