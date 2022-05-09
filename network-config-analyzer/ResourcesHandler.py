@@ -107,7 +107,8 @@ class ResourcesHandler:
         elif res_type == ResourceType.Namespaces and global_pod_exist:
             resources_parser.pods_finder = self.global_pods_finder
         else:
-            resources_parser.load_resources_from_k8s_live_cluster(res_type)
+            load_type = ResourceType.Namespaces if res_type == ResourceType.Pods else ResourceType.Pods
+            resources_parser.load_resources_from_k8s_live_cluster([load_type])
 
 
 class ResourcesParser:
