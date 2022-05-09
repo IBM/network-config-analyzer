@@ -25,8 +25,8 @@ class ResourcesHandler:
     """
     def __init__(self):
         self.global_peer_container = None
-        self.global_pods_finder = PodsFinder()
-        self.global_ns_finder = NamespacesFinder()
+        self.global_pods_finder = None
+        self.global_ns_finder = None
 
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', k8s_np_flag=False):
         """
@@ -48,10 +48,17 @@ class ResourcesHandler:
         success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
         if success or res_type:
             if res_type == ResourceType.Pods:  # found only pods in the specific config, use the global namespaces
-                resources_parser.ns_finder = self.global_ns_finder
+                # or load from k8s live cluster
+                if self.global_ns_finder:
+                    resources_parser.ns_finder = self.global_ns_finder
+                else:
+                    resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces])
             elif res_type == ResourceType.Namespaces:
-                # found only namespaces in the specific config, use the global pods
-                resources_parser.pods_finder = self.global_pods_finder
+                # found only namespaces in the specific config, use the global pods or load from k8s live cluster
+                if self.global_pods_finder:
+                    resources_parser.pods_finder = self.global_pods_finder
+                else:
+                    resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Pods])
             peer_container = resources_parser.build_peer_container(config_name)
         elif self.global_peer_container:  # no specific peer container, use the global one
             peer_container = self.global_peer_container
@@ -107,6 +114,19 @@ class ResourcesParser:
         self.ns_finder = NamespacesFinder()
         self.services_finder = ServicesFinder()
 
+    @staticmethod
+    def _determine_topology_resource(topology_list, resource_list, res_type):
+        res_name = 'namespaces' if res_type == ResourceType.Namespaces else 'pods and services'
+        if topology_list:
+            topology_resource = topology_list
+            if resource_list:
+                print(f'Warning: {res_name} will be taken from the provided namespace list key.'
+                      f'input resources provided with resource list key will be ignored when finding {res_name}')
+        else:
+            topology_resource = resource_list
+
+        return topology_resource
+
     def parse_lists_for_topology(self, ns_list, pod_list, resource_list):
         """
         Chooses to parse the namespaces from the ns_list if exists in the input resources.
@@ -122,21 +142,8 @@ class ResourcesParser:
         False, ResourceType.Namespaces: if succeeds to find only namespaces
         False, 0: if fails to find both namespaces and pods
         """
-        if ns_list:
-            ns_resource = ns_list
-            if resource_list:
-                print('Warning: namespaces will be taken from the provided namespace list key.'
-                      'input resources provided with resource list key will be ignored when finding namespaces')
-        else:
-            ns_resource = resource_list
-
-        if pod_list:
-            pod_resource = pod_list
-            if resource_list:
-                print('Warning: pods and services will be taken from the provided pod list key. '
-                      'input resources provided with resource list key will be ignored when finding pods and services')
-        else:
-            pod_resource = resource_list
+        ns_resource = self._determine_topology_resource(ns_list, resource_list, ResourceType.Namespaces)
+        pod_resource = self._determine_topology_resource(pod_list, resource_list, ResourceType.Pods)
 
         if pod_resource is None and ns_resource is None:  # no resources to parse
             return False, 0
@@ -183,16 +190,26 @@ class ResourcesParser:
     def _parse_resources_path(self, resource_list, resource_flags):
         """
         parsing the resources path / live cluster using the Finder classes
+        :param list resource_list: list of input resources paths
+        :param list resource_flags: resource types to search in the given resource_list
+        list possibilities are: [ResourceType.Policies], [ResourceType.Namespaces], [ResourceType.Pods] and
+        [ResourceType.Namespaces, ResourceType.Pods]
         """
         for resource_item in resource_list:
             if resource_item == 'k8s':
                 self.load_resources_from_k8s_live_cluster(resource_flags)
-            elif resource_item == 'calico' and ResourceType.Pods in resource_flags:
-                self.pods_finder.load_peer_from_calico_resource()
-            elif resource_item == 'calico' and ResourceType.Policies in resource_flags:
-                self.policies_finder.load_policies_from_calico_cluster()
-            elif resource_item == 'istio' and ResourceType.Policies in resource_flags:
-                self.policies_finder.load_istio_policies_from_k8s_cluster()
+            elif resource_item == 'calico':
+                if ResourceType.Namespaces in resource_flags:
+                    self.ns_finder.load_ns_from_live_cluster()
+                if ResourceType.Pods in resource_flags:
+                    self.pods_finder.load_peer_from_calico_resource()
+                if ResourceType.Policies in resource_flags:
+                    self.policies_finder.load_policies_from_calico_cluster()
+            elif resource_item == 'istio':
+                if ResourceType.Pods in resource_flags or ResourceType.Namespaces in resource_flags:
+                    self.load_resources_from_k8s_live_cluster(resource_flags)
+                if ResourceType.Policies in resource_flags:
+                    self.policies_finder.load_istio_policies_from_k8s_cluster()
             else:
                 resource_scanner = TreeScannerFactory.get_scanner(resource_item)
                 if resource_scanner is None:
