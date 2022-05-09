@@ -116,6 +116,7 @@ class ResourcesParser:
 
     @staticmethod
     def _determine_topology_resource(topology_list, resource_list, res_type):
+        specific_resource_flag = True
         res_name = 'namespaces' if res_type == ResourceType.Namespaces else 'pods and services'
         if topology_list:
             topology_resource = topology_list
@@ -124,8 +125,9 @@ class ResourcesParser:
                       f'overrides resource_list')
         else:
             topology_resource = resource_list
+            specific_resource_flag = False
 
-        return topology_resource
+        return topology_resource, specific_resource_flag
 
     def parse_lists_for_topology(self, ns_list, pod_list, resource_list):
         """
@@ -142,8 +144,8 @@ class ResourcesParser:
         False, ResourceType.Namespaces: if succeeds to find only namespaces
         False, 0: if fails to find both namespaces and pods
         """
-        ns_resource = self._determine_topology_resource(ns_list, resource_list, ResourceType.Namespaces)
-        pod_resource = self._determine_topology_resource(pod_list, resource_list, ResourceType.Pods)
+        ns_resource, specific_ns = self._determine_topology_resource(ns_list, resource_list, ResourceType.Namespaces)
+        pod_resource, specific_pods = self._determine_topology_resource(pod_list, resource_list, ResourceType.Pods)
 
         if pod_resource is None and ns_resource is None:  # no resources to parse
             return False, 0
@@ -157,7 +159,8 @@ class ResourcesParser:
             if pod_resource:
                 self._parse_resources_path(pod_resource, [ResourceType.Pods])
 
-        if len(self.pods_finder.peer_set) > 0 and len(self.ns_finder.namespaces) > 0:
+        if (len(self.pods_finder.peer_set) > 0 and len(self.ns_finder.namespaces) > 0) or \
+                (specific_pods and specific_ns):
             return True, 0
         elif len(self.pods_finder.peer_set) == 0 and len(self.ns_finder.namespaces) > 0:
             return False, ResourceType.Namespaces
