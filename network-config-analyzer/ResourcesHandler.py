@@ -47,18 +47,8 @@ class ResourcesHandler:
         resources_parser = ResourcesParser()
         success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
         if success or res_type:
-            if res_type == ResourceType.Pods:  # found only pods in the specific config, use the global namespaces
-                # or load from k8s live cluster
-                if self.global_ns_finder:
-                    resources_parser.ns_finder = self.global_ns_finder
-                else:
-                    resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces])
-            elif res_type == ResourceType.Namespaces:
-                # found only namespaces in the specific config, use the global pods or load from k8s live cluster
-                if self.global_pods_finder:
-                    resources_parser.pods_finder = self.global_pods_finder
-                else:
-                    resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Pods])
+            if res_type:
+                self._fill_empty_finder(res_type, resources_parser)
             peer_container = resources_parser.build_peer_container(config_name)
         elif self.global_peer_container:  # no specific peer container, use the global one
             peer_container = self.global_peer_container
@@ -102,6 +92,22 @@ class ResourcesHandler:
         elif res_type == ResourceType.Namespaces:
             # in case the global resources has only namespaces (can not build global peerContainer)
             self.global_ns_finder = resources_parser.ns_finder
+
+    def _fill_empty_finder(self, res_type, resources_parser):
+        """
+        if res_type is ResourceType.Pods , then resources parser found only pods in the specific config,
+        use the global namespaces or load from k8s live cluster to build a peer container
+        else if res_type is ResourceType.Namespaces, then resources parser found only namespaces in the specific config,
+         use the global pods or load from k8s live cluster
+        """
+        global_ns_exist = True if self.global_ns_finder else False
+        global_pod_exist = True if self.global_pods_finder else False
+        if res_type == ResourceType.Pods and global_ns_exist:
+            resources_parser.ns_finder = self.global_ns_finder
+        elif res_type == ResourceType.Namespaces and global_pod_exist:
+            resources_parser.pods_finder = self.global_pods_finder
+        else:
+            resources_parser.load_resources_from_k8s_live_cluster(res_type)
 
 
 class ResourcesParser:
