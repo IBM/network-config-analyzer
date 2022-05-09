@@ -199,17 +199,9 @@ class ResourcesParser:
             if resource_item == 'k8s':
                 self.load_resources_from_k8s_live_cluster(resource_flags)
             elif resource_item == 'calico':
-                if ResourceType.Namespaces in resource_flags:
-                    self.ns_finder.load_ns_from_live_cluster()
-                if ResourceType.Pods in resource_flags:
-                    self.pods_finder.load_peer_from_calico_resource()
-                if ResourceType.Policies in resource_flags:
-                    self.policies_finder.load_policies_from_calico_cluster()
+                self._handle_calico_inputs(resource_flags)
             elif resource_item == 'istio':
-                if ResourceType.Pods in resource_flags or ResourceType.Namespaces in resource_flags:
-                    self.load_resources_from_k8s_live_cluster(resource_flags)
-                if ResourceType.Policies in resource_flags:
-                    self.policies_finder.load_istio_policies_from_k8s_cluster()
+                self._handle_istio_inputs(resource_flags)
             else:
                 resource_scanner = TreeScannerFactory.get_scanner(resource_item)
                 if resource_scanner is None:
@@ -241,6 +233,20 @@ class ResourcesParser:
             self.services_finder.load_services_from_live_cluster()
         if ResourceType.Policies in resource_flags:
             self.policies_finder.load_policies_from_k8s_cluster()
+
+    def _handle_calico_inputs(self, resource_flags):
+        if ResourceType.Namespaces in resource_flags:
+            self.ns_finder.load_ns_from_live_cluster()
+        if ResourceType.Pods in resource_flags:
+            self.pods_finder.load_peer_from_calico_resource()
+        if ResourceType.Policies in resource_flags:
+            self.policies_finder.load_policies_from_calico_cluster()
+
+    def _handle_istio_inputs(self, resource_flags):
+        if ResourceType.Pods in resource_flags or ResourceType.Namespaces in resource_flags:
+            self.load_resources_from_k8s_live_cluster(resource_flags)
+        if ResourceType.Policies in resource_flags:
+            self.policies_finder.load_istio_policies_from_k8s_cluster()
 
     def build_peer_container(self, config_name='global'):
         print(f'{config_name}: cluster has {len(self.pods_finder.peer_set)} unique endpoints, '
