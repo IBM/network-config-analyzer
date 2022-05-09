@@ -82,7 +82,8 @@ jobs:
           python network-config-analyzer/nca.py --daemon &
           NCA_PID=$!
           while true; do  # wait until REST server becomes responsive
-            curl localhost:5000 ; curl_status=$?
+            curl_status=0
+            curl localhost:5000 || curl_status=$?
             [ $curl_status -gt 0 ]  || break
             sleep 1
           done
