@@ -120,7 +120,8 @@ class ResourcesParser:
         if topology_list:
             topology_resource = topology_list
             if resource_list:
-                print(f'Warning: {res_name} provided with resource list key will be ignored, since its specific key overrides resource_list')
+                print(f'Warning: {res_name} provided with resource list key will be ignored, since its specific key '
+                      f'overrides resource_list')
         else:
             topology_resource = resource_list
 
