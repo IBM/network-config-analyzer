@@ -82,22 +82,13 @@ jobs:
           python network-config-analyzer/nca.py --daemon &
           NCA_PID=$!
           while true; do  # wait until REST server becomes responsive
-            curl localhost:5000
-            curl_status=$?
+            curl localhost:5000 ; curl_status=$?
             [ $curl_status -gt 0 ]  || break
             sleep 1
           done
           curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_podlist/ns_list.json localhost:5000/namespace_list
-          curl_status=$?
-          [ $curl_status -eq 0 ] || exit 1
           curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_podlist/pods_list.json localhost:5000/pod_list
-          curl_status=$?
-          [ $curl_status -eq 0 ] || exit 1
           curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_policies/testcase1/testcase1-networkpolicy1.json localhost:5000/policy_sets
-          curl_status=$?
-          [ $curl_status -eq 0 ] || exit 1
           curl localhost:5000/policy_sets/set_0/findings
-          curl_status=$?
-          [ $curl_status -eq 0 ] || exit 1
           kill $NCA_PID
           exit 0
