@@ -6,6 +6,7 @@
 from enum import IntEnum
 from NetworkPolicy import PolicyConnections, NetworkPolicy
 from ConnectionSet import ConnectionSet
+from K8sNamespace import K8sNamespace
 
 
 class IngressPolicyRule:

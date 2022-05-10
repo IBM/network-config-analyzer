@@ -242,14 +242,6 @@ class IngressPolicyYamlParser(GenericYamlParser):
                                                                hosts_dfa=hosts_dfa)
         return default_conns
 
-    def _make_allow_rules(self, allowed_conns):
-        """
-        Make allow rules from the given allowed connections
-        :param TcpLikeProperties allowed_conns: the given allowed connections
-        :return: the list of allow IngressPolicyRules
-        """
-        return self._make_rules_from_conns(allowed_conns)
-
     def _make_deny_rules(self, allowed_conns):
         """
         Make deny rules from the given connections
