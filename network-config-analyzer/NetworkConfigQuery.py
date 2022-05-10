@@ -612,6 +612,19 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         return IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(),
                                           self.config2.get_referenced_ip_blocks())
 
+    @staticmethod
+    def clone_without_ingress(config):
+        """
+        Clone config without ingress policies
+        :param config: the config to clone
+        :return: resulting config without ingress policies
+        """
+        config_without_ingress = config.clone_without_policies(config.name)
+        for policy in config.policies.values():
+            if policy.type != NetworkPolicy.PolicyType.Ingress:  # ignoring ingress policies
+                config_without_ingress.add_policy(policy)
+        return config_without_ingress
+
 
 class EquivalenceQuery(TwoNetworkConfigsQuery):
     """
@@ -1056,7 +1069,16 @@ class PermitsQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer  # non-identical configurations are not comparable
 
-        return ContainmentQuery(self.config1, self.config2).exec(True)
+        if self.config1.type == NetworkConfig.ConfigType.Ingress \
+                or self.config2.type == NetworkConfig.ConfigType.Ingress:
+            ingress_name = self.config1.name if self.config1.type == NetworkConfig.ConfigType.Ingress \
+                else self.config2.name
+            return QueryAnswer(bool_result=False,
+                               output_result=f'Ignoring PermitsQuery for {ingress_name} with Ingress only')
+
+        config1_without_ingress = self.clone_without_ingress(self.config1)
+        config2_without_ingress = self.clone_without_ingress(self.config2)
+        return ContainmentQuery(config1_without_ingress, config2_without_ingress).exec(True)
 
     def compute_query_output(self, query_answer, cmd_line_flag=False):
         res = 0
@@ -1165,7 +1187,17 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
         if not self.config1:
             return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
                                       'No traffic is specified as forbidden.')
-        return IntersectsQuery(self.config1, self.config2).exec(True)
+        if self.config1.type == NetworkConfig.ConfigType.Ingress \
+                or self.config2.type == NetworkConfig.ConfigType.Ingress:
+            ingress_name = self.config1.name if self.config1.type == NetworkConfig.ConfigType.Ingress \
+                else self.config2.name
+            return QueryAnswer(bool_result=False,
+                               output_result=f'Ignoring ForbidsQuery for {ingress_name} with Ingress only')
+
+        config1_without_ingress = self.clone_without_ingress(self.config1)
+        config2_without_ingress = self.clone_without_ingress(self.config2)
+
+        return IntersectsQuery(config1_without_ingress, config2_without_ingress).exec(True)
 
     def compute_query_output(self, query_answer, cmd_line_flag=False):
         res = not query_answer.numerical_result if cmd_line_flag else query_answer.bool_result
