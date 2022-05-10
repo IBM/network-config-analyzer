@@ -253,8 +253,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
         denied_conns = all_conns - allowed_conns
         res = self._make_rules_from_conns(denied_conns)
         # Add deny rule for all protocols but TCP , relevant for all peers and ip blocks
-        non_TCP_conns = ConnectionSet.get_non_tcp_connections()
-        res.append(IngressPolicyRule(all_peers_and_ip_blocks, non_TCP_conns))
+        non_tcp_conns = ConnectionSet.get_non_tcp_connections()
+        res.append(IngressPolicyRule(all_peers_and_ip_blocks, non_tcp_conns))
         return res
 
     def _make_rules_from_conns(self, tcp_conns):
