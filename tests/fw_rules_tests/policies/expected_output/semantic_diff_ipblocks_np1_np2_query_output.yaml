@@ -7,7 +7,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - Protocol: TCP
       Ports:
@@ -27,7 +27,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - Protocol: TCP
       Ports:
@@ -39,7 +39,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - Protocol: TCP
       Ports:
@@ -56,7 +56,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - Protocol: TCP
       Ports:
@@ -70,7 +70,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - Protocol: UDP
       Ports:
@@ -90,7 +90,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - Protocol: UDP
       Ports:
@@ -102,7 +102,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - Protocol: UDP
       Ports:
@@ -119,7 +119,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - Protocol: UDP
       Ports:

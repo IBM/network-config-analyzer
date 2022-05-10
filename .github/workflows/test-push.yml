@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - name: Build Docker image
-        uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a
+        uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
         id: build_docker
         with:
           context: .
@@ -73,3 +73,23 @@ jobs:
       - uses: ./.github/actions/setup-nca-env
       - uses: helm/kind-action@94729529f85113b88f4f819c17ce61382e6d8478
       - run:  python tests/run_all_tests.py --type=k8s_live_general
+  rest-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: ./.github/actions/setup-nca-env
+      - run: |
+          python network-config-analyzer/nca.py --daemon &
+          NCA_PID=$!
+          while true; do  # wait until REST server becomes responsive
+            curl_status=0
+            curl localhost:5000 || curl_status=$?
+            [ $curl_status -gt 0 ]  || break
+            sleep 1
+          done
+          curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_podlist/ns_list.json localhost:5000/namespace_list
+          curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_podlist/pods_list.json localhost:5000/pod_list
+          curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_policies/testcase1/testcase1-networkpolicy1.json localhost:5000/policy_sets
+          curl localhost:5000/policy_sets/set_0/findings -o testcase1_findings.json
+          diff testcase1_findings.json tests/rest_api/testcase1-findings.json
+          kill $NCA_PID

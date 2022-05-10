@@ -1,4 +1,4 @@
 final fw rules for query: connectivity_map, config: np24:
-src_ns: [default] src_pods: [has(common)] dst_ns: [default] dst_pods: [has(app)] conn: UDP 53
-src_ns: [default] src_pods: [test in (C)] dst_ns: [default] dst_pods: [has(app)] conn: All connections
+src_ns: [default] src_pods: [common=M] dst_ns: [default] dst_pods: [app=skydive] conn: UDP 53
+src_ns: [default] src_pods: [test=C] dst_ns: [default] dst_pods: [app=skydive] conn: All connections
 

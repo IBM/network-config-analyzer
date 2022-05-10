@@ -1,9 +1,9 @@
 final fw rules for query: connectivity_map, config: poc4:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
-src ip block: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
-src ip block: ::/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
-src ip block: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [kube-system] dst_pods: [has(k8s-app)] conn: UDP 53
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [kube-system] dst_pods: [k8s-app=kube-dns] conn: UDP 53
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: TCP 50051
@@ -15,8 +15,8 @@ src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] c
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP 5050
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP 8080
 src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP 23,8080
-src_ns: [kube-system] src_pods: [*] dst ip block: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [*] dst ip block: ::/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
 

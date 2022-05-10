@@ -5,7 +5,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (skydive)
+    - app=skydive
     connection:
     - Protocol: TCP
       Ports:
@@ -16,7 +16,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (skydive)
+    - app=skydive
     connection:
     - Protocol: TCP
       Ports:
@@ -30,7 +30,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (skydive)
+    - app=skydive
     connection:
     - Protocol: TCP
       Ports:
@@ -39,7 +39,7 @@
   - src_ns:
     - default
     src_pods:
-    - app in (special_skydive)
+    - app=special_skydive
     dst_ns:
     - default
     dst_pods:

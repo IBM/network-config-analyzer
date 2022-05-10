@@ -1,6 +1,6 @@
 final fw rules for query: new_online_boutique_synth_res_connectivity_map, config: new_online_boutique_synthesis_res:
-src ip block: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP
-src ip block: ::/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP
+src: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP
+src: ::/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP
 src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: TCP
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070

@@ -1,9 +1,9 @@
 final fw rules for query: connectivity_map, config: np18:
-src ip block: 0.0.0.0/0 dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
-src ip block: ::/0 dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
-src_ns: [kube-system-new] src_pods: [!has(tier) or tier in (not_frontend_for_demo)] dst ip block: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system-new] src_pods: [!has(tier) or tier in (not_frontend_for_demo)] dst ip block: ::/0 conn: All connections
-src_ns: [kube-system-new] src_pods: [!has(tier) or tier in (not_frontend_for_demo)] dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
-src_ns: [kube-system-new] src_pods: [tier in (frontend)] dst ip block: 49.50.0.0/32 conn: All connections
-src_ns: [kube-system-new] src_pods: [tier in (frontend)] dst ip block: 49.50.0.2/32 conn: All connections
+src: 0.0.0.0/0 dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
+src: ::/0 dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
+src_ns: [kube-system-new] src_pods: [!has(tier) or tier=not_frontend_for_demo] dst: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system-new] src_pods: [!has(tier) or tier=not_frontend_for_demo] dst: ::/0 conn: All connections
+src_ns: [kube-system-new] src_pods: [!has(tier) or tier=not_frontend_for_demo] dst_ns: [kube-system-new] dst_pods: [*] conn: All connections
+src_ns: [kube-system-new] src_pods: [tier=frontend] dst: 49.50.0.0/32 conn: All connections
+src_ns: [kube-system-new] src_pods: [tier=frontend] dst: 49.50.0.2/32 conn: All connections
 
