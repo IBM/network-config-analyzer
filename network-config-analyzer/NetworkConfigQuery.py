@@ -89,7 +89,7 @@ class NetworkConfigQuery(BaseNetworkQuery):
         :param policy: the given policy
         :return: the title of the policy
         """
-        return ("Ingress resource " if isinstance(policy, IngressPolicy) else "Network policy ") \
+        return ("Ingress resource " if isinstance(policy, IngressPolicy) else "NetworkPolicy ") \
             + policy.full_name(self.config.name)
 
 
