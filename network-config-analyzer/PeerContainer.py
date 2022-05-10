@@ -183,8 +183,9 @@ class PeerContainer:
                               f' is not defined in the pod {pod}. Ignoring the pod')
                         pods_to_remove.add(pod)
                     elif pod_named_port[1] != port.protocol:
-                        print(f'Warning: The protocol {port.protocol} in the named port {port.target_port} referenced in Service {srv.name}'
-                              f' does not match the protocol {pod_named_port[1]} defined in the pod {pod}. Ignoring the pod')
+                        print(f'Warning: The protocol {port.protocol} in the named port {port.target_port}'
+                            f'referenced in Service {srv.name} does not match the protocol {pod_named_port[1]}'
+                            f'defined in the pod {pod}. Ignoring the pod')
                         pods_to_remove.add(pod)
                 srv.target_pods -= pods_to_remove
             if not srv.target_pods:
