@@ -51,7 +51,7 @@ class GenericTreeScanner(abc.ABC):
         decoded_stream = stream
         if from_repo:
             decoded_stream = stream.decoded_content
-        yaml = YAML(typ="safe")
+        yaml = YAML(typ="rt")
         try:
             yield YamlFile(yaml.load_all(decoded_stream), path)
         except error.MarkedYAMLError as parse_error:
