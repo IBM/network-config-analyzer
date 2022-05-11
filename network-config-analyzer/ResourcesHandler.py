@@ -179,11 +179,15 @@ class ResourcesParser:
     def parse_lists_for_policies(self, np_list, resource_list, peer_container, k8s_np_flag):
         """
         parses policies from np_list resource if exists, otherwise parses the resource_list for policies
+        if both np_list and resource_list does not exist an exception will be raised
         :param np_list: list of entries of networkPolicies
         :param resource_list: list of entries
         :param peer_container: the existing PeerContainer
         :param bool k8s_np_flag: get policies from k8s live cluster if they are not found in the input resources
         """
+        if resource_list is None and np_list in ([''], None):
+            raise Exception('Network policies path must be provided. Provide at least one path '
+                            'either within regular network policy flags or using the resource list key')
         self.policies_finder.set_peer_container(peer_container)
         if np_list and np_list != ['']:
             self._parse_resources_path(np_list, [ResourceType.Policies])
