@@ -47,7 +47,7 @@ class GenericTreeScanner(abc.ABC):
         :param str path: the path of the file
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
         :param bool from_repo: indicates if the given path is from a repository
-        :param rt_load: if True, load yaml with RoundTripLoader
+        :param bool rt_load: if True, load yaml with RoundTripLoader
         """
         decoded_stream = stream
         if from_repo:
