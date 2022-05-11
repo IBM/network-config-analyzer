@@ -186,10 +186,10 @@ class NetworkConfig:
             self._add_policies_to_parse_queue(code, file_name)
 
     def scan_entry_for_policies(self, entry):
-        entry_scanner = TreeScannerFactory.get_scanner(entry)
+        entry_scanner = TreeScannerFactory.get_scanner(entry, rt_load=True)
         if entry_scanner is None:
             return False
-        yaml_files = entry_scanner.get_yamls(rt_load=True)
+        yaml_files = entry_scanner.get_yamls()
         if not yaml_files:
             return False
         for yaml_file in yaml_files:

@@ -23,8 +23,11 @@ class GenericTreeScanner(abc.ABC):
     """
     A base class for reading yaml files
     """
-    def __init__(self):
-        pass
+    def __init__(self, rt_load=False):
+        """
+        :param bool rt_load: if True, load yaml with RoundTripLoader
+        """
+        self.rt_load = rt_load
 
     @abc.abstractmethod
     def get_yamls(self):
@@ -40,19 +43,17 @@ class GenericTreeScanner(abc.ABC):
         extension = os.path.splitext(file_name)[1]
         return extension in {'.yaml', '.yml', '.json'}
 
-    @staticmethod
-    def _yield_yaml_file(path, stream, from_repo=False, rt_load=False):
+    def _yield_yaml_file(self, path, stream, from_repo=False):
         """
         yields the yaml file for its data
         :param str path: the path of the file
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
         :param bool from_repo: indicates if the given path is from a repository
-        :param bool rt_load: if True, load yaml with RoundTripLoader
         """
         decoded_stream = stream
         if from_repo:
             decoded_stream = stream.decoded_content
-        yaml = YAML(typ="rt") if rt_load else YAML(typ="safe")
+        yaml = YAML(typ="rt") if self.rt_load else YAML(typ="safe")
         try:
             yield YamlFile(yaml.load_all(decoded_stream), path)
         except error.MarkedYAMLError as parse_error:
@@ -71,14 +72,15 @@ from DirScanner import DirScanner  # noqa: E402
 class TreeScannerFactory:
 
     @staticmethod
-    def get_scanner(entry):
+    def get_scanner(entry, rt_load=False):
         """
         factory method to determine what scanner to build
         :param str entry: the entry (path/url) to be scanned
+        :param bool rt_load: if True, load yaml with RoundTripLoader
         """
         if entry.startswith(('https://github', GitScanner.raw_github_content_prefix)):
-            return GitScanner(entry)
+            return GitScanner(entry, rt_load)
         elif os.path.isfile(entry) or os.path.isdir(entry) or (entry.endswith('**') and os.path.isdir(entry[:-2])):
-            return DirScanner(entry)
+            return DirScanner(entry, rt_load)
         else:
             return None
