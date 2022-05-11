@@ -16,8 +16,8 @@ class GitScanner(GenericTreeScanner):
     """
     raw_github_content_prefix = 'https://raw.githubusercontent'
 
-    def __init__(self, url):
-        GenericTreeScanner.__init__(self)
+    def __init__(self, url, rt_load=False):
+        GenericTreeScanner.__init__(self, rt_load)
         self.url = url
         if url.startswith(self.raw_github_content_prefix):
             if not self.is_yaml_file(url):
@@ -29,7 +29,7 @@ class GitScanner(GenericTreeScanner):
             if parsed_url.hostname == 'github.com':
                 ghe_base_url = 'https://api.github.com'
             else:
-                ghe_base_url = parsed_url.scheme + '://' + parsed_url.hostname + '/api/v3'
+                ghe_base_url = parsed_url.scheme + '://' + str(parsed_url.hostname) + '/api/v3'
             self.url_path = parsed_url.path.split('/', maxsplit=5)
             if len(self.url_path) < 3:
                 raise Exception(f'Bad GitHub URL: {url}')
