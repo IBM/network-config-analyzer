@@ -41,17 +41,18 @@ class GenericTreeScanner(abc.ABC):
         return extension in {'.yaml', '.yml', '.json'}
 
     @staticmethod
-    def _yield_yaml_file(path, stream, from_repo=False):
+    def _yield_yaml_file(path, stream, from_repo=False, rt_load=False):
         """
         yields the yaml file for its data
         :param str path: the path of the file
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
         :param bool from_repo: indicates if the given path is from a repository
+        :param rt_load: if True, load yaml with RoundTripLoader
         """
         decoded_stream = stream
         if from_repo:
             decoded_stream = stream.decoded_content
-        yaml = YAML(typ="rt")
+        yaml = YAML(typ="rt") if rt_load else YAML(typ="safe")
         try:
             yield YamlFile(yaml.load_all(decoded_stream), path)
         except error.MarkedYAMLError as parse_error:

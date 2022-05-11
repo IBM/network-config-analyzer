@@ -16,31 +16,32 @@ class DirScanner(GenericTreeScanner):
         GenericTreeScanner.__init__(self)
         self.fs_path = fs_path
 
-    def check_and_yield_file(self, file_path):
+    def check_and_yield_file(self, file_path, rt_load=False):
         """
         checks if the given file is yaml file and yield its components
         :param str file_path: path of file to check and yield
+        :param bool rt_load: if True, load yaml with RoundTripLoader
         """
         if GenericTreeScanner.is_yaml_file(file_path):
-            yield from self._yield_yaml_file(file_path, open(file_path))
+            yield from self._yield_yaml_file(file_path, open(file_path), rt_load=rt_load)
 
-    def get_yamls(self):
+    def get_yamls(self, rt_load=False):
         """
         Call this function to get a generator for all yaml files
         """
         if os.path.isfile(self.fs_path):
-            yield from self.check_and_yield_file(self.fs_path)
+            yield from self.check_and_yield_file(self.fs_path, rt_load)
             return
 
         if self.fs_path.endswith('**'):
-            yield from self._scan_dir_for_yamls(self.fs_path[:-2], True)
+            yield from self._scan_dir_for_yamls(self.fs_path[:-2], True, rt_load)
             return
-        yield from self._scan_dir_for_yamls(self.fs_path, False)
+        yield from self._scan_dir_for_yamls(self.fs_path, False, rt_load)
 
-    def _scan_dir_for_yamls(self, dir_path, recursive):
+    def _scan_dir_for_yamls(self, dir_path, recursive, rt_load=False):
         for root, sub_dirs, files in os.walk(dir_path):
             if recursive:
                 for sub_dir in sub_dirs:
-                    self._scan_dir_for_yamls(os.path.join(root, sub_dir), recursive)
+                    self._scan_dir_for_yamls(os.path.join(root, sub_dir), recursive, rt_load)
             for file in files:
-                yield from self.check_and_yield_file(os.path.join(root, file))
+                yield from self.check_and_yield_file(os.path.join(root, file), rt_load)

@@ -29,7 +29,7 @@ class GitScanner(GenericTreeScanner):
             if parsed_url.hostname == 'github.com':
                 ghe_base_url = 'https://api.github.com'
             else:
-                ghe_base_url = parsed_url.scheme + '://' + parsed_url.hostname + '/api/v3'
+                ghe_base_url = parsed_url.scheme + '://' + str(parsed_url.hostname) + '/api/v3'
             self.url_path = parsed_url.path.split('/', maxsplit=5)
             if len(self.url_path) < 3:
                 raise Exception(f'Bad GitHub URL: {url}')
@@ -60,7 +60,7 @@ class GitScanner(GenericTreeScanner):
             raise Exception(f'GitHub URL {self.url} does not point to a valid repository')
         return repo
 
-    def _scan_dir_in_repo(self, path, recursive):
+    def _scan_dir_in_repo(self, path, recursive, rt_load=False):
         if path and not path.endswith('/'):
             path += '/'
         git_tree = self.repo.get_git_tree(self.ref, True)
@@ -74,14 +74,15 @@ class GitScanner(GenericTreeScanner):
             if not recursive and element.path.count('/') != path.count('/'):
                 continue
 
-            yield from self._yield_yaml_file(element.path, self.repo.get_contents(element.path, self.ref), True)
+            yield from self._yield_yaml_file(element.path, self.repo.get_contents(element.path, self.ref), True,
+                                             rt_load=rt_load)
 
-    def get_yamls(self):
+    def get_yamls(self, rt_load=False):
         """
         Call this function to get a generator for all yamls in the repo
         """
         if self.url.startswith(self.raw_github_content_prefix):
-            return self._yield_yaml_file(self.url, urlopen(self.url))
+            return self._yield_yaml_file(self.url, urlopen(self.url), rt_load=rt_load)
 
         is_file = False
         path_in_repo = ''
@@ -94,7 +95,8 @@ class GitScanner(GenericTreeScanner):
             path_in_repo = '' if len(self.url_path) == 5 else self.url_path[5]
 
         if is_file:
-            return self._yield_yaml_file(path_in_repo, self.repo.get_contents(path_in_repo, self.ref), True)
+            return self._yield_yaml_file(path_in_repo, self.repo.get_contents(path_in_repo, self.ref), True,
+                                         rt_load=rt_load)
         if path_in_repo.endswith('**'):
-            return self._scan_dir_in_repo(path_in_repo[:-2], True)  # path_in_repo without **
-        return self._scan_dir_in_repo(path_in_repo, False)
+            return self._scan_dir_in_repo(path_in_repo[:-2], True, rt_load)  # path_in_repo without **
+        return self._scan_dir_in_repo(path_in_repo, False, rt_load)

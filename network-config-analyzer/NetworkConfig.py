@@ -189,7 +189,7 @@ class NetworkConfig:
         entry_scanner = TreeScannerFactory.get_scanner(entry)
         if entry_scanner is None:
             return False
-        yaml_files = entry_scanner.get_yamls()
+        yaml_files = entry_scanner.get_yamls(rt_load=True)
         if not yaml_files:
             return False
         for yaml_file in yaml_files:
