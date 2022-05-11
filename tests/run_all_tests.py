@@ -88,7 +88,7 @@ class GeneralTest:
     def __init__(self, test_name, test_queries_obj, expected_result, check_run_time, required_output_config_flag):
         self.test_name = test_name  # str
         self.test_queries_obj = test_queries_obj  # SchemeFile or CliQuery
-        self.result = None  # tuple of (numerical result, test runtime)
+        self.result = None  # tuple of (numerical result, test runtime, performance issue indicator)
         self.numerical_result = None  # assigned with numerical result after test run
         self.start_time = None
         self.nca_res = None
@@ -137,6 +137,7 @@ class GeneralTest:
         return 0.0
 
     def _execute_run_time_compare(self, actual_run_time):
+        test_performance_error = 0
         output_file = "./tests_failed_runtime_check.csv"
         write_header = False
         expected_run_time = self._get_expected_test_run_time()
@@ -152,7 +153,9 @@ class GeneralTest:
                 csv_writer.writerow([self.test_name, expected_run_time, f'{actual_run_time:.2f}'])
             csv_file.close()
             if expected_run_time > 0 and actual_run_time > expected_run_time * 5:
-                raise Exception(f'Conducted Performance issue, {self.test_name} took too long to finish ')
+                print(f'Error : Conducted Performance issue, {self.test_name} took too long to finish ')
+                test_performance_error += 1
+        return test_performance_error
 
     def finalize_test(self):
         if not self.test_passed():
@@ -160,9 +163,10 @@ class GeneralTest:
         else:
             print('Testcase', self.test_name, 'passed')
         actual_run_time = time.time() - self.start_time
-        self.result = (self.numerical_result, actual_run_time)
+        performance_error = 0
         if self.check_run_time:
-            self._execute_run_time_compare(actual_run_time)
+            performance_error = self._execute_run_time_compare(actual_run_time)
+        self.result = (self.numerical_result, actual_run_time, performance_error)
         self._update_required_scheme_file_config_args(False)
 
     def _update_required_scheme_file_config_args(self, before_test_run):
@@ -260,7 +264,7 @@ class TestsRunner:
     def print_results(self):
         passed_tests = [test for test, result in self.all_results.items() if result[0] == 0]
         failed_tests = [test for test, result in self.all_results.items() if not result[0] == 0]
-        print('\n\nSummary\n-------')
+        print('\n\nTests Run Summary\n-------')
         total_time = 0.
         print(f'\nPassed Tests: {len(passed_tests)}\n----------------')
         for testcase in passed_tests:
@@ -275,10 +279,22 @@ class TestsRunner:
         else:
             print('\nAll tests passed ({:.2f} seconds)'.format(total_time))
 
-        if self.check_run_time and self.new_tests_error:
-            print('\nError : Some tests were not found in the tests_expected_runtime.csv file.\n'
-                  'You may update the file by running either run update-tests-expected-runtime.yml '
-                  'or reset-tests-expected-runtime.yml workflows')
+        self.print_performance_results()
+
+    def print_performance_results(self):
+        if self.check_run_time:
+            tests_w_performance_issues = [test for test, result in self.all_results.items() if not result[2] == 0]
+            if len(tests_w_performance_issues):
+                self.global_res += 1
+                print('\nTests Performance Issues:\n-------')
+                print(f'\nFailed with Long Runtime Tests: {len(tests_w_performance_issues)}\n----------------')
+                for testcase in tests_w_performance_issues:
+                    self.print_test_result_details(testcase)
+
+            if self.new_tests_error:
+                print('\nError : Some tests were not found in the tests_expected_runtime.csv file.\n'
+                      'You may update the file by running either run update-tests-expected-runtime.yml '
+                      'or reset-tests-expected-runtime.yml workflows')
 
     def run_tests_spec(self, tests_spec):
         self.test_files_spec = TestFilesSpec(tests_spec)
