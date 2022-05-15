@@ -149,16 +149,17 @@ class IstioPolicyYamlParser(GenericYamlParser):
             sa_name = match.group(2)
         return ns, sa_name
 
-    def _parse_principal_str(self, principal):
+    def _parse_principal_str(self, principal, principals_list):
         """
         parse a principal string from source component in rule
         :param str principal: the principal str, currently assuming in format: "cluster.local/ns/<ns-str>/sa/<sa-str>"
+        :param list principals_list: The principals object (for reporting warnings)
         :return: PeerSet: All pods with the given ns + sa_name as extracted from principal str
         """
         principal_str_values = self._parse_istio_regex_from_enumerated_domain(principal, 'principals')
         res = PeerSet()
         if not principal_str_values:
-            self.warning(f"no match for principal: {principal}")
+            self.warning(f"no match for principal: {principal}", principals_list)
         for principal_str in principal_str_values:
             ns, sa_name = self._get_principal_str_components(principal_str)
             if ns and sa_name:
@@ -175,9 +176,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
         """
         res = PeerSet() if principals_list is not None else self.peer_container.get_all_peers_group()
         for principal in principals_list or []:
-            res |= self._parse_principal_str(principal)
+            res |= self._parse_principal_str(principal, principals_list)
         for principal in not_principals_list or []:
-            res -= self._parse_principal_str(principal)
+            res -= self._parse_principal_str(principal, not_principals_list)
         return res
 
     def parse_namespaces(self, ns_list, not_ns_list):
