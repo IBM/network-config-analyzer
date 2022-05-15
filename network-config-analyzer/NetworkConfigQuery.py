@@ -621,7 +621,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         """
         config_without_ingress = config.clone_without_policies(config.name)
         for policy in config.policies.values():
-            if isinstance(policy, IngressPolicy):  # ignoring ingress policies
+            if not isinstance(policy, IngressPolicy):  # ignoring ingress policies
                 config_without_ingress.add_policy(policy)
         return config_without_ingress
 
