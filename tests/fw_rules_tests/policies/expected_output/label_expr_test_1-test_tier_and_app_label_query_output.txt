@@ -1,18 +1,18 @@
 final fw rules for query: test_tier_and_app_label, config: test5:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [app in (G) and tier in (W)] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app=G and tier=W] conn: All connections
 
 final fw rules for query: test_tier_and_app_label, config: test6:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [has(app) and has(tier)] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [has(app) and has(tier)] conn: All connections
 
 final fw rules for query: test_tier_and_app_label, config: test7:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(app) and !has(tier)] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(app) and !has(tier)] conn: All connections
 
 final fw rules for query: test_tier_and_app_label, config: test8:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(tier) and app in (B)] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(tier) and app=B] conn: All connections
 
 final fw rules for query: test_tier_and_app_label, config: test9:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(tier) and {!has(app) or app in (B)}] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(tier) and {!has(app) or app=B}] conn: All connections
 
 final fw rules for query: test_tier_and_app_label, config: test10:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [(has(app) and app not in (B)) and tier in (W,X)] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [(has(app) and app=B) and tier in (W,X)] conn: All connections
 

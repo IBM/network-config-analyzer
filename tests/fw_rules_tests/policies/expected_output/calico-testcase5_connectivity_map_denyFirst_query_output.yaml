@@ -3,7 +3,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - has(tier)
+    - tier=frontend
     dst_ns:
     - kube-system
     dst_pods:

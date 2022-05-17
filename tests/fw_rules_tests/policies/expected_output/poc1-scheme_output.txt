@@ -1,6 +1,6 @@
 final fw rules for query: connectivity_map, config: poc1:
-src ip block: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
-src ip block: ::/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src: ::/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: TCP 50051

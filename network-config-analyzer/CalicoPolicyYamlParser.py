@@ -20,6 +20,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
     """
     A parser for Calico NetworkPolicy/GlobalNetworkPolicy/Profile objects
     """
+
     def __init__(self, policy, peer_container, policy_file_name=''):
         """
         :param dict policy: The policy object as provided by the yaml parser
@@ -220,10 +221,11 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         selector_type = 'namespaceSelector' if namespace_selector else 'selector'
         if not res:
-            self.warning(selector_type + ' selects no endpoints.', origin_map)
+            self.warning(f'{selector_type} ({label_selector}) selects no endpoints.', origin_map)
         elif res == self.peer_container.get_all_peers_group(include_globals=not namespace_selector) and \
                 label_selector and label_selector != 'all()' and 'global()' not in label_selector:
-            self.warning(selector_type + ' selects all endpoints - better delete or use "all()".', origin_map)
+            self.warning(f'{selector_type} ({label_selector}) selects all endpoints - better delete or use "all()".',
+                         origin_map)
 
         return res
 
