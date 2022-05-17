@@ -34,57 +34,38 @@ class IngressPolicyYamlParser(GenericYamlParser):
         self.default_backend_peers = PeerSet()
         self.default_backend_ports = PortSet()
 
-    def _validate_ingress_regex_pattern(self, regex_str, is_host):
-        """
-        validate input regex str is supported by ingress rule host or path.
-        raise syntax error if invalid.
-        :param str regex_str: the input regex str to validate
-        :param bool is_host: whether this is host regex
-        """
-        if '*' in regex_str:
-            if not is_host and not (regex_str.count('*') == 1 and regex_str.endswith('*')):
-                self.syntax_error(f'Illegal str value pattern: {regex_str}')
-            if is_host and not regex_str.startswith('*.'):
-                self.syntax_error(f'Illegal str value pattern: {regex_str}')
+    def validate_path_value(self, path_value, path):
+        if path_value[0] != '/':
+            self.syntax_error(f'Illegal path {path_value} in the rule path', path)
+        pattern = "[" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        if not re.fullmatch(pattern, path_value):
+            self.syntax_error(f'Illegal characters in path {path_value} in {path}')
 
-    def _parse_str_value(self, str_val_input, dim_name, rule):
+    def parse_regex_host_value(self, regex_value, rule):
         """
-        transform input regex/str to the format supported by greenery
-        :param str str_val_input: the str/regex from input
-        :param str dim_name: the name of the dimension of str_val_input value
-        :param dict rule: the rule object being parsed
-        :return: str: the result regex/str after conversion
-        """
-        if dim_name == 'hosts':
-            allowed_chars = "[\\w]"
-        else:
-            allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
-        allowed_chars_with_star_regex = "[*" + DimensionsManager().default_dfa_alphabet_chars + "]*"
-        if not re.fullmatch(allowed_chars_with_star_regex, str_val_input):
-            self.syntax_error(f'Illegal characters in {dim_name} {str_val_input} in {rule}')
-
-        # convert str_val_input into regex format supported by greenery
-        res = str_val_input.replace(".", "[.]")
-        if '*' in res:
-            self._validate_ingress_regex_pattern(res, dim_name == "hosts")
-            res = res.replace("*", allowed_chars + '*')
-        return res
-
-    def parse_regex_dimension_values(self, dim_name, regex_value, rule):
-        """
-        for dimension of type MinDFA -> return a MinDFA or None for all values
-        :param str dim_name: dimension name
-        :param str regex_value: regex value
+        for 'hosts' dimension of type MinDFA -> return a MinDFA, or None for all values
+        :param str regex_value: input regex host value
         :param dict rule: the parsed rule object
         :return: Union[MinDFA, None] object
         """
-        dim_type = DimensionsManager().get_dimension_type_by_name(dim_name)
+        dim_type = DimensionsManager().get_dimension_type_by_name("hosts")
         assert dim_type == DimensionsManager.DimensionType.DFA
 
         if regex_value is None:
             return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
-        regex = self._parse_str_value(regex_value, dim_name, rule)
-        return MinDFA.dfa_from_regex(regex)
+
+        allowed_chars = "[\\w]"
+        allowed_chars_with_star_regex = "[*" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        if not re.fullmatch(allowed_chars_with_star_regex, regex_value):
+            self.syntax_error(f'Illegal characters in host {regex_value} in {rule}')
+
+        # convert regex_value into regex format supported by greenery
+        regex_value = regex_value.replace(".", "[.]")
+        if '*' in regex_value:
+            if not regex_value.startswith('*.'):
+                self.syntax_error(f'Illegal host value pattern: {regex_value}')
+            regex_value = regex_value.replace("*", allowed_chars + '*')
+        return MinDFA.dfa_from_regex(regex_value)
 
     def parse_backend(self, backend, is_default=False):
         """
@@ -179,13 +160,12 @@ class IngressPolicyYamlParser(GenericYamlParser):
 
         return tcp_properties
 
-    def parse_ingress_path(self, path, hosts_dfa):
+    def parse_ingress_path(self, path):
         """
         Parses ingress path resource.
         The assumption is that the default backend has been already parsed
         :param dict path: the path resource
-        :param MinDFA hosts_dfa: the dfa of host for this rule
-        :return: a tuple of TcpLikeProperties (with allowed connections for this path) and paths_dfa for this path
+        :return: a tuple (path_string, path_type, peers, ports)
         """
         self.check_fields_validity(path, 'ingress rule path',
                                    {'backend': [1, dict], 'path': [0, str], 'pathType': [1, str]},
@@ -211,19 +191,52 @@ class IngressPolicyYamlParser(GenericYamlParser):
         #   nginx.ingress.kubernetes.io/use-regex: "true"
         # from https://kubernetes.github.io/ingress-nginx/user-guide/ingress-path-matching/#regular-expression-support
         # the following implementation is for nginx.ingress.kubernetes.io/use-regex == False
-        if path_string[0] != '/':
-            self.syntax_error(f'Illegal path {path_string} in the rule path', path)
-        path_regex = path_string
+        self.validate_path_value(path_string, path)
         if path_type == 'Prefix':
             # https://kubernetes.io/docs/concepts/services-networking/ingress/#examples
             if path_string.endswith('/'):
                 path_string = path_string[:-1]  # remove the trailing slash
-            if path_string:
-                path_regex = path_string + ' | ' + path_string + '/*'
+        return path_string, path_type, peers, ports
+
+    def segregate_longest_paths_and_make_dfa(self, parsed_paths):
+        """
+        Implement longest match semantics: for every path string, eliminate shorter subpaths to extend to longer ones
+        :param parsed_paths: a list of tuples (path_string, path_type, peers, ports)
+        :return: a list of tuples (path_string, path_dfa, path_type, peers, ports), where path_dfa elements obey
+        the longest match semantics
+        """
+        # first, convert path strings to dfas
+        parsed_paths_with_dfa = []
+        allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
+        for i in range(0, len(parsed_paths)):
+            path_string, path_type, peers, ports = parsed_paths[i]
+            if path_type == 'Exact':
+                path_regex = path_string
             else:
-                path_regex = '/*'
-        paths_dfa = self.parse_regex_dimension_values("paths", path_regex, path)
-        return self._make_tcp_like_properties(ports, peers, paths_dfa, hosts_dfa), paths_dfa
+                if path_string:
+                    path_regex = path_string + '|' + path_string + '/' + allowed_chars + '+'
+                else:
+                    path_regex = '/' + allowed_chars + '+'
+            parsed_paths_with_dfa.append((path_string, MinDFA.dfa_from_regex(path_regex), path_type, peers, ports))
+
+        # next, avoid shorter sub-paths to extend to longer ones, using dfa operations
+        res = []
+        for i in range(0, len(parsed_paths)):
+            path_string, path_dfa, path_type, peers, ports = parsed_paths_with_dfa[i]
+            if path_type == 'Exact':  # we never eliminate 'Exact' paths
+                res.append(parsed_paths_with_dfa[i])
+                continue
+            for j in range(0, len(parsed_paths)):
+                if i == j:
+                    continue
+                path2_string, path2_dfa, path2_type, _, _ = parsed_paths_with_dfa[j]
+                if path2_string.startswith(path_string):
+                    # this includes the case when path_string (Prefix) == path2_string (Exact),
+                    # thus giving the preference to path2_string (Exact)
+                    path_dfa -= path2_dfa
+            res.append((path_string, path_dfa, path_type, peers, ports))  # updates path_dfa
+
+        return res
 
     def _make_default_connections(self, hosts_dfa, paths_dfa=None):
         """
@@ -309,15 +322,18 @@ class IngressPolicyYamlParser(GenericYamlParser):
 
         allowed_elements = {'host': [0, str], 'http': [0, dict]}
         self.check_fields_validity(rule, 'ingress rule', allowed_elements)
-        hosts_dfa = self.parse_regex_dimension_values("hosts", rule.get("host"), rule)
+        hosts_dfa = self.parse_regex_host_value(rule.get("host"), rule)
         paths_array = self.get_key_array_and_validate_not_empty(rule.get('http'), 'paths')
         allowed_conns = None
         if paths_array is not None:
             all_paths_dfa = None
+            parsed_paths = []
             for path in paths_array:
-                # TODO: implement path priority rules
+                parsed_paths.append(self.parse_ingress_path(path))
+            parsed_paths_with_dfa = self.segregate_longest_paths_and_make_dfa(parsed_paths)
+            for (_, paths_dfa, _, peers, ports) in parsed_paths_with_dfa:
                 # every path is converted to allowed connections
-                conns, paths_dfa = self.parse_ingress_path(path, hosts_dfa)
+                conns = self._make_tcp_like_properties(ports, peers, paths_dfa, hosts_dfa)
                 if not allowed_conns:
                     allowed_conns = conns
                 else:

@@ -11,20 +11,34 @@ spec:
     http:
       paths:
       - pathType: Prefix
-        path: "/"
+        path: "/abc"
         backend:
           service:
             name: calico-node
             port:
               number: 80
+      - pathType: Prefix
+        path: "/abc/def"
+        backend:
+          service:
+            name: file-plugin
+            port:
+              number: 80
   - host: second.bar.com
     http:
       paths:
-      - pathType: Prefix
-        path: "/"
+      - pathType: Exact
+        path: "/xyz"
         backend:
           service:
             name: storage-watcher
+            port:
+              number: 80
+      - pathType: Prefix
+        path: "/xyz"
+        backend:
+          service:
+            name: kube-fluentd
             port:
               number: 80
   - http:
