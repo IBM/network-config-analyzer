@@ -6,14 +6,15 @@ from CanonicalIntervalSet import CanonicalIntervalSet
 from PortSet import PortSet
 from TcpLikeProperties import TcpLikeProperties
 from ICMPDataSet import ICMPDataSet
+from ProtocolNameResolver import ProtocolNameResolver
 
 
 class ConnectionSet:
     """
     This class holds a set of connections and allows several manipulations on this set such as union, intersection, ...
     """
-    _protocol_number_to_name_dict = {1: 'ICMP', 6: 'TCP', 17: 'UDP', 58: 'ICMPv6', 132: 'SCTP', 135: 'UDPLite'}
-    _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
+    _protocol_number_to_name_dict = ProtocolNameResolver().get_number_to_name_dict()
+    _protocol_name_to_number_dict = ProtocolNameResolver().get_name_to_number_dict()
     _icmp_protocols = {1, 58}
     port_supporting_protocols = {6, 17, 132}
     _max_protocol_num = 255
