@@ -343,12 +343,12 @@ class TestsRunner:
 
     # given a scheme file or a cmdline file, run all relevant tests
     def run_test_per_file(self, test_file):
-        # if self.test_files_spec.type == 'scheme':
-        #     if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
-        #         return  # test file does not match the running category
-        #     self.create_and_run_test_obj(SchemeFile(test_file), 0)
+        if self.test_files_spec.type == 'scheme':
+            if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
+                return  # test file does not match the running category
+            self.create_and_run_test_obj(SchemeFile(test_file), 0)
 
-        if self.test_files_spec.type == 'cmdline':
+        elif self.test_files_spec.type == 'cmdline':
             with open(test_file) as doc:
                 code = YAML().load_all(doc)
                 for test in next(iter(code)):

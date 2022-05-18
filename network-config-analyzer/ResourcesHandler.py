@@ -180,7 +180,7 @@ class ResourcesParser:
             return True, 0
         if len(self.pods_finder.peer_set) == 0 and (specific_ns or len(self.ns_finder.namespaces) > 0):
             return False, ResourceType.Namespaces
-        if len(self.ns_finder.namespaces) == 0 and (specific_pods or len(self.pods_finder.peer_set) > 0):
+        if  len(self.ns_finder.namespaces) == 0 and (specific_pods or len(self.pods_finder.peer_set) > 0):
             return False, ResourceType.Pods
         return False, 0
 
