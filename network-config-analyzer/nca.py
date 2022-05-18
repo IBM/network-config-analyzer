@@ -128,41 +128,42 @@ def run_args(args):
                                          'outputEndpoints': args.output_endpoints})
     expected_output = None
     # default values are for sanity query
-    np_list = args.sanity or None
+    # np_list will be taken as args.<query_name> if it is not equal to the args parser's const value i.e ['']
+    np_list = args.sanity if args.sanity != [''] else None
     pair_query_flag = False
     query_name = 'sanity'
     base_as_second = False
 
     if args.equiv is not None:
-        np_list = args.equiv or None
+        np_list = args.equiv if args.equiv != [''] else None
         query_name = 'twoWayContainment'
         pair_query_flag = True
         base_as_second = True
 
     if args.interferes is not None:
-        np_list = args.interferes or None
+        np_list = args.interferes if args.interferes != [''] else None
         query_name = 'interferes'
         pair_query_flag = True
         base_as_second = True
 
     if args.forbids is not None:
-        np_list = args.forbids or None
+        np_list = args.forbids if args.forbids != [''] else None
         query_name = 'forbids'
         pair_query_flag = True
 
     if args.permits is not None:
-        np_list = args.permits or None
+        np_list = args.permits if args.permits != [''] else None
         query_name = 'permits'
         pair_query_flag = True
 
     if args.connectivity is not None:
-        np_list = args.connectivity or None
+        np_list = args.connectivity if args.connectivity != [''] else None
         query_name = 'connectivityMap'
         pair_query_flag = False
         expected_output = args.expected_output or None
 
     if args.semantic_diff is not None:
-        np_list = args.semantic_diff or None
+        np_list = args.semantic_diff if args.semantic_diff != [''] else None
         query_name = 'semanticDiff'
         pair_query_flag = True
         expected_output = args.expected_output or None
