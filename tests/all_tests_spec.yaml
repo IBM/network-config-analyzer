@@ -20,7 +20,8 @@ general:
     type: cmdline
     root: ./
     files_list:
-      - k8s_cmdline_tests.yaml
+#      - k8s_cmdline_tests.yaml
+      - pattern_examples_cmdline_tests.yaml
 
 #---------------------------------------------------------------------------------------------------------------------------------
 k8s_live_general:
