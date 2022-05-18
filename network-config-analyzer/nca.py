@@ -134,48 +134,49 @@ def run_args(args):
     base_as_second = False
 
     if args.equiv is not None:
-        np_list = args.equiv
+        np_list = args.equiv or None
         query_name = 'twoWayContainment'
         pair_query_flag = True
         base_as_second = True
 
     if args.interferes is not None:
-        np_list = args.interferes
+        np_list = args.interferes or None
         query_name = 'interferes'
         pair_query_flag = True
         base_as_second = True
 
     if args.forbids is not None:
-        np_list = args.forbids
+        np_list = args.forbids or None
         query_name = 'forbids'
         pair_query_flag = True
 
     if args.permits is not None:
-        np_list = args.permits
+        np_list = args.permits or None
         query_name = 'permits'
         pair_query_flag = True
 
     if args.connectivity is not None:
-        np_list = args.connectivity
+        np_list = args.connectivity or None
         query_name = 'connectivityMap'
         pair_query_flag = False
         expected_output = args.expected_output or None
 
     if args.semantic_diff is not None:
-        np_list = args.semantic_diff
+        np_list = args.semantic_diff or None
         query_name = 'semanticDiff'
         pair_query_flag = True
         expected_output = args.expected_output or None
 
     resources_handler = ResourcesHandler()
-    network_config = resources_handler.get_network_config(np_list, ns_list, pod_list, resource_list)
+    network_config = resources_handler.get_network_config(np_list, ns_list, pod_list, resource_list,
+                                                          save_flag=pair_query_flag)
     if pair_query_flag:
         base_np_list = args.base_np_list
-        base_resource_list = args.base_resource_list or resource_list
-        base_ns_list = args.base_ns_list or ns_list
-        base_pod_list = args.base_pod_list or pod_list
+        base_resource_list = args.base_resource_list
+        base_ns_list = args.base_ns_list
+        base_pod_list = args.base_pod_list
         base_network_config = resources_handler.get_network_config(base_np_list, base_ns_list, base_pod_list,
-                                                                   base_resource_list, k8s_np_flag=True)
+                                                                   base_resource_list)
         if base_as_second:
             network_configs_array = [network_config, base_network_config]
         else:

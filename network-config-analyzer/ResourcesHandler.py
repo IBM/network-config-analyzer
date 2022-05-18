@@ -28,7 +28,30 @@ class ResourcesHandler:
         self.global_pods_finder = None
         self.global_ns_finder = None
 
-    def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', k8s_np_flag=False):
+    def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list):
+        """
+        builds the global peer container based on global input resources,
+        it also saves the global pods and namespaces finder, to use in case specific configs missing one of them
+        :param Union[list[str], None] global_ns_list: global namespaces entries
+        :param Union[list[str], None] global_pod_list: global pods entries
+        :param Union[list[str], None] global_resource_list: list of global entries of namespaces/pods to handle
+        in case specific list is None
+        """
+        global_resources_parser = ResourcesParser()
+        success, res_type = global_resources_parser.parse_lists_for_topology(global_ns_list, global_pod_list,
+                                                                             global_resource_list)
+        if success:
+            self.global_peer_container = global_resources_parser.build_peer_container()
+            self.global_pods_finder = global_resources_parser.pods_finder
+            self.global_ns_finder = global_resources_parser.ns_finder
+        elif res_type == ResourceType.Pods:
+            # in case the global resources has only pods (can not build global peerContainer)
+            self.global_pods_finder = global_resources_parser.pods_finder
+        elif res_type == ResourceType.Namespaces:
+            # in case the global resources has only namespaces (can not build global peerContainer)
+            self.global_ns_finder = global_resources_parser.ns_finder
+
+    def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False):
         """
         First tries to build a peer_container using the input resources (NetworkConfigs's resources)
         If fails, it uses the global peer container otherwise build it from the k8s live cluster peers.
@@ -39,12 +62,27 @@ class ResourcesHandler:
         :param Union[list[str], None] resource_list: entries to read pods/namespaces/policies from
         if the specific list is None
         :param str config_name: name of the config
-        :param bool k8s_np_flag: get policies from k8s live cluster if they are not found in the input resources
+        :param bool save_flag: used in cmdline queries with two configs, if save flag is True
+         will save the peer container as global to use it for base config's peer resources in case are missing
         :rtype NetworkConfig
         """
-
-        # build peer container
         resources_parser = ResourcesParser()
+        # build peer container
+        peer_container = \
+            self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
+
+        # parse for policies
+        cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
+
+        if cfg and config_name == 'global':
+            config_name = cfg
+
+        # build and return the networkConfig
+        return NetworkConfig(name=config_name, peer_container=peer_container,
+                             policies_container=resources_parser.policies_finder.policies_container,
+                             config_type=resources_parser.policies_finder.type)
+
+    def _set_config_peer_container(self, ns_list, pod_list, resource_list, config_name, save_flag, resources_parser):
         success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
         if success or res_type:
             if res_type:
@@ -57,41 +95,12 @@ class ResourcesHandler:
             resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
             peer_container = resources_parser.build_peer_container(config_name)
 
-        # parse for policies
-        resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container, k8s_np_flag)
-
-        if config_name == 'global':
-            if np_list and np_list != ['']:
-                config_name = np_list[0]
-            elif resource_list:
-                config_name = resource_list[0]
-        # build and return the networkConfig
-        return NetworkConfig(name=config_name, peer_container=peer_container,
-                             policies_container=resources_parser.policies_finder.policies_container,
-                             config_type=resources_parser.policies_finder.type)
-
-    def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list):
-        """
-        builds the global peer container based on global input resources,
-        it also saves the global pods and namespaces finder, to use in case specific configs missing one of them
-        :param Union[list[str], None] global_ns_list: global namespaces entries
-        :param Union[list[str], None] global_pod_list: global pods entries
-        :param Union[list[str], None] global_resource_list: list of global entries of namespaces/pods to handle
-        in case specific list is None
-        """
-        resources_parser = ResourcesParser()
-        success, res_type = resources_parser.parse_lists_for_topology(global_ns_list, global_pod_list,
-                                                                      global_resource_list)
-        if success:
-            self.global_peer_container = resources_parser.build_peer_container()
-            self.global_pods_finder = resources_parser.pods_finder
+        if save_flag:
+            self.global_peer_container = peer_container
             self.global_ns_finder = resources_parser.ns_finder
-        elif res_type == ResourceType.Pods:
-            # in case the global resources has only pods (can not build global peerContainer)
             self.global_pods_finder = resources_parser.pods_finder
-        elif res_type == ResourceType.Namespaces:
-            # in case the global resources has only namespaces (can not build global peerContainer)
-            self.global_ns_finder = resources_parser.ns_finder
+
+        return peer_container
 
     def _fill_empty_finder(self, res_type, resources_parser):
         """
@@ -176,30 +185,45 @@ class ResourcesParser:
         else:
             return False, 0
 
-    def parse_lists_for_policies(self, np_list, resource_list, peer_container, k8s_np_flag):
+    def parse_lists_for_policies(self, np_list, resource_list, peer_container):
         """
-        parses policies from np_list resource if exists, otherwise parses the resource_list for policies
-        if both np_list and resource_list does not exist an exception will be raised
+        parses policies from np_list resource if exists,
+        otherwise parses the resource_list for policies,
+        if no policies are found in the resource_list or if both np_list and resource_list does not exist
+        loads policies from k8s live cluster
         :param np_list: list of entries of networkPolicies
         :param resource_list: list of entries
         :param peer_container: the existing PeerContainer
-        :param bool k8s_np_flag: get policies from k8s live cluster if they are not found in the input resources
+        :rtype str
+        returns the config name - 'k8s' if policies are loaded from live cluster,
+        otherwise the name of the first policy in the input list
         """
-        if resource_list is None and np_list in ([''], None):
-            raise Exception('Network policies path must be provided. Provide at least one path '
-                            'either within regular network policy flags or using the resource list key')
+        live_cluster_flag = False
+        config_name = None
         self.policies_finder.set_peer_container(peer_container)
-        if np_list and np_list != ['']:
+        if np_list is not None:
             self._parse_resources_path(np_list, [ResourceType.Policies])
+            if len(np_list):
+                config_name = np_list[0]
             if resource_list:
                 print('Warning: policies will be taken from the provided networkPolicy list key. '
                       'input resources provided with resource list key will be ignored when finding network policies')
         elif resource_list:
             self._parse_resources_path(resource_list, [ResourceType.Policies])
-            # if np list is not given and there are no policies in the resource list but k8s_np_flag is True
+            config_name = resource_list[0]
+            # if np list is not given and there are no policies in the resource list
             # then load policies from live cluster
-            if k8s_np_flag and self.policies_finder.has_empty_containers():
-                self.policies_finder.load_policies_from_k8s_cluster()
+            if self.policies_finder.has_empty_containers():
+                live_cluster_flag = True
+        else:
+            live_cluster_flag = True
+
+        if live_cluster_flag:
+            config_name = 'k8s'
+            print('loading policies from k8s live cluster')
+            self._parse_resources_path(['k8s'], [ResourceType.Policies])
+
+        return config_name
 
     def _parse_resources_path(self, resource_list, resource_flags):
         """
