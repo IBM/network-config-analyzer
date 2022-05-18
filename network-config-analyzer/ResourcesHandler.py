@@ -178,12 +178,11 @@ class ResourcesParser:
         if (len(self.pods_finder.peer_set) > 0 and len(self.ns_finder.namespaces) > 0) or \
                 (specific_pods and specific_ns):
             return True, 0
-        elif len(self.pods_finder.peer_set) == 0 and len(self.ns_finder.namespaces) > 0:
+        if len(self.pods_finder.peer_set) == 0 and (specific_ns or len(self.ns_finder.namespaces) > 0):
             return False, ResourceType.Namespaces
-        elif len(self.pods_finder.peer_set) > 0 and len(self.ns_finder.namespaces) == 0:
+        if  len(self.ns_finder.namespaces) == 0 and (specific_pods or len(self.pods_finder.peer_set) > 0):
             return False, ResourceType.Pods
-        else:
-            return False, 0
+        return False, 0
 
     def parse_lists_for_policies(self, np_list, resource_list, peer_container):
         """
