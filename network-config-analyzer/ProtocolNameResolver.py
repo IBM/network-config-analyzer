@@ -1,5 +1,5 @@
 #
-# Copyright 2020- IBM Inc. All rights reserved
+# Copyright 2022- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
 
@@ -56,17 +56,39 @@ class ProtocolNameResolver:
                                      135: 'MobilityHeader', 136: 'UDPLite', 137: 'MPLSinIP', 138: 'manet', 139: 'HIP',
                                      140: 'Shim6', 141: 'WESP', 142: 'ROHC', 143: 'Ethernet'}
 
-    def __init__(self):
-        pass
+    @staticmethod
+    def get_protocol_name(protocol_number: int) -> str:
+        """
+        :param protocol_number: Protocol number
+        :return: The protocol name
+        :rtype: str
+        """
+        if protocol_number < 1 or protocol_number > 255:
+            raise Exception('Protocol number must be in the range 1-255')
 
-    def get_name_to_number_dict(self):
-        return self._protocol_name_to_number_dict
+        return ProtocolNameResolver._protocol_number_to_name_dict[protocol_number]
 
-    def get_number_to_name_dict(self):
-        return self._protocol_number_to_name_dict
+    @staticmethod
+    def get_protocol_number(protocol_name: str) -> int:
+        """
+        :param protocol_name: Protocol name
+        :return: The protocol number
+        :rtype: int
+        """
+        if isinstance(protocol_name, int):
+            return protocol_name
 
-    def get_protocol_name(self, protocol_number):
-        return self._protocol_number_to_name_dict[protocol_number]
+        protocol_num = ProtocolNameResolver._protocol_name_to_number_dict[protocol_name]
+        if not protocol_num:
+            raise Exception('Unknown protocol name: ' + protocol_name)
 
-    def get_protocol_number(self, protocol_name):
-        return self._protocol_name_to_number_dict[protocol_name]
+        return protocol_num
+
+    @staticmethod
+    def is_protocol(protocol: int) -> bool:
+        """
+        :param protocol: Protocol number
+        :return: If the protocol is in the protocol DB
+        :rtype: bool
+        """
+        return protocol in ProtocolNameResolver._protocol_number_to_name_dict
