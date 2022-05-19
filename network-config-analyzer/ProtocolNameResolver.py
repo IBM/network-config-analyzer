@@ -60,13 +60,14 @@ class ProtocolNameResolver:
     def get_protocol_name(protocol_number: int) -> str:
         """
         :param protocol_number: Protocol number
-        :return: The protocol name
+        :return: The protocol name. If the protocol is not in the DB the protocol's number is returned as string, deeming it \
+                 its 'name' for lack of a specific one.
         :rtype: str
         """
         if protocol_number < 1 or protocol_number > 255:
             raise Exception('Protocol number must be in the range 1-255')
 
-        return ProtocolNameResolver._protocol_number_to_name_dict[protocol_number]
+        return ProtocolNameResolver._protocol_number_to_name_dict.get(protocol_number, str(protocol_number))
 
     @staticmethod
     def get_protocol_number(protocol_name: str) -> int:
@@ -78,14 +79,14 @@ class ProtocolNameResolver:
         if isinstance(protocol_name, int):
             return protocol_name
 
-        protocol_num = ProtocolNameResolver._protocol_name_to_number_dict[protocol_name]
+        protocol_num = ProtocolNameResolver._protocol_name_to_number_dict.get(protocol_name)
         if not protocol_num:
             raise Exception('Unknown protocol name: ' + protocol_name)
 
         return protocol_num
 
     @staticmethod
-    def is_protocol(protocol: int) -> bool:
+    def is_standard_protocol(protocol: int) -> bool:
         """
         :param protocol: Protocol number
         :return: If the protocol is in the protocol DB

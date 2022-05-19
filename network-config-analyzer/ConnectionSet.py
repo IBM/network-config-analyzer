@@ -76,7 +76,7 @@ class ConnectionSet:
         res = []
         protocols_ranges = CanonicalIntervalSet()
         for protocol in sorted(self.allowed_protocols):
-            if ProtocolNameResolver.is_protocol(protocol):
+            if ProtocolNameResolver.is_standard_protocol(protocol):
                 protocol_text = ProtocolNameResolver.get_protocol_name(protocol)
                 properties = self.allowed_protocols[protocol]
                 res.append(self._get_protocol_with_properties_representation(is_str, protocol_text, properties))
