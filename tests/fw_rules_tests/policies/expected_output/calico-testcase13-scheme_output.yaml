@@ -10,5 +10,5 @@
     - '*'
     connection:
     - All but:
-      - Protocol: MobilityHeader
+      - Protocol: UDPLite
 
