@@ -11,6 +11,7 @@ from TcpLikeProperties import TcpLikeProperties
 from MethodSet import MethodSet
 from ConnectionSet import ConnectionSet
 from PortSet import PortSet
+from MinDFA import MinDFA
 
 
 class GenericYamlParser:
