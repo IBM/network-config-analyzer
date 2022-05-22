@@ -21,7 +21,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 119.81.137.0/24
     dst_ns:
@@ -36,7 +36,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 119.128.0.0/9
     - 119.81.140.0/22
@@ -70,7 +70,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 130.198.120.0/21
     - 130.198.128.0/17
@@ -104,7 +104,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 158.85.117.0/24
     dst_ns:
@@ -119,7 +119,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 158.128.0.0/9
     - 158.85.120.0/21
@@ -144,7 +144,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.122.117.0/24
     dst_ns:
@@ -159,7 +159,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.122.120.0/21
     - 159.122.128.0/21
@@ -175,7 +175,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.122.137.0/24
     dst_ns:
@@ -190,7 +190,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.122.140.0/22
     - 159.122.144.0/20
@@ -220,7 +220,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.253.157.0/24
     dst_ns:
@@ -235,7 +235,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.253.160.0/19
     - 159.253.192.0/18
@@ -261,7 +261,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.8.117.0/24
     dst_ns:
@@ -276,7 +276,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.8.120.0/21
     - 159.8.128.0/18
@@ -293,7 +293,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.8.197.0/24
     dst_ns:
@@ -308,7 +308,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 159.10.0.0/15
     - 159.112.0.0/13
@@ -338,7 +338,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 161.202.117.0/24
     dst_ns:
@@ -353,7 +353,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 161.202.120.0/21
     - 161.202.128.0/17
@@ -377,7 +377,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 168.1.117.0/24
     dst_ns:
@@ -392,7 +392,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 168.1.120.0/21
     - 168.1.128.0/17
@@ -422,7 +422,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 168.1.17.0/24
     dst_ns:
@@ -437,7 +437,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 168.1.112.0/22
     - 168.1.20.0/22
@@ -457,7 +457,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.38.117.0/24
     dst_ns:
@@ -472,7 +472,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.38.120.0/21
     - 169.38.128.0/17
@@ -496,7 +496,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.45.120.0/21
     - 169.45.128.0/17
@@ -517,7 +517,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.46.120.0/21
     - 169.46.128.0/17
@@ -538,7 +538,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.47.120.0/21
     - 169.47.128.0/17
@@ -559,7 +559,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.48.119.0/24
     - 169.48.120.0/21
@@ -583,7 +583,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.51.119.0/24
     - 169.51.120.0/21
@@ -605,7 +605,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.54.117.0/24
     dst_ns:
@@ -620,7 +620,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.54.120.0/21
     - 169.54.128.0/17
@@ -641,7 +641,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.55.120.0/21
     - 169.55.128.0/17
@@ -661,7 +661,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.56.117.0/24
     dst_ns:
@@ -676,7 +676,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.56.119.0/24
     - 169.56.120.0/21
@@ -697,7 +697,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.57.117.0/24
     dst_ns:
@@ -712,7 +712,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.57.120.0/21
     - 169.57.128.0/21
@@ -728,7 +728,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.57.137.0/24
     dst_ns:
@@ -743,7 +743,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.57.140.0/22
     - 169.57.144.0/20
@@ -767,7 +767,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.60.120.0/21
     - 169.60.128.0/17
@@ -788,7 +788,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 169.128.0.0/9
     - 169.61.120.0/21
@@ -816,7 +816,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 173.192.120.0/21
     - 173.192.128.0/17
@@ -836,7 +836,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 173.193.117.0/24
     dst_ns:
@@ -851,7 +851,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 173.193.120.0/21
     - 173.193.128.0/17
@@ -879,7 +879,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 174.133.117.0/24
     dst_ns:
@@ -894,7 +894,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 174.133.120.0/21
     - 174.133.128.0/17
@@ -926,7 +926,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 184.172.120.0/21
     - 184.172.128.0/17
@@ -959,7 +959,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 192.255.19.0/24
     - 192.255.20.0/22
@@ -978,7 +978,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 192.255.128.0/17
     - 192.255.39.0/24
@@ -1009,7 +1009,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 198.128.0.0/9
     - 198.23.120.0/21
@@ -1040,7 +1040,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 208.128.0.0/9
     - 208.43.120.0/21
@@ -1065,7 +1065,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 5.10.117.0/24
     dst_ns:
@@ -1080,7 +1080,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 16.0.0.0/4
     - 32.0.0.0/4
@@ -1115,7 +1115,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 50.22.120.0/21
     - 50.22.128.0/18
@@ -1137,7 +1137,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 50.23.0.0/18
     - 50.23.112.0/22
@@ -1155,7 +1155,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 50.23.117.0/24
     dst_ns:
@@ -1170,7 +1170,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 50.23.120.0/21
     - 50.23.128.0/19
@@ -1189,7 +1189,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 50.128.0.0/9
     - 50.23.168.0/21
@@ -1223,7 +1223,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 66.228.120.0/21
     - 66.228.128.0/17
@@ -1252,7 +1252,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 67.228.120.0/21
     - 67.228.128.0/17
@@ -1286,7 +1286,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 112.0.0.0/6
     - 116.0.0.0/7
@@ -1316,7 +1316,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - ::/0
     dst_ns:
@@ -1331,7 +1331,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ns:
     - None
     src_pods:
@@ -1348,7 +1348,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ns:
     - kube-system
     src_pods:
@@ -1365,7 +1365,7 @@
     - Protocol: UDP
       Ports:
       - 52311
-    - Protocol: 112
+    - Protocol: VRRP
   - src_ip_block:
     - 0.0.0.0/0
     dst_ns:
