@@ -139,6 +139,10 @@ class NetworkConfig:
             return
         if profile.full_name() in self.profiles:
             raise Exception('A profile named ' + profile.full_name() + ' already exists')
+        if self.type == NetworkConfig.ConfigType.Unknown:
+            self.type = NetworkConfig.ConfigType.Calico
+        elif self.type != NetworkConfig.ConfigType.Calico:
+            raise Exception('Cannot mix NetworkPolicies from different platforms')
         self.profiles[profile.full_name()] = profile
 
     def _parse_policies_in_parse_queue(self):
