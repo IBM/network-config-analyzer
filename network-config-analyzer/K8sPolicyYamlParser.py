@@ -11,6 +11,7 @@ from TcpLikeProperties import TcpLikeProperties
 from GenericYamlParser import GenericYamlParser
 from K8sNetworkPolicy import K8sNetworkPolicy, K8sPolicyRule
 from PeerContainer import PeerContainer
+from ProtocolNameResolver import ProtocolNameResolver
 
 
 class K8sPolicyYamlParser(GenericYamlParser):
@@ -280,7 +281,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             if isinstance(port_id, str):
                 if len(port_id) > 15:
                     self.syntax_error('port name  must be no more than 15 characters', port)
-                if re.fullmatch(r"[a-z0-9]([-a-z0-9]*[a-z0-9])?", port_id) is None:
+                if re.fullmatch(r"[a-z\d]([-a-z\d]*[a-z\d])?", port_id) is None:
                     self.syntax_error('port name should contain only lowercase alphanumeric characters or "-", '
                                       'and start and end with alphanumeric characters', port)
 
@@ -340,7 +341,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                     pod_named_port = pod.named_ports.get(port)
                     if pod_named_port:
                         port_used = True
-                        if ConnectionSet.protocol_name_to_number(pod_named_port[1]) != protocol:
+                        if ProtocolNameResolver.get_protocol_number(pod_named_port[1]) != protocol:
                             self.warning(f'Protocol mismatch for named port {port} (vs. Pod {pod.full_name()})',
                                          rule['ports'])
 

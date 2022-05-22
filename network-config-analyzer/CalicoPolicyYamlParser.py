@@ -14,6 +14,7 @@ from GenericYamlParser import GenericYamlParser
 from CalicoNetworkPolicy import CalicoNetworkPolicy, CalicoPolicyRule
 from PeerContainer import PeerContainer
 from K8sNamespace import K8sNamespace
+from ProtocolNameResolver import ProtocolNameResolver
 
 
 class CalicoPolicyYamlParser(GenericYamlParser):
@@ -38,7 +39,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         Parses an atomic expression (not containing a && or ||)
         :param str expr: The string expression to parse
-        :param dict origin_map: The EntityRule object in which this expressions resides (for reporting errors)
+        :param dict origin_map: The EntityRule object in which those expressions reside (for reporting errors)
         :param K8sNamespace namespace: Restrict pods to this given Namespace
         :param bool is_namespace_selector: whether the containing selector is a namespaceSelector
         :return: the set of peers selected by the selector expression
@@ -149,15 +150,15 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         """
         expressions = expression.split(operator)
         current_expr = ""
-        splitted_expr = []
+        split_expr = []
         for expr in expressions:
             current_expr += expr
             if current_expr.count('(') == current_expr.count(')'):
-                splitted_expr.append(current_expr)
+                split_expr.append(current_expr)
                 current_expr = ""
             else:
                 current_expr += operator
-        return splitted_expr
+        return split_expr
 
     def _recursive_parse_label_selector(self, label_selector, origin_map, namespace, namespace_selector):
         """
@@ -175,21 +176,21 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         # We are handling the operators according to the "order of operation" - '!', '&&', '||'.
         # i.e. we will first try to spit the label by '||',
         # if the label does not contain '||', we will split by '&&',
-        # if the label does not contain &&, we will will look for the prefix '!',
+        # if the label does not contain &&, we will look for the prefix '!',
         # and if there is no '!', we will evaluate the expression.
         # handling '||' :
-        splitted_expr = self._split_selector(label_selector, '||')
-        if len(splitted_expr) != 1:
+        split_expr = self._split_selector(label_selector, '||')
+        if len(split_expr) != 1:
             res = PeerSet()
-            for expr in splitted_expr:
+            for expr in split_expr:
                 res |= self._recursive_parse_label_selector(expr, origin_map, namespace, namespace_selector)
             return res
 
         # there is no '||', handling '&&' :
-        splitted_expr = self._split_selector(label_selector, '&&')
-        if len(splitted_expr) != 1:
+        split_expr = self._split_selector(label_selector, '&&')
+        if len(split_expr) != 1:
             res = self.peer_container.get_all_peers_group(include_globals=include_globals)
-            for expr in splitted_expr:
+            for expr in split_expr:
                 res &= self._recursive_parse_label_selector(expr, origin_map, namespace, namespace_selector)
             return res
 
@@ -203,7 +204,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                                                                     namespace_selector)
 
         # there is no operator, parsing the expression:
-        return self._parse_selector_expr(splitted_expr[0], origin_map, namespace, namespace_selector)
+        return self._parse_selector_expr(split_expr[0], origin_map, namespace, namespace_selector)
 
     def _parse_label_selector(self, label_selector, origin_map, namespace=None, namespace_selector=False):
         """
@@ -420,7 +421,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         if protocol not in ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'SCTP', 'UDPLite']:
             self.syntax_error('invalid protocol name: ' + protocol, rule)
-        return ConnectionSet.protocol_name_to_number(protocol)
+        return ProtocolNameResolver.get_protocol_number(protocol)
 
     def _parse_xgress_rule(self, rule, is_ingress, policy_selected_eps, is_profile):
         """
@@ -512,7 +513,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                     pod_named_port = pod.get_named_ports().get(port)
                     if pod_named_port:
                         port_used = True
-                        if ConnectionSet.protocol_name_to_number(pod_named_port[1]) != protocol:
+                        if ProtocolNameResolver.get_protocol_number(pod_named_port[1]) != protocol:
                             self.warning(f'Protocol mismatch for named port {port} (vs. Pod {pod.full_name()})', rule)
 
                 if not port_used:

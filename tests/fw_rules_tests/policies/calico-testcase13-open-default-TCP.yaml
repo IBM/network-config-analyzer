@@ -9,7 +9,7 @@ spec:
   - Egress
   ingress:
   - action: Deny
-    protocol: 135 #TCP
+    protocol: 136 #UDPLite
     source:
       selector: all()
   - action: Allow
@@ -18,8 +18,7 @@ spec:
 
   egress:
   - action: Deny
-    #protocol: UDPLite
-    protocol: 135 #TCP
+    protocol: 136 #UDPLite
     destination:
       selector: all()
   - action: Allow

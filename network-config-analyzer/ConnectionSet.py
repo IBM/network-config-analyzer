@@ -6,14 +6,13 @@ from CanonicalIntervalSet import CanonicalIntervalSet
 from PortSet import PortSet
 from TcpLikeProperties import TcpLikeProperties
 from ICMPDataSet import ICMPDataSet
+from ProtocolNameResolver import ProtocolNameResolver
 
 
 class ConnectionSet:
     """
     This class holds a set of connections and allows several manipulations on this set such as union, intersection, ...
     """
-    _protocol_number_to_name_dict = {1: 'ICMP', 6: 'TCP', 17: 'UDP', 58: 'ICMPv6', 132: 'SCTP', 135: 'UDPLite'}
-    _protocol_name_to_number_dict = {'ICMP': 1, 'TCP': 6, 'UDP': 17, 'ICMPv6': 58, 'SCTP': 132, 'UDPLite': 135}
     _icmp_protocols = {1, 58}
     port_supporting_protocols = {6, 17, 132}
     _max_protocol_num = 255
@@ -77,8 +76,8 @@ class ConnectionSet:
         res = []
         protocols_ranges = CanonicalIntervalSet()
         for protocol in sorted(self.allowed_protocols):
-            if protocol in ConnectionSet._protocol_number_to_name_dict:
-                protocol_text = self.protocol_number_to_name(protocol)
+            if ProtocolNameResolver.is_standard_protocol(protocol):
+                protocol_text = ProtocolNameResolver.get_protocol_name(protocol)
                 properties = self.allowed_protocols[protocol]
                 res.append(self._get_protocol_with_properties_representation(is_str, protocol_text, properties))
             else:
@@ -129,7 +128,7 @@ class ConnectionSet:
 
         if len(self.allowed_protocols) == 1:
             protocol_num = next(iter(self.allowed_protocols))
-            protocol_text = 'Protocol: ' + self.protocol_number_to_name(protocol_num)
+            protocol_text = 'Protocol: ' + ProtocolNameResolver.get_protocol_name(protocol_num)
             properties = self.allowed_protocols[protocol_num]
             properties_text = ''
             if not isinstance(properties, bool):
@@ -143,7 +142,7 @@ class ConnectionSet:
                 break
             if idx > 0:
                 protocol_text += ', '
-            protocol_text += self.protocol_number_to_name(protocol)
+            protocol_text += ProtocolNameResolver.get_protocol_name(protocol)
 
             # add properties:
             properties = self.allowed_protocols[protocol]
@@ -312,37 +311,6 @@ class ConnectionSet:
         return res
 
     @staticmethod
-    def protocol_name_to_number(name):
-        """
-        Convert protocol name to protocol number (for common protocols)
-        Source: https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
-        :param str name: protocol name
-        :return: protocol number
-        :rtype: int
-        """
-        if isinstance(name, int):
-            return name
-
-        protocol_num = ConnectionSet._protocol_name_to_number_dict.get(name)
-        if not protocol_num:
-            raise Exception('Unknown protocol name: ' + name)
-
-        return protocol_num
-
-    @staticmethod
-    def protocol_number_to_name(number):
-        """
-        Convert protocol number to protocol name (for common protocols)
-        :param int number: protocol number
-        :return: protocol name
-        :rtype: str
-        """
-        if number < 1 or number > 255:
-            raise Exception('Protocol number must be in the range 1-255')
-
-        return ConnectionSet._protocol_number_to_name_dict.get(number, str(number))
-
-    @staticmethod
     def protocol_supports_ports(protocol):
         """
         :param protocol: Protocol number
@@ -369,7 +337,7 @@ class ConnectionSet:
         :return: None
         """
         if isinstance(protocol, str):
-            protocol = self.protocol_name_to_number(protocol)
+            protocol = ProtocolNameResolver.get_protocol_number(protocol)
         if protocol < 1 or protocol > 255:
             raise Exception('Protocol must be in the range 1-255')
         if not bool(properties):  # if properties are empty, there is nothing to add
@@ -386,7 +354,7 @@ class ConnectionSet:
         :return: None
         """
         if isinstance(protocol, str):
-            protocol = self.protocol_name_to_number(protocol)
+            protocol = ProtocolNameResolver.get_protocol_number(protocol)
         if protocol < 1 or protocol > 255:
             raise Exception('Protocol must be in the range 1-255')
         if protocol not in self.allowed_protocols:
@@ -463,7 +431,7 @@ class ConnectionSet:
         """
         for protocol, properties in list(self.allowed_protocols.items()):
             if self.protocol_supports_ports(protocol):
-                properties.convert_named_ports(named_ports, self.protocol_number_to_name(protocol))
+                properties.convert_named_ports(named_ports, ProtocolNameResolver.get_protocol_name(protocol))
                 if not properties:
                     del self.allowed_protocols[protocol]
 
@@ -484,17 +452,17 @@ class ConnectionSet:
             return other_name + ' allows all connections while ' + self_name + ' does not.'
         for protocol, properties in self.allowed_protocols.items():
             if protocol not in other.allowed_protocols:
-                return self_name + ' allows communication using protocol ' + self.protocol_number_to_name(protocol) + \
-                    ' while ' + other_name + ' does not.'
+                return self_name + ' allows communication using protocol ' + ProtocolNameResolver.get_protocol_name(protocol) \
+                    + ' while ' + other_name + ' does not.'
             other_properties = other.allowed_protocols[protocol]
             if properties != other_properties:
-                return self.protocol_number_to_name(protocol) + ' protocol - ' + \
+                return ProtocolNameResolver.get_protocol_name(protocol) + ' protocol - ' + \
                     properties.print_diff(other_properties, self_name, other_name)
 
         for protocol in other.allowed_protocols:
             if protocol not in self.allowed_protocols:
-                return other_name + ' allows communication using protocol ' + self.protocol_number_to_name(protocol) + \
-                    ' while ' + self_name + ' does not.'
+                return other_name + ' allows communication using protocol ' + \
+                    ProtocolNameResolver.get_protocol_name(protocol) + ' while ' + self_name + ' does not.'
 
         return 'No diff.'
 
@@ -507,6 +475,6 @@ class ConnectionSet:
     @staticmethod
     def get_non_tcp_connections():
         res = ConnectionSet()
-        res.add_all_connections([ConnectionSet._protocol_name_to_number_dict['TCP']])
+        res.add_all_connections([ProtocolNameResolver.get_protocol_number('TCP')])
         return res
         # return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()
