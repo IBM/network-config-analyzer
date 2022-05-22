@@ -393,18 +393,6 @@ class ConnectionSet:
             return
         del self.allowed_protocols[protocol]
 
-    def add_all_connections_of_protocol(self, protocol):
-        """
-        Add all possible connections to the connection set for a given protocol
-        :param protocol: the given protocol by name or number
-        :return: None
-        """
-        if isinstance(protocol, str):
-            protocol = self.protocol_name_to_number(protocol)
-        if protocol < 1 or protocol > 255:
-            raise Exception('Protocol must be in the range 1-255')
-        self._add_all_connections_of_protocol(protocol)
-
     def _add_all_connections_of_protocol(self, protocol):
         """
         Add all possible connections to the connection set for a given protocol

@@ -343,7 +343,7 @@ class CanonicalHyperCubeSet:
                 res_layers[remaining_self_layer] = self.layers[self_layer]
         for layer_elem, remaining_layer_elem in remaining_other_layers.items():
             if remaining_layer_elem:
-                res_layers[remaining_layer_elem] = other.layers[layer_elem]
+                res_layers[remaining_layer_elem] = other.layers[layer_elem].copy()
         self.layers = res_layers
         self._apply_layer_elements_union()
         return self
@@ -402,11 +402,11 @@ class CanonicalHyperCubeSet:
         :return: result for 'other' (which may be copied and changed or not)
         """
         if self.active_dimensions == other.active_dimensions:
-            return other.copy()
+            return other
         required_active_dimensions = set(self.active_dimensions + other.active_dimensions)
         self._set_active_dimensions(required_active_dimensions)
         if set(other.active_dimensions) == required_active_dimensions:
-            return other.copy()
+            return other
         # should not change active dimensions for 'other' during the computation of operation between self and other
         other_copy = other.copy()
         other_copy._set_active_dimensions(required_active_dimensions)
