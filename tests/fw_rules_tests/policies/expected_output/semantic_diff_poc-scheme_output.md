@@ -21,12 +21,12 @@
 ||[default]|[frontend]|[default]|[app in (emailservice,paymentservice,redis-cart)]|All connections|
 ||[default]|[loadgenerator]|[default]|[app not in (frontend,loadgenerator)]|All connections|
 ||[default]|[recommendationservice]|[default]|[app not in (loadgenerator,productcatalogservice,recommendationservice)]|All connections|
-||[kube-system]|[*]|[default]|[app=frontend]|All connections|
+||[kube-system]|[*]|[default]|[app!=frontend]|All connections|
 |semantic_diff, config1: allow_all, config2: poc3, key: Removed connections between persistent peers and ipBlocks||||||
 |||0.0.0.0/0|[default]|[*]|All but TCP 8080|
 |||::/0|[default]|[*]|All but TCP 8080|
-|||0.0.0.0/0|[default]|[app=frontend]|All connections|
-|||::/0|[default]|[app=frontend]|All connections|
+|||0.0.0.0/0|[default]|[app!=frontend]|All connections|
+|||::/0|[default]|[app!=frontend]|All connections|
 ||[default]|[*]||0.0.0.0/0|All connections|
 ||[default]|[*]||::/0|All connections|
 

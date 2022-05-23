@@ -37,7 +37,7 @@
   - src_ns:
     - y
     src_pods:
-    - pod=c
+    - pod!=c
     dst_ip_block:
     - 0.0.0.0/0
     connection:
@@ -45,7 +45,7 @@
   - src_ns:
     - y
     src_pods:
-    - pod=c
+    - pod!=c
     dst_ip_block:
     - ::/0
     connection:

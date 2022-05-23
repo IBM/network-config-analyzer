@@ -245,7 +245,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app=frontend
+    - app!=frontend
     connection:
     - All connections
 - query: 'semantic_diff, config1: allow_all, config2: poc3, key: Removed connections
@@ -278,7 +278,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app=frontend
+    - app!=frontend
     connection:
     - All connections
   - src_ip_block:
@@ -286,7 +286,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app=frontend
+    - app!=frontend
     connection:
     - All connections
   - src_ns:

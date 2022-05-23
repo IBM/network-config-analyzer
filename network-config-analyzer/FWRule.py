@@ -71,7 +71,8 @@ class LabelExpr:
                 prefix_expr = f'has({k}) and '
         vals_str = ','.join(v for v in sorted(list(shorter_values_list)))
         if len(shorter_values_list) == 1:
-            label_containment_expr = f'{k}={vals_str}'
+            equality_operator = '=' if containment_str == 'in' else '!='
+            label_containment_expr = f'{k}{equality_operator}{vals_str}'
         else:
             label_containment_expr = f'{k} {containment_str} ({vals_str})'
         return f'({prefix_expr}{label_containment_expr})' if prefix_expr else label_containment_expr
