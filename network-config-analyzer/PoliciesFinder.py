@@ -86,6 +86,10 @@ class PoliciesFinder:
             return
         if profile.full_name() in self.policies_container.profiles:
             raise Exception('A profile named ' + profile.full_name() + ' already exists')
+        if self.type == NetworkConfig.ConfigType.Unknown:
+            self.type = NetworkConfig.ConfigType.Calico
+        elif self.type != NetworkConfig.ConfigType.Calico:
+            raise Exception('Cannot mix NetworkPolicies from different platforms')
         self.policies_container.profiles[profile.full_name()] = profile
 
     def parse_policies_in_parse_queue(self):
