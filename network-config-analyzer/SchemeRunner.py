@@ -48,10 +48,14 @@ class SchemeRunner(GenericYamlParser):
             return given_path
         if path.exists(given_path):
             return given_path
+        if given_path.startswith(('https://github', 'https://raw.githubusercontent')):
+            return given_path
         base_dir = path.dirname(path.realpath(self.yaml_file_name))
         input_file = base_dir + path.sep + given_path
         if path.exists(input_file) or out_flag:
             return input_file
+        if not path.exists(input_file):
+            raise Exception(f'{given_path} entry is not a valid path')
         return given_path
 
     def _handle_resources_list(self, resources_list):
