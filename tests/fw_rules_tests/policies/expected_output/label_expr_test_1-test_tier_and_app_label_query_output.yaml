@@ -60,7 +60,7 @@
     dst_ns:
     - default
     dst_pods:
-    - (has(app) and app=B) and tier in (W,X)
+    - (has(app) and app!=B) and tier in (W,X)
     connection:
     - All connections
 
