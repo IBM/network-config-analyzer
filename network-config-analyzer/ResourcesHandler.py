@@ -49,7 +49,7 @@ class ResourcesHandler:
         elif not success and not res_type:
             # no global resources found, get them from k8s live cluster
             print('loading topology objects from k8s live cluster')
-            global_resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Pods, ResourceType.Namespaces])
+            global_resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
 
         self.global_peer_container = global_resources_parser.build_peer_container()
         self.global_ns_finder = global_resources_parser.ns_finder
