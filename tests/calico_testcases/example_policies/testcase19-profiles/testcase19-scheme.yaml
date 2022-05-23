@@ -160,6 +160,11 @@ networkConfigList:
       - testcase19-15-ingress-allow-deny-witoutpass-games-within-namespace.yaml
     expectedWarnings: 0
 
+  - name: deny-all-profiles
+    networkPolicyList:
+      - testcase19-0-deny-all-profiles.yaml
+    expectedWarnings: 0
+
 queries:
   - name: non_empty
     emptiness:
@@ -418,3 +423,8 @@ queries:
     - np1_cnc-fe-only-ingress
     - np4_cnc-ntsgin-policy-partly-within-namespace
     expected: 1
+
+  - name: deny-all-profiles-connectivity
+    connectivityMap:
+    - deny-all-profiles
+    expectedOutput: expected_output/testcase19-deny-all-profiles-connectivity.txt
