@@ -1,0 +1,13 @@
+resourceList: ./resources-path.yaml
+
+networkConfigList:
+  - name: workload_resources_captured
+    resourceList:
+      - resources-path.yaml
+    expectedWarnings: 0
+
+queries:
+  - name: all-captured
+    allCaptured:
+      - workload_resources_captured
+    expected: 4

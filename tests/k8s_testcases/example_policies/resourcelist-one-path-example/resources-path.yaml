@@ -1,0 +1,201 @@
+{
+  "kind": "NamespaceList",
+  "apiVersion": "v1",
+  "metadata": {
+    "selfLink": "/api/v1/namespaces",
+    "resourceVersion": "2996488"
+  },
+  "items": [
+    {
+      "metadata": {
+        "name": "default",
+        "selfLink": "/api/v1/namespaces/default",
+        "uid": "7a9b0f05-2134-11e8-a8d4-32799206ac60",
+        "resourceVersion": "11",
+        "creationTimestamp": "2018-03-06T11:49:51Z",
+        "labels": {
+          "unique-label": "defaultNameSpace"
+        }
+      },
+      "spec": {
+        "finalizers": [
+          "kubernetes"
+        ]
+      },
+      "status": {
+        "phase": "Active"
+      }
+    },
+    {
+      "metadata": {
+        "name": "vendor-system",
+        "selfLink": "/api/v1/namespaces/vendor-system",
+        "uid": "893e408d-2134-11e8-a8d4-32799206ac60",
+        "resourceVersion": "137",
+        "creationTimestamp": "2018-03-06T11:50:15Z",
+        "labels": {
+          "unique-label": "vendor-systemNameSpace"
+        }
+      },
+      "spec": {
+        "finalizers": [
+          "kubernetes"
+        ]
+      },
+      "status": {
+        "phase": "Active"
+      }
+    },
+    {
+      "metadata": {
+        "name": "kube-public",
+        "selfLink": "/api/v1/namespaces/kube-public",
+        "uid": "7aa1e31a-2134-11e8-a8d4-32799206ac60",
+        "resourceVersion": "23",
+        "creationTimestamp": "2018-03-06T11:49:51Z"
+      },
+      "spec": {
+        "finalizers": [
+          "kubernetes"
+        ]
+      },
+      "status": {
+        "phase": "Active"
+      }
+    },
+    {
+      "metadata": {
+        "name": "kube-system",
+        "selfLink": "/api/v1/namespaces/kube-system",
+        "uid": "7aa14693-2134-11e8-a8d4-32799206ac60",
+        "resourceVersion": "127",
+        "creationTimestamp": "2018-03-06T11:49:51Z",
+        "labels": {
+          "unique-label": "kubeSystemNameSpace"
+        },
+        "annotations": {
+          "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"annotations\":{},\"name\":\"kube-system\",\"namespace\":\"\"}}\n"
+        }
+      },
+      "spec": {
+        "finalizers": [
+          "kubernetes"
+        ]
+      },
+      "status": {
+        "phase": "Active"
+      }
+    },
+  ]
+}
+---
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    labels:
+      app: skydive
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+      tier: agent
+    name: cog-agents-d54st
+    namespace: default
+    ownerReferences: []
+  spec:
+    containers:
+    - ports: {}
+---
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    labels:
+      app: skydive
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+      tier: agent
+    name: cog-agents-js4qc
+    namespace: default
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DaemonSet
+      name: cog-agents
+      uid: 14265cc3-301f-11e8-865c-52075433990e
+  spec:
+    containers:
+    - ports: {}
+---
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    labels:
+      app: skydive
+      controller-revision-hash: '1317571478'
+      pod-template-generation: '1'
+      tier: analyzer
+    name: cog-agents-qr8gp
+    namespace: default
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DaemonSet
+      name: cog-agents
+      uid: 14265cc3-301f-11e8-865c-52075433990e
+  spec:
+    containers:
+    - ports: {}
+---
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    labels:
+      weird-lb-app-name: keepalived
+      somehash: a8bba512021e211e8a8d432799206ac6
+      pod-template-hash: '175883757'
+    name: a-differenet-name-r66p2
+    namespace: vendor-system
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: a-differenet-name
+      uid: 82429751-7587-11e8-82cc-fe87d4819862
+  spec:
+    containers:
+    - ports: {}
+---
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    labels:
+      weird-lb-app-name: keepalived
+      somehash: a8bba512021e211e8a8d432799206ac6
+      pod-template-hash: '175883757'
+    name: a-differenet-name-zv2ch
+    namespace: vendor-system
+    ownerReferences:
+    - apiVersion: extensions/v1beta1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: a-differenet-name
+      uid: 82429751-7587-11e8-82cc-fe87d4819862
+  spec:
+    containers:
+    - ports: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: capture-all-ingress-default
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - namespaceSelector: {}
+        podSelector: {}
