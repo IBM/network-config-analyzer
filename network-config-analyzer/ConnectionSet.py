@@ -80,8 +80,8 @@ class ConnectionSet:
         if aggregated_properties_txt != '':
             res.append(aggregated_properties_txt)
         for protocol in sorted(aggregate_protocols):
-            if protocol in ConnectionSet._protocol_number_to_name_dict:
-                protocol_text = self.protocol_number_to_name(protocol)
+            if ProtocolNameResolver.is_standard_protocol(protocol):
+                protocol_text = ProtocolNameResolver.get_protocol_name(protocol)
                 properties = aggregate_protocols[protocol]
                 res.append(self._get_protocol_with_properties_representation(is_str, protocol_text, properties))
             else:
