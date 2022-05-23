@@ -10,17 +10,17 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All connections
   - src_ns:
     - kube-system
     src_pods:
-    - '!has(tier) or tier in (not_frontend_for_demo)'
+    - '!has(tier) or tier=not_frontend_for_demo'
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All connections
 - query: 'semantic_diff, config1: np1, config2: np4, key: Removed connections between
@@ -29,7 +29,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ns:
     - default
     - kube-system-dummy-to-ignore
@@ -41,11 +41,11 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ns:
     - kube-system
     dst_pods:
-    - '!has(tier) or tier in (not_frontend_for_demo)'
+    - '!has(tier) or tier=not_frontend_for_demo'
     connection:
     - All connections
 - query: 'semantic_diff, config1: np1, config2: np4, key: Added connections between
@@ -57,7 +57,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All but:
       - Protocol: UDP
@@ -78,7 +78,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All but:
       - Protocol: UDP
@@ -91,7 +91,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All but:
       - Protocol: UDP
@@ -109,7 +109,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All but:
       - Protocol: UDP
@@ -120,7 +120,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All connections
   - src_ip_block:
@@ -128,7 +128,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All connections
   - src_ip_block:
@@ -136,7 +136,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All connections
   - src_ip_block:
@@ -144,7 +144,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - tier in (frontend)
+    - tier=frontend
     connection:
     - All connections
 - query: 'semantic_diff, config1: np1, config2: np4, key: Removed connections between
@@ -153,7 +153,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 0.0.0.0/3
     - 32.0.0.0/4
@@ -166,7 +166,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 49.50.0.1/32
     connection:
@@ -174,7 +174,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 49.50.0.11/32
     connection:
@@ -182,7 +182,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 49.50.0.13/32
     connection:
@@ -190,7 +190,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 49.50.0.15/32
     connection:
@@ -198,7 +198,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 128.0.0.0/1
     - 49.128.0.0/9
@@ -230,7 +230,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 49.50.0.3/32
     connection:
@@ -238,7 +238,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 49.50.0.5/32
     connection:
@@ -246,7 +246,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 49.50.0.7/32
     connection:
@@ -254,7 +254,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - 49.50.0.9/32
     connection:
@@ -262,7 +262,7 @@
   - src_ns:
     - kube-system
     src_pods:
-    - tier in (frontend)
+    - tier=frontend
     dst_ip_block:
     - ::/0
     connection:

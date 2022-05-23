@@ -172,7 +172,7 @@
     dst_ns:
     - kube-system
     dst_pods:
-    - has(k8s-app)
+    - k8s-app=kube-dns
     connection:
     - Protocol: UDP
       Ports:

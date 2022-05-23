@@ -7,7 +7,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (B)
+    - app=B
     connection:
     - All connections
 

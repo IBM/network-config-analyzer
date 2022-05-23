@@ -5,7 +5,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app in (G) and tier in (W)
+    - app=G and tier=W
     connection:
     - All connections
 
@@ -38,7 +38,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '!has(tier) and app in (B)'
+    - '!has(tier) and app=B'
     connection:
     - All connections
 
@@ -49,7 +49,7 @@
     dst_ns:
     - default
     dst_pods:
-    - '!has(tier) and {!has(app) or app in (B)}'
+    - '!has(tier) and {!has(app) or app=B}'
     connection:
     - All connections
 
@@ -60,7 +60,7 @@
     dst_ns:
     - default
     dst_pods:
-    - (has(app) and app not in (B)) and tier in (W,X)
+    - (has(app) and app=B) and tier in (W,X)
     connection:
     - All connections
 
