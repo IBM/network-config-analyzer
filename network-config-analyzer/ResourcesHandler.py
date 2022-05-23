@@ -40,20 +40,16 @@ class ResourcesHandler:
         global_resources_parser = ResourcesParser()
         success, res_type = global_resources_parser.parse_lists_for_topology(global_ns_list, global_pod_list,
                                                                              global_resource_list)
-
-        if res_type == ResourceType.Namespaces:
-            # in case the global resources has only namespaces
-            # then global pods are taken from the k8s live cluster
-            print('loading pods from k8s live cluster')
-            global_resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Pods])
-        elif not success and not res_type:
-            # no global resources found, get them from k8s live cluster
-            print('loading topology objects from k8s live cluster')
-            global_resources_parser.parse_lists_for_topology(['k8s'], ['k8s'], None)
-
-        self.global_peer_container = global_resources_parser.build_peer_container()
-        self.global_ns_finder = global_resources_parser.ns_finder
-        self.global_pods_finder = global_resources_parser.pods_finder
+        if success:
+            self.global_peer_container = global_resources_parser.build_peer_container()
+            self.global_pods_finder = global_resources_parser.pods_finder
+            self.global_ns_finder = global_resources_parser.ns_finder
+        elif res_type == ResourceType.Pods:
+            # in case the global resources has only pods (can not build global peerContainer)
+            self.global_pods_finder = global_resources_parser.pods_finder
+        elif res_type == ResourceType.Namespaces:
+            # in case the global resources has only namespaces (can not build global peerContainer)
+            self.global_ns_finder = global_resources_parser.ns_finder
 
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False):
         """
