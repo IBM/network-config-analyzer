@@ -1,4 +1,3 @@
-
 networkConfigList:
   - name: np
     resourceList:
@@ -15,7 +14,6 @@ networkConfigList:
       - ../../example_podlist/ns_list_for_testcase10.json
       - ../../example_podlist/pods_list.json
     expectedWarnings: 2
-
 
 queries:
   - name: sanity_all
