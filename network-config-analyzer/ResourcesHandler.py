@@ -38,18 +38,8 @@ class ResourcesHandler:
         in case specific list is None
         """
         global_resources_parser = ResourcesParser()
-        success, res_type = global_resources_parser.parse_lists_for_topology(global_ns_list, global_pod_list,
-                                                                             global_resource_list)
-        if success:
-            self.global_peer_container = global_resources_parser.build_peer_container()
-            self.global_pods_finder = global_resources_parser.pods_finder
-            self.global_ns_finder = global_resources_parser.ns_finder
-        elif res_type == ResourceType.Pods:
-            # in case the global resources has only pods (can not build global peerContainer)
-            self.global_pods_finder = global_resources_parser.pods_finder
-        elif res_type == ResourceType.Namespaces:
-            # in case the global resources has only namespaces (can not build global peerContainer)
-            self.global_ns_finder = global_resources_parser.ns_finder
+        self._set_config_peer_container(global_ns_list, global_pod_list, global_resource_list,
+                                        'global', True, global_resources_parser)
 
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False):
         """
@@ -88,14 +78,14 @@ class ResourcesHandler:
             if res_type:
                 self._fill_empty_finder(res_type, resources_parser)
             peer_container = resources_parser.build_peer_container(config_name)
-        elif self.global_peer_container:  # no specific peer container, use the global one
+        elif self.global_peer_container:  # no specific peer container, use the global one if exists
             peer_container = self.global_peer_container
         else:  # the specific networkConfig has no topology input resources (not private, neither global)
             print('loading topology objects from k8s live cluster')
             resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
             peer_container = resources_parser.build_peer_container(config_name)
 
-        if save_flag:
+        if save_flag:  # if called from scheme with global topology or cmdline with 2 configs query
             self.global_peer_container = peer_container
             self.global_ns_finder = resources_parser.ns_finder
             self.global_pods_finder = resources_parser.pods_finder
