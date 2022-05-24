@@ -102,16 +102,16 @@ class ConnectionSet:
         :return: dict protocols_not_aggregated: the rest of the protocol data that was not aggregated.
         :return: str aggregation_results: a string of the aggregated representation
         """
-        protocols_not_aggregated = protocols.copy()
         aggregation_results = ''
+        protocols_not_aggregated = protocols
 
         # handle TCP+UDP properties aggregation (do not handle range segmentation overlapping)
         tcp_protocol_number = ProtocolNameResolver.get_protocol_number('TCP')
         udp_protocol_number = ProtocolNameResolver.get_protocol_number('UDP')
-        if protocols_not_aggregated.get(tcp_protocol_number) and protocols_not_aggregated.get(udp_protocol_number):
-
-            aggregation_results = ConnectionSet._aggregate_pair_protocols(protocols_not_aggregated, tcp_protocol_number,
-                                                                          udp_protocol_number)
+        if protocols.get(tcp_protocol_number) and protocols.get(udp_protocol_number):
+            aggregation_results, protocols_not_aggregated = ConnectionSet._aggregate_pair_protocols(protocols,
+                                                                                                    tcp_protocol_number,
+                                                                                                    udp_protocol_number)
             if aggregation_results != '':
                 aggregation_results = 'TCP+UDP ' + aggregation_results
 
@@ -127,24 +127,27 @@ class ConnectionSet:
         :param protocol_number1: first protocol number to aggregate with the second
         :param protocol_number2: second protocol number to aggregate
         :return: str aggregated_properties: a string of the aggregated properties
+        :return: dict protocols_not_aggregated: the rest of the protocol data that was not aggregated.
         """
-        aggregated_properties = protocols[protocol_number1] & protocols[protocol_number2]
-        if str(aggregated_properties) == '' or str(aggregated_properties) == 'Empty':
-            return ''
-        protocol1_dif = protocols[protocol_number1] - protocols[protocol_number2]
-        protocol2_dif = protocols[protocol_number2] - protocols[protocol_number1]
+        protocols_not_aggregated = protocols
+        aggregated_properties = protocols_not_aggregated[protocol_number1] & protocols_not_aggregated[protocol_number2]
+        if not aggregated_properties:
+            return '', protocols_not_aggregated
 
+        protocol1_dif = protocols_not_aggregated[protocol_number1] - protocols_not_aggregated[protocol_number2]
+        protocol2_dif = protocols_not_aggregated[protocol_number2] - protocols_not_aggregated[protocol_number1]
+        protocols_not_aggregated = protocols.copy()
         if protocol1_dif:
-            protocols[protocol_number1] = protocol1_dif
+            protocols_not_aggregated[protocol_number1] = protocol1_dif
         else:
-            protocols.pop(protocol_number1)
+            del protocols_not_aggregated[protocol_number1]
 
         if protocol2_dif:
-            protocols[protocol_number2] = protocol2_dif
+            protocols_not_aggregated[protocol_number2] = protocol2_dif
         else:
-            protocols.pop(protocol_number2)
+            del protocols_not_aggregated[protocol_number2]
 
-        return str(aggregated_properties)
+        return str(aggregated_properties), protocols_not_aggregated
 
     @staticmethod
     def _get_protocol_with_properties_representation(is_str, protocol_text, properties):
