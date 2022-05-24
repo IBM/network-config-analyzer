@@ -50,12 +50,12 @@ jobs:
         run: python tests/run_all_tests.py --type=general --check_run_time | tee tests/run_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_all_tests log
         if: ${{ always() }}
-        uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: run-alltests-log
           path: tests/run_log.txt
       - name: Upload failed run-time tests file
-        uses: actions/upload-artifact@6673cd052c4cd6fcf4b4e6e60ea986c889389535
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: failed-run-time-check-file
           path: ./tests/tests_failed_runtime_check.csv

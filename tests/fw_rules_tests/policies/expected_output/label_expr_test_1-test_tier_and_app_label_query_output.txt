@@ -14,5 +14,5 @@ final fw rules for query: test_tier_and_app_label, config: test9:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(tier) and {!has(app) or app=B}] conn: All connections
 
 final fw rules for query: test_tier_and_app_label, config: test10:
-src: 0.0.0.0/0 dst_ns: [default] dst_pods: [(has(app) and app=B) and tier in (W,X)] conn: All connections
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [(has(app) and app!=B) and tier in (W,X)] conn: All connections
 
