@@ -165,19 +165,11 @@
     --return_0
   expected: 0
 
-### adding tests with resources_list combinations:
+### tests with resources_list combinations:
 - name: basic_sanity_ignore_resource_list_np  # resource_list will be ignored cause there is a np_list with the query arg
   args: >
     --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
     --resource_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
-  expected: 1
-
-- name: basic_sanity_used_resource_np  # the networkpolicy will be read from the resource_list
-  args: >
-    --sanity
-    --resource_list k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
     --ns_list k8s_testcases/example_podlist/ns_list.json
     --pod_list k8s_testcases/example_podlist/pods_list.json
   expected: 1
@@ -190,13 +182,6 @@
     --pod_list k8s_testcases/example_podlist/pods_list.json
   expected: 1
 
-- name: basic_sanity_used_resource_pods  # pods will be taken from resources list
-  args:
-    --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-    --resource_list k8s_testcases/example_podlist/pods_list.json
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-  expected: 1
-
 - name: basic_sanity_ignored_resource_ns  # resource_list will be ignored cause there is a ns_list arg
   args: >
     --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
@@ -205,27 +190,12 @@
     --pod_list k8s_testcases/example_podlist/pods_list.json
   expected: 1
 
-- name: basic_sanity_used_resource_ns  # namespaces will be taken from resources list
-  args:
-    --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-    --pod_list k8s_testcases/example_podlist/pods_list.json
-    --resource_list k8s_testcases/example_podlist/ns_list.json
-  expected: 1
-
 - name: basic_sanity_ignored_resource_pods_ns  # resource_list will be ignored cause there are pod_list and ns_list args
   args: >
     --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
     --resource_list k8s_testcases/example_podlist/bank_pod_list.json
     --resource_list k8s_testcases/example_podlist/bank_ns_list.json
     --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
-  expected: 1
-
-- name: basic_sanity_ignored_resource_pods  # resource_list will be ignored for pods but read for ns
-  args: >
-    --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-    --resource_list k8s_testcases/example_podlist/bank_pod_list.json
-    --resource_list k8s_testcases/example_podlist/ns_list.json
     --pod_list k8s_testcases/example_podlist/pods_list.json
   expected: 1
 
@@ -254,13 +224,13 @@
     --resource_list k8s_testcases/example_podlist/bank_pod_list.json
   expected: 1
 
-- name: basic_equiv_networkpolicies_with_resource_list
+- name: basic_equiv_networkpolicies_and_topology_with_resource_list
   args: >
     --equiv
     --resource_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml
     --base_resource_list k8s_testcases/example_policies/testcase7/testcase7-networkpolicy2.yaml
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
+    --resource_list k8s_testcases/example_podlist/ns_list.json
+    --resource_list k8s_testcases/example_podlist/pods_list.json
   expected: 1
 
 - name: basic_equiv_topology_with_resource_list

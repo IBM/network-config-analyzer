@@ -6,15 +6,16 @@ It should contain at least the `networkConfigList` and the `queries` fields.
 |-------|-------------|-------|---------|
 |namespaceList|A globally-scoped list of namespaces in the cluster|directory, git-repo or yaml/json file|Cluster namespaces|
 |podList|A globally-scoped list of pods in the cluster|directory, git-repo or yaml/json file|Cluster pods|
-|resourceList|A globally-scoped list of namespaces and pods - will be ignored in case namespaceList and podList are provided|directory, git-repo or yaml/json file|Cluster pods and namespaces
+|resourceList|A globally-scoped list of namespaces and pods |directory, git-repo or yaml/json file|Specific field (namespaceList/podList) overrides relevant resource, missing resources with the absence of specific field defaults to cluster items
 |networkConfigList|A list of network configurations and policies to reason about|list of [NetworkConfig](#NetworkConfigobject) objects|
 |queries|Queries for the tool to run|list of [Query](#queryobject) objects|
 
 ### <a name="NetworkConfigobject"></a>NetworkConfig object
 Each NetworkConfig object represents a specific network configuration.
-It should contain at least the `name` and the `networkPolicyList`/`resourceList` fields.
-`resourceList` field may contain entries that refer to namespaces, pods and NetworkPolicies.
-A specific field will override the relevant content of `resourceList`.
+It should contain the `name` and at least one of the fields `networkPolicyList`, `resourceList`.\
+`resourceList` field may contain entries that refer to namespaces, pods and NetworkPolicies.\
+If `networkPolicyList` is not provided and `resourceList` contains no policies, then cluster policies will be loaded
+
 
 | Field | Description | Value | Default |
 |-------|-------------|-------|---------|
@@ -22,11 +23,13 @@ A specific field will override the relevant content of `resourceList`.
 |namespaceList|A specific list of namespaces|directory, git-repo or yaml/json file|global namespaceList|
 |podList|A specific list of pods|directory, git-repo or yaml/json file|global podList|
 |networkPolicyList|A list of sources for NetworkPolicies|list of sources |
-|resourceList|A specific list of sources of pods, namespaces and NetworkPolicies, will be ignored if namespaceList and podList and networkPolicyList are provided|list of sources|
+|resourceList|A list of sources for pods, namespaces and NetworkPolicies|list of sources|Specific field (namespaceList/podList/NetworkPolicyList) overrides relevant resource
 |expectedWarnings|The expected sum of returned warnings for all resources of this configuration (an error is issued on mismatch)|integer |
 |expectedError|indicates if there is an expected error from a networkPolicy|0/1|
 
-Possible entries (sources) in the list under `networkPolicyList` are:
+For more information on fields patterns, see [Common Query Patterns](CommonQueryPatterns.md)
+
+Possible entries (sources) in the list under `networkPolicyList` or `resourceList` are:
 * The string `k8s` - Adds all K8s NetworkPolicies in the cluster to the set
 * The string `calico` - Adds all Calico NetworkPolicies and Profiles in the cluster to the set
 * The string `istio` - Adds all Istio AuthorizationPolicies in the cluster to the set

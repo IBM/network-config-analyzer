@@ -2,16 +2,15 @@
 namespaceList: ../../example_podlist/ns_list_for_testcase10.json
 podList: ../../example_podlist/pods_list.json
 networkConfigList:
-  - name: np
-    resourceList:
-      - testcase10-networkpolicy.yaml
-      - ../../example_podlist/ns_list_for_testcase10.json
-      - ../../example_podlist/pods_list.json
-    expectedWarnings: 2
+  - name: np1
+      networkPolicyList:
+        - testcase10-networkpolicy.yaml
+      resourceList:
+        - ../../example_podlist/ns_list_for_testcase10.json
+        - ../../example_podlist/pods_list.json
+      expectedWarnings: 2
 
   - name: np2
-    networkPolicyList:
-      - testcase10-networkpolicy.yaml
     resourceList:
       - testcase10-networkpolicy.yaml
       - ../../example_podlist/ns_list_for_testcase10.json
@@ -21,5 +20,10 @@ networkConfigList:
 queries:
   - name: sanity_all
     sanity:
-      - np
+      - np1
+    expected: 1
+
+  - name: sanity_all
+    sanity:
+      - np2
     expected: 1

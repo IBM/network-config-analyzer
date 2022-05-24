@@ -15,7 +15,7 @@ See an example scheme file [here](tests/k8s_testcases/example_policies/testcase1
 
 #### Running without a scheme file
 Various predefined queries can be performed without providing a scheme file, using the following command line configurations.
-Note: The <Networkpolicy set> in the following lines, can be provided instead within the --resource_list switch.
+
 - `--sanity [<NetworkPolicy set>]` \
 Running several sanity checks on the given set of NetworkPolicies
 - `--equiv [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
@@ -31,6 +31,11 @@ Checking whether the base set of NetworkPolicies forbids the traffic explicitly 
 Get the list of allowed connections as firewall rules on the given set of NetworkPolicies
 - `--semantic_diff [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
 Get the connectivity semantic difference as firewall rules between two sets of NetworkPolicy sets
+
+Note: The `<NetworkPolicy set>` may be provided instead within the --resource_list/--base_resource_list switches.\
+example: \
+  `--sanity`\
+  `--resorceList <NetworkPolicy set>`
 
 `<NetworkPolicy set>` should be one of:
 - a path to a yaml/json file defining NetworkPolicies
@@ -55,15 +60,14 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
   Specifies where to take the list of pods/endpoints from\
   *default:* the result of `kubectl get pods -A`\
   *shorthand*: `-p`
-- `--resource_list <a networkpolicy path from the list above or path to file or 'k8s'>`\
+- `--resource_list <paths to file/dir or from the list above>`\
   Allows specifying paths to take lists of namespaces, pods and NetworkPolicies from\
   *shorthand:* `-r`
-
 - `--base_ns_list <path to file or 'k8s'>`\
   Specifies files with list of namespaces to compare against in `--semantic_diff`
 - `--base_pod_list  <path to a file, 'calico' or 'k8s'>`\
   Specifies files with list of pods/endpoints to compare against in `--semantic_diff`
-- `--base_resource_list <a networkpolicy path from the list above or path to file or 'k8s'>`\
+- `--base_resource_list <paths to file/dir or from the list above>`\
   Specifies paths with list of lists of namespaces, pods and NetworkPolicies to compare against in `--semantic_diff`
 - `--ghe_token <token>`\
   A valid token to access a GHE repository
@@ -86,6 +90,8 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 - `--output_endpoints`\
   Choose endpoints type in output (pods/deployments).\
   *default:* deployments
+
+For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md)
 
 #### Exit Code Meaning:
 The exit value of running a command-line without a scheme is combined from two factors:
