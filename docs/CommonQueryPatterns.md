@@ -1,5 +1,5 @@
 ## Queries Patterns
-Following are desired patterns involving all resources paths switches
+Following are desired patterns involving all input resources switches
 ### CmdLine Queries:
 #### Queries with one config
 1. Old version, not using `resource_list` switch\
