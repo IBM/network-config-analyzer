@@ -75,14 +75,16 @@ class ConnectionSet:
             return str(self) if is_str else [str(self)]
         res = []
         protocols_ranges = CanonicalIntervalSet()
-        # aggregate specific representations:
-        aggregate_protocols, aggregated_properties_txt = self._aggregate_connection_representation(self.allowed_protocols)
-        if aggregated_properties_txt != '':
-            res.append(aggregated_properties_txt)
-        for protocol in sorted(aggregate_protocols):
+        protocols = self.allowed_protocols
+        if is_str:
+            # aggregate specific representations:
+            protocols, aggregated_properties_txt = self._aggregate_connection_representation(self.allowed_protocols)
+            if aggregated_properties_txt != '':
+                res.append(aggregated_properties_txt)
+        for protocol in sorted(protocols):
             if ProtocolNameResolver.is_standard_protocol(protocol):
                 protocol_text = ProtocolNameResolver.get_protocol_name(protocol)
-                properties = aggregate_protocols[protocol]
+                properties = protocols[protocol]
                 res.append(self._get_protocol_with_properties_representation(is_str, protocol_text, properties))
             else:
                 # collect allowed protocols numbers into ranges
@@ -107,9 +109,11 @@ class ConnectionSet:
         tcp_protocol_number = ProtocolNameResolver.get_protocol_number('TCP')
         udp_protocol_number = ProtocolNameResolver.get_protocol_number('UDP')
         if protocols_not_aggregated.get(tcp_protocol_number) and protocols_not_aggregated.get(udp_protocol_number):
-            aggregation_results = 'TCP+UDP ' + ConnectionSet._aggregate_pair_protocols(protocols_not_aggregated,
-                                                                                       tcp_protocol_number,
-                                                                                       udp_protocol_number)
+
+            aggregation_results = ConnectionSet._aggregate_pair_protocols(protocols_not_aggregated, tcp_protocol_number,
+                                                                          udp_protocol_number)
+            if aggregation_results != '':
+                aggregation_results = 'TCP+UDP ' + aggregation_results
 
         # handle future aggregations here
 
@@ -124,9 +128,11 @@ class ConnectionSet:
         :param protocol_number2: second protocol number to aggregate
         :return: str aggregated_properties: a string of the aggregated properties
         """
+        aggregated_properties = protocols[protocol_number1] & protocols[protocol_number2]
+        if str(aggregated_properties) == '' or str(aggregated_properties) == 'Empty':
+            return ''
         protocol1_dif = protocols[protocol_number1] - protocols[protocol_number2]
         protocol2_dif = protocols[protocol_number2] - protocols[protocol_number1]
-        aggregated_properties = protocols[protocol_number1] and protocols[protocol_number2]
 
         if protocol1_dif:
             protocols[protocol_number1] = protocol1_dif
