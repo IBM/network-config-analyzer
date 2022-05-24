@@ -102,14 +102,14 @@ class ConnectionSet:
         :return: dict protocols_not_aggregated: the rest of the protocol data that was not aggregated.
         :return: str aggregation_results: a string of the aggregated representation
         """
-        aggregation_results = ''
         protocols_not_aggregated = protocols
+        aggregation_results = ''
 
         # handle TCP+UDP properties aggregation (do not handle range segmentation overlapping)
         tcp_protocol_number = ProtocolNameResolver.get_protocol_number('TCP')
         udp_protocol_number = ProtocolNameResolver.get_protocol_number('UDP')
-        if protocols.get(tcp_protocol_number) and protocols.get(udp_protocol_number):
-            aggregation_results, protocols_not_aggregated = ConnectionSet._aggregate_pair_protocols(protocols,
+        if protocols_not_aggregated.get(tcp_protocol_number) and protocols_not_aggregated.get(udp_protocol_number):
+            aggregation_results, protocols_not_aggregated = ConnectionSet._aggregate_pair_protocols(protocols_not_aggregated,
                                                                                                     tcp_protocol_number,
                                                                                                     udp_protocol_number)
             if aggregation_results != '':
