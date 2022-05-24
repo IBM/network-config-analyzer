@@ -208,8 +208,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
         # first, convert path strings to dfas
         parsed_paths_with_dfa = []
         allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
-        for i in range(0, len(parsed_paths)):
-            path_string, path_type, peers, ports = parsed_paths[i]
+        for path_string, path_type, peers, ports  in parsed_paths:
             if path_type == 'Exact':
                 path_regex = path_string
             else:
