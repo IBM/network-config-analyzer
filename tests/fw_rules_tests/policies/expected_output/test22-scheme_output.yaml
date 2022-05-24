@@ -3,7 +3,7 @@
   - src_ns:
     - default
     src_pods:
-    - test=C
+    - test!=C
     dst_ns:
     - default
     dst_pods:

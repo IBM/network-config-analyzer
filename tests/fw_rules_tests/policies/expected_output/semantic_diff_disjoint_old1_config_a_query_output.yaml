@@ -68,7 +68,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app=app-1
+    - app!=app-1
     connection:
     - All connections
   - src_ns:
@@ -89,7 +89,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app=app-1
+    - app!=app-1
     connection:
     - All connections
   - src_ip_block:
@@ -97,7 +97,7 @@
     dst_ns:
     - default
     dst_pods:
-    - app=app-1
+    - app!=app-1
     connection:
     - All connections
   - src_ns:
