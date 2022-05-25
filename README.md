@@ -32,10 +32,8 @@ Get the list of allowed connections as firewall rules on the given set of Networ
 - `--semantic_diff [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
 Get the connectivity semantic difference as firewall rules between two sets of NetworkPolicy sets
 
-Note: The `<NetworkPolicy set>` may be provided instead within the --resource_list/--base_resource_list switches.\
-example: \
-  `--sanity`\
-  `--resorceList <NetworkPolicy set>`
+Note: The `<NetworkPolicy set>` may be provided instead within the `--resource_list/--base_resource_list` switches.\
+Example:  `--sanity --resorceList <NetworkPolicy set>`
 
 `<NetworkPolicy set>` should be one of:
 - a path to a yaml/json file defining NetworkPolicies
