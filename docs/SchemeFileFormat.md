@@ -27,7 +27,7 @@ If `networkPolicyList` is not provided and `resourceList` contains no policies, 
 |expectedWarnings|The expected sum of returned warnings for all resources of this configuration (an error is issued on mismatch)|integer |
 |expectedError|indicates if there is an expected error from a networkPolicy|0/1|
 
-For more information on fields patterns, see [Common Query Patterns](CommonQueryPatterns.md)
+For more information on fields patterns, see [Common Query Patterns](CommonQueryPatterns.md#scheme-file-patterns)
 
 Possible entries (sources) in the list under `networkPolicyList` or `resourceList` are:
 * The string `k8s` - Adds all K8s NetworkPolicies in the cluster to the set

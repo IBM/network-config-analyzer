@@ -51,22 +51,22 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
   *default:* The result of `kubectl get netpol -A`\
   *shorthand:* `-b`
 - `--ns_list <path to file or 'k8s'>`\
-  Allows specifying files to take the list of namespaces from\
+  Allows specifying files to take the list of namespaces from, this switch may be specified multiple times\
   *default:* the result of `kubectl get ns`\
   *shorthand:* `-n`
 - `--pod_list <path to a file, 'calico' or 'k8s'>`\
-  Specifies where to take the list of pods/endpoints from\
+  Specifies where to take the list of pods/endpoints from, this switch may be specified multiple times\
   *default:* the result of `kubectl get pods -A`\
   *shorthand*: `-p`
 - `--resource_list <paths to file/dir or from the list above>`\
-  Allows specifying paths to take lists of namespaces, pods and NetworkPolicies from\
+  Allows specifying paths to take lists of namespaces, pods and NetworkPolicies from, this switch may be specified multiple times\
   *shorthand:* `-r`
 - `--base_ns_list <path to file or 'k8s'>`\
-  Specifies files with list of namespaces to compare against in `--semantic_diff`
+  Specifies files with list of namespaces to compare against in `--semantic_diff`, this switch may be specified multiple times
 - `--base_pod_list  <path to a file, 'calico' or 'k8s'>`\
-  Specifies files with list of pods/endpoints to compare against in `--semantic_diff`
+  Specifies files with list of pods/endpoints to compare against in `--semantic_diff`, this switch may be specified multiple times
 - `--base_resource_list <paths to file/dir or from the list above>`\
-  Specifies paths with list of lists of namespaces, pods and NetworkPolicies to compare against in `--semantic_diff`
+  Specifies paths with list of lists of namespaces, pods and NetworkPolicies to compare against in `--semantic_diff`, this switch may be specified multiple times
 - `--ghe_token <token>`\
   A valid token to access a GHE repository
 - `--period <minutes>`\
@@ -89,7 +89,7 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
   Choose endpoints type in output (pods/deployments).\
   *default:* deployments
 
-For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md)
+For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md#cmdline-queries)
 
 #### Exit Code Meaning:
 The exit value of running a command-line without a scheme is combined from two factors:
