@@ -75,10 +75,16 @@ class ConnectionSet:
             return str(self) if is_str else [str(self)]
         res = []
         protocols_ranges = CanonicalIntervalSet()
-        for protocol in sorted(self.allowed_protocols):
+        protocols = self.allowed_protocols
+        if is_str:
+            # aggregate specific representations:
+            protocols, aggregated_properties_txt = self._aggregate_connection_representation(self.allowed_protocols)
+            if aggregated_properties_txt != '':
+                res.append(aggregated_properties_txt)
+        for protocol in sorted(protocols):
             if ProtocolNameResolver.is_standard_protocol(protocol):
                 protocol_text = ProtocolNameResolver.get_protocol_name(protocol)
-                properties = self.allowed_protocols[protocol]
+                properties = protocols[protocol]
                 res.append(self._get_protocol_with_properties_representation(is_str, protocol_text, properties))
             else:
                 # collect allowed protocols numbers into ranges
@@ -89,12 +95,67 @@ class ConnectionSet:
         return ','.join(s for s in res) if is_str else res
 
     @staticmethod
+    def _aggregate_connection_representation(protocols):
+        """
+        Aggregate shared properties of the protocols, for better human understanding.
+        :param dict protocols: a map from protocol number (1-255) to allowed properties
+        :return: dict protocols_not_aggregated: the rest of the protocol data that was not aggregated.
+        :return: str aggregation_results: a string of the aggregated representation
+        """
+        protocols_not_aggregated = protocols
+        aggregation_results = ''
+
+        # handle TCP+UDP properties aggregation (do not handle range segmentation overlapping)
+        tcp_protocol_number = ProtocolNameResolver.get_protocol_number('TCP')
+        udp_protocol_number = ProtocolNameResolver.get_protocol_number('UDP')
+        if protocols_not_aggregated.get(tcp_protocol_number) and protocols_not_aggregated.get(udp_protocol_number):
+            aggregation_results, protocols_not_aggregated = ConnectionSet._aggregate_pair_protocols(protocols_not_aggregated,
+                                                                                                    tcp_protocol_number,
+                                                                                                    udp_protocol_number)
+            if aggregation_results != '':
+                aggregation_results = 'TCP+UDP ' + aggregation_results
+
+        # handle future aggregations here
+
+        return protocols_not_aggregated, aggregation_results
+
+    @staticmethod
+    def _aggregate_pair_protocols(protocols, protocol_number1, protocol_number2):
+        """
+        Handles aggregation of 2 protocols' properties
+        :param protocols: The protocol dictionary so we can remove empty protocols after aggregation
+        :param protocol_number1: first protocol number to aggregate with the second
+        :param protocol_number2: second protocol number to aggregate
+        :return: str aggregated_properties: a string of the aggregated properties
+        :return: dict protocols_not_aggregated: the rest of the protocol data that was not aggregated.
+        """
+        protocols_not_aggregated = protocols
+        aggregated_properties = protocols_not_aggregated[protocol_number1] & protocols_not_aggregated[protocol_number2]
+        if not aggregated_properties:
+            return '', protocols_not_aggregated
+
+        protocol1_dif = protocols_not_aggregated[protocol_number1] - protocols_not_aggregated[protocol_number2]
+        protocol2_dif = protocols_not_aggregated[protocol_number2] - protocols_not_aggregated[protocol_number1]
+        protocols_not_aggregated = protocols.copy()
+        if protocol1_dif:
+            protocols_not_aggregated[protocol_number1] = protocol1_dif
+        else:
+            del protocols_not_aggregated[protocol_number1]
+
+        if protocol2_dif:
+            protocols_not_aggregated[protocol_number2] = protocol2_dif
+        else:
+            del protocols_not_aggregated[protocol_number2]
+
+        return str(aggregated_properties), protocols_not_aggregated
+
+    @staticmethod
     def _get_protocol_with_properties_representation(is_str, protocol_text, properties):
         """
         :param bool is_str: should get str representation (True) or list representation (False)
         :param str protocol_text: str description of protocol
         :param Union[bool, TcpLikeProperties, ICMPDataSet] properties: properties object of the protocol
-        :return: representation required for given pair of protocol and its properties
+        :return: representation required for a given pair of protocol and its properties
         :rtype: Union[dict, str]
         """
         if not is_str:

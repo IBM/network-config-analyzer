@@ -1,0 +1,23 @@
+namespaceList: ../podlist/ns_list.json
+podList: ../podlist/pods_list_3.json
+networkConfigList:
+- name: np3
+  networkPolicyList:
+  - port_aggregation-networkpolicy.yaml
+  expectedWarnings: 0
+queries:
+- name: connectivity_map
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: yaml
+  expectedOutput: expected_output/port_aggregation-scheme_output.yaml
+- name: connectivity_map
+  connectivityMap:
+  - np3
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+  expectedOutput: expected_output/port_aggregation-scheme_output.txt
