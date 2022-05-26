@@ -1,0 +1,186 @@
+# Testing TCP+UDP port range aggregation. All tests are made on the same configuration set to make sure
+# multi-ranges are handled correctly.
+#
+# Case 1 - Full overlapping – 2 fully overlapping ranges
+# Case 2 - Half overlapping – half range overlapping
+# Case 3 - Split mid-range – one protocol port is overlapping and split the other’s range
+# Case 4 - Multi split – several splits to a range till no range left
+# Case 5 - Semi overlapping1 – 2 ranges semi overlapping in 1 port
+# Case 6 - Semi overlapping2 – 2 ranges semi overlapping in 2 adjacent port
+# Case 7 - Not overlapping non ranges – just ports with no overlapping
+# Case 8 - Not overlapping ranges – 2 ranges not overlapping
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traffic-new
+  namespace: kube-system-new
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress: 
+    - from:
+      - namespaceSelector: {}
+        podSelector:
+      ports:
+        # Case 1 - Full overlapping
+        - port: 11
+          protocol: TCP
+        - port: 12
+          protocol: TCP
+        - port: 13
+          protocol: TCP
+        - port: 14
+          protocol: TCP
+        - port: 15
+          protocol: TCP
+        - port: 16
+          protocol: TCP
+        - port: 11
+          protocol: UDP
+        - port: 12
+          protocol: UDP
+        - port: 13
+          protocol: UDP
+        - port: 14
+          protocol: UDP
+        - port: 15
+          protocol: UDP
+        - port: 16
+          protocol: UDP
+
+        # Case 2 - Half overlapping
+        - port: 21
+          protocol: TCP
+        - port: 22
+          protocol: TCP
+        - port: 23
+          protocol: TCP
+        - port: 24
+          protocol: TCP
+        - port: 25
+          protocol: TCP
+        - port: 26
+          protocol: TCP
+        - port: 21
+          protocol: UDP
+        - port: 22
+          protocol: UDP
+        - port: 23
+          protocol: UDP
+
+        # Case 3 - Split mid-range
+        - port: 31
+          protocol: UDP
+        - port: 32
+          protocol: UDP
+        - port: 33
+          protocol: UDP
+        - port: 34
+          protocol: UDP
+        - port: 35
+          protocol: UDP
+        - port: 36
+          protocol: UDP
+        - port: 34
+          protocol: TCP
+
+        # Case 4 - Multi split
+        - port: 41
+          protocol: TCP
+        - port: 42
+          protocol: TCP
+        - port: 43
+          protocol: TCP
+        - port: 44
+          protocol: TCP
+        - port: 45
+          protocol: TCP
+        - port: 46
+          protocol: TCP
+        - port: 42
+          protocol: UDP
+        - port: 44
+          protocol: UDP
+        - port: 46
+          protocol: UDP
+
+        # Case 5 - Semi overlapping in 1 port
+        - port: 52
+          protocol: TCP
+        - port: 53
+          protocol: TCP
+        - port: 54
+          protocol: TCP
+        - port: 55
+          protocol: TCP
+        - port: 56
+          protocol: TCP
+        - port: 56
+          protocol: UDP
+        - port: 57
+          protocol: UDP
+        - port: 58
+          protocol: UDP
+        - port: 59
+          protocol: UDP
+
+        # Case 6 - Semi overlapping in 2 port
+        - port: 62
+          protocol: TCP
+        - port: 63
+          protocol: TCP
+        - port: 64
+          protocol: TCP
+        - port: 65
+          protocol: TCP
+        - port: 66
+          protocol: TCP
+        - port: 65
+          protocol: UDP
+        - port: 66
+          protocol: UDP
+        - port: 67
+          protocol: UDP
+        - port: 68
+          protocol: UDP
+
+        # Case 7 - Not overlapping non ranges
+        - port: 71
+          protocol: TCP
+        - port: 73
+          protocol: TCP
+        - port: 75
+          protocol: TCP
+        - port: 77
+          protocol: TCP
+        - port: 79
+          protocol: TCP
+        - port: 72
+          protocol: UDP
+        - port: 74
+          protocol: UDP
+        - port: 76
+          protocol: UDP
+        - port: 78
+          protocol: UDP
+
+        # Case 8 - 2 ranges not overlapping
+        - port: 81
+          protocol: TCP
+        - port: 82
+          protocol: TCP
+        - port: 83
+          protocol: TCP
+        - port: 84
+          protocol: TCP
+        - port: 86
+          protocol: UDP
+        - port: 87
+          protocol: UDP
+        - port: 88
+          protocol: UDP
+        - port: 89
+          protocol: UDP
