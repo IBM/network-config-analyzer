@@ -39,7 +39,7 @@ Cases of missing resources:
     `resourceList: [list of namespaces and pods paths]`[see example here](../tests/k8s_testcases/example_policies/testcase10-nameSpace-podSelector/testcase10-all-resources-in-one-key-scheme.yaml#L5-L11)
 3. `networkConfigList:`\
   `- name: <config_name>`\
-    `resourceList: [list of networkPolicies, namespaces and pods paths]` [see example here ](../tests/k8s_testcases/example_policies/resourcelist-one-path-example#L3-L7)
+    `resourceList: [list of networkPolicies, namespaces and pods paths]` [see example here ](../tests/k8s_testcases/example_policies/resourcelist-one-path-example/resource-path-scheme.yaml#L3-L7)
 
 Cases of missing resources:
 - If `networkPolicyList` is not used and `resourceList` does not refer to any policy, policies will be loaded from k8s live cluster
