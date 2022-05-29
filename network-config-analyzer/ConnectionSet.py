@@ -28,7 +28,7 @@ class ConnectionSet:
     def __eq__(self, other):
         if isinstance(other, ConnectionSet):
             return self.allow_all == other.allow_all and self.allowed_protocols == other.allowed_protocols
-        return NotImplemented
+        return False
 
     def __lt__(self, other):
         if self.allow_all:

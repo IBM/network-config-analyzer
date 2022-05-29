@@ -70,7 +70,7 @@ class ClusterEP(Peer):
     def __eq__(self, other):
         if isinstance(other, type(self)):
             return self.full_name() == other.full_name()
-        return NotImplemented
+        return False
 
     def __str__(self):
         return self.full_name()
@@ -208,28 +208,28 @@ class IPNetworkAddress:
 
     def __lt__(self, other):
         if not isinstance(other, IPNetworkAddress):
-            return NotImplemented
+            return False
         if self.address._version == other.address._version:
             return self.address < other.address
         return self.address._version < other.address._version  # IPv4 < IPv6
 
     def __le__(self, other):
         if not isinstance(other, IPNetworkAddress):
-            return NotImplemented
+            return False
         if self.address._version == other.address._version:
             return self.address <= other.address
         return self.address._version < other.address._version  # IPv4 < IPv6
 
     def __gt__(self, other):
         if not isinstance(other, IPNetworkAddress):
-            return NotImplemented
+            return True
         if self.address._version == other.address._version:
             return self.address > other.address
         return self.address._version > other.address._version  # IPv6 > IPv4
 
     def __ge__(self, other):
         if not isinstance(other, IPNetworkAddress):
-            return NotImplemented
+            return True
         if self.address._version == other.address._version:
             return self.address >= other.address
         return self.address._version > other.address._version  # IPv6 > IPv4

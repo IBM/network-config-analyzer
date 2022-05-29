@@ -64,7 +64,7 @@ class IngressPolicy(NetworkPolicy):
     def __lt__(self, other):  # required so we can evaluate the policies according to their order
         if isinstance(other, IngressPolicy):
             return self.action < other.action or self.full_name() < other.full_name()
-        return NotImplemented
+        return False
 
     def add_rules(self, rules):
         """

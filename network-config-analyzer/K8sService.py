@@ -40,7 +40,7 @@ class K8sService:
     def __eq__(self, other):
         if isinstance(other, K8sService):
             return self.name == other.name and self.namespace == other.namespace
-        return NotImplemented
+        return False
 
     def __hash__(self):
         return hash(self.name)

@@ -253,6 +253,10 @@ class RedundancyQuery(NetworkConfigQuery):
         for policy in self.config.policies.values():
             if policy.full_name() in redundant_policies:  # we skip checking rules if the whole policy is redundant
                 continue
+            if isinstance(policy, IngressPolicy):
+                # we skip checking Ingress rules, because they are synthesized from negation in hyper cube,
+                # and redundancies in them are not meaningful
+                continue
             _, _, rules_redundancy_explanation = \
                 self.find_redundant_rules(policy)
             res += len(rules_redundancy_explanation)
@@ -359,7 +363,8 @@ class SanityQuery(NetworkConfigQuery):
         :return: If a containing rule is found, return its policy, its index and whether it contradicts the input rule
         :rtype: NetworkPolicy, int, bool
         """
-        for other_policy in self.config.sorted_policies:
+        for other_policy in self.config.ingress_deny_policies if isinstance(self_policy, IngressPolicy) else \
+                self.config.sorted_policies:
             if is_ingress:
                 found_index, contradict = other_policy.ingress_rule_containing(self_policy, self_rule_index)
             else:
@@ -479,6 +484,11 @@ class SanityQuery(NetworkConfigQuery):
                 redundancy_full_text = self.redundant_policy_text(policy)
                 policies_issue += redundancy_full_text
                 policy.add_finding(redundancy_full_text)
+                continue
+
+            if isinstance(policy, IngressPolicy):
+                # we skip checking Ingress rules, because they are synthesized from negation in hyper cube,
+                # and redundancies in them are not meaningful
                 continue
 
             redundant_ingress_rules, redundant_egress_rules, _ = \

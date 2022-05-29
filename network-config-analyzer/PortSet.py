@@ -26,7 +26,7 @@ class PortSet:
         if isinstance(other, PortSet):
             return self.port_set == other.port_set and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
-        return NotImplemented
+        return False
 
     def __bool__(self):
         return bool(self.port_set) or bool(self.named_ports)

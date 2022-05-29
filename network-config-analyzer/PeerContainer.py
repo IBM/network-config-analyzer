@@ -44,7 +44,7 @@ class PeerContainer:
         if isinstance(other, PeerContainer):
             return self.peer_set == other.peer_set and self.namespaces == other.namespaces \
                 and self.services == other.services
-        return NotImplemented
+        return False
 
     def load_ns_from_live_cluster(self):
         yaml_file = CmdlineRunner.get_k8s_resources('namespace')

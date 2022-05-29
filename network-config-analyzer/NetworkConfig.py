@@ -65,7 +65,7 @@ class NetworkConfig:
 
     def __eq__(self, other):
         if not isinstance(other, NetworkConfig):
-            return NotImplemented
+            return False
         return self.name == other.name and self.peer_container == other.peer_container and \
             self.policies == other.policies
 

@@ -51,7 +51,7 @@ class NetworkPolicy:
                 self.selected_peers == other.selected_peers and \
                 self.ingress_rules == other.ingress_rules and \
                 self.egress_rules == other.egress_rules
-        return NotImplemented
+        return False
 
     def full_name(self, config_name=None):
         """

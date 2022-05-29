@@ -208,14 +208,14 @@ class IngressPolicyYamlParser(GenericYamlParser):
         # first, convert path strings to dfas
         parsed_paths_with_dfa = []
         allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
-        for path_string, path_type, peers, ports  in parsed_paths:
+        for path_string, path_type, peers, ports in parsed_paths:
             if path_type == 'Exact':
                 path_regex = path_string
             else:
                 if path_string:
                     path_regex = path_string + '|' + path_string + '/' + allowed_chars + '+'
                 else:
-                    path_regex = '/' + allowed_chars + '+'
+                    path_regex = '/' + allowed_chars + '*'
             parsed_paths_with_dfa.append((path_string, MinDFA.dfa_from_regex(path_regex), path_type, peers, ports))
 
         # next, avoid shorter sub-paths to extend to longer ones, using dfa operations

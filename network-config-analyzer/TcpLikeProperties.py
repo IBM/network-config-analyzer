@@ -171,7 +171,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
-        return NotImplemented
+        return False
 
     def __and__(self, other):
         res = self.copy()
