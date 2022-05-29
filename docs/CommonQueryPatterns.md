@@ -13,7 +13,7 @@ Patterns describing how to combine specific switches (global: `--<query_name> , 
 3. Using general base switch to specify all base resources, may be used with any combination of the global switches [above](#queries-with-one-config)\
 `--<query_name> --resource_list <networkPolicies, namespaces and pods paths> --base_resource_list <networkpolicies, namespaces and pods path>` [see example here](../tests/k8s_cmdline_tests.yaml#L293-L302)
 
-Cases of missing resources:
+Handling missing resources and loading resources from live cluster:
 - for global and base configs, if networkPolicies paths are missing (i.e. the specific switch is not used and global switch does not refer to any policy), policies will be loaded from k8s live cluster
 - If global pods paths are missing (i.e. the specific switch is not used and global switch does not refer to any pod), pods will be loaded from k8s live cluster
 - If base pods are missing, global pods will be used 
