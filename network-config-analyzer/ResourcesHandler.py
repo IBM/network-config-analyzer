@@ -161,7 +161,7 @@ class ResourcesParser:
         if pod_resource is None and ns_resource is None:  # no resources to parse
             return False, 0
 
-        if pod_resource == resource_list and pod_resource == ns_resource:  # both may exist in resourceList
+        if pod_resource == resource_list and ns_resource == resource_list:  # both may exist in resourceList
             self._parse_resources_path(resource_list,
                                        [ResourceType.Namespaces, ResourceType.Pods])
         else:  # we always want to parse for namespaces first (if exists)
@@ -176,7 +176,7 @@ class ResourcesParser:
             # input resources include both pods and namespaces or include only pods- so their namespaces are taken
             # or both pods and namespaces from specific switches (a specific switch may point to an empty file)
             return True, 0
-        if specific_pods and self.ns_finder.namespaces > 0:
+        if specific_pods and self.ns_finder.namespaces:
             # pod_list point to empty file, namespaces found in the input resources
             return True, 0
         if not self.pods_finder.peer_set and self.ns_finder.namespaces:
