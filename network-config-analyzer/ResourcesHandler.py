@@ -182,7 +182,7 @@ class ResourcesParser:
         if not self.pods_finder.peer_set and self.ns_finder.namespaces:
             # no specific pod_list and resource_list doesn't include pods -> get pods from global
             return False, ResourceType.Namespaces
-        if len(self.ns_finder.namespaces) == 0 and specific_pods:
+        if not self.ns_finder.namespaces and specific_pods:
             # there is a pod_list (empty from pods) but no namespaces in the resources-> get namespaces from global
             return False, ResourceType.Pods
         return False, 0
