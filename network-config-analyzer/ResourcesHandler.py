@@ -171,7 +171,7 @@ class ResourcesParser:
                 self._parse_resources_path(pod_resource, [ResourceType.Pods])
 
         # calculating the return value:
-        if (len(self.pods_finder.peer_set) > 0 and len(self.ns_finder.namespaces) > 0) or \
+        if (self.pods_finder.peer_set and self.ns_finder.namespaces) or \
                 (specific_pods and specific_ns):
             # input resources include both pods and namespaces or include only pods- so their namespaces are taken
             # or both pods and namespaces from specific switches (a specific switch may point to an empty file)
