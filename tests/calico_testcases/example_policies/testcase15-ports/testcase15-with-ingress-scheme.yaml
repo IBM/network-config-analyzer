@@ -72,8 +72,10 @@ queries:
       - global-not-simple-with-ingress
 
     outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
       fwRulesGroupByLabelSinglePod: true
-    expected: 0
+    expectedOutput: ../expected_output/testcase15_with_ingress_connectivity_map.txt
 
   - name: no_empty_policies
     emptiness:
@@ -97,13 +99,7 @@ queries:
       - ip
       - global-simple-with-ingress
       - global-not-simple-with-ingress
-    expected: 3
-
-  - name: sanity_with_ingress  # 2 equiv policies should be redundant
-    sanity:
-      - ip
-      - global-simple-with-ingress
-    expected: 0
+    expected: 6
 
   - name: containment_global_simple_with_ingress
     containment:
