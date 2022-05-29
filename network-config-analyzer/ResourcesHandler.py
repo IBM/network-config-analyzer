@@ -176,7 +176,7 @@ class ResourcesParser:
             # input resources include both pods and namespaces or include only pods- so their namespaces are taken
             # or both pods and namespaces from specific switches (a specific switch may point to an empty file)
             return True, 0
-        if specific_pods and len(self.ns_finder.namespaces) > 0:
+        if specific_pods and self.ns_finder.namespaces > 0:
             # pod_list point to empty file, namespaces found in the input resources
             return True, 0
         if len(self.pods_finder.peer_set) == 0 and len(self.ns_finder.namespaces) > 0:
