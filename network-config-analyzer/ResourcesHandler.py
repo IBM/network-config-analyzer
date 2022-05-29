@@ -205,7 +205,7 @@ class ResourcesParser:
         self.policies_finder.set_peer_container(peer_container)
         if np_list is not None:
             self._parse_resources_path(np_list, [ResourceType.Policies])
-            if len(np_list):
+            if np_list:
                 config_name = np_list[0]
             if resource_list:
                 print('Warning: policies will be taken from the provided networkPolicy list key. '
