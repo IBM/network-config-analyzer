@@ -85,6 +85,7 @@ fw_rules_tests/policies/poc1-scheme.yaml,0.37
 fw_rules_tests/policies/poc2-scheme.yaml,0.28
 fw_rules_tests/policies/poc3-scheme.yaml,0.28
 fw_rules_tests/policies/poc4-scheme.yaml,0.53
+fw_rules_tests/policies/port_aggregation-scheme.yaml,0.11
 fw_rules_tests/policies/semantic_diff_computeDiff-scheme.yaml,0.21
 fw_rules_tests/policies/semantic_diff_namedPorts-scheme.yaml,0.71
 fw_rules_tests/policies/semantic_diff_poc-scheme.yaml,0.80
