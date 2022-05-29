@@ -20,7 +20,7 @@ Handling missing resources and loading resources from live cluster:
 - If namespaces paths are missing:
     - if there are pods, the namespaces set will contain the pods' namespaces
     - else global namespaces will be used if existed, otherwise, namespaces will be loaded from k8s live cluster
-- If any of the specific switches is specified, it overrides the relevant paths in the argument of the general switch.
+- If any of the specific switches is specified, it overrides the relevant resources from paths in the argument of the general switch.
     
 ### Scheme File Patterns:
 #### The patterns of the globally-scoped topology paths
