@@ -1,6 +1,6 @@
 ## Queries Patterns
 ### CmdLine Queries:
-#### Queries with one config
+#### Queries with one config (sanity, connectivity)
 Patterns describing how to use specific switches (`--<query_name> , ns_list and pod_list`) and general switch (`resource_list`)
 1. `--<query_name> <NetworkPolicy set> --ns_list <namespaces path> --pod_list <pods path>` [see example here](../tests/k8s_cmdline_tests.yaml#L1-L8)
 2. `--<query_name> <NetworkPolicy set> --resource_list <namespaces and pods path>` [see example here](../tests/k8s_cmdline_tests.yaml#L232-L237) 
