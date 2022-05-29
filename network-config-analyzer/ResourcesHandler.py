@@ -94,10 +94,15 @@ class ResourcesHandler:
 
     def _fill_empty_finder(self, res_type, resources_parser):
         """
-        if res_type is ResourceType.Pods , then resources parser found only pods in the specific config,
+        :param ResourceType res_type: the topology resource type that was found from input resources
+        :param ResourcesParser resources_parser: the current resources_parser object
+        This function is called when one topology resource type is missing (the one different from input res_type).
+        It updates resources_parser with relevant topology finder, either from global config or from live cluster:
+
+        If res_type is ResourceType.Pods , then resources parser found only pods in the specific config,
         use the global namespaces or load from k8s live cluster to build a peer container
-        else if res_type is ResourceType.Namespaces, then resources parser found only namespaces in the specific config,
-         use the global pods or load from k8s live cluster
+        If res_type is ResourceType.Namespaces, then resources parser found only namespaces in the specific config,
+        use the global pods or load from k8s live cluster
         """
         global_ns_exist = True if self.global_ns_finder else False
         global_pod_exist = True if self.global_pods_finder else False
