@@ -5,6 +5,12 @@ networkConfigList:
   - name: np_vacuous
     networkPolicyList:
       - testcase1-empty-policy.yaml
+    resourceList: []
+    expectedWarnings: 5
+
+  - name: np_vacuous_resource_list
+    resourceList:
+      - testcase1-empty-policy.yaml
     expectedWarnings: 5
 
   - name: np_globalEmpty

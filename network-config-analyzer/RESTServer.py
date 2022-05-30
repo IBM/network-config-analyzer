@@ -5,23 +5,24 @@
 
 from flask import Flask, request, escape
 from flask.views import MethodView
-from PeerContainer import PeerContainer
 from NetworkConfig import NetworkConfig
 from NetworkConfigQuery import SanityQuery
+from ResourcesHandler import ResourcesParser
 
 
 class NCAResource(MethodView):
-    def __init__(self, policy_sets_map, peer_container):
-        # type: (dict, PeerContainer) -> None
+    def __init__(self, policy_sets_map, resources_parser):
+        # type: (dict, ResourcesParser) -> None
         self.policy_sets_map = policy_sets_map
-        self.peer_container = peer_container
+        self.resources_parser = resources_parser
 
 
 class AllResource(NCAResource):
     def delete(self):
         self.policy_sets_map.clear()
-        self.peer_container.delete_all_peers()
-        self.peer_container.delete_all_namespaces()
+        peer_container = self.resources_parser.build_peer_container()
+        peer_container.delete_all_peers()
+        peer_container.delete_all_namespaces()
         return 'Successfully deleted all resources', 200
 
 
@@ -30,25 +31,27 @@ class NamespaceListResource(NCAResource):
         if not request.is_json:
             return 'Badly formed json in POST request', 400
         json_data = request.get_json()
-        self.peer_container.set_namespaces(json_data)
-        return f'{len(self.peer_container.get_namespaces())} namespaces loaded.', 201
+        self.resources_parser.ns_finder.set_namespaces(json_data)
+        return f'{len(self.resources_parser.ns_finder.namespaces)} namespaces loaded.', 201
 
 
 class NamespacesResource(NCAResource):
     def get(self):
-        namespaces = self.peer_container.get_namespaces()
+        namespaces = self.resources_parser.build_peer_container().get_namespaces()
         return {'namespaces': [key for key in namespaces.keys()]}
 
     def delete(self):
-        if self.peer_container.get_num_peers() > 0:
+        peer_container = self.resources_parser.build_peer_container()
+        if peer_container.get_num_peers() > 0:
             return 'Delete all pods first', 405
-        self.peer_container.delete_all_namespaces()
+        peer_container.delete_all_namespaces()
         return 'Successfully deleted all namespaces', 200
 
 
 class NamespaceResource(NCAResource):
     def get(self, ns_name):
-        if ns_name not in self.peer_container.get_namespaces().keys():
+        peer_container = self.resources_parser.build_peer_container()
+        if ns_name not in peer_container.get_namespaces().keys():
             return f'Namespace {escape(ns_name)} does not exist', 404
         # ns = self.peer_container.get_namespace(ns_name)
         return {ns_name: 'OK'}
@@ -59,19 +62,21 @@ class PodListResource(NCAResource):
         if not request.is_json:
             return 'Badly formed json in POST request', 400
         json_data = request.get_json()
-        self.peer_container.add_eps_from_yaml(json_data)
-        return f'{len(self.peer_container.get_all_peers_group())} pods loaded.', 201
+        self.resources_parser.pods_finder.namespaces_finder = self.resources_parser.ns_finder
+        self.resources_parser.pods_finder.add_eps_from_yaml(json_data)
+        peer_container = self.resources_parser.build_peer_container()
+        return f'{len(peer_container.get_all_peers_group())} pods loaded.', 201
 
 
 class PodsResource(NCAResource):
     def get(self):
-        pods = self.peer_container.get_all_peers_group()
+        pods = self.resources_parser.build_peer_container().get_all_peers_group()
         return {'pods': [pod.name for pod in pods]}
 
     def delete(self):
         if self.policy_sets_map:
             return 'Delete all policy_sets first', 405
-        self.peer_container.delete_all_peers()
+        self.resources_parser.build_peer_container().delete_all_peers()
         return 'Successfully deleted all pods', 200
 
 
@@ -93,7 +98,13 @@ class PolicySetsResource(NCAResource):
         # noinspection PyBroadException
         try:
             entry = request.get_data().decode("utf-8")
-            network_config = NetworkConfig(new_policy_set, self.peer_container, buffer=entry)
+            peer_container = self.resources_parser.build_peer_container()
+            self.resources_parser.policies_finder.set_peer_container(peer_container)
+            self.resources_parser.policies_finder.load_policies_from_buffer(entry)
+            self.resources_parser.policies_finder.parse_policies_in_parse_queue()
+            network_config = NetworkConfig(new_policy_set, peer_container,
+                                           self.resources_parser.policies_finder.policies_container,
+                                           config_type=self.resources_parser.policies_finder.type)
         except Exception:
             return 'Badly formed policy list', 400
 
@@ -139,11 +150,11 @@ class PolicySetFindings(NCAResource):
 
 
 class RestServer:
-    def __init__(self, ns_list, pod_list):
+    def __init__(self, ns_list, pod_list, resource_list):
         self.app = Flask(__name__)
         self.policy_sets_map = {}
-        # TODO: support service list and add it to peer_container
-        self.peer_container = PeerContainer(ns_list, pod_list)
+        self.resources_parser = ResourcesParser()
+        self.resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
         self.add_url_rule('/all', AllResource, 'all')
         self.add_url_rule('/namespaces', NamespacesResource, 'namespaces')
         self.add_url_rule('/namespaces/<ns_name>', NamespaceResource, 'namespace')
@@ -156,7 +167,7 @@ class RestServer:
 
     def add_url_rule(self, path, class_type, name):
         self.app.add_url_rule(path, view_func=class_type.as_view(name, policy_sets_map=self.policy_sets_map,
-                                                                 peer_container=self.peer_container))
+                                                                 resources_parser=self.resources_parser))
 
     def run(self):
         return self.app.run(host='0.0.0.0')

@@ -9,6 +9,10 @@ networkConfigList:
       - ./new_online_boutique_manifests/
     expectedWarnings: 2 # warnings about namespaceSelector and podSelector that select no pods (frontend policy: name: asm-ingress , app: asm-ingressgateway)
 
+  - name: new_online_boutique_resources_from_one_flag
+    resourceList: ./new_online_boutique_manifests/
+    expectedWarnings: 2 # warnings about namespaceSelector and podSelector that select no pods (frontend policy: name: asm-ingress , app: asm-ingressgateway)
+
   - name: new_online_synthesis_res
     podList: ./new_online_boutique_manifests/
     namespaceList: ./new_online_boutique_manifests/
@@ -34,6 +38,11 @@ queries:
     #  outputFormat: dot
     #  outputPath: online_boutique_new.dot
     expectedOutput: ../../expected_output/new_online_boutique_connectivity_map.txt
+
+  - name: new_online_boutique_resourcelist_connectivity_map
+    connectivityMap:
+      - new_online_boutique_resources_from_one_flag
+    expected: 0
 
   - name: new_online_boutique_synthesis_res_connectivity_map
     connectivityMap:

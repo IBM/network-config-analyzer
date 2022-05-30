@@ -193,7 +193,7 @@ class RedundancyQuery(NetworkConfigQuery):
                 redundant_ingress_rules.append(rule_index)
                 continue
             config_with_modified_policy = self.config.clone_without_policy(policy)
-            config_with_modified_policy.add_policy(modified_policy)
+            config_with_modified_policy.append_policy_to_config(modified_policy)
             equiv_result = EquivalenceQuery(self.config, config_with_modified_policy).exec()
             if equiv_result.bool_result:
                 redundancy = f'Ingress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
@@ -209,7 +209,7 @@ class RedundancyQuery(NetworkConfigQuery):
                 redundant_egress_rules.append(rule_index)
                 continue
             config_with_modified_policy = self.config.clone_without_policy(policy)
-            config_with_modified_policy.add_policy(modified_policy)
+            config_with_modified_policy.append_policy_to_config(modified_policy)
             if EquivalenceQuery(self.config, config_with_modified_policy).exec().bool_result:
                 redundancy = f'Egress rule no. {rule_index} in NetworkPolicy {policy.full_name()} is redundant ' \
                              f'in {self.config.name}'
