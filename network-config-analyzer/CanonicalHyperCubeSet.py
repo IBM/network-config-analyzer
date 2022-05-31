@@ -343,7 +343,7 @@ class CanonicalHyperCubeSet:
                 res_layers[remaining_self_layer] = self.layers[self_layer]
         for layer_elem, remaining_layer_elem in remaining_other_layers.items():
             if remaining_layer_elem:
-                res_layers[remaining_layer_elem] = other.layers[layer_elem]
+                res_layers[remaining_layer_elem] = other.layers[layer_elem].copy()
         self.layers = res_layers
         self._apply_layer_elements_union()
         return self
@@ -720,6 +720,20 @@ class CanonicalHyperCubeSet:
         self.active_dimensions = new_active_dimensions
         new_layers[dim_all_values].build_new_active_dimensions(new_active_dimensions[1:])
         self.layers = new_layers
+
+    def _check_active_dimensions(self):
+        """
+        Debug function that recursively checks that all layers have the same active dimensions
+        :return: None
+        """
+        act_dim = None
+        for sub_elem in self.layers.values():
+            if isinstance(sub_elem, CanonicalHyperCubeSet):
+                sub_elem._check_active_dimensions()
+                if act_dim:
+                    assert act_dim == sub_elem.active_dimensions
+                else:
+                    act_dim = sub_elem.active_dimensions
 
     def _remove_some_active_dimensions(self, new_active_dimensions):
         """

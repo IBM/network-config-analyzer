@@ -62,7 +62,7 @@ class IstioNetworkPolicy(NetworkPolicy):
     def __lt__(self, other):  # required so we can evaluate the policies according to their order
         if isinstance(other, IstioNetworkPolicy):
             return self.action == IstioNetworkPolicy.ActionType.Deny
-        return NotImplemented
+        return False
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
