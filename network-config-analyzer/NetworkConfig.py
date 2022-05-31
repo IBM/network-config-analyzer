@@ -9,7 +9,10 @@ from dataclasses import dataclass, field
 import Peer
 from PeerContainer import PeerContainer
 from NetworkPolicy import PolicyConnections, NetworkPolicy
+from K8sNetworkPolicy import K8sNetworkPolicy
+from CalicoNetworkPolicy import CalicoNetworkPolicy
 from IstioNetworkPolicy import IstioNetworkPolicy
+from IngressPolicy import IngressPolicy
 from ConnectionSet import ConnectionSet
 
 
@@ -20,6 +23,7 @@ class PoliciesContainer:
     """
     policies: dict = field(default_factory=dict)
     sorted_policies: list = field(default_factory=list)
+    ingress_deny_policies: list = field(default_factory=list)
     profiles: dict = field(default_factory=dict)
 
 
@@ -35,6 +39,7 @@ class NetworkConfig:
         K8s = 1
         Calico = 2
         Istio = 3
+        Ingress = 4
 
     def __init__(self, name, peer_container, policies_container, config_type=None):
         """
@@ -48,6 +53,7 @@ class NetworkConfig:
         self.peer_container = peer_container
         self.policies = policies_container.policies or {}
         self.sorted_policies = policies_container.sorted_policies or []
+        self.ingress_deny_policies = policies_container.ingress_deny_policies or []
         self.profiles = policies_container.profiles or {}
         self.allowed_labels = set()
         if self.policies:
@@ -57,7 +63,7 @@ class NetworkConfig:
 
     def __eq__(self, other):
         if not isinstance(other, NetworkConfig):
-            return NotImplemented
+            return False
         return self.name == other.name and self.peer_container == other.peer_container and \
             self.policies == other.policies
 
@@ -144,6 +150,11 @@ class NetworkConfig:
         for profile in self.profiles.values():
             captured_pods |= profile.selected_peers
 
+        # consider ingress only if the config contains only ingress policies
+        if not self.sorted_policies and not self.profiles:
+            for ingress in self.ingress_deny_policies:
+                captured_pods |= ingress.selected_peers
+
         return captured_pods
 
     def get_affected_pods(self, is_ingress):
@@ -203,7 +214,13 @@ class NetworkConfig:
         """
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
+        ingress_denied_conns = ConnectionSet()
         pass_conns = ConnectionSet()
+
+        if not is_ingress:
+            for policy in self.ingress_deny_policies:
+                policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
+                ingress_denied_conns |= policy_conns.denied_conns
 
         policy_captured = False
         has_allow_policies_for_target = False
@@ -228,7 +245,8 @@ class NetworkConfig:
             # for istio initialize non-captured conns with non-TCP connections
             allowed_non_captured_conns = ConnectionSet.get_non_tcp_connections()
             if not is_ingress:
-                allowed_non_captured_conns = ConnectionSet(True)  # egress currently always allowed and not captured
+                # egress currently always allowed and not captured (unless denied by Ingress resource)
+                allowed_non_captured_conns = ConnectionSet(True) - ingress_denied_conns
             elif not has_allow_policies_for_target:
                 # add connections allowed by default that are not captured
                 allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
@@ -238,13 +256,20 @@ class NetworkConfig:
 
         allowed_non_captured_conns = ConnectionSet()
         if not policy_captured:
-            if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Unknown]:
-                allowed_non_captured_conns = ConnectionSet(True)  # default Allow-all ingress in k8s or in case of no policy
+            if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress,
+                             NetworkConfig.ConfigType.Unknown]:
+                # default Allow-all (not denied by ingress) in k8s or in case of no policy
+                allowed_non_captured_conns = ConnectionSet(True)
             else:
                 if self.profiles:
                     allowed_non_captured_conns = self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
         elif pass_conns:
             allowed_conns |= pass_conns & self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
+        allowed_conns -= ingress_denied_conns
+        allowed_non_captured_conns -= ingress_denied_conns
+        # It's enough that ingress impacts allowed_conns.
+        # We don't want to mix the denied_conns of the network policy by ingress,
+        # we want to preserve the specific network policy's denied connections for the output report.
         return PolicyConnections(policy_captured, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
@@ -280,6 +305,18 @@ class NetworkConfig:
 
         return allowed_conns, captured_flag, allowed_captured_conns, denied_conns
 
+    @staticmethod
+    def get_policy_type(policy):
+        if isinstance(policy, K8sNetworkPolicy):
+            return NetworkConfig.ConfigType.K8s
+        if isinstance(policy, CalicoNetworkPolicy):
+            return NetworkConfig.ConfigType.Calico
+        if isinstance(policy, IstioNetworkPolicy):
+            return NetworkConfig.ConfigType.Istio
+        if isinstance(policy, IngressPolicy):
+            return NetworkConfig.ConfigType.Ingress
+        return NetworkConfig.ConfigType.Unknown
+
     def append_policy_to_config(self, policy):
         """
         appends a policy to an existing config
@@ -288,6 +325,13 @@ class NetworkConfig:
         """
         if not policy:
             return
+        policy_type = self.get_policy_type(policy)
+        if self.type == NetworkConfig.ConfigType.Unknown or not self.policies or \
+                self.type == NetworkConfig.ConfigType.Ingress:
+            self.type = policy_type
         self.policies[policy.full_name()] = policy
         self.allowed_labels |= policy.referenced_labels
-        insort(self.sorted_policies, policy)
+        if policy_type == NetworkConfig.ConfigType.Ingress:
+            insort(self.ingress_deny_policies, policy)
+        else:
+            insort(self.sorted_policies, policy)
