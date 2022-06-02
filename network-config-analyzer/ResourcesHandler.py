@@ -27,7 +27,6 @@ class ResourcesHandler:
         self.global_peer_container = None
         self.global_pods_finder = None
         self.global_ns_finder = None
-        self.cmdline_two_configs_query = False
 
     def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list):
         """
@@ -61,9 +60,6 @@ class ResourcesHandler:
         # build peer container
         peer_container = \
             self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
-        if save_flag:
-            self.cmdline_two_configs_query = True  # this will indicate that if we use the global peer container for
-            # base topology too, still print its stats for both
 
         # parse for policies
         cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
@@ -82,16 +78,12 @@ class ResourcesHandler:
             if res_type:
                 self._fill_empty_finder(res_type, resources_parser)
             peer_container = resources_parser.build_peer_container(config_name)
-            self._print_peer_container_stats(config_name, peer_container)
         elif self.global_peer_container:  # no specific peer container, use the global one if exists
             peer_container = copy.deepcopy(self.global_peer_container)
-            if self.cmdline_two_configs_query:
-                self._print_peer_container_stats(config_name, peer_container)
         else:  # the specific networkConfig has no topology input resources (not private, neither global)
             print('loading topology objects from k8s live cluster')
             resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
             peer_container = resources_parser.build_peer_container(config_name)
-            self._print_peer_container_stats(config_name, peer_container)
 
         if save_flag:  # if called from scheme with global topology or cmdline with 2 configs query
             self.global_peer_container = peer_container
@@ -99,11 +91,6 @@ class ResourcesHandler:
             self.global_pods_finder = resources_parser.pods_finder
 
         return peer_container
-
-    @staticmethod
-    def _print_peer_container_stats(config_name, peer_container):
-        print(f'{config_name}: cluster has {len(peer_container.peer_set)} unique endpoints, '
-              f'{len(peer_container.namespaces)} namespaces')
 
     def _fill_empty_finder(self, res_type, resources_parser):
         """
@@ -303,5 +290,8 @@ class ResourcesParser:
             self.policies_finder.load_istio_policies_from_k8s_cluster()
 
     def build_peer_container(self, config_name='global'):
+        print(f'{config_name}: cluster has {len(self.pods_finder.peer_set)} unique endpoints, '
+              f'{len(self.ns_finder.namespaces)} namespaces')
+
         return PeerContainer(self.pods_finder.peer_set, self.ns_finder.namespaces, self.services_finder.services_list,
                              self.pods_finder.representative_peers)
