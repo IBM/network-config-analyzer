@@ -79,6 +79,7 @@ class ResourcesHandler:
                 self._fill_empty_finder(res_type, resources_parser)
             peer_container = resources_parser.build_peer_container(config_name)
         elif self.global_peer_container:  # no specific peer container, use the global one if exists
+            # deepcopy is required since PoliciesFinder may change peer_container
             peer_container = copy.deepcopy(self.global_peer_container)
         else:  # the specific networkConfig has no topology input resources (not private, neither global)
             print('loading topology objects from k8s live cluster')
