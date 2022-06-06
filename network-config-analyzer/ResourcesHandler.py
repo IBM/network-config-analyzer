@@ -2,7 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+import copy
 from enum import Enum
 from NetworkConfig import NetworkConfig
 from PoliciesFinder import PoliciesFinder
@@ -79,7 +79,8 @@ class ResourcesHandler:
                 self._fill_empty_finder(res_type, resources_parser)
             peer_container = resources_parser.build_peer_container(config_name)
         elif self.global_peer_container:  # no specific peer container, use the global one if exists
-            peer_container = self.global_peer_container
+            # deepcopy is required since PoliciesFinder may change peer_container
+            peer_container = copy.deepcopy(self.global_peer_container)
         else:  # the specific networkConfig has no topology input resources (not private, neither global)
             print('loading topology objects from k8s live cluster')
             resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
