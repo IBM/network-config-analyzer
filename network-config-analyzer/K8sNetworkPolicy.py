@@ -39,7 +39,7 @@ class K8sNetworkPolicy(NetworkPolicy):
     def __lt__(self, other):  # the order of K8s NetworkPolicies doesn't really matter
         if isinstance(other, K8sNetworkPolicy):
             return self.full_name() < other.full_name()
-        return NotImplemented
+        return False
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """

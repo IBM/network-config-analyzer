@@ -9,12 +9,11 @@ from bisect import insort
 from CmdlineRunner import CmdlineRunner
 from NetworkConfig import NetworkConfig, PoliciesContainer
 from NetworkPolicy import NetworkPolicy
-from K8sNetworkPolicy import K8sNetworkPolicy
-from CalicoNetworkPolicy import CalicoNetworkPolicy
-from IstioNetworkPolicy import IstioNetworkPolicy
+from IngressPolicy import IngressPolicy
 from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from IstioPolicyYamlParser import IstioPolicyYamlParser
+from IngressPolicyYamlParser import IngressPolicyYamlParser
 
 
 class PoliciesFinder:
@@ -41,6 +40,7 @@ class PoliciesFinder:
 
     def load_policies_from_k8s_cluster(self):
         self._add_policies(CmdlineRunner.get_k8s_resources('networkPolicy'), 'kubectl')
+        self._add_policies(CmdlineRunner.get_k8s_resources('ingress'), 'kubectl')
 
     def load_policies_from_calico_cluster(self):
         self._add_policies(CmdlineRunner.get_calico_resources('profile'), 'calicoctl')
@@ -60,26 +60,21 @@ class PoliciesFinder:
             return
         if policy.full_name() in self.policies_container.policies:
             raise Exception('A policy named ' + policy.full_name() + ' already exists')
-        policy_type = self._get_policy_type(policy)
+        policy_type = NetworkConfig.get_policy_type(policy)
         if policy_type == NetworkConfig.ConfigType.Unknown:
             raise Exception('Unknown policy type')
-        if self.type == NetworkConfig.ConfigType.Unknown:
+        if self.type == NetworkConfig.ConfigType.Unknown or not self.policies_container.policies or \
+                self.type == NetworkConfig.ConfigType.Ingress:
             self.type = policy_type
-        elif self.type != policy_type:
+        elif self.type != policy_type and policy_type != NetworkConfig.ConfigType.Ingress:
             raise Exception('Cannot mix NetworkPolicies from different platforms')
 
         self.policies_container.policies[policy.full_name()] = policy
-        insort(self.policies_container.sorted_policies, policy)
-
-    @staticmethod
-    def _get_policy_type(policy):
-        if isinstance(policy, K8sNetworkPolicy):
-            return NetworkConfig.ConfigType.K8s
-        if isinstance(policy, CalicoNetworkPolicy):
-            return NetworkConfig.ConfigType.Calico
-        if isinstance(policy, IstioNetworkPolicy):
-            return NetworkConfig.ConfigType.Istio
-        return NetworkConfig.ConfigType.Unknown
+        if policy_type == NetworkConfig.ConfigType.Ingress:
+            assert policy.action == IngressPolicy.ActionType.Deny
+            insort(self.policies_container.ingress_deny_policies, policy)
+        else:
+            insort(self.policies_container.sorted_policies, policy)
 
     def _add_profile(self, profile):
         if not profile:
@@ -102,6 +97,9 @@ class PoliciesFinder:
                 self._add_policy(parsed_element.parse_policy())
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
+                self._add_policy(parsed_element.parse_policy())
+            elif policy_type == NetworkPolicy.PolicyType.Ingress:
+                parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)

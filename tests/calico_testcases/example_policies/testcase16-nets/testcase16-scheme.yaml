@@ -111,4 +111,4 @@ queries:
   - name: connectivity_map_testcase16
     connectivityMap:
       - equiv-ranges-containment-games/kube-system/testcase16-nets-almost-all-range-smaller
-    expectedOutput: expected_output/testcase16-scheme_output.txt
+    expectedOutput: ../../expected_output/testcase16-scheme_output.txt
