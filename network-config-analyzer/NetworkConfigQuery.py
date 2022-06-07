@@ -629,6 +629,8 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :param config: the config to clone
         :return: resulting config without ingress policies
         """
+        if not config.ingress_deny_policies:
+            return config  # no ingress policies in this config
         config_without_ingress = config.clone_without_policies(config.name)
         for policy in config.policies.values():
             if not isinstance(policy, IngressPolicy):  # ignoring ingress policies
