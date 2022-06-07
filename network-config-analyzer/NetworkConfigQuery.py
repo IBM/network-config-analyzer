@@ -488,7 +488,7 @@ class SanityQuery(NetworkConfigQuery):
 
             if isinstance(policy, IngressPolicy):
                 # we skip checking Ingress rules, because they are synthesized from negation in hyper cube,
-                # and redundancies in them are not meaningful
+                # and redundancies in them are not meaningful.
                 continue
 
             redundant_ingress_rules, redundant_egress_rules, _ = \
