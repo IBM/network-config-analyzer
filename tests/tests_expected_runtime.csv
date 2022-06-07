@@ -48,11 +48,11 @@ calico_testcases/example_policies/testcase12-interference/testcase12-interferenc
 calico_testcases/example_policies/testcase13-protocol/testcase13-scheme.yaml,0.91
 calico_testcases/example_policies/testcase14-icmp/testcase14-scheme.yaml,0.83
 calico_testcases/example_policies/testcase15-ports/testcase15-scheme.yaml,30.83
-calico_testcases/example_policies/testcase15-ports/testcase15-with-ingress-scheme.yaml,28.96
-calico_testcases/example_policies/testcase16-nets/testcase16-scheme.yaml,2.08
+calico_testcases/example_policies/testcase15-ports/testcase15-with-ingress-scheme.yaml,
+calico_testcases/example_policies/testcase16-nets/testcase16-scheme.yaml,3.91
 calico_testcases/example_policies/testcase17-sanity/testcase17-scheme.yaml,5.08
 calico_testcases/example_policies/testcase18-pass/testcase18-scheme.yaml,15.94
-calico_testcases/example_policies/testcase19-profiles/testcase19-scheme.yaml,23.05
+calico_testcases/example_policies/testcase19-profiles/testcase19-scheme.yaml,39.74
 calico_testcases/example_policies/testcase2/testcase2-scheme.yaml,0.17
 calico_testcases/example_policies/testcase20-hostendpoint/testcase20-scheme.yaml,2.44
 calico_testcases/example_policies/testcase21-with_k8s/testcase21-scheme.yaml,0.52
@@ -139,8 +139,8 @@ k8s_testcases/example_policies/emptinessTests/emptinessTests-scheme.yaml,0.32
 k8s_testcases/example_policies/namedPorts/namedPorts-scheme.yaml,0.06
 k8s_testcases/example_policies/network-policy-checks/network-policy-check-scheme.yaml,0.14
 k8s_testcases/example_policies/online_boutique/connectivity-scheme.yaml,1.07
-k8s_testcases/example_policies/services1/services1-scheme.yaml,4.65
 k8s_testcases/example_policies/resourcelist-one-path-example/resource-path-scheme.yaml,0.06
+k8s_testcases/example_policies/services1/services1-scheme.yaml,
 k8s_testcases/example_policies/testcase1/testcase1-scheme.yaml,0.33
 k8s_testcases/example_policies/testcase10-json-version/testcase10-json-version-scheme.yaml,1.01
 k8s_testcases/example_policies/testcase10-nameSpace-podSelector/testcase10-all-resources-in-one-key-scheme.yaml,1.59
