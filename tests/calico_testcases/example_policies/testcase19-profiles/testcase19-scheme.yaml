@@ -427,4 +427,4 @@ queries:
   - name: deny-all-profiles-connectivity
     connectivityMap:
     - deny-all-profiles
-    expectedOutput: expected_output/testcase19-deny-all-profiles-connectivity.txt
+    expectedOutput: ../../expected_output/testcase19-deny-all-profiles-connectivity.txt

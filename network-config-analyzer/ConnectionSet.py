@@ -28,7 +28,7 @@ class ConnectionSet:
     def __eq__(self, other):
         if isinstance(other, ConnectionSet):
             return self.allow_all == other.allow_all and self.allowed_protocols == other.allowed_protocols
-        return NotImplemented
+        return False
 
     def __lt__(self, other):
         if self.allow_all:
@@ -422,6 +422,19 @@ class ConnectionSet:
             return
         del self.allowed_protocols[protocol]
 
+    def _add_all_connections_of_protocol(self, protocol):
+        """
+        Add all possible connections to the connection set for a given protocol
+        :param protocol: the given protocol number
+        :return: None
+        """
+        if self.protocol_supports_ports(protocol):
+            self.allowed_protocols[protocol] = TcpLikeProperties(PortSet(True), PortSet(True))
+        elif self.protocol_is_icmp(protocol):
+            self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
+        else:
+            self.allowed_protocols[protocol] = True
+
     def add_all_connections(self, excluded_protocols=None):
         """
         Add all possible connections to the connection set
@@ -431,12 +444,7 @@ class ConnectionSet:
         for protocol in range(ConnectionSet._min_protocol_num, ConnectionSet._max_protocol_num + 1):
             if excluded_protocols and protocol in excluded_protocols:
                 continue
-            if self.protocol_supports_ports(protocol):
-                self.allowed_protocols[protocol] = TcpLikeProperties(PortSet(True), PortSet(True))
-            elif self.protocol_is_icmp(protocol):
-                self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
-            else:
-                self.allowed_protocols[protocol] = True
+            self._add_all_connections_of_protocol(protocol)
 
     def check_if_all_connections(self):
         """

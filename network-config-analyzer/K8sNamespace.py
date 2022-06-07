@@ -14,7 +14,7 @@ class K8sNamespace:
     def __eq__(self, other):
         if isinstance(other, K8sNamespace):
             return self.name == other.name
-        return NotImplemented
+        return False
 
     def __hash__(self):
         return hash(self.name)

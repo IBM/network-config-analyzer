@@ -24,6 +24,7 @@ class NetworkPolicy:
         CalicoGlobalNetworkPolicy = 3
         CalicoProfile = 4
         IstioAuthorizationPolicy = 10
+        Ingress = 20
         List = 500
 
     def __init__(self, name, namespace):
@@ -50,7 +51,7 @@ class NetworkPolicy:
                 self.selected_peers == other.selected_peers and \
                 self.ingress_rules == other.ingress_rules and \
                 self.egress_rules == other.egress_rules
-        return NotImplemented
+        return False
 
     def full_name(self, config_name=None):
         """
@@ -121,6 +122,8 @@ class NetworkPolicy:
                 policy_type = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
         elif kind == 'NetworkPolicy':
             policy_type = NetworkPolicy.PolicyType.K8sNetworkPolicy
+        elif kind == 'Ingress':
+            policy_type = NetworkPolicy.PolicyType.Ingress
 
         return policy_type
 
@@ -176,6 +179,13 @@ class NetworkPolicy:
         """
         return self.rule_containing(other_policy, other_policy.egress_rules[other_egress_rule_index - 1],
                                     other_egress_rule_index, self.egress_rules)
+
+    def referenced_ip_blocks(self):
+        """
+        Returns ip blocks referenced by this policy, or empty PeerSet
+        :return: PeerSet of the referenced ip blocks
+        """
+        return PeerSet()  # default value, can be overridden in derived classes
 
 
 @dataclass

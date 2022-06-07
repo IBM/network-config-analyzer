@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import time
 from os import path
 from ruamel.yaml import YAML
 from OutputConfiguration import OutputConfiguration
@@ -185,11 +186,14 @@ class SchemeRunner(GenericYamlParser):
             print('Running query', query_name)
             output_config_obj = self.get_query_output_config_obj(query)
             expected_output = self._get_input_file(query.get('expectedOutput', None), True)
+            start = time.time()
             for query_key in query.keys():
                 if query_key not in ['name', 'expected', 'outputConfiguration', 'expectedOutput']:
                     res, comparing_err = NetworkConfigQueryRunner(query_key, query[query_key], expected_output,
                                                                   output_config_obj, self.network_configs).run_query()
 
+            end = time.time()
+            print(f'Query {query_name} finished in {(end-start):6.2f} seconds')
             if 'expected' in query:
                 expected = query['expected']
                 if res != expected:

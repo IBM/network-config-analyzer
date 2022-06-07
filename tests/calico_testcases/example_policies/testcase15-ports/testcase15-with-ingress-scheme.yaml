@@ -1,0 +1,114 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/service_and_ingress_resources
+
+networkConfigList:
+  - name: ip
+    networkPolicyList:
+      - ingress_list.yaml
+    expectedWarnings: 0
+
+  - name: global-simple
+    networkPolicyList:
+      - testcase15-global-simple.yaml
+    expectedWarnings: 0
+
+  - name: global-simple-with-ingress
+    networkPolicyList:
+      - ingress_list.yaml
+      - testcase15-global-simple.yaml
+    expectedWarnings: 0
+
+  - name: global-not-simple
+    networkPolicyList:
+      - testcase15-global-not-simple.yaml
+    expectedWarnings: 0
+
+  - name: global-not-simple-with-ingress
+    networkPolicyList:
+      - ingress_list.yaml
+      - testcase15-global-not-simple.yaml
+    expectedWarnings: 0
+
+  - name: named-ports
+    networkPolicyList:
+      - testcase15-named-ports.yaml
+    expectedWarnings: 12
+
+  - name: equiv-games1
+    networkPolicyList:
+      - testcase15-equiv-games1.yaml
+    expectedWarnings: 0
+
+  - name: equiv-games2
+    networkPolicyList:
+      - testcase15-equiv-games2.yaml
+    expectedWarnings: 0
+    
+  - name: equiv-games3
+    networkPolicyList:
+      - testcase15-equiv-games3.yaml
+    expectedWarnings: 0
+
+  - name: equiv-games4
+    networkPolicyList:
+      - testcase15-equiv-games4.yaml
+    expectedWarnings: 0
+    
+  - name: named-ports-rectangles
+    networkPolicyList:
+      - testcase15-named-ports-rectangles.yaml
+    expectedWarnings: 0
+
+queries:
+
+  - name: connectivity_map
+    connectivityMap:
+      - ip
+      - global-simple
+      - global-simple-with-ingress
+      - global-not-simple/testcase15-global-ports-not-simple-match-ingress-egress
+      - global-not-simple/testcase15-global-ports-not-simple-mismatch-ingress-egress
+      - global-not-simple
+      - global-not-simple-with-ingress
+
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+      fwRulesGroupByLabelSinglePod: true
+    expectedOutput: ../../expected_output/testcase15_with_ingress_connectivity_map.txt
+
+  - name: no_empty_policies
+    emptiness:
+      - ip
+      - global-simple-with-ingress
+      - global-not-simple-with-ingress
+      - equiv-games1
+      - equiv-games2
+      - named-ports
+    expected: 0
+
+  - name: non_vacous_policies
+    vacuity:
+      - equiv-games1
+      - ip
+    expected: 0
+
+  - name: redundancy_with_ingress
+    redundancy:
+      - equiv-games2
+      - ip
+      - global-simple-with-ingress
+      - global-not-simple-with-ingress
+    expected: 6
+
+  - name: containment_global_simple_with_ingress
+    containment:
+      - global-simple
+      - global-simple-with-ingress
+    expected: 1
+
+  - name: containment_global_not_simple_with_ingress
+    containment:
+      - global-not-simple
+      - global-not-simple-with-ingress
+    expected: 1

@@ -40,7 +40,7 @@ class K8sService:
     def __eq__(self, other):
         if isinstance(other, K8sService):
             return self.name == other.name and self.namespace == other.namespace
-        return NotImplemented
+        return False
 
     def __hash__(self):
         return hash(self.name)
@@ -48,8 +48,12 @@ class K8sService:
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def service_full_name(name, ns):
+        return ns.name + '/' + name
+
     def full_name(self):
-        return self.namespace.name + '/' + self.name
+        return self.service_full_name(self.name, self.namespace)
 
     def set_type(self, service_type):
         """
@@ -67,6 +71,15 @@ class K8sService:
         :return: None
         """
         self.selector[key] = value
+
+    def get_port_by_name(self, name):
+        return self.ports.get(name)
+
+    def get_port_by_number(self, number):
+        for port in self.ports.values():
+            if port.port == number:
+                return port
+        return None
 
     def add_port(self, service_port):
         """
