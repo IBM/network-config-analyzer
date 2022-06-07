@@ -279,6 +279,7 @@ class ResourcesParser:
         if ResourceType.Namespaces in resource_flags:
             self.ns_finder.load_ns_from_live_cluster()
         if ResourceType.Pods in resource_flags:
+            self.pods_finder.namespaces_finder = self.ns_finder
             self.pods_finder.load_peer_from_calico_resource()
         if ResourceType.Policies in resource_flags:
             self.policies_finder.load_policies_from_calico_cluster()
