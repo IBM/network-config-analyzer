@@ -75,7 +75,7 @@ class CalicoNetworkPolicy(NetworkPolicy):
         self.order = None  # None means infinity here
 
     def __eq__(self, other):
-        return super().__eq__(other) and isinstance(other, CalicoNetworkPolicy) and \
+        return isinstance(other, CalicoNetworkPolicy) and super().__eq__(other) and \
             self.order == other.order
 
     def __lt__(self, other):  # required so we can evaluate the policies according to their order
