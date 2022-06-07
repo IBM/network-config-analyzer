@@ -102,7 +102,7 @@ class PodsFinder:
 
         containers = pod_object['spec'].get('containers', {})
         for container in containers:
-            for port in container.get('ports') or  []:
+            for port in container.get('ports') or []:
                 pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
         self._add_peer(pod)
 
@@ -156,10 +156,8 @@ class PodsFinder:
                 pod.set_label(key, val)
             pod_containers = pod_template.get('spec', {}).get('containers', [])
             for container in pod_containers:
-                ports = container.get('ports', [])
-                if ports:
-                    for port in ports:
-                        pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
+                for port in container.get('ports') or []:
+                    pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
             self._add_peer(pod)
 
     def _add_networkset_from_yaml(self, networkset_object):
@@ -207,15 +205,11 @@ class PodsFinder:
         for key, val in labels.items():
             hep.set_label(key, val)
 
-        ports = spec.get('ports', [])
-        if ports:
-            for port in ports:
-                hep.add_named_port(port.get('name'), port.get('port'), port.get('protocol', 'TCP'))
+        for port in spec.get('ports') or []:
+            hep.add_named_port(port.get('name'), port.get('port'), port.get('protocol', 'TCP'))
 
-        profiles = spec.get('profiles', [])
-        if profiles:
-            for profile in profiles:
-                hep.add_profile(profile)
+        for profile in spec.get('profiles') or []:
+            hep.add_profile(profile)
 
         self._add_peer(hep)
 
@@ -237,15 +231,11 @@ class PodsFinder:
         for key, val in labels.items():
             wep.set_label(key, val)
 
-        ports = spec.get('ports', [])
-        if ports:
-            for port in ports:
-                wep.add_named_port(port.get('name'), port.get('port'), port.get('protocol', 'TCP'))
+        for port in spec.get('ports') or []:
+            wep.add_named_port(port.get('name'), port.get('port'), port.get('protocol', 'TCP'))
 
-        profiles = spec.get('profiles', [])
-        if profiles:
-            for profile in profiles:
-                wep.add_profile(profile)
+        for profile in spec.get('profiles') or []:
+            wep.add_profile(profile)
 
         self._add_peer(wep)
 
