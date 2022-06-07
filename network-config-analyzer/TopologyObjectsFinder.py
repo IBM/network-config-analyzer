@@ -160,7 +160,7 @@ class PodsFinder:
             for container in pod_containers:
                 ports = container.get('ports', [])
                 if ports:
-                    for port in container.get('ports', []):
+                    for port in ports:
                         pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
             self._add_peer(pod)
 
