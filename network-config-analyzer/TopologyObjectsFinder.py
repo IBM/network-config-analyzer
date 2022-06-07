@@ -102,10 +102,8 @@ class PodsFinder:
 
         containers = pod_object['spec'].get('containers', {})
         for container in containers:
-            ports = container.get('ports', {})
-            if ports:
-                for port in ports:
-                    pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
+            for port in container.get('ports') or  []:
+                pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
         self._add_peer(pod)
 
     def _add_peer(self, peer):
