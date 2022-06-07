@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
-      - uses: dawidd6/action-download-artifact@b2abf1705491048a2d7074f7d90513044fd25d39
+      - uses: dawidd6/action-download-artifact@b7337e51c4775d1f22357423ade50ee0a5f5779e
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
