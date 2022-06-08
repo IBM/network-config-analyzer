@@ -111,7 +111,7 @@ And it can be in the range 0 to 3 as followed:
 Scheme files allow running NCA on multiple queries in a single command-line, and also for fine-tuning the output.
 To run NCAs with a scheme file, use the `--scheme` switch.
 ```shell
-python nca.py --scheme <scheme_file>
+nca --scheme <scheme_file>
 ```
 where `scheme_file` is a yaml file describing what to verify.
 
