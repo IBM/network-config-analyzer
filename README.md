@@ -1,72 +1,77 @@
+# Network Config Analyzer (NCA)
 [![.github/workflows/test-push.yml](https://github.com/IBM/network-config-analyzer/actions/workflows/test-push.yml/badge.svg)](https://github.com/IBM/network-config-analyzer/actions/workflows/test-push.yml)
 [![.github/workflows/codeql-analysis.yml](https://github.com/IBM/network-config-analyzer/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/IBM/network-config-analyzer/actions/workflows/codeql-analysis.yml)
-# Network Config Analyzer
-An analyzer for Network Policies and other connectivity-configuration resources
-
 ---
+## What is NCA?
+NCA is a tool for analyzing Network Policies and other connectivity-configuration resources.
+It takes such resources as input, in addition to a list of relevant endpoints, and provides answers to queries such as:
+- What is my current connectivity posture?
+- How is my connectivity posture changing?
+- Is specific traffic allowed/denied?
+- What are the endpoints that are not covered by any policy?
+- Are my policies implemented efficiently?
 
-## Usage (requires Python 3.8 or above)
-`python nca.py [--scheme <scheme_file>]`
+## Installation (requires Python 3.8 or above)
+For command-line use, NCA is installed with:
+```shell
+pip install network-config-analyzer
+```
+NCA can also be consumed as a [Docker container][Docker package],
+[GitHub Action][NCA GitHub Action]
+or [Tekton Tasks][NCA Tekton Tasks].
 
-where *scheme_file* is a yaml file describing what to verify.
+## Usage 
+Basic NCA command-line usage:
+```shell
+nca <query> [--resource_list <resource_list>] [--base_resource_list <base_resource_list>]
+```
+For example:
+```shell
+nca --connectivity --resource_list k8s  # Read policies and endpoints from a live Kubernetes cluster and report connectivity
+# OR
+nca --semantic_diff -r istio --base_resource_list ./old_config  # Compare two istio connectivity configs  
+```
 
-Scheme file structure is specified [here](docs/SchemeFileFormat.md).
-See an example scheme file [here](tests/k8s_testcases/example_policies/testcase1/testcase1-scheme.yaml).
-
-#### Running without a scheme file
-Various predefined queries can be performed without providing a scheme file, using the following command line configurations.
-
-- `--sanity [<NetworkPolicy set>]` \
-Running several sanity checks on the given set of NetworkPolicies
-- `--equiv [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
-Semantically comparing two sets of NetworkPolicy sets to decide whether they allow exactly the same traffic
-- `--interferes [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
-Checking whether the given set of NetworkPolicies interferes with the base set of NetworkPolicies 
+The full list of queries is:
+- `--sanity` - Running several sanity checks on the given set of NetworkPolicies
+- `--connectivity` - Get the list of allowed connections (as firewall rules or as a graph) as implied by the given set of NetworkPolicies
+- `--semantic_diff` - Get the semantic connectivity difference (as firewall rules) between two sets of NetworkPolicy sets
+- `--equiv` - Semantically comparing two sets of NetworkPolicy sets to decide whether they allow exactly the same traffic
+- `--interferes` - Checking whether the given set of NetworkPolicies interferes with the base set of NetworkPolicies 
 (allows more traffic between relevant endpoints)
-- `--permits [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
-Checking whether the base set of NetworkPolicies permits the traffic explicitly specified in the given set of NetworkPolicies
-- `--forbids [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
-Checking whether the base set of NetworkPolicies forbids the traffic explicitly specified in the given set of NetworkPolicies
-- `--connectivity [<NetworkPolicy set>]` \
-Get the list of allowed connections as firewall rules on the given set of NetworkPolicies
-- `--semantic_diff [<NetworkPolicy set> --base_np_list <NetworkPolicy set>]`\
-Get the connectivity semantic difference as firewall rules between two sets of NetworkPolicy sets
+- `--permits` - Checking whether the **base** set of NetworkPolicies permits the traffic explicitly specified in the given set of NetworkPolicies
+- `--forbids` - Checking whether the **base** set of NetworkPolicies forbids the traffic explicitly specified in the given set of NetworkPolicies
 
-Note: The `<NetworkPolicy set>` may be provided instead within the `--resource_list/--base_resource_list` switches.\
-Example:  `--sanity --resorceList <NetworkPolicy set>`
-
-`<NetworkPolicy set>` should be one of:
-- a path to a yaml/json file defining NetworkPolicies
-- a path to a directory with files containing NetworkPolicies
-- a url of a GHE repository/dir/file with NetworkPolicies
-- The string `k8s`, instructing the tool to take all NetworkPolicies from a Kubernetes cluster (using `kubectl`)
-- The string `calico`, instructing the tool to take all NetworkPolicies from a Calico cluster (using `calicoctl`)
-- The string `istio`, instructing the tool to take all AuthorizationPolicies from a Kubernetes cluster (using `kubectl`)
-
-Running with no command-line options at all is like running `nca.py --sanity k8s`.
+The arguments to `--resource_list` and to `--base_resource_list` should be one of:
+- a path to a yaml/json file defining NetworkPolicies and/or endpoints
+- a path to a directory with files containing NetworkPolicies and/or endpoints
+- a URL of a GitHub repository/dir/file with NetworkPolicies and/or endpoints
+- The string `k8s`, instructing the tool to take all NetworkPolicies and endpoints from a Kubernetes cluster (using `kubectl`)
+- The string `calico`, instructing the tool to take all NetworkPolicies and endpoints from a Kubernetes cluster with Calico (using `calicoctl`)
+- The string `istio`, instructing the tool to take all AuthorizationPolicies and endpoints from a Kubernetes cluster with Istio (using `kubectl`)
 
 #### Additional command-line switches:
-- `--base_np_list <path to file or 'k8s'>`\
-  The set of NetworkPolicies to compare against in `--equiv`, `--interferes`,`--permits`, `--forbids` and `--semantic_diff`  \
-  *default:* The result of `kubectl get netpol -A`\
-  *shorthand:* `-b`
-- `--ns_list <path to file or 'k8s'>`\
-  Allows specifying files to take the list of namespaces from, this switch may be specified multiple times\
+- `--resource_list <an argument from the list above>`\
+  Specifies where to take namespaces, endpoints and NetworkPolicies from. This switch may be specified multiple times\
+  *shorthand:* `-r`
+- `--ns_list <an argument from the list above>`\
+  Specifies where to take the list of namespaces from (and ignoring namespaces found by `--resource_list`). This switch may be specified multiple times\
   *default:* the result of `kubectl get ns`\
   *shorthand:* `-n`
-- `--pod_list <path to a file, 'calico' or 'k8s'>`\
-  Specifies where to take the list of pods/endpoints from, this switch may be specified multiple times\
+- `--pod_list <an argument from the list above>`\
+  Specifies where to take the list of pods/endpoints from (and ignoring those found by `--resource_list`). This switch may be specified multiple times\
   *default:* the result of `kubectl get pods -A`\
   *shorthand*: `-p`
-- `--resource_list <paths to file/dir or from the list above>`\
-  Allows specifying paths to take lists of namespaces, pods and NetworkPolicies from, this switch may be specified multiple times\
-  *shorthand:* `-r`
-- `--base_ns_list <path to file or 'k8s'>`\
-  Specifies files with list of namespaces to compare against in `--semantic_diff`, this switch may be specified multiple times
-- `--base_pod_list  <path to a file, 'calico' or 'k8s'>`\
-  Specifies files with list of pods/endpoints to compare against in `--semantic_diff`, this switch may be specified multiple times
-- `--base_resource_list <paths to file/dir or from the list above>`\
-  Specifies paths with list of lists of namespaces, pods and NetworkPolicies to compare against in `--semantic_diff`, this switch may be specified multiple times
+- `--base_resource_list <an argument from the list above>`\
+  Specifies where to take namespaces, endpoints and NetworkPolicies to compare against. This switch may be specified multiple times
+- `--base_np_list <an argument from the list above>`\
+  The set of NetworkPolicies to compare against. Using this switch will ignore NetworkPolicies found by `--base_resource_list` \
+  *default:* The result of `kubectl get netpol -A`\
+  *shorthand:* `-b`
+- `--base_ns_list <an argument from the list above>`\
+  Specifies files with list of namespaces to compare against (and ignoring those found by `--base_resource_list`). This switch may be specified multiple times
+- `--base_pod_list  <an argument from the list above>`\
+  Specifies files with list of pods/endpoints to compare against (and ignoring those found by `--base_resource_list`). This switch may be specified multiple times
 - `--ghe_token <token>`\
   A valid token to access a GHE repository
 - `--period <minutes>`\
@@ -83,7 +88,7 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 - `--expected_output <file name>`\
   A file path to the expected query output (for connectivity or semantic_diff queries).\
 - `--pr_url <URL>`\
-   Write output as GitHub PR comment. URL points to the relevant comments resource in the GitHub API.\
+   Write output as GitHub PR comment. URL points to the relevant `comments` resource in the GitHub API.\
    e.g., https://api.github.com/repos/shift-left-netconfig/online-boutique/issues/1/comments
 - `--output_endpoints`\
   Choose endpoints type in output (pods/deployments).\
@@ -92,7 +97,7 @@ Running with no command-line options at all is like running `nca.py --sanity k8s
 For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md#cmdline-queries)
 
 #### Exit Code Meaning:
-The exit value of running a command-line without a scheme is combined from two factors:
+The exit value of running a command-line without a scheme is the combination of two factors:
 1. The result of running the query (0/1) as specified [here](docs/CmdLineQueriesResults.md)
 2. The result of comparing the query output with the expected output file contents (if given)
 
@@ -101,16 +106,17 @@ And it can be in the range 0 to 3 as followed:
   - 1 : query result is 1, output comparison passed.
   - 2 : query result is 0, output comparison failed.
   - 3 : query result is 1, output comparison failed.
-## Installation
-```commandline
-git clone https://github.com/IBM/network-config-analyzer.git
-cd network-config-analyzer
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
 
-python network-config-analyzer/nca.py -h
+### Running with a scheme file
+Scheme files allow running NCA on multiple queries in a single command-line, and also for fine-tuning the output.
+To run NCAs with a scheme file, use the `--scheme` switch.
+```shell
+python nca.py --scheme <scheme_file>
 ```
+where `scheme_file` is a yaml file describing what to verify.
+
+Scheme files should follow [this specification](docs/SchemeFileFormat.md).
+See an [example scheme file](tests/k8s_testcases/example_policies/testcase1/testcase1-scheme.yaml).
 
 ## Supported platforms
 * Kubernetes
@@ -146,3 +152,6 @@ If you would like to see the detailed LICENSE click [here](LICENSE).
 ```
 
 [issues]: https://github.com/IBM/network-config-analyzer/issues/new/choose
+[Docker package]: https://github.com/IBM/network-config-analyzer/pkgs/container/nca
+[NCA GitHub Action]: https://github.com/np-guard/netpol-reports-gh-action
+[NCA Tekton Tasks]: https://github.com/IBM/network-config-analyzer/tree/master/tekton
