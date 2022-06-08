@@ -70,8 +70,9 @@ class GenericYamlParser:
         Allowed values contains all the possible values of a key in the correct type (value and type check).
         :param dict dict_to_check: The dictionary for which the keys should be checked
         :param str dict_name: A name for the dictionary (providing context in error messages)
-        :param dict allowed_keys: Map from allowed keys to usage code (0-optional, 1-must have, 2-not yet supported)
-         and type (type is optional) - if type is specified, allowed_keys maps string to array.
+        :param dict allowed_keys: Map from allowed keys to usage code
+         (0-optional, 1-must have, 2-not yet supported, 3-ignored even if specified) and type (type is optional) -
+         if type is specified, allowed_keys maps string to array.
         :param dict allowed_values: Map from a key name to its allowed values (optional)
         :return: None
         :raises SyntaxError: if some of the keys are not allowed/missing
@@ -89,6 +90,9 @@ class GenericYamlParser:
             if key in dict_to_check:
                 if code == 2:
                     self.syntax_error(f'{key} is not yet supported inside {dict_name}', dict_to_check)
+                if code == 3:
+                    self.warning(f'over-approximation analysis: {key} is not yet supported inside {dict_name},\
+                                 ignoring this key', dict_to_check)
                 value = dict_to_check.get(key)
                 if code == 1 and value is None:
                     self.syntax_error(f'mandatory {key} value can not be null in {dict_name}', dict_to_check)
