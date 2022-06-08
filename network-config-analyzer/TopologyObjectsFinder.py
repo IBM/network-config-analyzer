@@ -102,7 +102,7 @@ class PodsFinder:
 
         containers = pod_object['spec'].get('containers', {})
         for container in containers:
-            for port in container.get('ports', {}):
+            for port in container.get('ports') or []:
                 pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
         self._add_peer(pod)
 
@@ -156,7 +156,7 @@ class PodsFinder:
                 pod.set_label(key, val)
             pod_containers = pod_template.get('spec', {}).get('containers', [])
             for container in pod_containers:
-                for port in container.get('ports', []):
+                for port in container.get('ports') or []:
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
             self._add_peer(pod)
 
@@ -205,10 +205,10 @@ class PodsFinder:
         for key, val in labels.items():
             hep.set_label(key, val)
 
-        for port in spec.get('ports', []):
+        for port in spec.get('ports') or []:
             hep.add_named_port(port.get('name'), port.get('port'), port.get('protocol', 'TCP'))
 
-        for profile in spec.get('profiles', []):
+        for profile in spec.get('profiles') or []:
             hep.add_profile(profile)
 
         self._add_peer(hep)
@@ -231,10 +231,10 @@ class PodsFinder:
         for key, val in labels.items():
             wep.set_label(key, val)
 
-        for port in spec.get('ports', []):
+        for port in spec.get('ports') or []:
             wep.add_named_port(port.get('name'), port.get('port'), port.get('protocol', 'TCP'))
 
-        for profile in spec.get('profiles', []):
+        for profile in spec.get('profiles') or []:
             wep.add_profile(profile)
 
         self._add_peer(wep)
