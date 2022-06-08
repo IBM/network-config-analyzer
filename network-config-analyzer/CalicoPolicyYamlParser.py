@@ -548,7 +548,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         :return: None
         """
         allowed_policy_keys = {'order': 0, 'selector': 0, 'ingress': 0, 'egress': 0, 'types': 0, 'labelsToApply': 0,
-                               'doNotTrack': 2, 'preDNAT': 2, 'applyOnForward': 2}
+                               'doNotTrack': 3, 'preDNAT': 3, 'applyOnForward': 3}
         self.check_fields_validity(policy_spec, 'network policy spec', allowed_policy_keys)
 
         policy_types = policy_spec.get('types', [])
