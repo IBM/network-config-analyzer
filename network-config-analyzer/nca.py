@@ -247,6 +247,8 @@ def nca_main(argv=None):
                         help='A file/GHE url/cluster-type to read pod list from (may be specified multiple times)')
     parser.add_argument('--resource_list', '-r', type=_resource_list_valid_path, action='append',
                         help='Network policies entries or Filesystem or GHE location of base network resources ')
+    parser.add_argument('--subset_deployment', '-sd', type=str, action='append',
+                        help='A list of deployment names to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')

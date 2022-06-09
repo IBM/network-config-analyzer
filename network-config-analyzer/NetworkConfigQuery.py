@@ -12,7 +12,7 @@ from IngressPolicy import IngressPolicy
 from ConnectionSet import ConnectionSet
 from ConnectivityGraph import ConnectivityGraph
 from OutputConfiguration import OutputConfiguration
-from Peer import PeerSet, IpBlock
+from Peer import PeerSet, IpBlock, Pod
 
 
 class QueryType(Enum):
@@ -530,6 +530,19 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def get_supported_output_formats():
         return {'txt', 'yaml', 'csv', 'md', 'dot'}
 
+    def is_in_subset(self, peer):
+
+        # if subset restrictions were not defined at all, everything is in the subset
+        if len(self.output_config.subset) == 0:
+            return True
+        # check deployments subset
+        if isinstance(peer, Pod) and peer.owner_name in self.output_config.subset['deployment_subset']: # and find(subset_depl, peer.owner_name):
+            return True
+
+        # add future subset checks here
+
+        return False
+
     def exec(self):
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
@@ -544,6 +557,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                        self.config.type)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
+                if not self.is_in_subset(peer1) and not self.is_in_subset(peer2):
+                    continue  # skipping pairs if none of them are in the given subset
                 if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
                     continue  # skipping pairs with ip-blocks for both src and dst
                 if peer1 == peer2:
