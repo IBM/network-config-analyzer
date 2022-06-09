@@ -533,10 +533,10 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def is_in_subset(self, peer):
 
         # if subset restrictions were not defined at all, everything is in the subset
-        if len(self.output_config.subset) == 0:
+        if not self.output_config.subset:
             return True
         # check deployments subset
-        if isinstance(peer, Pod) and peer.owner_name in self.output_config.subset['deployment_subset']: # and find(subset_depl, peer.owner_name):
+        if isinstance(peer, Pod) and peer.owner_name in str(self.output_config.subset['deployment_subset']):
             return True
 
         # add future subset checks here

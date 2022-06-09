@@ -125,7 +125,8 @@ def run_args(args):
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
                                          'outputPath': args.file_out or None,
                                          'prURL': args.pr_url or None,
-                                         'outputEndpoints': args.output_endpoints})
+                                         'outputEndpoints': args.output_endpoints,
+                                         'subset': {'deployment_subset': args.deployment_subset}})
     expected_output = None
     # default values are for sanity query
     # np_list will be taken as args.<query_name> if it is not equal to the args parser's const value i.e ['']
@@ -247,7 +248,7 @@ def nca_main(argv=None):
                         help='A file/GHE url/cluster-type to read pod list from (may be specified multiple times)')
     parser.add_argument('--resource_list', '-r', type=_resource_list_valid_path, action='append',
                         help='Network policies entries or Filesystem or GHE location of base network resources ')
-    parser.add_argument('--subset_deployment', '-sd', type=str, action='append',
+    parser.add_argument('--deployment_subset', '-ds', type=str, action='append',
                         help='A list of deployment names to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
