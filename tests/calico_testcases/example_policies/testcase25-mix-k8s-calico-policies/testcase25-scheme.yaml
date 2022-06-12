@@ -11,5 +11,5 @@ queries:
   - name: connectivity
     connectivityMap:
       - testcase25-config-1
-    expected: 0
+    expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map.txt
 
