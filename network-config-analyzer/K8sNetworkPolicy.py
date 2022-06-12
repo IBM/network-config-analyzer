@@ -2,7 +2,6 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
 from ConnectionSet import ConnectionSet
 from NetworkPolicy import PolicyConnections, NetworkPolicy
 import Peer
@@ -36,9 +35,19 @@ class K8sNetworkPolicy(NetworkPolicy):
     """
     This class implements K8s-specific logic for NetworkPolicies
     """
-    def __lt__(self, other):  # the order of K8s NetworkPolicies doesn't really matter
+    # in calico there is some tie-breaker in the code for policies with the same order value
+    # it should not be relied on, because it's better to use an explicit "order" value, whenever ordering matters.
+    # TODO: consider a warning for policies with the same order value, if they have overlap in rules and
+    #  conflicting semantics
+    def __lt__(self, other):
+        if not isinstance(other, NetworkPolicy):
+            return False
         if isinstance(other, K8sNetworkPolicy):
             return self.full_name() < other.full_name()
+        if other.policy_type() == NetworkPolicy.PolicyType.CalicoNetworkPolicy:
+            if other.get_order() is None:
+                return True
+            return self.get_order() < other.get_order()
         return False
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
@@ -170,3 +179,17 @@ class K8sNetworkPolicy(NetworkPolicy):
             if other_rule.contained_in(rule):
                 return rule_index, False
         return None, None
+
+    def policy_type(self):
+        """
+        :return: The type of the policy
+        :rtype: NetworkPolicy.PolicyType
+        """
+        return NetworkPolicy.PolicyType.K8sNetworkPolicy
+
+    def get_order(self):
+        """
+        :return: The order of the policy
+        :rtype: int
+        """
+        return 1000

@@ -28,6 +28,8 @@ class NetworkConfigQueryRunner:
                 raise Exception(f'NetworkPolicyList {config_name} is undefined')
             return self.network_configs[config_name]
 
+        # TODO: if we support multi layer with an option to have two policies in different layers with same name,
+        #  then the config name of a specific policy should be more specific: <config>/<namespace>/<policy>/<layer>
         # User wants a specific policy from the given config. config_name has the form <config>/<namespace>/<policy>
         split_config = config_name.split('/', 1)
         config_name = split_config[0]

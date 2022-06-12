@@ -159,3 +159,10 @@ class IngressPolicy(NetworkPolicy):
                 if rule.peer_set:
                     return True
         return False
+
+    def policy_type(self):
+        """
+        :return: The type of the policy
+        :rtype: NetworkPolicy.PolicyType
+        """
+        return NetworkPolicy.PolicyType.Ingress

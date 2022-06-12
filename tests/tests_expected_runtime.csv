@@ -62,6 +62,7 @@ calico_testcases/example_policies/testcase22-forbids-permits/testcase22-scheme.y
 calico_testcases/example_policies/testcase23-NetworkSet/testcase23-scheme.yaml,0.75
 calico_testcases/example_policies/testcase24-selector-expression/testcase24-new-scheme.yaml,0.39
 calico_testcases/example_policies/testcase24-selector-expression/testcase24-scheme.yaml,0.56
+calico_testcases/example_policies/testcase25-mix-k8s-calico-policies/testcase25-scheme.yaml,0.08
 calico_testcases/example_policies/testcase2tag/testcase2tag-scheme.yaml,0.35
 calico_testcases/example_policies/testcase3/testcase3-scheme.yaml,0.30
 calico_testcases/example_policies/testcase4/testcase4-scheme.yaml,0.15

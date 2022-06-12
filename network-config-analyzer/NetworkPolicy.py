@@ -64,6 +64,10 @@ class NetworkPolicy:
             res = str(self.namespace) + '/' + res
         if config_name:
             res = config_name + '/' + res
+        # TODO: consider if should support identical full names in different layers (platforms)
+        # for multi-layer support, differentiate between two policies with the same name in different layers
+        # if self.policy_type() != NetworkPolicy.PolicyType.Unknown:
+        #     res = f'[{self.policy_type().name}]' + res
         return res
 
     def is_policy_empty(self):
@@ -88,6 +92,13 @@ class NetworkPolicy:
         :return: None
         """
         self.egress_rules.append(rule)
+
+    def policy_type(self):
+        """
+        :return: the type of the policy
+        :rtype: NetworkPolicy.PolicyType
+        """
+        return NetworkPolicy.PolicyType.Unknown
 
     @staticmethod
     def get_policy_type(policy):
@@ -186,6 +197,13 @@ class NetworkPolicy:
         :return: PeerSet of the referenced ip blocks
         """
         return PeerSet()  # default value, can be overridden in derived classes
+
+    def get_order(self):
+        """
+        :return: the order of the policy
+        :rtype: int
+        """
+        return None  # default value, can be overridden in derived classes
 
 
 @dataclass
