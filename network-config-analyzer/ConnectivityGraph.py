@@ -55,8 +55,9 @@ class ConnectivityGraph:
             return peer.workload_name, False
         return str(peer), False
 
-    def get_connectivity_dot_format_str(self):
+    def get_connectivity_dot_format_str(self, only_connected=False):
         """
+        :param only_connected: indicates if we want to include all the peers or only those which are connected
         :return: a string with content of dot format for connectivity graph
         """
         output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
@@ -64,18 +65,15 @@ class ConnectivityGraph:
         if self.output_config.queryName and self.output_config.configName:
             output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/' \
                              f'{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
-        peer_lines = set()
-        for peer in self.cluster_info.all_peers:
-            peer_name, is_ip_block = self._get_peer_name(peer)
-            peer_color = "red2" if is_ip_block else "blue"
-            peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
-
+        connected_peers = {}
         edge_lines = set()
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer and connections:
                     src_peer_name, _ = self._get_peer_name(src_peer)
                     dst_peer_name, _ = self._get_peer_name(dst_peer)
+                    connected_peers[src_peer_name] = src_peer
+                    connected_peers[dst_peer_name] = dst_peer
                     line = '\t'
                     line += f'\"{src_peer_name}\"'
                     line += ' -> '
@@ -83,6 +81,17 @@ class ConnectivityGraph:
                     conn_str = str(connections).replace("Protocol:", "")
                     line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
                     edge_lines.add(line)
+
+        if only_connected:
+            peers = connected_peers
+        else:
+            peers = self.cluster_info.all_peers
+        peer_lines = set()
+        for peer in peers:
+            peer_name, is_ip_block = self._get_peer_name(peer)
+            peer_color = "red2" if is_ip_block else "blue"
+            peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
+
         output_result += ''.join(line for line in sorted(list(peer_lines))) + \
                          ''.join(line for line in sorted(list(edge_lines))) + '}\n\n'
         return output_result
