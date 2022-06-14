@@ -9,7 +9,6 @@ from bisect import insort
 from CmdlineRunner import CmdlineRunner
 from NetworkConfig import NetworkConfig, PoliciesContainer
 from NetworkPolicy import NetworkPolicy
-from IngressPolicy import IngressPolicy
 from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from IstioPolicyYamlParser import IstioPolicyYamlParser
@@ -53,16 +52,17 @@ class PoliciesFinder:
     def _add_policy(self, policy):
         """
         This should be the only place where we add policies to the config's set of policies from input resources
-        :param policy: The policy to add
+        :param NetworkPolicy policy: The policy to add
         :return: None
         """
         if not policy:
             return
-        if policy.full_name() in self.policies_container.policies:
-            raise Exception('A policy named ' + policy.full_name() + ' already exists')
         policy_type = NetworkConfig.get_policy_type(policy)
         if policy_type == NetworkConfig.ConfigType.Unknown:
             raise Exception('Unknown policy type')
+        if (policy.full_name(), policy_type) in self.policies_container.policies:
+            raise Exception(f'A policy named {policy.full_name()} of type {policy_type} already exists')
+
         if self.type == NetworkConfig.ConfigType.Unknown or not self.policies_container.policies or \
                 self.type == NetworkConfig.ConfigType.Ingress:
             self.type = policy_type
@@ -71,9 +71,8 @@ class PoliciesFinder:
         elif self.type != policy_type and policy_type != NetworkConfig.ConfigType.Ingress:
             raise Exception('Cannot mix NetworkPolicies from different platforms')
 
-        self.policies_container.policies[policy.full_name()] = policy
+        self.policies_container.policies[(policy.full_name(), policy_type)] = policy
         if policy_type == NetworkConfig.ConfigType.Ingress:
-            assert policy.action == IngressPolicy.ActionType.Deny
             insort(self.policies_container.ingress_deny_policies, policy)
         else:
             insort(self.policies_container.sorted_policies, policy)
@@ -83,7 +82,7 @@ class PoliciesFinder:
             return
         if profile.full_name() in self.policies_container.profiles:
             raise Exception('A profile named ' + profile.full_name() + ' already exists')
-        if self.type == NetworkConfig.ConfigType.Unknown:
+        if self.type in {NetworkConfig.ConfigType.Unknown, NetworkConfig.ConfigType.K8s,  NetworkConfig.ConfigType.Ingress}:
             self.type = NetworkConfig.ConfigType.Calico
         elif self.type != NetworkConfig.ConfigType.Calico:
             raise Exception('Cannot mix NetworkPolicies from different platforms')

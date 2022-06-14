@@ -13,3 +13,14 @@ queries:
       - testcase25-config-1
     expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map.txt
 
+  - name: connectivity_1
+    connectivityMap:
+      - testcase25-config-1/k8s/kube-system/testcase25-networkpolicy
+    expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map_1.txt
+
+  - name: connectivity_2
+    connectivityMap:
+      - testcase25-config-1/calico/kube-system/testcase25-networkpolicy
+    expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map_2.txt
+
+

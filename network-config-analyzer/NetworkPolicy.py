@@ -64,10 +64,6 @@ class NetworkPolicy:
             res = str(self.namespace) + '/' + res
         if config_name:
             res = config_name + '/' + res
-        # TODO: consider if should support identical full names in different layers (platforms)
-        # for multi-layer support, differentiate between two policies with the same name in different layers
-        # if self.policy_type() != NetworkPolicy.PolicyType.Unknown:
-        #     res = f'[{self.policy_type().name}]' + res
         return res
 
     def is_policy_empty(self):

@@ -88,18 +88,23 @@ class NetworkConfig:
             res += len(profile.findings)
         return res
 
-    def find_policy(self, policy_name):
+    def find_policy(self, policy_name, required_policy_type=None):
         """
-        :param policy_name: The name of a policy (either fully-qualified or just policy name)
+        :param str policy_name: The name of a policy (either fully-qualified or just policy name)
+        :param NetworkConfig.ConfigType required_policy_type: The type of policy to find
         :return: A list of all policy objects matching the policy name
         :rtype: list[NetworkPolicy]
         """
         res = []
-        if policy_name in self.policies:
-            res.append(self.policies[policy_name])
-        elif policy_name.count('//') == 0:
+        found = False
+        possible_policy_types = [required_policy_type] if required_policy_type else NetworkConfig.ConfigType
+        for policy_type in possible_policy_types:
+            if (policy_name, policy_type) in self.policies:
+                res.append(self.policies[(policy_name, policy_type)])
+                found = True
+        if not found and policy_name.count('//') == 0:
             for policy in self.policies.values():
-                if policy_name == policy.name:
+                if policy_name == policy.name and (not required_policy_type or policy.policy_type() == required_policy_type):
                     res.append(policy)
         return res
 
@@ -125,17 +130,22 @@ class NetworkConfig:
                 res.append_policy_to_config(other_policy)
         return res
 
-    def clone_with_just_one_policy(self, name_of_policy_to_include):
+    def clone_with_just_one_policy(self, name_of_policy_to_include, policy_type=None):
         """
         :param str name_of_policy_to_include: A policy name
+        :param PolicyType policy_type: The type of policy to include
         :return: A clone of the config having just a single policy as specified
         :rtype: NetworkConfig
         """
-        if name_of_policy_to_include not in self.policies:
-            raise Exception('No policy named ' + name_of_policy_to_include + ' in ' + self.name)
+        matching_policies = self.find_policy(name_of_policy_to_include, policy_type)
+        if not matching_policies:
+            raise Exception(f'No policy named {name_of_policy_to_include} in {self.name}')
+        elif len(matching_policies) > 1:
+            raise Exception(f'More than one policy named {name_of_policy_to_include} in {self.name}')
+        policy = matching_policies[0]
 
         res = self.clone_without_policies(self.name + '/' + name_of_policy_to_include)
-        res.append_policy_to_config(self.policies[name_of_policy_to_include])
+        res.append_policy_to_config(policy)
         return res
 
     def get_captured_pods(self):
@@ -331,7 +341,7 @@ class NetworkConfig:
         if self.type == NetworkConfig.ConfigType.Unknown or not self.policies or \
                 self.type == NetworkConfig.ConfigType.Ingress:
             self.type = policy_type
-        self.policies[policy.full_name()] = policy
+        self.policies[(policy.full_name(), policy_type)] = policy
         self.allowed_labels |= policy.referenced_labels
         if policy_type == NetworkConfig.ConfigType.Ingress:
             insort(self.ingress_deny_policies, policy)
