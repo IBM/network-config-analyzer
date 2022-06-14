@@ -62,7 +62,7 @@
 
 - name: basic_subset_deployment1
   args: >
-    --connectivity k8s_testcases\example_policies\test_subset\subset_deployment-networkpolicy.yaml
+    --connectivity k8s_testcases/example_policies/test_subset/subset_deployment-networkpolicy.yaml
     --ns_list k8s_testcases/example_policies/test_subset/test_subset_deployment.yaml
     --pod_list k8s_testcases/example_policies/test_subset/test_subset_deployment.yaml
     --deployment_subset my-test-deployment-B
@@ -71,7 +71,7 @@
 
 - name: basic_subset_deployment2
   args: >
-    --connectivity k8s_testcases\example_policies\test_subset\subset_deployment-networkpolicy.yaml
+    --connectivity k8s_testcases/example_policies/test_subset/subset_deployment-networkpolicy.yaml
     --ns_list k8s_testcases/example_policies/test_subset/test_subset_deployment.yaml
     --pod_list k8s_testcases/example_policies/test_subset/test_subset_deployment.yaml
     --deployment_subset my-test-deployment-A
