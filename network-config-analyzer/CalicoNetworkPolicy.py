@@ -81,18 +81,12 @@ class CalicoNetworkPolicy(NetworkPolicy):
     def __lt__(self, other):  # required so we can evaluate the policies according to their order
         if not isinstance(other, NetworkPolicy):
             return False
-        if isinstance(other, CalicoNetworkPolicy):
-            # If not specified "order" defaults to infinity, so policies with unspecified "order" will be applied last.
-            if self.get_order() is None:
-                return False
-            if other.get_order() is None:
-                return True
-            return self.get_order() < other.get_order()
-        if other.policy_type() == NetworkPolicy.PolicyType.K8sNetworkPolicy:
-            if self.get_order() is None:
-                return False
-            return self.get_order() < other.get_order()
-        return False
+        # If not specified "order" defaults to infinity, so policies with unspecified "order" will be applied last.
+        if self.get_order() is None:
+            return False
+        if other.get_order() is None:
+            return True
+        return self.get_order() < other.get_order()
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """

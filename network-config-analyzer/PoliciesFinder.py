@@ -66,15 +66,10 @@ class PoliciesFinder:
         if self.type == NetworkConfig.ConfigType.Unknown or not self.policies_container.policies or \
                 self.type == NetworkConfig.ConfigType.Ingress:
             self.type = policy_type
+        elif {self.type, policy_type} == {NetworkConfig.ConfigType.Calico, NetworkConfig.ConfigType.K8s}:
+            self.type = NetworkConfig.ConfigType.Calico
         elif self.type != policy_type and policy_type != NetworkConfig.ConfigType.Ingress:
-            is_allowed_combination = False
-            if self.type == NetworkConfig.ConfigType.Calico and policy_type == NetworkConfig.ConfigType.K8s:
-                is_allowed_combination = True
-            elif self.type == NetworkConfig.ConfigType.K8s and policy_type == NetworkConfig.ConfigType.Calico:
-                is_allowed_combination = True
-                self.type = NetworkConfig.ConfigType.Calico
-            if not is_allowed_combination:
-                raise Exception('Cannot mix NetworkPolicies from different platforms')
+            raise Exception('Cannot mix NetworkPolicies from different platforms')
 
         self.policies_container.policies[policy.full_name()] = policy
         if policy_type == NetworkConfig.ConfigType.Ingress:
