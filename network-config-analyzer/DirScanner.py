@@ -22,9 +22,8 @@ class DirScanner(GenericTreeScanner):
         :param str file_path: path of file to check and yield
         """
         if GenericTreeScanner.is_yaml_file(file_path):
-            file_stream = open(file_path)
-            yield from self._yield_yaml_file(file_path, file_stream)
-            file_stream.close()
+            with open(file_path, 'r') as f:
+                yield from self._yield_yaml_file(file_path, f)
 
     def get_yamls(self):
         """
