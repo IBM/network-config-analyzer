@@ -82,7 +82,7 @@ class PoliciesFinder:
             return
         if profile.full_name() in self.policies_container.profiles:
             raise Exception('A profile named ' + profile.full_name() + ' already exists')
-        if self.type in {NetworkConfig.ConfigType.Unknown, NetworkConfig.ConfigType.K8s,  NetworkConfig.ConfigType.Ingress}:
+        if self.type in {NetworkConfig.ConfigType.Unknown, NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress}:
             self.type = NetworkConfig.ConfigType.Calico
         elif self.type != NetworkConfig.ConfigType.Calico:
             raise Exception('Cannot mix NetworkPolicies from different platforms')
