@@ -1,0 +1,2 @@
+final fw rules for query: , config: k8s_testcases\example_policies\test_subset\subset_deployment-networkpolicy.yaml:
+

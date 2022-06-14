@@ -126,7 +126,7 @@ def run_args(args):
                                          'outputPath': args.file_out or None,
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
-                                         'subset': {'deployment_subset': args.deployment_subset}})
+                                         'subset': {}})
     expected_output = None
     # default values are for sanity query
     # np_list will be taken as args.<query_name> if it is not equal to the args parser's const value i.e ['']
@@ -134,6 +134,10 @@ def run_args(args):
     pair_query_flag = False
     query_name = 'sanity'
     base_as_second = False
+
+    # All future subset valued should be filled here
+    if args.deployment_subset is not None:
+        output_config['subset'] = {'deployment_subset': args.deployment_subset}
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None

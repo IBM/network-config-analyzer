@@ -1,0 +1,3 @@
+final fw rules for query: , config: k8s_testcases\example_policies\test_subset\subset_deployment-networkpolicy.yaml:
+src_ns: [default] src_pods: [my-test-deployment-C] dst_ns: [default] dst_pods: [app=B] conn: All connections
+

@@ -530,11 +530,27 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def get_supported_output_formats():
         return {'txt', 'yaml', 'csv', 'md', 'dot'}
 
-    def is_in_subset(self, peer):
-
-        # if subset restrictions were not defined at all, everything is in the subset
-        if not self.output_config.subset:
+    def is_subset_active(self):
+        """
+        returns indication if the subset feature was activated
+        :return: True/False
+        """
+        if self.output_config.subset:
             return True
+        return False
+
+    def is_in_subset(self, peer):
+        """
+        returns indication if the peer element is in the defined subset
+        Please note: the function returns True if no subset was defined
+        since, in this case, the subset is infinite and everything is "in the subset"
+        :param peer: peer element to verify (currently supports only Pods)
+        :return:
+        """
+        # if subset restrictions were not defined at all, everything is in the subset
+        if not self.is_subset_active():
+            return True
+
         # check deployments subset
         if isinstance(peer, Pod) and peer.owner_name in str(self.output_config.subset['deployment_subset']):
             return True
@@ -576,7 +592,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         res = QueryAnswer(True)
         if self.output_config.outputFormat == 'dot':
-            res.output_explanation = conn_graph.get_connectivity_dot_format_str(only_connected=self.output_config.subset is not None)
+            res.output_explanation = conn_graph.get_connectivity_dot_format_str(only_connected=self.is_subset_active())
         else:
             fw_rules = conn_graph.get_minimized_firewall_rules()
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
