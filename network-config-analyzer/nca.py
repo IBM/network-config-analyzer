@@ -135,8 +135,8 @@ def run_args(args):
     query_name = 'sanity'
     base_as_second = False
 
-    # All future subset valued should be filled here
     if args.deployment_subset is not None:
+        # All future subset elements should be filled here
         output_config['subset'] = {'deployment_subset': args.deployment_subset}
 
     if args.equiv is not None:
