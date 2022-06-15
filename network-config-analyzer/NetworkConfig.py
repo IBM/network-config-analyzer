@@ -108,7 +108,8 @@ class NetworkConfig:
                 found = True
         if not found and policy_name.count('//') == 0:
             for policy in self.policies.values():
-                if policy_name == policy.name and (not required_policy_type or policy.policy_type() == required_policy_type):
+                policy_type = NetworkConfig.get_policy_type(policy)
+                if policy_name == policy.name and (not required_policy_type or policy_type == required_policy_type):
                     res.append(policy)
         return res
 
