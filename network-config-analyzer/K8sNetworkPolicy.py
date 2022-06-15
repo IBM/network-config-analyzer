@@ -48,7 +48,6 @@ class K8sNetworkPolicy(NetworkPolicy):
             return True
         return self.get_order() < other.get_order()
 
-
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
         Evaluate the set of connections this policy allows between two peers
