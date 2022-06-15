@@ -21,7 +21,8 @@ class NetworkConfigQueryRunner:
         User wants a specific policy from the given config.
         config_name has one of the following forms:
         (1) <config>/<namespace>/<policy>
-        (2) <config>/<layer>/<namespace>/<policy>/ , where layer is the relevant kind from ['k8s', 'calico', 'istio']
+        (2) <config>/<layer>/<namespace>/<policy>/ , where layer is the relevant kind from
+                                                    ['k8s', 'calico', 'istio', 'ingress']
         :param str config_name: the full config name (from which a specific policy is requested)
         :return: the parsed config name, policy name, policy type
         :rtype: (str, str, NetworkPolicy.PolicyType)

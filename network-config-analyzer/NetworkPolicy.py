@@ -89,13 +89,6 @@ class NetworkPolicy:
         """
         self.egress_rules.append(rule)
 
-    def policy_type(self):
-        """
-        :return: the type of the policy
-        :rtype: NetworkPolicy.PolicyType
-        """
-        return NetworkPolicy.PolicyType.Unknown
-
     @staticmethod
     def get_policy_type(policy):
         """

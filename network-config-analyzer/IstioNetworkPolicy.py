@@ -184,10 +184,3 @@ class IstioNetworkPolicy(NetworkPolicy):
             if ingress_rule.peer_set:
                 return True
         return False
-
-    def policy_type(self):
-        """
-        :return: The type of the policy
-        :rtype: NetworkPolicy.PolicyType
-        """
-        return NetworkPolicy.PolicyType.IstioAuthorizationPolicy

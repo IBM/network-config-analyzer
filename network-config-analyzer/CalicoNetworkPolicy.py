@@ -282,13 +282,6 @@ class CalicoNetworkPolicy(NetworkPolicy):
                 return rule_index, rule.action != other_rule.action
         return None, None
 
-    def policy_type(self):
-        """
-        :return: The type of the policy
-        :rtype: NetworkPolicy.PolicyType
-        """
-        return NetworkPolicy.PolicyType.CalicoNetworkPolicy
-
     def get_order(self):
         """
         :return: The order of the policy

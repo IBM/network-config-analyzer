@@ -44,11 +44,10 @@ class K8sNetworkPolicy(NetworkPolicy):
             return False
         if isinstance(other, K8sNetworkPolicy):
             return self.full_name() < other.full_name()
-        if other.policy_type() == NetworkPolicy.PolicyType.CalicoNetworkPolicy:
-            if other.get_order() is None:
-                return True
-            return self.get_order() < other.get_order()
-        return False
+        if other.get_order() is None:
+            return True
+        return self.get_order() < other.get_order()
+
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
@@ -179,13 +178,6 @@ class K8sNetworkPolicy(NetworkPolicy):
             if other_rule.contained_in(rule):
                 return rule_index, False
         return None, None
-
-    def policy_type(self):
-        """
-        :return: The type of the policy
-        :rtype: NetworkPolicy.PolicyType
-        """
-        return NetworkPolicy.PolicyType.K8sNetworkPolicy
 
     def get_order(self):
         """
