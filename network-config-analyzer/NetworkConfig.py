@@ -20,6 +20,10 @@ from ConnectionSet import ConnectionSet
 class PoliciesContainer:
     """
     A class for holding policies, profiles etc.
+    policies: map from tuples (policy name, policy type) to policy objects
+    profiles: map from profile name to profile objects
+    sorted_policies: sorted list of policies objects
+    ingress_policies: list of Ingress policy objects
     """
     policies: dict = field(default_factory=dict)
     sorted_policies: list = field(default_factory=list)
@@ -203,8 +207,6 @@ class NetworkConfig:
         if not profile_name:
             return PolicyConnections(False)
         profile = self.profiles.get(profile_name)
-        # TODO: if changing the full name of policy to include the layer, should consider it as follows
-        # profile = self.profiles.get(f'[CalicoNetworkPolicy]{profile_name}')
         if not profile:
             raise Exception(peer.full_name() + ' refers to a non-existing profile ' + profile_name)
         return profile.allowed_connections(from_peer, to_peer, is_ingress)
