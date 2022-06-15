@@ -344,6 +344,8 @@ class NetworkConfig:
         if self.type == NetworkConfig.ConfigType.Unknown or not self.policies or \
                 self.type == NetworkConfig.ConfigType.Ingress:
             self.type = policy_type
+        elif {self.type, policy_type} == {NetworkConfig.ConfigType.Calico, NetworkConfig.ConfigType.K8s}:
+            self.type = NetworkConfig.ConfigType.Calico
         self.policies[(policy.full_name(), policy_type)] = policy
         self.allowed_labels |= policy.referenced_labels
         if policy_type == NetworkConfig.ConfigType.Ingress:

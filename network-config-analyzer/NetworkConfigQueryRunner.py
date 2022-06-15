@@ -25,7 +25,7 @@ class NetworkConfigQueryRunner:
                                                     ['k8s', 'calico', 'istio', 'ingress']
         :param str config_name: the full config name (from which a specific policy is requested)
         :return: the parsed config name, policy name, policy type
-        :rtype: (str, str, NetworkPolicy.PolicyType)
+        :rtype: (str, str, NetworkConfig.ConfigType)
         """
         sep_count = config_name.count('/')
         split_config = config_name.split('/', 1)
