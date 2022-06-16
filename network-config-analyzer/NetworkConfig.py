@@ -401,7 +401,8 @@ class NetworkConfig:
             raise Exception(f'A profile named {profile.full_name()} already exists')
 
         # determine new config type
-        if current_config_type in {NetworkConfig.ConfigType.Unknown, NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress}:
+        if current_config_type in {NetworkConfig.ConfigType.Unknown, NetworkConfig.ConfigType.K8s,
+                                   NetworkConfig.ConfigType.Ingress}:
             new_config_type = NetworkConfig.ConfigType.Calico
         elif current_config_type != NetworkConfig.ConfigType.Calico:
             raise Exception('Cannot mix NetworkPolicies from different platforms')
