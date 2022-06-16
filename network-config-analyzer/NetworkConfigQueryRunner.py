@@ -36,9 +36,9 @@ class NetworkConfigQueryRunner:
             split_layer = split_config[1].split('/', 1)
             layer = split_layer[0]
             policy_name = split_layer[1]
-            if layer not in ['k8s', 'calico', 'istio', 'ingress']:
-                raise Exception(f'Layer {layer} is not supported')
             policy_type = NetworkConfig.ConfigType.layer_name_to_config_type(layer)
+            if policy_type is None:
+                raise Exception(f'Layer {layer} is not supported')
         else:
             raise Exception(f'Invalid config name {config_name}')
         if config_name not in self.network_configs:
