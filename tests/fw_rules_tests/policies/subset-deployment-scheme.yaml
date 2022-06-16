@@ -114,3 +114,111 @@ queries:
       subset:
         deployment_subset: my-test-deployment-A,my-test-deployment-F
     expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_txt.txt
+
+  - name: subset_deployment_no_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+    expectedOutput: expected_output/subset_deployment_no_subset_endpoints_deployments_dot.dot
+
+  - name: subset_deployment_connection_in_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: my-test-deployment-B
+    expectedOutput: expected_output/subset_deployment_connection_in_subset_endpoints_deployments_dot.dot
+
+  - name: subset_deployment_connection_not_in_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: my-test-deployment-A
+    expectedOutput: expected_output/subset_deployment_connection_not_in_subset_endpoints_deployments_dot.dot
+
+  - name: subset_deployment_multi_deployment_connection_in_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: my-test-deployment-A,my-test-deployment-B
+    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_in_subset_endpoints_deployments_dot.dot
+
+  - name: subset_deployment_multi_deployment_connection_not_in_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: my-test-deployment-A,my-test-deployment-F
+    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_endpoints_deployments_dot.dot
+
+  - name: subset_deployment_no_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+    expectedOutput: expected_output/subset_deployment_no_subset_endpoints_deployments_txt.txt
+
+  - name: subset_deployment_connection_in_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: my-test-deployment-B
+    expectedOutput: expected_output/subset_deployment_connection_in_subset_endpoints_deployments_txt.txt
+
+  - name: subset_deployment_connection_not_in_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: my-test-deployment-A
+    expectedOutput: expected_output/subset_deployment_connection_not_in_subset_endpoints_deployments_txt.txt
+
+  - name: subset_deployment_multi_deployment_connection_in_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: my-test-deployment-A,my-test-deployment-B
+    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_in_subset_endpoints_deployments_txt.txt
+
+  - name: subset_deployment_multi_deployment_connection_not_in_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: my-test-deployment-A,my-test-deployment-F
+    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_endpoints_deployments_txt.txt
