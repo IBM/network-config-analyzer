@@ -390,7 +390,8 @@ class NetworkConfig:
         :param CalicoNetworkPolicy profile: the profile to append
         :param dict profiles_map: the map of profiles by name to profile objects
         :param NetworkConfig.ConfigType current_config_type:
-        :return:
+        :return: the new config type after adding the profile
+        :rtype: NetworkConfig.ConfigType
         """
         new_config_type = current_config_type
 
