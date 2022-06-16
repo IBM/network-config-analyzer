@@ -15,6 +15,36 @@ class NetworkConfigQueryRunner:
         self.network_configs = network_configs
         self.expected_output_file = expected_output
 
+    def _parse_network_config_of_specified_policy(self, config_name):
+        """
+        User wants a specific policy from the given config.
+        config_name has one of the following forms:
+        (1) <config>/<namespace>/<policy>
+        (2) <config>/<layer>/<namespace>/<policy>/ , where layer is the relevant kind from
+                                                    ['k8s', 'calico', 'istio', 'ingress']
+        :param str config_name: the full config name (from which a specific policy is requested)
+        :return: the parsed config name, policy name, policy type
+        :rtype: (str, str, NetworkConfig.ConfigType)
+        """
+        sep_count = config_name.count('/')
+        split_config = config_name.split('/', 1)
+        config_name = split_config[0]
+        policy_type = None
+        if sep_count <= 2:
+            policy_name = split_config[1]
+        elif sep_count == 3:
+            split_layer = split_config[1].split('/', 1)
+            layer = split_layer[0]
+            policy_name = split_layer[1]
+            policy_type = NetworkConfig.ConfigType.layer_name_to_config_type(layer)
+            if policy_type is None:
+                raise Exception(f'Layer {layer} is not supported')
+        else:
+            raise Exception(f'Invalid config name {config_name}')
+        if config_name not in self.network_configs:
+            raise Exception(f'NetworkPolicyList {config_name} is undefined')
+        return config_name, policy_name, policy_type
+
     def _get_config(self, config_name):
         """
         :param str config_name: The name of a previously defined config or a policy within a previously defined config
@@ -28,13 +58,9 @@ class NetworkConfigQueryRunner:
                 raise Exception(f'NetworkPolicyList {config_name} is undefined')
             return self.network_configs[config_name]
 
-        # User wants a specific policy from the given config. config_name has the form <config>/<namespace>/<policy>
-        split_config = config_name.split('/', 1)
-        config_name = split_config[0]
-        policy_name = split_config[1]
-        if config_name not in self.network_configs:
-            raise Exception(f'NetworkPolicyList {config_name} is undefined')
-        return self.network_configs[config_name].clone_with_just_one_policy(policy_name)
+        # User wants a specific policy from the given config
+        config_name, policy_name, policy_type = self._parse_network_config_of_specified_policy(config_name)
+        return self.network_configs[config_name].clone_with_just_one_policy(policy_name, policy_type)
 
     def run_query(self, cmd_line_flag=False):
         """

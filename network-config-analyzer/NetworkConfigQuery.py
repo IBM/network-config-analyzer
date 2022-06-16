@@ -953,8 +953,8 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer
 
-        policies1 = set(self.config1.policies.keys())
-        policies2 = set(self.config2.policies.keys())
+        policies1 = set(f'{policy_name}[{policy_type}]' for policy_name, policy_type in self.config1.policies.keys())
+        policies2 = set(f'{policy_name}[{policy_type}]' for policy_name, policy_type in self.config2.policies.keys())
         policies_1_minus_2 = policies1.difference(policies2)
         policies_2_minus_1 = policies2.difference(policies1)
         if policies_1_minus_2:

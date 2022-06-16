@@ -58,9 +58,9 @@ class IstioNetworkPolicy(NetworkPolicy):
     def __eq__(self, other):
         return super().__eq__(other) and self.action == other.action
 
-    # 'deny' policies should be evaluated before 'allow' policies
     def __lt__(self, other):  # required so we can evaluate the policies according to their order
         if isinstance(other, IstioNetworkPolicy):
+            # 'deny' policies should be evaluated before 'allow' policies
             return self.action == IstioNetworkPolicy.ActionType.Deny
         return False
 

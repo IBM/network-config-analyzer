@@ -61,11 +61,6 @@ class IngressPolicy(NetworkPolicy):
     def __eq__(self, other):
         return super().__eq__(other)
 
-    def __lt__(self, other):  # required so we can evaluate the policies according to their order
-        if isinstance(other, IngressPolicy):
-            return self.action < other.action or self.full_name() < other.full_name()
-        return False
-
     def add_rules(self, rules):
         """
         Adding a given list of rules to the list of egress rules

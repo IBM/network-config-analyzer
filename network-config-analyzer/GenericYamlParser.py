@@ -91,8 +91,8 @@ class GenericYamlParser:
                 if code == 2:
                     self.syntax_error(f'{key} is not yet supported inside {dict_name}', dict_to_check)
                 if code == 3:
-                    self.warning(f'over-approximation analysis: {key} is not yet supported inside {dict_name},\
-                                 ignoring this key', dict_to_check)
+                    self.warning(f'over-approximation analysis: {key} is not yet supported inside {dict_name},'
+                                 'ignoring this key', dict_to_check)
                 value = dict_to_check.get(key)
                 if code == 1 and value is None:
                     self.syntax_error(f'mandatory {key} value can not be null in {dict_name}', dict_to_check)
