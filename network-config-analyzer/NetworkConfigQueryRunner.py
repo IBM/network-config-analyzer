@@ -1,6 +1,5 @@
 import NetworkConfigQuery
 from NetworkConfig import NetworkConfig
-from NetworkPolicy import NetworkPolicy
 from OutputFilesFlags import OutputFilesFlags
 
 
@@ -39,14 +38,7 @@ class NetworkConfigQueryRunner:
             policy_name = split_layer[1]
             if layer not in ['k8s', 'calico', 'istio', 'ingress']:
                 raise Exception(f'Layer {layer} is not supported')
-            if layer == 'k8s':
-                policy_type = NetworkConfig.ConfigType.K8s
-            elif layer == 'calico':
-                policy_type = NetworkConfig.ConfigType.Calico
-            elif layer == 'istio':
-                policy_type = NetworkConfig.ConfigType.Istio
-            elif layer == 'ingress':
-                policy_type = NetworkConfig.ConfigType.Ingress
+            policy_type = NetworkConfig.ConfigType.layer_name_to_config_type(layer)
         else:
             raise Exception(f'Invalid config name {config_name}')
         if config_name not in self.network_configs:

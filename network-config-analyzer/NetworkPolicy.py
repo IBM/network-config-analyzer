@@ -53,6 +53,16 @@ class NetworkPolicy:
                 self.egress_rules == other.egress_rules
         return False
 
+    def __lt__(self, other):  # required so we can evaluate the policies according to their order
+        if not isinstance(other, NetworkPolicy):
+            return False
+        # If not specified "order" defaults to infinity, so policies with unspecified "order" will be applied last.
+        if self.get_order() is None:
+            return False
+        if other.get_order() is None:
+            return True
+        return self.get_order() < other.get_order()
+
     def full_name(self, config_name=None):
         """
         :param config_name: (optional) network config name

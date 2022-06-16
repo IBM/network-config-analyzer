@@ -70,8 +70,8 @@ Each query object instructs the tool to run a specific check on one or more sets
 #### <a name="configsets"></a>Config sets
 Each entry in the list of config sets should be either
 * __Full set__ - The name of a [NetworkConfig object](#NetworkConfigobject) _OR_
-* __Single policy__ - Use the form `<set name>/<namespace>/<policy>`.
-For example: `my_set/prod_ns/deny_all_policy`
+* __Single policy__ - Use the one of the forms: `<set name>/<namespace>/<policy>` or `<set name>/<layer>/<namespace>/<policy>`, where `layer` is one of: `k8s`, `calico`, `istio` or `ingress`.
+For example: `my_set/prod_ns/deny_all_policy`. If there are multiple policies named `deny_all_policy` in the namespace `prod_ns` on different layers, then specifying a single policy should include its layer, such as `my_set/k8s/prod_ns/deny_all_policy`. 
 
 
 #### <a name="outputconfig"></a>Output Configuration object

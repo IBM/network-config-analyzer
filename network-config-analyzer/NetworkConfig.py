@@ -45,6 +45,18 @@ class NetworkConfig:
         Istio = 3
         Ingress = 4
 
+        @staticmethod
+        def layer_name_to_config_type(layer_name):
+            if layer_name == "k8s":
+                return NetworkConfig.ConfigType.K8s
+            elif layer_name == "calico":
+                return NetworkConfig.ConfigType.Calico
+            elif layer_name == "istio":
+                return NetworkConfig.ConfigType.Istio
+            elif layer_name == "ingress":
+                return NetworkConfig.ConfigType.Ingress
+            return None
+
     def __init__(self, name, peer_container, policies_container, config_type=None):
         """
         :param str name: A name for this config
@@ -100,13 +112,11 @@ class NetworkConfig:
         :rtype: list[NetworkPolicy]
         """
         res = []
-        found = False
         possible_policy_types = [required_policy_type] if required_policy_type else NetworkConfig.ConfigType
         for policy_type in possible_policy_types:
             if (policy_name, policy_type) in self.policies:
                 res.append(self.policies[(policy_name, policy_type)])
-                found = True
-        if not found and policy_name.count('//') == 0:
+        if not res and policy_name.count('//') == 0:
             for policy in self.policies.values():
                 policy_type = NetworkConfig.get_policy_type(policy)
                 if policy_name == policy.name and (not required_policy_type or policy_type == required_policy_type):
@@ -332,23 +342,80 @@ class NetworkConfig:
             return NetworkConfig.ConfigType.Ingress
         return NetworkConfig.ConfigType.Unknown
 
+    @staticmethod
+    def append_policy(policy, policies_map, sorted_policies, ingress_policies, current_config_type):
+        """
+        Append a new policy into current config and determine the updated config type
+        :param NetworkPolicy policy: the policy to append
+        :param dict policies_map: the map of policies by (name,type) to policy objects
+        :param sorted_policies: the sorted list of policies
+        :param list ingress_policies: the list of ingress policies
+        :param NetworkConfig.ConfigType current_config_type: the current config type
+        :return: the new config type after adding the policy
+        :rtype: NetworkConfig.ConfigType
+        """
+        new_config_type = current_config_type
+
+        # validate input policy
+        if not policy:
+            return new_config_type
+        policy_type = NetworkConfig.get_policy_type(policy)
+        if policy_type == NetworkConfig.ConfigType.Unknown:
+            raise Exception('Unknown policy type')
+        if (policy.full_name(), policy_type) in policies_map:
+            raise Exception(f'A policy named {policy.full_name()} of type {policy_type} already exists')
+
+        # determine new config type
+        if current_config_type == NetworkConfig.ConfigType.Unknown or not policies_map or \
+                current_config_type == NetworkConfig.ConfigType.Ingress:
+            new_config_type = policy_type
+        elif {current_config_type, policy_type} == {NetworkConfig.ConfigType.Calico, NetworkConfig.ConfigType.K8s}:
+            new_config_type = NetworkConfig.ConfigType.Calico
+        elif current_config_type != policy_type and policy_type != NetworkConfig.ConfigType.Ingress:
+            raise Exception('Cannot mix NetworkPolicies from different platforms')
+
+        # update policies map and sorted policies list
+        policies_map[(policy.full_name(), policy_type)] = policy
+        if policy_type != NetworkConfig.ConfigType.Ingress:
+            insort(sorted_policies, policy)
+        else:
+            ingress_policies.append(policy)
+
+        return new_config_type
+
+    @staticmethod
+    def append_profile(profile, profiles_map, current_config_type):
+        """
+        Append a new profile into current config and determine the updated config type
+        :param CalicoNetworkPolicy profile: the profile to append
+        :param dict profiles_map: the map of profiles by name to profile objects
+        :param NetworkConfig.ConfigType current_config_type:
+        :return:
+        """
+        new_config_type = current_config_type
+
+        # validate input profile
+        if not profile:
+            return new_config_type
+        if profile.full_name() in profiles_map:
+            raise Exception(f'A profile named {profile.full_name()} already exists')
+
+        # determine new config type
+        if current_config_type in {NetworkConfig.ConfigType.Unknown, NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress}:
+            new_config_type = NetworkConfig.ConfigType.Calico
+        elif current_config_type != NetworkConfig.ConfigType.Calico:
+            raise Exception('Cannot mix NetworkPolicies from different platforms')
+
+        # update profiles map
+        profiles_map[profile.full_name()] = profile
+
+        return new_config_type
+
     def append_policy_to_config(self, policy):
         """
         appends a policy to an existing config
         :param NetworkPolicy policy: The policy to append
         :return: None
         """
-        if not policy:
-            return
-        policy_type = self.get_policy_type(policy)
-        if self.type == NetworkConfig.ConfigType.Unknown or not self.policies or \
-                self.type == NetworkConfig.ConfigType.Ingress:
-            self.type = policy_type
-        elif {self.type, policy_type} == {NetworkConfig.ConfigType.Calico, NetworkConfig.ConfigType.K8s}:
-            self.type = NetworkConfig.ConfigType.Calico
-        self.policies[(policy.full_name(), policy_type)] = policy
+        self.type = self.append_policy(policy, self.policies, self.sorted_policies, self.ingress_deny_policies, self.type)
         self.allowed_labels |= policy.referenced_labels
-        if policy_type == NetworkConfig.ConfigType.Ingress:
-            insort(self.ingress_deny_policies, policy)
-        else:
-            insort(self.sorted_policies, policy)

@@ -78,16 +78,6 @@ class CalicoNetworkPolicy(NetworkPolicy):
         return isinstance(other, CalicoNetworkPolicy) and super().__eq__(other) and \
             self.order == other.order
 
-    def __lt__(self, other):  # required so we can evaluate the policies according to their order
-        if not isinstance(other, NetworkPolicy):
-            return False
-        # If not specified "order" defaults to infinity, so policies with unspecified "order" will be applied last.
-        if self.get_order() is None:
-            return False
-        if other.get_order() is None:
-            return True
-        return self.get_order() < other.get_order()
-
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
         Evaluate the set of connections this policy allows/denies/passes between two peers

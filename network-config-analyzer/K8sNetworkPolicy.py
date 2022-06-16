@@ -35,18 +35,6 @@ class K8sNetworkPolicy(NetworkPolicy):
     """
     This class implements K8s-specific logic for NetworkPolicies
     """
-    # in calico there is some tie-breaker in the code for policies with the same order value
-    # it should not be relied on, because it's better to use an explicit "order" value, whenever ordering matters.
-    # TODO: consider a warning for policies with the same order value, if they have overlap in rules and
-    #  conflicting semantics
-    def __lt__(self, other):
-        if not isinstance(other, NetworkPolicy):
-            return False
-        if isinstance(other, K8sNetworkPolicy):
-            return self.full_name() < other.full_name()
-        if other.get_order() is None:
-            return True
-        return self.get_order() < other.get_order()
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
@@ -183,4 +171,4 @@ class K8sNetworkPolicy(NetworkPolicy):
         :return: The order of the policy
         :rtype: int
         """
-        return 1000
+        return 1000  # In Calico, all K8s NetworkPolicies are considered to have their order set to 1000
