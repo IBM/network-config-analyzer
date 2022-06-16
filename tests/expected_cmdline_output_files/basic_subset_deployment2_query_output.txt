@@ -1,0 +1,2 @@
+final fw rules for query: , config: subset_deployment-networkpolicy.yaml:
+
