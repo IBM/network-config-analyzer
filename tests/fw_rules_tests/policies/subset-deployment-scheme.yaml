@@ -1,0 +1,116 @@
+namespaceList: ../podlist/test_fw_rules_pod_list.yaml
+podList: ../podlist/test_fw_rules_pod_list.yaml
+networkConfigList:
+  - name: np25
+    networkPolicyList:
+      - test25-networkpolicy.yaml
+    expectedWarnings: 0
+queries:
+
+  - name: subset_deployment_no_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+    expectedOutput: expected_output/subset_deployment_no_subset_dot.dot
+
+  - name: subset_deployment_connection_in_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        deployment_subset: my-test-deployment-B
+    expectedOutput: expected_output/subset_deployment_connection_in_subset_dot.dot
+
+  - name: subset_deployment_connection_not_in_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        deployment_subset: my-test-deployment-A
+    expectedOutput: expected_output/subset_deployment_connection_not_in_subset_dot.dot
+
+  - name: subset_deployment_multi_deployment_connection_in_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        deployment_subset: my-test-deployment-A,my-test-deployment-B
+    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_in_subset_dot.dot
+
+  - name: subset_deployment_multi_deployment_connection_not_in_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        deployment_subset: my-test-deployment-A,my-test-deployment-F
+    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_dot.dot
+
+  - name: subset_deployment_no_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+    expectedOutput: expected_output/subset_deployment_no_subset_txt.txt
+
+  - name: subset_deployment_connection_in_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        deployment_subset: my-test-deployment-B
+    expectedOutput: expected_output/subset_deployment_connection_in_subset_txt.txt
+
+  - name: subset_deployment_connection_not_in_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        deployment_subset: my-test-deployment-A
+    expectedOutput: expected_output/subset_deployment_connection_not_in_subset_txt.txt
+
+  - name: subset_deployment_multi_deployment_connection_in_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        deployment_subset: my-test-deployment-A,my-test-deployment-B
+    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_in_subset_txt.txt
+
+  - name: subset_deployment_multi_deployment_connection_not_in_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        deployment_subset: my-test-deployment-A,my-test-deployment-F
+    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_txt.txt
