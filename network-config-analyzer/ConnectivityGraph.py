@@ -41,6 +41,14 @@ class ConnectivityGraph:
         """
         self.connections_to_peers[connections].append((source_peer, dest_peer))
 
+    def add_edges(self, connections):
+        """
+        Adding a set of labeled edges to the graph
+        :param connections a set of labeled edges
+        :return: None
+        """
+        self.connections_to_peers |= connections
+
     def _get_peer_name(self, peer):
         """
         Get the name of a peer object for connectivity graph + flag indicating if it is ip-block

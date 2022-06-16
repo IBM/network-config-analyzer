@@ -125,7 +125,8 @@ def run_args(args):
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
                                          'outputPath': args.file_out or None,
                                          'prURL': args.pr_url or None,
-                                         'outputEndpoints': args.output_endpoints})
+                                         'outputEndpoints': args.output_endpoints,
+                                         'subset': {}})
     expected_output = None
     # default values are for sanity query
     # np_list will be taken as args.<query_name> if it is not equal to the args parser's const value i.e ['']
@@ -133,6 +134,10 @@ def run_args(args):
     pair_query_flag = False
     query_name = 'sanity'
     base_as_second = False
+
+    if args.deployment_subset is not None:
+        # All future subset elements should be filled here
+        output_config['subset'] = {'deployment_subset': args.deployment_subset}
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
@@ -247,6 +252,8 @@ def nca_main(argv=None):
                         help='A file/GHE url/cluster-type to read pod list from (may be specified multiple times)')
     parser.add_argument('--resource_list', '-r', type=_resource_list_valid_path, action='append',
                         help='Network policies entries or Filesystem or GHE location of base network resources ')
+    parser.add_argument('--deployment_subset', '-ds', type=str, action='append',
+                        help='A list of deployment names to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')

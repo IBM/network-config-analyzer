@@ -18,7 +18,8 @@ class OutputConfiguration(dict):
                                  'fwRulesGroupByLabelSinglePod': False, 'fwRulesFilterSystemNs': False,
                                  'fwRulesMaxIter': 10, 'outputFormat': 'txt', 'outputPath': None,
                                  'fwRulesOverrideAllowedLabels': None, 'prURL': None,
-                                 'connectivityFilterIstioEdges': True, 'outputEndpoints': 'deployments'}
+                                 'connectivityFilterIstioEdges': True, 'outputEndpoints': 'deployments',
+                                 'subset': {}}
 
         super().__init__(default_output_config)
         if output_config_dict is not None:
