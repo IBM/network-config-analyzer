@@ -47,7 +47,7 @@ class ConnectivityGraph:
         :param connections a set of labeled edges
         :return: None
         """
-        self.connections_to_peers |= connections
+        self.connections_to_peers.update(connections)
 
     def _get_peer_name(self, peer):
         """
