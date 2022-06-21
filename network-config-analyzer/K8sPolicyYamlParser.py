@@ -386,8 +386,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         api_version = self.policy.get('apiVersion')
         if 'k8s' not in api_version and api_version != 'extensions/v1beta1':
             return None  # apiVersion is not properly set
-        self.check_fields_validity(self.policy, 'NetworkPolicy', {'kind': [1, str], 'metadata': [1, dict],
-                                                                  'spec': [0, dict], 'apiVersion': [1, str]},
+        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [0, dict], 'status': [0, dict]}
+        self.check_fields_validity(self.policy, 'NetworkPolicy', valid_keys,
                                    {'apiVersion': ['networking.k8s.io/v1', 'extensions/v1beta1']})
 
         policy_metadata = self.policy['metadata']
