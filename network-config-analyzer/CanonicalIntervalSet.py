@@ -107,6 +107,11 @@ class CanonicalIntervalSet:
         return res
 
     def contained_in(self, other):
+        """
+        :param CanonicalIntervalSet other: another interval set
+        :return: Whether every internal in 'self' is contained in an interval in 'other'
+        :rtype: bool
+        """
         if len(self) == 1 and len(other) == 1:
             return self.interval_set[0].is_subset(other.interval_set[0])
         for self_interval in self.interval_set:

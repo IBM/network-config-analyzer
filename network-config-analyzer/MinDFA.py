@@ -6,6 +6,7 @@ from greenery.fsm import fsm
 from greenery.lego import parse, from_fsm
 from functools import lru_cache
 
+
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
 class MinDFA:
     """
