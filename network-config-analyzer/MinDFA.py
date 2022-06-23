@@ -4,7 +4,7 @@
 #
 from greenery.fsm import fsm
 from greenery.lego import parse, from_fsm
-
+from functools import lru_cache
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
 class MinDFA:
@@ -90,6 +90,7 @@ class MinDFA:
     #  If not having these assumptions, and using DFA comparison from fsm.equivalence(), then
     #  when not being used from DFA_all_words, should provide alphabet set
     #  (for MinDFA equivalence in canonical rep, need to have the same alphabet for equal DFAs)
+    @lru_cache(maxsize=500)
     def dfa_from_regex(s, alphabet=None):
         """
         Using greenery to convert regex to a minimal (canonical) DFA
@@ -167,6 +168,7 @@ class MinDFA:
         except OverflowError:
             return False
 
+    @lru_cache(maxsize=500)
     def __str__(self):
         """
         str representation of the language accepted by this DFA:
@@ -180,6 +182,7 @@ class MinDFA:
             return "*"
         # TODO: consider performance implications of this conversion from MinDFA to regex
         return str(from_fsm(self.fsm))
+
 
     def get_fsm_str(self):
         """
@@ -205,6 +208,7 @@ class MinDFA:
         return self.fsm.issubset(other.fsm)
 
     # operators within fsm already apply reduce() (minimization)
+    @lru_cache(maxsize=500)
     def __or__(self, other):
         if self.is_all_words == MinDFA.Ternary.TRUE:
             return self
@@ -216,6 +220,7 @@ class MinDFA:
             res.is_all_words = MinDFA.Ternary.FALSE
         return res
 
+    @lru_cache(maxsize=500)
     def __and__(self, other):
         if self.is_all_words == MinDFA.Ternary.TRUE:
             return other
@@ -227,6 +232,7 @@ class MinDFA:
             res.is_all_words = MinDFA.Ternary.FALSE
         return res
 
+    @lru_cache(maxsize=500)
     def __sub__(self, other):
         fsm_res = self.fsm - other.fsm
         res = MinDFA.dfa_from_fsm(fsm_res)
@@ -243,6 +249,7 @@ class MinDFA:
             res.is_all_words = MinDFA.Ternary.FALSE
         return res
 
+    @lru_cache(maxsize=500)
     def rep(self):
         """
         :return: a string accepted by this DFA

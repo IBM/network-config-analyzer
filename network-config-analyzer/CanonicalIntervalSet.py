@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+
 class CanonicalIntervalSet:
     """
     This class provides canonical representation for a set of intervals (e.g., ip ranges, ports), allowing comparison.
@@ -57,10 +58,8 @@ class CanonicalIntervalSet:
         return res[0:-1]
 
     def __contains__(self, item):
-        for interval in self.interval_set:
-            if item in interval:
-                return True
-        return False
+        item_interval_set = CanonicalIntervalSet.get_interval_set(item, item)
+        return item_interval_set.contained_in(self)
 
     def __and__(self, other):
         res = self.__class__()
@@ -108,16 +107,14 @@ class CanonicalIntervalSet:
         return res
 
     def contained_in(self, other):
-        """
-        :param CanonicalIntervalSet other: another interval set
-        :return: Whether every internal in 'self' is contained in an interval in 'other'
-        :rtype: bool
-        """
+        if len(self) == 1 and len(other) == 1:
+            return self.interval_set[0].is_subset(other.interval_set[0])
         for self_interval in self.interval_set:
-            for other_interval in other.interval_set:
-                if self_interval.is_subset(other_interval):
-                    break
-            else:  # executed if inner loop did not break, i.e., we found self_interval not in any other_interval
+            left = other.find_interval_left(self_interval)
+            if left == len(other.interval_set) - 1:
+                return False  # all intervals are lower than self_interval
+            # the first interval which is not lower than self_interval has to fully contain self_interval
+            if not self_interval.is_subset(other.interval_set[left + 1]):
                 return False
         return True
 
@@ -154,7 +151,7 @@ class CanonicalIntervalSet:
 
         def __lt__(self, other):
             return self.start < other.start or \
-                (self.start == other.start and self.end < other.end)
+                   (self.start == other.start and self.end < other.end)
 
         def __hash__(self):
             return hash((self.start, self.end))
@@ -230,27 +227,96 @@ class CanonicalIntervalSet:
             """
             return other.start <= self.start and other.end >= self.end
 
+    def find_interval_left(self, interval):
+        """
+        find from left to right the last interval which is lower than the input interval,
+        without overlapping/touching it
+        :param CanonicalIntervalSet.Interval interval: the input interval to search for
+        :return: the index of the interval in the interval set if found or -1 if not found
+        :rtype: int
+        """
+        low = 0
+        high = len(self.interval_set)
+        while low != high:
+            mid = (low + high) // 2
+            if self.interval_set[mid].end < interval.start - 1:
+                if mid == len(self.interval_set) - 1 or not (self.interval_set[mid + 1].end < interval.start - 1):
+                    return mid
+                low = mid + 1
+            else:
+                high = mid
+        if low == len(self.interval_set):
+            low -= 1
+        if not (self.interval_set[low].end < interval.start - 1):
+            return -1  # there is no such interval in self
+        return low
+
+    def find_interval_right(self, interval):
+        """
+        find from right to left the last interval which is higher than the input interval,
+        without overlapping/touching it
+        :param CanonicalIntervalSet.Interval interval: the input interval to search for
+        :return: the index of the interval in the interval set if found or -1 if not found
+        :rtype: int
+        """
+        low = 0
+        high = len(self.interval_set)
+        while low != high:
+            mid = (low + high) // 2
+            if self.interval_set[mid].start > interval.end + 1:
+                if mid == 0 or not (self.interval_set[mid - 1].start > interval.end + 1):
+                    return mid
+                high = mid
+            else:
+                low = mid + 1
+        if low == len(self.interval_set):
+            low -= 1
+        if not (self.interval_set[low].start > interval.end + 1):
+            return -1  # there is no such interval in self
+        return low
+
     def add_interval(self, interval_to_add):
         """
         Add an interval to the set of intervals, while keeping the canonicity of the set
         :param CanonicalIntervalSet.Interval interval_to_add: The interval to add
         :return: None
         """
-        new_interval_set = []
-        new_interval = interval_to_add.copy()  # so we don't change the original
-        new_interval_added = False
-        for interval in self.interval_set:
-            if not new_interval_added and (new_interval.overlaps(interval) or new_interval.touches(interval)):
-                # new_interval "swallows" existing interval (and will replace it)
-                new_interval = (interval | new_interval)[0]
-            else:
-                if not new_interval_added and new_interval.end < interval.start:
-                    new_interval_set.append(new_interval)
-                    new_interval_added = True
-                new_interval_set.append(interval)
-        if not new_interval_added:
-            new_interval_set.append(new_interval)
-        self.interval_set = new_interval_set
+        if not self:
+            self.interval_set.append(interval_to_add)
+            return
+        left = self.find_interval_left(interval_to_add)
+        right = self.find_interval_right(interval_to_add)
+
+        # interval_to_add has no overlapping/touching intervals between left to right
+        if left >= 0 and right >= 0 and right - left == 1:
+            self.interval_set.insert(left + 1, interval_to_add)
+            return
+
+        # interval_to_add has no overlapping/touching intervals and is smaller than first interval
+        if left == -1 and right == 0:
+            self.interval_set = [interval_to_add] + self.interval_set
+            return
+
+        # interval_to_add has no overlapping/touching intervals and is greater than last interval
+        if right == -1 and left == len(self.interval_set) - 1:
+            self.interval_set.append(interval_to_add)
+            return
+
+        # update left/right indexes to be the first potential overlapping/touching intervals from left/right
+        left += 1
+        right = right - 1 if right >= 0 else len(self.interval_set) - 1
+        # check which of left/right is overlapping/touching interval_to_add
+        left_overlaps = self.interval_set[left].overlaps(interval_to_add) or self.interval_set[left].touches(
+            interval_to_add)
+        right_overlaps = self.interval_set[right].overlaps(interval_to_add) or self.interval_set[right].touches(
+            interval_to_add)
+        # the interval_to_add has to be "merged" with overlapping/touching intervals
+        new_interval_start = min(interval_to_add.start,
+                                 self.interval_set[left].start) if left_overlaps else interval_to_add.start
+        new_interval_end = max(interval_to_add.end,
+                               self.interval_set[right].end) if right_overlaps else interval_to_add.end
+        new_interval = CanonicalIntervalSet.Interval(new_interval_start, new_interval_end)
+        self.interval_set = self.interval_set[:left] + [new_interval] + self.interval_set[right + 1:]
 
     def add_hole(self, hole):
         """
