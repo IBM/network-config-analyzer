@@ -71,7 +71,7 @@ jobs:
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
-      - uses: helm/kind-action@94729529f85113b88f4f819c17ce61382e6d8478
+      - uses: helm/kind-action@d08cf6ff1575077dee99962540d77ce91c62387d
       - run:  python tests/run_all_tests.py --type=k8s_live_general
   rest-api:
     runs-on: ubuntu-latest
