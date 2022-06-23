@@ -2,7 +2,6 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-import copy
 
 from CanonicalIntervalSet import CanonicalIntervalSet
 
@@ -86,7 +85,7 @@ class MethodSet(CanonicalIntervalSet):
         return values_list
 
     def copy(self):
-        #new_copy = copy.copy(self)  # the copy.copy() keeps the same reference to the interlval_set attribute
+        # new_copy = copy.copy(self)  # the copy.copy() keeps the same reference to the interlval_set attribute
         new_copy = MethodSet()
         for interval in self.interval_set:
             new_copy.interval_set.append(interval.copy())
