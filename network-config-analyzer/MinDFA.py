@@ -184,7 +184,6 @@ class MinDFA:
         # TODO: consider performance implications of this conversion from MinDFA to regex
         return str(from_fsm(self.fsm))
 
-
     def get_fsm_str(self):
         """
         get a string representation for this DFA from greenery.fsm str method: states and transition table.
