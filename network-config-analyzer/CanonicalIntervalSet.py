@@ -325,7 +325,7 @@ class CanonicalIntervalSet:
         new_interval_end = max(interval_to_add.end,
                                self.interval_set[right].end) if right_overlaps else interval_to_add.end
         new_interval = CanonicalIntervalSet.Interval(new_interval_start, new_interval_end)
-        del self.interval_set[left:right+1]
+        del self.interval_set[left:right + 1]
         self.interval_set.insert(left, new_interval)
 
     def add_hole(self, hole):
