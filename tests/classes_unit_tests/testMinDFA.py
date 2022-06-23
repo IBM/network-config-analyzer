@@ -116,6 +116,8 @@ class TestMinDFA(unittest.TestCase):
         self.assertEqual(empty2.complement_dfa, None)
         self.assertTrue(empty2.has_finite_len())
 
+
+
     def test_rep(self):
         input_regex = "abc*".replace('*', alphabet_regex)  # abc[.\w/\-]*
         dfa2 = get_str_dfa(input_regex)  # abc*
@@ -128,7 +130,11 @@ class TestMinDFA(unittest.TestCase):
     def test_operators(self):
         dfa1 = get_str_dfa("put|get")  # put|get
         self.assertEqual(dfa1.is_all_words, MinDFA.Ternary.FALSE)
-        self.assertEqual(dfa1.complement_dfa, None)
+        # self.assertEqual(dfa1.complement_dfa, None)
+        # due to caching, dfa1 can have a complement dfa from operations on previous tests
+        if dfa1.complement_dfa is not None:
+            self.assertEqual(dfa1 | dfa1.complement_dfa, MinDFA.dfa_all_words(alphabet_regex))
+
         self.assertTrue(dfa1.has_finite_len())
 
         all = MinDFA.dfa_all_words(alphabet_regex)
@@ -165,7 +171,7 @@ class TestMinDFA(unittest.TestCase):
         d[dfa1] = "put"
         self.assertEqual(d[dfa1], d[dfa2])
         self.assertEqual(dfa1.fsm.alphabet, dfa2.fsm.alphabet)
-        dfa3 = dfa1 & all2
+        dfa3 = all2 & dfa1   # changing order of args due to caching, thus not using (dfa1 & all2)
         self.assertNotEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
         self.assertEqual(d[dfa1], d[dfa3])
 
@@ -177,3 +183,16 @@ class TestMinDFA(unittest.TestCase):
         dfa3 = dfa2.copy()
         self.assertNotEqual(dfa3.complement_dfa, None)
     '''
+
+    def test_cache(self):
+        dfa1 = get_str_dfa("put")
+        x = get_str_dfa("abc*")
+        y = dfa1 | x
+        l = []
+        for i in range(100):
+            l.append(dfa1 | x)
+        #print(z)
+        #print(y)
+        print(dfa1.__or__.cache_info())
+        self.assertEqual(dfa1.__or__.cache_info().hits > 0, True)
+

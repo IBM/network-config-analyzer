@@ -148,6 +148,7 @@ class Pod(ClusterEP):
         super().__init__(name, namespace)
         self.owner_name = owner_name
         self.service_account_name = service_account_name
+        self.full_name_str = self.namespace.name + '/' + self.name
 
         if not owner_name:  # no owner
             self.workload_name = f'{namespace.name}/{name}(Pod)'
@@ -169,7 +170,7 @@ class Pod(ClusterEP):
         return self.full_name()
 
     def full_name(self):
-        return self.namespace.name + '/' + self.name
+        return self.full_name_str
 
     def canonical_form(self):
         # two pods are isomorphic if they have the same namespace and have the same set of labels and profiles
