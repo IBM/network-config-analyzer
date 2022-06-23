@@ -184,7 +184,6 @@ class TestMinDFA(unittest.TestCase):
         self.assertNotEqual(dfa3.complement_dfa, None)
     '''
 
-    '''
     def test_cache(self):
         dfa1 = get_str_dfa("put")
         x = get_str_dfa("abc*")
@@ -194,5 +193,6 @@ class TestMinDFA(unittest.TestCase):
             l.append(dfa1 | x)
         #print(z)
         #print(y)
-        #print(dfa1.__or__.cache_info())
-    '''
+        print(dfa1.__or__.cache_info())
+        self.assertEqual(dfa1.__or__.cache_info().hits, 100)
+

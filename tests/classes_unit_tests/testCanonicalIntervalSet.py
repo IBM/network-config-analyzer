@@ -58,6 +58,11 @@ class TestCanonicalIntervalSetMethods(unittest.TestCase):
                           CanonicalIntervalSet.Interval(11, 11), CanonicalIntervalSet.Interval(16, 16)]
         res = c.find_interval_left(CanonicalIntervalSet.Interval(12, 15))
         self.assertEqual(res, 1)
+        d = CanonicalIntervalSet()
+        res = d.find_interval_left(CanonicalIntervalSet.Interval(0, 0))
+        self.assertEqual(res, -1)
+
+
 
     def test_find_interval_right(self):
         a = CanonicalIntervalSet()
