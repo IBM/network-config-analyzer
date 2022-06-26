@@ -31,6 +31,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
     unit tests for CanonicalHyperCubeSet with methods_dfa dimension of type DFA.
     """
 
+
     def test_dfa_equality(self):
         dfa_all = dim_manager.get_dimension_domain_by_name("methods_dfa")
         dfa_all.is_all_words = MinDFA.Ternary.UNKNOWN

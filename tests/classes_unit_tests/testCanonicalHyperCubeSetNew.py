@@ -1264,3 +1264,10 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         self.assertEqual(a - a, empty)
         self.assertEqual(b - c, a)
         self.assertEqual(b - a, c)
+
+    def test_method_set_copy(self):
+        a = get_method_interval("GET")
+        b = a.copy()
+        self.assertNotEqual(id(a), id(b))
+        self.assertNotEqual(id(a.interval_set), id(b.interval_set))
+        self.assertEqual(str(a), str(b))
