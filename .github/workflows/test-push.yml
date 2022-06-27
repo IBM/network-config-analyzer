@@ -52,8 +52,8 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
-          name: run-k8s-log
-          path: tests/run_k8s_log.txt
+          name: k8s-log
+          path: tests/k8s_log.txt
       - name: Upload k8s failed run-time tests file
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
@@ -73,8 +73,8 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
-          name: run-calico-log
-          path: tests/run_calico_log.txt
+          name: calico-log
+          path: tests/calico_log.txt
       - name: Upload calico failed run-time tests file
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
@@ -94,8 +94,8 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
-          name: run-istio-log
-          path: tests/run_istio_log.txt
+          name: istio-log
+          path: tests/istio_log.txt
       - name: Upload istio failed run-time tests file
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:

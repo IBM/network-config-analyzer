@@ -313,11 +313,12 @@ class TestsRunner:
     def create_and_run_test_obj(self, test_queries_obj, expected_res):
         # create test object
         test_obj = None
-        test_category = None
+        test_category = self.category
         required_output_config_flag = self.test_files_spec.activate_output_config_flag
         if self.tests_type in {'general', 'k8s_live_general'}:
-            if self.tests_type == 'general':  # to enable runtime check when running tests wo specifying a category
-                test_category = self._determine_test_category(test_queries_obj.test_name)
+            if self.tests_type == 'general' and self.category == '':
+                # to enable runtime check when running tests without specifying a category
+                test_category = TestsRunner.determine_test_category(test_queries_obj.test_name)
             test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res,
                                    self.check_run_time, required_output_config_flag, test_category)
         elif self.tests_type == 'fw_rules_assertions':
@@ -327,13 +328,11 @@ class TestsRunner:
         self.global_res += numerical_res
         self.new_tests_error += new_tests_err
 
-    def _determine_test_category(self, test_name):
-        if self.category != '':
-            return self.category
-        else:
-            for ctg in ['k8s', 'calico', 'istio']:
-                if self._test_file_matches_category_general_tests(test_name, ctg):
-                    return ctg
+    @staticmethod  # to be used in the update_expected_runtime.py script too
+    def determine_test_category(test_name):
+        for ctg in ['k8s', 'calico', 'istio']:
+            if TestsRunner._test_file_matches_category_general_tests(test_name, ctg):
+                return ctg
 
     @staticmethod
     def _test_file_matches_category_by_file_name(test_file, category):
@@ -345,19 +344,20 @@ class TestsRunner:
             return True
         return False
 
-    def _test_file_matches_category_general_tests(self, test_file, category):
+    @staticmethod
+    def _test_file_matches_category_general_tests(test_file, category):
         if category == '':
             return True
         if category + '_testcases' in test_file:
             return True
         if '_testcases' not in test_file:
-            return self._test_file_matches_category_by_file_name(test_file, category)
+            return TestsRunner._test_file_matches_category_by_file_name(test_file, category)
         return False
 
     # given a scheme file or a cmdline file, run all relevant tests
     def run_test_per_file(self, test_file):
         if self.test_files_spec.type == 'scheme':
-            if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file, self.category):
+            if self.tests_type == 'general' and not TestsRunner._test_file_matches_category_general_tests(test_file, self.category):
                 return  # test file does not match the running category
             self.create_and_run_test_obj(SchemeFile(test_file), 0)
 
