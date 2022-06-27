@@ -263,6 +263,11 @@ networkConfigList:
       - matchexpressions_values_wrong_type.yaml
     expectedError: 1
 
+  - name: matchexpressions_values_wrong_form
+    networkPolicyList:
+      - matchexpressions_values_wrong_form.yaml
+    expectedError: 1
+
   - name: matchexpressions_values_no_match_with_operator
     networkPolicyList:
       - matchexpressions_values_no_match_with_operator.yaml

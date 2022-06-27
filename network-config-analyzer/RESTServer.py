@@ -123,7 +123,7 @@ class PolicySetResource(NCAResource):
             return f'policy_set {escape(config_name)} does not exist', 404
 
         config = self.policy_sets_map[config_name]
-        policies_array = [policy for policy in config.policies.keys()]
+        policies_array = [policy[0] for policy in config.policies.keys()]
         profiles_array = [profile for profile in config.profiles.keys()]
         return {'name': escape(config_name), 'policies': policies_array, 'profiles': profiles_array}
 

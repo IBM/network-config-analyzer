@@ -5,11 +5,10 @@
 
 from ruamel.yaml import YAML
 from collections import deque
-from bisect import insort
 from CmdlineRunner import CmdlineRunner
 from NetworkConfig import NetworkConfig, PoliciesContainer
 from NetworkPolicy import NetworkPolicy
-from IngressPolicy import IngressPolicy
+from CalicoNetworkPolicy import CalicoNetworkPolicy
 from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from IstioPolicyYamlParser import IstioPolicyYamlParser
@@ -53,39 +52,21 @@ class PoliciesFinder:
     def _add_policy(self, policy):
         """
         This should be the only place where we add policies to the config's set of policies from input resources
-        :param policy: The policy to add
+        :param NetworkPolicy policy: The policy to add
         :return: None
         """
-        if not policy:
-            return
-        if policy.full_name() in self.policies_container.policies:
-            raise Exception('A policy named ' + policy.full_name() + ' already exists')
-        policy_type = NetworkConfig.get_policy_type(policy)
-        if policy_type == NetworkConfig.ConfigType.Unknown:
-            raise Exception('Unknown policy type')
-        if self.type == NetworkConfig.ConfigType.Unknown or not self.policies_container.policies or \
-                self.type == NetworkConfig.ConfigType.Ingress:
-            self.type = policy_type
-        elif self.type != policy_type and policy_type != NetworkConfig.ConfigType.Ingress:
-            raise Exception('Cannot mix NetworkPolicies from different platforms')
-
-        self.policies_container.policies[policy.full_name()] = policy
-        if policy_type == NetworkConfig.ConfigType.Ingress:
-            assert policy.action == IngressPolicy.ActionType.Deny
-            insort(self.policies_container.ingress_deny_policies, policy)
-        else:
-            insort(self.policies_container.sorted_policies, policy)
+        self.type = NetworkConfig.append_policy(policy, self.policies_container.policies,
+                                                self.policies_container.sorted_policies,
+                                                self.policies_container.ingress_deny_policies,
+                                                self.type)
 
     def _add_profile(self, profile):
-        if not profile:
-            return
-        if profile.full_name() in self.policies_container.profiles:
-            raise Exception('A profile named ' + profile.full_name() + ' already exists')
-        if self.type == NetworkConfig.ConfigType.Unknown:
-            self.type = NetworkConfig.ConfigType.Calico
-        elif self.type != NetworkConfig.ConfigType.Calico:
-            raise Exception('Cannot mix NetworkPolicies from different platforms')
-        self.policies_container.profiles[profile.full_name()] = profile
+        """"
+        This should be the only place where we add profiles to the config's set of profiles from input resources
+        :param CalicoNetworkPolicy profile: The profile to add
+        :return: None
+        """
+        self.type = NetworkConfig.append_profile(profile, self.policies_container.profiles, self.type)
 
     def parse_policies_in_parse_queue(self):
         for policy, file_name, policy_type in self._parse_queue:

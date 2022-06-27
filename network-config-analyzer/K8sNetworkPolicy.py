@@ -2,7 +2,6 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
 from ConnectionSet import ConnectionSet
 from NetworkPolicy import PolicyConnections, NetworkPolicy
 import Peer
@@ -36,10 +35,6 @@ class K8sNetworkPolicy(NetworkPolicy):
     """
     This class implements K8s-specific logic for NetworkPolicies
     """
-    def __lt__(self, other):  # the order of K8s NetworkPolicies doesn't really matter
-        if isinstance(other, K8sNetworkPolicy):
-            return self.full_name() < other.full_name()
-        return False
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
@@ -170,3 +165,10 @@ class K8sNetworkPolicy(NetworkPolicy):
             if other_rule.contained_in(rule):
                 return rule_index, False
         return None, None
+
+    def get_order(self):
+        """
+        :return: The order of the policy
+        :rtype: int
+        """
+        return 1000  # In Calico, all K8s NetworkPolicies are considered to have their order set to 1000

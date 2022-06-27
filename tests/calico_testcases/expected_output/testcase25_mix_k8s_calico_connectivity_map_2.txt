@@ -1,0 +1,2 @@
+final fw rules for query: connectivity_2, config: testcase25-config-1/kube-system/testcase25-networkpolicy:
+

@@ -78,15 +78,6 @@ class CalicoNetworkPolicy(NetworkPolicy):
         return isinstance(other, CalicoNetworkPolicy) and super().__eq__(other) and \
             self.order == other.order
 
-    def __lt__(self, other):  # required so we can evaluate the policies according to their order
-        if isinstance(other, CalicoNetworkPolicy):
-            if self.order is None:
-                return False
-            if other.order is None:
-                return True
-            return self.order < other.order
-        return False
-
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
         Evaluate the set of connections this policy allows/denies/passes between two peers
@@ -280,3 +271,10 @@ class CalicoNetworkPolicy(NetworkPolicy):
             if other_rule.contained_in(rule):
                 return rule_index, rule.action != other_rule.action
         return None, None
+
+    def get_order(self):
+        """
+        :return: The order of the policy
+        :rtype: int
+        """
+        return self.order

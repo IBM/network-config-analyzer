@@ -1,0 +1,26 @@
+namespaceList: ../../example_podlist/ns_list.json
+podList: ../../example_podlist/pods_list.json
+
+networkConfigList:
+  - name: testcase25-config-1
+    networkPolicyList:
+      - testcase25-networkpolicy-calico-k8s.yaml
+    expectedWarnings: 0
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - testcase25-config-1
+    expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map.txt
+
+  - name: connectivity_1
+    connectivityMap:
+      - testcase25-config-1/k8s/kube-system/testcase25-networkpolicy
+    expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map_1.txt
+
+  - name: connectivity_2
+    connectivityMap:
+      - testcase25-config-1/calico/kube-system/testcase25-networkpolicy
+    expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map_2.txt
+
+
