@@ -213,7 +213,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
                 path_regex = path_string
             else:
                 if path_string:
-                    path_regex = path_string + '|' + path_string + '/' + allowed_chars + '+'
+                    path_regex = path_string + '|' + path_string + '/' + allowed_chars + '*'
                 else:
                     path_regex = '/' + allowed_chars + '*'
             parsed_paths_with_dfa.append((path_string, MinDFA.dfa_from_regex(path_regex), path_type, peers, ports))
@@ -260,7 +260,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
         :param TcpLikeProperties allowed_conns: the given allowed connections
         :return: the list of deny IngressPolicyRules
         """
-        all_peers_and_ip_blocks = self.peer_container.peer_set | set(IpBlock.get_all_ips_block())
+        all_peers_and_ip_blocks = self.peer_container.peer_set
+        all_peers_and_ip_blocks.add(IpBlock.get_all_ips_block())
         all_conns = self._make_tcp_like_properties(PortSet(True), all_peers_and_ip_blocks)
         denied_conns = all_conns - allowed_conns
         res = self._make_rules_from_conns(denied_conns)
@@ -382,6 +383,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
         # TODO extend to other ingress controllers
         res_deny_policy.selected_peers = \
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
+        if not res_deny_policy.selected_peers:
+            self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
         allowed_conns = None
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):
