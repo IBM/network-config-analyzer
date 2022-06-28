@@ -19,15 +19,15 @@ jobs:
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
-          name: run-alltests-log
           path: tests/
       - name: run script to update expected run time for all tests
         run: |
           python tests/update_expected_runtime.py --changed_tests ALL_TESTS
-          rm tests/run_log.txt
+          rm tests/*_log.txt
+          rm test/*_tests_failed_runtime_check.csv
       - name: Commit changes
         run: |
           git config user.name ${{ github.actor }}
           git config user.email '${{ github.actor }}@users.noreply.github.com'
-          git add tests/tests_expected_runtime.csv
-          git diff-index --quiet HEAD || ( git commit -m"Updating expected-runtimes file" && git push )
+          git add tests/expected_runtime/calico_tests_expected_runtime.csv tests/expected_runtime/istio_tests_expected_runtime.csv tests/expected_runtime/k8s_tests_expected_runtime.csv
+          git diff-index --quiet HEAD || ( git commit -m"Updating expected-runtime files" && git push )
