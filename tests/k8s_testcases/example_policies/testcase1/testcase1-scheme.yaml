@@ -22,7 +22,7 @@ networkConfigList:
       - testcase1-readme.yaml
 
 queries:
-  - name: connectivity_map1
+  - name: connectivity_map
     connectivityMap:
     - np1
     - np2
