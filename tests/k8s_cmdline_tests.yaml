@@ -1,11 +1,11 @@
-- name: basic_sanity
-  args: >
-    --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
-    --ns_list k8s_testcases/example_podlist/bank_ns_list.json
-    --pod_list k8s_testcases/example_podlist/bank_pod_list.json
-  expected: 1
+#- name: basic_sanity
+#  args: >
+#    --sanity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+#    --ns_list k8s_testcases/example_podlist/ns_list.json
+#    --pod_list k8s_testcases/example_podlist/pods_list.json
+#    --ns_list k8s_testcases/example_podlist/bank_ns_list.json
+#    --pod_list k8s_testcases/example_podlist/bank_pod_list.json
+#  expected: 1
 
 - name: basic_connectivity
   args: >
