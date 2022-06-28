@@ -1,0 +1,197 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2022-01-27T18:07:04Z"
+    generateName: ingress-nginx-controller-6d5f55986b-
+    labels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: ingress-nginx
+      app.kubernetes.io/name: ingress-nginx
+      gcp-auth-skip-secret: "true"
+      pod-template-hash: 6d5f55986b
+    name: ingress-nginx-controller-6d5f55986b-5twct
+    namespace: ingress-nginx
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: ingress-nginx-controller-6d5f55986b
+      uid: db4a3e7a-8ce1-467c-b2ca-367ce651e225
+    resourceVersion: "785"
+    uid: 146ecea2-56d6-40c0-b0fc-521afd2d2d44
+  spec:
+    containers:
+    - args:
+      - /nginx-ingress-controller
+      - --election-id=ingress-controller-leader
+      - --controller-class=k8s.io/ingress-nginx
+      - --watch-ingress-without-class=true
+      - --publish-status-address=localhost
+      - --configmap=$(POD_NAMESPACE)/ingress-nginx-controller
+      - --report-node-internal-ip-address
+      - --tcp-services-configmap=$(POD_NAMESPACE)/tcp-services
+      - --udp-services-configmap=$(POD_NAMESPACE)/udp-services
+      - --validating-webhook=:8443
+      - --validating-webhook-certificate=/usr/local/certificates/cert
+      - --validating-webhook-key=/usr/local/certificates/key
+      env:
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      - name: LD_PRELOAD
+        value: /usr/local/lib/libmimalloc.so
+      image: k8s.gcr.io/ingress-nginx/controller:v1.1.0@sha256:f766669fdcf3dc26347ed273a55e754b427eb4411ee075a53f30718b4499076a
+      imagePullPolicy: IfNotPresent
+      lifecycle:
+        preStop:
+          exec:
+            command:
+            - /wait-shutdown
+      livenessProbe:
+        failureThreshold: 5
+        httpGet:
+          path: /healthz
+          port: 10254
+          scheme: HTTP
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      name: controller
+      ports:
+      - containerPort: 80
+        hostPort: 80
+        name: http
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 443
+        name: https
+        protocol: TCP
+      - containerPort: 8443
+        name: webhook
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /healthz
+          port: 10254
+          scheme: HTTP
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources:
+        requests:
+          cpu: 100m
+          memory: 90Mi
+      securityContext:
+        allowPrivilegeEscalation: true
+        capabilities:
+          add:
+          - NET_BIND_SERVICE
+          drop:
+          - ALL
+        runAsUser: 101
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /usr/local/certificates/
+        name: webhook-cert
+        readOnly: true
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-jw9lm
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: minikube
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: ingress-nginx
+    serviceAccountName: ingress-nginx
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: webhook-cert
+      secret:
+        defaultMode: 420
+        secretName: ingress-nginx-admission
+    - name: kube-api-access-jw9lm
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2022-01-27T18:07:04Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2022-01-27T18:07:34Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2022-01-27T18:07:34Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2022-01-27T18:07:04Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: docker://ea5a8e5f1d9360cccf875ad0e01c1453b271a0d9a4410243675b54a8ef29b22d
+      image: k8s.gcr.io/ingress-nginx/controller@sha256:f766669fdcf3dc26347ed273a55e754b427eb4411ee075a53f30718b4499076a
+      imageID: docker-pullable://k8s.gcr.io/ingress-nginx/controller@sha256:f766669fdcf3dc26347ed273a55e754b427eb4411ee075a53f30718b4499076a
+      lastState: {}
+      name: controller
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2022-01-27T18:07:22Z"
+    hostIP: 192.168.49.2
+    phase: Running
+    podIP: 172.17.0.3
+    podIPs:
+    - ip: 172.17.0.3
+    qosClass: Burstable
+    startTime: "2022-01-27T18:07:04Z"
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
