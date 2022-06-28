@@ -19,12 +19,24 @@ jobs:
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
+          name: k8s-log
+          path: tests/
+      - uses: dawidd6/action-download-artifact@6765a42d86407a3d532749069ac03705ad82ebc6
+        with:
+          workflow: test-push.yml
+          workflow_conclusion: completed
+          name: calico-log
+          path: tests/
+      - uses: dawidd6/action-download-artifact@6765a42d86407a3d532749069ac03705ad82ebc6
+        with:
+          workflow: test-push.yml
+          workflow_conclusion: completed
+          name: istio-log
           path: tests/
       - name: run script to update expected run time for all tests
         run: |
           python tests/update_expected_runtime.py --changed_tests ALL_TESTS
           rm tests/*_log.txt
-          rm test/*_tests_failed_runtime_check.csv
       - name: Commit changes
         run: |
           git config user.name ${{ github.actor }}
