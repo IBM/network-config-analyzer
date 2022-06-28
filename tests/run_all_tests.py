@@ -328,7 +328,7 @@ class TestsRunner:
         self.global_res += numerical_res
         self.new_tests_error += new_tests_err
 
-    @staticmethod  # to be used in the update_expected_runtime.py script too
+    @staticmethod  # to be used from the update_expected_runtime.py script too
     def determine_test_category(test_name):
         for ctg in ['k8s', 'calico', 'istio']:
             if TestsRunner._test_file_matches_category_general_tests(test_name, ctg):
@@ -336,7 +336,7 @@ class TestsRunner:
 
     @staticmethod
     def _test_file_matches_category_by_file_name(test_file, category):
-        # for tests files under fw_rules_tests
+        # for tests files under fw_rules_tests or k8s_cmdline_tests.yaml
         file_name = os.path.basename(test_file)
         if file_name.startswith(category):
             return True
