@@ -1,0 +1,18 @@
+apiVersion: "security.istio.io/v1beta1"
+kind: "AuthorizationPolicy"
+metadata:
+  name: testcase26-networkpolicy-istio
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: productpage
+  rules:
+  - from:
+    - source:
+        principals:
+          - cluster.local/ns/default/sa/bookinfo-ratings
+    to:
+    - operation:
+        methods:
+          - GET

@@ -1,0 +1,14 @@
+namespaceList: ../../example_podlist/bookinfo_ns_list.json
+podList: ../../example_podlist/bookinfo_deployments.yaml
+
+networkConfigList:
+  - name: bookinfo-policy-test-simple
+    networkPolicyList:
+      - bookinfo-policy-test-simple.yaml
+
+queries:
+    - name: bookinfo-policy-test-simple
+      connectivityMap:
+        - bookinfo-policy-test-simple
+      outputConfiguration:
+        connectivityFilterIstioEdges: false
