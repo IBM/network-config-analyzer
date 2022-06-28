@@ -6,7 +6,6 @@ calico_testcases/example_policies/calico-demo/interferes-scheme.yaml,1.22
 calico_testcases/example_policies/calico-demo/sanity1-scheme.yaml,0.83
 calico_testcases/example_policies/calico-demo/sanity2-scheme.yaml,0.38
 calico_testcases/example_policies/calico-demo/sanity3-scheme.yaml,6.27
-calico_testcases/example_policies/testcase1/testcase1-scheme.yaml,0.55
 calico_testcases/example_policies/testcase10/testcase10-scheme.yaml,1.01
 calico_testcases/example_policies/testcase11/testcase11-scheme.yaml,4.54
 calico_testcases/example_policies/testcase12-interference/testcase12-interference-scheme.yaml,1.06
@@ -28,6 +27,7 @@ calico_testcases/example_policies/testcase24-selector-expression/testcase24-sche
 calico_testcases/example_policies/testcase25-mix-k8s-calico-policies/testcase25-scheme.yaml,0.17
 calico_testcases/example_policies/testcase2tag/testcase2tag-scheme.yaml,0.23
 calico_testcases/example_policies/testcase3/testcase3-scheme.yaml,0.23
+calico_testcases/example_policies/testcase3/testcase30-scheme.yaml,0.34
 calico_testcases/example_policies/testcase4/testcase4-scheme.yaml,0.08
 calico_testcases/example_policies/testcase5/testcase5-scheme.yaml,0.39
 calico_testcases/example_policies/testcase6/testcase6-scheme.yaml,1.23
