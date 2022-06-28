@@ -12,5 +12,4 @@ queries:
   - name: connectivity
     connectivityMap:
       - test-ingress
-    # TODO: currently expectedOutput is not entirely accuarte: expecting ingress path with * instead of + .
-    #expectedOutput: ../../expected_output/testcase26-config-1-k8s-istio-ingress_connectivity_map.txt
+
