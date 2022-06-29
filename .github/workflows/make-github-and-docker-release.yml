@@ -2,29 +2,33 @@ name: Create docker release and github release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version number'
-        required: true
-        default: 0.0.0
+  pull_request:
+    branches: [master]
+    types: [closed]
+    paths: ["VERSION.txt"]
 
 permissions:
   contents: read
 
 jobs:
   push_to_registry:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     name: Push a Docker image to the Docker Hub and create a github release
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
     steps:
-      - name: Print the version number
-        run: |
-          echo "Creating docker image and github release of the NCA version ${{ github.event.inputs.version }}"
-
       - name: Check out the repo
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+
+      - name: Setup NCA environment
+        uses: ./.github/actions/setup-nca-env
+
+      - name: Set the version number
+        run: |
+          export VERSION=$(cat VERSION.txt)
+          echo "version=$VERSION" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
@@ -38,22 +42,33 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/ibm/nca:${{ github.event.inputs.version }}
+          tags: ghcr.io/ibm/nca:${{ env.version }}
 
       - name: Create and push a new git tag
         run: |
           git config user.name ${{ github.actor }}
-          git tag -a v${{ github.event.inputs.version }} -m "Version ${{ github.event.inputs.version }}"
-          git push origin v${{ github.event.inputs.version }}
+          git tag -a v${{ env.version }} -m "Version ${{ env.version }}"
+          git push origin v${{ env.version }}
 
       - name: Create a github release
         uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          release_name: Release v${{ github.event.inputs.version }}
+          tag_name: v${{ env.version }}
+          release_name: Release v${{ env.version }}
           body: |
             Changes in this Release:
           draft: false
           prerelease: false
+
+      - name: Build package
+        run: |
+          pip install build
+          python -m build
+
+      - name: Push version to PyPi
+        uses: pypa/gh-action-pypi-publish@717ba43cfbb0387f6ce311b169a825772f54d295
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
