@@ -260,7 +260,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
         :param TcpLikeProperties allowed_conns: the given allowed connections
         :return: the list of deny IngressPolicyRules
         """
-        all_peers_and_ip_blocks = self.peer_container.peer_set
+        all_peers_and_ip_blocks = self.peer_container.peer_set.copy()
         all_peers_and_ip_blocks.add(IpBlock.get_all_ips_block())  # add IpBlock of all IPs
         all_conns = self._make_tcp_like_properties(PortSet(True), all_peers_and_ip_blocks)
         denied_conns = all_conns - allowed_conns

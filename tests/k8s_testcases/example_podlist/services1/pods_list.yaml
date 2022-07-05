@@ -148,6 +148,18 @@ items:
       image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1@sha256:64d8c73dca984af206adf9d6d7e46aa550362b1d7a01f3a0a91b20cc67868660
       imagePullPolicy: IfNotPresent
       name: create
+      ports:
+      - containerPort: 80
+        hostPort: 80
+        name: http
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 443
+        name: https
+        protocol: TCP
+      - containerPort: 8443
+        name: webhook
+        protocol: TCP
       resources: {}
       terminationMessagePath: /dev/termination-log
       terminationMessagePolicy: File
@@ -280,6 +292,18 @@ items:
       image: k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1@sha256:64d8c73dca984af206adf9d6d7e46aa550362b1d7a01f3a0a91b20cc67868660
       imagePullPolicy: IfNotPresent
       name: patch
+      ports:
+      - containerPort: 80
+        hostPort: 80
+        name: http
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 443
+        name: https
+        protocol: TCP
+      - containerPort: 8443
+        name: webhook
+        protocol: TCP
       resources: {}
       terminationMessagePath: /dev/termination-log
       terminationMessagePolicy: File
