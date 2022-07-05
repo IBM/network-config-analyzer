@@ -190,7 +190,7 @@ class SchemeRunner(GenericYamlParser):
             for query_key in query.keys():
                 if query_key not in ['name', 'expected', 'outputConfiguration', 'expectedOutput']:
                     res, comparing_err, _ = NetworkConfigQueryRunner(query_key, query[query_key], expected_output,
-                                                                  output_config_obj, self.network_configs).run_query()
+                                                                     output_config_obj, self.network_configs).run_query()
 
             end = time.time()
             print(f'Query {query_name} finished in {(end-start):6.2f} seconds')
