@@ -120,7 +120,11 @@ class GeneralTest:
         return nca_main(self.test_queries_obj.args_obj.args)
 
     def run_test(self):
-        self.nca_res = self.run_nca()  # either run a scheme or a query, with relevant args
+        nca_result = self.run_nca()  # either run a scheme or a query, with relevant args
+        if isinstance(nca_result, tuple):
+            self.nca_res = nca_result[0]
+        else:
+            self.nca_res = nca_result
 
     # update self.numerical_result, return true if test passed
     def evaluate_test_results(self):

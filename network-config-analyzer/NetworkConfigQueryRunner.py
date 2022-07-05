@@ -68,6 +68,7 @@ class NetworkConfigQueryRunner:
         :param bool cmd_line_flag: indicates if the query arg is given in the cmd-line
         rtype: (int, int)
         """
+        nca_err = False
         query_to_exec = getattr(NetworkConfigQuery, self.query_name)  # for calling static methods
         formats = query_to_exec.get_supported_output_formats()
         query_type = query_to_exec.get_query_type()
@@ -78,7 +79,7 @@ class NetworkConfigQueryRunner:
             if len(self.configs_array) <= 1:
                 return 0
             if query_type == NetworkConfigQuery.QueryType.ComparisonToBaseConfigQuery:
-                res, query_output = self._run_query_on_configs_vs_base_config(cmd_line_flag)
+                res, query_output, nca_err = self._run_query_on_configs_vs_base_config(cmd_line_flag)
 
             elif query_type == NetworkConfigQuery.QueryType.PairComparisonQuery:
                 res, query_output = self._run_query_on_config_vs_followed_configs(cmd_line_flag)
@@ -93,7 +94,7 @@ class NetworkConfigQueryRunner:
             else:
                 print(f'Warning: expectedOutput is not relevant for {self.query_name}. '
                       'Output compare will not occur')
-        return res, comparing_err
+        return res, comparing_err, nca_err
 
     def _execute_one_config_query(self, query_type, config):
         query_to_exec = getattr(NetworkConfigQuery, query_type)(config, self.output_configuration)
@@ -117,11 +118,11 @@ class NetworkConfigQueryRunner:
         output = ''
         base_config = self._get_config(self.configs_array[0])
         for config in self.configs_array[1:]:
-            query_res, query_output = self._execute_pair_configs_query(
+            query_res, query_output, nca_err = self._execute_pair_configs_query(
                 self.query_name, self._get_config(config), base_config, cmd_line_flag)
             res += query_res
             output += query_output + '\n'
-        return res, output
+        return res, output, nca_err
 
     def _run_query_on_config_vs_followed_configs(self, cmd_line_flag):
         res = 0
@@ -129,7 +130,7 @@ class NetworkConfigQueryRunner:
         for ind1 in range(len(self.configs_array) - 1):
             config1 = self.configs_array[ind1]
             for ind2 in range(ind1 + 1, len(self.configs_array)):
-                query_res, query_output = self._execute_pair_configs_query(
+                query_res, query_output, _ = self._execute_pair_configs_query(
                     self.query_name, self._get_config(config1), self._get_config(self.configs_array[ind2]),
                     cmd_line_flag)
                 res += query_res
@@ -142,7 +143,7 @@ class NetworkConfigQueryRunner:
         for config1 in self.configs_array:
             for config2 in self.configs_array:
                 if config1 != config2:
-                    query_res, query_output = self._execute_pair_configs_query(
+                    query_res, query_output, _ = self._execute_pair_configs_query(
                         self.query_name, self._get_config(config1), self._get_config(config2))
                     res += query_res
                     output += query_output + '\n'

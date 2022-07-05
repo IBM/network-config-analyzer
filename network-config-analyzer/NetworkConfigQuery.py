@@ -31,6 +31,7 @@ class QueryAnswer:
     output_result: str = ''
     output_explanation: str = ''
     numerical_result: int = 0
+    nca_err: bool = False
 
 
 class BaseNetworkQuery:
@@ -606,7 +607,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
     def is_identical_topologies(self, check_same_policies=False):
         if self.config1.peer_container != self.config2.peer_container:
             return QueryAnswer(False, 'The two configurations have different network topologies '
-                                      'and thus are not comparable.\n')
+                                      'and thus are not comparable.\n', nca_err=True)
         if check_same_policies and self.config1.policies == self.config2.policies and \
                 self.config1.profiles == self.config2.profiles:
             return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network '
@@ -673,7 +674,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         query_output = query_answer.output_result
         if not query_answer.bool_result:
             query_output += query_answer.output_explanation + '\n'
-        return not query_answer.bool_result, query_output
+        return not query_answer.bool_result, query_output, False
 
 
 class SemanticDiffQuery(TwoNetworkConfigsQuery):
@@ -936,7 +937,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         if self.output_config.outputFormat == 'txt':
             query_output += query_answer.output_result
         query_output += query_answer.output_explanation
-        return res, query_output
+        return res, query_output, False
 
 
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
@@ -1019,7 +1020,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     def compute_query_output(query_answer, cmd_line_flag=False):
         res = query_answer.numerical_result if not cmd_line_flag else not query_answer.bool_result
         query_output = query_answer.output_result + query_answer.output_explanation + '\n'
-        return res, query_output
+        return res, query_output, False
 
 
 class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
@@ -1076,7 +1077,7 @@ class PermitsQuery(TwoNetworkConfigsQuery):
         if not self.config1:
             return QueryAnswer(False,
                                output_result='There are no NetworkPolicies in the given permits config. '
-                                             'No traffic is specified as permitted.')
+                                             'No traffic is specified as permitted.', nca_err=True)
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer  # non-identical configurations are not comparable
@@ -1105,7 +1106,7 @@ class PermitsQuery(TwoNetworkConfigsQuery):
             query_output = f'{self.config2.name} permits all connections specified in {self.config1.name}'
         if cmd_line_flag:
             res = not query_answer.bool_result
-        return res, query_output
+        return res, query_output, query_answer.nca_err
 
 
 class InterferesQuery(TwoNetworkConfigsQuery):
@@ -1143,7 +1144,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
         query_output = query_answer.output_result
         if query_answer.bool_result:
             query_output += query_answer.output_explanation
-        return res, query_output
+        return res, query_output, False
 
 
 class PairwiseInterferesQuery(TwoNetworkConfigsQuery):
@@ -1198,7 +1199,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
     def exec(self):
         if not self.config1:
             return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
-                                      'No traffic is specified as forbidden.')
+                                      'No traffic is specified as forbidden.', nca_err=True)
         if self.config1.type == NetworkConfig.ConfigType.Ingress \
                 or self.config2.type == NetworkConfig.ConfigType.Ingress:
             ingress_name = self.config1.name if self.config1.type == NetworkConfig.ConfigType.Ingress \
@@ -1219,7 +1220,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
                             f'{query_answer.output_explanation}'
         elif query_answer.numerical_result == 1:
             query_output += f'{self.config2.name} forbids connections specified in {self.config1.name}'
-        return res, query_output
+        return res, query_output, query_answer.nca_err
 
 
 class AllCapturedQuery(NetworkConfigQuery):
