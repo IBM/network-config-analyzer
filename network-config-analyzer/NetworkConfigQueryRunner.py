@@ -116,6 +116,7 @@ class NetworkConfigQueryRunner:
     def _run_query_on_configs_vs_base_config(self, cmd_line_flag):
         res = 0
         output = ''
+        nca_err = False
         base_config = self._get_config(self.configs_array[0])
         for config in self.configs_array[1:]:
             query_res, query_output, nca_err = self._execute_pair_configs_query(
