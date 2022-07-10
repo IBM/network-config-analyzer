@@ -168,9 +168,9 @@ class NetworkConfigQueryRunner:
                         print(actual_output_lines[golden_file_line_num])
                         print('Comparing Result Failed \n')
                         return 1
-                if golden_file_line_num != len(actual_output_lines)-1:
+                if golden_file_line_num != len(actual_output_lines) - 1:
                     # allow a few empty lines in actual results
-                    for i in range(golden_file_line_num+1, len(actual_output_lines)):
+                    for i in range(golden_file_line_num + 1, len(actual_output_lines)):
                         if actual_output_lines[i]:
                             print('Error: Expected results have less lines than actual results')
                             print('Comparing Result Failed \n')
