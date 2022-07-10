@@ -156,6 +156,7 @@ class NetworkConfigQueryRunner:
                 if OutputFilesFlags().update_expected_files:
                     self._create_or_update_query_output_file(query_output)
                     return 0
+                golden_file_line_num = 0
                 for golden_file_line_num, golden_file_line in enumerate(golden_file):
                     if golden_file_line_num >= len(actual_output_lines):
                         print('Error: Expected results have more lines than actual results')
@@ -167,6 +168,13 @@ class NetworkConfigQueryRunner:
                         print(actual_output_lines[golden_file_line_num])
                         print('Comparing Result Failed \n')
                         return 1
+                if golden_file_line_num != len(actual_output_lines) - 1:
+                    # allow a few empty lines in actual results
+                    for i in range(golden_file_line_num + 1, len(actual_output_lines)):
+                        if actual_output_lines[i]:
+                            print('Error: Expected results have less lines than actual results')
+                            print('Comparing Result Failed \n')
+                            return 1
         except FileNotFoundError:
             if OutputFilesFlags().create_expected_files:
                 self._create_or_update_query_output_file(query_output)
