@@ -12,4 +12,9 @@ queries:
   - name: connectivity
     connectivityMap:
       - test-ingress
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/k8s_ingress_test_connectivity_map.txt
+
 
