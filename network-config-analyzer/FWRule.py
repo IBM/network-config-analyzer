@@ -453,14 +453,13 @@ class FWRule:
         conn_str = str(self.conn)
         return src_str + dst_str + ' conn: ' + conn_str
 
-    def get_rule_str(self, use_complement_simplification):
+    def get_rule_str(self):
         """
-        :param bool use_complement_simplification: flag for complement simplification in connection set rep
         :return: a string representation of the fw-rule, for output in txt format
         """
         src_str = self.src.get_elem_str(True)
         dst_str = self.dst.get_elem_str(False)
-        conn_str = self.conn.get_simplified_connections_representation(True, use_complement_simplification)
+        conn_str = self.conn.get_simplified_connections_representation(True)
         return src_str + dst_str + ' conn: ' + conn_str + '\n'
 
     def __hash__(self):
@@ -472,11 +471,10 @@ class FWRule:
     def __lt__(self, other):
         return str(self) < str(other)
 
-    def get_rule_component_str(self, component, use_complement_simplification):
+    def get_rule_component_str(self, component):
         """
         This function is used to produce a csv row for a fw-rule
         :param str component: a fw-rule required component  from components in rule_csv_header
-        :param bool use_complement_simplification: flag for complement simplification in connection set rep
         :return: string of the required rule component
         """
         if component == 'src_ns':
@@ -488,22 +486,20 @@ class FWRule:
         elif component == 'dst_pods':
             return str(self.dst) if isinstance(self.dst, IPBlockElement) else self.dst.get_pod_str()
         elif component == 'connection':
-            return self.conn.get_simplified_connections_representation(True, use_complement_simplification)
+            return self.conn.get_simplified_connections_representation(True)
         return ''
 
-    def get_rule_csv_row(self, use_complement_simplification):
+    def get_rule_csv_row(self):
         """
-        :param bool use_complement_simplification: flag for complement simplification in connection set rep
         :return: a list of strings, representing the csv row for this fw-rule
         """
         row = []
         for component in FWRule.rule_csv_header:
-            row.append(self.get_rule_component_str(component, use_complement_simplification))
+            row.append(self.get_rule_component_str(component))
         return row
 
-    def get_rule_yaml_obj(self, use_complement_simplification):
+    def get_rule_yaml_obj(self):
         """
-        :param bool use_complement_simplification: flag for complement simplification in connection set rep
         :return:  a dict with content representing the fw-rule, for output in yaml format
         """
         src_ns_list = sorted([str(ns) for ns in self.src.ns_info])
@@ -512,7 +508,7 @@ class FWRule:
         dst_pods_list = self.dst.get_elem_yaml_obj() if not isinstance(self.dst, IPBlockElement) else None
         src_ip_block_list = sorted(self.src.get_elem_yaml_obj()) if isinstance(self.src, IPBlockElement) else None
         dst_ip_block_list = sorted(self.dst.get_elem_yaml_obj()) if isinstance(self.dst, IPBlockElement) else None
-        conn_list = self.conn.get_simplified_connections_representation(False, use_complement_simplification)
+        conn_list = self.conn.get_simplified_connections_representation(False)
 
         rule_obj = {}
         if src_ip_block_list is None and dst_ip_block_list is None:
@@ -534,7 +530,7 @@ class FWRule:
                         'connection': conn_list}
         return rule_obj
 
-    def get_rule_in_req_format(self, req_format, config_type):
+    def get_rule_in_req_format(self, req_format):
         """
         get fw-rule representation according to required format :
         yaml: dict object
@@ -544,19 +540,18 @@ class FWRule:
         :param NetworkConfig.ConfigType config_type: the network configuration type
         :return: Union[str,dict,list] the fw-rule representation according to required format
         """
-        use_complement_simplification = self.use_connection_set_complement_simplification(config_type)
         if req_format == 'yaml':
-            return self.get_rule_yaml_obj(use_complement_simplification)
+            return self.get_rule_yaml_obj()
         if req_format in ['csv', 'md']:
-            return self.get_rule_csv_row(use_complement_simplification)
+            return self.get_rule_csv_row()
         if req_format == 'txt':
-            return self.get_rule_str(use_complement_simplification)
+            return self.get_rule_str()
         return None
 
-    @staticmethod
-    def use_connection_set_complement_simplification(config_type):
-        # currently disabling this for Istio config, since complement with regex may be time consuming computation
-        return config_type != NetworkConfig.ConfigType.Istio
+    #@staticmethod
+    #def use_connection_set_complement_simplification(config_type):
+    #    # currently disabling this for Istio config, since complement with regex may be time consuming computation
+    #    return config_type != NetworkConfig.ConfigType.Istio
 
     @staticmethod
     def create_fw_rules_from_base_elements(src, dst, connections):

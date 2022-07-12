@@ -36,7 +36,7 @@ class NetworkConfigQueryRunner:
             split_layer = split_config[1].split('/', 1)
             layer = split_layer[0]
             policy_name = split_layer[1]
-            policy_type = NetworkConfig.ConfigType.layer_name_to_config_type(layer)
+            policy_type = NetworkConfig.ConfigType.input_layer_name_str_to_config_type(layer)
             if policy_type is None:
                 raise Exception(f'Layer {layer} is not supported')
         else:
@@ -60,6 +60,8 @@ class NetworkConfigQueryRunner:
 
         # User wants a specific policy from the given config
         config_name, policy_name, policy_type = self._parse_network_config_of_specified_policy(config_name)
+        # TODO: should preserve all active layers from original config?  or just the layer of the requested policy?
+        #  example: if orig config has heps with calico and istio, but chosen policy is from istio, we would need calico layer to have default deny for hep.
         return self.network_configs[config_name].clone_with_just_one_policy(policy_name, policy_type)
 
     def run_query(self, cmd_line_flag=False):

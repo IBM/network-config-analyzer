@@ -1,0 +1,35 @@
+namespaceList: ./topology/
+podList: ./topology/
+
+networkConfigList:
+
+  # config with calico policy
+  - name: testcase26-config-allows-no-connections
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # config with calico policy
+  - name: testcase26-config-allows-no-connections-2
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+# redundancy return value: Count of redundant policies/rules found in all sets of policies
+
+queries:
+  - name: redundancy-1
+    redundancy:
+      - testcase26-config-allows-no-connections
+    expected: 1 # (comment from before changing calico default to allow all) not checking redundancy for a config with single policy, even though in this case it is redundant
+                # however, the redundancy for policy rules is checked, and even though the rules so not seem redundant, they become so because no connection is allowed in both cases.
+
+  - name: redundancy-2
+    redundancy:
+      - testcase26-config-allows-no-connections-2
+    expected: 2
+
+

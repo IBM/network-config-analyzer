@@ -32,13 +32,15 @@ networkConfigList:
 
   - name: np_traffic-between-cnc-evaluation-service-mistake-outside
     networkPolicyList:
-      - demo-permits-forbids-deny-all-profiles.yaml
+      #- demo-permits-forbids-deny-all-profiles.yaml
+      - ../common-policies/policy-deny-all.yaml
       - demo-permits-forbids-traffic-between-cnc-evaluation-service-also-out.yaml
     expectedWarnings: 0
 
   - name: np_traffic-between-cnc-evaluation-service-no-outside
     networkPolicyList:
-      - demo-permits-forbids-deny-all-profiles.yaml
+      #- demo-permits-forbids-deny-all-profiles.yaml
+      - ../common-policies/policy-deny-all.yaml
       - demo-permits-forbids-traffic-between-cnc-evaluation-service-no-out.yaml
     expectedWarnings: 0
 

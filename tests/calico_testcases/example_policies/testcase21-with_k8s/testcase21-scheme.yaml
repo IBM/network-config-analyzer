@@ -27,7 +27,7 @@ queries:
   - name: sanity_allowAll-Calico
     sanity:
     - allowAll-Calico
-    expected: 0
+    expected: 1 # redundant: it allows all default connections
 
   - name: sanity_emptyPodSelector-k8s
     sanity:
@@ -37,7 +37,7 @@ queries:
   - name: sanity_allowSpecific-kubs-system-all-other-Calico
     sanity:
     - allowSpecific-kubs-system-all-other-Calico
-    expected: 0
+    expected: 1 # redundant: it allows all default connections  # TODO: check redundancy here
 
   - name: sanity_allowSpecific-kubs-system-all-other-k8s
     sanity:

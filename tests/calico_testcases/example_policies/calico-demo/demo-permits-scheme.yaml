@@ -14,7 +14,8 @@ networkConfigList:
 
   - name: np_product-compare-and-comply
     networkPolicyList:
-      - demo-permits-forbids-deny-all-profiles.yaml
+      #- demo-permits-forbids-deny-all-profiles.yaml
+      - ../common-policies/policy-deny-all.yaml
       - demo-permits-forbids-traffic-between-compare-and-comply.yaml
     expectedWarnings: 0
 

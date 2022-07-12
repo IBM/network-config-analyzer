@@ -1,0 +1,77 @@
+namespaceList: ./topology/
+podList: ./topology/
+
+networkConfigList:
+
+  # config with k8s, istio
+  - name: testcase26-config-1-k8s-istio
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml # all connections allowed from ratings to product page
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml # captured: TCP connections from ratings to product page
+    expectedWarnings: 0
+
+  # config with k8s
+  - name: testcase26-config-1-k8s
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage-udp-only.yaml # captured: UDP connections from ratings to product page
+    expectedWarnings: 0
+
+  # config with k8s, calico, istio
+  - name: testcase26-config-1-k8s-calico-istio
+    networkPolicyList:
+    - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml # all connections allowed from ratings to product page
+    - testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only.yaml # allows only TCP connections from ratings to product-page
+    - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml # captured: TCP connections from ratings to product page
+    - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # config with k8s, calico
+  - name: testcase26-config-1-k8s-calico
+    networkPolicyList:
+    - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml # all connections allowed from ratings to product page
+    - testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only.yaml # allows only TCP connections from ratings to product-page
+    - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # config with istio
+  - name: testcase26-config-1-istio
+    networkPolicyList:
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml # captured: TCP connections from ratings to product page
+    expectedWarnings: 0
+
+# forbids: Checks whether the first set denies all connections explicitly allowed by the other sets
+# return value:  Count of sets explicitly specifying connections which the first set allows
+
+queries:
+  - name: forbids-1
+    forbids:
+      - testcase26-config-1-k8s-istio # allows UDP connections from ratings to product-page
+      - testcase26-config-1-k8s # captured: UDP connections from ratings to product page
+    expected: 1
+
+  - name: forbids-2
+    forbids:
+      - testcase26-config-1-k8s-calico-istio # allows only TCP connections from ratings to product-page
+      - testcase26-config-1-k8s # captured: UDP connections from ratings to product page
+    expected: 0
+
+  - name: forbids-3
+    forbids:
+      - testcase26-config-1-k8s-calico # allows only TCP connections from ratings to product-page
+      - testcase26-config-1-k8s # captured: UDP connections from ratings to product page
+    expected: 0
+
+  - name: forbids-4
+    forbids:
+      - testcase26-config-1-k8s # allows only UDP connections from ratings to product-page
+      - testcase26-config-1-k8s-istio # captured: all connections from ratings to product page
+                                      # TODO: note that the captured connections for testcase26-config-1-k8s-istio are the "OR" result for all layers captured connections,
+                                      # as opposed to "AND" between all layers captured connections (which would then be only TCP)
+                                      # is this a correct reasoning of "captured" here?
+    expected: 1
+
+  - name: forbids-5
+    forbids:
+      - testcase26-config-1-k8s # allows only UDP connections from ratings to product-page
+      - testcase26-config-1-istio # captured: TCP connections from ratings to product page
+    expected: 0

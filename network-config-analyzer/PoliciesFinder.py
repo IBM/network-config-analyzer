@@ -52,27 +52,19 @@ class PoliciesFinder:
     def _add_policy(self, policy):
         """
         This should be the only place where we add policies to the config's set of policies from input resources
-        :param NetworkPolicy policy: The policy to add
+        :param NetworkPolicy.NetworkPolicy policy: The policy to add
         :return: None
         """
-        self.type = NetworkConfig.append_policy(policy, self.policies_container.policies,
-                                                self.policies_container.sorted_policies,
-                                                self.policies_container.ingress_deny_policies,
-                                                self.type)
-
-    def _add_profile(self, profile):
-        """"
-        This should be the only place where we add profiles to the config's set of profiles from input resources
-        :param CalicoNetworkPolicy profile: The profile to add
-        :return: None
-        """
-        self.type = NetworkConfig.append_profile(profile, self.policies_container.profiles, self.type)
+        NetworkConfig.append_policy(policy, self.policies_container.policies, self.policies_container.layers)
 
     def parse_policies_in_parse_queue(self):
         for policy, file_name, policy_type in self._parse_queue:
             if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
-                self._add_profile(parsed_element.parse_policy())
+                # TODO: should keep support for profiles labelsToApply labels or not?
+                #  the profiles 'labelsToApply' is not deprecated as opposed to profile rules ingress/egress
+                parsed_element.parse_policy() # only during parsing adding extra labels from profiles (not supporting profiles with rules)
+                #self._add_profile(parsed_element.parse_policy())
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
@@ -113,4 +105,4 @@ class PoliciesFinder:
                         self._add_policies_to_parse_queue(policy_list_list.get('items', []), file_name)
 
     def has_empty_containers(self):
-        return not self.policies_container.policies and not self.policies_container.profiles
+        return not self.policies_container.policies

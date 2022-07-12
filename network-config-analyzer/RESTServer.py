@@ -103,8 +103,8 @@ class PolicySetsResource(NCAResource):
             self.resources_parser.policies_finder.load_policies_from_buffer(entry)
             self.resources_parser.policies_finder.parse_policies_in_parse_queue()
             network_config = NetworkConfig(new_policy_set, peer_container,
-                                           self.resources_parser.policies_finder.policies_container,
-                                           config_type=self.resources_parser.policies_finder.type)
+                                           self.resources_parser.policies_finder.policies_container)
+
         except Exception:
             return 'Badly formed policy list', 400
 

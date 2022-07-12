@@ -4,14 +4,17 @@ networkConfigList:
 - name: np_onlyAllow
   networkPolicyList:
   - calico-testcase3-networkpolicy-onlyAllow.yaml
+  - calico-policy-deny-all.yaml
   expectedWarnings: 0
 - name: np_FirstDenySubset
   networkPolicyList:
   - calico-testcase3-networkpolicy-FirstDenySubset.yaml
+  - calico-policy-deny-all.yaml
   expectedWarnings: 0
 - name: np_firstAllowSuperSet
   networkPolicyList:
   - calico-testcase3-networkpolicy-firstAllowSuperSet.yaml
+  - calico-policy-deny-all.yaml
   expectedWarnings: 0
 queries:
 - name: connectivity_map

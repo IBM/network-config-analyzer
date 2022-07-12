@@ -31,7 +31,7 @@ queries:
     redundancy:
       - np1
       - np2
-    expected: 0
+    expected: 2
 
   - name: np1_equiv_np2
     equivalence:

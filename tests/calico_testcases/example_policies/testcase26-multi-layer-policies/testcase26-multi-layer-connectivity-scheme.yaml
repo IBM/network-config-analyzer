@@ -1,0 +1,92 @@
+namespaceList: ./topology/
+podList: ./topology/
+
+networkConfigList:
+  # layers: k8s, istio, ingress
+  - name: testcase26-config-1-k8s-istio-ingress
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml
+      - testcase26-ingress-resource-policy.yaml
+    expectedWarnings: 0
+
+  # layers: k8s, calico, istio, ingress
+  - name: testcase26-config-1-k8s-calico-istio-ingress
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml
+      - testcase26-ingress-resource-policy.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # layers: k8s, calico, istio, ingress
+  - name: testcase26-config-1-k8s-calico-istio-ingress-2
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml
+      - testcase26-ingress-resource-policy.yaml
+      - testcase26-networkpolicy-calico-nginx.yaml
+      - testcase26-networkpolicy-k8s-details-open-ingress.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # layers: k8s, calico, istio
+  - name: testcase26-config-1-k8s-calico-istio
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # layers: k8s, calico, istio
+  - name: testcase26-config-1-k8s-calico-istio-2
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only.yaml
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  - name: testcase26-config-no-policies
+    networkPolicyList:
+      - testcase26-empty-networkpolicies.yaml
+    expectedWarnings: 0
+
+queries:
+  - name: connectivity-1
+    connectivityMap:
+      - testcase26-config-no-policies
+    expectedOutput: ../../expected_output/testcase26-config-no-policies-connectivity-map.txt
+
+  - name: connectivity-2
+    connectivityMap:
+      - testcase26-config-1-k8s-istio-ingress
+    # TODO: currently expectedOutput is not entirely accuarte: expecting ingress path with * instead of + .
+    expectedOutput: ../../expected_output/testcase26-config-1-k8s-istio-ingress_connectivity_map.txt
+
+  - name: connectivity-3
+    connectivityMap:
+      - testcase26-config-1-k8s-calico-istio-ingress
+    expectedOutput: ../../expected_output/testcase26-config-1-k8s-calico-istio-ingress_connectivity_map.txt
+
+  # TODO: currently there is an issue with properties aggregation - UDP should not have properties which are not ports.
+  - name: connectivity-4
+    connectivityMap:
+      - testcase26-config-1-k8s-calico-istio
+    expectedOutput: ../../expected_output/testcase26-config-1-k8s-calico-istio_connectivity_map.txt
+
+  - name: connectivity-5
+    connectivityMap:
+      - testcase26-config-1-k8s-calico-istio-2
+    expectedOutput: ../../expected_output/testcase26-config-1-k8s-calico-istio-2_connectivity_map.txt
+
+
+  - name: connectivity-6
+    connectivityMap:
+      - testcase26-config-1-k8s-calico-istio-ingress-2
+    expectedOutput: ../../expected_output/testcase26-config-1-k8s-calico-istio-ingress-2_connectivity_map.txt
+
+

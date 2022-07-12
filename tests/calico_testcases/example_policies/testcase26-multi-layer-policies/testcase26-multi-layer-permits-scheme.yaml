@@ -1,0 +1,93 @@
+namespaceList: ./topology/
+podList: ./topology/
+
+networkConfigList:
+  # config with no policies
+  - name: testcase26-config-no-policies
+    networkPolicyList:
+      - testcase26-empty-networkpolicies.yaml
+    expectedWarnings: 0
+
+  # config with k8s, calico policies
+  - name: testcase26-config-1-k8s-calico-allow-ratings-to-product-page
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # config with k8s, calico policies
+  - name: testcase26-config-1-k8s-calico-allow-ratings-to-product-page-tcp-only
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # config with calico policy
+  - name: testcase26-config-allows-no-connections
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - ../common-policies/policy-deny-all.yaml
+    expectedWarnings: 0
+
+  # config with k8s, istio
+  - name: testcase26-config-1-k8s-istio
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml # all connections allowed from ratings to product page
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml # captured: TCP connections from ratings to product page
+    expectedWarnings: 0
+
+  # config with istio
+  - name: testcase26-config-1-istio
+    networkPolicyList:
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml # captured: TCP connections from ratings to product page
+    expectedWarnings: 0
+
+  # config with k8s
+  - name: testcase26-config-1-k8s
+    networkPolicyList:
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage-udp-only.yaml # captured: UDP connections from ratings to product page
+    expectedWarnings: 0
+
+
+# permits: Checking whether the connections *explicitly* allowed by config1 are allowed by config2 connections (captured + non-captured)
+
+# query permits: Checks whether the first set allows all connections explicitly allowed by the other sets
+# query return value: Count of sets explicitly specifying connections which the first set denies
+queries:
+  - name: permits-1
+    permits:
+      - testcase26-config-no-policies # allows all by default
+      - testcase26-config-1-k8s-calico-allow-ratings-to-product-page # allow only connection from ratings to product-page
+    expected: 0
+
+  - name: permits-2
+    permits:
+      - testcase26-config-allows-no-connections # allows no connections
+      - testcase26-config-1-k8s-calico-allow-ratings-to-product-page # allow only connection from ratings to product-page
+    expected: 1
+
+  - name: permits-3
+    permits:
+      - testcase26-config-1-k8s-calico-allow-ratings-to-product-page # allow only connection from ratings to product-page (TCP, UDP)
+      - testcase26-config-1-k8s-calico-allow-ratings-to-product-page-tcp-only # allow only connection from ratings to product-page (TCP)
+    expected: 0
+
+  - name: permits-4
+    permits:
+      - testcase26-config-1-k8s-calico-allow-ratings-to-product-page-tcp-only # allow only connection from ratings to product-page (TCP)
+      - testcase26-config-1-k8s-calico-allow-ratings-to-product-page # allow only connection from ratings to product-page (TCP, UDP)
+    expected: 1
+
+  - name: permits-5
+    permits:
+      - testcase26-config-1-istio
+      - testcase26-config-1-k8s # captured: UDP connections from ratings to product page
+    expected: 0 # thd UDP connections are allowed (non captured) in the istio config
+
+  - name: permits-6
+    permits:
+      - testcase26-config-1-k8s
+      - testcase26-config-1-istio # captured: TCP connections from ratings to product page
+    expected: 1 # the k8s config only allows UDP connections from ratings to product page
