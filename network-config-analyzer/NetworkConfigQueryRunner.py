@@ -108,7 +108,8 @@ class NetworkConfigQueryRunner:
         output = ''
         queries_not_executed = 0
         for config in self.configs_array:
-            query_res, query_output, query_not_executed = self._execute_one_config_query(self.query_name, self._get_config(config))
+            query_res, query_output, query_not_executed =\
+                self._execute_one_config_query(self.query_name, self._get_config(config))
             res += query_res
             output += query_output + '\n'
             queries_not_executed += query_not_executed
