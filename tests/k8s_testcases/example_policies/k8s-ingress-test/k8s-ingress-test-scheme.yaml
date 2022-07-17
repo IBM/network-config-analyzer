@@ -1,0 +1,20 @@
+namespaceList: ./topology/
+podList: ./topology/
+
+networkConfigList:
+  - name: test-ingress
+    networkPolicyList:
+      - k8s-ingress-policies.yaml
+    expectedWarnings: 0
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - test-ingress
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/k8s_ingress_test_connectivity_map.txt
+
+
