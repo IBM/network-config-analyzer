@@ -20,4 +20,4 @@
     --base_np_list k8s
     --ns_list k8s
     --pod_list k8s
-  expected: 0
+  expected: 4
