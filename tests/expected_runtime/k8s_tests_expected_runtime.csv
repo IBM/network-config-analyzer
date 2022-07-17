@@ -81,6 +81,7 @@ k8s_testcases/example_policies/demo_short/demo2-scheme.yaml,0.07
 k8s_testcases/example_policies/demo_short/demo3-ns-resourcelist-scheme.yaml,0.03
 k8s_testcases/example_policies/demo_short/demo3-scheme.yaml,0.03
 k8s_testcases/example_policies/emptinessTests/emptinessTests-scheme.yaml,0.32
+k8s_testcases/example_policies/k8s-ingress-test/k8s-ingress-test-scheme.yaml,0.57
 k8s_testcases/example_policies/namedPorts/namedPorts-scheme.yaml,0.08
 k8s_testcases/example_policies/network-policy-checks/network-policy-check-scheme.yaml,0.14
 k8s_testcases/example_policies/online_boutique/connectivity-scheme.yaml,1.10

@@ -48,7 +48,7 @@ queries:
     twoWayContainment:
       - np1
       - np2
-    expected: 1
+    expected: 3
 
   - name: np1_and_np2_are_not_strongly_equivalent
     strongEquivalence:
@@ -79,7 +79,7 @@ queries:
     pairwiseInterferes:
       - np1
       - np2
-    expected: 1
+    expected: 0
 
   - name: not_empty
     emptiness:
@@ -105,4 +105,4 @@ queries:
     containment:
       - np2
       - np1
-    expected: 0
+    expected: 1
