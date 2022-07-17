@@ -31,7 +31,7 @@ class QueryAnswer:
     output_result: str = ''
     output_explanation: str = ''
     numerical_result: int = 0
-    nca_err: bool = False
+    query_not_executed: bool = False
 
 
 class BaseNetworkQuery:
@@ -74,11 +74,11 @@ class NetworkConfigQuery(BaseNetworkQuery):
     def get_query_output(query_answer, only_explanation=False, add_explanation=False):
         res = query_answer.numerical_result
         if only_explanation:
-            return res, query_answer.output_explanation
+            return res, query_answer.output_explanation, query_answer.query_not_executed
         query_output = query_answer.output_result
         if add_explanation:
             query_output += query_answer.output_explanation
-        return res, query_output
+        return res, query_output, query_answer.query_not_executed
 
     @staticmethod
     def get_query_type():
@@ -103,7 +103,7 @@ class DisjointnessQuery(NetworkConfigQuery):
         if self.config.type == NetworkConfig.ConfigType.Ingress:
             return QueryAnswer(bool_result=False,
                                output_result=f'Ignoring DisjointnessQuery for {self.config.name} with Ingress only',
-                               numerical_result=0)
+                               numerical_result=0, query_not_executed=True)
 
         non_disjoint_explanation_list = []
         for policy1 in self.config.sorted_policies:  # Ignoring ingress_deny_policies (not relevant for the query)
@@ -139,7 +139,7 @@ class EmptinessQuery(NetworkConfigQuery):
         if self.config.type == NetworkConfig.ConfigType.Ingress:
             return QueryAnswer(bool_result=False,
                                output_result=f'Ignoring EmptinessQuery for {self.config.name} with Ingress only',
-                               numerical_result=0)
+                               numerical_result=0, query_not_executed=True)
 
         res = 0
         full_explanation_list = []
@@ -448,7 +448,8 @@ class SanityQuery(NetworkConfigQuery):
 
     def exec(self):  # noqa: C901
         if not self.config:
-            return QueryAnswer(False, f'No NetworkPolicies in {self.config.name}. Nothing to check sanity on.', '', 1)
+            return QueryAnswer(False, f'No NetworkPolicies in {self.config.name}. Nothing to check sanity on.', '', 1,
+                               query_not_executed=True)
         has_conflicting_policies, conflict_explanation = self.has_conflicting_policies_with_same_order()
         if has_conflicting_policies:
             return QueryAnswer(bool_result=False, output_result=conflict_explanation, output_explanation='',
@@ -607,11 +608,11 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
     def is_identical_topologies(self, check_same_policies=False):
         if self.config1.peer_container != self.config2.peer_container:
             return QueryAnswer(False, 'The two configurations have different network topologies '
-                                      'and thus are not comparable.\n', nca_err=True)
+                                      'and thus are not comparable.\n', query_not_executed=True)
         if check_same_policies and self.config1.policies == self.config2.policies and \
                 self.config1.profiles == self.config2.profiles:
             return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network '
-                                     'topology and the same set of policies.\n')
+                                     'topology and the same set of policies.\n', query_not_executed=True)
         return QueryAnswer(True)
 
     def disjoint_referenced_ip_blocks(self):
@@ -674,7 +675,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         query_output = query_answer.output_result
         if not query_answer.bool_result:
             query_output += query_answer.output_explanation + '\n'
-        return not query_answer.bool_result, query_output, False
+        return not query_answer.bool_result, query_output, query_answer.query_not_executed
 
 
 class SemanticDiffQuery(TwoNetworkConfigsQuery):
@@ -937,7 +938,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         if self.output_config.outputFormat == 'txt':
             query_output += query_answer.output_result
         query_output += query_answer.output_explanation
-        return res, query_output, False
+        return res, query_output, query_answer.query_not_executed
 
 
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
@@ -1020,7 +1021,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     def compute_query_output(query_answer, cmd_line_flag=False):
         res = query_answer.numerical_result if not cmd_line_flag else not query_answer.bool_result
         query_output = query_answer.output_result + query_answer.output_explanation + '\n'
-        return res, query_output, False
+        return res, query_output, query_answer.query_not_executed
 
 
 class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
@@ -1077,7 +1078,7 @@ class PermitsQuery(TwoNetworkConfigsQuery):
         if not self.config1:
             return QueryAnswer(False,
                                output_result='There are no NetworkPolicies in the given permits config. '
-                                             'No traffic is specified as permitted.', nca_err=True)
+                                             'No traffic is specified as permitted.', query_not_executed=True)
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer  # non-identical configurations are not comparable
@@ -1087,7 +1088,8 @@ class PermitsQuery(TwoNetworkConfigsQuery):
             ingress_name = self.config1.name if self.config1.type == NetworkConfig.ConfigType.Ingress \
                 else self.config2.name
             return QueryAnswer(bool_result=False,
-                               output_result=f'Ignoring PermitsQuery for {ingress_name} with Ingress only')
+                               output_result=f'Ignoring PermitsQuery for {ingress_name} with Ingress only',
+                               query_not_executed=True)
 
         config1_without_ingress = self.clone_without_ingress(self.config1)
         config2_without_ingress = self.clone_without_ingress(self.config2)
@@ -1106,7 +1108,7 @@ class PermitsQuery(TwoNetworkConfigsQuery):
             query_output = f'{self.config2.name} permits all connections specified in {self.config1.name}'
         if cmd_line_flag:
             res = not query_answer.bool_result
-        return res, query_output, query_answer.nca_err
+        return res, query_output, query_answer.query_not_executed
 
 
 class InterferesQuery(TwoNetworkConfigsQuery):
@@ -1144,7 +1146,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
         query_output = query_answer.output_result
         if query_answer.bool_result:
             query_output += query_answer.output_explanation
-        return res, query_output, False
+        return res, query_output, query_answer.query_not_executed
 
 
 class PairwiseInterferesQuery(TwoNetworkConfigsQuery):
@@ -1199,13 +1201,14 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
     def exec(self):
         if not self.config1:
             return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
-                                      'No traffic is specified as forbidden.', nca_err=True)
+                                      'No traffic is specified as forbidden.', query_not_executed=True)
         if self.config1.type == NetworkConfig.ConfigType.Ingress \
                 or self.config2.type == NetworkConfig.ConfigType.Ingress:
             ingress_name = self.config1.name if self.config1.type == NetworkConfig.ConfigType.Ingress \
                 else self.config2.name
             return QueryAnswer(bool_result=False,
-                               output_result=f'Ignoring ForbidsQuery for {ingress_name} with Ingress only')
+                               output_result=f'Ignoring ForbidsQuery for {ingress_name} with Ingress only',
+                               query_not_executed=True)
 
         config1_without_ingress = self.clone_without_ingress(self.config1)
         config2_without_ingress = self.clone_without_ingress(self.config2)
@@ -1220,7 +1223,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
                             f'{query_answer.output_explanation}'
         elif query_answer.numerical_result == 1:
             query_output += f'{self.config2.name} forbids connections specified in {self.config1.name}'
-        return res, query_output, query_answer.nca_err
+        return res, query_output, query_answer.query_not_executed
 
 
 class AllCapturedQuery(NetworkConfigQuery):
@@ -1257,12 +1260,12 @@ class AllCapturedQuery(NetworkConfigQuery):
         if self.config.type == NetworkConfig.ConfigType.Ingress:
             return QueryAnswer(bool_result=False,
                                output_result=f'Ignoring AllCapturedQuery for {self.config.name} with Ingress only',
-                               numerical_result=len(existing_pods))
+                               numerical_result=len(existing_pods), query_not_executed=True)
 
         if not self.config:
             return QueryAnswer(bool_result=False,
                                output_result='Flat network in ' + self.config.name,
-                               numerical_result=len(existing_pods))
+                               numerical_result=len(existing_pods), query_not_executed=True)
 
         # self.config.get_affected_pods ignores ingress_deny_policies (not relevant for the query)
         uncaptured_ingress_pods = existing_pods - self.config.get_affected_pods(is_ingress=True)

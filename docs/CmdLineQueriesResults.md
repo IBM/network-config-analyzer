@@ -11,3 +11,8 @@ The result of each command-line query may be 0 or 1 as followed:
 | --connectivity | ConnectivityMap | the result of this query is always 0 | None |
 | --semantic_diff | SemanticDiff | both sets of NetworkPolicies are semantically equivalent | the given sets of NetworkPolicies are not semantically equivalent |
 
+## A query will not be executed when:
+1. The config/s type is not relevant for performing the query.
+2. An input config does not include NetworkPolicies.
+3. The input configs are not comparable.
+4. The input configs of equivalence/semantic-diff query are identical.

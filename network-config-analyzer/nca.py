@@ -87,10 +87,10 @@ def _execute_single_config_query(query_name, network_config, output_config, expe
     :param str expected_output: a file path to the expected output
     :rtype: int
     """
-    res, comparing_err, _ = NetworkConfigQueryRunner(query_name, [network_config], expected_output,
-                                                     output_config).run_query()
+    res, comparing_err, query_not_executed = NetworkConfigQueryRunner(query_name, [network_config], expected_output,
+                                                                      output_config).run_query()
     expected_res_bit = res > 0
-    return 2 * comparing_err + expected_res_bit
+    return 4 * query_not_executed + 2 * comparing_err + expected_res_bit
 
 
 def _execute_pair_configs_query(query_name, configs_array, output_config, expected_output=None):
@@ -103,9 +103,9 @@ def _execute_pair_configs_query(query_name, configs_array, output_config, expect
     :return: result of executing the query
     :rtype: int
     """
-    res, comparing_err, nca_err = NetworkConfigQueryRunner(query_name, configs_array, expected_output,
-                                                           output_config).run_query(True)
-    return 2 * comparing_err + res, nca_err
+    res, comparing_err, query_not_executed = NetworkConfigQueryRunner(query_name, configs_array, expected_output,
+                                                                      output_config).run_query(True)
+    return 4 * query_not_executed + 2 * comparing_err + res
 
 
 def run_args(args):
