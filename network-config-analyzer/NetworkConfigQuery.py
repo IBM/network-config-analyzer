@@ -448,7 +448,7 @@ class SanityQuery(NetworkConfigQuery):
 
     def exec(self):  # noqa: C901
         if not self.config:
-            return QueryAnswer(False, f'No NetworkPolicies in {self.config.name}. Nothing to check sanity on.', '', 1,
+            return QueryAnswer(False, f'No NetworkPolicies in {self.config.name}. Nothing to check sanity on.', '',
                                query_not_executed=True)
         has_conflicting_policies, conflict_explanation = self.has_conflicting_policies_with_same_order()
         if has_conflicting_policies:

@@ -77,7 +77,8 @@ class NetworkConfigQueryRunner:
         query_type = query_to_exec.get_query_type()
         if query_type == NetworkConfigQuery.QueryType.SingleConfigQuery:
             res, query_output, not_executed = self._run_query_for_each_config()
-
+            if not_executed:
+                print(f'Warning: {self.query_name} was not checked on all input configs.')
         else:
             if len(self.configs_array) <= 1:
                 return 0
@@ -89,6 +90,8 @@ class NetworkConfigQueryRunner:
 
             else:  # pairWiseInterferes
                 res, query_output, not_executed = self._run_query_on_all_pairs()
+            if not_executed:
+                print(f'Warning: {self.query_name} was not checked on all input config pairs.')
         comparing_err = 0
         self.output_configuration.print_query_output(query_output, formats)
         if self.expected_output_file is not None:
