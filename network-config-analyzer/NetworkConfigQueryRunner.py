@@ -66,6 +66,10 @@ class NetworkConfigQueryRunner:
         """
         runs the query based on the self.query_name
         :param bool cmd_line_flag: indicates if the query arg is given in the cmd-line
+        :return: a 3-tuple with:
+          - res: The result of running the query
+          - comparing_err: flag to indicate if query output matches the expected output
+          - not_executed: when > 0, indicates that the query was not checked for all configs
         rtype: (int, int, int)
         """
         query_to_exec = getattr(NetworkConfigQuery, self.query_name)  # for calling static methods
