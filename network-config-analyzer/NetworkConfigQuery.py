@@ -448,8 +448,7 @@ class SanityQuery(NetworkConfigQuery):
 
     def exec(self):  # noqa: C901
         if not self.config:
-            return QueryAnswer(False, f'No NetworkPolicies in {self.config.name}. Nothing to check sanity on.', '',
-                               query_not_executed=True)
+            return QueryAnswer(False, f'No NetworkPolicies in {self.config.name}. Nothing to check sanity on.', '')
         has_conflicting_policies, conflict_explanation = self.has_conflicting_policies_with_same_order()
         if has_conflicting_policies:
             return QueryAnswer(bool_result=False, output_result=conflict_explanation, output_explanation='',
@@ -1265,7 +1264,7 @@ class AllCapturedQuery(NetworkConfigQuery):
         if not self.config:
             return QueryAnswer(bool_result=False,
                                output_result='Flat network in ' + self.config.name,
-                               numerical_result=len(existing_pods), query_not_executed=True)
+                               numerical_result=len(existing_pods))
 
         # self.config.get_affected_pods ignores ingress_deny_policies (not relevant for the query)
         uncaptured_ingress_pods = existing_pods - self.config.get_affected_pods(is_ingress=True)
