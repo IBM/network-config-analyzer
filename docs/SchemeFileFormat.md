@@ -107,4 +107,4 @@ The exit code of running a scheme-file queries is the count of:
 * NetworkConfigs with mismatching number of expectedError (only networkConfigs that run in queries are counted)
 * Queries that their result did not match the given expected result 
 * Queries that their output did not match the given expected output file contents.
-* Queries that were not checked differently than as much expected.
+* Queries that were not executed differently than as much expected.
