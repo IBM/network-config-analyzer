@@ -176,7 +176,7 @@ class SchemeRunner(GenericYamlParser):
                             'redundancy': 0, 'interferes': 0, 'pairwiseInterferes': 0, 'emptiness': 0, 'vacuity': 0,
                             'sanity': 0, 'disjointness': 0, 'twoWayContainment': 0, 'forbids': 0, 'permits': 0,
                             'expected': 0, 'expectedOutput': 0, 'allCaptured': 0, 'connectivityMap': 0,
-                            'outputConfiguration': 0, 'expectedUnchecked': 0}
+                            'outputConfiguration': 0, 'expectedNotExecuted': 0}
 
         for query in query_array:
             res = 0
@@ -189,7 +189,7 @@ class SchemeRunner(GenericYamlParser):
             expected_output = self._get_input_file(query.get('expectedOutput', None), True)
             start = time.time()
             for query_key in query.keys():
-                if query_key not in ['name', 'expected', 'outputConfiguration', 'expectedOutput', 'expectedUnchecked']:
+                if query_key not in ['name', 'expected', 'outputConfiguration', 'expectedOutput', 'expectedNotExecuted']:
                     res, comparing_err, not_executed =\
                         NetworkConfigQueryRunner(query_key, query[query_key], expected_output, output_config_obj,
                                                  self.network_configs).run_query()
@@ -201,11 +201,11 @@ class SchemeRunner(GenericYamlParser):
                 if res != expected:
                     self.warning(f'Unexpected result for query {query_name}: Expected {expected}, got {res}\n', query)
                     self.global_res += 1
-            if 'expectedUnchecked' in query:
-                unchecked = query['expectedUnchecked']
-                if not_executed != unchecked:
-                    self.warning(f'{query_name} was not checked {not_executed} times. '
-                                 f'Although, expected to not be checked {unchecked} times')
+            if 'expectedNotExecuted' in query:
+                expected_not_executed = query['expectedNotExecuted']
+                if not_executed != expected_not_executed:
+                    self.warning(f'{query_name} was not executed {not_executed} times. '
+                                 f'Although, expected to not be executed {expected_not_executed} times')
                     self.global_res += 1
             if comparing_err != 0:
                 self.warning(f'Unexpected output comparing result for query {query_name} ')

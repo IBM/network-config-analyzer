@@ -98,9 +98,9 @@ For more information on command-line switches combinations, see [Common Query Pa
 
 #### Exit Code Meaning:
 The exit value of running a command-line without a scheme is the combination of three factors:
-1. The query was not executed because of one of the reasons listed [here](docs/CmdLineQueriesResults.md#a-query-will-not-be-executed-when). If this is true, then other factors are ignored.
-2. The result of running the query (0/1) as specified [here](docs/CmdLineQueriesResults.md)
-3. The result of comparing the query output with the expected output file contents (if given)
+1. The result of running the query (0/1) as specified [here](docs/CmdLineQueriesResults.md)
+2. The result of comparing the query output with the expected output file contents (if given)
+3. The query was not executed because of one of the reasons listed [here](docs/CmdLineQueriesResults.md#a-query-will-not-be-executed-when). If this is true, then other factors are ignored.
 
 And it can be in the range 0 to 7 as followed:
   - 0 : query result is 0, output comparison passed.

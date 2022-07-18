@@ -90,7 +90,7 @@ def _execute_single_config_query(query_name, network_config, output_config, expe
     res, comparing_err, query_not_executed = NetworkConfigQueryRunner(query_name, [network_config], expected_output,
                                                                       output_config).run_query()
     expected_res_bit = res > 0
-    return 4 * query_not_executed + 2 * comparing_err + expected_res_bit
+    return _compute_return_value(expected_res_bit, comparing_err, query_not_executed)
 
 
 def _execute_pair_configs_query(query_name, configs_array, output_config, expected_output=None):
@@ -105,7 +105,17 @@ def _execute_pair_configs_query(query_name, configs_array, output_config, expect
     """
     res, comparing_err, query_not_executed = NetworkConfigQueryRunner(query_name, configs_array, expected_output,
                                                                       output_config).run_query(True)
-    return 4 * query_not_executed + 2 * comparing_err + res
+    return _compute_return_value(res, comparing_err, query_not_executed)
+
+
+def _compute_return_value(query_result, comparing_err, not_executed):
+    """
+    return the exit code of running the query combined of :
+    - query result (first bit of the result)
+    - comparing error flag (second bit)
+    - query not-executed flag (third bit)
+    """
+    return 4 * not_executed + 2 * comparing_err + query_result
 
 
 def run_args(args):
