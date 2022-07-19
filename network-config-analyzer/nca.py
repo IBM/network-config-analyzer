@@ -136,7 +136,6 @@ def run_args(args):
     base_as_second = False
 
     if args.deployment_subset is not None:
-        # output_config['subset'] = {'deployment_subset': args.deployment_subset[0]}
         output_config['subset'].update({'deployment_subset': args.deployment_subset[0]})
 
     if args.namespace_subset is not None:
