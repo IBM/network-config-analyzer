@@ -124,7 +124,7 @@ queries:
       - config_a
       - config_a_with_policy_b1
     expected: 1
-    expectedNotExecuted: 0 # the query is indeed checked
+    expectedNotExecuted: 0 # the query is indeed executed
 
   - name: permits_a_no_policy
     permits:
