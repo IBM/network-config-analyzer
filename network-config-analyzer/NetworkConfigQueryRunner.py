@@ -69,7 +69,7 @@ class NetworkConfigQueryRunner:
         :return: a 3-tuple with:
           - res: The result of running the query
           - comparing_err: flag to indicate if query output matches the expected output
-          - not_executed: when > 0, indicates that the query was not checked for all configs
+          - not_executed: when > 0, indicates that the query was not executed for all configs
         rtype: (int, int, int)
         """
         query_to_exec = getattr(NetworkConfigQuery, self.query_name)  # for calling static methods
