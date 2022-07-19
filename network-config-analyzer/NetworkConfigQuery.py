@@ -556,7 +556,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         subset = self.output_config.subset
         # filter by namespace
-        if isinstance(peer, Peer) and subset.get('namespace_subset') and str(peer.namespace) in str(subset['namespace_subset']):
+        if isinstance(peer, Peer) and subset.get('namespace_subset') \
+                and str(peer.namespace) in str(subset['namespace_subset']):
             return True
 
         # filter by deployment
