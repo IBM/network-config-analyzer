@@ -14,4 +14,4 @@ The result of each command-line query may be 0 or 1 as followed:
 ## A query will not be executed when:
 1. The config/s type is not relevant for performing the query. 
 2. The input configs are not comparable. 
-3. An empty permits/forbids config. No traffic  is specified as permitted/forbidden.
+3. The config of permits/forbids is empty. No traffic is specified as permitted/forbidden.
