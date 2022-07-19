@@ -110,7 +110,7 @@ queries:
     permits:
       - config_a
       - config_b
-    #expected: 0 - the result is not relevant since the query is not checked on the given pair
+    #expected: 0 - the result is not relevant since the query is not executed on the given pair
     expectedNotExecuted: 1 # config_a and config_b are not comparable (have different network topologies)
 
   - name: permits_a_with_different_ipBlock_policies
