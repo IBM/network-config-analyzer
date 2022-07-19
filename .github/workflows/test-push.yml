@@ -39,27 +39,72 @@ jobs:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
       - run: python tests/run_unittests.py
-  all-tests:
+  k8s-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
-      - name: Run all tests
+      - name: Run k8s tests
         env:
           GHE_TOKEN: ${{ github.token }}
-        run: python tests/run_all_tests.py --type=general --check_run_time | tee tests/run_log.txt ; test ${PIPESTATUS[0]} -eq 0
-      - name: upload run_all_tests log
+        run: python tests/run_all_tests.py --type=general --category=k8s --check_run_time | tee tests/k8s_log.txt ; test ${PIPESTATUS[0]} -eq 0
+      - name: upload run_k8s_tests log
         if: ${{ always() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
-          name: run-alltests-log
-          path: tests/run_log.txt
-      - name: Upload failed run-time tests file
+          name: k8s-log
+          path: tests/k8s_log.txt
+      - name: Upload k8s failed run-time tests file
+        if: ${{ always() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
-          name: failed-run-time-check-file
-          path: ./tests/tests_failed_runtime_check.csv
-          if-no-files-found: ignore 
+          name: k8s-failed-run-time-check-file
+          path: ./tests/k8s_tests_failed_runtime_check.csv
+          if-no-files-found: ignore
+  calico-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: ./.github/actions/setup-nca-env
+      - name: Run calico tests
+        env:
+          GHE_TOKEN: ${{ github.token }}
+        run: python tests/run_all_tests.py --type=general --category=calico --check_run_time | tee tests/calico_log.txt ; test ${PIPESTATUS[0]} -eq 0
+      - name: upload run_calico_tests log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        with:
+          name: calico-log
+          path: tests/calico_log.txt
+      - name: Upload calico failed run-time tests file
+        if: ${{ always() }}
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        with:
+          name: calico-failed-run-time-check-file
+          path: ./tests/calico_tests_failed_runtime_check.csv
+          if-no-files-found: ignore
+  istio-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: ./.github/actions/setup-nca-env
+      - name: Run istio tests
+        env:
+          GHE_TOKEN: ${{ github.token }}
+        run: python tests/run_all_tests.py --type=general --category=istio --check_run_time | tee tests/istio_log.txt ; test ${PIPESTATUS[0]} -eq 0
+      - name: upload run_istio_tests log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        with:
+          name: istio-log
+          path: tests/istio_log.txt
+      - name: Upload istio failed run-time tests file
+        if: ${{ always() }}
+        uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
+        with:
+          name: istio-failed-run-time-check-file
+          path: ./tests/istio_tests_failed_runtime_check.csv
+          if-no-files-found: ignore
   fw-rules-assertion-tests:
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +116,7 @@ jobs:
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
-      - uses: helm/kind-action@94729529f85113b88f4f819c17ce61382e6d8478
+      - uses: helm/kind-action@d08cf6ff1575077dee99962540d77ce91c62387d
       - run:  python tests/run_all_tests.py --type=k8s_live_general
   rest-api:
     runs-on: ubuntu-latest

@@ -2,21 +2,27 @@ import sys
 import os
 import csv
 import argparse
+from run_all_tests import TestsRunner
 
 # global variables - files names
-run_log = 'tests/run_log.txt'
-expected_time_file = 'tests/tests_expected_runtime.csv'
+expected_runtime_files_to_logs = {'tests/expected_runtime/calico_tests_expected_runtime.csv': 'tests/calico_log.txt',
+                                  'tests/expected_runtime/istio_tests_expected_runtime.csv': 'tests/istio_log.txt',
+                                  'tests/expected_runtime/k8s_tests_expected_runtime.csv': 'tests/k8s_log.txt'}
 special_test_cases = ('git-resource-test-scheme.yaml', 'git_resources')
 
-def _get_run_log_summary_lines():
+
+def _get_run_log_summary_lines(log_file):
     # getting the runtime of test from the log's summary
-    with open(run_log, 'r') as f:
+    with open(log_file, 'r') as f:
         lines = f.readlines()
     start_idx = 0
+    end_idx = -1
     for idx, line in enumerate(lines):
         if 'Passed Tests:' in line:
             start_idx = idx + 1
-    return lines[start_idx:]
+        if 'Tests Performance Issues:' in line:
+            end_idx = idx
+    return lines[start_idx:end_idx]
 
 
 def _get_test_name_from_line(line):
@@ -35,8 +41,8 @@ def _get_test_run_time_from_line(line):
     return run_time
 
 
-def _get_new_run_time(test_name):
-    lines = _get_run_log_summary_lines()
+def _get_new_run_time(test_name, log_file):
+    lines = _get_run_log_summary_lines(log_file)
     for line in lines:
         if test_name in line:
             return _get_test_run_time_from_line(line)
@@ -50,42 +56,42 @@ def _update_run_time_in_row(row, new_run_time):
     return ','.join(row_list)
 
 
-def _update_or_delete_file_rows(lines_to_update, lines_to_delete):
+def _update_or_delete_file_rows(lines_to_update, lines_to_delete, expected_runtime_file):
     print('Updating the runtime of modified tests and deleting the rows of deleted tests (if any)')
     lines_to_delete.sort(reverse=True)
     # get the lines of the tests_expected_runtime.csv file as a list
-    with open(expected_time_file, 'r') as f:
+    with open(expected_runtime_file, 'r') as f:
         lines = f.readlines()
     # update the relevant rows in the lines list
     for line_num, test_name in lines_to_update:
-        lines[line_num-1] = _update_run_time_in_row(lines[line_num-1], _get_new_run_time(test_name))
+        lines[line_num-1] = _update_run_time_in_row(lines[line_num-1], _get_new_run_time(test_name, expected_runtime_files_to_logs[expected_runtime_file]))
     # delete the rows to delete in the lines list - in descending order
     for line_num in lines_to_delete:
         del lines[line_num - 1]
     # write the new lines list into the file again
-    with open(expected_time_file, 'w', newline='') as f:
+    with open(expected_runtime_file, 'w', newline='') as f:
         for line in lines:
             f.write(line)
 
 
-def _add_test_to_expected_runtime_file(test_name, run_time):
-    with open(expected_time_file, 'a', newline='') as csv_file:
+def _add_test_to_expected_runtime_file(test_name, run_time, expected_runtime_file):
+    with open(expected_runtime_file, 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow([test_name, run_time])
     csv_file.close()
 
 
-def _add_cmdline_tests_to_file():
+def _add_cmdline_tests_to_file(expected_runtime_file):
     print('Updating cmdline tests with their new runtime')
-    lines = _get_run_log_summary_lines()
+    lines = _get_run_log_summary_lines(expected_runtime_files_to_logs[expected_runtime_file])
     for line in lines:
         if 'cmdline_' in line:
-            _add_test_to_expected_runtime_file(_get_test_name_from_line(line), _get_test_run_time_from_line(line))
+            _add_test_to_expected_runtime_file(_get_test_name_from_line(line), _get_test_run_time_from_line(line), expected_runtime_file)
 
 
 def _update_tests_runtime(modified_tests_list):
     """
-    This function updates tests_expected_runtime.csv file for tests that were changed in recent commits.
+    This function updates tests expected runtime files for tests that were changed in recent commits.
     :param modified_tests_list: taken from the output of 'git diff' command. Includes:
     Added tests - a new row of test name and its runtime will be added to the file for each new test.
     Modified tests - this function updates the last runtime of the modified tests in the expected runtime file.
@@ -95,10 +101,16 @@ def _update_tests_runtime(modified_tests_list):
     the row with the old name will not be removed as it will not appear in the git diff cmd output.
     Deleted tests - this function removes the rows of deleted tests in tests_expected_runtime.csv.
     """
-    lines_to_delete = []
-    lines_to_update = []
+    lines_to_delete_by_file = {}
+    lines_to_update_by_file = {}
+    for file in expected_runtime_files_to_logs.keys():
+        lines_to_delete_by_file[file] = []
+        lines_to_update_by_file[file] = []
     cmdline_flag = False
+    cmdline_file = ''
     for test in modified_tests_list:
+        test_category = TestsRunner.determine_test_category(test)
+        expected_runtime_file = f'tests/expected_runtime/{test_category}_tests_expected_runtime.csv'
         found_test = False
         delete_flag = False
         if not os.path.exists(test):  # Deleted tests
@@ -106,7 +118,8 @@ def _update_tests_runtime(modified_tests_list):
         if 'k8s_cmdline_tests.yaml' in test:  # cmdline tests
             delete_flag = True
             cmdline_flag = True
-        with open(expected_time_file, 'r') as read_obj:
+            cmdline_file = expected_runtime_file
+        with open(expected_runtime_file, 'r') as read_obj:
             line_number = 0
             # Read all lines in the file one by one
             for line in read_obj:
@@ -116,21 +129,22 @@ def _update_tests_runtime(modified_tests_list):
                 if test_name in line:
                     found_test = True
                     if delete_flag:
-                        lines_to_delete.append(line_number)
+                        lines_to_delete_by_file[expected_runtime_file].append(line_number)
                     else:  # Modified Tests
-                        lines_to_update.append((line_number, test))
+                        lines_to_update_by_file[expected_runtime_file].append((line_number, test))
             if not found_test:  # Added Tests / Renamed Tests (the new name)
                 print(f'Adding new row for {test} with its expected runtime')
-                _add_test_to_expected_runtime_file(test_name, _get_new_run_time(test_name))
+                _add_test_to_expected_runtime_file(test_name, _get_new_run_time(test_name, expected_runtime_files_to_logs[expected_runtime_file]), expected_runtime_file)
 
-    if lines_to_update or lines_to_delete:
-        _update_or_delete_file_rows(lines_to_update, lines_to_delete)
+    for file in expected_runtime_files_to_logs.keys():
+        if lines_to_update_by_file[file] or lines_to_delete_by_file[file]:
+            _update_or_delete_file_rows(lines_to_update_by_file[file], lines_to_delete_by_file[file], file)
     if cmdline_flag:
-        _add_cmdline_tests_to_file()
+        _add_cmdline_tests_to_file(cmdline_file)
 
 
-def _reset_expected_runtime_file():
-    with open(expected_time_file, 'w', newline='') as csv_file:
+def _reset_expected_runtime_file(expected_runtime_file):
+    with open(expected_runtime_file, 'w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file)
         csv_writer.writerow(['test', 'run_time(seconds)'])
     csv_file.close()
@@ -138,22 +152,23 @@ def _reset_expected_runtime_file():
 
 def _reset_tests_runtime():
     """
-    This function updates tests_expected_runtime.csv file by resetting the runtime of all existing tests.
+    This function updates tests expected runtime files by resetting the runtime of all existing tests.
     """
     print('Resetting all tests with their last runtime...')
-    _reset_expected_runtime_file()
-    lines = _get_run_log_summary_lines()
-    for line in lines:
-        if 'tests/' in line or 'cmdline_' in line:
-            _add_test_to_expected_runtime_file(_get_test_name_from_line(line), _get_test_run_time_from_line(line))
+    for runtime_file, log_file in expected_runtime_files_to_logs.items():
+        _reset_expected_runtime_file(runtime_file)
+        lines = _get_run_log_summary_lines(log_file)
+        for line in lines:
+            if '-scheme.yaml' in line or 'cmdline_' in line:
+                _add_test_to_expected_runtime_file(_get_test_name_from_line(line), _get_test_run_time_from_line(line), runtime_file)
 
 
-def _sort_expected_runtime_file_lines():
-    with open(expected_time_file, 'r') as f:
+def _sort_expected_runtime_file_lines(expected_runtime_file):
+    with open(expected_runtime_file, 'r') as f:
         lines = f.readlines()
     lines_to_sort = lines[1:]
     lines_to_sort.sort()
-    with open(expected_time_file, 'w', newline='') as f:
+    with open(expected_runtime_file, 'w', newline='') as f:
         f.write(lines[0])
         for line in lines_to_sort:
             f.write(line)
@@ -162,20 +177,21 @@ def _sort_expected_runtime_file_lines():
 def main(argv=None):
     base_dir = os.path.split(os.path.abspath(os.path.dirname(sys.argv[0])))[0]
     os.chdir(base_dir)
-    parser = argparse.ArgumentParser(description='Updating the tests_expected_runtime.csv file')
+    parser = argparse.ArgumentParser(description='Updating the tests expected runtime files')
     parser.add_argument('--changed_tests', nargs='+', help='list of the added, modified, deleted or renamed tests.'
                                                            ' Or ALL_TESTS to reset and update runtime for all tests')
 
     args = parser.parse_args(argv)
     modified_tests_list = args.changed_tests
-    print('Starting to update tests/tests_expected_runtime.csv file:')
+    print('Starting to update tests expected runtime files:')
     if 'ALL_TESTS' in modified_tests_list:
         _reset_tests_runtime()
     else:
         _update_tests_runtime(modified_tests_list)
 
-    _sort_expected_runtime_file_lines()
-    print('Updating tests_expected_runtime.csv file was successfully completed')
+    for file in expected_runtime_files_to_logs.keys():
+        _sort_expected_runtime_file_lines(file)
+    print('Updating tests expected runtime files was successfully completed')
     return 0
 
 

@@ -103,11 +103,11 @@ class K8sPolicyYamlParser(GenericYamlParser):
             self.syntax_error(f'value label of "{key}" can not be null', key_container)
         if val:
             if len(val) > 63:
-                self.syntax_error(f'invalid value in "{key}: {val}", a label value must be no more than 63 characters',
+                self.syntax_error(f'invalid value "{val}" for "{key}", a label value must be no more than 63 characters',
                                   key_container)
             pattern = r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?"
             if re.fullmatch(pattern, val) is None:
-                self.syntax_error(f'invalid value in "{key}: {val}", value label must be an empty string or consist'
+                self.syntax_error(f'invalid value "{val}" for "{key}", value label must be an empty string or consist'
                                   f' of alphanumeric characters, "-", "_" or ".", and must start and end with an '
                                   f'alphanumeric character ', key_container)
 
@@ -129,6 +129,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
             values = requirement.get('values')
             if not values:
                 self.syntax_error('A requirement with In/NotIn operator but without values', requirement)
+            for value in values:
+                self.check_label_value_syntax(value, key, requirement)
             action = self.FilterActionType.In if operator == 'In' else self.FilterActionType.NotIn
             if namespace_selector:
                 return self.peer_container.get_namespace_pods_with_label(key, values, action)
@@ -386,8 +388,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         api_version = self.policy.get('apiVersion')
         if 'k8s' not in api_version and api_version != 'extensions/v1beta1':
             return None  # apiVersion is not properly set
-        self.check_fields_validity(self.policy, 'NetworkPolicy', {'kind': [1, str], 'metadata': [1, dict],
-                                                                  'spec': [0, dict], 'apiVersion': [1, str]},
+        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [0, dict], 'status': [0, dict]}
+        self.check_fields_validity(self.policy, 'NetworkPolicy', valid_keys,
                                    {'apiVersion': ['networking.k8s.io/v1', 'extensions/v1beta1']})
 
         policy_metadata = self.policy['metadata']

@@ -110,7 +110,8 @@ queries:
     permits:
       - config_a
       - config_b
-    expected: 0
+    #expected: 0 - the result is not relevant since the query is not executed on the given pair
+    expectedNotExecuted: 1 # config_a and config_b are not comparable (have different network topologies)
 
   - name: permits_a_with_different_ipBlock_policies
     permits:
@@ -123,9 +124,10 @@ queries:
       - config_a
       - config_a_with_policy_b1
     expected: 1
+    expectedNotExecuted: 0 # the query is indeed executed
 
   - name: permits_a_no_policy
     permits:
       - config_a
       - config_a_no_policy
-    expected: 0
+    expectedNotExecuted: 1 # no networkPolicies in the permits config

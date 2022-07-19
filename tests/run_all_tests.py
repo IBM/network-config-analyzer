@@ -85,7 +85,7 @@ class SchemeFile:
 # most of the test flow is common to other tests types
 class GeneralTest:
 
-    def __init__(self, test_name, test_queries_obj, expected_result, check_run_time, required_output_config_flag):
+    def __init__(self, test_name, test_queries_obj, expected_result, check_run_time, required_output_config_flag, test_category=None):
         self.test_name = test_name  # str
         self.test_queries_obj = test_queries_obj  # SchemeFile or CliQuery
         self.result = None  # tuple of (numerical result, test runtime, performance issue indicator)
@@ -96,6 +96,7 @@ class GeneralTest:
         self.expected_result = expected_result  # integer - expected return value from nca
         self.check_run_time = check_run_time
         self.required_output_config_flag = required_output_config_flag
+        self.test_category = test_category
 
     def initialize_test(self):
         self._update_required_scheme_file_config_args(True)
@@ -126,7 +127,7 @@ class GeneralTest:
         self.numerical_result = 1 if self.nca_res != self.expected_result else 0
 
     def _get_expected_test_run_time(self):
-        expected_time_file_name = "./tests_expected_runtime.csv"
+        expected_time_file_name = f'./expected_runtime/{self.test_category}_tests_expected_runtime.csv'
         with open(expected_time_file_name, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
             for row in csv_reader:
@@ -138,7 +139,7 @@ class GeneralTest:
 
     def _execute_run_time_compare(self, actual_run_time):
         test_performance_error = 0
-        output_file = "./tests_failed_runtime_check.csv"
+        output_file = f'./{self.test_category}_tests_failed_runtime_check.csv'
         write_header = False
         expected_run_time = self._get_expected_test_run_time()
         if expected_run_time == 0.0:
@@ -229,18 +230,23 @@ class TestsRunner:
         self.k8s_apply_resources(cluster_config.get('policies', ''))
         time.sleep(10)  # make sure all pods are up and running
 
-    @staticmethod
-    def _remove_failed_run_time_file():
+    def _remove_failed_run_time_files(self):
         """
-        removes the tests_failed_runtime_check.csv if exists from previous run
+        removes the <category>_tests_failed_runtime_check.csv if exists from previous run
         """
-        file_name = "./tests_failed_runtime_check.csv"
-        if path.isfile(file_name):
-            os.remove(file_name)
+        failed_runtime_files = ['./k8s_tests_failed_runtime_check.csv', './calico_tests_failed_runtime_check.csv',
+                                './istio_tests_failed_runtime_check.csv']
+        if self.category:
+            files_to_remove = [f'{self.category}_tests_failed_runtime_check.csv']
+        else:
+            files_to_remove = failed_runtime_files
+        for file_name in files_to_remove:
+            if path.isfile(file_name):
+                os.remove(file_name)
 
     def run_tests(self):
         if self.check_run_time:
-            self._remove_failed_run_time_file()
+            self._remove_failed_run_time_files()
         with open(self.spec_file, 'r') as doc:
             spec_all = yaml.safe_load(doc)
             spec_per_type = spec_all.get(self.tests_type, {})
@@ -292,8 +298,8 @@ class TestsRunner:
                     self.print_test_result_details(testcase)
 
             if self.new_tests_error:
-                print('\nError : Some tests were not found in the tests_expected_runtime.csv file.\n'
-                      'You may update the file by running either run update-tests-expected-runtime.yml '
+                print('\nError : Some tests were not found in their relevant tests expected runtime file.\n'
+                      'You may add them by running either update-tests-expected-runtime.yml '
                       'or reset-tests-expected-runtime.yml workflows')
 
     def run_tests_spec(self, tests_spec):
@@ -310,10 +316,14 @@ class TestsRunner:
     def create_and_run_test_obj(self, test_queries_obj, expected_res):
         # create test object
         test_obj = None
+        test_category = self.category
         required_output_config_flag = self.test_files_spec.activate_output_config_flag
         if self.tests_type in {'general', 'k8s_live_general'}:
+            if self.tests_type == 'general' and self.category == '':
+                # to enable runtime check when running tests without specifying a category
+                test_category = TestsRunner.determine_test_category(test_queries_obj.test_name)
             test_obj = GeneralTest(test_queries_obj.test_name, test_queries_obj, expected_res,
-                                   self.check_run_time, required_output_config_flag)
+                                   self.check_run_time, required_output_config_flag, test_category)
         elif self.tests_type == 'fw_rules_assertions':
             test_obj = AssertionTest(test_queries_obj.test_name, test_queries_obj, required_output_config_flag)
 
@@ -321,30 +331,36 @@ class TestsRunner:
         self.global_res += numerical_res
         self.new_tests_error += new_tests_err
 
-    def _test_file_matches_category_by_file_name(self, test_file):
-        # for tests files under fw_rules_tests
-        if self.category == '':
-            return True
+    @staticmethod  # to be used from the update_expected_runtime.py script too
+    def determine_test_category(test_name):
+        for ctg in ['k8s', 'calico', 'istio']:
+            if TestsRunner._test_file_matches_category_general_tests(test_name, ctg):
+                return ctg
+
+    @staticmethod
+    def _test_file_matches_category_by_file_name(test_file, category):
+        # for tests files under fw_rules_tests or k8s_cmdline_tests.yaml
         file_name = os.path.basename(test_file)
-        if file_name.startswith(self.category):
+        if file_name.startswith(category):
             return True
-        if self.category == 'k8s' and not file_name.startswith(('calico', 'istio')):
+        if category == 'k8s' and not file_name.startswith(('calico', 'istio')):
             return True
         return False
 
-    def _test_file_matches_category_general_tests(self, test_file):
-        if self.category == '':
+    @staticmethod
+    def _test_file_matches_category_general_tests(test_file, category):
+        if category == '':
             return True
-        if self.category + '_testcases' in test_file:
+        if category + '_testcases' in test_file:
             return True
         if '_testcases' not in test_file:
-            return self._test_file_matches_category_by_file_name(test_file)
+            return TestsRunner._test_file_matches_category_by_file_name(test_file, category)
         return False
 
     # given a scheme file or a cmdline file, run all relevant tests
     def run_test_per_file(self, test_file):
         if self.test_files_spec.type == 'scheme':
-            if self.tests_type == 'general' and not self._test_file_matches_category_general_tests(test_file):
+            if self.tests_type == 'general' and not TestsRunner._test_file_matches_category_general_tests(test_file, self.category):
                 return  # test file does not match the running category
             self.create_and_run_test_obj(SchemeFile(test_file), 0)
 

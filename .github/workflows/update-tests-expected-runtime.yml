@@ -30,19 +30,31 @@ jobs:
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
-      - uses: dawidd6/action-download-artifact@b7337e51c4775d1f22357423ade50ee0a5f5779e
+      - uses: dawidd6/action-download-artifact@6765a42d86407a3d532749069ac03705ad82ebc6
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
-          name: run-alltests-log
+          name: k8s-log
+          path: tests/
+      - uses: dawidd6/action-download-artifact@6765a42d86407a3d532749069ac03705ad82ebc6
+        with:
+          workflow: test-push.yml
+          workflow_conclusion: completed
+          name: calico-log
+          path: tests/
+      - uses: dawidd6/action-download-artifact@6765a42d86407a3d532749069ac03705ad82ebc6
+        with:
+          workflow: test-push.yml
+          workflow_conclusion: completed
+          name: istio-log
           path: tests/
       - name: run script to update expected run time
         run: |
           python tests/update_expected_runtime.py --changed_tests ${{needs.changed-tests.outputs.changed_tests}}
-          rm tests/run_log.txt
+          rm tests/*_log.txt
       - name: Commit changes
         run: |
           git config user.name ${{ github.actor }}
           git config user.email '${{ github.actor }}@users.noreply.github.com'
-          git add tests/tests_expected_runtime.csv
+          git add tests/expected_runtime/calico_tests_expected_runtime.csv tests/expected_runtime/istio_tests_expected_runtime.csv tests/expected_runtime/k8s_tests_expected_runtime.csv
           git diff-index --quiet HEAD || ( git commit -m"Updating expected-runtimes file" && git push )

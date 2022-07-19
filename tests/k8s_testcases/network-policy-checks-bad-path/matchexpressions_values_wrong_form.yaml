@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: matchexpressions-values-test-form
+  namespace: kube-system
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        # wrong form
+        values:
+          Abc-_.
+  policyTypes:
+    - Ingress
+    - Egress
