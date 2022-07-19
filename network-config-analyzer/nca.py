@@ -136,8 +136,20 @@ def run_args(args):
     base_as_second = False
 
     if args.deployment_subset is not None:
-        # All future subset elements should be filled here
-        output_config['subset'] = {'deployment_subset': args.deployment_subset}
+        # output_config['subset'] = {'deployment_subset': args.deployment_subset[0]}
+        output_config['subset'].update({'deployment_subset': args.deployment_subset[0]})
+
+    if args.namespace_subset is not None:
+        output_config['subset'].update({'namespace_subset': args.namespace_subset[0]})
+
+    if args.label_subset is not None:
+        # labels are stored in a dict. Here they are deserialized from string
+        lbl_list = str(args.label_subset[0]).split(',')
+        lbl_dict = {}
+        for lbl in lbl_list:
+            key, value = lbl.split(':')
+            lbl_dict[key] = value
+        output_config['subset'].update({'label_subset': lbl_dict})
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
@@ -254,6 +266,10 @@ def nca_main(argv=None):
                         help='Network policies entries or Filesystem or GHE location of base network resources ')
     parser.add_argument('--deployment_subset', '-ds', type=str, action='append',
                         help='A list of deployment names to subset the query by')
+    parser.add_argument('--namespace_subset', '-nss', type=str, action='append',
+                        help='A list of namespaces to subset the query by')
+    parser.add_argument('--label_subset', '-lss', type=str, action='append',
+                        help='A list of labels to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
                         help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')

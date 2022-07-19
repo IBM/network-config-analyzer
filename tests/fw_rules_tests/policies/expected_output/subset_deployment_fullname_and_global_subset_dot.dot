@@ -1,0 +1,16 @@
+// The Connectivity Graph of np25
+digraph {
+	HEADER [shape="box" label=< <B>subset_deployment_fullname_and_global_subset_dot/np25</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
+	"default/deployment-E-1" [label="default/deployment-E-1" color="blue" fontcolor="blue"]
+	"default/deployment-E-2" [label="default/deployment-E-2" color="blue" fontcolor="blue"]
+	"ns1/deployment-A-1" [label="ns1/deployment-A-1" color="blue" fontcolor="blue"]
+	"ns1/deployment-A-2" [label="ns1/deployment-A-2" color="blue" fontcolor="blue"]
+	"ns2/deployment-F-1" [label="ns2/deployment-F-1" color="blue" fontcolor="blue"]
+	"ns2/deployment-F-2" [label="ns2/deployment-F-2" color="blue" fontcolor="blue"]
+	"ns1/deployment-A-1" -> "default/deployment-E-1" [label="All connections" color="gold2" fontcolor="darkgreen"]
+	"ns1/deployment-A-1" -> "default/deployment-E-2" [label="All connections" color="gold2" fontcolor="darkgreen"]
+	"ns1/deployment-A-2" -> "default/deployment-E-1" [label="All connections" color="gold2" fontcolor="darkgreen"]
+	"ns1/deployment-A-2" -> "default/deployment-E-2" [label="All connections" color="gold2" fontcolor="darkgreen"]
+}
+
+

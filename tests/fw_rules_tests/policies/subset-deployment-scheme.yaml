@@ -1,13 +1,13 @@
-namespaceList: ../podlist/test_fw_rules_pod_list.yaml
-podList: ../podlist/test_fw_rules_pod_list.yaml
+namespaceList: ../podlist/test_subset_topology.yaml
+podList: ../podlist/test_subset_topology.yaml
 networkConfigList:
   - name: np25
     networkPolicyList:
-      - test25-networkpolicy.yaml
+      - ../podlist/test_subset_topology.yaml
     expectedWarnings: 0
 queries:
 
-  - name: subset_deployment_no_subset_dot
+  - name: subset_no_subset_dot
     connectivityMap:
       - np25
     expected: 0
@@ -15,9 +15,9 @@ queries:
       outputFormat: dot
       outputEndpoints: pods
       subset:
-    expectedOutput: expected_output/subset_deployment_no_subset_dot.dot
+    expectedOutput: expected_output/subset_no_subset_dot.dot
 
-  - name: subset_deployment_connection_in_subset_dot
+  - name: subset_deployment_in_subset_dot
     connectivityMap:
       - np25
     expected: 0
@@ -25,21 +25,11 @@ queries:
       outputFormat: dot
       outputEndpoints: pods
       subset:
-        deployment_subset: my-test-deployment-B
-    expectedOutput: expected_output/subset_deployment_connection_in_subset_dot.dot
+        deployment_subset: deployment-A
 
-  - name: subset_deployment_connection_not_in_subset_dot
-    connectivityMap:
-      - np25
-    expected: 0
-    outputConfiguration:
-      outputFormat: dot
-      outputEndpoints: pods
-      subset:
-        deployment_subset: my-test-deployment-A
-    expectedOutput: expected_output/subset_deployment_connection_not_in_subset_dot.dot
+    expectedOutput: expected_output/subset_deployment_in_subset_dot.dot
 
-  - name: subset_deployment_multi_deployment_connection_in_subset_dot
+  - name: subset_deployment_fullname_subset_dot
     connectivityMap:
       - np25
     expected: 0
@@ -47,10 +37,12 @@ queries:
       outputFormat: dot
       outputEndpoints: pods
       subset:
-        deployment_subset: my-test-deployment-A,my-test-deployment-B
-    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_in_subset_dot.dot
+        deployment_subset: ns1/deployment-A,ns2/deployment-F,ns1/deployment-D
 
-  - name: subset_deployment_multi_deployment_connection_not_in_subset_dot
+    expectedOutput: expected_output/subset_deployment_fullname_subset_dot.dot
+
+
+  - name: subset_deployment_fullname_and_global_subset_dot
     connectivityMap:
       - np25
     expected: 0
@@ -58,8 +50,62 @@ queries:
       outputFormat: dot
       outputEndpoints: pods
       subset:
-        deployment_subset: my-test-deployment-A,my-test-deployment-F
-    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_dot.dot
+        deployment_subset: ns2/deployment-A,deployment-E,ns2/deployment-F
+
+    expectedOutput: expected_output/subset_deployment_fullname_and_global_subset_dot.dot
+
+  - name: subset_namespace_in_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        namespace_subset: ns3
+
+    expectedOutput: expected_output/subset_namespace_in_subset_dot.dot
+
+  - name: subset_labels_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          app:  appA
+
+    expectedOutput: expected_output/subset_labels_dot.dot
+
+  - name: subset_labels2_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          app:  appB
+
+    expectedOutput: expected_output/subset_labels2_dot.dot
+
+
+  - name: subset_labels3_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          app:  appA
+          dep:  F
+
+    expectedOutput: expected_output/subset_labels3_dot.dot
 
   - name: subset_deployment_no_subset_txt
     connectivityMap:
@@ -71,7 +117,7 @@ queries:
       subset:
     expectedOutput: expected_output/subset_deployment_no_subset_txt.txt
 
-  - name: subset_deployment_connection_in_subset_txt
+  - name: subset_deployment_in_subset_txt
     connectivityMap:
       - np25
     expected: 0
@@ -79,10 +125,11 @@ queries:
       outputFormat: txt
       outputEndpoints: pods
       subset:
-        deployment_subset: my-test-deployment-B
-    expectedOutput: expected_output/subset_deployment_connection_in_subset_txt.txt
+        deployment_subset: deployment-A
 
-  - name: subset_deployment_connection_not_in_subset_txt
+    expectedOutput: expected_output/subset_deployment_in_subset_txt.txt
+
+  - name: subset_deployment_fullname_subset_txt
     connectivityMap:
       - np25
     expected: 0
@@ -90,10 +137,12 @@ queries:
       outputFormat: txt
       outputEndpoints: pods
       subset:
-        deployment_subset: my-test-deployment-A
-    expectedOutput: expected_output/subset_deployment_connection_not_in_subset_txt.txt
+        deployment_subset: ns1/deployment-A,ns2/deployment-F,ns1/deployment-D
 
-  - name: subset_deployment_multi_deployment_connection_in_subset_txt
+    expectedOutput: expected_output/subset_deployment_fullname_subset_txt.txt
+
+
+  - name: subset_deployment_fullname_and_global_subset_txt
     connectivityMap:
       - np25
     expected: 0
@@ -101,10 +150,11 @@ queries:
       outputFormat: txt
       outputEndpoints: pods
       subset:
-        deployment_subset: my-test-deployment-A,my-test-deployment-B
-    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_in_subset_txt.txt
+        deployment_subset: ns2/deployment-A,deployment-E,ns2/deployment-F
 
-  - name: subset_deployment_multi_deployment_connection_not_in_subset_txt
+    expectedOutput: expected_output/subset_deployment_fullname_and_global_subset_txt.txt
+
+  - name: subset_namespace_in_subset_txt
     connectivityMap:
       - np25
     expected: 0
@@ -112,10 +162,51 @@ queries:
       outputFormat: txt
       outputEndpoints: pods
       subset:
-        deployment_subset: my-test-deployment-A,my-test-deployment-F
-    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_txt.txt
+        namespace_subset: ns3
 
-  - name: subset_deployment_no_subset_endpoints_deployments_dot
+    expectedOutput: expected_output/subset_namespace_in_subset_txt.txt
+
+  - name: subset_labels_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          app:  appA
+
+    expectedOutput: expected_output/subset_labels_txt.txt
+
+  - name: subset_labels2_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          app:  appB
+
+    expectedOutput: expected_output/subset_labels2_txt.txt
+
+  - name: subset_labels3_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          app:  appA
+          dep:  F
+
+    expectedOutput: expected_output/subset_labels3_txt.txt
+
+  - name: subset_no_subset_endpoints_deployments_dot
     connectivityMap:
       - np25
     expected: 0
@@ -123,9 +214,9 @@ queries:
       outputFormat: dot
       outputEndpoints: deployments
       subset:
-    expectedOutput: expected_output/subset_deployment_no_subset_endpoints_deployments_dot.dot
+    expectedOutput: expected_output/subset_no_subset_endpoints_deployments_dot.dot
 
-  - name: subset_deployment_connection_in_subset_endpoints_deployments_dot
+  - name: subset_deployment_in_subset_endpoints_deployments_dot
     connectivityMap:
       - np25
     expected: 0
@@ -133,10 +224,11 @@ queries:
       outputFormat: dot
       outputEndpoints: deployments
       subset:
-        deployment_subset: my-test-deployment-B
-    expectedOutput: expected_output/subset_deployment_connection_in_subset_endpoints_deployments_dot.dot
+        deployment_subset: deployment-A
 
-  - name: subset_deployment_connection_not_in_subset_endpoints_deployments_dot
+    expectedOutput: expected_output/subset_deployment_in_subset_endpoints_deployments_dot.dot
+
+  - name: subset_deployment_fullname_subset_endpoints_deployments_dot
     connectivityMap:
       - np25
     expected: 0
@@ -144,10 +236,12 @@ queries:
       outputFormat: dot
       outputEndpoints: deployments
       subset:
-        deployment_subset: my-test-deployment-A
-    expectedOutput: expected_output/subset_deployment_connection_not_in_subset_endpoints_deployments_dot.dot
+        deployment_subset: ns1/deployment-A,ns2/deployment-F,ns1/deployment-D
 
-  - name: subset_deployment_multi_deployment_connection_in_subset_endpoints_deployments_dot
+    expectedOutput: expected_output/subset_deployment_fullname_subset_endpoints_deployments_dot.dot
+
+
+  - name: subset_deployment_fullname_and_global_subset_endpoints_deployments_dot
     connectivityMap:
       - np25
     expected: 0
@@ -155,10 +249,11 @@ queries:
       outputFormat: dot
       outputEndpoints: deployments
       subset:
-        deployment_subset: my-test-deployment-A,my-test-deployment-B
-    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_in_subset_endpoints_deployments_dot.dot
+        deployment_subset: ns2/deployment-A,deployment-E,ns2/deployment-F
 
-  - name: subset_deployment_multi_deployment_connection_not_in_subset_endpoints_deployments_dot
+    expectedOutput: expected_output/subset_deployment_fullname_and_global_subset_endpoints_deployments_dot.dot
+
+  - name: subset_namespace_in_subset_endpoints_deployments_dot
     connectivityMap:
       - np25
     expected: 0
@@ -166,10 +261,52 @@ queries:
       outputFormat: dot
       outputEndpoints: deployments
       subset:
-        deployment_subset: my-test-deployment-A,my-test-deployment-F
-    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_endpoints_deployments_dot.dot
+        namespace_subset: ns3
 
-  - name: subset_deployment_no_subset_endpoints_deployments_txt
+    expectedOutput: expected_output/subset_namespace_in_subset_endpoints_deployments_dot.dot
+
+  - name: subset_labels_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          app:  appA
+
+    expectedOutput: expected_output/subset_labels_endpoints_deployments_dot.dot
+
+  - name: subset_labels2_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          app:  appB
+
+    expectedOutput: expected_output/subset_labels2_endpoints_deployments_dot.dot
+
+
+  - name: subset_labels3_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          app:  appA
+          dep:  F
+
+    expectedOutput: expected_output/subset_labels3_endpoints_deployments_dot.dot
+
+  - name: subset_no_subset_endpoints_deployments_txt
     connectivityMap:
       - np25
     expected: 0
@@ -177,9 +314,10 @@ queries:
       outputFormat: txt
       outputEndpoints: deployments
       subset:
-    expectedOutput: expected_output/subset_deployment_no_subset_endpoints_deployments_txt.txt
+    expectedOutput: expected_output/subset_no_subset_endpoints_deployments_txt.txt
 
-  - name: subset_deployment_connection_in_subset_endpoints_deployments_txt
+
+  - name: subset_deployment_in_subset_endpoints_deployments_txt
     connectivityMap:
       - np25
     expected: 0
@@ -187,10 +325,11 @@ queries:
       outputFormat: txt
       outputEndpoints: deployments
       subset:
-        deployment_subset: my-test-deployment-B
-    expectedOutput: expected_output/subset_deployment_connection_in_subset_endpoints_deployments_txt.txt
+        deployment_subset: deployment-A
 
-  - name: subset_deployment_connection_not_in_subset_endpoints_deployments_txt
+    expectedOutput: expected_output/subset_deployment_in_subset_endpoints_deployments_txt.txt
+
+  - name: subset_deployment_fullname_subset_endpoints_deployments_txt
     connectivityMap:
       - np25
     expected: 0
@@ -198,10 +337,12 @@ queries:
       outputFormat: txt
       outputEndpoints: deployments
       subset:
-        deployment_subset: my-test-deployment-A
-    expectedOutput: expected_output/subset_deployment_connection_not_in_subset_endpoints_deployments_txt.txt
+        deployment_subset: ns1/deployment-A,ns2/deployment-F,ns1/deployment-D
 
-  - name: subset_deployment_multi_deployment_connection_in_subset_endpoints_deployments_txt
+    expectedOutput: expected_output/subset_deployment_fullname_subset_endpoints_deployments_txt.txt
+
+
+  - name: subset_deployment_fullname_and_global_subset_endpoints_deployments_txt
     connectivityMap:
       - np25
     expected: 0
@@ -209,10 +350,11 @@ queries:
       outputFormat: txt
       outputEndpoints: deployments
       subset:
-        deployment_subset: my-test-deployment-A,my-test-deployment-B
-    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_in_subset_endpoints_deployments_txt.txt
+        deployment_subset: ns2/deployment-A,deployment-E,ns2/deployment-F
 
-  - name: subset_deployment_multi_deployment_connection_not_in_subset_endpoints_deployments_txt
+    expectedOutput: expected_output/subset_deployment_fullname_and_global_subset_endpoints_deployments_txt.txt
+
+  - name: subset_namespace_in_subset_endpoints_deployments_txt
     connectivityMap:
       - np25
     expected: 0
@@ -220,5 +362,64 @@ queries:
       outputFormat: txt
       outputEndpoints: deployments
       subset:
-        deployment_subset: my-test-deployment-A,my-test-deployment-F
-    expectedOutput: expected_output/subset_deployment_multi_deployment_connection_not_in_subset_endpoints_deployments_txt.txt
+        namespace_subset: ns3
+
+    expectedOutput: expected_output/subset_namespace_in_subset_endpoints_deployments_txt.txt
+
+  - name: subset_labels_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          app:  appA
+
+    expectedOutput: expected_output/subset_labels_endpoints_deployments_txt.txt
+
+  - name: subset_labels2_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          app:  appB
+
+    expectedOutput: expected_output/subset_labels2_endpoints_deployments_txt.txt
+
+
+  - name: subset_labels3_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          app:  appA
+          dep:  F
+
+    expectedOutput: expected_output/subset_labels3_endpoints_deployments_txt.txt
+
+
+  - name: subset_mix_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          app:  appA
+          dep:  F
+        deployment_subset: deployment-D
+        namespace_subset: ns3
+
+    expectedOutput: expected_output/subset_mix_endpoints_deployments_txt.txt

@@ -12,7 +12,7 @@ from IngressPolicy import IngressPolicy
 from ConnectionSet import ConnectionSet
 from ConnectivityGraph import ConnectivityGraph
 from OutputConfiguration import OutputConfiguration
-from Peer import PeerSet, IpBlock, Pod
+from Peer import PeerSet, IpBlock, Pod, Peer
 from collections import defaultdict
 
 
@@ -553,17 +553,32 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         if not self.is_subset_active():
             return True
 
-        # filter out only pods which are not part of the defined deployments
-        if isinstance(peer, Pod) and peer.owner_name not in str(self.output_config.subset['deployment_subset']):
-            return False
+        subset = self.output_config.subset
+        # filter by namespace
+        if isinstance(peer, Peer) and subset.get('namespace_subset') and str(peer.namespace) in str(subset['namespace_subset']):
+            return True
 
-        if isinstance(peer, IpBlock):
-            # by defining a deployment subset, we explicitly exclude all IpBlocks (which are not deployments, of course).
-            return False
+        # filter by deployment
+        if isinstance(peer, Pod) and subset.get('deployment_subset') and peer.owner_name:
+            dep_names = str(subset.get('deployment_subset')).split(',')
+            for dep_name in dep_names:
+                if '/' in dep_name:
+                    dep_name_for_comp = peer.workload_name
+                else:
+                    dep_name_for_comp = peer.owner_name
+                if dep_name in dep_name_for_comp:
+                    return True
 
-        # add future subset checks here
+        # filter by label
+        if isinstance(peer, Peer) and subset.get('label_subset') and (peer.labels or peer.extra_labels):
+            # go over the labels and see if one of them is defined
+            all_labels = peer.labels
+            all_labels.update(peer.extra_labels)
+            for key in all_labels:
+                if (key, all_labels[key]) in subset['label_subset'].items():
+                    return True
 
-        return True
+        return False
 
     def exec(self):
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
