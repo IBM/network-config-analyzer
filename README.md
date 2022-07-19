@@ -97,15 +97,17 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md#cmdline-queries)
 
 #### Exit Code Meaning:
-The exit value of running a command-line without a scheme is the combination of two factors:
+The exit value of running a command-line without a scheme is the combination of three factors:
 1. The result of running the query (0/1) as specified [here](docs/CmdLineQueriesResults.md)
 2. The result of comparing the query output with the expected output file contents (if given)
+3. The query was not executed because of one of the reasons listed [here](docs/CmdLineQueriesResults.md#a-query-will-not-be-executed-when). If this is true, then other factors are ignored.
 
-And it can be in the range 0 to 3 as followed:
+And it can be in the range 0 to 7 as followed:
   - 0 : query result is 0, output comparison passed.
   - 1 : query result is 1, output comparison passed.
   - 2 : query result is 0, output comparison failed.
   - 3 : query result is 1, output comparison failed.
+  - [4-7] : query was not executed.
 
 ### Running with a scheme file
 Scheme files allow running NCA on multiple queries in a single command-line, and also for fine-tuning the output.
