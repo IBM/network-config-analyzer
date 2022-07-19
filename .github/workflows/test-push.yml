@@ -55,6 +55,7 @@ jobs:
           name: k8s-log
           path: tests/k8s_log.txt
       - name: Upload k8s failed run-time tests file
+        if: ${{ always() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: k8s-failed-run-time-check-file
@@ -76,6 +77,7 @@ jobs:
           name: calico-log
           path: tests/calico_log.txt
       - name: Upload calico failed run-time tests file
+        if: ${{ always() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: calico-failed-run-time-check-file
@@ -97,6 +99,7 @@ jobs:
           name: istio-log
           path: tests/istio_log.txt
       - name: Upload istio failed run-time tests file
+        if: ${{ always() }}
         uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8
         with:
           name: istio-failed-run-time-check-file
