@@ -62,36 +62,36 @@
 
 - name: basic_subset_label
   args: >
-    --connectivity podlist/test_subset_topology.yaml
-    --ns_list podlist/test_subset_topology.yaml 
-    --pod_list podlist/test_subset_topology.yaml
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --label_subset app:appA,dep:F 
     --expected_output expected_cmdline_output_files/basic_subset_label_query_output.txt
   expected: 0
 
 - name: basic_subset_deployment
   args: >
-    --connectivity podlist/test_subset_topology.yaml
-    --ns_list podlist/test_subset_topology.yaml 
-    --pod_list podlist/test_subset_topology.yaml
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --deployment_subset deployment-A,deployment-D 
     --expected_output expected_cmdline_output_files/basic_subset_deployment_query_output.txt
   expected: 0
 
 - name: basic_subset_namespace
   args: >
-    --connectivity podlist/test_subset_topology.yaml
-    --ns_list podlist/test_subset_topology.yaml 
-    --pod_list podlist/test_subset_topology.yaml
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --namespace_subset ns1,ns3 
     --expected_output expected_cmdline_output_files/basic_subset_namespace_query_output.txt
   expected: 0
 
 - name: all_subset_mix
   args: >
-    --connectivity podlist/test_subset_topology.yaml
-    --ns_list podlist/test_subset_topology.yaml 
-    --pod_list podlist/test_subset_topology.yaml
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --namespace_subset ns3 
     --deployment_subset deployment-D 
     --label_subset app:appA,dep:F 
