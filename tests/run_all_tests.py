@@ -230,13 +230,16 @@ class TestsRunner:
         self.k8s_apply_resources(cluster_config.get('policies', ''))
         time.sleep(10)  # make sure all pods are up and running
 
-    @staticmethod
-    def _remove_failed_run_time_files():
+    def _remove_failed_run_time_files(self):
         """
-        removes the <category>_tests_failed_runtime_check.csv if any exists from previous run
+        removes the <category>_tests_failed_runtime_check.csv if exists from previous run
         """
-        files_to_remove = ['./k8s_tests_failed_runtime_check.csv', './calico_tests_failed_runtime_check.csv',
-                           './istio_tests_failed_runtime_check.csv']
+        failed_runtime_files = ['./k8s_tests_failed_runtime_check.csv', './calico_tests_failed_runtime_check.csv',
+                                './istio_tests_failed_runtime_check.csv']
+        if self.category:
+            files_to_remove = [f'{self.category}_tests_failed_runtime_check.csv']
+        else:
+            files_to_remove = failed_runtime_files
         for file_name in files_to_remove:
             if path.isfile(file_name):
                 os.remove(file_name)
