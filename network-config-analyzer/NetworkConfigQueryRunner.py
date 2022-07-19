@@ -89,7 +89,7 @@ class NetworkConfigQueryRunner:
             else:  # pairWiseInterferes
                 res, query_output, not_executed = self._run_query_on_all_pairs()
         if not_executed:
-            print(f'Warning: {self.query_name} was not checked on all input configs.')
+            print(f'Warning: {self.query_name} was not executed on all input configs.')
         comparing_err = 0
         self.output_configuration.print_query_output(query_output, formats)
         if self.expected_output_file is not None:
