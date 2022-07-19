@@ -1,39 +1,43 @@
 test,run_time(seconds)
-"k8s_cmdline_tests.yaml, query name: basic_connectivity",0.05
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_csv",0.05
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_dot",0.05
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_md",0.05
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_txt",0.05
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.06
-"k8s_cmdline_tests.yaml, query name: basic_equiv",0.10
-"k8s_cmdline_tests.yaml, query name: basic_equiv_all_with_resource_list_except_base_np",0.28
-"k8s_cmdline_tests.yaml, query name: basic_equiv_all_with_resources_list",0.49
-"k8s_cmdline_tests.yaml, query name: basic_equiv_base_resource_list_specify_topology",0.11
-"k8s_cmdline_tests.yaml, query name: basic_equiv_networkpolicies_and_topology_with_resource_list",0.29
-"k8s_cmdline_tests.yaml, query name: basic_equiv_topology_with_resource_list",0.10
+"k8s_cmdline_tests.yaml, query name: all_subset_mix",0.26
+"k8s_cmdline_tests.yaml, query name: basic_connectivity",0.09
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_csv",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_dot",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_md",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_txt",0.09
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.08
+"k8s_cmdline_tests.yaml, query name: basic_equiv",0.04
+"k8s_cmdline_tests.yaml, query name: basic_equiv_all_with_resource_list_except_base_np",0.27
+"k8s_cmdline_tests.yaml, query name: basic_equiv_all_with_resources_list",0.54
+"k8s_cmdline_tests.yaml, query name: basic_equiv_base_resource_list_specify_topology",0.05
+"k8s_cmdline_tests.yaml, query name: basic_equiv_networkpolicies_and_topology_with_resource_list",0.28
+"k8s_cmdline_tests.yaml, query name: basic_equiv_topology_with_resource_list",0.04
 "k8s_cmdline_tests.yaml, query name: basic_forbids",0.03
-"k8s_cmdline_tests.yaml, query name: basic_interferes",0.02
+"k8s_cmdline_tests.yaml, query name: basic_interferes",0.05
 "k8s_cmdline_tests.yaml, query name: basic_permits",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity",0.03
+"k8s_cmdline_tests.yaml, query name: basic_sanity",0.04
 "k8s_cmdline_tests.yaml, query name: basic_sanity_ignore_resource_list_all",0.03
 "k8s_cmdline_tests.yaml, query name: basic_sanity_ignore_resource_list_np",0.03
 "k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_list_pods",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_ns",0.04
-"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_pods_ns",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resourcelist_pods",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_list_only",0.21
+"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_ns",0.03
+"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_pods_ns",0.04
+"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resourcelist_pods",0.04
+"k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_list_only",0.27
 "k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_np",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_ns",0.03
+"k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_ns",0.04
 "k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_pods",0.03
 "k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_pods_ns",0.03
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.23
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.23
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.24
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.23
-"k8s_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.04
-"k8s_cmdline_tests.yaml, query name: git_resources",6.18
-"k8s_cmdline_tests.yaml, query name: return_0",0.03
-"k8s_cmdline_tests.yaml, query name: two_way_containment_policies",0.07
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.29
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.30
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.30
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.32
+"k8s_cmdline_tests.yaml, query name: basic_subset_deployment",0.24
+"k8s_cmdline_tests.yaml, query name: basic_subset_label",0.25
+"k8s_cmdline_tests.yaml, query name: basic_subset_namespace",0.26
+"k8s_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.06
+"k8s_cmdline_tests.yaml, query name: git_resources",15.04
+"k8s_cmdline_tests.yaml, query name: return_0",0.04
+"k8s_cmdline_tests.yaml, query name: two_way_containment_policies",0.08
 fw_rules_tests/policies/cyclonus-simple-example-scheme.yaml,0.06
 fw_rules_tests/policies/label_expr_test_1-scheme.yaml,0.27
 fw_rules_tests/policies/poc1-scheme.yaml,0.38
@@ -46,6 +50,7 @@ fw_rules_tests/policies/semantic_diff_namedPorts-scheme.yaml,0.80
 fw_rules_tests/policies/semantic_diff_poc-scheme.yaml,0.75
 fw_rules_tests/policies/semantic_diff_withIpBlock-scheme.yaml,2.17
 fw_rules_tests/policies/semantic_diff_with_different_topologies-scheme.yaml,1.12
+fw_rules_tests/policies/subset-deployment-scheme.yaml,1.24
 fw_rules_tests/policies/test1-scheme.yaml,0.15
 fw_rules_tests/policies/test10-scheme.yaml,0.27
 fw_rules_tests/policies/test11-scheme.yaml,0.18
