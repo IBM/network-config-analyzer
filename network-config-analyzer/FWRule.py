@@ -548,11 +548,6 @@ class FWRule:
             return self.get_rule_str()
         return None
 
-    #@staticmethod
-    #def use_connection_set_complement_simplification(config_type):
-    #    # currently disabling this for Istio config, since complement with regex may be time consuming computation
-    #    return config_type != NetworkConfig.ConfigType.Istio
-
     @staticmethod
     def create_fw_rules_from_base_elements(src, dst, connections):
         """

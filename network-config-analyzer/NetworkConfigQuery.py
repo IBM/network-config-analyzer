@@ -1302,6 +1302,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
 
 
 # TODO: all pods should be captured by all layers, or by at least one layer?
+#  cueenrtly returning false with info on the first layer that does not capture all pods, or true if all layers capture all pods
 class AllCapturedQuery(NetworkConfigQuery):
     """
     Check that all pods are captured
@@ -1338,17 +1339,7 @@ class AllCapturedQuery(NetworkConfigQuery):
                                output_result='Flat network in ' + self.config.name,
                                numerical_result=len(existing_pods))
 
-        #layers_to_check = []
-        #if len(self.config.layers['istio'].policies_list) > 0:
-        #    layers_to_check.append('istio')
-        #if len(self.config.layers['calico_k8s'].policies_list) > 0:
-        #    layers_to_check.append('calico_k8s')
-        #if not layers_to_check:
-        #    layers_to_check = ['calico_k8s']
-
         for layer_name, layer in self.config.layers.items():
-            #if layer_name not in layers_to_check:
-            #    continue
             if layer_name == NetworkLayerName.Ingress:
                 continue
             uncaptured_ingress_pods = existing_pods - self.config.get_affected_pods(True, layer_name)

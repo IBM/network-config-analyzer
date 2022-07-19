@@ -77,8 +77,7 @@ class NetworkConfig:
     def __eq__(self, other):
         if not isinstance(other, NetworkConfig):
             return False
-        return self.name == other.name and self.peer_container == other.peer_container and \
-               self.policies == other.policies
+        return self.name == other.name and self.peer_container == other.peer_container and self.policies == other.policies
 
     def __str__(self):
         return self.name

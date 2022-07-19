@@ -1,0 +1,4 @@
+# disjointness 	Reports pairs of policies with overlapping sets of captured pods
+namespaceList: ./topology/
+podList: ./topology/
+

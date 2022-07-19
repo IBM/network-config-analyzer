@@ -1,0 +1,33 @@
+namespaceList: ./topology/
+podList: ./topology/
+
+networkConfigList:
+  # layers: calico, ingress
+  - name: testcase26-config-1-calico-ingress
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-ingress-resource-policy.yaml
+    expectedWarnings: 0
+
+  # layers: calico, k8s
+  - name: testcase26-config-1-calico-k8s
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+    expectedWarnings: 0
+
+  # layers: calico
+  - name: allow-all-config
+    networkPolicyList:
+      - ../common-policies/policy-allow-all.yaml
+
+    # TODO: if there is only k8s and ingress layers, but ingress controller pod has no Ingress policy resource, what is a vacuous config?
+    #  a one with no egress traffic from this pod to other pods?
+
+queries:
+
+  - name: semanticDiff
+    semanticDiff:
+      - testcase26-config-1-calico-ingress
+      - allow-all-config
+    expected: 1 # place-holder to mention there is a bug in the output (all but "" )
