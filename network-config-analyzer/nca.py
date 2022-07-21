@@ -146,19 +146,22 @@ def run_args(args):
     base_as_second = False
 
     if args.deployment_subset is not None:
-        output_config['subset'].update({'deployment_subset': args.deployment_subset[0]})
+        output_config['subset'].update({'deployment_subset': args.deployment_subset})
 
     if args.namespace_subset is not None:
-        output_config['subset'].update({'namespace_subset': args.namespace_subset[0]})
+        output_config['subset'].update({'namespace_subset': args.namespace_subset})
 
     if args.label_subset is not None:
         # labels are stored in a dict. Here they are deserialized from string
-        lbl_list = str(args.label_subset[0]).split(',')
-        lbl_dict = {}
-        for lbl in lbl_list:
-            key, value = lbl.split(':')
-            lbl_dict[key] = value
-        output_config['subset'].update({'label_subset': lbl_dict})
+        all_labels = []
+        for i in range(len(args.label_subset)):
+            lbl_list = str(args.label_subset[i]).split(',')
+            lbl_dict = {}
+            for lbl in lbl_list:
+                key, value = lbl.split(':')
+                lbl_dict[key] = value
+            all_labels.append(lbl_dict)
+        output_config['subset'].update({'label_subset': all_labels})
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
@@ -273,9 +276,9 @@ def nca_main(argv=None):
                         help='A file/GHE url/cluster-type to read pod list from (may be specified multiple times)')
     parser.add_argument('--resource_list', '-r', type=_resource_list_valid_path, action='append',
                         help='Network policies entries or Filesystem or GHE location of base network resources ')
-    parser.add_argument('--deployment_subset', '-ds', type=str, action='append',
+    parser.add_argument('--deployment_subset', '-ds', type=str,
                         help='A list of deployment names to subset the query by')
-    parser.add_argument('--namespace_subset', '-nss', type=str, action='append',
+    parser.add_argument('--namespace_subset', '-nss', type=str,
                         help='A list of namespaces to subset the query by')
     parser.add_argument('--label_subset', '-lss', type=str, action='append',
                         help='A list of labels to subset the query by')

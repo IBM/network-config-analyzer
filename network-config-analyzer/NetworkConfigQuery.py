@@ -532,15 +532,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def get_supported_output_formats():
         return {'txt', 'yaml', 'csv', 'md', 'dot'}
 
-    def is_subset_active(self):
-        """
-        returns indication if the subset feature was activated
-        :return: True/False
-        """
-        if self.output_config.subset:
-            return True
-        return False
-
     def is_in_subset(self, peer):
         """
         returns indication if the peer element is in the defined subset
@@ -551,13 +542,13 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return:
         """
         # if subset restrictions were not defined at all, everything is in the subset
-        if not self.is_subset_active():
+        if not self.output_config.subset:
             return True
 
         subset = self.output_config.subset
         # filter by namespace
         if isinstance(peer, Peer) and subset.get('namespace_subset') \
-                and str(peer.namespace) in str(subset['namespace_subset']):
+                and str(peer.namespace) in str(subset['namespace_subset']).split(','):
             return True
 
         # filter by deployment
@@ -572,15 +563,25 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     return True
 
         # filter by label
-        if isinstance(peer, Peer) and subset.get('label_subset') and (peer.labels or peer.extra_labels):
-            # go over the labels and see if one of them is defined
-            all_labels = peer.labels
-            all_labels.update(peer.extra_labels)
-            for key in all_labels:
-                if (key, all_labels[key]) in subset['label_subset'].items():
-                    return True
+        if isinstance(peer, Peer) and subset.get('label_subset') and peer.labels:
+            # go over the labels and see if all of them are defined
+            for single_label_subset in list(subset['label_subset']):
+                if isinstance(single_label_subset, dict):
+                    if self.are_labels_all_included(single_label_subset, peer.labels):
+                        return True
+                else:
+                    if self.are_labels_all_included(subset['label_subset'], peer.labels):
+                        return True
+
 
         return False
+
+    @staticmethod
+    def are_labels_all_included(target_labels, pool_labels):
+        for key in target_labels:
+            if (key, target_labels[key]) not in pool_labels.items():
+                return False
+        return True
 
     def exec(self):
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \

@@ -251,10 +251,13 @@ class NamespacesFinder:
         self.namespaces = {}
 
     def parse_yaml_code_for_ns(self, res_code):
-        if isinstance(res_code, dict) and res_code.get('kind') in {'NamespaceList', 'List'}:
+        if not isinstance(res_code, dict):
+            return
+        res_kind = res_code.get('kind')
+        if res_kind in {'NamespaceList', 'List'}:
             self.set_namespaces(res_code)
-        elif isinstance(res_code, dict) and res_code.get('kind') in {'Namespace'}:
-            self._add_namespace(res_code, None)
+        elif res_kind == 'Namespace':
+            self._add_namespace(res_code, False)
 
     def load_ns_from_live_cluster(self):
         yaml_file = CmdlineRunner.get_k8s_resources('namespace')
