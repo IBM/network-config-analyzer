@@ -572,7 +572,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 else:
                     if self.are_labels_all_included(subset['label_subset'], peer.labels):
                         return True
-
+                    break
 
         return False
 
