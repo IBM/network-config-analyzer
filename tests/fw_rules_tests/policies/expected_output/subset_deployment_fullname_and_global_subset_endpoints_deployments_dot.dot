@@ -2,6 +2,7 @@
 digraph {
 	HEADER [shape="box" label=< <B>subset_deployment_fullname_and_global_subset_endpoints_deployments_dot/np25</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"default/deployment-E(Deployment)" [label="default/deployment-E(Deployment)" color="blue" fontcolor="blue"]
+	"default/deployment-Eb(Deployment)" [label="default/deployment-Eb(Deployment)" color="blue" fontcolor="blue"]
 	"ns1/deployment-A(Deployment)" [label="ns1/deployment-A(Deployment)" color="blue" fontcolor="blue"]
 	"ns2/deployment-F(Deployment)" [label="ns2/deployment-F(Deployment)" color="blue" fontcolor="blue"]
 	"ns1/deployment-A(Deployment)" -> "default/deployment-E(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]

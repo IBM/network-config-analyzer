@@ -67,6 +67,7 @@ spec:
       labels:
         dep: B
         app: appA
+        release: v22b
     spec:
       containers:
         - name: my-test-nginx
@@ -134,6 +135,29 @@ spec:
       labels:
         dep: E
         app: appA
+        release: v22b
+      spec:
+      containers:
+        - name: nginx
+          image: nginx
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-Eb
+  labels:
+    dep: Eb
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      dep: Eb
+  template:
+    metadata:
+      labels:
+        dep: Eb
+        app: appAb
+        release: v22bb
       spec:
       containers:
         - name: nginx
@@ -155,6 +179,7 @@ spec:
     metadata:
       labels:
         dep: F
+        release: v22b
     spec:
       containers:
         - name: nginx
@@ -254,6 +279,7 @@ metadata:
   labels:
     pod: p8
     app: appA
+    release: v22b
 spec:
   containers:
     - name: nginx

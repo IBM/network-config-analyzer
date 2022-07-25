@@ -72,6 +72,12 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
   Specifies files with list of namespaces to compare against (and ignoring those found by `--base_resource_list`). This switch may be specified multiple times
 - `--base_pod_list  <an argument from the list above>`\
   Specifies files with list of pods/endpoints to compare against (and ignoring those found by `--base_resource_list`). This switch may be specified multiple times
+- `--namespace_subset  <A comma separated list of namespaces (no spaces allowed)>`\
+  Specifies the namespaces to be included in the query results
+- `--deployment_subset  <A comma separated list of deployments (no spaces allowed)>`\
+  Specifies the deployments to be included in the query results. Deployments' names can include the namespace prefix following by the '/' character.
+- `--label_subset  <A comma separated list of pairs (key:value) of labels (no spaces allowed)>`\
+  Specifies the labels to include in the query results. An element should include all the labels in this list to be included in the subset and in the results (AND operation). This switch may be specified multiple times and an element will be included if it matches one of the label-sets given in one of the switches (OR operation).
 - `--ghe_token <token>`\
   A valid token to access a GHE repository
 - `--period <minutes>`\

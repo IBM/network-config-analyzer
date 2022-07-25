@@ -65,8 +65,26 @@
     --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
     --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
-    --label_subset app:appA,dep:F 
+    --label_subset app:appA --label_subset dep:F 
     --expected_output expected_cmdline_output_files/basic_subset_label_query_output.txt
+  expected: 0
+
+- name: subset_label
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --label_subset app:appA,release:v22b --label_subset dep:F,release:v22b 
+    --expected_output expected_cmdline_output_files/subset_label_query_output.txt
+  expected: 0
+
+- name: subset_label2
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --label_subset app:appA,release:v22bc --label_subset dep:F,release:v22b 
+    --expected_output expected_cmdline_output_files/subset_label2_query_output.txt
   expected: 0
 
 - name: basic_subset_deployment
@@ -94,7 +112,7 @@
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --namespace_subset ns3 
     --deployment_subset deployment-D 
-    --label_subset app:appA,dep:F 
+    --label_subset app:appA --label_subset dep:F 
     --expected_output expected_cmdline_output_files/all_subset_mix_query_output.txt
   expected: 0
 

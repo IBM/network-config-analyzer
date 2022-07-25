@@ -7,6 +7,7 @@ digraph {
 	"default/Pod4(Pod)" [label="default/Pod4(Pod)" color="blue" fontcolor="blue"]
 	"default/Pod5(Pod)" [label="default/Pod5(Pod)" color="blue" fontcolor="blue"]
 	"default/deployment-E(Deployment)" [label="default/deployment-E(Deployment)" color="blue" fontcolor="blue"]
+	"default/deployment-Eb(Deployment)" [label="default/deployment-Eb(Deployment)" color="blue" fontcolor="blue"]
 	"ns1/Pod2(Pod)" [label="ns1/Pod2(Pod)" color="blue" fontcolor="blue"]
 	"ns1/deployment-A(Deployment)" [label="ns1/deployment-A(Deployment)" color="blue" fontcolor="blue"]
 	"ns1/deployment-B(Deployment)" [label="ns1/deployment-B(Deployment)" color="blue" fontcolor="blue"]
