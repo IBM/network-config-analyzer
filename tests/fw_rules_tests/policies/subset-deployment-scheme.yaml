@@ -75,7 +75,7 @@ queries:
       outputEndpoints: pods
       subset:
         label_subset:
-          app:  appA
+          - app:  appA
 
     expectedOutput: expected_output/subset_labels_dot.dot
 
@@ -88,7 +88,7 @@ queries:
       outputEndpoints: pods
       subset:
         label_subset:
-          app:  appB
+          - app:  appB
 
     expectedOutput: expected_output/subset_labels2_dot.dot
 
@@ -122,20 +122,6 @@ queries:
             release: v22b
 
     expectedOutput: expected_output/subset_labels4_dot.dot
-
-  - name: subset_labels5_dot
-    connectivityMap:
-      - np25
-    expected: 0
-    outputConfiguration:
-      outputFormat: dot
-      outputEndpoints: pods
-      subset:
-        label_subset:
-          app:  appA
-          release: v22b
-
-    expectedOutput: expected_output/subset_labels5_dot.dot
 
   - name: subset_labels6_dot
     connectivityMap:
@@ -222,7 +208,7 @@ queries:
       outputEndpoints: pods
       subset:
         label_subset:
-          app:  appA
+          - app:  appA
 
     expectedOutput: expected_output/subset_labels_txt.txt
 
@@ -235,7 +221,7 @@ queries:
       outputEndpoints: pods
       subset:
         label_subset:
-          app:  appB
+          - app:  appB
 
     expectedOutput: expected_output/subset_labels2_txt.txt
 
@@ -268,20 +254,6 @@ queries:
             release: v22b
 
     expectedOutput: expected_output/subset_labels4_txt.txt
-
-  - name: subset_labels5_txt
-    connectivityMap:
-      - np25
-    expected: 0
-    outputConfiguration:
-      outputFormat: txt
-      outputEndpoints: pods
-      subset:
-        label_subset:
-          app:  appA
-          release: v22b
-
-    expectedOutput: expected_output/subset_labels5_txt.txt
 
   - name: subset_labels6_txt
     connectivityMap:
@@ -368,7 +340,7 @@ queries:
       outputEndpoints: deployments
       subset:
         label_subset:
-          app:  appA
+          - app:  appA
 
     expectedOutput: expected_output/subset_labels_endpoints_deployments_dot.dot
 
@@ -381,7 +353,7 @@ queries:
       outputEndpoints: deployments
       subset:
         label_subset:
-          app:  appB
+          - app:  appB
 
     expectedOutput: expected_output/subset_labels2_endpoints_deployments_dot.dot
 
@@ -415,20 +387,6 @@ queries:
             release: v22b
 
     expectedOutput: expected_output/subset_labels4_endpoints_deployments_dot.dot
-
-  - name: subset_labels5_endpoints_deployments_dot
-    connectivityMap:
-      - np25
-    expected: 0
-    outputConfiguration:
-      outputFormat: dot
-      outputEndpoints: deployments
-      subset:
-        label_subset:
-          app:  appA
-          release: v22b
-
-    expectedOutput: expected_output/subset_labels5_endpoints_deployments_dot.dot
 
   - name: subset_labels6_endpoints_deployments_dot
     connectivityMap:
@@ -517,7 +475,7 @@ queries:
       outputEndpoints: deployments
       subset:
         label_subset:
-          app:  appA
+          - app:  appA
 
     expectedOutput: expected_output/subset_labels_endpoints_deployments_txt.txt
 
@@ -530,7 +488,7 @@ queries:
       outputEndpoints: deployments
       subset:
         label_subset:
-          app:  appB
+          - app:  appB
 
     expectedOutput: expected_output/subset_labels2_endpoints_deployments_txt.txt
 
@@ -564,20 +522,6 @@ queries:
             release: v22b
 
     expectedOutput: expected_output/subset_labels4_endpoints_deployments_txt.txt
-
-  - name: subset_labels5_endpoints_deployments_txt
-    connectivityMap:
-      - np25
-    expected: 0
-    outputConfiguration:
-      outputFormat: txt
-      outputEndpoints: deployments
-      subset:
-        label_subset:
-          app:  appA
-          release: v22b
-
-    expectedOutput: expected_output/subset_labels5_endpoints_deployments_txt.txt
 
   - name: subset_labels6_endpoints_deployments_txt
     connectivityMap:

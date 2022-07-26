@@ -88,11 +88,11 @@ The supported entries in the outputConfiguration object are as follows:
 #### <a name="subset"></a>Subset object
 The supported entries in the subset object are as follows:
 
-| Field | Description | Value |
-|-------|-------------|-------|
-|namespace_subset|A comma separated list of namespaces (no spaces allowed)|string|
-|deployment_subset|A comma separated list of deployments (no spaces allowed). Deployment can be specific for a namespace and have the namespace prefix following by the '/' character.|string|
-|label_subset|A structure of pairs (key:value). Each block of labels starts with the '-' character. labels within a block implement a loical AND betweem them, while between block there is a logical OR implemented|(key:value) pairs, per line|
+| Field | Description                                                                                                                                                                                                      | Value                                                                                      |
+|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+|namespace_subset| A comma separated list of namespaces (no spaces allowed)                                                                                                                                                         | string                                                                                     |
+|deployment_subset| A comma separated list of deployments (no spaces allowed). Deployment can be specific for a namespace and have the namespace prefix following by the '/' character.                                              | string                                                                                     |
+|label_subset| Blocks of pairs key:value, each pair per line. Each block of labels (pairs) starts with the '-' character. Labels within a block implement a logical AND between them, while between blocks there is a logical OR| - key:value pair, starting each block. key:value pair, per line, at the rest of each block |
 
 
 #### Returned value for each sub-query:

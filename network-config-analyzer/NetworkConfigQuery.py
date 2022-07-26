@@ -566,13 +566,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         if isinstance(peer, Peer) and subset.get('label_subset') and peer.labels:
             # go over the labels and see if all of them are defined
             for single_label_subset in list(subset['label_subset']):
-                if isinstance(single_label_subset, dict):
-                    if self.are_labels_all_included(single_label_subset, peer.labels):
-                        return True
-                else:
-                    if self.are_labels_all_included(subset['label_subset'], peer.labels):
-                        return True
-                    break
+                if self.are_labels_all_included(single_label_subset, peer.labels):
+                    return True
 
         return False
 

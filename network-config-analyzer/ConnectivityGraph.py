@@ -44,7 +44,7 @@ class ConnectivityGraph:
     def add_edges(self, connections):
         """
         Adding a set of labeled edges to the graph
-        :param dict connections: a batch of labeled edges
+        :param dict connections: a map from ConnectionSet to (src, dest) pairs
         :return: None
         """
         self.connections_to_peers.update(connections)

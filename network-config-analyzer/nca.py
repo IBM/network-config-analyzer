@@ -154,8 +154,8 @@ def run_args(args):
     if args.label_subset is not None:
         # labels are stored in a dict. Here they are deserialized from string
         all_labels = []
-        for i in range(len(args.label_subset)):
-            lbl_list = str(args.label_subset[i]).split(',')
+        for label_subset in args.label_subset:
+            lbl_list = str(label_subset).split(',')
             lbl_dict = {}
             for lbl in lbl_list:
                 key, value = lbl.split(':')
