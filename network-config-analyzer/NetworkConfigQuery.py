@@ -573,8 +573,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     @staticmethod
     def are_labels_all_included(target_labels, pool_labels):
-        for key in target_labels:
-            if (key, target_labels[key]) not in pool_labels.items():
+        for key, val in target_labels.items():
+            if pool_labels.get(key) != val:
                 return False
         return True
 
