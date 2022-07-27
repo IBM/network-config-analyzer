@@ -12,7 +12,8 @@ from IngressPolicy import IngressPolicy
 from ConnectionSet import ConnectionSet
 from ConnectivityGraph import ConnectivityGraph
 from OutputConfiguration import OutputConfiguration
-from Peer import PeerSet, IpBlock
+from Peer import PeerSet, IpBlock, Pod, Peer
+from collections import defaultdict
 
 
 class QueryType(Enum):
@@ -531,6 +532,52 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def get_supported_output_formats():
         return {'txt', 'yaml', 'csv', 'md', 'dot'}
 
+    def is_in_subset(self, peer):
+        """
+        returns indication if the peer element is in the defined subset
+        Please note: Subset is a sort of a filter. It filters out elements which WERE DEFINED and do not match the settings.
+        Thus, the function returns True if no subset was defined
+        since, in this case, the subset is infinite and everything is "in the subset"
+        :param peer: peer element to filter (currently supports only Pods)
+        :return:
+        """
+        # if subset restrictions were not defined at all, everything is in the subset
+        if not self.output_config.subset:
+            return True
+
+        subset = self.output_config.subset
+        # filter by namespace
+        if isinstance(peer, Peer) and subset.get('namespace_subset') \
+                and str(peer.namespace) in str(subset['namespace_subset']).split(','):
+            return True
+
+        # filter by deployment
+        if isinstance(peer, Pod) and subset.get('deployment_subset') and peer.owner_name:
+            dep_names = str(subset.get('deployment_subset')).split(',')
+            for dep_name in dep_names:
+                if '/' in dep_name:
+                    dep_name_for_comp = peer.workload_name
+                else:
+                    dep_name_for_comp = peer.owner_name
+                if dep_name in dep_name_for_comp:
+                    return True
+
+        # filter by label
+        if isinstance(peer, Peer) and subset.get('label_subset') and peer.labels:
+            # go over the labels and see if all of them are defined
+            for single_label_subset in list(subset['label_subset']):
+                if self.are_labels_all_included(single_label_subset, peer.labels):
+                    return True
+
+        return False
+
+    @staticmethod
+    def are_labels_all_included(target_labels, pool_labels):
+        for key, val in target_labels.items():
+            if pool_labels.get(key) != val:
+                return False
+        return True
+
     def exec(self):
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
@@ -538,17 +585,20 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
                                                    IpBlock.get_all_ips_block_peer_set())
-
+        connections = defaultdict(list)
+        peers = PeerSet()
         peers_to_compare |= ref_ip_blocks
-
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config,
-                                       self.config.type)
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare:
+                if self.is_in_subset(peer1):
+                    peers.add(peer1)
+                elif not self.is_in_subset(peer2):
+                    continue  # skipping pairs if none of them are in the given subset
                 if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
                     continue  # skipping pairs with ip-blocks for both src and dst
                 if peer1 == peer2:
-                    conn_graph.add_edge(peer1, peer2, ConnectionSet(True))  # cannot restrict pod's connection to itself
+                    # cannot restrict pod's connection to itself
+                    connections[ConnectionSet(True)].append((peer1, peer2))
                 else:
                     conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
                     if conns:
@@ -556,14 +606,26 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                 self.output_config.connectivityFilterIstioEdges:
                             should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
                             if not should_filter:
-                                conn_graph.add_edge(peer1, peer2, modified_conns)
+                                connections[modified_conns].append((peer1, peer2))
+                                # collect both peers, even if one of them is not in the subset
+                                peers.add(peer1)
+                                peers.add(peer2)
                         else:
-                            conn_graph.add_edge(peer1, peer2, conns)
+                            connections[conns].append((peer1, peer2))
+                            # collect both peers, even if one of them is not in the subset
+                            peers.add(peer1)
+                            peers.add(peer2)
 
         res = QueryAnswer(True)
         if self.output_config.outputFormat == 'dot':
+            conn_graph = ConnectivityGraph(peers, self.config.allowed_labels, self.output_config,
+                                           self.config.type)
+            conn_graph.add_edges(connections)
             res.output_explanation = conn_graph.get_connectivity_dot_format_str()
         else:
+            conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config,
+                                           self.config.type)
+            conn_graph.add_edges(connections)
             fw_rules = conn_graph.get_minimized_firewall_rules()
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
         return res

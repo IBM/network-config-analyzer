@@ -83,6 +83,17 @@ The supported entries in the outputConfiguration object are as follows:
 |outputFormat|Output format specification.|string [ txt / yaml / csv / md / dot ] |
 |outputPath|A file path to redirect output into.|string|
 |outputEndpoints|Choose endpoints type in output.|string [ pods / deployments ]|
+|subset| A dict object with the defined subset elements to display in the output|[subset](#subset) object|
+
+#### <a name="subset"></a>Subset object
+The supported entries in the subset object are as follows:
+
+| Field | Description                                                                                                                                                                                                      | Value                                                                                      |
+|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+|namespace_subset| A comma separated list of namespaces (no spaces allowed)                                                                                                                                                         | string                                                                                     |
+|deployment_subset| A comma separated list of deployments (no spaces allowed). Deployment can be specific for a namespace and have the namespace prefix following by the '/' character.                                              | string                                                                                     |
+|label_subset| Blocks of pairs key:value, each pair per line. Each block of labels (pairs) starts with the '-' character. Labels within a block implement a logical AND between them, while between blocks there is a logical OR| - key:value pair, starting each block. key:value pair, per line, at the rest of each block |
+
 
 #### Returned value for each sub-query:
 * _emptiness_ -  Count of empty selectors/rules found in all sets of policies
