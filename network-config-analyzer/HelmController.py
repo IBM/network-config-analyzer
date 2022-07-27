@@ -28,6 +28,6 @@ Todo:
 6. make tests that resolve helm files and extract the correct topology, with stand alone files.
 
 
-
+DirScanner.get_yamls    yields files from directory to ResourceHandler.parse_resource_path
 
 """
