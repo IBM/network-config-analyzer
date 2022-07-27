@@ -1,0 +1,2 @@
+final fw rules for query: subset_labels6_txt, config: np25:
+

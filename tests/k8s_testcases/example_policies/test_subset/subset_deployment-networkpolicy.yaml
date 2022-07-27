@@ -1,0 +1,56 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-default
+  namespace: default
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-b
+  namespace: default
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - B
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - A
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-to-b
+  namespace: default
+spec:
+  podSelector:
+    matchExpressions:
+      - key: test
+        operator: In
+        values:
+          - Z
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - B

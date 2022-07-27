@@ -1,0 +1,557 @@
+namespaceList: ../podlist/test_subset_topology.yaml
+podList: ../podlist/test_subset_topology.yaml
+networkConfigList:
+  - name: np25
+    networkPolicyList:
+      - ../podlist/test_subset_topology.yaml
+    expectedWarnings: 0
+queries:
+
+  - name: subset_no_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+    expectedOutput: expected_output/subset_no_subset_dot.dot
+
+  - name: subset_deployment_in_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        deployment_subset: deployment-A
+
+    expectedOutput: expected_output/subset_deployment_in_subset_dot.dot
+
+  - name: subset_deployment_fullname_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        deployment_subset: ns1/deployment-A,ns2/deployment-F,ns1/deployment-D
+
+    expectedOutput: expected_output/subset_deployment_fullname_subset_dot.dot
+
+
+  - name: subset_deployment_fullname_and_global_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        deployment_subset: ns2/deployment-A,deployment-E,ns2/deployment-F
+
+    expectedOutput: expected_output/subset_deployment_fullname_and_global_subset_dot.dot
+
+  - name: subset_namespace_in_subset_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        namespace_subset: ns3
+
+    expectedOutput: expected_output/subset_namespace_in_subset_dot.dot
+
+  - name: subset_labels_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appA
+
+    expectedOutput: expected_output/subset_labels_dot.dot
+
+  - name: subset_labels2_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appB
+
+    expectedOutput: expected_output/subset_labels2_dot.dot
+
+
+  - name: subset_labels3_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22b
+          - dep:  F
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels3_dot.dot
+
+  - name: subset_labels4_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels4_dot.dot
+
+  - name: subset_labels6_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22bc
+          - dep:  F
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels6_dot.dot
+
+
+  - name: subset_deployment_no_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+    expectedOutput: expected_output/subset_deployment_no_subset_txt.txt
+
+  - name: subset_deployment_in_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        deployment_subset: deployment-A
+
+    expectedOutput: expected_output/subset_deployment_in_subset_txt.txt
+
+  - name: subset_deployment_fullname_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        deployment_subset: ns1/deployment-A,ns2/deployment-F,ns1/deployment-D
+
+    expectedOutput: expected_output/subset_deployment_fullname_subset_txt.txt
+
+
+  - name: subset_deployment_fullname_and_global_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        deployment_subset: ns2/deployment-A,deployment-E,ns2/deployment-F
+
+    expectedOutput: expected_output/subset_deployment_fullname_and_global_subset_txt.txt
+
+  - name: subset_namespace_in_subset_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        namespace_subset: ns3
+
+    expectedOutput: expected_output/subset_namespace_in_subset_txt.txt
+
+  - name: subset_labels_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appA
+
+    expectedOutput: expected_output/subset_labels_txt.txt
+
+  - name: subset_labels2_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appB
+
+    expectedOutput: expected_output/subset_labels2_txt.txt
+
+  - name: subset_labels3_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22b
+          - dep:  F
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels3_txt.txt
+
+  - name: subset_labels4_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels4_txt.txt
+
+  - name: subset_labels6_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: pods
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22bc
+          - dep:  F
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels6_txt.txt
+
+
+  - name: subset_no_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+    expectedOutput: expected_output/subset_no_subset_endpoints_deployments_dot.dot
+
+  - name: subset_deployment_in_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: deployment-A
+
+    expectedOutput: expected_output/subset_deployment_in_subset_endpoints_deployments_dot.dot
+
+  - name: subset_deployment_fullname_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: ns1/deployment-A,ns2/deployment-F,ns1/deployment-D
+
+    expectedOutput: expected_output/subset_deployment_fullname_subset_endpoints_deployments_dot.dot
+
+
+  - name: subset_deployment_fullname_and_global_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: ns2/deployment-A,deployment-E,ns2/deployment-F
+
+    expectedOutput: expected_output/subset_deployment_fullname_and_global_subset_endpoints_deployments_dot.dot
+
+  - name: subset_namespace_in_subset_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        namespace_subset: ns3
+
+    expectedOutput: expected_output/subset_namespace_in_subset_endpoints_deployments_dot.dot
+
+  - name: subset_labels_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+
+    expectedOutput: expected_output/subset_labels_endpoints_deployments_dot.dot
+
+  - name: subset_labels2_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appB
+
+    expectedOutput: expected_output/subset_labels2_endpoints_deployments_dot.dot
+
+
+  - name: subset_labels3_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22b
+          - dep:  F
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels3_endpoints_deployments_dot.dot
+
+  - name: subset_labels4_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels4_endpoints_deployments_dot.dot
+
+  - name: subset_labels6_endpoints_deployments_dot
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: dot
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22bc
+          - dep:  F
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels6_endpoints_deployments_dot.dot
+
+
+
+  - name: subset_no_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+    expectedOutput: expected_output/subset_no_subset_endpoints_deployments_txt.txt
+
+
+  - name: subset_deployment_in_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: deployment-A
+
+    expectedOutput: expected_output/subset_deployment_in_subset_endpoints_deployments_txt.txt
+
+  - name: subset_deployment_fullname_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: ns1/deployment-A,ns2/deployment-F,ns1/deployment-D
+
+    expectedOutput: expected_output/subset_deployment_fullname_subset_endpoints_deployments_txt.txt
+
+
+  - name: subset_deployment_fullname_and_global_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        deployment_subset: ns2/deployment-A,deployment-E,ns2/deployment-F
+
+    expectedOutput: expected_output/subset_deployment_fullname_and_global_subset_endpoints_deployments_txt.txt
+
+  - name: subset_namespace_in_subset_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        namespace_subset: ns3
+
+    expectedOutput: expected_output/subset_namespace_in_subset_endpoints_deployments_txt.txt
+
+  - name: subset_labels_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+
+    expectedOutput: expected_output/subset_labels_endpoints_deployments_txt.txt
+
+  - name: subset_labels2_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appB
+
+    expectedOutput: expected_output/subset_labels2_endpoints_deployments_txt.txt
+
+
+  - name: subset_labels3_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22b
+          - dep:  F
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels3_endpoints_deployments_txt.txt
+
+  - name: subset_labels4_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels4_endpoints_deployments_txt.txt
+
+  - name: subset_labels6_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+            release: v22bc
+          - dep:  F
+            release: v22b
+
+    expectedOutput: expected_output/subset_labels6_endpoints_deployments_txt.txt
+
+
+  - name: subset_mix_endpoints_deployments_txt
+    connectivityMap:
+      - np25
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      outputEndpoints: deployments
+      subset:
+        label_subset:
+          - app:  appA
+          - dep:  F
+        deployment_subset: deployment-D
+        namespace_subset: ns3
+
+    expectedOutput: expected_output/subset_mix_endpoints_deployments_txt.txt
