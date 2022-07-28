@@ -7,7 +7,7 @@
 - name: basic_connectivity
   args: >
     --connectivity istio
-    --ns_list istio
+    --ns_list k8s
     --pod_list istio
     --output_format dot
     --file_out connectivityMapLiveIstio.dot
