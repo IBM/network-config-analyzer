@@ -8,7 +8,7 @@
   args: >
     --connectivity istio
     --ns_list k8s
-    --pod_list istio
+    --pod_list k8s
     --output_format dot
     --file_out connectivityMapLiveIstio.dot
   expected: 0
@@ -17,5 +17,4 @@
   args: >
     --equiv istio_testcases/example_policies/online_boutique/new_online_boutique_manifests_istio/all_auth_policies.yaml
     --base_resource_list istio
-    --pod_list k8s
   expected: 0
