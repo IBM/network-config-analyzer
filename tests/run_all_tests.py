@@ -225,9 +225,20 @@ class TestsRunner:
             cmdline_list = ['kubectl', 'apply', f'-f{yaml_file}']
             CmdlineRunner.run_and_get_output(cmdline_list)
 
+    @staticmethod
+    def k8s_delete_resources(yaml_file):
+        if yaml_file:
+            cmdline_list = ['kubectl', 'delete', f'-f{yaml_file}']
+            CmdlineRunner.run_and_get_output(cmdline_list)
+
     def set_k8s_cluster_config(self, cluster_config):
         self.k8s_apply_resources(cluster_config.get('pods', ''))
         self.k8s_apply_resources(cluster_config.get('policies', ''))
+        time.sleep(10)  # make sure all pods are up and running
+
+    def delete_k8s_cluster_config(self, cluster_config):
+        self.k8s_delete_resources(cluster_config.get('pods', ''))
+        self.k8s_delete_resources(cluster_config.get('policies', ''))
         time.sleep(10)  # make sure all pods are up and running
 
     def _remove_failed_run_time_files(self):
@@ -254,6 +265,8 @@ class TestsRunner:
                 if self.tests_type == 'k8s_live_general':
                     self.set_k8s_cluster_config(test_spec.get('cluster_config', {}))
                 self.run_tests_spec(test_spec)
+                if self.tests_type == 'k8s_live_general':
+                    self.delete_k8s_cluster_config(test_spec.get('cluster_config', {}))
 
         self.print_results()
 

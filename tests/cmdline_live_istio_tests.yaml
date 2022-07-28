@@ -1,0 +1,21 @@
+- name: basic_sanity
+  args: >
+    --sanity
+    -r istio
+  expected: 1
+
+- name: basic_connectivity
+  args: >
+    --connectivity istio
+    --ns_list istio
+    --pod_list istio
+    --output_format dot
+    --file_out connectivityMapLiveIstio.dot
+  expected: 0
+
+- name: basic_equiv
+  args: >
+    --equiv istio_testcases/example_policies/online_boutique/new_online_boutique_manifests_istio/all_auth_policies.yaml
+    --base_resource_list istio
+    --pod_list k8s
+  expected: 0
