@@ -100,7 +100,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: None
         """
         if val is None:
-            self.syntax_error(f'value label of "{key}" can not be null', key_container)
+            self.syntax_error(f'label value for "{key}" can not be null', key_container)
+        if not isinstance(val, str):
+            self.syntax_error(f'label value for "{key}" must be a string', key_container)
         if val:
             if len(val) > 63:
                 self.syntax_error(f'invalid value "{val}" for "{key}", a label value must be no more than 63 characters',
