@@ -72,10 +72,6 @@ queries:
       - named-ports/kube-system/testcase15-named-ports-conflicting-deny-ports-lower
       - named-ports/kube-system/testcase15-all-dns-named-ports-via-name
       - named-ports/kube-system/testcase15-all-dns-named-ports-via-numbers
-    expected: 0
-
-  - name: vacous_policies
-    vacuity:
       - global-simple/testcase15-global-ports-simple-mismatch-ingress-egress
       - global-not-simple/testcase15-global-ports-not-simple-mismatch-ingress-egress
       - named-ports/kube-system/testcase15-vacuous-no-exist-named-ports
@@ -83,7 +79,8 @@ queries:
       - named-ports/kube-system/testcase15-named-ports-no-match-protocol
       - named-ports/kube-system/testcase15-named-ports-allow-protocol-deny-higher
       - named-ports/kube-system/testcase15-named-ports-conflicting-deny-ports-higher
-    expected: 7
+    expected: 0
+
 
   - name: equiv_all_ports
     equivalence:

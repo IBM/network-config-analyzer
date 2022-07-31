@@ -12,21 +12,33 @@ networkConfigList:
       - testcase10-local-networkpolicies.yaml
     expectedWarnings: 0
 
+  - name: np_local_allowAll-kube-system
+    networkPolicyList:
+      - testcase10-local-networkpolicies-allow-kube-system.yaml
+    expectedWarnings: 0
+
+  - name: np_local_allowAll-default
+    networkPolicyList:
+      - testcase10-local-networkpolicies-allow-default.yaml
+    expectedWarnings: 0
+
 queries:
   - name: vacuous_policy
     vacuity:
       - np_global/testcase10-global-onlyTypes
-    expected: 1
+    expected: 0
 
   - name: no_vacuous
     vacuity:
-      - np_global
+      - np_global  # allows all default conns
       - np_global/testcase10-global-no-egress-rule
       - np_global/testcase10-global-no-ingress-rule
-      - np_global/testcase10-global-allowAll
-      - np_local/kube-system/testcase10-allowAll-kube-system
-      - np_local/default/testcase10-allowAll-default
-    expected: 0
+      - np_global/testcase10-global-allowAll # allows all default conns
+      - np_local/kube-system/testcase10-allowAll-kube-system # allows all default conns
+      - np_local/default/testcase10-allowAll-default # allows all default conns
+      - np_local_allowAll-default
+      - np_local_allowAll-kube-system
+    expected: 4
 
   - name: no_emptiness
     emptiness:
@@ -42,6 +54,12 @@ queries:
     equivalence:
       - np_local/kube-system/testcase10-allowAll-kube-system
       - np_local/default/testcase10-allowAll-default
+    expected: 0 # both allow all
+
+  - name: locals_allowall_not_equiv-new
+    equivalence:
+      - np_local_allowAll-kube-system
+      - np_local_allowAll-default
     expected: 1
 
   - name: no_redundancy
@@ -73,5 +91,11 @@ queries:
   - name: globalAllowAll_notcontained_localAllowAll-kube-system
     containment:
       - np_local/kube-system/testcase10-allowAll-kube-system
+      - np_global/testcase10-global-allowAll
+    expected: 1
+
+  - name: globalAllowAll_notcontained_localAllowAll-kube-system-new
+    containment:
+      - np_local_allowAll-kube-system
       - np_global/testcase10-global-allowAll
     expected: 0

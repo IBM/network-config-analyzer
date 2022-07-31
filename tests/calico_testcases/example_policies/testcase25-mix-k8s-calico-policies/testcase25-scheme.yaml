@@ -5,6 +5,7 @@ networkConfigList:
   - name: testcase25-config-1
     networkPolicyList:
       - testcase25-networkpolicy-calico-k8s.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
 queries:

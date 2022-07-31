@@ -103,8 +103,8 @@ class PolicySetsResource(NCAResource):
             self.resources_parser.policies_finder.load_policies_from_buffer(entry)
             self.resources_parser.policies_finder.parse_policies_in_parse_queue()
             network_config = NetworkConfig(new_policy_set, peer_container,
-                                           self.resources_parser.policies_finder.policies_container,
-                                           config_type=self.resources_parser.policies_finder.type)
+                                           self.resources_parser.policies_finder.policies_container)
+
         except Exception:
             return 'Badly formed policy list', 400
 
@@ -124,8 +124,7 @@ class PolicySetResource(NCAResource):
 
         config = self.policy_sets_map[config_name]
         policies_array = [policy[0] for policy in config.policies.keys()]
-        profiles_array = [profile for profile in config.profiles.keys()]
-        return {'name': escape(config_name), 'policies': policies_array, 'profiles': profiles_array}
+        return {'name': escape(config_name), 'policies': policies_array}
 
     def delete(self, config_name):
         if config_name not in self.policy_sets_map:
@@ -143,10 +142,7 @@ class PolicySetFindings(NCAResource):
         policies_array = {}
         for policy in config.policies.values():
             policies_array[policy.full_name()] = policy.findings
-        profiles_array = {}
-        for profile in config.profiles.values():
-            profiles_array[profile.full_name()] = profile.findings
-        return {'name': escape(config_name), 'policies': policies_array, 'profiles': profiles_array}
+        return {'name': escape(config_name), 'policies': policies_array}
 
 
 class RestServer:

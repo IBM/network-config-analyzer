@@ -470,6 +470,9 @@ class PeerSet(set):
         return self_ip_block == other_ip_block
 
     def copy(self):
+        """
+        :rtype: PeerSet
+        """
         # TODO: shallow copy or deep copy?
         # res = PeerSet(set(elem.copy() for elem in self))
         res = PeerSet(super().copy())

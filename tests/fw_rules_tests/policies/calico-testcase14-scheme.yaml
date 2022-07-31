@@ -4,6 +4,7 @@ networkConfigList:
 - name: match-icmp-also-within-default
   networkPolicyList:
   - calico-testcase14-kube-system-match-default-also-within-icmp.yaml
+  - calico-policy-deny-all.yaml
   expectedWarnings: 0
 queries:
 - name: match-icmp-also-within-default-test

@@ -4,6 +4,7 @@ networkConfigList:
 - name: open-default-TCP
   networkPolicyList:
   - calico-testcase13-open-default-TCP.yaml
+  - calico-policy-deny-all.yaml
   expectedWarnings: 0
 queries:
 - name: open-default-TCP-test

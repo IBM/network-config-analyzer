@@ -23,7 +23,7 @@ queries:
   - name: vacuous_policy
     vacuity:
       - np1/testcase7-globalNetworkpolicy-empty-policy
-    expected: 1
+    expected: 0 # not vacuous because default with profiles is allow all
 
   - name: non_vacuous_policies
     vacuity:

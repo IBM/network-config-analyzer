@@ -204,6 +204,18 @@ class NetworkPolicy:
         """
         return None  # default value, can be overridden in derived classes
 
+    def clone_without_rule(self, rule_to_exclude, ingress_rule):
+        """
+        Implemented by derived classes to clone a policy without a specific rule
+        """
+        return NotImplemented
+
+    def allowed_connections(self, from_peer, to_peer, is_ingress):
+        """
+        Implemented by derived classes to evaluate the set of connections this policy allows between two peers
+        """
+        return NotImplemented
+
 
 @dataclass
 class PolicyConnections:
