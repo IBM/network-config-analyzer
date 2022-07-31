@@ -30,4 +30,13 @@ queries:
     semanticDiff:
       - testcase26-config-1-calico-ingress
       - allow-all-config
-    expected: 1 # place-holder to mention there is a bug in the output (all but "" )
+    expectedOutput: ../../expected_output/testcase26-semanticDiff-config-1-calico-ingress-config-allow-all.txt
+
+  #- name: connectivity-1
+  #  connectivityMap:
+  #    - testcase26-config-1-calico-ingress
+
+  #- name: connectivity-2
+  #  connectivityMap:
+  #    - allow-all-config
+

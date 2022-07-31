@@ -1,0 +1,19 @@
+apiVersion: "security.istio.io/v1beta1"
+kind: "AuthorizationPolicy"
+metadata:
+  name: testcase26-networkpolicy-istio-productpage-ingress-from-ratings
+  namespace: default
+spec:
+  action: DENY
+  selector:
+    matchLabels:
+      app: productpage
+  rules:
+  - from:
+    - source:
+        principals:
+          - cluster.local/ns/default/sa/bookinfo-ratings
+    to:
+    - operation:
+        methods:
+          - GET

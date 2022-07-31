@@ -33,6 +33,11 @@ networkConfigList:
       - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
+  - name: open-kube-system
+    networkPolicyList:
+      - testcase12-open-kube-system.yaml
+      - ../common-policies/policy-deny-all.yaml
+
 queries:
   - name: nonEmpty_all_policies
     emptiness:
@@ -117,9 +122,9 @@ queries:
     - testcase11-allowFirstDefaultDeny
     expected: 1
 
-  # TODO: check this query
-  #- name: different_namespace_no_interfere
-  #  pairwiseInterferes:
-  #  - np/kube-system/allow-all
-  #  - testcase1-open-default
-  #  expected: 0 # 1
+  - name: different_namespace_no_interfere
+    pairwiseInterferes:
+    - open-kube-system #np/kube-system/allow-all
+    - testcase1-open-default
+    expected: 2 # now all ns are captured because of the default-deny policy, thus getting interference in both directions
+

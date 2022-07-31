@@ -39,23 +39,40 @@ networkConfigList:
       - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
+  # layers:  istio, ingress
+  - name: testcase26-config-1-istio-ingress
+    networkPolicyList:
+      #- testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml
+      - testcase26-ingress-resource-policy.yaml
+      #- ../common-policies/policy-deny-all.yaml
+      - testcase26-networkpolicy-istio-default-deny.yaml
+    expectedWarnings: 0
+
+
+
 queries:
   - name: allcaptured-1
     allCaptured:
       - testcase26-config-1-k8s-istio-ingress
-    expected: 15 # result of non-captured pods in layer k8s-calico (layer istio has also non-captured pods, but is not in this result)
+    expected: 15 # result of non-captured pods in layer k8s-calico
 
   - name: allcaptured-2
     allCaptured:
       - testcase26-config-1-k8s-istio-ingress-default-deny
-    expected: 15 # result of non-captured pods in layer istio (all is captured on k8-calico layer)
+    expected: 0 # all is captured on k8-calico layer
 
   - name: allcaptured-3
     allCaptured:
       - testcase26-config-1-k8s-istio-ingress-default-deny-all-layers
-    expected: 8 # result of non-captured pods in layer istio - only egress is considered as non-captured (auth.policies capture all pods)
+    expected: 0 # all is captured on k8-calico layer
 
   - name: allcaptured-4
     allCaptured:
       - testcase26-config-1-k8s-calico-ingress
-    expected: 0 # "All pods are captured by at least one policy in testcase26-config-1-k8s-calico-ingress on all layers " (excluding ingress layer)
+    expected: 0 # all is captured on k8-calico layer
+
+  - name: allcaptured-5
+    allCaptured:
+      - testcase26-config-1-istio-ingress
+    expectedNotExecuted: 1

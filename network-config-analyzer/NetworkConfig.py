@@ -135,8 +135,6 @@ class NetworkConfig:
         for other_policy in self.policies.values():
             if other_policy != policy_to_exclude:
                 res.append_policy_to_config(other_policy)
-        # res.layers = res.get_config_layers_dict()
-        # res.layers.finalize_layers()
         return res
 
     def clone_with_just_one_policy(self, name_of_policy_to_include, policy_type=None):
@@ -160,13 +158,21 @@ class NetworkConfig:
         # res.layers = res.get_config_layers_dict()
         return res
 
-    def get_captured_pods(self):
+    def get_captured_pods(self, layer_name=None):
         """
+        :param NetworkLayerName layer_name: The name of a layer to get the pods from
         :return: All pods captured by any policy, in at least one layer
         :rtype: Peer.PeerSet
         """
+        # TODO: should ignore Ingress layer?
         captured_pods = Peer.PeerSet()
-        for policy in self.policies.values():
+        # get all policies list (of all layers) or all policies per input layer
+        if layer_name is None:
+            policies_list = self.policies.values()
+        else:
+            policies_list = self.layers[layer_name].policies_list if layer_name in self.layers else []
+
+        for policy in policies_list:
             captured_pods |= policy.selected_peers
 
         # TODO:  why was profile.selected_peers considered captured, if profiles may be used for nan captured conns?
@@ -183,7 +189,7 @@ class NetworkConfig:
     def get_affected_pods(self, is_ingress, layer_name):
         """
         :param bool is_ingress: Whether we return pods affected for ingress or for egress connection
-        :param str layer_name: The name of the layer to use
+        :param NetworkLayerName layer_name: The name of the layer to use
         :return: All pods captured by any policy that affects ingress/egress (excluding profiles)
         :rtype: Peer.PeerSet
         """
@@ -220,12 +226,13 @@ class NetworkConfig:
         return self.allowed_labels
 
     # return the allowed connections considering all layers in the config
-    def allowed_connections(self, from_peer, to_peer):
+    def allowed_connections(self, from_peer, to_peer, layer_name=None):
         """
         This is the core of the whole application - computes the set of allowed connections from one peer to another.
         In our connectivity model, this function computes the labels for the edges in our directed graph.
         :param Peer.Peer from_peer: The source peer
         :param Peer.Peer to_peer: The target peer
+        :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
         :return: a 4-tuple with:
           - allowed_conns: all allowed connections (captured/non-captured)
           - captured_flag: flag to indicate if any of the policies captured one of the peers (src/dst)
@@ -233,10 +240,23 @@ class NetworkConfig:
           - denied_conns: connections denied by the policies (captured)
         :rtype: ConnectionSet, bool, ConnectionSet, ConnectionSet
         """
+        if layer_name is not None:
+            if layer_name not in self.layers:
+                self.layers.add_empty_layer(layer_name)
+            return self.layers[layer_name].allowed_connections(from_peer, to_peer)
+
+        # TODO initialize differently?
         allowed_conns_res = None
         allowed_captured_conns_res = None
         captured_flag_res = None
         denied_conns_res = None
+
+        # connectivity of hostEndpoints is only determined by calico layer
+        if isinstance(from_peer, Peer.HostEP) or isinstance(to_peer, Peer.HostEP):
+            # maintain K8s_Calico layer as active if peer container has hostEndpoint
+            if NetworkLayerName.K8s_Calico not in self.layers:
+                self.layers.add_empty_layer(NetworkLayerName.K8s_Calico)
+            return self.layers[NetworkLayerName.K8s_Calico].allowed_connections(from_peer, to_peer)
 
         for layer, layer_obj in self.layers.items():
 

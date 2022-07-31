@@ -58,6 +58,18 @@ class NetworkLayersContainer(dict):
         if self.default_layer in self and not self[self.default_layer].policies_list:
             del self[self.default_layer]
 
+    def does_contain_single_layer(self, layer_name):
+        """
+        Checks if the given layer is the only layer in the map.
+        :param NetworkLayerName layer_name: the layer to check
+        :return: True if the layer is the only layer in the map, False otherwise
+        """
+        return len(self) == 1 and list(self.keys())[0] == layer_name
+
+    def add_empty_layer(self, layer_name):
+        if layer_name not in self:
+            self[layer_name] = layer_name.create_network_layer([])
+
 
 class NetworkLayer:
     """

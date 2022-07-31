@@ -39,11 +39,11 @@ queries:
     expectedOutput: ../../expected_output/services1_connectivity_map.txt
 
   #TODO: check
-  #- name: sanity
-  #  sanity:
-  #    - ip
-  #    - np1
-  #  expected: 1 #2
+  - name: sanity
+    sanity:
+      - ip
+      - np1
+    expected: 2 # changes on sanity reports for this query
             # TODO: prev result was 2 , changed to 1
             # it does not seem to make sense to report redundancy between 2 different layers
             # currently this report is not in the output: " Ingress resource np1/default/demo-localhost/deny is redundant"
@@ -77,12 +77,11 @@ queries:
     expected: 2
 
   # TODO: check
-  #- name: redundancy_np1_and_np2
-  #  redundancy:
-  #    - np1
-  #    - np2
-  #  expected:  3 # 4
-  #            # TODO: same issue as above for sanity query
+  - name: redundancy_np1_and_np2
+    redundancy:
+      - np1
+      - np2
+    expected:  2 # 4
 
   - name: pairwiseInterferes_np1_and_np2
     pairwiseInterferes:
@@ -99,10 +98,10 @@ queries:
 
   - name: not_vacuous
     vacuity:
-      - ip
+      - ip # currently removed ingress from vacuity check, thus getting vacuity here
       - np1
       - np2
-    expected: 0
+    expected: 1
 
   - name: containment_np1_and_np2
     containment:

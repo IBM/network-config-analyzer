@@ -18,18 +18,76 @@ networkConfigList:
       - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
+  # config with calico policy
+  - name: testcase26-config-allows-no-connections-3
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only.yaml
+    expectedWarnings: 0
+
+  # config with calico policy
+  - name: testcase26-config-allows-no-connections-4
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+    expectedWarnings: 0
+
+  # config with calico + k8s + istio policy
+  - name: testcase26-config-calico-istio-1
+    networkPolicyList:
+      - testcase26-networkpolicy-istio-default-deny.yaml
+      - testcase26-networkpolicy-istio-deny-productpage-ingress-from-ratings.yaml
+      - ../common-policies/policy-deny-all.yaml
+      - testcase26-networkpolicy-k8s-default-deny.yaml
+    expectedWarnings: 0
+
+  # config with calico + istio
+  - name: testcase26-config-calico-istio-2
+    networkPolicyList:
+      - ../common-policies/policy-deny-all.yaml
+      - testcase26-networkpolicy-istio-deny-productpage-ingress-from-ratings.yaml
+    expectedWarnings: 0
+
+
+
+
+
 # redundancy return value: Count of redundant policies/rules found in all sets of policies
 
 queries:
   - name: redundancy-1
     redundancy:
       - testcase26-config-allows-no-connections
-    expected: 1 # (comment from before changing calico default to allow all) not checking redundancy for a config with single policy, even though in this case it is redundant
-                # however, the redundancy for policy rules is checked, and even though the rules so not seem redundant, they become so because no connection is allowed in both cases.
+    expected: 1 # NetworkPolicy testcase26-config-allows-no-connections/default/testcase26-networkpolicy-calico-productpage-ingress-from-ratings is redundant in testcase26-config-allows-no-connections
+                # (comment from before changing calico default to allow all) not checking redundancy for a config with single policy, even though in this case it is redundant
+                # however, the redundancy for policy rules is checked, and even though the rules do not seem redundant, they become so because no connection is allowed in both cases.
 
   - name: redundancy-2
     redundancy:
       - testcase26-config-allows-no-connections-2
-    expected: 2
+    expected: 2  # NetworkPolicy testcase26-config-allows-no-connections-2/default/testcase26-networkpolicy-calico-productpage-ingress-from-ratings is redundant in testcase26-config-allows-no-connections-2
+                  # NetworkPolicy testcase26-config-allows-no-connections-2/default/testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only is redundant in testcase26-config-allows-no-connections-2
+
+
+  - name: redundancy-3
+    redundancy:
+      - testcase26-config-allows-no-connections-3
+    expected: 2 # NetworkPolicy testcase26-config-allows-no-connections-3/default/testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only is redundant in testcase26-config-allows-no-connections-3
+                # Ingress rule no. 1 in NetworkPolicy testcase26-config-allows-no-connections-3/default/testcase26-networkpolicy-calico-productpage-ingress-from-ratings is redundant in testcase26-config-allows-no-connections-3
+
+  - name: redundancy-4
+    redundancy:
+      - testcase26-config-allows-no-connections-4
+    expected: 0
+
+  - name: redundancy-5
+    redundancy:
+      - testcase26-config-calico-istio-1
+    expected: 2 # NetworkPolicy testcase26-config-calico-istio-1/default/testcase26-networkpolicy-istio-productpage-ingress-from-ratings is redundant in testcase26-config-calico-istio-1
+                # NetworkPolicy testcase26-config-calico-istio-1/default/default-deny-all is redundant in testcase26-config-calico-istio-1
+
+  - name: redundancy-6
+    redundancy:
+      - testcase26-config-calico-istio-2
+    expected: 0 # only cross-layer redundancy
 
 

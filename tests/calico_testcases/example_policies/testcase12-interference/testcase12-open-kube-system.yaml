@@ -1,21 +1,16 @@
-
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
-  name: testcase21-allow-allowFirst-defaultAllow
+  name: allow-all
   namespace: kube-system
 spec:
-  order: 10
+  order: 4
   types:
   - Ingress
   - Egress
   ingress:
   - action: Allow
-    source:
-      selector: has(tier)
-  - action: Deny
   egress:
   - action: Allow
     destination:
       selector: all()
-  - action: Deny

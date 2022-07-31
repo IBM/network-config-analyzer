@@ -90,8 +90,8 @@ queries:
   - name: non_vacous_policies
     vacuity:
       - equiv-games1
-      - ip
-    expected: 0
+      - ip # currently ignoring ingress policies in vacuity check
+    expected: 1
 
   - name: redundancy_with_ingress
     redundancy:

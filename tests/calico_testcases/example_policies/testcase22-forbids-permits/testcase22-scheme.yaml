@@ -67,7 +67,7 @@ networkConfigList:
     networkPolicyList:
       #- testcase22-0-allow-all-profiles.yaml
       - testcase22-4-empty-policy.yaml
-      - ../common-policies/policy-allow-all.yaml
+      #- ../common-policies/policy-allow-all.yaml
     expectedWarnings: 1
 
 queries:
@@ -146,16 +146,14 @@ queries:
     - np0_cnc-fe-not-helm-open
     expected: 1
 
-  # TODO: check this query
-  #- name: empty-policy-profiles-allow-all-is-permited
-  #  permits:
-  #  - np0_cnc-fe-not-helm-open
-  #  - np4_empty-policy-allow-all-profiles
-  #  expected: 0 #1
+  - name: empty-policy-profiles-allow-all-is-permited
+    permits:
+    - np0_cnc-fe-not-helm-open
+    - np4_empty-policy-allow-all-profiles
+    expected: 0
 
-  # TODO: check this query
-  #- name: empty-policy-profiles-allow-all-is-forbidden
-  #  forbids:
-  #  - np0_cnc-fe-not-helm-open
-  #  - np4_empty-policy-allow-all-profiles
-  #  expected: 0 # 1
+  - name: empty-policy-profiles-allow-all-is-forbidden
+    forbids:
+    - np0_cnc-fe-not-helm-open
+    - np4_empty-policy-allow-all-profiles
+    expected: 0

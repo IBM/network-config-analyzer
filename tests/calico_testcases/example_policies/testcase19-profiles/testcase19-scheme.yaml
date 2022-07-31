@@ -323,6 +323,8 @@ queries:
     expected: 1
 
 
+
+
 # testing labels-to-apply within a global context
 
   - name: sanity_np10-cnc-kt-open-with-policy
@@ -339,7 +341,7 @@ queries:
   - name: sanity_np11-global-without-label-to-apply
     sanity:
     - np11-global-without-label-to-apply
-    expected: 1 # 2 # TODO: check
+    expected: 1
 
   - name: equiv_via_policies_via_labels_to_apply
     twoWayContainment:
@@ -444,3 +446,8 @@ queries:
     connectivityMap:
     - deny-all-profiles
     expectedOutput: ../../expected_output/testcase19-deny-all-profiles-connectivity.txt
+
+  - name: connectivity_map_with_labels_to_apply
+    connectivityMap:
+    - np9-cnc-fe-between-namespaces-with-label-to-apply
+    expectedOutput: ../../expected_output/testcase19-connectivity_map_with_labels_to_apply.txt

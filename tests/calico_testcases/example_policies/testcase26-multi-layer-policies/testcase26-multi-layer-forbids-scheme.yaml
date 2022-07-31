@@ -6,8 +6,8 @@ networkConfigList:
   # config with k8s, istio
   - name: testcase26-config-1-k8s-istio
     networkPolicyList:
-      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml # all connections allowed from ratings to product page
-      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml # captured: TCP connections from ratings to product page
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml # captured: all connections allowed from ratings to product page
+      - testcase26-networkpolicy-istio-productpage-ingress-from-ratings.yaml # captured: TCP connections from ratings to product page (non-TCP connections allowed but not captured)
     expectedWarnings: 0
 
   # config with k8s
@@ -65,9 +65,8 @@ queries:
     forbids:
       - testcase26-config-1-k8s # allows only UDP connections from ratings to product-page
       - testcase26-config-1-k8s-istio # captured: all connections from ratings to product page
-                                      # TODO: note that the captured connections for testcase26-config-1-k8s-istio are the "OR" result for all layers captured connections,
+                                      # note that the captured connections for testcase26-config-1-k8s-istio are the "OR" result for all layers captured connections,
                                       # as opposed to "AND" between all layers captured connections (which would then be only TCP)
-                                      # is this a correct reasoning of "captured" here?
     expected: 1
 
   - name: forbids-5
