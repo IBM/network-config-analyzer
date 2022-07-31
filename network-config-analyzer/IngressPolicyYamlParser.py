@@ -198,7 +198,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
                 path_string = path_string[:-1]  # remove the trailing slash
         return path_string, path_type, peers, ports
 
-    def segregate_longest_paths_and_make_dfa(self, parsed_paths):
+    @staticmethod
+    def segregate_longest_paths_and_make_dfa(parsed_paths):
         """
         Implement longest match semantics: for every path string, eliminate shorter subpaths to extend to longer ones
         :param parsed_paths: a list of tuples (path_string, path_type, peers, ports)

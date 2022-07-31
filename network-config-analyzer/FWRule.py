@@ -537,7 +537,6 @@ class FWRule:
         csv: list of strings
         txt: string
         :param str req_format: a string of the required format, should be in supported_formats
-        :param NetworkConfig.ConfigType config_type: the network configuration type
         :return: Union[str,dict,list] the fw-rule representation according to required format
         """
         if req_format == 'yaml':

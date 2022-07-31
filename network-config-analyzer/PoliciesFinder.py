@@ -8,7 +8,6 @@ from collections import deque
 from CmdlineRunner import CmdlineRunner
 from NetworkConfig import NetworkConfig, PoliciesContainer
 from NetworkPolicy import NetworkPolicy
-from CalicoNetworkPolicy import CalicoNetworkPolicy
 from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from IstioPolicyYamlParser import IstioPolicyYamlParser
@@ -61,10 +60,8 @@ class PoliciesFinder:
         for policy, file_name, policy_type in self._parse_queue:
             if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
-                # TODO: should keep support for profiles labelsToApply labels or not?
-                #  the profiles 'labelsToApply' is not deprecated as opposed to profile rules ingress/egress
-                parsed_element.parse_policy() # only during parsing adding extra labels from profiles (not supporting profiles with rules)
-                #self._add_profile(parsed_element.parse_policy())
+                # only during parsing adding extra labels from profiles (not supporting profiles with rules)
+                parsed_element.parse_policy()
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())

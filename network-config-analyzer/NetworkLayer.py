@@ -170,8 +170,8 @@ class K8sCalicoNetworkLayer(NetworkLayer):
                                                                                             is_ingress)
 
         allowed_non_captured_conns = ConnectionSet()
-        captured_peer_is_host_endpoint = (is_ingress and isinstance(to_peer, HostEP)) or (
-                not is_ingress and isinstance(from_peer, HostEP))
+        captured_peer_is_host_endpoint = (is_ingress and isinstance(to_peer, HostEP)) or \
+                                         (not is_ingress and isinstance(from_peer, HostEP))
         if not captured_res and not captured_peer_is_host_endpoint:
             # default Allow-all in k8s / calico
             # (assuming only calico's default profiles for pods with connectivity rules exist)

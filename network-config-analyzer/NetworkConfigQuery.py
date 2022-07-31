@@ -94,8 +94,8 @@ class NetworkConfigQuery(BaseNetworkQuery):
         :param policy: the given policy
         :return: the title of the policy
         """
-        return ("Ingress resource " if isinstance(policy, IngressPolicy) else "NetworkPolicy ") \
-               + policy.full_name(self.config.name)
+        policy_type_str = "Ingress resource" if isinstance(policy, IngressPolicy) else "NetworkPolicy"
+        return f'{policy_type_str} {policy.full_name(self.config.name)}'
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -174,7 +174,8 @@ class VacuityQuery(NetworkConfigQuery):
     """
 
     def exec(self):
-        # TODO: should handle 'ingress' layer or not? (ingress controller pod is not expected to have egress traffic without any Ingress resource)
+        # TODO: should handle 'ingress' layer or not? (ingress controller pod is not expected to have egress
+        #  traffic without any Ingress resource)
         #  currently ignoring ingres layer, removing it from configs on this query
         vacuous_config = self.config.clone_without_policies('vacuousConfig')
         self_config = TwoNetworkConfigsQuery.clone_without_ingress(self.config)
@@ -582,7 +583,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def is_in_subset(self, peer):
         """
         returns indication if the peer element is in the defined subset
-        Please note: Subset is a sort of a filter. It filters out elements which WERE DEFINED and do not match the settings.
+        Please note: Subset is a sort of a filter. It filters out elements which WERE DEFINED and do
+        not match the settings.
         Thus, the function returns True if no subset was defined
         since, in this case, the subset is infinite and everything is "in the subset"
         :param peer: peer element to filter (currently supports only Pods)
@@ -650,13 +652,12 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 else:
                     conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
                     if conns:
-
-                        # if self.config.type == NetworkConfig.ConfigType.Istio and \
-                        #        self.output_config.connectivityFilterIstioEdges:
-                        # TODO: consider separate connectivity maps for config that involves istio - one that handles non-TCP connections, and one for TCP
-                        # TODO: consider avoid "hiding" egress allowed connections, even though they are not covered by authorization policies
+                        # TODO: consider separate connectivity maps for config that involves istio -
+                        #  one that handles non-TCP connections, and one for TCP
+                        # TODO: consider avoid "hiding" egress allowed connections, even though they are
+                        #  not covered by authorization policies
                         if self.config.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
-                         self.output_config.connectivityFilterIstioEdges:
+                                self.output_config.connectivityFilterIstioEdges:
                             should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
                             if not should_filter:
                                 connections[modified_conns].append((peer1, peer2))
@@ -721,8 +722,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         if self.config1.peer_container != self.config2.peer_container:
             return QueryAnswer(False, 'The two configurations have different network topologies '
                                       'and thus are not comparable.\n', query_not_executed=True)
-        if check_same_policies and self.config1.policies == self.config2.policies: #and \
-                #self.config1.profiles == self.config2.profiles:
+        if check_same_policies and self.config1.policies == self.config2.policies:
             return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network '
                                      'topology and the same set of policies.\n')
         return QueryAnswer(True)
@@ -1379,16 +1379,15 @@ class AllCapturedQuery(NetworkConfigQuery):
         uncaptured_ingress_pods = existing_pods - self.config.get_affected_pods(True, NetworkLayerName.K8s_Calico)
         uncaptured_egress_pods = existing_pods - self.config.get_affected_pods(False, NetworkLayerName.K8s_Calico)
         if not uncaptured_ingress_pods and not uncaptured_egress_pods:
-            return QueryAnswer(bool_result=True,
-                               output_result=f'All pods are captured by at least one policy of k8s/calico in {self.config.name} \n',
-                               numerical_result=0)
+            output_str = f'All pods are captured by at least one policy of k8s/calico in {self.config.name} \n'
+            return QueryAnswer(bool_result=True, output_result=output_str, numerical_result=0)
 
         res_ingress, explanation_ingress = self._get_uncaptured_resources_explanation(uncaptured_ingress_pods, True)
         res_egress, explanation_egress = self._get_uncaptured_resources_explanation(uncaptured_egress_pods, False)
         res = res_ingress + res_egress
         full_explanation = explanation_ingress + explanation_egress
-        return QueryAnswer(bool_result=False,
-                           output_result=f'There are workload resources not captured by any k8s/calico policy in {self.config.name}\n',
+        output_str = f'There are workload resources not captured by any k8s/calico policy in {self.config.name}\n'
+        return QueryAnswer(bool_result=False, output_result=output_str,
                            output_explanation=full_explanation, numerical_result=res)
 
     def compute_query_output(self, query_answer):

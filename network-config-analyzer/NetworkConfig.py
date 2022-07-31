@@ -151,11 +151,8 @@ class NetworkConfig:
             raise Exception(f'More than one policy named {name_of_policy_to_include} in {self.name}')
         policy = matching_policies[0]
 
-        # here we do not want to preserve active layers from orig config, only have the layer of the relevant policy as active
         res = self.clone_without_policies(self.name + '/' + name_of_policy_to_include)
         res.append_policy_to_config(policy)
-        # res.layers.finalize_layers()
-        # res.layers = res.get_config_layers_dict()
         return res
 
     def get_captured_pods(self, layer_name=None):
@@ -260,8 +257,8 @@ class NetworkConfig:
 
         for layer, layer_obj in self.layers.items():
 
-            allowed_conns_per_layer, captured_flag_per_layer, allowed_captured_conns_per_layer, denied_conns_per_layer = layer_obj.allowed_connections(
-                from_peer, to_peer)
+            allowed_conns_per_layer, captured_flag_per_layer, allowed_captured_conns_per_layer, \
+                denied_conns_per_layer = layer_obj.allowed_connections(from_peer, to_peer)
 
             if allowed_conns_res is None:
                 allowed_conns_res = allowed_conns_per_layer
