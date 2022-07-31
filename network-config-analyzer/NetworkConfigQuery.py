@@ -671,11 +671,11 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         res = QueryAnswer(True)
         if self.output_config.outputFormat == 'dot':
-            conn_graph = ConnectivityGraph(peers, self.config.allowed_labels, self.output_config)
+            conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
             conn_graph.add_edges(connections)
             res.output_explanation = conn_graph.get_connectivity_dot_format_str()
         else:
-            conn_graph = ConnectivityGraph(peers_to_compare, self.config.allowed_labels, self.output_config)
+            conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
             conn_graph.add_edges(connections)
             fw_rules = conn_graph.get_minimized_firewall_rules()
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
