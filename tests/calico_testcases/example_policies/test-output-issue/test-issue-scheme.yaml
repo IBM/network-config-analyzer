@@ -1,0 +1,34 @@
+namespaceList: ./topology/
+podList: ./topology/
+
+networkConfigList:
+
+  - name: testcase26-config-1-calico
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+    expectedWarnings: 0
+
+
+
+  - name: allow-all-config
+    networkPolicyList:
+      - policy-allow-all.yaml
+
+queries:
+
+  - name: semanticDiff
+    semanticDiff:
+      - testcase26-config-1-calico
+      - allow-all-config
+    # issue in output, getting this line:
+    # src_ns: [default] src_pods: [ratings-v1-b6994bb9] dst_ns: [default] dst_pods: [*] conn: All but
+
+  - name: connectivity-1
+    connectivityMap:
+      - testcase26-config-1-calico
+    # issue in output, getting this line:
+    # src_ns: [default] src_pods: [ratings-v1-b6994bb9] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn:
+
+  - name: connectivity-2
+    connectivityMap:
+      - allow-all-config

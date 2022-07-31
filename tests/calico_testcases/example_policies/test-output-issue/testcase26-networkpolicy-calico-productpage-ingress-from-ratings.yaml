@@ -1,0 +1,40 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase26-networkpolicy-calico-productpage-ingress-from-ratings
+  namespace: default
+spec:
+  order: 2000
+  selector: app == 'productpage'
+  types:
+  - Ingress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: app == 'ratings'
+  - action: Allow
+    protocol: UDP
+    source:
+      selector: app == 'ratings'
+
+---
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase26-networkpolicy-calico-ratings-egress-to-productpage
+  namespace: default
+spec:
+  order: 2000
+  selector: app == 'ratings'
+  types:
+  - Egress
+  egress:
+  - action: Allow
+    protocol: TCP
+    destination:
+      selector: app == 'productpage'
+  - action: Allow
+    protocol: UDP
+    destination:
+      selector: app == 'productpage'
