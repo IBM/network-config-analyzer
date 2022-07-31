@@ -87,13 +87,11 @@ class NetworkConfig:
 
     def get_num_findings(self):
         """
-        :return: The number of findings stored in the policies and profiles
+        :return: The number of findings stored in the policies
         """
         res = 0
         for policy in self.policies.values():
             res += len(policy.findings)
-        # for profile in self.profiles.values():
-        #    res += len(profile.findings)
         return res
 
     def find_policy(self, policy_name, required_policy_type=None):
@@ -120,9 +118,8 @@ class NetworkConfig:
         :return: A clone of the config without any policies
         :rtype: NetworkConfig
         """
-        policies_container = PoliciesContainer()  # PoliciesContainer(profiles=self.profiles)
+        policies_container = PoliciesContainer()
         res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container)
-        # res.layers.finalize_layers()
         return res
 
     def clone_without_policy(self, policy_to_exclude):
@@ -316,202 +313,3 @@ class NetworkConfig:
         :return: None
         """
         self.append_policy(policy, self.policies, self.layers)
-
-    '''
-    @staticmethod
-    def append_policy_old(policy, policies_map, sorted_policies, ingress_policies, current_config_type):
-        """
-        Append a new policy into current config and determine the updated config type
-        :param NetworkPolicy.NetworkPolicy policy: the policy to append
-        :param dict policies_map: the map of policies by (name,type) to policy objects
-        :param sorted_policies: the sorted list of policies
-        :param list ingress_policies: the list of ingress policies
-        :param NetworkConfig.ConfigType current_config_type: the current config type
-        :return: the new config type after adding the policy
-        :rtype: NetworkConfig.ConfigType
-        """
-        new_config_type = current_config_type
-
-        # validate input policy
-        if not policy:
-            return new_config_type
-        policy_type = NetworkConfig.get_policy_type(policy)
-        if policy_type == NetworkConfig.ConfigType.Unknown:
-            raise Exception('Unknown policy type')
-        if (policy.full_name(), policy_type) in policies_map:
-            raise Exception(f'A policy named {policy.full_name()} of type {policy_type} already exists')
-
-        # determine new config type
-        if current_config_type == NetworkConfig.ConfigType.Unknown or not policies_map or \
-                current_config_type == NetworkConfig.ConfigType.Ingress:
-            new_config_type = policy_type
-        elif {current_config_type, policy_type} == {NetworkConfig.ConfigType.Calico, NetworkConfig.ConfigType.K8s}:
-            new_config_type = NetworkConfig.ConfigType.Calico
-        # elif current_config_type != policy_type and policy_type != NetworkConfig.ConfigType.Ingress:
-        #    raise Exception('Cannot mix NetworkPolicies from different platforms')
-
-        # update policies map and sorted policies list
-        policies_map[(policy.full_name(), policy_type)] = policy
-        if policy_type != NetworkConfig.ConfigType.Ingress:
-            insort(sorted_policies, policy)
-        else:
-            ingress_policies.append(policy)
-
-        return new_config_type
-    '''
-    '''
-    @staticmethod
-    def append_profile(profile, profiles_map, current_config_type):
-        """
-        Append a new profile into current config and determine the updated config type
-        :param CalicoNetworkPolicy profile: the profile to append
-        :param dict profiles_map: the map of profiles by name to profile objects
-        :param NetworkConfig.ConfigType current_config_type:
-        :return: the new config type after adding the profile
-        :rtype: NetworkConfig.ConfigType
-        """
-        new_config_type = current_config_type
-
-        # validate input profile
-        if not profile:
-            return new_config_type
-        if profile.full_name() in profiles_map:
-            raise Exception(f'A profile named {profile.full_name()} already exists')
-
-        # determine new config type
-        if current_config_type in {NetworkConfig.ConfigType.Unknown, NetworkConfig.ConfigType.K8s,
-                                   NetworkConfig.ConfigType.Ingress}:
-            new_config_type = NetworkConfig.ConfigType.Calico
-        elif current_config_type != NetworkConfig.ConfigType.Calico:
-            raise Exception('Cannot mix NetworkPolicies from different platforms')
-
-        # update profiles map
-        profiles_map[profile.full_name()] = profile
-
-        return new_config_type
-    '''
-
-    '''
-    def _get_profile_conns(self, from_peer, to_peer, is_ingress):
-        peer = to_peer if is_ingress else from_peer
-        assert isinstance(peer, Peer.ClusterEP)
-        profile_name = peer.get_first_profile_name()
-        if not profile_name:
-            return PolicyConnections(False)
-        profile = self.profiles.get(profile_name)
-        if not profile:
-            raise Exception(peer.full_name() + ' refers to a non-existing profile ' + profile_name)
-        return profile.allowed_connections(from_peer, to_peer, is_ingress)
-    '''
-
-    '''
-    def _allowed_xgress_conns_old(self, from_peer, to_peer, is_ingress):
-        """
-        get allowed and denied ingress/egress connections between from_peer and to_peer,
-        considering all config's policies (and defaults)
-        :param from_peer: the source peer
-        :param to_peer: the dest peer
-        :param is_ingress: flag to indicate if should return ingress connections or egress connections
-        :return: PolicyConnections object with:
-          - captured: flag to indicate if any of the policies captured one of the peers (src/dst)
-          - allowed_conns: allowed captured connections (can be used only if the captured flag is True)
-          - denied_conns: connections denied by the policies (captured)
-          - pass_conns: irrelevant , always empty
-          - all_allowed_conns: all allowed connections (captured/non-captured)
-        :rtype: PolicyConnections
-        """
-        allowed_conns = ConnectionSet()
-        denied_conns = ConnectionSet()
-        ingress_denied_conns = ConnectionSet()
-        pass_conns = ConnectionSet()
-
-        if not is_ingress:
-            for policy in self.ingress_deny_policies:
-                policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
-                ingress_denied_conns |= policy_conns.denied_conns
-
-        policy_captured = False
-        has_allow_policies_for_target = False
-        for policy in self.sorted_policies:
-            policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
-            assert isinstance(policy_conns, PolicyConnections)
-            if policy_conns.captured:
-                policy_captured = True
-                if isinstance(policy, IstioNetworkPolicy) and policy.action == IstioNetworkPolicy.ActionType.Allow:
-                    has_allow_policies_for_target = True
-                policy_conns.denied_conns -= allowed_conns
-                policy_conns.denied_conns -= pass_conns
-                denied_conns |= policy_conns.denied_conns
-                policy_conns.allowed_conns -= denied_conns
-                policy_conns.allowed_conns -= pass_conns
-                allowed_conns |= policy_conns.allowed_conns
-                policy_conns.pass_conns -= denied_conns
-                policy_conns.pass_conns -= allowed_conns
-                pass_conns |= policy_conns.pass_conns
-
-        if self.type == NetworkConfig.ConfigType.Istio:
-            # for istio initialize non-captured conns with non-TCP connections
-            allowed_non_captured_conns = ConnectionSet.get_non_tcp_connections()
-            if not is_ingress:
-                # egress currently always allowed and not captured (unless denied by Ingress resource)
-                allowed_non_captured_conns = ConnectionSet(True) - ingress_denied_conns
-            elif not has_allow_policies_for_target:
-                # add connections allowed by default that are not captured
-                allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
-
-            return PolicyConnections(has_allow_policies_for_target, allowed_conns, denied_conns,
-                                     all_allowed_conns=allowed_conns | allowed_non_captured_conns)
-
-        allowed_non_captured_conns = ConnectionSet()
-        if not policy_captured:
-            if self.type in [NetworkConfig.ConfigType.K8s, NetworkConfig.ConfigType.Ingress,
-                             NetworkConfig.ConfigType.Unknown]:
-                # default Allow-all (not denied by ingress) in k8s or in case of no policy
-                allowed_non_captured_conns = ConnectionSet(True)
-            else:
-                if self.profiles:
-                    allowed_non_captured_conns = self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
-        elif pass_conns:
-            allowed_conns |= pass_conns & self._get_profile_conns(from_peer, to_peer, is_ingress).allowed_conns
-        allowed_conns -= ingress_denied_conns
-        allowed_non_captured_conns -= ingress_denied_conns
-        # It's enough that ingress impacts allowed_conns.
-        # We don't want to mix the denied_conns of the network policy by ingress,
-        # we want to preserve the specific network policy's denied connections for the output report.
-        return PolicyConnections(policy_captured, allowed_conns, denied_conns,
-                                 all_allowed_conns=allowed_conns | allowed_non_captured_conns)
-    '''
-
-    '''
-    def allowed_connections_old(self, from_peer, to_peer):
-        """
-        This is the core of the whole application - computes the set of allowed connections from one peer to another.
-        In our connectivity model, this function computes the labels for the edges in our directed graph.
-        :param Peer.Peer from_peer: The source peer
-        :param Peer.Peer to_peer: The target peer
-        :return: a 4-tuple with:
-          - allowed_conns: all allowed connections (captured/non-captured)
-          - captured_flag: flag to indicate if any of the policies captured one of the peers (src/dst)
-          - allowed_captured_conns: allowed captured connections (can be used only if the captured flag is True)
-          - denied_conns: connections denied by the policies (captured)
-        :rtype: ConnectionSet, bool, ConnectionSet, ConnectionSet
-        """
-        if isinstance(to_peer, Peer.IpBlock):
-            ingress_conns = PolicyConnections(captured=False, all_allowed_conns=ConnectionSet(True))
-        else:
-            ingress_conns = self._allowed_xgress_conns(from_peer, to_peer, True)
-
-        if isinstance(from_peer, Peer.IpBlock):
-            egress_conns = PolicyConnections(captured=False, all_allowed_conns=ConnectionSet(True))
-        else:
-            egress_conns = self._allowed_xgress_conns(from_peer, to_peer, False)
-
-        captured_flag = ingress_conns.captured or egress_conns.captured
-        denied_conns = ingress_conns.denied_conns | egress_conns.denied_conns
-        allowed_conns = ingress_conns.all_allowed_conns & egress_conns.all_allowed_conns
-        # captured connections are where at least one if ingress / egress is captured
-        allowed_captured_conns = (ingress_conns.allowed_conns & egress_conns.all_allowed_conns) | \
-                                 (egress_conns.allowed_conns & ingress_conns.all_allowed_conns)
-
-        return allowed_conns, captured_flag, allowed_captured_conns, denied_conns
-    '''
