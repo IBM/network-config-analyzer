@@ -38,7 +38,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
+        uses: docker/build-push-action@1cb9d22b932e4832bb29793b7777ec860fc1cde0
         with:
           context: .
           push: true
@@ -68,7 +68,7 @@ jobs:
           python -m build
 
       - name: Push version to PyPi
-        uses: pypa/gh-action-pypi-publish@717ba43cfbb0387f6ce311b169a825772f54d295
+        uses: pypa/gh-action-pypi-publish@37f50c210e3d2f9450da2cd423303d6a14a6e29f
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}

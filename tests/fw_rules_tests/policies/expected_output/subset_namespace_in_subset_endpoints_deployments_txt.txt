@@ -1,0 +1,4 @@
+final fw rules for query: subset_namespace_in_subset_endpoints_deployments_txt, config: np25:
+src_ns: [default] src_pods: [Pod1] dst_ns: [ns3] dst_pods: [*] conn: All connections
+src_ns: [ns3] src_pods: [*] dst_ns: [default] dst_pods: [Pod4] conn: All connections
+

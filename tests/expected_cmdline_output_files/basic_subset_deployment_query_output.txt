@@ -1,0 +1,6 @@
+final fw rules for query: , config: test_subset_topology.yaml:
+src_ns: [default] src_pods: [Pod4] dst_ns: [ns2] dst_pods: [dep=D] conn: All connections
+src_ns: [ns1] src_pods: [dep=A] dst_ns: [default] dst_pods: [dep=E] conn: All connections
+src_ns: [ns1] src_pods: [dep=B] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
+src_ns: [ns2] src_pods: [dep=C] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
+

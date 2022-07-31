@@ -203,6 +203,11 @@ networkConfigList:
       - matchlabels_wrong_value_label_form2.yaml
     expectedError: 1
 
+  - name: matchlabels_wrong_value_label_type
+    networkPolicyList:
+      - matchlabels_wrong_value_label_type.yaml
+    expectedError: 1
+
   - name: matchexpressions_key_wrong_type
     networkPolicyList:
       - matchexpressions_key_wrong_type.yaml
