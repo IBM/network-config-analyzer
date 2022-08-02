@@ -345,7 +345,7 @@ class ServicesFinder:
                 if isinstance(srv_item, dict) and srv_item.get('kind') in {'Service'}:
                     service = parser.parse_service(srv_item)
                     if service:
-                        service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace.name)
+                        service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
                         self.services_list.append(service)
         elif kind in {'Service'}:
             service = parser.parse_service(res_code)
