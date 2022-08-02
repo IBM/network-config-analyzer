@@ -36,7 +36,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
 
     def get_gateway(self, gtw_full_name):
         """
-        Return a Gateway by its full name or None if not found.
+        Returns a Gateway by its full name or None if not found.
         :param str gtw_full_name: the gateway full name
         :return Gateway: the found Gateway / None
         """
