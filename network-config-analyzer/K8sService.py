@@ -31,7 +31,8 @@ class K8sService:
 
     def __init__(self, name, namespace_name):
         self.name = name
-        self.namespace = K8sNamespace(namespace_name)
+        self.namespace_name = namespace_name
+        self.namespace = None
         self.type = self.ServiceType.ClusterIP
         self.selector = {}
         self.ports = {}  # a map from service port name to ServicePort object

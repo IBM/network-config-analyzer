@@ -275,6 +275,7 @@ class PeerContainer:
             if srv.selector:
                 srv.target_pods = self.peer_set
             for key, val in srv.selector.items():
+                srv.namespace = self.get_namespace(srv.namespace_name)
                 srv.target_pods &= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
                                                              srv.namespace)
             # remove target_pods that don't contain named ports referenced by target_ports

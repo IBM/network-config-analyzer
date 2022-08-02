@@ -1,0 +1,18 @@
+namespaceList: ../../example_podlist/bookinfo_ns_list.json
+podList: ../../example_podlist/bookinfo_pods_list.json
+
+networkConfigList:
+  - name: istio-ingress
+    resourceList:
+      - ./
+    expectedWarnings: 2
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - istio-ingress
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/istio_ingress_test_connectivity_map.txt

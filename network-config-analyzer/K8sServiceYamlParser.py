@@ -32,7 +32,7 @@ class K8sServiceYamlParser(GenericYamlParser):
         srv_name = metadata.get('name')
         if not srv_name:
             return None
-        srv_namespace = metadata.get('namespace')
+        srv_namespace = metadata.get('namespace', 'default')
         service_spec = srv_object.get('spec')
         if not service_spec:
             self.warning(f'Spec is missing or null in Service {srv_name}. Ignoring the service')
