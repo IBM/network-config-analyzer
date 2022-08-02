@@ -161,6 +161,16 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 if host_dfa:
                     vs.add_host_dfa(host_dfa)
 
+        self.parse_vs_gateways(vs, vs_spec)
+        self.parse_vs_http_route(vs, vs_spec)
+        self.add_virtual_service(vs)
+
+    def parse_vs_gateways(self, vs, vs_spec):
+        """
+        Parses gateways list of the given virtual service and adds it to internal gateways list
+        :param VirtualService vs: the partially parsed VirtualService
+        :param dict vs_spec: the virtual service resource
+        """
         gateways = vs_spec.get('gateways')
         if gateways:
             for gtw in gateways:
@@ -170,12 +180,19 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                                  f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
                 else:
                     gtw_name = gtw
-                    gtw_namespace = vs_namespace
+                    gtw_namespace = vs.namespace
                     splitted_gtw = gtw.split('/', 1)
                     if len(splitted_gtw) == 2:
                         gtw_namespace = self.peer_container.get_namespace(splitted_gtw[0])
                         gtw_name = splitted_gtw[1]
                     vs.add_gateway(gtw_namespace, gtw_name)
+
+    def parse_vs_http_route(self, vs, vs_spec):
+        """
+        Parses http attribute of the given virtual service and adds the parsed http_route to internal http_routes list
+        :param VirtualService vs: the partially parsed VirtualService
+        :param dict vs_spec: the virtual service resource
+        """
         http = vs_spec.get('http')
         if http:
             for route in http:
@@ -199,8 +216,6 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                                  f'(referenced in the VirtualService {vs.full_name()}). Ignoring them.')
 
                 vs.add_http_route(http_route)
-
-        self.add_virtual_service(vs)
 
     def parse_istio_regex_string(self, resource, attr_name, vs_name):
         """
