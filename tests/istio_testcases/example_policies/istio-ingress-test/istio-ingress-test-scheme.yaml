@@ -4,7 +4,10 @@ podList: ../../example_podlist/bookinfo_pods_list.json
 networkConfigList:
   - name: istio-ingress
     resourceList:
-      - ./
+      - bookinfo_pods_list.json
+      - gateway.yaml
+      - services.yaml
+      - virtual_services.yaml
     expectedWarnings: 2
 
 
