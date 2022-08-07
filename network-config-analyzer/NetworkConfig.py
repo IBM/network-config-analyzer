@@ -239,7 +239,7 @@ class NetworkConfig:
         """
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
-        ingress_denied_conns = ConnectionSet() if is_ingress else ConnectionSet(True)
+        ingress_denied_conns = ConnectionSet(True) if not is_ingress and self.ingress_deny_policies else ConnectionSet()
         pass_conns = ConnectionSet()
 
         if not is_ingress:
