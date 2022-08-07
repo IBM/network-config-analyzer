@@ -239,13 +239,13 @@ class NetworkConfig:
         """
         allowed_conns = ConnectionSet()
         denied_conns = ConnectionSet()
-        ingress_denied_conns = ConnectionSet()
+        ingress_denied_conns = ConnectionSet() if is_ingress else ConnectionSet(True)
         pass_conns = ConnectionSet()
 
         if not is_ingress:
             for policy in self.ingress_deny_policies:
                 policy_conns = policy.allowed_connections(from_peer, to_peer, is_ingress)
-                ingress_denied_conns |= policy_conns.denied_conns
+                ingress_denied_conns &= policy_conns.denied_conns
 
         policy_captured = False
         has_allow_policies_for_target = False
