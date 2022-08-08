@@ -9,7 +9,10 @@ class K8sNamespace:
     """
     def __init__(self, name):
         self.name = name if name else 'default'
-        self.labels = {}  # Storing the namespace labels in a dict as key-value pairs
+        # Namespace labels are stored in a dict as key-value pairs
+        # Every namespace gets a fixed-key label with its name.
+        # See https://kubernetes.io/docs/concepts/services-networking/network-policies/#targeting-a-namespace-by-its-name
+        self.labels = {'kubernetes.io/metadata.name': name}
 
     def __eq__(self, other):
         if isinstance(other, K8sNamespace):
