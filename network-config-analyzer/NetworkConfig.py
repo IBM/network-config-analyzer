@@ -6,6 +6,7 @@
 from enum import Enum
 from dataclasses import dataclass, field
 import Peer
+from ConnectionSet import ConnectionSet
 from PeerContainer import PeerContainer
 from K8sNetworkPolicy import K8sNetworkPolicy
 from CalicoNetworkPolicy import CalicoNetworkPolicy
@@ -154,11 +155,11 @@ class NetworkConfig:
 
     def get_captured_pods(self, layer_name=None):
         """
+        Get set of pods for which there exist connectivity resources that can influence their allowed connectivity
         :param NetworkLayerName layer_name: The name of a layer to get the pods from
         :return: All pods captured by any policy, in at least one layer
         :rtype: Peer.PeerSet
         """
-        # TODO: should ignore Ingress layer?
         captured_pods = Peer.PeerSet()
         # get all policies list (of all layers) or all policies per input layer
         if layer_name is None:
@@ -168,15 +169,6 @@ class NetworkConfig:
 
         for policy in policies_list:
             captured_pods |= policy.selected_peers
-
-        # TODO:  why was profile.selected_peers considered captured, if profiles may be used for nan captured conns?
-        # for profile in self.profiles.values():
-        #    captured_pods |= profile.selected_peers
-
-        # consider ingress only if the config contains only ingress policies
-        # if not self.sorted_policies and not self.profiles:
-        #    for ingress in self.ingress_deny_policies:
-        #        captured_pods |= ingress.selected_peers
 
         return captured_pods
 
@@ -206,8 +198,6 @@ class NetworkConfig:
         self.referenced_ip_blocks = Peer.PeerSet()
         for policy in self.policies.values():
             self.referenced_ip_blocks |= policy.referenced_ip_blocks()
-        # for profile in self.profiles.values():
-        #    self.referenced_ip_blocks |= profile.referenced_ip_blocks()
 
         return self.referenced_ip_blocks
 
@@ -236,42 +226,35 @@ class NetworkConfig:
         """
         if layer_name is not None:
             if layer_name not in self.layers:
-                self.layers.add_empty_layer(layer_name)
+                return self.layers.empty_layer_allowed_connections(layer_name, from_peer, to_peer)
             return self.layers[layer_name].allowed_connections(from_peer, to_peer)
-
-        # TODO initialize differently?
-        allowed_conns_res = None
-        allowed_captured_conns_res = None
-        captured_flag_res = None
-        denied_conns_res = None
 
         # connectivity of hostEndpoints is only determined by calico layer
         if isinstance(from_peer, Peer.HostEP) or isinstance(to_peer, Peer.HostEP):
             # maintain K8s_Calico layer as active if peer container has hostEndpoint
             if NetworkLayerName.K8s_Calico not in self.layers:
-                self.layers.add_empty_layer(NetworkLayerName.K8s_Calico)
+                return self.layers.empty_layer_allowed_connections(NetworkLayerName.K8s_Calico, from_peer, to_peer)
             return self.layers[NetworkLayerName.K8s_Calico].allowed_connections(from_peer, to_peer)
+
+        allowed_conns_res = ConnectionSet(True)
+        allowed_captured_conns_res = ConnectionSet()
+        captured_flag_res = False
+        denied_conns_res = ConnectionSet()
 
         for layer, layer_obj in self.layers.items():
 
             allowed_conns_per_layer, captured_flag_per_layer, allowed_captured_conns_per_layer, \
                 denied_conns_per_layer = layer_obj.allowed_connections(from_peer, to_peer)
 
-            if allowed_conns_res is None:
-                allowed_conns_res = allowed_conns_per_layer
-                allowed_captured_conns_res = allowed_captured_conns_per_layer
-                captured_flag_res = captured_flag_per_layer
-                denied_conns_res = denied_conns_per_layer
-            else:
-                # all allowed connections: intersection of all allowed connections from all layers
-                allowed_conns_res &= allowed_conns_per_layer
+            # all allowed connections: intersection of all allowed connections from all layers
+            allowed_conns_res &= allowed_conns_per_layer
 
-                # all allowed captured connections: should be captured by at least one layer
-                allowed_captured_conns_res |= allowed_captured_conns_per_layer
-                captured_flag_res |= captured_flag_per_layer
+            # all allowed captured connections: should be captured by at least one layer
+            allowed_captured_conns_res |= allowed_captured_conns_per_layer
+            captured_flag_res |= captured_flag_per_layer
 
-                # denied conns: should be denied by at least one layer
-                denied_conns_res |= denied_conns_per_layer
+            # denied conns: should be denied by at least one layer
+            denied_conns_res |= denied_conns_per_layer
 
         # an allowed captured conn (by at least one layer) has to be allowed by all layers (either implicitly or explicitly)
         allowed_captured_conns_res &= allowed_conns_res

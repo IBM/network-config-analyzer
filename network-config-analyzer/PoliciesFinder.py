@@ -22,7 +22,6 @@ class PoliciesFinder:
     def __init__(self):
         self.policies_container = PoliciesContainer()
         self._parse_queue = deque()
-        self.type = NetworkConfig.ConfigType.Unknown
         self.peer_container = None
 
     def set_peer_container(self, peer_container):

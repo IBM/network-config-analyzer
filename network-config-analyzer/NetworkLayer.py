@@ -66,9 +66,17 @@ class NetworkLayersContainer(dict):
         """
         return len(self) == 1 and list(self.keys())[0] == layer_name
 
-    def add_empty_layer(self, layer_name):
-        if layer_name not in self:
-            self[layer_name] = layer_name.create_network_layer([])
+    @staticmethod
+    def empty_layer_allowed_connections(layer_name, from_peer, to_peer):
+        """
+        Get allowed connections between two peers for an empty layer (no policies).
+        :param NetworkLayerName layer_name: The empty layer name
+        :param Peer.Peer from_peer: the source peer
+        :param Peer.Peer to_peer: the target peer
+        :rtype: ConnectionSet, bool, ConnectionSet, ConnectionSet
+        """
+        empty_layer_obj = layer_name.create_network_layer([])
+        return empty_layer_obj.allowed_connections(from_peer, to_peer)
 
 
 class NetworkLayer:
@@ -135,7 +143,7 @@ class NetworkLayer:
         relevant peers.
         :param Peer.Peer from_peer:  the source peer
         :param Peer.Peer to_peer: the dest peer
-        :param bool is_ingress: flag to indicate if should return ingress connections or egress connections
+        :param bool is_ingress: indicates whether to return ingress connections or egress connections
         :param captured_func: callable that returns True if the policy satisfies additional conditions required for
         considering the target pod as captured and not applying the default connections to it.
         :return: (allowed_conns, denied_conns, pass_conns, captured_res)
@@ -151,19 +159,17 @@ class NetworkLayer:
                 captured_res |= captured_func(policy)
                 policy_conns.denied_conns -= allowed_conns
                 policy_conns.denied_conns -= pass_conns
-                denied_conns |= policy_conns.denied_conns
                 policy_conns.allowed_conns -= denied_conns
                 policy_conns.allowed_conns -= pass_conns
-                allowed_conns |= policy_conns.allowed_conns
                 policy_conns.pass_conns -= denied_conns
                 policy_conns.pass_conns -= allowed_conns
+                denied_conns |= policy_conns.denied_conns
+                allowed_conns |= policy_conns.allowed_conns
                 pass_conns |= policy_conns.pass_conns
         return allowed_conns, denied_conns, pass_conns, captured_res
 
 
 class K8sCalicoNetworkLayer(NetworkLayer):
-    def __init(self, policies_list):
-        super().__init__(policies_list)
 
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         allowed_conns, denied_conns, pass_conns, captured_res = self.collect_policies_conns(from_peer, to_peer,
@@ -185,8 +191,6 @@ class K8sCalicoNetworkLayer(NetworkLayer):
 
 
 class IstioNetworkLayer(NetworkLayer):
-    def __init(self, policies_list):
-        super().__init__(policies_list)
 
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         # in istio applying default-allow if there is no capturing policy with action allow
@@ -208,8 +212,6 @@ class IstioNetworkLayer(NetworkLayer):
 
 
 class IngressNetworkLayer(NetworkLayer):
-    def __init(self, policies_list):
-        super().__init__(policies_list)
 
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         denied_conns = ConnectionSet()
