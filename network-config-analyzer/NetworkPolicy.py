@@ -101,11 +101,6 @@ class NetworkPolicy:
         self.egress_rules.append(rule)
 
     @staticmethod
-    def get_policy_type(policy):
-
-        pass
-
-    @staticmethod
     def get_policy_type_from_dict(policy):
         """
         Given a policy/policy-list resource, determines the type of policy it describes/contains (based on its 'kind')
