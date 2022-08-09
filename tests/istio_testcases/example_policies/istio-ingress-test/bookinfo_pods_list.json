@@ -2608,11 +2608,11 @@
                 "creationTimestamp": "2021-08-02T06:44:36Z",
                 "generateName": "reviews-v3-869ff44845-",
                 "labels": {
-                    "app": "my-gateway-controller",
+                    "app": "reviews",
                     "istio.io/rev": "default",
                     "pod-template-hash": "869ff44845",
                     "security.istio.io/tlsMode": "istio",
-                    "service.istio.io/canonical-name": "my-gateway-controller",
+                    "service.istio.io/canonical-name": "reviews",
                     "service.istio.io/canonical-revision": "v3",
                     "version": "v3"
                 },

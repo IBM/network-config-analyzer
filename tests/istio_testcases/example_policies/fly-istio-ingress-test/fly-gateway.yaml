@@ -1,3 +1,5 @@
+# from https://medium.com/rahasak/kubernets-istio-ingress-gateway-c1202ba29dca
+
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
