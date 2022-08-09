@@ -161,6 +161,16 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 if host_dfa:
                     vs.add_host_dfa(host_dfa)
 
+        if vs_spec.get('tls'):
+            self.warning(f'"tls" value is not yet supported (referenced in the VirtualService {vs.full_name()}).'
+                         f' Ignoring it.')
+        if vs_spec.get('exportTo'):
+            self.warning(f'"exportTo" value is not yet supported (referenced in the VirtualService {vs.full_name()}).'
+                         f' Ignoring it.')
+        if vs_spec.get('tcp'):
+            self.warning(f'"tcp" value is not yet supported (referenced in the VirtualService {vs.full_name()}).'
+                         f' Ignoring it.')
+
         self.parse_vs_gateways(vs, vs_spec)
         self.parse_vs_http_route(vs, vs_spec)
         self.add_virtual_service(vs)
@@ -323,6 +333,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                     if not service_port:
                         self.syntax_error(f'Missing port {port_num} in the service', service)
                     target_port = service_port.target_port
+            if not target_port:  # either port or port.number is missing
+                self.warning(f'Missing port for service {dest} in the VirtualService {vs.full_name()}')
             parsed_route.add_destination(service, target_port)
 
             if item.get('headers'):
@@ -377,12 +389,15 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         """
 
         if not self.gateways:
-            self.syntax_error('No valid Gateways found')
+            self.warning('No valid Gateways found. Ignoring istio ingress traffic')
+            return []
         if not self.virtual_services:
-            self.syntax_error('No valid VirtualServices found')
+            self.warning('No valid VirtualServices found. Ignoring istio ingress traffic')
+            return []
 
         result = []
         for vs in self.virtual_services.values():
+            vs_policies = []
             gateways = []
             for gtw_name in vs.gateway_names:
                 gtw = self.get_gateway(gtw_name)
@@ -407,7 +422,12 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 deny_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/deny', vs.namespace,
                                             IngressPolicy.ActionType.Deny)
                 deny_policy.selected_peers = peer_set
-                deny_policy.add_rules(self._make_deny_rules(self.make_allowed_connections(vs, host_dfa)))
-                deny_policy.findings = self.warning_msgs
-                result.append(deny_policy)
+                allowed_conns = self.make_allowed_connections(vs, host_dfa)
+                if allowed_conns:
+                    deny_policy.add_rules(self._make_deny_rules(allowed_conns))
+                    deny_policy.findings = self.warning_msgs
+                    vs_policies.append(deny_policy)
+            if not vs_policies:
+                self.warning(f'VirtualService {vs.full_name()} does not affect traffic and is ignored')
+            result.extend(vs_policies)
         return result

@@ -6,7 +6,7 @@ networkConfigList:
     networkPolicyList:
       - gateway.yaml
       - virtual_services.yaml
-    expectedWarnings: 2
+    expectedWarnings: 5
 
 
 queries:
