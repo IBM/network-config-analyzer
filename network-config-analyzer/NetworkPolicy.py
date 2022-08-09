@@ -37,6 +37,7 @@ class NetworkPolicy:
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
         self.findings = []  # accumulated findings which are relevant only to this policy (emptiness and redundancy)
         self.referenced_labels = set()
+        self.policy_kind = NetworkPolicy.PolicyType.Unknown
 
     def __str__(self):
         return self.full_name()
@@ -101,6 +102,11 @@ class NetworkPolicy:
 
     @staticmethod
     def get_policy_type(policy):
+
+        pass
+
+    @staticmethod
+    def get_policy_type_from_dict(policy):
         """
         Given a policy/policy-list resource, determines the type of policy it describes/contains (based on its 'kind')
         :param dict policy: The resource to examine

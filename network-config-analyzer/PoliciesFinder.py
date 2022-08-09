@@ -75,7 +75,7 @@ class PoliciesFinder:
                 self._add_policy(parsed_element.parse_policy())
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
-        policy_type = NetworkPolicy.get_policy_type(policy_object)
+        policy_type = NetworkPolicy.get_policy_type_from_dict(policy_object)
         if policy_type == NetworkPolicy.PolicyType.Unknown:
             return
         if policy_type == NetworkPolicy.PolicyType.List:

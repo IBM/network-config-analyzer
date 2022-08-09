@@ -8,6 +8,7 @@ from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
 from GenericYamlParser import GenericYamlParser
 from IngressPolicy import IngressPolicy, IngressPolicyRule
+from NetworkPolicy import NetworkPolicy
 from Peer import PeerSet, IpBlock
 from PeerContainer import PeerContainer
 from PortSet import PortSet
@@ -376,6 +377,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
 
         res_deny_policy = IngressPolicy(self.policy['metadata']['name'] + '/deny', self.namespace,
                                         IngressPolicy.ActionType.Deny)
+        res_deny_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
 
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],

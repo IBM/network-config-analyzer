@@ -20,11 +20,11 @@ class NetworkConfigQueryRunner:
         User wants a specific policy from the given config.
         config_name has one of the following forms:
         (1) <config>/<namespace>/<policy>
-        (2) <config>/<layer>/<namespace>/<policy>/ , where layer is the relevant kind from
-                                                    ['k8s', 'calico', 'istio', 'ingress']
+        (2) <config>/<kind>/<namespace>/<policy>/ , where kind is the relevant kind from:
+        ['K8sNetworkPolicy', 'CalicoNetworkPolicy', 'CalicoGlobalNetworkPolicy','IstioAuthorizationPolicy', 'K8sIngress']
         :param str config_name: the full config name (from which a specific policy is requested)
         :return: the parsed config name, policy name, policy type
-        :rtype: (str, str, NetworkConfig.ConfigType)
+        :rtype: (str, str, NetworkPolicy.PolicyType)
         """
         sep_count = config_name.count('/')
         split_config = config_name.split('/', 1)
@@ -34,11 +34,11 @@ class NetworkConfigQueryRunner:
             policy_name = split_config[1]
         elif sep_count == 3:
             split_layer = split_config[1].split('/', 1)
-            layer = split_layer[0]
+            kind = split_layer[0]
             policy_name = split_layer[1]
-            policy_type = NetworkConfig.ConfigType.input_layer_name_str_to_config_type(layer)
+            policy_type = NetworkConfig.input_kind_name_str_to_policy_type(kind)
             if policy_type is None:
-                raise Exception(f'Layer {layer} is not supported')
+                raise Exception(f'Policy kind {kind} is not supported')
         else:
             raise Exception(f'Invalid config name {config_name}')
         if config_name not in self.network_configs:

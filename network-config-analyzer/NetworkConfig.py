@@ -3,16 +3,12 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from enum import Enum
 from dataclasses import dataclass, field
 import Peer
 from ConnectionSet import ConnectionSet
 from PeerContainer import PeerContainer
-from K8sNetworkPolicy import K8sNetworkPolicy
-from CalicoNetworkPolicy import CalicoNetworkPolicy
-from IstioNetworkPolicy import IstioNetworkPolicy
-from IngressPolicy import IngressPolicy
 from NetworkLayer import NetworkLayersContainer, NetworkLayerName
+from NetworkPolicy import NetworkPolicy
 
 
 @dataclass
@@ -26,11 +22,15 @@ class PoliciesContainer:
     layers: NetworkLayersContainer = field(default_factory=NetworkLayersContainer)
 
     def append_policy(self, policy):
+        """
+        Add a policy to the container
+        :param NetworkPolicy policy: the policy to add
+        """
         # validate input policy
         if not policy:
             return
-        policy_type = NetworkConfig.get_policy_type(policy)
-        if policy_type == NetworkConfig.ConfigType.Unknown:
+        policy_type = policy.policy_kind
+        if policy_type == NetworkPolicy.PolicyType.Unknown:
             raise Exception('Unknown policy type')
         if (policy.full_name(), policy_type) in self.policies:
             raise Exception(f'A policy named {policy.full_name()} of type {policy_type} already exists')
@@ -38,7 +38,7 @@ class PoliciesContainer:
         # update policies map
         self.policies[(policy.full_name(), policy_type)] = policy
         # add policy to the corresponding layer's list (sorted) of policies
-        self.layers.add_policy(policy, policy_type.config_type_to_layer())
+        self.layers.add_policy(policy, NetworkConfig.policy_type_to_layer(policy_type))
 
 
 class NetworkConfig:
@@ -47,36 +47,6 @@ class NetworkConfig:
     that limit the allowed connectivity.
     The class also contains the core algorithm of computing allowed connections between two endpoints.
     """
-
-    class ConfigType(Enum):
-        Unknown = 0
-        K8s = 1
-        Calico = 2
-        Istio = 3
-        Ingress = 4
-
-        @staticmethod
-        def input_layer_name_str_to_config_type(layer_name):
-            if layer_name == "k8s":
-                return NetworkConfig.ConfigType.K8s
-            elif layer_name == "calico":
-                return NetworkConfig.ConfigType.Calico
-            elif layer_name == "istio":
-                return NetworkConfig.ConfigType.Istio
-            elif layer_name == "ingress":
-                return NetworkConfig.ConfigType.Ingress
-            return None
-
-        def config_type_to_layer(self):
-            if self == NetworkConfig.ConfigType.K8s:
-                return NetworkLayerName.K8s_Calico
-            elif self == NetworkConfig.ConfigType.Calico:
-                return NetworkLayerName.K8s_Calico
-            elif self == NetworkConfig.ConfigType.Istio:
-                return NetworkLayerName.Istio
-            elif self == NetworkConfig.ConfigType.Ingress:
-                return NetworkLayerName.Ingress
-            return None
 
     def __init__(self, name, peer_container, policies_container):
         """
@@ -113,18 +83,18 @@ class NetworkConfig:
     def find_policy(self, policy_name, required_policy_type=None):
         """
         :param str policy_name: The name of a policy (either fully-qualified or just policy name)
-        :param NetworkConfig.ConfigType required_policy_type: The type of policy to find
+        :param NetworkPolicy.PolicyType required_policy_type: The type of policy to find
         :return: A list of all policy objects matching the policy name
         :rtype: list[NetworkPolicy.NetworkPolicy]
         """
         res = []
-        possible_policy_types = [required_policy_type] if required_policy_type else NetworkConfig.ConfigType
+        possible_policy_types = [required_policy_type] if required_policy_type else NetworkPolicy.PolicyType
         for policy_type in possible_policy_types:
             if (policy_name, policy_type) in self.policies_container.policies:
                 res.append(self.policies_container.policies[(policy_name, policy_type)])
         if not res and policy_name.count('//') == 0:
             for policy in self.policies_container.policies.values():
-                policy_type = NetworkConfig.get_policy_type(policy)
+                policy_type = policy.policy_kind
                 if policy_name == policy.name and (not required_policy_type or policy_type == required_policy_type):
                     res.append(policy)
         return res
@@ -153,7 +123,7 @@ class NetworkConfig:
     def clone_with_just_one_policy(self, name_of_policy_to_include, policy_type=None):
         """
         :param str name_of_policy_to_include: A policy name
-        :param PolicyType policy_type: The type of policy to include
+        :param NetworkPolicy.PolicyType policy_type: The type of policy to include
         :return: A clone of the config having just a single policy as specified
         :rtype: NetworkConfig
         """
@@ -278,16 +248,29 @@ class NetworkConfig:
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
 
     @staticmethod
-    def get_policy_type(policy):
-        if isinstance(policy, K8sNetworkPolicy):
-            return NetworkConfig.ConfigType.K8s
-        if isinstance(policy, CalicoNetworkPolicy):
-            return NetworkConfig.ConfigType.Calico
-        if isinstance(policy, IstioNetworkPolicy):
-            return NetworkConfig.ConfigType.Istio
-        if isinstance(policy, IngressPolicy):
-            return NetworkConfig.ConfigType.Ingress
-        return NetworkConfig.ConfigType.Unknown
+    def policy_type_to_layer(policy_type):
+        if policy_type in {NetworkPolicy.PolicyType.K8sNetworkPolicy, NetworkPolicy.PolicyType.CalicoNetworkPolicy,
+                           NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy, NetworkPolicy.PolicyType.CalicoProfile}:
+            return NetworkLayerName.K8s_Calico
+        elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
+            return NetworkLayerName.Istio
+        elif policy_type == NetworkPolicy.PolicyType.Ingress:
+            return NetworkLayerName.Ingress
+        return None
+
+    @staticmethod
+    def input_kind_name_str_to_policy_type(kind):
+        if kind == "K8sNetworkPolicy":
+            return NetworkPolicy.PolicyType.K8sNetworkPolicy
+        elif kind == "CalicoNetworkPolicy":
+            return NetworkPolicy.PolicyType.CalicoNetworkPolicy
+        elif kind == "CalicoGlobalNetworkPolicy":
+            return NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
+        elif kind == "IstioAuthorizationPolicy":
+            return NetworkPolicy.PolicyType.IstioAuthorizationPolicy
+        elif kind == "K8sIngress":
+            return NetworkPolicy.PolicyType.Ingress
+        return None
 
     def append_policy_to_config(self, policy):
         """
