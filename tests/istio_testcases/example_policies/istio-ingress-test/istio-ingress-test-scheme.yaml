@@ -3,9 +3,8 @@ podList: ./
 
 networkConfigList:
   - name: istio-ingress
-    networkPolicyList:
-      - gateway.yaml
-      - virtual_services.yaml
+    resourceList:
+      - ./resources
     expectedWarnings: 5
 
 
