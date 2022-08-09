@@ -3,8 +3,8 @@ podList: ./
 
 networkConfigList:
   - name: fly-istio-ingress-test
-    networkPolicyList:
-      - fly-gateway.yaml
+    resourceList:
+      - ./resources
     expectedWarnings: 0
 
 
