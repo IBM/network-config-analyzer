@@ -4,10 +4,13 @@
 #
 
 import os
+import io
 from GenericTreeScanner import GenericTreeScanner
+from HelmScanner import HelmScanner
+from sys import stderr
 
 
-class DirScanner(GenericTreeScanner):
+class DirScanner(GenericTreeScanner, HelmScanner):
     """
        A class for reading yaml files from a file system path
     """
@@ -15,6 +18,7 @@ class DirScanner(GenericTreeScanner):
     def __init__(self, fs_path, rt_load=False):
         GenericTreeScanner.__init__(self, rt_load)
         self.fs_path = fs_path
+        HelmScanner.__init__(self)
 
     def check_and_yield_file(self, file_path):
         """
@@ -45,4 +49,16 @@ class DirScanner(GenericTreeScanner):
                 for sub_dir in sub_dirs:
                     self._scan_dir_for_yamls(os.path.join(root, sub_dir), recursive)
             for file in files:
-                yield from self.check_and_yield_file(os.path.join(root, file))
+                if self.is_helm_chart(file):
+                    for file_name, file_content in self.parse_chart(root).items():
+                        file_stream = io.StringIO(file_content)
+                        yield from self._yield_yaml_file(file_name, file_stream)
+                        file_stream.close()
+                else:
+                    full_path = os.path.join(root, file)
+                    # skip if file was resolved by HELM or Helm template
+                    if self.is_yaml_file(full_path) and not self.is_resolved_template(full_path):
+                        if self.is_template(full_path):
+                            print('Warning: Skipping templated yaml file:', full_path, file=stderr)
+                        else:
+                            yield from self.check_and_yield_file(os.path.join(root, file))
