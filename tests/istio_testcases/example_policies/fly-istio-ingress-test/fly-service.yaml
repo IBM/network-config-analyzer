@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fly-service
+  labels:
+    name: fly-service
+spec:
+  ports:
+    - name: http
+      port: 8761
+      targetPort: 8761
+  selector:
+    app: fly-api
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hora-service
+  labels:
+    name: hora-service
+spec:
+  ports:
+    - name: http
+      port: 8762
+      targetPort: 8762
+  selector:
+    app: hora-api
