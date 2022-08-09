@@ -142,8 +142,6 @@ class EmptinessQuery(NetworkConfigQuery):
     def exec(self):
         all_policies_list = []
         for layer_name, layer in self.config.policies_container.layers.items():
-            if layer_name == NetworkLayerName.Ingress:  # skip ingress layer
-                continue
             all_policies_list += layer.policies_list
 
         res = 0
@@ -1197,14 +1195,12 @@ class PermitsQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer  # non-identical configurations are not comparable
 
-        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress) or \
-                self.config2.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
+        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
             return QueryAnswer(bool_result=False, output_result='Ignoring PermitsQuery for config with Ingress only',
                                query_not_executed=True)
 
         config1_without_ingress = self.clone_without_ingress(self.config1)
-        config2_without_ingress = self.clone_without_ingress(self.config2)
-        return ContainmentQuery(config1_without_ingress, config2_without_ingress).exec(True)
+        return ContainmentQuery(config1_without_ingress, self.config2).exec(True)
 
     def compute_query_output(self, query_answer, cmd_line_flag=False):
         res = 0
@@ -1317,15 +1313,13 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
         if not self.config1:
             return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
                                       'No traffic is specified as forbidden.', query_not_executed=True)
-        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress) or \
-                self.config2.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
+        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
             return QueryAnswer(bool_result=False, output_result='Ignoring ForbidsQuery for config with Ingress only',
                                query_not_executed=True)
 
         config1_without_ingress = self.clone_without_ingress(self.config1)
-        config2_without_ingress = self.clone_without_ingress(self.config2)
 
-        return IntersectsQuery(config1_without_ingress, config2_without_ingress).exec(True)
+        return IntersectsQuery(config1_without_ingress, self.config2).exec(True)
 
     def compute_query_output(self, query_answer, cmd_line_flag=False):
         res = not query_answer.numerical_result if cmd_line_flag else query_answer.bool_result
