@@ -119,7 +119,7 @@ jobs:
       - uses: helm/kind-action@d08cf6ff1575077dee99962540d77ce91c62387d
       - run: |
           curl -L https://istio.io/downloadIstio | sh -
-          cd istio-1.14.2
+          cd istio-1.*
           export PATH=$PWD/bin:$PATH
           istioctl install --set profile=demo -y
       - run:  python tests/run_all_tests.py --type=k8s_live_general
