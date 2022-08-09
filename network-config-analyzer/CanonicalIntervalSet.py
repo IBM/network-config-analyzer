@@ -47,15 +47,7 @@ class CanonicalIntervalSet:
         return res[0:-1]
 
     def __repr__(self):
-        if not self.interval_set:
-            return "Empty"
-        res = ''
-        for interval in self.interval_set:
-            res += str(interval.start)
-            if interval.start != interval.end:
-                res += '-' + str(interval.end)
-            res += ','
-        return res[0:-1]
+        return self.__str__()
 
     def __contains__(self, item):
         item_interval_set = CanonicalIntervalSet.get_interval_set(item, item)
