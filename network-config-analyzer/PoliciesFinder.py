@@ -6,7 +6,7 @@
 from ruamel.yaml import YAML
 from collections import deque
 from CmdlineRunner import CmdlineRunner
-from NetworkConfig import NetworkConfig, PoliciesContainer
+from NetworkConfig import PoliciesContainer
 from NetworkPolicy import NetworkPolicy
 from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
@@ -53,7 +53,7 @@ class PoliciesFinder:
         :param NetworkPolicy.NetworkPolicy policy: The policy to add
         :return: None
         """
-        NetworkConfig.append_policy(policy, self.policies_container.policies, self.policies_container.layers)
+        self.policies_container.append_policy(policy)
 
     def parse_policies_in_parse_queue(self):
         for policy, file_name, policy_type in self._parse_queue:

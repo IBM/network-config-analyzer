@@ -25,6 +25,21 @@ class PoliciesContainer:
     policies: dict = field(default_factory=dict)
     layers: NetworkLayersContainer = field(default_factory=NetworkLayersContainer)
 
+    def append_policy(self, policy):
+        # validate input policy
+        if not policy:
+            return
+        policy_type = NetworkConfig.get_policy_type(policy)
+        if policy_type == NetworkConfig.ConfigType.Unknown:
+            raise Exception('Unknown policy type')
+        if (policy.full_name(), policy_type) in self.policies:
+            raise Exception(f'A policy named {policy.full_name()} of type {policy_type} already exists')
+
+        # update policies map
+        self.policies[(policy.full_name(), policy_type)] = policy
+        # add policy to the corresponding layer's list (sorted) of policies
+        self.layers.add_policy(policy, policy_type.config_type_to_layer())
+
 
 class NetworkConfig:
     """
@@ -70,28 +85,28 @@ class NetworkConfig:
         """
         self.name = name
         self.peer_container = peer_container
-        self.policies = policies_container.policies or {}  # map from policy name to policy object
-        self.layers = policies_container.layers or NetworkLayersContainer()  # map from layer name to layer object
+        self.policies_container = policies_container
         self.allowed_labels = None
         self.referenced_ip_blocks = None
 
     def __eq__(self, other):
         if not isinstance(other, NetworkConfig):
             return False
-        return self.name == other.name and self.peer_container == other.peer_container and self.policies == other.policies
+        return self.name == other.name and self.peer_container == other.peer_container and \
+            self.policies_container.policies == other.policies_container.policies
 
     def __str__(self):
         return self.name
 
     def __bool__(self):
-        return len(self.policies) > 0
+        return bool(self.policies_container.policies)
 
     def get_num_findings(self):
         """
         :return: The number of findings stored in the policies
         """
         res = 0
-        for policy in self.policies.values():
+        for policy in self.policies_container.policies.values():
             res += len(policy.findings)
         return res
 
@@ -105,10 +120,10 @@ class NetworkConfig:
         res = []
         possible_policy_types = [required_policy_type] if required_policy_type else NetworkConfig.ConfigType
         for policy_type in possible_policy_types:
-            if (policy_name, policy_type) in self.policies:
-                res.append(self.policies[(policy_name, policy_type)])
+            if (policy_name, policy_type) in self.policies_container.policies:
+                res.append(self.policies_container.policies[(policy_name, policy_type)])
         if not res and policy_name.count('//') == 0:
-            for policy in self.policies.values():
+            for policy in self.policies_container.policies.values():
                 policy_type = NetworkConfig.get_policy_type(policy)
                 if policy_name == policy.name and (not required_policy_type or policy_type == required_policy_type):
                     res.append(policy)
@@ -130,7 +145,7 @@ class NetworkConfig:
         :rtype: NetworkConfig
         """
         res = self.clone_without_policies(self.name)
-        for other_policy in self.policies.values():
+        for other_policy in self.policies_container.policies.values():
             if other_policy != policy_to_exclude:
                 res.append_policy_to_config(other_policy)
         return res
@@ -163,9 +178,10 @@ class NetworkConfig:
         captured_pods = Peer.PeerSet()
         # get all policies list (of all layers) or all policies per input layer
         if layer_name is None:
-            policies_list = self.policies.values()
+            policies_list = self.policies_container.policies.values()
         else:
-            policies_list = self.layers[layer_name].policies_list if layer_name in self.layers else []
+            policies_list = self.policies_container.layers[
+                layer_name].policies_list if layer_name in self.policies_container.layers else []
 
         for policy in policies_list:
             captured_pods |= policy.selected_peers
@@ -180,7 +196,7 @@ class NetworkConfig:
         :rtype: Peer.PeerSet
         """
         affected_pods = Peer.PeerSet()
-        policies_list = self.layers[layer_name].policies_list
+        policies_list = self.policies_container.layers[layer_name].policies_list
         for policy in policies_list:
             if (is_ingress and policy.affects_ingress) or (not is_ingress and policy.affects_egress):
                 affected_pods |= policy.selected_peers
@@ -196,7 +212,7 @@ class NetworkConfig:
             return self.referenced_ip_blocks
 
         self.referenced_ip_blocks = Peer.PeerSet()
-        for policy in self.policies.values():
+        for policy in self.policies_container.policies.values():
             self.referenced_ip_blocks |= policy.referenced_ip_blocks()
 
         return self.referenced_ip_blocks
@@ -205,7 +221,7 @@ class NetworkConfig:
         if self.allowed_labels is not None:
             return self.allowed_labels
         self.allowed_labels = set()
-        for policy in self.policies.values():
+        for policy in self.policies_container.policies.values():
             self.allowed_labels |= policy.referenced_labels
         return self.allowed_labels
 
@@ -225,24 +241,24 @@ class NetworkConfig:
         :rtype: ConnectionSet, bool, ConnectionSet, ConnectionSet
         """
         if layer_name is not None:
-            if layer_name not in self.layers:
-                return self.layers.empty_layer_allowed_connections(layer_name, from_peer, to_peer)
-            return self.layers[layer_name].allowed_connections(from_peer, to_peer)
+            if layer_name not in self.policies_container.layers:
+                return self.policies_container.layers.empty_layer_allowed_connections(layer_name, from_peer, to_peer)
+            return self.policies_container.layers[layer_name].allowed_connections(from_peer, to_peer)
 
         # connectivity of hostEndpoints is only determined by calico layer
         if isinstance(from_peer, Peer.HostEP) or isinstance(to_peer, Peer.HostEP):
             # maintain K8s_Calico layer as active if peer container has hostEndpoint
-            if NetworkLayerName.K8s_Calico not in self.layers:
-                return self.layers.empty_layer_allowed_connections(NetworkLayerName.K8s_Calico, from_peer, to_peer)
-            return self.layers[NetworkLayerName.K8s_Calico].allowed_connections(from_peer, to_peer)
+            if NetworkLayerName.K8s_Calico not in self.policies_container.layers:
+                return self.policies_container.layers.empty_layer_allowed_connections(NetworkLayerName.K8s_Calico,
+                                                                                      from_peer, to_peer)
+            return self.policies_container.layers[NetworkLayerName.K8s_Calico].allowed_connections(from_peer, to_peer)
 
         allowed_conns_res = ConnectionSet(True)
         allowed_captured_conns_res = ConnectionSet()
         captured_flag_res = False
         denied_conns_res = ConnectionSet()
 
-        for layer, layer_obj in self.layers.items():
-
+        for layer, layer_obj in self.policies_container.layers.items():
             allowed_conns_per_layer, captured_flag_per_layer, allowed_captured_conns_per_layer, \
                 denied_conns_per_layer = layer_obj.allowed_connections(from_peer, to_peer)
 
@@ -273,26 +289,10 @@ class NetworkConfig:
             return NetworkConfig.ConfigType.Ingress
         return NetworkConfig.ConfigType.Unknown
 
-    @staticmethod
-    def append_policy(policy, policies_map, layers_map):
-        # validate input policy
-        if not policy:
-            return
-        policy_type = NetworkConfig.get_policy_type(policy)
-        if policy_type == NetworkConfig.ConfigType.Unknown:
-            raise Exception('Unknown policy type')
-        if (policy.full_name(), policy_type) in policies_map:
-            raise Exception(f'A policy named {policy.full_name()} of type {policy_type} already exists')
-
-        # update policies map
-        policies_map[(policy.full_name(), policy_type)] = policy
-        # add policy to the corresponding layer's list (sorted) of policies
-        layers_map.add_policy(policy, policy_type.config_type_to_layer())
-
     def append_policy_to_config(self, policy):
         """
         appends a policy to an existing config
         :param NetworkPolicy.NetworkPolicy policy: The policy to append
         :return: None
         """
-        self.append_policy(policy, self.policies, self.layers)
+        self.policies_container.append_policy(policy)

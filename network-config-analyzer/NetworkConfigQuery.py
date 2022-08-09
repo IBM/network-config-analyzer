@@ -106,7 +106,7 @@ class DisjointnessQuery(NetworkConfigQuery):
     def exec(self):
         # collecting non-disjoint policies per network layer
         non_disjoint_explanation_list = []
-        for layer_name, layer in self.config.layers.items():
+        for layer_name, layer in self.config.policies_container.layers.items():
             if layer_name == NetworkLayerName.Ingress:  # skip ingress layer
                 continue
             policies_list = layer.policies_list
@@ -141,7 +141,7 @@ class EmptinessQuery(NetworkConfigQuery):
 
     def exec(self):
         all_policies_list = []
-        for layer_name, layer in self.config.layers.items():
+        for layer_name, layer in self.config.policies_container.layers.items():
             if layer_name == NetworkLayerName.Ingress:  # skip ingress layer
                 continue
             all_policies_list += layer.policies_list
@@ -278,7 +278,7 @@ class RedundancyQuery(NetworkConfigQuery):
     def exec(self):
         res = 0
         redundancies = []
-        for layer_name, layer in self.config.layers.items():
+        for layer_name, layer in self.config.policies_container.layers.items():
             if layer_name == NetworkLayerName.Ingress:
                 continue
             policies_list = layer.policies_list
@@ -314,9 +314,9 @@ class SanityQuery(NetworkConfigQuery):
         :return: (bool result, conflict str)
         :rtype: (bool, str)
         """
-        if NetworkLayerName.K8s_Calico not in self.config.layers:
+        if NetworkLayerName.K8s_Calico not in self.config.policies_container.layers:
             return False, ''
-        calico_policies = self.config.layers[NetworkLayerName.K8s_Calico].policies_list
+        calico_policies = self.config.policies_container.layers[NetworkLayerName.K8s_Calico].policies_list
         calico_policies = [policy for policy in calico_policies if isinstance(policy, CalicoNetworkPolicy)]
         if len(calico_policies) <= 1:
             return False, ''
@@ -349,7 +349,7 @@ class SanityQuery(NetworkConfigQuery):
         :return: A policy containing self_policy's allowed connections if exist, None otherwise
         :rtype: NetworkPolicy
         """
-        policies_list = self.config.layers[layer_name].policies_list
+        policies_list = self.config.policies_container.layers[layer_name].policies_list
         for other_policy in policies_list:
             if other_policy.get_order() and self_policy.get_order() and other_policy.get_order() < self_policy.get_order():
                 return None  # All other policies have a lower order and cannot contain self_policy
@@ -371,7 +371,7 @@ class SanityQuery(NetworkConfigQuery):
         :return: A policy containing self_policy's denied connections if exist, None otherwise
         :rtype: NetworkPolicy
         """
-        policies_list = self.config.layers[layer_name].policies_list
+        policies_list = self.config.policies_container.layers[layer_name].policies_list
         for other_policy in policies_list:
             if other_policy.get_order() and self_policy.get_order() and other_policy.get_order() < self_policy.get_order():
                 return None  # not checking lower priority for Calico
@@ -408,7 +408,7 @@ class SanityQuery(NetworkConfigQuery):
         :return: If a containing rule is found, return its policy, its index and whether it contradicts the input rule
         :rtype: NetworkPolicy, int, bool
         """
-        policies_list = self.config.layers[layer_name].policies_list
+        policies_list = self.config.policies_container.layers[layer_name].policies_list
         for other_policy in policies_list:
             if other_policy.get_order() and self_policy.get_order() and other_policy.get_order() < self_policy.get_order():
                 return None, None, None  # All following policies have a lower order - containment is not interesting
@@ -459,8 +459,7 @@ class SanityQuery(NetworkConfigQuery):
         redundant_text = f'{self.policy_title(policy)} is redundant'
         single_policy_config = self.config.clone_with_just_one_policy(policy.full_name())
         if VacuityQuery(single_policy_config).exec().bool_result:
-            # does not allow all connections in case of host endpoints
-            redundant_text += '. Note that it allows all default connections'
+            redundant_text += '. Note that it does not change default connectivity'
             return redundant_text + '\n'
 
         has_allow_rules = policy.has_allow_rules()
@@ -505,10 +504,10 @@ class SanityQuery(NetworkConfigQuery):
         if is_config_vacuous_res.bool_result:
             issues_counter = 1
             policies_issue += is_config_vacuous_res.output_result + '\n'
-            if len(self.config.policies) == 1:
+            if len(self.config.policies_container.policies) == 1:
                 policies_issue += '\tNote that it contains a single policy.\n'
 
-        for layer_name, layer in self.config.layers.items():
+        for layer_name, layer in self.config.policies_container.layers.items():
             if layer_name == NetworkLayerName.Ingress:
                 continue
             policies_list = layer.policies_list
@@ -656,7 +655,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                         #  one that handles non-TCP connections, and one for TCP
                         # TODO: consider avoid "hiding" egress allowed connections, even though they are
                         #  not covered by authorization policies
-                        if self.config.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
+                        if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
                                 self.output_config.connectivityFilterIstioEdges:
                             should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
                             if not should_filter:
@@ -722,7 +721,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         if self.config1.peer_container != self.config2.peer_container:
             return QueryAnswer(False, 'The two configurations have different network topologies '
                                       'and thus are not comparable.\n', query_not_executed=True)
-        if check_same_policies and self.config1.policies == self.config2.policies:
+        if check_same_policies and self.config1.policies_container.policies == self.config2.policies_container.policies:
             return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network '
                                      'topology and the same set of policies.\n')
         return QueryAnswer(True)
@@ -740,13 +739,15 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
     def clone_without_ingress(config):
         """
         Clone config without ingress policies
-        :param config: the config to clone
+        :param NetworkConfig config: the config to clone
         :return: resulting config without ingress policies
+        :rtype: NetworkConfig
         """
-        if NetworkLayerName.Ingress not in config.layers or not config.layers[NetworkLayerName.Ingress].policies_list:
+        if NetworkLayerName.Ingress not in config.policies_container.layers or not config.policies_container.layers[
+                NetworkLayerName.Ingress].policies_list:
             return config  # no ingress policies in this config
         config_without_ingress = config.clone_without_policies(config.name)
-        for policy in config.policies.values():
+        for policy in config.policies_container.policies.values():
             if not isinstance(policy, IngressPolicy):  # ignoring ingress policies
                 config_without_ingress.append_policy_to_config(policy)
         return config_without_ingress
@@ -1066,8 +1067,10 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer
 
-        policies1 = set(f'{policy_name}[{policy_type}]' for policy_name, policy_type in self.config1.policies.keys())
-        policies2 = set(f'{policy_name}[{policy_type}]' for policy_name, policy_type in self.config2.policies.keys())
+        policies1 = set(f'{policy_name}[{policy_type}]' for policy_name, policy_type in
+                        self.config1.policies_container.policies.keys())
+        policies2 = set(f'{policy_name}[{policy_type}]' for policy_name, policy_type in
+                        self.config2.policies_container.policies.keys())
         policies_1_minus_2 = policies1.difference(policies2)
         policies_2_minus_1 = policies2.difference(policies1)
         if policies_1_minus_2:
@@ -1079,7 +1082,7 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
                             f'{self.name1} does not'
             return QueryAnswer(False, output_result)
 
-        for policy in self.config1.policies.values():
+        for policy in self.config1.policies_container.policies.values():
             single_policy_config1 = self.config1.clone_with_just_one_policy(policy.full_name())
             single_policy_config2 = self.config2.clone_with_just_one_policy(policy.full_name())
             full_result = EquivalenceQuery(single_policy_config1, single_policy_config2).exec()
@@ -1194,8 +1197,8 @@ class PermitsQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer  # non-identical configurations are not comparable
 
-        if self.config1.layers.does_contain_single_layer(NetworkLayerName.Ingress) or \
-                self.config2.layers.does_contain_single_layer(NetworkLayerName.Ingress):
+        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress) or \
+                self.config2.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
             return QueryAnswer(bool_result=False, output_result='Ignoring PermitsQuery for config with Ingress only',
                                query_not_executed=True)
 
@@ -1314,8 +1317,8 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
         if not self.config1:
             return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
                                       'No traffic is specified as forbidden.', query_not_executed=True)
-        if self.config1.layers.does_contain_single_layer(NetworkLayerName.Ingress) or \
-                self.config2.layers.does_contain_single_layer(NetworkLayerName.Ingress):
+        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress) or \
+                self.config2.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
             return QueryAnswer(bool_result=False, output_result='Ignoring ForbidsQuery for config with Ingress only',
                                query_not_executed=True)
 
@@ -1371,7 +1374,7 @@ class AllCapturedQuery(NetworkConfigQuery):
                                output_result='Flat network in ' + self.config.name,
                                numerical_result=len(existing_pods))
 
-        if NetworkLayerName.K8s_Calico not in self.config.layers:
+        if NetworkLayerName.K8s_Calico not in self.config.policies_container.layers:
             return QueryAnswer(bool_result=False,
                                output_result='AllCapturedQuery applies only for k8s/calico network policies',
                                query_not_executed=True)
