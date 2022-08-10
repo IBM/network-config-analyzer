@@ -35,17 +35,6 @@ class CanonicalIntervalSet:
     def __iter__(self):
         return iter(self.interval_set)
 
-    def __str__(self):
-        if not self.interval_set:
-            return "Empty"
-        res = ''
-        for interval in self.interval_set:
-            res += str(interval.start)
-            if interval.start != interval.end:
-                res += '-' + str(interval.end)
-            res += ','
-        return res[0:-1]
-
     def __repr__(self):
         if not self.interval_set:
             return "Empty"
@@ -112,7 +101,6 @@ class CanonicalIntervalSet:
         :return: Whether every internal in 'self' is contained in an interval in 'other'
         :rtype: bool
         """
-
         if len(self) == 1 and len(other) == 1:
             return self.interval_set[0].is_subset(other.interval_set[0])
         for self_interval in self.interval_set:
