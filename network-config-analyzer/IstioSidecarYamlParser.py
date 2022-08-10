@@ -155,7 +155,7 @@ class IstioSidecarYamlParser(GenericYamlParser):
         :return: A IstioSidecarRule with the proper PeerSet
         :rtype: IstioSidecarRule
         """
-        allowed_keys = {'port': [0, dict], 'bind': [0, str], 'captureMode': [0, str], 'hosts': [1,  list]}
+        allowed_keys = {'port': [0, dict], 'bind': [0, str], 'captureMode': [0, str], 'hosts': [1, list]}
         self.check_fields_validity(egress_rule, 'Istio Egress Listener', allowed_keys)
         # currently only hosts is considered in the rule parsing
         if egress_rule.get('port'):
