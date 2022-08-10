@@ -114,8 +114,6 @@ class ConnectionSet:
                                                                                                     udp_protocol_number)
             if aggregation_results != '':  # can be empty when all properties are allowed for both protocols
                 aggregation_results = 'TCP+UDP ' + aggregation_results
-            elif protocols[tcp_protocol_number].is_all() and protocols[udp_protocol_number].is_all():
-                aggregation_results = 'TCP+UDP'
 
         # handle future aggregations here
 

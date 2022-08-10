@@ -72,6 +72,7 @@ queries:
     expectedOutput: ../../expected_output/testcase26-config-1-k8s-calico-istio-ingress_connectivity_map.txt
 
   # TODO: currently there is an issue with properties aggregation - UDP should not have properties which are not ports.
+  # TODO: update the expected output after issue #267 is fixed.
   - name: connectivity-4
     connectivityMap:
       - testcase26-config-1-k8s-calico-istio
