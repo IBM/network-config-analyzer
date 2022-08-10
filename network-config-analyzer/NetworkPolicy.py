@@ -231,6 +231,9 @@ class NetworkPolicy:
         """
         return NotImplemented
 
+    def policy_type_str(self):
+        return "Ingress resource" if self.policy_kind == NetworkPolicy.PolicyType.Ingress else "NetworkPolicy"
+
 
 @dataclass
 class PolicyConnections:

@@ -60,7 +60,7 @@ class BaseNetworkQuery:
         :param policy: the given policy
         :return: the title of the policy
         """
-        return ("Ingress resource " if isinstance(policy, IngressPolicy) else "Network policy ") + policy.full_name()
+        return f'{policy.policy_type_str()} {policy.full_name()}'
 
 
 class NetworkConfigQuery(BaseNetworkQuery):
@@ -95,8 +95,7 @@ class NetworkConfigQuery(BaseNetworkQuery):
         :param policy: the given policy
         :return: the title of the policy
         """
-        policy_type_str = BaseNetworkQuery.policy_title(policy)
-        return f'{policy_type_str} {policy.full_name(self.config.name)}'
+        return f'{policy.policy_type_str()} {policy.full_name(self.config.name)}'
 
 
 class DisjointnessQuery(NetworkConfigQuery):
