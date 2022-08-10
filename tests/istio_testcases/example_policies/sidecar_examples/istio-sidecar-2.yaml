@@ -1,0 +1,24 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: ratings
+  namespace: prod-us1
+spec:
+  workloadSelector:
+    labels:
+      app: ratings
+  ingress:
+  - port:
+      number: 9080
+      protocol: HTTP
+      name: somename
+    defaultEndpoint: unix:///var/run/someuds.sock
+  egress:
+  - port:
+      number: 9080
+      protocol: HTTP
+      name: egresshttp
+    hosts:
+    - "prod-us1/*"
+  - hosts:
+    - "istio-system/*"

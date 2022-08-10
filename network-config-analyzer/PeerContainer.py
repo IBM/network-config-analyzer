@@ -193,6 +193,28 @@ class PeerContainer:
                 res |= val.target_pods
         return res
 
+    def get_all_services_target_pods(self):
+        """
+        Returns all pods that belong to services
+        :rtype: PeerSet
+        """
+        res = PeerSet()
+        for service in self.services.values():
+            res |= service.target_pods
+        return res
+
+    def get_services_target_pods_in_namespace(self, namespace):
+        """
+        Returns all pods that belong to services in the given namespace
+        :param K8sNamespace namespace:   namespace object
+        :rtype: PeerSet
+        """
+        res = PeerSet()
+        for service in self.services.values():
+            if service.namespace == namespace:
+                res |= service.target_pods
+        return res
+
     def get_pods_with_service_account_name(self, sa_name, namespace_str):
         """
         Return all pods that are with a service account name in a given namespace

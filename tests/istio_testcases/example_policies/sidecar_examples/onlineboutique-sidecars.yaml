@@ -1,0 +1,147 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: adservice
+spec:
+  workloadSelector:
+    labels:
+      app: adservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: cartservice
+spec:
+  workloadSelector:
+    labels:
+      app: cartservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+    - "./cart.memorystore-redis.onlineboutique"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: checkoutservice
+spec:
+  workloadSelector:
+    labels:
+      app: checkoutservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+    - "./cartservice.onlineboutique.svc.cluster.local"
+    - "./currencyservice.onlineboutique.svc.cluster.local"
+    - "./emailservice.onlineboutique.svc.cluster.local"
+    - "./paymentservice.onlineboutique.svc.cluster.local"
+    - "./productcatalogservice.onlineboutique.svc.cluster.local"
+    - "./shippingservice.onlineboutique.svc.cluster.local"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: currencyservice
+spec:
+  workloadSelector:
+    labels:
+      app: currencyservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: emailservice
+spec:
+  workloadSelector:
+    labels:
+      app: emailservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: frontend
+spec:
+  workloadSelector:
+    labels:
+      app: frontend
+  egress:
+  - hosts:
+    - "istio-system/*"
+    - "./adservice.onlineboutique.svc.cluster.local"
+    - "./cartservice.onlineboutique.svc.cluster.local"
+    - "./checkoutservice.onlineboutique.svc.cluster.local"
+    - "./currencyservice.onlineboutique.svc.cluster.local"
+    - "./productcatalogservice.onlineboutique.svc.cluster.local"
+    - "./recommendationservice.onlineboutique.svc.cluster.local"
+    - "./shippingservice.onlineboutique.svc.cluster.local"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: loadgenerator
+spec:
+  workloadSelector:
+    labels:
+      app: loadgenerator
+  egress:
+  - hosts:
+    - "istio-system/*"
+    - "./frontend.onlineboutique.svc.cluster.local"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: paymentservice
+spec:
+  workloadSelector:
+    labels:
+      app: paymentservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: productcatalogservice
+spec:
+  workloadSelector:
+    labels:
+      app: productcatalogservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: recommendationservice
+spec:
+  workloadSelector:
+    labels:
+      app: recommendationservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+    - "./productcatalogservice.onlineboutique.svc.cluster.local"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: shippingservice
+spec:
+  workloadSelector:
+    labels:
+      app: shippingservice
+  egress:
+  - hosts:
+    - "istio-system/*"

@@ -20,10 +20,6 @@ class IstioPolicyYamlParser(GenericYamlParser):
     A parser for Istio AuthorizationPolicy objects
     """
 
-    # TODO: root_namespace should be configurable from istio configuration, currently using default value for it
-    # If namespace is set to root namespace, the policy applies to all namespaces in a mesh
-    root_namespace = 'istio-config'
-
     def __init__(self, policy, peer_container, policy_file_name=''):
         """
         :param dict policy: The policy object as provided by the yaml parser
@@ -605,7 +601,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         else:
             res_policy.selected_peers = self.parse_label_selector(pod_selector)
         # if policy's namespace is the root namespace, then it applies to all cluster's namespaces
-        if self.namespace.name != IstioPolicyYamlParser.root_namespace:
+        if self.namespace.name != GenericYamlParser.istio_root_namespace:
             res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
         for ingress_rule in policy_spec.get('rules', []):
             res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule))

@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: no-ip-tables
+  namespace: prod-us1
+spec:
+  workloadSelector:
+    labels:
+      app: productpage
+  ingress:
+  - port:
+      number: 9080 # binds to proxy_instance_ip:9080 (0.0.0.0:9080, if no unicast IP is available for the instance)
+      protocol: HTTP
+      name: somename
+    defaultEndpoint: 127.0.0.1:8080
+  egress:
+    - hosts:
+      - "*/mysql.foo.com"

@@ -18,6 +18,10 @@ class GenericYamlParser:
     """
     A base class for yaml parsers, providing basic services
     """
+    # TODO: istio_root_namespace should be configurable from istio configuration, currently using default value for it
+    # If namespace is set to istio root namespace, the policy object applies to all namespaces in a mesh
+    istio_root_namespace = 'istio-config'
+
     class FilterActionType(Enum):
         """
         Allowed actions for Calico's network policy rules

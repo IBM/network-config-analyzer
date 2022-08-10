@@ -12,6 +12,7 @@ from NetworkPolicy import PolicyConnections, NetworkPolicy
 from K8sNetworkPolicy import K8sNetworkPolicy
 from CalicoNetworkPolicy import CalicoNetworkPolicy
 from IstioNetworkPolicy import IstioNetworkPolicy
+from IstioSidecar import IstioSidecar
 from IngressPolicy import IngressPolicy
 from ConnectionSet import ConnectionSet
 
@@ -269,10 +270,7 @@ class NetworkConfig:
         if self.type == NetworkConfig.ConfigType.Istio:
             # for istio initialize non-captured conns with non-TCP connections
             allowed_non_captured_conns = ConnectionSet.get_non_tcp_connections()
-            if not is_ingress:
-                # egress currently always allowed and not captured (unless denied by Ingress resource)
-                allowed_non_captured_conns = ConnectionSet(True) - ingress_denied_conns
-            elif not has_allow_policies_for_target:
+            if not has_allow_policies_for_target:
                 # add connections allowed by default that are not captured
                 allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
 
@@ -337,6 +335,8 @@ class NetworkConfig:
         if isinstance(policy, CalicoNetworkPolicy):
             return NetworkConfig.ConfigType.Calico
         if isinstance(policy, IstioNetworkPolicy):
+            return NetworkConfig.ConfigType.Istio
+        if isinstance(policy, IstioSidecar):
             return NetworkConfig.ConfigType.Istio
         if isinstance(policy, IngressPolicy):
             return NetworkConfig.ConfigType.Ingress

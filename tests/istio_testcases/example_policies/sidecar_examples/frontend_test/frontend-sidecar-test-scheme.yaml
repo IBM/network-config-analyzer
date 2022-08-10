@@ -1,0 +1,15 @@
+resourceList:
+  - ../../online_boutique/new_online_boutique_manifests_istio/all_deplopyments.yaml
+  - ../onlineboutique-services.yaml
+
+networkConfigList:
+  - name: frontend_sidecar
+    networkPolicyList:
+      - ./frontend-sidecar.yaml
+    expectedWarnings: 0
+
+queries:
+  - name: frontend_sidecar_connectivity_map
+    connectivityMap:
+      - frontend_sidecar
+    expected: 0
