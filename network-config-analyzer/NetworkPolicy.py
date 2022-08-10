@@ -27,6 +27,20 @@ class NetworkPolicy:
         Ingress = 20
         List = 500
 
+        @staticmethod
+        def input_kind_name_str_to_policy_type(kind):
+            if kind == "K8sNetworkPolicy":
+                return NetworkPolicy.PolicyType.K8sNetworkPolicy
+            elif kind == "CalicoNetworkPolicy":
+                return NetworkPolicy.PolicyType.CalicoNetworkPolicy
+            elif kind == "CalicoGlobalNetworkPolicy":
+                return NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
+            elif kind == "IstioAuthorizationPolicy":
+                return NetworkPolicy.PolicyType.IstioAuthorizationPolicy
+            elif kind == "K8sIngress":
+                return NetworkPolicy.PolicyType.Ingress
+            return None
+
     def __init__(self, name, namespace):
         self.name = name
         self.namespace = namespace

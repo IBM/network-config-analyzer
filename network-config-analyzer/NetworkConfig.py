@@ -38,7 +38,7 @@ class PoliciesContainer:
         # update policies map
         self.policies[(policy.full_name(), policy_type)] = policy
         # add policy to the corresponding layer's list (sorted) of policies
-        self.layers.add_policy(policy, NetworkConfig.policy_type_to_layer(policy_type))
+        self.layers.add_policy(policy, NetworkLayerName.policy_type_to_layer(policy_type))
 
 
 class NetworkConfig:
@@ -246,31 +246,6 @@ class NetworkConfig:
         allowed_captured_conns_res &= allowed_conns_res
 
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
-
-    @staticmethod
-    def policy_type_to_layer(policy_type):
-        if policy_type in {NetworkPolicy.PolicyType.K8sNetworkPolicy, NetworkPolicy.PolicyType.CalicoNetworkPolicy,
-                           NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy, NetworkPolicy.PolicyType.CalicoProfile}:
-            return NetworkLayerName.K8s_Calico
-        elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
-            return NetworkLayerName.Istio
-        elif policy_type == NetworkPolicy.PolicyType.Ingress:
-            return NetworkLayerName.Ingress
-        return None
-
-    @staticmethod
-    def input_kind_name_str_to_policy_type(kind):
-        if kind == "K8sNetworkPolicy":
-            return NetworkPolicy.PolicyType.K8sNetworkPolicy
-        elif kind == "CalicoNetworkPolicy":
-            return NetworkPolicy.PolicyType.CalicoNetworkPolicy
-        elif kind == "CalicoGlobalNetworkPolicy":
-            return NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
-        elif kind == "IstioAuthorizationPolicy":
-            return NetworkPolicy.PolicyType.IstioAuthorizationPolicy
-        elif kind == "K8sIngress":
-            return NetworkPolicy.PolicyType.Ingress
-        return None
 
     def append_policy_to_config(self, policy):
         """

@@ -53,7 +53,8 @@ class BaseNetworkQuery:
     def get_supported_output_formats():
         return None
 
-    def policy_title(self, policy):
+    @staticmethod
+    def policy_title(policy):
         """
         Return the title of the given policy, including the type name and the policy name
         :param policy: the given policy
@@ -94,7 +95,7 @@ class NetworkConfigQuery(BaseNetworkQuery):
         :param policy: the given policy
         :return: the title of the policy
         """
-        policy_type_str = "Ingress resource" if isinstance(policy, IngressPolicy) else "NetworkPolicy"
+        policy_type_str = BaseNetworkQuery.policy_title(policy)
         return f'{policy_type_str} {policy.full_name(self.config.name)}'
 
 
@@ -1196,7 +1197,8 @@ class PermitsQuery(TwoNetworkConfigsQuery):
             return query_answer  # non-identical configurations are not comparable
 
         if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
-            return QueryAnswer(bool_result=False, output_result='Ignoring PermitsQuery for config with Ingress only',
+            return QueryAnswer(bool_result=False,
+                               output_result='Permitted traffic cannot be specified using Ingress resources only',
                                query_not_executed=True)
 
         config1_without_ingress = self.clone_without_ingress(self.config1)
@@ -1314,7 +1316,8 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
             return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
                                       'No traffic is specified as forbidden.', query_not_executed=True)
         if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
-            return QueryAnswer(bool_result=False, output_result='Ignoring ForbidsQuery for config with Ingress only',
+            return QueryAnswer(bool_result=False,
+                               output_result='Forbidden traffic cannot be specified using Ingress resources only',
                                query_not_executed=True)
 
         config1_without_ingress = self.clone_without_ingress(self.config1)

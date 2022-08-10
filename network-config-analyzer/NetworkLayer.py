@@ -3,7 +3,7 @@ from enum import Enum
 
 from ConnectionSet import ConnectionSet
 from IstioNetworkPolicy import IstioNetworkPolicy
-from NetworkPolicy import PolicyConnections
+from NetworkPolicy import PolicyConnections, NetworkPolicy
 from Peer import IpBlock, HostEP
 
 
@@ -22,6 +22,17 @@ class NetworkLayerName(Enum):
             return IstioNetworkLayer(policies)
         if self == NetworkLayerName.Ingress:
             return IngressNetworkLayer(policies)
+        return None
+
+    @staticmethod
+    def policy_type_to_layer(policy_type):
+        if policy_type in {NetworkPolicy.PolicyType.K8sNetworkPolicy, NetworkPolicy.PolicyType.CalicoNetworkPolicy,
+                           NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy, NetworkPolicy.PolicyType.CalicoProfile}:
+            return NetworkLayerName.K8s_Calico
+        elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
+            return NetworkLayerName.Istio
+        elif policy_type == NetworkPolicy.PolicyType.Ingress:
+            return NetworkLayerName.Ingress
         return None
 
 

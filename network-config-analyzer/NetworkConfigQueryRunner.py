@@ -1,5 +1,6 @@
 import NetworkConfigQuery
 from NetworkConfig import NetworkConfig
+from NetworkPolicy import NetworkPolicy
 from OutputFilesFlags import OutputFilesFlags
 
 
@@ -36,7 +37,7 @@ class NetworkConfigQueryRunner:
             split_layer = split_config[1].split('/', 1)
             kind = split_layer[0]
             policy_name = split_layer[1]
-            policy_type = NetworkConfig.input_kind_name_str_to_policy_type(kind)
+            policy_type = NetworkPolicy.PolicyType.input_kind_name_str_to_policy_type(kind)
             if policy_type is None:
                 raise Exception(f'Policy kind {kind} is not supported')
         else:

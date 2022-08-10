@@ -588,16 +588,6 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             else:
                 res_policy.selected_peers = self.peer_container.get_namespace_pods(self.namespace)
 
-    @staticmethod
-    def get_policy_type_from_kind_str(kind_str):
-        if kind_str == 'NetworkPolicy':
-            return NetworkPolicy.PolicyType.CalicoNetworkPolicy
-        elif kind_str == 'GlobalNetworkPolicy':
-            return NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
-        elif kind_str == 'Profile':
-            return NetworkPolicy.PolicyType.CalicoProfile
-        return NetworkPolicy.PolicyType.Unknown
-
     def parse_policy(self):
         """
         Parses the input object to create a CalicoNetworkPolicy object
@@ -630,7 +620,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             if kind == 'NetworkPolicy':
                 self.namespace = self.peer_container.get_namespace('default')
         res_policy = CalicoNetworkPolicy(metadata['name'], self.namespace)
-        res_policy.policy_kind = self.get_policy_type_from_kind_str(kind)
+        res_policy.policy_kind = NetworkPolicy.get_policy_type_from_dict(self.policy)
 
         policy_spec = self.policy['spec']
         self._set_affects_ingress_egress(policy_spec, is_profile, res_policy)
