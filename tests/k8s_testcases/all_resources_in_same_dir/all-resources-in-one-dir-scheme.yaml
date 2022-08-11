@@ -1,0 +1,13 @@
+resourceList: ./
+
+networkConfigList:
+  - name: some_captured
+    resourceList:
+      - ./
+    expectedWarnings: 1
+
+queries:
+  - name: all-captured
+    allCaptured:
+      - some_captured
+    expected: 11

@@ -47,8 +47,6 @@ class SchemeRunner(GenericYamlParser):
             return given_path
         if path.isabs(given_path):
             return given_path
-        if path.exists(given_path):
-            return given_path
         if given_path.startswith(('https://github', 'https://raw.githubusercontent')):
             return given_path
         base_dir = path.dirname(path.realpath(self.yaml_file_name))
