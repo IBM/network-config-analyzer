@@ -4,6 +4,7 @@
 #
 import re
 from GenericYamlParser import GenericYamlParser
+from NetworkPolicy import NetworkPolicy
 from IstioSidecar import IstioSidecar, IstioSidecarRule
 from Peer import PeerSet
 from PeerContainer import PeerContainer
@@ -51,25 +52,16 @@ class IstioSidecarYamlParser(GenericYamlParser):
 
         return res
 
-    def _parse_port(self, port):
-        """
-        currently port is not considered in rules' connections,
-        in the meanwhile keeping this for validity checking only
-        :param dict port: The dict with port fields
-        """
-        self.check_fields_validity(port, 'Istio Ingress/Egress Listener Port',
-                                   {'number': [1, int], 'protocol': [1, str], 'name': [1, str], 'targetPort': [0, int]},
-                                   {'protocol': ['HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS']})
-
-    def _parse_ingress_rule(self, ingress_rule):
-        """
-        Currently not building ingress rules from sidecar object, keeping this for ingress syntax check only
-        :param dict ingress_rule: The dict with the ingress rule (IstioIngressListener) fields
-        """
-        allowed_keys = {'port': [1, dict], 'bind': [0, str], 'captureMode': [0, str], 'defaultEndpoint': [1, str]}
-        self.check_fields_validity(ingress_rule, 'Istio Ingress Listener', allowed_keys)
-
-        self._parse_port(ingress_rule.get('port'))  # calling this for syntax checking only
+    # def _parse_port(self, port):
+    #     """
+    #     currently port is not considered in rules' connections,
+    #     in the meanwhile keeping this for validity checking only
+    #     :param dict port: The dict with port fields
+    #     """
+    #     self.check_fields_validity(port, 'Istio Ingress/Egress Listener Port',
+    #                                {'number': [1, int], 'protocol': [1, str], 'name': [1, str],
+    #                                'targetPort': [0, int]},
+    #                                {'protocol': ['HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS']})
 
     def _validate_and_partition_host_format(self, host):
         """
@@ -155,11 +147,9 @@ class IstioSidecarYamlParser(GenericYamlParser):
         :return: A IstioSidecarRule with the proper PeerSet
         :rtype: IstioSidecarRule
         """
-        allowed_keys = {'port': [0, dict], 'bind': [0, str], 'captureMode': [0, str], 'hosts': [1, list]}
+        # currently only hosts is considered in the rule parsing, other fields are not supported
+        allowed_keys = {'port': [2, dict], 'bind': [2, str], 'captureMode': [2, str], 'hosts': [1, list]}
         self.check_fields_validity(egress_rule, 'Istio Egress Listener', allowed_keys)
-        # currently only hosts is considered in the rule parsing
-        if egress_rule.get('port'):
-            self._parse_port(egress_rule.get('port'))  # calling this for syntax checking only
 
         hosts = egress_rule.get('hosts')
         if not hosts:
@@ -199,18 +189,18 @@ class IstioSidecarYamlParser(GenericYamlParser):
         self.check_fields_validity(metadata, 'metadata', allowed_metadata_keys)
         self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
         res_policy = IstioSidecar(metadata['name'], self.namespace)
+        res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
 
         if 'spec' not in self.policy or self.policy['spec'] is None:
             self.warning('spec is missing or null in Sidecar ' + res_policy.full_name())
             return res_policy
 
         sidecar_spec = self.policy['spec']
-        # currently, supported fields in spec are workloadSelector, ingress and egress
-        allowed_spec_keys = {'workloadSelector': [0, dict], 'ingress': [0, list], 'egress': [0, list],
+        # currently, supported fields in spec are workloadSelector and egress
+        allowed_spec_keys = {'workloadSelector': [0, dict], 'ingress': [2, list], 'egress': [0, list],
                              'outboundTrafficPolicy': [2, str]}
         self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
-        res_policy.affects_ingress = sidecar_spec.get('ingress') is not None
 
         workload_selector = sidecar_spec.get('workloadSelector')
         if workload_selector is None:
@@ -220,9 +210,6 @@ class IstioSidecarYamlParser(GenericYamlParser):
         # if sidecar's namespace is the root namespace, then it applies to all cluster's namespaces
         if self.namespace.name != GenericYamlParser.istio_root_namespace:
             res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
-
-        for ingress_rule in sidecar_spec.get('ingress', []):  # ingress rules of sidecar not supported yet
-            self._parse_ingress_rule(ingress_rule)  # meanwhile this is for checking IstioIngresslistener syntax only
 
         for egress_rule in sidecar_spec.get('egress', []):
             res_policy.add_egress_rule(self._parse_egress_rule(egress_rule))

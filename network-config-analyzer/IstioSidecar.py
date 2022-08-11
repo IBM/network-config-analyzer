@@ -69,7 +69,7 @@ class IstioSidecar(NetworkPolicy):
     def clone_without_rule(self, rule_to_exclude, _ingress_rule):
         """
         Makes a copy of 'self' without a given policy rule
-        :param IstioPolicyRule rule_to_exclude: The one rule not to include in the copy
+        :param IstioSidecarRule rule_to_exclude: The one rule not to include in the copy
         :param bool _ingress_rule: Whether the rule is an ingress or egress rule
         :return: A copy of 'self' without the provided rule
         :rtype: IstioSidecar

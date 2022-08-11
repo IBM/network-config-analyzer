@@ -38,6 +38,8 @@ class NetworkPolicy:
                 return NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
             elif kind == "IstioAuthorizationPolicy":
                 return NetworkPolicy.PolicyType.IstioAuthorizationPolicy
+            elif kind == "IstioSidecar":
+                return NetworkPolicy.PolicyType.IstioSidecar
             elif kind == "K8sIngress":
                 return NetworkPolicy.PolicyType.Ingress
             return None
