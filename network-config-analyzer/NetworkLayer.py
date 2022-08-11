@@ -3,7 +3,6 @@ from enum import Enum
 
 from ConnectionSet import ConnectionSet
 from IstioNetworkPolicy import IstioNetworkPolicy
-from IstioSidecar import IstioSidecar
 from NetworkPolicy import PolicyConnections, NetworkPolicy
 from Peer import IpBlock, HostEP
 
