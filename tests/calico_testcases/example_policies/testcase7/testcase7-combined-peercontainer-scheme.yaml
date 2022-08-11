@@ -24,7 +24,7 @@ queries:
   - name: vacuous_policy
     vacuity:
       - np1/testcase7-globalNetworkpolicy-empty-policy
-    expected: 1
+    expected: 0
 
   - name: non_vacuous_policies
     vacuity:

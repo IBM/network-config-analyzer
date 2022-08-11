@@ -5,6 +5,7 @@ networkConfigList:
   - name: testcase25-config-1
     networkPolicyList:
       - testcase25-networkpolicy-calico-k8s.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
 queries:
@@ -15,12 +16,12 @@ queries:
 
   - name: connectivity_1
     connectivityMap:
-      - testcase25-config-1/k8s/kube-system/testcase25-networkpolicy
+      - testcase25-config-1/K8sNetworkPolicy/kube-system/testcase25-networkpolicy
     expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map_1.txt
 
   - name: connectivity_2
     connectivityMap:
-      - testcase25-config-1/calico/kube-system/testcase25-networkpolicy
+      - testcase25-config-1/CalicoNetworkPolicy/kube-system/testcase25-networkpolicy
     expectedOutput: ../../expected_output/testcase25_mix_k8s_calico_connectivity_map_2.txt
 
 

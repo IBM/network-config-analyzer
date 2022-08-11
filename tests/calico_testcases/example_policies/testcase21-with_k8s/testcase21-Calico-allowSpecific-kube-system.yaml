@@ -2,7 +2,7 @@
 apiVersion: projectcalico.org/v3
 kind: NetworkPolicy
 metadata:
-  name: testcase11-allow-allowFirst-defaultAllow
+  name: testcase21-allow-allowFirst-defaultAllow
   namespace: kube-system
 spec:
   order: 10

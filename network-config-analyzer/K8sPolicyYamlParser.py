@@ -6,6 +6,7 @@
 import re
 import Peer
 from ConnectionSet import ConnectionSet
+from NetworkPolicy import NetworkPolicy
 from PortSet import PortSet
 from TcpLikeProperties import TcpLikeProperties
 from GenericYamlParser import GenericYamlParser
@@ -407,6 +408,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         else:
             self.namespace = self.peer_container.get_namespace('default')
         res_policy = K8sNetworkPolicy(policy_metadata['name'], self.namespace)
+        res_policy.policy_kind = NetworkPolicy.PolicyType.K8sNetworkPolicy
 
         if 'spec' not in self.policy or self.policy['spec'] is None:
             self.warning('spec is missing or null in NetworkPolicy ' + res_policy.full_name())

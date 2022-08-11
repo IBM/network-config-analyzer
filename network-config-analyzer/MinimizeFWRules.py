@@ -737,7 +737,7 @@ class MinimizeFWRules:
             for rule in connection_rules:
                 if self.output_config.fwRulesFilterSystemNs and rule.should_rule_be_filtered_out():
                     continue
-                rule_obj = rule.get_rule_in_req_format(req_format, self.cluster_info.config_type)
+                rule_obj = rule.get_rule_in_req_format(req_format)
                 if (self.output_config.outputEndpoints == 'deployments' and str(rule_obj) not in rules_dict) or (
                         self.output_config.outputEndpoints == 'pods'):
                     rules_list.append(rule_obj)

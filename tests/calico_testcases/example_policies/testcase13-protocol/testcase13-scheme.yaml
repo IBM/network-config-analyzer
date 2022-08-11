@@ -43,7 +43,7 @@ queries:
     vacuity:
       - np_kube-system-non-matching-protocolos
       - no-match-not-protocol
-    expected: 2
+    expected: 0
 
   - name: not_vacuous_policies
     vacuity:
@@ -57,12 +57,12 @@ queries:
   - name: policies_redundant_in_vacuous
     redundancy:
         - np_kube-system-non-matching-protocolos
-    expected: 2
+    expected: 5
 
   - name: policies_redundant_in_non-vacuous
     redundancy:
         -  match-protocol
-    expected: 3
+    expected: 4
 
   - name: rules_not_redundant_in_match_not_protocol
     redundancy:

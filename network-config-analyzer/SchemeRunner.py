@@ -102,7 +102,7 @@ class SchemeRunner(GenericYamlParser):
         try:
             network_config = resources_handler.get_network_config(np_list, ns_list, pod_list, resource_list,
                                                                   config_name)
-            if not network_config.policies:
+            if not network_config:
                 self.warning(f'networkPolicyList {network_config.name} contains no networkPolicies',
                              np_list)
 

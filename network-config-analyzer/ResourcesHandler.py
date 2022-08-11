@@ -69,8 +69,7 @@ class ResourcesHandler:
 
         # build and return the networkConfig
         return NetworkConfig(name=config_name, peer_container=peer_container,
-                             policies_container=resources_parser.policies_finder.policies_container,
-                             config_type=resources_parser.policies_finder.type)
+                             policies_container=resources_parser.policies_finder.policies_container)
 
     def _set_config_peer_container(self, ns_list, pod_list, resource_list, config_name, save_flag, resources_parser):
         success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)

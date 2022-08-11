@@ -8,5 +8,5 @@ curl localhost:5000/policy_sets/set_0/findings
 
 The result should look like:
 ```json
-{"name":"set_0","policies":{"default/allow-agent-to-analyzer-via-ingress":["NetworkPolicy set_0/default/allow-agent-to-analyzer-via-ingress is redundant: it is contained in NetworkPolicy set_0/default/allow-egress-deny-ingress-within-namespace\n"],"default/allow-egress-deny-ingress-within-namespace":[]},"profiles":{}}
+{"name":"set_0","policies":{"default/allow-agent-to-analyzer-via-ingress":["NetworkPolicy set_0/default/allow-agent-to-analyzer-via-ingress is redundant: it is contained in NetworkPolicy set_0/default/allow-egress-deny-ingress-within-namespace\n"],"default/allow-egress-deny-ingress-within-namespace":[]}}
 ```
