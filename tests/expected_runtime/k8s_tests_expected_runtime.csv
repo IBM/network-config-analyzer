@@ -76,6 +76,7 @@ fw_rules_tests/policies/test6-scheme.yaml,0.18
 fw_rules_tests/policies/test7-scheme.yaml,0.19
 fw_rules_tests/policies/test8-scheme.yaml,0.17
 fw_rules_tests/policies/test9-scheme.yaml,0.26
+k8s_testcases/all_resources_in_same_dir/all-resources-in-one-dir-scheme.yaml,0.27
 k8s_testcases/example_policies/all-captured-tests/captured-tests-scheme.yaml,0.06
 k8s_testcases/example_policies/andOrCombinations/andOrCombinations-scheme.yaml,0.16
 k8s_testcases/example_policies/demo/interferes/interferes-scheme.yaml,0.14
