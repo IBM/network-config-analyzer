@@ -10,14 +10,12 @@ networkConfigList:
   - name: sidecar2
     networkPolicyList:
       - istio-sidecar-2.yaml
-    expectedWarnings: 1
-    expectedError : 1 # sidecar includes fields that are not supported yet
+    expectedWarnings: 3
 
   - name: sidecar3
     networkPolicyList:
       - istio-sidecar-3.yaml
-    expectedWarnings: 1
-    expectedError : 1 # sidecar includes fields that are not supported yet
+    expectedWarnings: 2
 
   - name: onlineboutique-sidecars
     networkPolicyList:

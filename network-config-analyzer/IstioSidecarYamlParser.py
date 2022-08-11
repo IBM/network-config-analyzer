@@ -148,8 +148,11 @@ class IstioSidecarYamlParser(GenericYamlParser):
         :rtype: IstioSidecarRule
         """
         # currently only hosts is considered in the rule parsing, other fields are not supported
-        allowed_keys = {'port': [2, dict], 'bind': [2, str], 'captureMode': [2, str], 'hosts': [1, list]}
+        allowed_keys = {'port': [0, dict], 'bind': [0, str], 'captureMode': [0, str], 'hosts': [1, list]}
         self.check_fields_validity(egress_rule, 'Istio Egress Listener', allowed_keys)
+
+        if egress_rule.get('port') or egress_rule.get('bind') or egress_rule.get('captureMode'):
+            self.warning('Only hosts field will be considered in policy connections of the sidecar egress', self)
 
         hosts = egress_rule.get('hosts')
         if not hosts:
@@ -197,7 +200,7 @@ class IstioSidecarYamlParser(GenericYamlParser):
 
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress
-        allowed_spec_keys = {'workloadSelector': [0, dict], 'ingress': [2, list], 'egress': [0, list],
+        allowed_spec_keys = {'workloadSelector': [0, dict], 'ingress': [0, list], 'egress': [0, list],
                              'outboundTrafficPolicy': [2, str]}
         self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
@@ -210,6 +213,11 @@ class IstioSidecarYamlParser(GenericYamlParser):
         # if sidecar's namespace is the root namespace, then it applies to all cluster's namespaces
         if self.namespace.name != GenericYamlParser.istio_root_namespace:
             res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
+
+        if sidecar_spec.get('ingress') is not None:
+            self.warning('Sidecar ingress is not supported yet.'
+                         f'Although {res_policy.full_name()} contains ingress entry, '
+                         f'it is not considered in policy connections')
 
         for egress_rule in sidecar_spec.get('egress', []):
             res_policy.add_egress_rule(self._parse_egress_rule(egress_rule))
