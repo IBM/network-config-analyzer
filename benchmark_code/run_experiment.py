@@ -1,22 +1,27 @@
 import json
-import timeit
 from pathlib import Path
 from statistics import mean, quantiles
 
-from ConnectivityGraph import ConnectivityGraph
-from Peer import PeerSet, Peer
-from OutputConfiguration import OutputConfiguration
-from NetworkConfig import NetworkConfig
 from ConnectionSet import ConnectionSet
+from ConnectivityGraph import ConnectivityGraph
+from NetworkConfig import NetworkConfig
+from OutputConfiguration import OutputConfiguration
+from Peer import PeerSet, Peer
 from nca import nca_main
 
 
-def run_scheme(scheme_abs_path: str):
+def run_scheme(scheme_abs_path: str) -> int:
     argv = [
         '--scheme',
         scheme_abs_path
     ]
-    retval = nca_main(argv)
+    return nca_main(argv)
+
+
+def call_scheme():
+    scheme_file = r'C:\Users\018130756\repos\network-config-analyzer\tests\k8s_testcases\example_policies\tests' \
+                  r'-different-topologies\copy-semanticDiff-IpBlocks-different-topologies-scheme.yaml '
+    run_scheme(scheme_file)
 
 
 def example_1():
@@ -68,12 +73,6 @@ def example_1():
     print(x)
 
 
-def call_scheme():
-    scheme_file = r'C:\Users\018130756\repos\network-config-analyzer\tests\k8s_testcases\example_policies\tests' \
-                  r'-different-topologies\copy-semanticDiff-IpBlocks-different-topologies-scheme.yaml '
-    run_scheme(scheme_file)
-
-
 def analyze_input_parameters():
     logs_file = Path('CanonicalIntervalSetLogs.json')
     with logs_file.open('r') as f:
@@ -87,76 +86,6 @@ def analyze_input_parameters():
     print(f'quantiles: {quantiles(size_list)}')
 
 
-def get_scheme_file_text(benchmark_name: str, query: str) -> str:
-    if query not in ['connectivity', 'sanity']:
-        raise NotImplementedError()
-
-    query_to_scheme_query = {'connectivity': 'connectivityMap', 'sanity': 'sanity'}
-    scheme_file_text = f"""
-namespaceList: {benchmark_name}
-podList: {benchmark_name}
-networkConfigList:
-  - name: network
-    networkPolicyList:
-      - {benchmark_name}
-queries:
-  - name: {query}
-    {query_to_scheme_query[query]}:
-      - network
-"""
-    return scheme_file_text
-
-
-def run_benchmark(benchmark_name: str, query: str) -> dict:
-    """Runs a specific benchmark with a specific query"""
-    scheme_file = Path('../benchmarks/scheme.yaml').resolve()
-    scheme_file_text = get_scheme_file_text(benchmark_name, query)
-    scheme_file.write_text(scheme_file_text)
-    # with scheme_file.open('w') as f:
-    #     f.write(scheme_file_text)
-
-    argv = [
-        '--scheme',
-        str(scheme_file)
-    ]
-    runtime = timeit.repeat(lambda: nca_main(argv), repeat=5, number=1)
-    # retval = nca_main(argv)
-
-    scheme_file.unlink()
-
-    # TODO: give a more detailed result
-    return {'runtime': runtime}
-
-
-def run_sanity_benchmark():
-    scheme_file = Path('../benchmark/dra/sanity-scheme.yaml').resolve()
-    scheme_file_str = str(scheme_file)
-    argv = [
-        '--scheme',
-        scheme_file_str
-    ]
-    retval = nca_main(argv)
-
-
-def run_connectivity_benchmark():
-    scheme_file = Path('../benchmark/dra/connectivity-scheme.yaml').resolve()
-    scheme_file_str = str(scheme_file)
-    argv = [
-        '--scheme',
-        scheme_file_str
-    ]
-    retval = nca_main(argv)
-
-
 if __name__ == "__main__":
-    # call_scheme()
+    call_scheme()
     # analyze_input_parameters()
-
-    # Benchmarking
-    # TODO: refactor - move code to somewhere else
-    queries = ['sanity', 'connectivity']
-    benchmarks = ['dra']
-    for benchmark in benchmarks:
-        for query in queries:
-            result = run_benchmark(benchmark, query)
-            print(f'benchmark={benchmark}, query={query}, result={result}')
