@@ -1,0 +1,79 @@
+resourceList:
+  - ./topology/
+  - hep.yaml
+
+networkConfigList:
+  # layers: calico, ingress
+  - name: testcase26-config-1-calico-ingress
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-ingress-resource-policy.yaml
+    expectedWarnings: 0
+
+  # layers: calico, k8s
+  - name: testcase26-config-1-calico-k8s
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-productpage-ingress-from-ratings.yaml
+      - testcase26-networkpolicy-k8s-ratings-egress-to-productpage.yaml
+    expectedWarnings: 0
+
+  - name: allow-all-config
+    networkPolicyList:
+      - ../common-policies/policy-allow-all.yaml
+
+  - name: allow-all-pods-config
+    networkPolicyList:
+      - testcase26-networkpolicy-calico-allow-all-pods-without-hep.yaml
+
+    # TODO: if there is only k8s and ingress layers, but ingress controller pod has no Ingress policy resource, what is a vacuous config?
+    #  a one with no egress traffic from this pod to other pods?
+
+  - name: allow-all-istio-config-1
+    networkPolicyList:
+      - testcase26-networkpolicy-istio-default-allow.yaml
+      - testcase26-networkpolicy-calico-allow-all-pods-without-hep.yaml
+
+  - name: allow-all-istio-config-2
+    networkPolicyList:
+      - testcase26-networkpolicy-istio-default-allow.yaml
+
+
+
+queries:
+
+  - name: vacuity_test_calico_ingress_1
+    vacuity:
+      - testcase26-config-1-calico-ingress
+    expected: 0
+
+  - name: non-vacous_configs_test
+    vacuity:
+      - testcase26-config-1-calico-k8s
+    expected: 0
+
+  - name: allow-all-config
+    vacuity:
+      - allow-all-config
+    expected: 0 # not vacuous because topology has HEP (with default-deny), and using a global network policy to allow all
+
+  - name: allow-all-pods-config
+    vacuity:
+      - allow-all-pods-config
+    expected: 1
+
+  - name: allow-all-istio-config-1
+    vacuity:
+      - allow-all-istio-config-1
+    expected: 1
+
+  - name: allow-all-istio-config-2
+    vacuity:
+      - allow-all-istio-config-2
+    expected: 1
+
+  #TODO: check this query
+  #- name: semanticDiff
+  #  semanticDiff:
+  #    - testcase26-config-1-calico-ingress
+  #    - allow-all-config
+  #  expected: 1 # place-holder to mention there is a bug in the output (all but "" )

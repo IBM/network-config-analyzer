@@ -5,7 +5,8 @@ networkConfigList:
   - name: np_redundacy
     networkPolicyList:
       - demo-sanity3-redundancy.yaml
-      - demo-deny-all-wdc-wep-profiles.yaml
+      - ../common-policies/policy-deny-all.yaml
+      #- demo-deny-all-wdc-wep-profiles.yaml
     expectedWarnings: 0
 
 queries:

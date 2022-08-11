@@ -8,6 +8,7 @@ from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
 from GenericYamlParser import GenericYamlParser
 from IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
+from NetworkPolicy import NetworkPolicy
 from Peer import IpBlock, PeerSet
 from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
@@ -582,6 +583,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
             self.syntax_error('AuthorizationPolicy has no name', self.policy)
         self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
         res_policy = IstioNetworkPolicy(metadata['name'], self.namespace)
+        res_policy.policy_kind = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
 
         policy_spec = self.policy['spec']
         # currently not supporting provider

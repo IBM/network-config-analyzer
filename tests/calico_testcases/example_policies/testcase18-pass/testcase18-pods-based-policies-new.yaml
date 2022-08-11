@@ -1,0 +1,99 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase18-highPriorityPass-app-redundant
+spec:
+  selector: role in { 'worker-private'}
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Pass
+    source:
+      selector: has(app)
+  - action: Allow
+    source:
+      selector: has(type)
+  - action: Deny
+    protocol: TCP
+    source:
+      selector: has(role)
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase18-highPriorityPass-app-not-redundant
+spec:
+  selector: role in { 'worker-private'}
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Pass
+    source:
+      selector: has(app)
+  - action: Allow
+    source:
+      selector: has(type)
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(role)
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase18-equivTo-highPriorityPass-app-not-redundant
+spec:
+  selector: role in { 'worker-private'}
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: has(type)
+  - action: Deny
+    source:
+      selector: has(app)
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(role)
+  egress:
+  - action: Allow
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase18-pass-not-app-not-redundant
+spec:
+  selector: role in { 'worker-private'}
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    source:
+      selector: has(type)
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: "!has(role)"
+  - action: Pass
+    source:
+      selector: has(app)
+  - action: Allow
+    source:
+      selector: has(app)
+
+  egress:
+  - action: Allow
+

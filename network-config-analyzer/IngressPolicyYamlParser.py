@@ -8,6 +8,7 @@ from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
 from GenericYamlParser import GenericYamlParser
 from IngressPolicy import IngressPolicy, IngressPolicyRule
+from NetworkPolicy import NetworkPolicy
 from Peer import PeerSet, IpBlock
 from PeerContainer import PeerContainer
 from PortSet import PortSet
@@ -198,7 +199,8 @@ class IngressPolicyYamlParser(GenericYamlParser):
                 path_string = path_string[:-1]  # remove the trailing slash
         return path_string, path_type, peers, ports
 
-    def segregate_longest_paths_and_make_dfa(self, parsed_paths):
+    @staticmethod
+    def segregate_longest_paths_and_make_dfa(parsed_paths):
         """
         Implement longest match semantics: for every path string, eliminate shorter subpaths to extend to longer ones
         :param parsed_paths: a list of tuples (path_string, path_type, peers, ports)
@@ -260,14 +262,17 @@ class IngressPolicyYamlParser(GenericYamlParser):
         :param TcpLikeProperties allowed_conns: the given allowed connections
         :return: the list of deny IngressPolicyRules
         """
+
         all_peers_and_ip_blocks = self.peer_container.peer_set.copy()
         all_peers_and_ip_blocks.add(IpBlock.get_all_ips_block())  # add IpBlock of all IPs
+
         all_conns = self._make_tcp_like_properties(PortSet(True), all_peers_and_ip_blocks)
         denied_conns = all_conns - allowed_conns
         res = self._make_rules_from_conns(denied_conns)
         # Add deny rule for all protocols but TCP , relevant for all peers and ip blocks
         non_tcp_conns = ConnectionSet.get_non_tcp_connections()
         res.append(IngressPolicyRule(all_peers_and_ip_blocks, non_tcp_conns))
+
         return res
 
     def _make_rules_from_conns(self, tcp_conns):
@@ -372,6 +377,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
 
         res_deny_policy = IngressPolicy(self.policy['metadata']['name'] + '/deny', self.namespace,
                                         IngressPolicy.ActionType.Deny)
+        res_deny_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
 
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],
@@ -385,6 +391,7 @@ class IngressPolicyYamlParser(GenericYamlParser):
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
         if not res_deny_policy.selected_peers:
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
+
         allowed_conns = None
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):

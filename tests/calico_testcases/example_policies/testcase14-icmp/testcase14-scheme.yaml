@@ -62,12 +62,6 @@ queries:
       - no-match-notICMP
     expected: 0
 
-  - name: vacuous_policies
-    vacuity:
-      - np_kube-system-non-matching-icmps  #should be vacuous but is not
-      - default-open-but-vacuous
-      - no-match-notICMP
-    expected: 3
 
   - name: not_vacuous_policies
     vacuity:
@@ -76,12 +70,15 @@ queries:
       - match-not-icmp
       - match-icmp-within-kube-system
       - icmp-no-type
+      - np_kube-system-non-matching-icmps  #should be vacuous but is not
+      - default-open-but-vacuous
+      - no-match-notICMP
     expected: 0
 
   - name: policies_redundant_in_vacuous
     redundancy:
         - np_kube-system-non-matching-icmps
-    expected: 2
+    expected: 5
 
   - name: policies_redundant_in_non-vacuous
     redundancy:

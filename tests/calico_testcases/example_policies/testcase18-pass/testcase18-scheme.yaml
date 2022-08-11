@@ -25,42 +25,46 @@ queries:
     - np-ports-based
     expected: 0
 
+
+  # added conversion for this test with hostendpoints: pods are always assumed to have profiles with allow-all
+  # thus, the policies with PASS action do not have the desired effect on such pods
+  # need to replace with host-endpoints and use global network policies instead, to test the same effect.
   - name: redundancy_redundantPass
     redundancy:
     - np-pod-based-policies/kube-system/testcase18-highPriorityPass-k8s-app-redundant
-    expected: 2
+    expected: 1
 
   - name: redundancy_nonRedundantPass
     redundancy:
     - np-pod-based-policies/kube-system/testcase18-highPriorityPass-k8s-app-not-redundant
     - np-pod-based-policies/kube-system/testcase18-equivTo-highPriorityPass-k8s-app-not-redundant
     - np-pod-based-policies/kube-system/testcase18-pass-not-k8s-app-not-redundant
-    expected: 3
+    expected: 5
 
   - name: equiv_nonRedundantPass_and_its_equiv
     equivalence:
     - np-pod-based-policies/kube-system/testcase18-highPriorityPass-k8s-app-not-redundant
     - np-pod-based-policies/kube-system/testcase18-equivTo-highPriorityPass-k8s-app-not-redundant
     - np-pod-based-policies/kube-system/testcase18-highPriorityPass-k8s-app-redundant
-    expected: 0
+    expected: 2
 
   - name: non_equiv_nonRednundant_pass
     equivalence:
     - np-pod-based-policies/kube-system/testcase18-pass-not-k8s-app-not-redundant
     - np-pod-based-policies/kube-system/testcase18-highPriorityPass-k8s-app-not-redundant
-    expected: 1
+    expected: 0
 
   - name: equiv_different-writing
     equivalence:
       - np-ports-based/kube-system/testcase18-different-ranges-writing1
       - np-ports-based/kube-system/testcase18-different-ranges-writing2
-    expected: 0
+    expected: 1
 
   - name: non_interfere_equiv_different-writing
     interferes:
       - np-ports-based/kube-system/testcase18-different-ranges-writing1
       - np-ports-based/kube-system/testcase18-different-ranges-writing2
-    expected: 0
+    expected: 1
 
   - name: none-equiv_different_ranges_writing_additional_port
     equivalence:
@@ -72,23 +76,23 @@ queries:
     pairwiseInterferes:
       - np-ports-based/kube-system/testcase18-different-ranges-writing1
       - np-ports-based/kube-system/testcase18-different-ranges-writing-slightly-bigger
-    expected: 1
+    expected: 2
 
   - name: containment_different_ranges_writing_additional_port
     containment:
       - np-ports-based/kube-system/testcase18-different-ranges-writing-slightly-bigger
       - np-ports-based/kube-system/testcase18-different-ranges-writing1
       - np-ports-based/kube-system/testcase18-different-ranges-writing2
-    expected: 2
+    expected: 1
 
-  - name: equiv_different_ranges_writing_redundant  # 2 equiv policies should be redundant
+  - name: equiv_different_ranges_writing_redundant
     redundancy:
       - np-ports-based
       - np-ports-based/kube-system/testcase18-different-ranges-writing1
       - np-ports-based/kube-system/testcase18-different-ranges-writing2
-    expected: 6
+    expected: 7
 
-  - name: sanity_equiv_different_ranges_writing_redundant  # 2 equiv policies should be redundant
+  - name: sanity_equiv_different_ranges_writing_redundant
     sanity:
       - np-ports-based
-    expected: 3
+    expected: 4

@@ -6,9 +6,8 @@
 from ruamel.yaml import YAML
 from collections import deque
 from CmdlineRunner import CmdlineRunner
-from NetworkConfig import NetworkConfig, PoliciesContainer
+from NetworkConfig import PoliciesContainer
 from NetworkPolicy import NetworkPolicy
-from CalicoNetworkPolicy import CalicoNetworkPolicy
 from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from IstioPolicyYamlParser import IstioPolicyYamlParser
@@ -24,7 +23,6 @@ class PoliciesFinder:
     def __init__(self):
         self.policies_container = PoliciesContainer()
         self._parse_queue = deque()
-        self.type = NetworkConfig.ConfigType.Unknown
         self.peer_container = None
 
     def set_peer_container(self, peer_container):
@@ -53,27 +51,17 @@ class PoliciesFinder:
     def _add_policy(self, policy):
         """
         This should be the only place where we add policies to the config's set of policies from input resources
-        :param NetworkPolicy policy: The policy to add
+        :param NetworkPolicy.NetworkPolicy policy: The policy to add
         :return: None
         """
-        self.type = NetworkConfig.append_policy(policy, self.policies_container.policies,
-                                                self.policies_container.sorted_policies,
-                                                self.policies_container.ingress_deny_policies,
-                                                self.type)
-
-    def _add_profile(self, profile):
-        """"
-        This should be the only place where we add profiles to the config's set of profiles from input resources
-        :param CalicoNetworkPolicy profile: The profile to add
-        :return: None
-        """
-        self.type = NetworkConfig.append_profile(profile, self.policies_container.profiles, self.type)
+        self.policies_container.append_policy(policy)
 
     def parse_policies_in_parse_queue(self):
         for policy, file_name, policy_type in self._parse_queue:
             if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
-                self._add_profile(parsed_element.parse_policy())
+                # only during parsing adding extra labels from profiles (not supporting profiles with rules)
+                parsed_element.parse_policy()
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
@@ -91,7 +79,7 @@ class PoliciesFinder:
                 self._add_policy(parsed_element.parse_policy())
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
-        policy_type = NetworkPolicy.get_policy_type(policy_object)
+        policy_type = NetworkPolicy.get_policy_type_from_dict(policy_object)
         if policy_type == NetworkPolicy.PolicyType.Unknown:
             return
         if policy_type == NetworkPolicy.PolicyType.List:
@@ -117,4 +105,4 @@ class PoliciesFinder:
                         self._add_policies_to_parse_queue(policy_list_list.get('items', []), file_name)
 
     def has_empty_containers(self):
-        return not self.policies_container.policies and not self.policies_container.profiles
+        return not self.policies_container.policies
