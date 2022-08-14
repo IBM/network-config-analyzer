@@ -3,65 +3,16 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import re
-from GenericYamlParser import GenericYamlParser
+from GenericYamlParser import IstioGenericYamlParser
 from NetworkPolicy import NetworkPolicy
 from IstioSidecar import IstioSidecar, IstioSidecarRule
 from Peer import PeerSet
-from PeerContainer import PeerContainer
 
 
-class IstioSidecarYamlParser(GenericYamlParser):
+class IstioSidecarYamlParser(IstioGenericYamlParser):
     """
     A parser for Istio Sidecar objects
     """
-
-    def __init__(self, policy, peer_container, sidecar_file_name=''):
-        """
-        :param dict policy: The sidecar policy object as provided by the yaml parser
-        :param PeerContainer peer_container: The sidecar will be evaluated against this set of peers
-        :param str sidecar_file_name: The name of the file in which the sidecar resides
-        """
-        GenericYamlParser.__init__(self, sidecar_file_name)
-        self.policy = policy
-        self.peer_container = peer_container
-        self.namespace = None
-        self.referenced_labels = set()
-
-    def _parse_workload_selector(self, workload_selector):
-        """
-        Parse a WorkloadSelector element
-        :param dict workload_selector: The element to parse
-        :return: A PeerSet containing all the pods captured by this selection
-        :rtype: Peer.PeerSet
-        """
-        allowed_keys = {'labels': [1, dict]}
-        self.check_fields_validity(workload_selector, 'sidecar WorkloadSelector ', allowed_keys)
-
-        labels = workload_selector.get('labels')
-        if not labels:
-            self.syntax_error('One or more labels that indicate a specific set '
-                              'of pods are required.', workload_selector)
-
-        res = self.peer_container.get_all_peers_group()
-        for key, val in labels.items():
-            res &= self.peer_container.get_peers_with_label(key, [val])
-        self.referenced_labels.add(':'.join(labels.keys()))
-
-        if not res:
-            self.warning('A workloadSelector selects no pods.', workload_selector)
-
-        return res
-
-    # def _parse_port(self, port):
-    #     """
-    #     currently port is not considered in rules' connections,
-    #     in the meanwhile keeping this for validity checking only
-    #     :param dict port: The dict with port fields
-    #     """
-    #     self.check_fields_validity(port, 'Istio Ingress/Egress Listener Port',
-    #                                {'number': [1, int], 'protocol': [1, str], 'name': [1, str],
-    #                                'targetPort': [0, int]},
-    #                                {'protocol': ['HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS']})
 
     def _validate_and_partition_host_format(self, host):
         """
@@ -209,9 +160,9 @@ class IstioSidecarYamlParser(GenericYamlParser):
         if workload_selector is None:
             res_policy.selected_peers = self.peer_container.get_all_peers_group()
         else:
-            res_policy.selected_peers = self._parse_workload_selector(workload_selector)
+            res_policy.selected_peers = self.parse_workload_selector(workload_selector, 'labels')
         # if sidecar's namespace is the root namespace, then it applies to all cluster's namespaces
-        if self.namespace.name != GenericYamlParser.istio_root_namespace:
+        if self.namespace.name != IstioGenericYamlParser.istio_root_namespace:
             res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
 
         if sidecar_spec.get('ingress') is not None:

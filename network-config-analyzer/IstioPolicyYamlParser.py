@@ -6,59 +6,19 @@ import re
 
 from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
-from GenericYamlParser import GenericYamlParser
+from GenericYamlParser import IstioGenericYamlParser
 from IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
 from NetworkPolicy import NetworkPolicy
 from Peer import IpBlock, PeerSet
-from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
 from PortSet import PortSet
 from MethodSet import MethodSet
 
 
-class IstioPolicyYamlParser(GenericYamlParser):
+class IstioPolicyYamlParser(IstioGenericYamlParser):
     """
     A parser for Istio AuthorizationPolicy objects
     """
-
-    def __init__(self, policy, peer_container, policy_file_name=''):
-        """
-        :param dict policy: The policy object as provided by the yaml parser
-        :param PeerContainer peer_container: The policy will be evaluated against this set of peers
-        :param str policy_file_name: The name of the file in which the policy resides
-        """
-        GenericYamlParser.__init__(self, policy_file_name)
-        self.policy = policy
-        self.peer_container = peer_container
-        self.namespace = None
-        self.referenced_labels = set()
-
-    def parse_label_selector(self, label_selector):
-        """
-        Parse a LabelSelector element
-        :param dict label_selector: The element to parse
-        :return: A PeerSet containing all the pods captured by this selection
-        :rtype: Peer.PeerSet
-        """
-        if label_selector is None:
-            return PeerSet()  # A None value means the selector selects nothing
-        if not label_selector:
-            return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
-
-        allowed_elements = {'matchLabels': [0, dict]}
-        self.check_fields_validity(label_selector, 'authorization policy WorkloadSelector', allowed_elements)
-
-        res = self.peer_container.get_all_peers_group()
-        match_labels = label_selector.get('matchLabels')
-        if match_labels:
-            for key, val in match_labels.items():
-                res &= self.peer_container.get_peers_with_label(key, [val])
-            self.referenced_labels.add(':'.join(match_labels.keys()))
-
-        if not res:
-            self.warning('A podSelector selects no pods. Better use "podSelector: Null"', label_selector)
-
-        return res
 
     def _validate_istio_regex_pattern(self, regex_str):
         """
@@ -601,9 +561,9 @@ class IstioPolicyYamlParser(GenericYamlParser):
         if pod_selector is None:
             res_policy.selected_peers = self.peer_container.get_all_peers_group()
         else:
-            res_policy.selected_peers = self.parse_label_selector(pod_selector)
+            res_policy.selected_peers = self.parse_workload_selector(pod_selector, 'matchLabels')
         # if policy's namespace is the root namespace, then it applies to all cluster's namespaces
-        if self.namespace.name != GenericYamlParser.istio_root_namespace:
+        if self.namespace.name != IstioGenericYamlParser.istio_root_namespace:
             res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
         for ingress_rule in policy_spec.get('rules', []):
             res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule))

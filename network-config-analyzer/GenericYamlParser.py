@@ -18,9 +18,6 @@ class GenericYamlParser:
     """
     A base class for yaml parsers, providing basic services
     """
-    # TODO: istio_root_namespace should be configurable from istio configuration, currently using default value for it
-    # If namespace is set to istio root namespace, the policy object applies to all namespaces in a mesh
-    istio_root_namespace = 'istio-config'
 
     class FilterActionType(Enum):
         """
@@ -189,4 +186,61 @@ class GenericYamlParser:
                                            paths=paths_dfa, hosts=hosts_dfa)
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
+        return res
+
+
+from PeerContainer import PeerContainer
+
+
+class IstioGenericYamlParser(GenericYamlParser):
+    """
+    A class for istio yaml parser , common methods for istio policies parsers
+    """
+    # TODO: istio_root_namespace should be configurable from istio configuration, currently using default value for it
+    # If namespace is set to istio root namespace, the policy object applies to all namespaces in a mesh
+
+    istio_root_namespace = 'istio-config'
+
+    def __init__(self, policy, peer_container, file_name=''):
+        """
+        :param dict policy: The istio policy object as provided by the yaml parser
+        :param PeerContainer peer_container: The policy will be evaluated against this set of peers
+        :param str file_name: The name of the file in which the istio policy object resides
+        """
+        GenericYamlParser.__init__(self, file_name)
+        self.policy = policy
+        self.peer_container = peer_container
+        self.namespace = None
+        self.referenced_labels = set()
+
+    def parse_workload_selector(self, workload_selector, element_key):
+        """
+        Parse a LabelSelector element
+        :param dict workload_selector: The element to parse
+        :param str element_key: the key label of the allowed element of the label-selector
+        :return: A PeerSet containing all the pods captured by this selection
+        :rtype: Peer.PeerSet
+        """
+        # to be checked on live cluster
+        # if workload_selector is None:
+        #     return PeerSet()  # A None value means the selector selects nothing
+        # if not workload_selector:
+        #     return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
+
+        allowed_elements = {element_key: [1, dict]}
+        self.check_fields_validity(workload_selector, 'Istio policy WorkloadSelector', allowed_elements)
+
+        match_labels = workload_selector.get(element_key)
+        if not match_labels:
+            self.syntax_error('One or more labels that indicate a specific set '
+                              'of pods are required.', workload_selector)
+
+        res = self.peer_container.get_all_peers_group()
+        for key, val in match_labels.items():
+            res &= self.peer_container.get_peers_with_label(key, [val])
+        self.referenced_labels.add(':'.join(match_labels.keys()))
+
+        if not res:
+            self.warning('A workloadSelector selects no pods.', workload_selector)
+
         return res
