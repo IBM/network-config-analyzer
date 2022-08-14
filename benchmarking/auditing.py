@@ -1,39 +1,89 @@
 import sys
+from abc import ABC, abstractmethod
+from collections import defaultdict
+from itertools import product
 from types import FrameType
-from typing import Type, Any
+from typing import Any
 
 from CanonicalIntervalSet import CanonicalIntervalSet
+from benchmarking.benchmarking_utils import get_all_benchmark_dirs, get_all_queries, Benchmark
 
 
-# TODO:
-#   - change this class so it can take any method / function
-class FunctionTracker:
-    def __init__(self, func_name: str, to_track: list[str], belongs_to_class: Type = None, source_file: str = None):
-        """TODO: write docs
-
-        :param func_name: the name of the function to track
-        :param to_track: name of stats to track and a callback that calculates them from the locals()
-        :param belongs_to_class: if there are different methods with the same name, this will be used in order to
-            select the correct function
-        :param source_file: if there are different functions with the same name, this will be used to determine the
-            correct one
-        """
-        # TODO: implement
-        # TODO: this class will not activate the `settrace`, this is only a single hook. the `settrace` will use a
-        #  function that calls a list of FunctionTracker
-        pass
-
-
-class IntervalSizeContainedInHook:
+class Inspector(ABC):
+    # TODO: maybe consider instead of an abstract class to be a class that
+    #   takes the necessary functions in the constructor
     def __init__(self):
-        self.record = {'n_intervals_self': [],
-                       'n_intervals_other': []}
-        sys.settrace(self.hook)
+        self._records = defaultdict(list)
+
+    def reset(self):
+        self._records = defaultdict(list)
 
     def hook(self, frame: FrameType, event: str, arg: Any):
-        if frame.f_code.co_name == 'contained_in':
-            called_self = frame.f_locals['self']
-            if isinstance(called_self, CanonicalIntervalSet):
-                called_other: CanonicalIntervalSet = frame.f_locals['other']
-                self.record['n_intervals_self'].append(len(called_self))
-                self.record['n_intervals_other'].append(len(called_other))
+        if self._select_event(frame, event, arg):
+            record = self._process_event(frame, event, arg)
+            for key, value in record.items():
+                self._records[key].append(value)
+
+    def get_stats(self) -> dict:
+        return self._process_records(self._records)
+
+    @staticmethod
+    @abstractmethod
+    def _select_event(frame: FrameType, event: str, arg: Any) -> bool:
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def _process_event(frame: FrameType, event: str, arg: Any) -> dict:
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def _process_records(records: dict[list]) -> dict:
+        raise NotImplementedError
+
+
+class ContainedInInspector(Inspector):
+    @staticmethod
+    def _select_event(frame: FrameType, event: str, arg: Any) -> bool:
+        return frame.f_code.co_name == CanonicalIntervalSet.contained_in.__name__ and \
+               'self' in frame.f_locals and \
+               isinstance(frame.f_locals['self'], CanonicalIntervalSet)
+
+    @staticmethod
+    def _process_event(frame: FrameType, event: str, arg: Any) -> dict:
+        return {
+            'n_intervals': (
+                len(frame.f_locals['self']),
+                len(frame.f_locals['other'])
+            )
+        }
+
+    @staticmethod
+    def _process_records(records: dict[list]) -> dict:
+        return records
+
+
+def audit_all_benchmarks():
+    benchmark_dirs = get_all_benchmark_dirs()
+    queries = get_all_queries()
+
+    # TODO: add more hooks
+    inspectors = [
+        ContainedInInspector()
+    ]
+    for inspector in inspectors:
+        sys.settrace(inspector.hook)
+
+    for benchmark_dir, query in product(benchmark_dirs, queries):
+        benchmark = Benchmark(benchmark_dir, query)
+        for inspector in inspectors:
+            inspector.reset()
+        benchmark.run()
+        stats = [inspector.get_stats() for inspector in inspectors]
+        # TODO: do something else with the stats
+        print(stats)
+
+
+if __name__ == "__main__":
+    audit_all_benchmarks()
