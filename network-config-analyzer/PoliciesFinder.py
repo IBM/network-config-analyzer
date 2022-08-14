@@ -12,6 +12,7 @@ from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from IstioPolicyYamlParser import IstioPolicyYamlParser
 from IngressPolicyYamlParser import IngressPolicyYamlParser
+from IstioTrafficResourcesYamlParser import IstioTrafficResourcesYamlParser
 
 
 class PoliciesFinder:
@@ -56,6 +57,7 @@ class PoliciesFinder:
         self.policies_container.append_policy(policy)
 
     def parse_policies_in_parse_queue(self):
+        istio_traffic_parser = None
         for policy, file_name, policy_type in self._parse_queue:
             if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
@@ -70,9 +72,21 @@ class PoliciesFinder:
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
+            elif policy_type == NetworkPolicy.PolicyType.Gateway:
+                if not istio_traffic_parser:
+                    istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)
+                istio_traffic_parser.parse_gateway(policy, file_name)
+            elif policy_type == NetworkPolicy.PolicyType.VirtualService:
+                if not istio_traffic_parser:
+                    istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)
+                istio_traffic_parser.parse_virtual_service(policy, file_name)
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
+        if istio_traffic_parser:
+            istio_traffic_policies = istio_traffic_parser.create_istio_traffic_policies()
+            for istio_traffic_policy in istio_traffic_policies:
+                self._add_policy(istio_traffic_policy)
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
         policy_type = NetworkPolicy.get_policy_type_from_dict(policy_object)

@@ -1,0 +1,18 @@
+namespaceList: ./
+podList: ./
+
+networkConfigList:
+  - name: fly-istio-ingress-test
+    resourceList:
+      - ./resources
+    expectedWarnings: 0
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - fly-istio-ingress-test
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ./fly_istio_ingress_test_connectivity_map.txt

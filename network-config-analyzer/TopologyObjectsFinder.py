@@ -332,7 +332,7 @@ class ServicesFinder:
         for srv_code in srv_resources.get('items', []):
             service = parser.parse_service(srv_code)
             if service:
-                service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace.name)
+                service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
                 self.services_list.append(service)
 
     def parse_yaml_code_for_service(self, res_code, yaml_file):
@@ -345,10 +345,10 @@ class ServicesFinder:
                 if isinstance(srv_item, dict) and srv_item.get('kind') in {'Service'}:
                     service = parser.parse_service(srv_item)
                     if service:
-                        service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace.name)
+                        service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
                         self.services_list.append(service)
         elif kind in {'Service'}:
             service = parser.parse_service(res_code)
             if service:
-                service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace.name)
+                service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
                 self.services_list.append(service)

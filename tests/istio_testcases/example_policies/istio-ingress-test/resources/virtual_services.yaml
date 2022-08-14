@@ -1,0 +1,55 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: bookinfo-rule
+  namespace: bookinfo-namespace
+spec:
+  hosts:
+  - reviews.prod.svc.cluster.local
+  - uk.bookinfo.com
+  - eu.bookinfo.com
+  gateways:
+  - default/my-gateway
+  - mesh # applies to all the sidecars in the mesh
+  http:
+  - match:
+    - headers:
+        cookie:
+          exact: "user=dev-123"
+    route:
+    - destination:
+        port:
+          number: 7777
+        host: reviews.qa.svc.cluster.local
+  - match:
+    - uri:
+        prefix: /reviews/
+    route:
+    - destination:
+        port:
+          number: 9080 # can be omitted if it's the only port for ratings
+        host: ratings.prod.svc.cluster.local
+      weight: 80
+    - destination:
+        host: reviews.qa.svc.cluster.local
+      weight: 20
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: bookinfo-mongo
+  namespace: bookinfo-namespace
+spec:
+  hosts:
+  - mongosvr.prod.svc.cluster.local # name of internal Mongo service
+  gateways:
+  - default/my-gateway # can omit the namespace if gateway is in same namespace as virtual service.
+  tcp:
+  - match:
+    - port: 27017
+    route:
+    - destination:
+        host: details.prod.svc.cluster.local
+        port:
+          number: 5555

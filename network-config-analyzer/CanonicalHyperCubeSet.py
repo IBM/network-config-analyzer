@@ -515,7 +515,7 @@ class CanonicalHyperCubeSet:
             return covered_elem_res == self.dimensions_manager.get_dimension_domain_by_name(current_dim)
 
         # case 3: current_dim is common to both self and other
-        assert (current_dim in self.active_dimensions and current_dim in other.active_dimensions)
+        assert current_dim in self.active_dimensions and current_dim in other.active_dimensions
         # sub-case (a): current_dim is last for both self and other : simple containment check
         if self._is_last_dimension() and other._is_last_dimension():
             return (self._get_last_dim_cube_value()).contained_in(other._get_last_dim_cube_value())

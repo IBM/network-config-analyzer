@@ -25,6 +25,8 @@ class NetworkPolicy:
         CalicoProfile = 4
         IstioAuthorizationPolicy = 10
         Ingress = 20
+        Gateway = 30
+        VirtualService = 31
         List = 500
 
         @staticmethod
@@ -145,6 +147,10 @@ class NetworkPolicy:
         elif 'istio' in api_version:
             if kind == 'AuthorizationPolicy':
                 policy_type = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
+            elif kind == 'Gateway':
+                policy_type = NetworkPolicy.PolicyType.Gateway
+            elif kind == 'VirtualService':
+                policy_type = NetworkPolicy.PolicyType.VirtualService
         elif kind == 'NetworkPolicy':
             policy_type = NetworkPolicy.PolicyType.K8sNetworkPolicy
         elif kind == 'Ingress':
