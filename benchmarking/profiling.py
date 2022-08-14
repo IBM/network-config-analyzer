@@ -1,7 +1,8 @@
+from cProfile import Profile
 from pathlib import Path
 from pstats import Stats, FunctionProfile
 
-from benchmark_code.run_benchmarks import get_source_dir
+from benchmarking.benchmarking_utils import iter_all_benchmarks
 
 
 def load_profile_results(benchmark_name: str, query: str) -> Stats:
@@ -60,3 +61,21 @@ def analyze_profile_stats(profile_stats: Stats) -> dict:
         print(func_stats_to_str(func_name, func_stats))
 
     return {}
+
+
+def get_source_dir() -> Path:
+    return Path('../network-config-analyzer').resolve()
+
+
+def profile_all_benchmarks():
+    for benchmark in iter_all_benchmarks():
+        with Profile() as profiler:
+            benchmark.run()
+        profile_stats = Stats(profiler)
+        # TODO: do something else with the stats
+        save_profile_results(benchmark.name, benchmark.query, profile_stats)
+        profile_stats.print_stats()
+
+
+if __name__ == "__main__":
+    profile_all_benchmarks()

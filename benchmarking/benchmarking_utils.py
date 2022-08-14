@@ -1,3 +1,4 @@
+from itertools import product
 from pathlib import Path
 
 from nca import nca_main
@@ -38,9 +39,12 @@ def get_all_queries() -> list[str]:
 
 class Benchmark:
     def __init__(self, benchmark_dir: Path, query: str):
-        benchmark_name = benchmark_dir.name
-        self._scheme_file = get_benchmarks_dir() / f'{benchmark_name}-{query}-scheme.yaml'
-        scheme_file_text = get_scheme_file_text(benchmark_name, query)
+        self.path = benchmark_dir
+        self.query = query
+        self.name = benchmark_dir.name
+
+        self._scheme_file = get_benchmarks_dir() / f'{self.name}-{query}-scheme.yaml'
+        scheme_file_text = get_scheme_file_text(self.name, query)
         self._scheme_file.write_text(scheme_file_text)
         self._argv = [
             '--scheme',
@@ -53,5 +57,11 @@ class Benchmark:
     def __del__(self):
         self._scheme_file.unlink()
 
+
+def iter_all_benchmarks():
+    benchmark_dirs = get_all_benchmark_dirs()
+    queries = get_all_queries()
+    for benchmark_dir, query in product(benchmark_dirs, queries):
+        yield Benchmark(benchmark_dir, query)
 
 

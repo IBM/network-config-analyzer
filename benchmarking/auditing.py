@@ -3,14 +3,13 @@ import sys
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Callable
-from itertools import product
 from types import FrameType
 from typing import Any
 
 from CanonicalIntervalSet import CanonicalIntervalSet
 from NetworkConfig import NetworkConfig
 from SchemeRunner import SchemeRunner
-from benchmarking.benchmarking_utils import get_all_benchmark_dirs, get_all_queries, Benchmark
+from benchmarking.benchmarking_utils import iter_all_benchmarks
 
 
 class FrameFuncMatcher:
@@ -103,9 +102,6 @@ class RunQueryInspector(FuncInspector):
 
 
 def audit_all_benchmarks():
-    benchmark_dirs = get_all_benchmark_dirs()
-    queries = get_all_queries()
-
     # TODO: add more hooks
     inspectors = [
         IntervalContainedIn(),
@@ -115,8 +111,7 @@ def audit_all_benchmarks():
     # TODO: comment settrace for debugging
     sys.settrace(inspectors_runner.run_all_inspectors)
 
-    for benchmark_dir, query in product(benchmark_dirs, queries):
-        benchmark = Benchmark(benchmark_dir, query)
+    for benchmark in iter_all_benchmarks():
         for inspector in inspectors:
             inspector.reset()
         benchmark.run()
