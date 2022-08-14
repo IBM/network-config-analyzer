@@ -189,7 +189,7 @@ class GenericYamlParser:
         return res
 
 
-from PeerContainer import PeerContainer
+from PeerContainer import PeerContainer  # noqa: E402
 
 
 class IstioGenericYamlParser(GenericYamlParser):
