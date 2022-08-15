@@ -1,5 +1,5 @@
 resourceList:
-  - ../online_boutique/new_online_boutique_manifests_istio/all_deplopyments.yaml
+  - ../online_boutique/new_online_boutique_manifests_istio/all_deployments.yaml
   - onlineboutique-services.yaml
 
 networkConfigList:
