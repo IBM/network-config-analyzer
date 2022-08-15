@@ -4,10 +4,12 @@ networkConfigList:
 - name: np_allowFirst
   networkPolicyList:
   - calico-testcase5-allowFirst.yaml
+  - calico-policy-deny-all.yaml
   expectedWarnings: 0
 - name: np_denyFirst
   networkPolicyList:
   - calico-testcase5-denyFirst.yaml
+  - calico-policy-deny-all.yaml
   expectedWarnings: 0
 queries:
 - name: connectivity_map_yaml

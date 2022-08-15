@@ -1,0 +1,21 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase26-networkpolicy-calico-nginx
+  namespace: ingress-nginx
+spec:
+  order: 2000
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      #selector:  all()
+      namespaceSelector: {}
+  egress:
+    - action: Allow
+      protocol: TCP
+      destination:
+        namespaceSelector: {}

@@ -1,0 +1,15 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: testcase26-networkpolicy-calico-productpage-ingress-from-ratings-tcp-only
+  namespace: default
+spec:
+  order: 2000
+  selector: app == 'productpage'
+  types:
+  - Ingress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: app == 'ratings'

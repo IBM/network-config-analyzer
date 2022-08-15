@@ -6,12 +6,14 @@ networkConfigList:
     networkPolicyList:
       - testcase2-networkpolicy.yaml
       - testcase2-open-vendor-system.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
   - name: global_np
     networkPolicyList:
       - testcase2-global-networkpolicy.yaml
       - testcase2-open-vendor-system.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
 queries:

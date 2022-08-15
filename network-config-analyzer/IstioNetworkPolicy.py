@@ -137,6 +137,7 @@ class IstioNetworkPolicy(NetworkPolicy):
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress
         res.action = self.action
+        res.policy_kind = self.policy_kind
         for rule in self.ingress_rules:
             if rule != rule_to_exclude:
                 res.add_ingress_rule(rule)

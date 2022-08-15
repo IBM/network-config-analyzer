@@ -103,14 +103,14 @@ class PolicySetsResource(NCAResource):
             self.resources_parser.policies_finder.load_policies_from_buffer(entry)
             self.resources_parser.policies_finder.parse_policies_in_parse_queue()
             network_config = NetworkConfig(new_policy_set, peer_container,
-                                           self.resources_parser.policies_finder.policies_container,
-                                           config_type=self.resources_parser.policies_finder.type)
+                                           self.resources_parser.policies_finder.policies_container)
+
         except Exception:
             return 'Badly formed policy list', 400
 
         SanityQuery(network_config).exec()
         self.policy_sets_map[new_policy_set] = network_config
-        return f'{new_policy_set} ({len(network_config.policies)} policies)', 201
+        return f'{new_policy_set} ({len(network_config.policies_container.policies)} policies)', 201
 
     def delete(self):
         self.policy_sets_map.clear()
@@ -123,9 +123,8 @@ class PolicySetResource(NCAResource):
             return f'policy_set {escape(config_name)} does not exist', 404
 
         config = self.policy_sets_map[config_name]
-        policies_array = [policy[0] for policy in config.policies.keys()]
-        profiles_array = [profile for profile in config.profiles.keys()]
-        return {'name': escape(config_name), 'policies': policies_array, 'profiles': profiles_array}
+        policies_array = [policy[0] for policy in config.policies_container.policies.keys()]
+        return {'name': escape(config_name), 'policies': policies_array}
 
     def delete(self, config_name):
         if config_name not in self.policy_sets_map:
@@ -141,12 +140,9 @@ class PolicySetFindings(NCAResource):
 
         config = self.policy_sets_map[config_name]
         policies_array = {}
-        for policy in config.policies.values():
+        for policy in config.policies_container.policies.values():
             policies_array[policy.full_name()] = policy.findings
-        profiles_array = {}
-        for profile in config.profiles.values():
-            profiles_array[profile.full_name()] = profile.findings
-        return {'name': escape(config_name), 'policies': policies_array, 'profiles': profiles_array}
+        return {'name': escape(config_name), 'policies': policies_array}
 
 
 class RestServer:

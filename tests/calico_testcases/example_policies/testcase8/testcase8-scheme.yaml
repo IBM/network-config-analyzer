@@ -7,6 +7,10 @@ networkConfigList:
       - testcase8-networkpolicy.yaml
     expectedWarnings: 1
 
+  - name: global-allow-all
+    networkPolicyList:
+      - ../common-policies/policy-allow-all.yaml
+
 queries:
   - name: withConflict_empty
     emptiness:
@@ -16,7 +20,13 @@ queries:
   - name: withConflict_vacuous
     vacuity:
       - np1/kube-system/ingress-networkpolicy-with-conflict-destination
-    expected: 1
+    expected: 0
+
+  - name: semanticDiff
+    semanticDiff:
+      - np1/kube-system/ingress-networkpolicy-with-conflict-destination
+      - global-allow-all
+    expectedOutput: ../../expected_output/testcase8-semantic-diff-query.txt
 
   - name: non_empty
     emptiness:

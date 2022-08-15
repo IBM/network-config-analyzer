@@ -31,7 +31,7 @@ queries:
     redundancy:
       - local_np
       - global_np
-    expected: 0
+    expected: 2
 
   - name: local_does_not_contain_global
     containment:

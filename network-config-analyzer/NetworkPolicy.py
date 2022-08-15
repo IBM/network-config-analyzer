@@ -27,6 +27,20 @@ class NetworkPolicy:
         Ingress = 20
         List = 500
 
+        @staticmethod
+        def input_kind_name_str_to_policy_type(kind):
+            if kind == "K8sNetworkPolicy":
+                return NetworkPolicy.PolicyType.K8sNetworkPolicy
+            elif kind == "CalicoNetworkPolicy":
+                return NetworkPolicy.PolicyType.CalicoNetworkPolicy
+            elif kind == "CalicoGlobalNetworkPolicy":
+                return NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
+            elif kind == "IstioAuthorizationPolicy":
+                return NetworkPolicy.PolicyType.IstioAuthorizationPolicy
+            elif kind == "K8sIngress":
+                return NetworkPolicy.PolicyType.Ingress
+            return None
+
     def __init__(self, name, namespace):
         self.name = name
         self.namespace = namespace
@@ -37,6 +51,7 @@ class NetworkPolicy:
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
         self.findings = []  # accumulated findings which are relevant only to this policy (emptiness and redundancy)
         self.referenced_labels = set()
+        self.policy_kind = NetworkPolicy.PolicyType.Unknown
 
     def __str__(self):
         return self.full_name()
@@ -100,7 +115,7 @@ class NetworkPolicy:
         self.egress_rules.append(rule)
 
     @staticmethod
-    def get_policy_type(policy):
+    def get_policy_type_from_dict(policy):
         """
         Given a policy/policy-list resource, determines the type of policy it describes/contains (based on its 'kind')
         :param dict policy: The resource to examine
@@ -203,6 +218,21 @@ class NetworkPolicy:
         :rtype: int
         """
         return None  # default value, can be overridden in derived classes
+
+    def clone_without_rule(self, rule_to_exclude, ingress_rule):
+        """
+        Implemented by derived classes to clone a policy without a specific rule
+        """
+        return NotImplemented
+
+    def allowed_connections(self, from_peer, to_peer, is_ingress):
+        """
+        Implemented by derived classes to evaluate the set of connections this policy allows between two peers
+        """
+        return NotImplemented
+
+    def policy_type_str(self):
+        return "Ingress resource" if self.policy_kind == NetworkPolicy.PolicyType.Ingress else "NetworkPolicy"
 
 
 @dataclass

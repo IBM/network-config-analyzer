@@ -50,12 +50,8 @@ queries:
     - np_allowFirstDefaultAllow
     - np_denyFirstDefaultAllow
     - np_denyFirstAlsoEgressDefaultAllow
-    expected: 0
-
-  - name: vacuous_policies
-    vacuity:
     - np_denyFirstAlsoEgressDefaultDeny
-    expected: 1
+    expected: 0
 
   - name: redundantDenyPolicyInAllowFirstDefaultDeny
     redundancy:
