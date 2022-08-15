@@ -15,7 +15,7 @@
 
 - name: basic_equiv
   args: >
-     --semantic_diff
+    --semantic_diff
     -r istio
     --base_np istio_testcases/example_policies/bookinfo-demo/bookinfo-policy-equiv-principals-by-condition-1.yaml
     -rb istio
