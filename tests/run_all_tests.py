@@ -239,7 +239,7 @@ class TestsRunner:
     def delete_k8s_cluster_config(self, cluster_config):
         self.k8s_delete_resources(cluster_config.get('pods', ''))
         self.k8s_delete_resources(cluster_config.get('policies', ''))
-        time.sleep(10)  # make sure all pods are up and running
+        time.sleep(10)  # make sure all pods got deleted
 
     def _remove_failed_run_time_files(self):
         """
