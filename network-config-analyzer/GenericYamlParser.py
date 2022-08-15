@@ -61,6 +61,19 @@ class GenericYamlParser:
         print(print_msg, file=stderr)
         self.warning_msgs.append(msg)
 
+    def check_metadata_validity(self, policy_metadata):
+        """
+        Checks the validity of metadata fields according to k8s ref. (used also with istio objects)
+        :param dict policy_metadata: the dict to be checked
+        :return: None
+        :raises SyntaxError: if some keys are not allowed/missing
+        """
+        allowed_metadata_keys = {'name': [1, str], 'namespace': [0, str], 'annotations': 0, 'clusterName': 0,
+                                 'creationTimestamp': 0, 'deletionGracePeriodSeconds': 0, 'deletionTimestamp': 0,
+                                 'finalizers': 0, 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
+                                 'ownerReferences': 0, 'resourceVersion': 0, 'selfLink': 0, 'uid': 0}
+        self.check_fields_validity(policy_metadata, 'metadata', allowed_metadata_keys)
+
     def check_fields_validity(self, dict_to_check, dict_name, allowed_keys, allowed_values=None):
         """
         Check that all keys in dict_to_check are legal (appear in allowed_keys)
@@ -76,7 +89,7 @@ class GenericYamlParser:
          if type is specified, allowed_keys maps string to array.
         :param dict allowed_values: Map from a key name to its allowed values (optional)
         :return: None
-        :raises SyntaxError: if some of the keys are not allowed/missing
+        :raises SyntaxError: if some keys are not allowed/missing
         """
 
         for key, key_info in allowed_keys.items():
@@ -244,3 +257,26 @@ class IstioGenericYamlParser(GenericYamlParser):
             self.warning('A workloadSelector selects no pods.', workload_selector)
 
         return res
+
+    def parse_generic_istio_policy_fields(self, policy_kind, istio_version):
+        """
+        Parse the common fields in istio policies, e.g kind, apiVersion and metadata
+        :param str policy_kind : the kind of current policy
+        :param str istio_version : the apiVersion of the istio object
+        :return: the name of the current object or None if it is not relevant object
+        :rtype: str
+        """
+        if not isinstance(self.policy, dict):
+            self.syntax_error('type of Top ds is not a map')
+        if self.policy.get('kind') != policy_kind:
+            return None  # Not the relevant object
+        api_version = self.policy.get('apiVersion')
+        if 'istio' not in api_version:
+            return None  # apiVersion is not properly set
+        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [0, dict]}
+        self.check_fields_validity(self.policy, policy_kind, valid_keys,
+                                   {'apiVersion': [istio_version]})
+        metadata = self.policy['metadata']
+        self.check_metadata_validity(metadata)
+        self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
+        return metadata['name']

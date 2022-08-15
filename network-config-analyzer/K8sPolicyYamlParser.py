@@ -396,11 +396,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                                    {'apiVersion': ['networking.k8s.io/v1', 'extensions/v1beta1']})
 
         policy_metadata = self.policy['metadata']
-        allowed_metadata_keys = {'name': [1, str], 'namespace': [0, str], 'annotations': 0, 'clusterName': 0,
-                                 'creationTimestamp': 0, 'deletionGracePeriodSeconds': 0, 'deletionTimestamp': 0,
-                                 'finalizers': 0, 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
-                                 'ownerReferences': 0, 'resourceVersion': 0, 'selfLink': 0, 'uid': 0}
-        self.check_fields_validity(policy_metadata, 'metadata', allowed_metadata_keys)
+        self.check_metadata_validity(policy_metadata)
         self.check_dns_subdomain_name(policy_metadata['name'], policy_metadata)
         if 'namespace' in policy_metadata and policy_metadata['namespace'] is not None:
             self.check_dns_label_name(policy_metadata['namespace'], policy_metadata)

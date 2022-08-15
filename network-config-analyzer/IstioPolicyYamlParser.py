@@ -525,24 +525,11 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         :return: a IstioNetworkPolicy object with proper PeerSets and ConnectionSets
         :rtype: IstioNetworkPolicy
         """
-        if not isinstance(self.policy, dict):
-            self.syntax_error('Top ds is not a map')
-        if self.policy.get('kind') != 'AuthorizationPolicy':
-            return None  # Not a AuthorizationPolicy object
-        api_version = self.policy.get('apiVersion', self.policy.get('api_version', ''))
-        if not api_version:
-            self.syntax_error('An object with no specified apiVersion', self.policy)
-        if 'istio' not in api_version:
-            return None  # apiVersion is not properly set
-        if api_version not in ['security.istio.io/v1beta1']:
-            raise Exception('Unsupported apiVersion: ' + api_version)
-        self.check_fields_validity(self.policy, 'AuthorizationPolicy', {'kind': 1, 'metadata': 1, 'spec': 1,
-                                                                        'apiVersion': 0, 'api_version': 0})
-        metadata = self.policy['metadata']
-        if 'name' not in metadata:
-            self.syntax_error('AuthorizationPolicy has no name', self.policy)
-        self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
-        res_policy = IstioNetworkPolicy(metadata['name'], self.namespace)
+        policy_name = self.parse_generic_istio_policy_fields('AuthorizationPolicy', 'security.istio.io/v1beta1')
+        if policy_name is None:
+            return None  # not relevant to build this policy
+
+        res_policy = IstioNetworkPolicy(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
 
         policy_spec = self.policy['spec']

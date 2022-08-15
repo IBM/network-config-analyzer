@@ -128,21 +128,11 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         :return: a IstioSidecar object with proper PeerSets
         :rtype: IstioSidecar
         """
-        if not isinstance(self.policy, dict):
-            self.syntax_error('type of Top ds is not a map')
-        if self.policy.get('kind') != 'Sidecar':
-            return None  # Not a Sidecar object
-        api_version = self.policy.get('apiVersion')
-        if 'istio' not in api_version:
-            return None  # apiVersion is not properly set
-        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [0, dict]}
-        self.check_fields_validity(self.policy, 'Sidecar', valid_keys,
-                                   {'apiVersion': ['networking.istio.io/v1beta1']})
-        metadata = self.policy['metadata']
-        allowed_metadata_keys = {'name': [1, str], 'namespace': [0, str]}
-        self.check_fields_validity(metadata, 'metadata', allowed_metadata_keys)
-        self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
-        res_policy = IstioSidecar(metadata['name'], self.namespace)
+        policy_name = self.parse_generic_istio_policy_fields('Sidecar', 'networking.istio.io/v1beta1')
+        if policy_name is None:
+            return None  # not relevant to build this policy
+
+        res_policy = IstioSidecar(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
 
         if 'spec' not in self.policy or self.policy['spec'] is None:
