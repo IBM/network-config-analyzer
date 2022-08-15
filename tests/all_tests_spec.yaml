@@ -38,8 +38,8 @@ k8s_live_general:
     type: cmdline
     root: ./
     cluster_config:
-      pods: istio_testcases/example_policies/online_boutique/new_online_boutique_manifests_istio/all_deployments.yaml
-      policies: istio_testcases/example_policies/online_boutique/new_online_boutique_manifests_istio/all_auth_policies.yaml
+      pods: https://raw.githubusercontent.com/istio/istio/release-1.14/samples/bookinfo/platform/kube/bookinfo.yaml
+      policies: istio_testcases/example_policies/bookinfo-demo/bookinfo-policy-test-principals-1.yaml
     files_list:
       - cmdline_live_istio_tests.yaml
 
