@@ -117,6 +117,11 @@ jobs:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
       - uses: helm/kind-action@d08cf6ff1575077dee99962540d77ce91c62387d
+      - run: |
+          curl -L https://istio.io/downloadIstio | sh -
+          cd istio-1.*
+          export PATH=$PWD/bin:$PATH
+          istioctl install --set profile=demo -y
       - run:  python tests/run_all_tests.py --type=k8s_live_general
   rest-api:
     runs-on: ubuntu-latest
