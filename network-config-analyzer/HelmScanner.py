@@ -9,6 +9,7 @@ Utility class to control HELM
 
 import os
 from CmdlineRunner import CmdlineRunner
+import re
 
 
 class HelmScanner:
@@ -27,6 +28,8 @@ class HelmScanner:
         """
         resolved_yamls_dict = {}
         resolved_yamls = CmdlineRunner.resolve_helm_chart(chart_dir)[:-1]
+        resolved_yamls = str(resolved_yamls).encode('ascii', 'ignore').decode('unicode_escape')
+        resolved_yamls = resolved_yamls[:-1]
         resolved_yamls_list = str(resolved_yamls).split('---')[1:]
 
         # insert Chart and Values into the templates list, so they will be not parsed again.
@@ -34,21 +37,15 @@ class HelmScanner:
         self.template_files.append(os.path.join(chart_dir, 'values.yaml'))
 
         for index, file in enumerate(resolved_yamls_list):
-            _, file_name, file_content = str(file).split("\\n", 2)
-            file_name = file_name.split(' ')[2]
+            file_name = re.findall('# Source: (.*\.yaml)', file)[0]
 
-            # preprocess file content
-            file_content = file_content.replace('\\n', '\n')
-            if file_content[-1] == '\'':
-                file_content = file_content[:-1]
-            resolved_yamls_dict[file_name] = file_content
-
-            # preprocess file name
+            # create the full path from the chart dir
             file_name_idx = str(file_name).find('/')
             file_name = file_name[file_name_idx+1:]
             file_name = os.path.join(chart_dir, file_name)
             file_name = file_name.replace('/', '\\')
             self.template_files.append(file_name)
+            resolved_yamls_dict[file_name] = file
 
         return resolved_yamls_dict
 
