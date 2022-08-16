@@ -19,8 +19,7 @@ def run_scheme(scheme_abs_path: str) -> int:
 
 
 def call_scheme():
-    scheme_file = r'C:\Users\018130756\repos\network-config-analyzer\tests\k8s_testcases\example_policies\tests' \
-                  r'-different-topologies\copy-semanticDiff-IpBlocks-different-topologies-scheme.yaml '
+    scheme_file = r'C:\Users\018130756\repos\network-config-analyzer\benchmarks\SCC_test_calico_resources-connectivity-scheme.yaml'
     run_scheme(scheme_file)
 
 
