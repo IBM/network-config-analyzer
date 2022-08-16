@@ -239,9 +239,9 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             self.syntax_error('Ingress has no name', self.policy)
         self.namespace = self.peer_container.get_namespace(self.policy['metadata'].get('namespace', 'default'))
 
-        res_deny_policy = IngressPolicy(self.policy['metadata']['name'] + '/deny', self.namespace,
-                                        IngressPolicy.ActionType.Deny)
-        res_deny_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
+        res_policy = IngressPolicy(self.policy['metadata']['name'] + '/allow', self.namespace,
+                                   IngressPolicy.ActionType.Allow)
+        res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
 
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],
@@ -251,9 +251,9 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
                                                                                     True)
         # TODO extend to other ingress controllers
-        res_deny_policy.selected_peers = \
+        res_policy.selected_peers = \
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
-        if not res_deny_policy.selected_peers:
+        if not res_policy.selected_peers:
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
         allowed_conns = None
         all_hosts_dfa = None
@@ -279,6 +279,6 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             allowed_conns = default_conns
         assert allowed_conns
 
-        res_deny_policy.add_rules(self._make_deny_rules(allowed_conns))
-        res_deny_policy.findings = self.warning_msgs
-        return res_deny_policy
+        res_policy.add_rules(self._make_allow_rules(allowed_conns))
+        res_policy.findings = self.warning_msgs
+        return res_policy

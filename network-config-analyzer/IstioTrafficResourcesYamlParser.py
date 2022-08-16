@@ -421,15 +421,15 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                         peers_to_hosts[peers] = host_dfa
 
             for peer_set, host_dfa in peers_to_hosts.items():
-                deny_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/deny', vs.namespace,
-                                            IngressPolicy.ActionType.Deny)
-                deny_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
-                deny_policy.selected_peers = peer_set
+                res_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace,
+                                           IngressPolicy.ActionType.Allow)
+                res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
+                res_policy.selected_peers = peer_set
                 allowed_conns = self.make_allowed_connections(vs, host_dfa)
                 if allowed_conns:
-                    deny_policy.add_rules(self._make_deny_rules(allowed_conns))
-                    deny_policy.findings = self.warning_msgs
-                    vs_policies.append(deny_policy)
+                    res_policy.add_rules(self._make_allow_rules(allowed_conns))
+                    res_policy.findings = self.warning_msgs
+                    vs_policies.append(res_policy)
             if not vs_policies:
                 self.warning(f'VirtualService {vs.full_name()} does not affect traffic and is ignored')
             result.extend(vs_policies)

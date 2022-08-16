@@ -103,6 +103,14 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
 
         return tcp_properties
 
+    def _make_allow_rules(self, allowed_conns):
+        """
+        Make deny rules from the given connections
+        :param TcpLikeProperties allowed_conns: the given allowed connections
+        :return: the list of deny IngressPolicyRules
+        """
+        return self._make_rules_from_conns(allowed_conns)
+
     def _make_deny_rules(self, allowed_conns):
         """
         Make deny rules from the given connections
