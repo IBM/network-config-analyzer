@@ -108,4 +108,4 @@ workdir
 
 # Benchmarking
 benchmarks/
-profile_results/
+benchmark_results/
