@@ -34,6 +34,15 @@ k8s_live_general:
     files_list:
       - cmdline_live_k8s_tests.yaml
 
+  - name: istio_live_general_cmdline_tests
+    type: cmdline
+    root: ./
+    cluster_config:
+      pods: https://raw.githubusercontent.com/istio/istio/release-1.14/samples/bookinfo/platform/kube/bookinfo.yaml
+      policies: istio_testcases/example_policies/bookinfo-demo/bookinfo-policy-test-principals-1.yaml
+    files_list:
+      - cmdline_live_istio_tests.yaml
+
 #----------------------------------------------------------------------------------------------------------------------------------
 # fw_rules_assertions: activate assertions to verify equivalence of  fw_rules output (semantically) to the input connectivity graph.
 fw_rules_assertions:
