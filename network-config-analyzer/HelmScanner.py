@@ -37,11 +37,11 @@ class HelmScanner:
         self.template_files.append(os.path.join(chart_dir, 'values.yaml'))
 
         for index, file in enumerate(resolved_yamls_list):
-            file_name = re.findall('# Source: (.*\.yaml)', file)[0]
+            file_name = re.findall('# Source: (.*\\.yaml)', file)[0]
 
             # create the full path from the chart dir
             file_name_idx = str(file_name).find('/')
-            file_name = file_name[file_name_idx+1:]
+            file_name = file_name[file_name_idx + 1:]
             file_name = os.path.join(chart_dir, file_name)
             file_name = file_name.replace('/', '\\')
             self.template_files.append(file_name)
