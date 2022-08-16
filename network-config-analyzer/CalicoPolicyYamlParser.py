@@ -5,6 +5,7 @@
 
 import re
 from ruamel.yaml import comments
+from NetworkPolicy import NetworkPolicy
 from Peer import PeerSet, IpBlock
 from PortSet import PortSet
 from TcpLikeProperties import TcpLikeProperties
@@ -619,6 +620,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             if kind == 'NetworkPolicy':
                 self.namespace = self.peer_container.get_namespace('default')
         res_policy = CalicoNetworkPolicy(metadata['name'], self.namespace)
+        res_policy.policy_kind = NetworkPolicy.get_policy_type_from_dict(self.policy)
 
         policy_spec = self.policy['spec']
         self._set_affects_ingress_egress(policy_spec, is_profile, res_policy)

@@ -112,7 +112,7 @@ class ConnectionSet:
             aggregation_results, protocols_not_aggregated = ConnectionSet._aggregate_pair_protocols(protocols_not_aggregated,
                                                                                                     tcp_protocol_number,
                                                                                                     udp_protocol_number)
-            if aggregation_results != '':
+            if aggregation_results != '':  # can be empty when all properties are allowed for both protocols
                 aggregation_results = 'TCP+UDP ' + aggregation_results
 
         # handle future aggregations here

@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - name: Build Docker image
-        uses: docker/build-push-action@e551b19e49efd4e98792db7592c17c09b89db8d8
+        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
         id: build_docker
         with:
           context: .
@@ -118,6 +118,11 @@ jobs:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
       - uses: helm/kind-action@d08cf6ff1575077dee99962540d77ce91c62387d
+      - run: |
+          curl -L https://istio.io/downloadIstio | sh -
+          cd istio-1.*
+          export PATH=$PWD/bin:$PATH
+          istioctl install --set profile=demo -y
       - run:  python tests/run_all_tests.py --type=k8s_live_general
   rest-api:
     runs-on: ubuntu-latest

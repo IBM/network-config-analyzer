@@ -13,10 +13,12 @@ networkConfigList:
   - name: np_open_default
     networkPolicyList:
       - testcase17-open-default.yaml
+      - ../common-policies/policy-deny-all.yaml
 
   - name: np_equiv_policy
     networkPolicyList:
       - testcase17-equiv-networkpolicy.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
   - name: np_global_equiv
@@ -27,11 +29,13 @@ networkConfigList:
   - name: np_equiv_policy_redundant_deny
     networkPolicyList:
       - testcase17-equiv-networkpolicy-redundant-denys.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 8
 
   - name: np_equiv_policy_deny_last_with_difference
     networkPolicyList:
       - testcase17-equiv-networkpolicy-makes-different-last-denys.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 4
 
   - name: np_with_redundant_policies
@@ -40,6 +44,7 @@ networkConfigList:
       - testcase17-equiv-networkpolicy.yaml
       - testcase17-nonequiv-networkpolicy.yaml
       - testcase17-equiv-global-networkpolicy.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 0
 
   - name: np_with_redundant_policies_redundant_denys_version
@@ -48,6 +53,7 @@ networkConfigList:
       - testcase17-equiv-networkpolicy-redundant-denys.yaml
       - testcase17-nonequiv-networkpolicy.yaml
       - testcase17-equiv-global-networkpolicy.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 8
 
   - name: np_with_redundant_policies_makes_a_diff_denys_version
@@ -56,6 +62,7 @@ networkConfigList:
       - testcase17-equiv-networkpolicy-makes-different-last-denys.yaml
       - testcase17-nonequiv-networkpolicy.yaml
       - testcase17-equiv-global-networkpolicy.yaml
+      - ../common-policies/policy-deny-all.yaml
     expectedWarnings: 4
 
   - name: np_various-containment1
@@ -97,12 +104,12 @@ queries:
   - name: sanity_np_vacuous
     sanity:
       - np_vacuous
-    expected: 4
+    expected: 5
 
   - name: sanity_np_globalEmpty
     sanity:
       - np_globalEmpty
-    expected: 1
+    expected: 0 # no longer vacuous
 
   - name: sanity_np_equiv_policy_redundant_deny
     sanity:

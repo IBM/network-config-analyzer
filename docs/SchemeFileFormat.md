@@ -71,8 +71,8 @@ Each query object instructs the tool to run a specific check on one or more sets
 #### <a name="configsets"></a>Config sets
 Each entry in the list of config sets should be either
 * __Full set__ - The name of a [NetworkConfig object](#NetworkConfigobject) _OR_
-* __Single policy__ - Use one of the forms: `<set name>/<namespace>/<policy>` or `<set name>/<layer>/<namespace>/<policy>`, where `layer` is one of: `k8s`, `calico`, `istio` or `ingress`.
-For example: `my_set/prod_ns/deny_all_policy`. If there are multiple policies named `deny_all_policy` in the namespace `prod_ns` on different layers, then specifying a single policy should include its layer, such as `my_set/k8s/prod_ns/deny_all_policy`. 
+* __Single policy__ - Use one of the forms: `<set name>/<namespace>/<policy>` or `<set name>/<kind>/<namespace>/<policy>`, where `kind` is one of: `K8sNetworkPolicy`, `CalicoNetworkPolicy`, `CalicoGlobalNetworkPolicy`, `IstioAuthorizationPolicy` or `K8sIngress`.
+For example: `my_set/prod_ns/deny_all_policy`. If there are multiple policies named `deny_all_policy` in the namespace `prod_ns` on different layers, then specifying a single policy should include its layer, such as `my_set/K8sNetworkPolicy/prod_ns/deny_all_policy`. 
 
 
 #### <a name="outputconfig"></a>Output Configuration object
@@ -83,6 +83,17 @@ The supported entries in the outputConfiguration object are as follows:
 |outputFormat|Output format specification.|string [ txt / yaml / csv / md / dot ] |
 |outputPath|A file path to redirect output into.|string|
 |outputEndpoints|Choose endpoints type in output.|string [ pods / deployments ]|
+|subset| A dict object with the defined subset elements to display in the output|[subset](#subset) object|
+
+#### <a name="subset"></a>Subset object
+The supported entries in the subset object are as follows:
+
+| Field | Description                                                                                                                                                                                                      | Value                                                                                      |
+|-------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+|namespace_subset| A comma separated list of namespaces (no spaces allowed)                                                                                                                                                         | string                                                                                     |
+|deployment_subset| A comma separated list of deployments (no spaces allowed). Deployment can be specific for a namespace and have the namespace prefix following by the '/' character.                                              | string                                                                                     |
+|label_subset| Blocks of pairs key:value, each pair per line. Each block of labels (pairs) starts with the '-' character. Labels within a block implement a logical AND between them, while between blocks there is a logical OR| - key:value pair, starting each block. key:value pair, per line, at the rest of each block |
+
 
 #### Returned value for each sub-query:
 * _emptiness_ -  Count of empty selectors/rules found in all sets of policies

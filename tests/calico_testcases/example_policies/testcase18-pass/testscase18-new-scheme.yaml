@@ -1,0 +1,95 @@
+resourceList: new_topology/
+
+networkConfigList:
+  - name: np-pod-based-policies
+    networkPolicyList:
+      - testcase18-pods-based-policies-new.yaml
+    expectedWarnings: 0
+
+  - name: np-ports-based
+    networkPolicyList:
+      - testcase18-ports-based-policies-new.yaml
+    expectedWarnings: 0
+
+
+queries:
+
+  - name: redundancy_redundantPass
+    redundancy:
+    - np-pod-based-policies/testcase18-highPriorityPass-app-redundant
+    expected: 2
+
+  - name: redundancy_nonRedundantPass
+    redundancy:
+    - np-pod-based-policies/testcase18-highPriorityPass-app-not-redundant
+    - np-pod-based-policies/testcase18-equivTo-highPriorityPass-app-not-redundant
+    - np-pod-based-policies/testcase18-pass-not-app-not-redundant
+    expected: 3
+
+  #- name: connectivityMap
+  #  connectivityMap:
+  #  - np-pod-based-policies/testcase18-highPriorityPass-app-not-redundant
+  #  - np-pod-based-policies/testcase18-equivTo-highPriorityPass-app-not-redundant
+  #  - np-pod-based-policies/testcase18-highPriorityPass-app-redundant
+
+  - name: equiv_nonRedundantPass_and_its_equiv
+    equivalence:
+    - np-pod-based-policies/testcase18-highPriorityPass-app-not-redundant
+    - np-pod-based-policies/testcase18-equivTo-highPriorityPass-app-not-redundant
+    - np-pod-based-policies/testcase18-highPriorityPass-app-redundant
+    expected: 0
+
+  - name: non_equiv_nonRednundant_pass
+    equivalence:
+    - np-pod-based-policies/testcase18-pass-not-app-not-redundant
+    - np-pod-based-policies/testcase18-highPriorityPass-app-not-redundant
+    expected: 1
+
+  - name: equiv_different-writing
+    equivalence:
+      - np-ports-based/testcase18-different-ranges-writing1
+      - np-ports-based/testcase18-different-ranges-writing2
+    expected: 0
+
+  #- name: connectivityMap
+  #  connectivityMap:
+  #  - np-ports-based/testcase18-different-ranges-writing1
+  #  - np-pod-based-policies/testcase18-equivTo-highPriorityPass-app-not-redundant
+  #  - np-pod-based-policies/testcase18-highPriorityPass-app-redundant
+
+  - name: non_interfere_equiv_different-writing
+    interferes:
+      - np-ports-based/testcase18-different-ranges-writing1
+      - np-ports-based/testcase18-different-ranges-writing2
+    expected: 0
+
+  - name: none-equiv_different_ranges_writing_additional_port
+    equivalence:
+      - np-ports-based/testcase18-different-ranges-writing1
+      - np-ports-based/testcase18-different-ranges-writing-slightly-bigger
+    expected: 1
+
+  - name: interfere_different_ranges_writing_additional_port
+    pairwiseInterferes:
+      - np-ports-based/testcase18-different-ranges-writing1
+      - np-ports-based/testcase18-different-ranges-writing-slightly-bigger
+    expected: 1
+
+  - name: containment_different_ranges_writing_additional_port
+    containment:
+      - np-ports-based/testcase18-different-ranges-writing-slightly-bigger
+      - np-ports-based/testcase18-different-ranges-writing1
+      - np-ports-based/testcase18-different-ranges-writing2
+    expected: 2
+
+  - name: equiv_different_ranges_writing_redundant  # 2 equiv policies should be redundant
+    redundancy:
+      - np-ports-based
+      - np-ports-based/testcase18-different-ranges-writing1
+      - np-ports-based/testcase18-different-ranges-writing2
+    expected: 6
+
+  - name: sanity_equiv_different_ranges_writing_redundant  # 2 equiv policies should be redundant
+    sanity:
+      - np-ports-based
+    expected: 3

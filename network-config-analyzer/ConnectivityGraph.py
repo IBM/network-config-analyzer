@@ -16,7 +16,7 @@ class ConnectivityGraph:
     the labels on the edges are the allowed connections between two peers.
     """
 
-    def __init__(self, all_peers, allowed_labels, output_config, config_type):
+    def __init__(self, all_peers, allowed_labels, output_config):
         """
         Create a ConnectivityGraph object
         :param all_peers: PeerSet with the topology all peers (pods and ip blocks)
@@ -28,7 +28,7 @@ class ConnectivityGraph:
         self.output_config = output_config
         if self.output_config.fwRulesOverrideAllowedLabels:
             allowed_labels = set(label for label in self.output_config.fwRulesOverrideAllowedLabels.split(','))
-        self.cluster_info = ClusterInfo(all_peers, allowed_labels, config_type)
+        self.cluster_info = ClusterInfo(all_peers, allowed_labels)
         self.allowed_labels = allowed_labels
 
     def add_edge(self, source_peer, dest_peer, connections):
@@ -40,6 +40,14 @@ class ConnectivityGraph:
         :return: None
         """
         self.connections_to_peers[connections].append((source_peer, dest_peer))
+
+    def add_edges(self, connections):
+        """
+        Adding a set of labeled edges to the graph
+        :param dict connections: a map from ConnectionSet to (src, dest) pairs
+        :return: None
+        """
+        self.connections_to_peers.update(connections)
 
     def _get_peer_name(self, peer):
         """

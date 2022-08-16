@@ -60,6 +60,62 @@
     --expected_output expected_cmdline_output_files/basic_connectivity_dot_query_output.txt
   expected: 0
 
+- name: basic_subset_label
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --label_subset app:appA --label_subset dep:F 
+    --expected_output expected_cmdline_output_files/basic_subset_label_query_output.txt
+  expected: 0
+
+- name: subset_label
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --label_subset app:appA,release:v22b --label_subset dep:F,release:v22b 
+    --expected_output expected_cmdline_output_files/subset_label_query_output.txt
+  expected: 0
+
+- name: subset_label2
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --label_subset app:appA,release:v22bc --label_subset dep:F,release:v22b 
+    --expected_output expected_cmdline_output_files/subset_label2_query_output.txt
+  expected: 0
+
+- name: basic_subset_deployment
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --deployment_subset deployment-A,deployment-D 
+    --expected_output expected_cmdline_output_files/basic_subset_deployment_query_output.txt
+  expected: 0
+
+- name: basic_subset_namespace
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --namespace_subset ns1,ns3 
+    --expected_output expected_cmdline_output_files/basic_subset_namespace_query_output.txt
+  expected: 0
+
+- name: all_subset_mix
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --namespace_subset ns3 
+    --deployment_subset deployment-D 
+    --label_subset app:appA --label_subset dep:F 
+    --expected_output expected_cmdline_output_files/all_subset_mix_query_output.txt
+  expected: 0
+
 - name: basic_equiv
   args: >
     --equiv k8s_testcases/example_policies/testcase7/testcase7-networkpolicy1.yaml

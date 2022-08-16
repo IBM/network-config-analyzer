@@ -1,0 +1,73 @@
+apiVersion: projectcalico.org/v3
+kind: HostEndpoint
+metadata:
+  name: hep1
+  labels:
+    type: production
+    role: worker-private
+spec:
+  interfaceName: eth0
+  node: myhost
+  expectedIPs:
+  - 192.168.0.1
+  - 192.168.0.2
+  ports:
+  - name: some-port
+    port: 1234
+    protocol: TCP
+  - name: another-port
+    port: 5432
+    protocol: UDP
+---
+apiVersion: projectcalico.org/v3
+kind: HostEndpoint
+metadata:
+  name: hep2
+  labels:
+    #type: development
+    role: worker-private
+    app: abc
+spec:
+  interfaceName: eth0
+  node: myhost
+  expectedIPs:
+  - 192.168.0.1
+  - 192.168.0.2
+  ports:
+  - name: some-port
+    port: 1234
+    protocol: TCP
+  - name: another-port
+    port: 5432
+    protocol: UDP
+
+---
+apiVersion: projectcalico.org/v3
+kind: WorkloadEndpoint
+metadata:
+  name: node1-k8s-my--nginx--b1337a-eth0
+  namespace: default
+  labels:
+    new-app: frontend
+    #app: frontend
+    projectcalico.org/namespace: default
+    projectcalico.org/orchestrator: k8s
+spec:
+  node: node1
+  orchestrator: k8s
+  endpoint: eth0
+  containerID: 1337495556942031415926535
+  pod: my-nginx-b1337a
+  interfaceName: cali0ef24ba
+  mac: ca:fe:1d:52:bb:e9
+  ipNetworks:
+  - 192.168.0.0/32
+  ports:
+  - name: some-port
+    port: 1234
+    protocol: TCP
+  - name: another-port
+    port: 5432
+    protocol: UDP
+
+

@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: testcase26-networkpolicy-k8s-ratings-egress-to-productpage
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: ratings
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+      - podSelector:
+          matchLabels:
+            app: productpage
