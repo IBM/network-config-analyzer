@@ -234,11 +234,8 @@ class IstioGenericYamlParser(GenericYamlParser):
         :return: A PeerSet containing all the pods captured by this selection
         :rtype: Peer.PeerSet
         """
-        # to be checked on live cluster
-        # if workload_selector is None:
-        #     return PeerSet()  # A None value means the selector selects nothing
-        # if not workload_selector:
-        #     return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
+        if not workload_selector:  # selector :{}
+            return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
 
         allowed_elements = {element_key: [1, dict]}
         self.check_fields_validity(workload_selector, 'Istio policy WorkloadSelector', allowed_elements)
@@ -254,7 +251,7 @@ class IstioGenericYamlParser(GenericYamlParser):
         self.referenced_labels.add(':'.join(match_labels.keys()))
 
         if not res:
-            self.warning('A workloadSelector selects no pods.', workload_selector)
+            self.warning('A workload selector selects no pods.', workload_selector)
 
         return res
 
