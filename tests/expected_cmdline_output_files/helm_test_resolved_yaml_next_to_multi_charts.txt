@@ -1,0 +1,18 @@
+final fw rules for query: :
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=grafana] conn: TCP 3000
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=redis] conn: TCP 6379,9121
+src: ::/0 dst_ns: [default] dst_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=grafana] conn: TCP 3000
+src: ::/0 dst_ns: [default] dst_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=redis] conn: TCP 6379,9121
+src_ns: [default] src_pods: [Pod1] dst_ns: [ns2] dst_pods: [Pod3] conn: All connections
+src_ns: [default] src_pods: [Pod1] dst_ns: [ns3] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [Pod4] dst_ns: [ns1] dst_pods: [Pod2] conn: All connections
+src_ns: [default] src_pods: [Pod4] dst_ns: [ns2] dst_pods: [dep=D] conn: All connections
+src_ns: [default] src_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=redis] dst: 0.0.0.0/0 conn: UDP 53
+src_ns: [default] src_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=redis] dst: ::/0 conn: UDP 53
+src_ns: [default] src_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=redis] dst_ns: [default] dst_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=redis] conn: TCP 6379
+src_ns: [ns1] src_pods: [Pod2] dst_ns: [default] dst_pods: [Pod1] conn: All connections
+src_ns: [ns1] src_pods: [dep=A] dst_ns: [default] dst_pods: [dep=E] conn: All connections
+src_ns: [ns1] src_pods: [dep=B] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
+src_ns: [ns2] src_pods: [dep=C] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
+src_ns: [ns3] src_pods: [*] dst_ns: [default] dst_pods: [Pod4] conn: All connections
+
