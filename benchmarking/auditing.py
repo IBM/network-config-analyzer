@@ -1,15 +1,17 @@
 import inspect
+import json
 import sys
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Callable
+from pathlib import Path
 from types import FrameType
 from typing import Any
 
 from CanonicalIntervalSet import CanonicalIntervalSet
 from NetworkConfig import NetworkConfig
 from SchemeRunner import SchemeRunner
-from benchmarking.benchmarking_utils import iter_all_benchmarks
+from benchmarking.benchmarking_utils import iter_all_benchmarks, Benchmark, get_benchmark_result_path
 
 
 class FrameFuncMatcher:
@@ -60,6 +62,16 @@ class InspectorRunner:
         for inspector in self.inspectors:
             inspector.hook(frame, event, arg)
 
+    def reset_all_inspectors(self):
+        for inspector in self.inspectors:
+            inspector.reset()
+
+    def get_stats(self):
+        stats = {}
+        for inspector in self.inspectors:
+            stats.update(inspector.get_stats())
+        return stats
+
 
 class IntervalContainedIn(FuncInspector):
 
@@ -69,10 +81,10 @@ class IntervalContainedIn(FuncInspector):
     @staticmethod
     def _process_event(frame: FrameType) -> dict:
         return {
-            'n_intervals': (
+            'n_intervals': [
                 len(frame.f_locals['self']),
                 len(frame.f_locals['other'])
-            )
+            ]
         }
 
     @staticmethod
@@ -98,13 +110,18 @@ class RunQueryInspector(FuncInspector):
 
     @staticmethod
     def _process_records(records: dict[list]) -> dict:
-        return records
+        assert all(len(value_list) == 1 for value_list in records.values())
+        return {key: value[0] for key, value in records.items()}
+
+
+def get_auditing_results_path(benchmark: Benchmark) -> Path:
+    return get_benchmark_result_path(benchmark, 'auditing', 'json')
 
 
 def audit_all_benchmarks():
     # TODO: add more hooks
     inspectors = [
-        IntervalContainedIn(),
+        # IntervalContainedIn(),
         RunQueryInspector()
     ]
     inspectors_runner = InspectorRunner(inspectors)
@@ -112,12 +129,17 @@ def audit_all_benchmarks():
     sys.settrace(inspectors_runner.run_all_inspectors)
 
     for benchmark in iter_all_benchmarks():
-        for inspector in inspectors:
-            inspector.reset()
+        # TODO: refactor to a nicer way of not running the same benchmark twice
+        result_path = get_auditing_results_path(benchmark)
+        if result_path.exists():
+            continue
+
+        inspectors_runner.reset_all_inspectors()
         benchmark.run()
-        stats = [inspector.get_stats() for inspector in inspectors]
-        # TODO: do something else with the stats
-        print(stats)
+
+        stats = inspectors_runner.get_stats()
+        with result_path.open('w') as f:
+            json.dump(stats, f, indent=4)
 
 
 if __name__ == "__main__":
