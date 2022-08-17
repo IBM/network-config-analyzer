@@ -7,15 +7,18 @@ from benchmarking.benchmarking_utils import get_benchmark_results_dir, iter_all_
 from benchmarking.timing import get_timing_results_path
 from benchmarking.analyze_profile_results import get_top_n_cumtime_funcs
 
-# TODO: instead of a single report, remove the benchmarking results (top_n) from the report,
-#   and, for each benchmark, create a table with the function and how much time it took
-#   and another table for all the benchmarks together
-
 
 def get_report_dir() -> Path:
     report_dir = get_benchmark_results_dir() / 'reports'
     report_dir.mkdir(exist_ok=True)
     return report_dir
+
+
+def dict_list_to_csv(lines: list[dict], path: Path):
+    with path.open('w', newline='') as f:
+        writer = DictWriter(f, fieldnames=lines[0].keys())
+        writer.writeheader()
+        writer.writerows(lines)
 
 
 def create_report():
@@ -42,26 +45,16 @@ def create_report():
 
         lines.append(line)
 
-        # TODO: refactor this into a function
         top_func_records = get_top_n_cumtime_funcs(top_n, benchmark)
         top_func_report_path = report_dir / f'{str(benchmark)}_top_func_report.csv'
-        with top_func_report_path.open('w', newline='') as f:
-            writer = DictWriter(f, fieldnames=top_func_records[0].keys())
-            writer.writeheader()
-            writer.writerows(top_func_records)
+        dict_list_to_csv(top_func_records, top_func_report_path)
 
     top_func_records = get_top_n_cumtime_funcs(top_n)
     top_func_report_path = report_dir / f'accumulated_top_func_report.csv'
-    with top_func_report_path.open('w', newline='') as f:
-        writer = DictWriter(f, fieldnames=top_func_records[0].keys())
-        writer.writeheader()
-        writer.writerows(top_func_records)
+    dict_list_to_csv(top_func_records, top_func_report_path)
 
     timing_report_path = report_dir / 'timing_report.csv'
-    with timing_report_path.open('w', newline='') as f:
-        writer = DictWriter(f, fieldnames=lines[0].keys())
-        writer.writeheader()
-        writer.writerows(lines)
+    dict_list_to_csv(lines, timing_report_path)
 
 
 if __name__ == "__main__":
