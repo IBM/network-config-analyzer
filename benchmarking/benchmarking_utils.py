@@ -77,6 +77,7 @@ def write_all_scheme_files():
 
 
 def iter_all_benchmarks():
+    # TODO: add the tests as benchmarks to the iterator, I also want to create a report for that
     benchmark_dirs = get_all_benchmark_dirs()
     queries = get_all_queries()
     for benchmark_dir, query in product(benchmark_dirs, queries):

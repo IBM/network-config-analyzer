@@ -1,5 +1,4 @@
 """A module for timing the benchmarks"""
-# TODO: add testcases to the benchmark iterator
 import json
 import timeit
 from pathlib import Path

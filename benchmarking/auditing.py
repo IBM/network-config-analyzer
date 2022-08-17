@@ -119,6 +119,9 @@ def get_auditing_results_path(benchmark: Benchmark) -> Path:
 
 
 def audit_all_benchmarks():
+    # TODO: IMPORTANT - this method does not work well and takes a very long time to run.
+    #  Inserting logging code into the functions is better I think, it is a little messy but easier to do
+
     # TODO: add more hooks
     inspectors = [
         # IntervalContainedIn(),
