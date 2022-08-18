@@ -108,4 +108,7 @@ workdir
 
 # Benchmarking
 benchmarks/
+!benchmarks/README.md
 benchmark_results/
+!benchmark_results/README.md
+
