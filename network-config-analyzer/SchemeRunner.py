@@ -11,6 +11,7 @@ from GenericYamlParser import GenericYamlParser
 from NetworkConfig import NetworkConfig
 from NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from ResourcesHandler import ResourcesHandler
+import _global_logging_flag
 
 
 class SchemeRunner(GenericYamlParser):
@@ -145,6 +146,15 @@ class SchemeRunner(GenericYamlParser):
         # specified configs (non-global)
         for config_entry in self.scheme.get('networkConfigList', []):
             self._add_config(config_entry, resources_handler)
+
+        if _global_logging_flag.ENABLED:
+            network_config: NetworkConfig = self.network_configs['network']
+            item = {
+                'n_policies': len(network_config.policies_container.policies),
+                'n_namespaces': len(network_config.peer_container.namespaces),
+                'n_peers': len(network_config.peer_container.peer_set)
+            }
+            _global_logging_flag.LOGGING_QUEUE.put(item, block=False)
 
         self.run_queries(self.scheme.get('queries', []))
         return self.global_res
