@@ -3,20 +3,19 @@ from queue import Empty
 import json
 from pathlib import Path
 
-from benchmarking.benchmarking_utils import iter_all_benchmarks, get_benchmark_result_path, Benchmark
+from benchmarking.benchmarking_utils import iter_benchmarks, get_benchmark_result_path, Benchmark
 import _global_logging_flag
 
 
-def get_auditing_results_path(benchmark: Benchmark) -> Path:
-    return get_benchmark_result_path(benchmark, 'auditing', 'json')
+def get_auditing_results_path(benchmark: Benchmark, experiment_name: str) -> Path:
+    return get_benchmark_result_path(benchmark, experiment_name, 'auditing', 'json')
 
 
-def audit_all_benchmarks():
+def audit_benchmarks(experiment_name: str):
     _global_logging_flag.ENABLED = True
 
-    for benchmark in iter_all_benchmarks():
-        # TODO: refactor to a nicer way of not running the same benchmark twice
-        result_path = get_auditing_results_path(benchmark)
+    for benchmark in iter_benchmarks():
+        result_path = get_auditing_results_path(benchmark, experiment_name)
         if result_path.exists():
             continue
 
@@ -38,4 +37,4 @@ def audit_all_benchmarks():
 
 
 if __name__ == "__main__":
-    audit_all_benchmarks()
+    audit_benchmarks('test')

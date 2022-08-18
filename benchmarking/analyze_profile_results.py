@@ -1,8 +1,7 @@
 from pathlib import Path
-from pprint import pprint
-from pstats import Stats, FunctionProfile, SortKey
+from pstats import Stats, FunctionProfile
 
-from benchmarking.benchmarking_utils import Benchmark, iter_all_benchmarks
+from benchmarking.benchmarking_utils import Benchmark, iter_benchmarks
 from benchmarking.profiling import load_profile_results, get_profile_results_path
 
 
@@ -38,15 +37,16 @@ def get_short_func_path(func_stats: FunctionProfile) -> str:
     return short_func_path
 
 
-def get_top_n_cumtime_funcs(n: int, benchmark: Benchmark = None) -> list[dict]:
+def get_top_n_cumtime_funcs(n: int, experiment_name: str, benchmark: Benchmark = None) -> list[dict]:
     """Returns a list of the top n functions that have the largest cumulative time,
     after filtering the python library functions, and not interesting functions
     """
     if benchmark is None:
-        profile_results_paths = [str(get_profile_results_path(benchmark)) for benchmark in iter_all_benchmarks()]
+        profile_results_paths = [str(get_profile_results_path(benchmark, experiment_name))
+                                 for benchmark in iter_benchmarks()]
         profile_stats = Stats(*profile_results_paths)
     else:
-        profile_stats = load_profile_results(benchmark)
+        profile_stats = load_profile_results(benchmark, experiment_name)
 
     func_stats_dict = filter_local_functions(profile_stats)
     func_stats_dict = filter_non_interesting_funcs(func_stats_dict)
@@ -70,20 +70,3 @@ def get_top_n_cumtime_funcs(n: int, benchmark: Benchmark = None) -> list[dict]:
         })
 
     return result
-
-
-def get_accumulated_stats():
-    profile_results_paths = [str(get_profile_results_path(benchmark)) for benchmark in iter_all_benchmarks()]
-    accumulated_stats = Stats(profile_results_paths)
-    accumulated_stats = filter_local_functions(accumulated_stats)
-    attribute = 'cumtime'
-    func_stats_list = list(sorted(
-        accumulated_stats.items(),
-        key=lambda item: getattr(item[1], attribute),
-        reverse=True
-    ))
-    pprint(func_stats_list[:30])
-
-
-if __name__ == "__main__":
-    get_accumulated_stats()
