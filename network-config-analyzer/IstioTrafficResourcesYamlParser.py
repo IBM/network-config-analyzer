@@ -266,8 +266,6 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                                         'headers': [3, dict], 'withoutHeaders': 3, 'port': [3, int],
                                         'sourceLabels': [3, dict], 'gateways': [3, list],
                                         'queryParams': [3, dict], 'sourceNamespace': [3, str]})
-
-
             uri_dfa = self.parse_istio_regex_string(item, 'uri', vs.full_name())
             if uri_dfa:
                 parsed_route.add_uri_dfa(uri_dfa)
