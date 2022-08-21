@@ -6,6 +6,9 @@ from benchmarking.timing import time_benchmarks
 from benchmarking.auditing import audit_benchmarks
 
 
+# TODO: consider adding some logging to this so I will know how much progress was made / how much time is left
+
+
 def run_all_benchmarks(experiment_name: str):
     time_benchmarks(experiment_name)
     profile_benchmarks(experiment_name)
