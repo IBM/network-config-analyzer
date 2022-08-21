@@ -1,0 +1,22 @@
+- name: basic_sanity
+  args: >
+    --sanity
+    -r istio
+  expected: 0
+
+- name: basic_connectivity
+  args: >
+    --connectivity istio
+    --ns_list k8s
+    --pod_list k8s
+    --output_format dot
+    --file_out connectivityMapLiveIstio.dot
+  expected: 0
+
+- name: basic_equiv
+  args: >
+    --semantic_diff
+    -r istio
+    --base_np istio_testcases/example_policies/bookinfo-demo/bookinfo-policy-equiv-principals-by-condition-1.yaml
+    -rb istio
+  expected: 0
