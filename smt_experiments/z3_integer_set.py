@@ -1,22 +1,8 @@
-from copy import copy
-
 from z3 import Int, Solver, sat, unsat, And, Not, BoolVal, FreshInt, substitute, Or, BoolRef, SimpleSolver
 import timeit
 
 from CanonicalIntervalSet import CanonicalIntervalSet
 
-
-# TODO: CanonicalIntervalSet offers the following actions
-#   - equivalence
-#   - set containment
-#   - element containment
-#   - intersection
-#   - union
-#   - difference
-#  Lets figure out when z3 works better and when CanonicalIntervalSet works better
-
-# TODO: maybe create some unittests to make sure that the functionality is correct
-# TODO: first, implement the same functionality, then think about how to optimize it
 # TODO: maybe look at others code using Z3 to get ideas on how to optimize implementation
 # TODO: search for the z3 paper, it might offer some interesting feedback.
 # TODO: check out z3 simple solver, or other optimization options
@@ -26,8 +12,6 @@ class Z3IntegerSet:
     _solver = Solver()
     # _solver = SimpleSolver()
 
-    # TODO: every time that the set is updated we need to update the solver.
-    #  every time we instantiate something with z3 could be expensive
     def __init__(self):
         self.constraints = BoolVal(False)
         self.var = FreshInt()
@@ -78,6 +62,9 @@ class Z3IntegerSet:
         new.constraints = substitute(self.constraints, (self.var, new.var))
         return new
 
+    def __repr__(self):
+        return f'<Z3IntegerSet: {str(self.constraints)}>'
+
     def __iand__(self, other):
         other: Z3IntegerSet
         other_constraints = substitute(other.constraints, (other.var, self.var))
@@ -97,8 +84,8 @@ class Z3IntegerSet:
         return self
 
 
-def integer_sets_experiment():
-    # TODO: split each test to a separate function so I would not have to run it all every time
+def z3_timing():
+    """Timing basic z3 operations"""
     n_times = 1_000
 
     # instantiating a z3 solver
@@ -154,7 +141,11 @@ def integer_sets_experiment():
     )
     print(f'time to push and pop to solver: {t}')
 
+
+def integer_sets_experiment():
+    # TODO: split each test to a separate function so I would not have to run it all every time
     # creation
+    n_times = 1_000
     start = 0
     end = 100
 
@@ -163,116 +154,126 @@ def integer_sets_experiment():
     print(f'CanonicalIntervalSet creation time: {t1}')
     print(f'Z3IntegerSet creation time: {t2}')
 
-    set_1 = CanonicalIntervalSet.get_interval_set(start, end)
-    set_2 = Z3IntegerSet.get_interval_set(start, end)
+    interval_set = CanonicalIntervalSet.get_interval_set(start, end)
+    z3_set = Z3IntegerSet.get_interval_set(start, end)
 
     # single element contained in
-    # TODO: maybe make this check with assert?
-    x = 50
-    if x in set_1:
-        print(f'{x} is in set_1')
-    else:
-        print(f'{x} is not in set_1')
-
-    if x in set_2:
-        print(f'{x} is in set_2')
-    else:
-        print(f'{x} is not in set_2')
-
-    t1 = timeit.timeit(lambda: x in set_1, number=n_times)
-    t2 = timeit.timeit(lambda: x in set_2, number=n_times)
-    print(f'CanonicalIntervalSet contained in time: {t1}')
-    print(f'Z3IntegerSet contained in time: {t2}')
+    contains_timing(interval_set, z3_set, 50, n_times)
 
     # single element not contained in
-    x = 300
-    if x in set_1:
-        print(f'{x} is in set_1')
-    else:
-        print(f'{x} is not in set_1')
-
-    if x in set_2:
-        print(f'{x} is in set_2')
-    else:
-        print(f'{x} is not in set_2')
-
-    t1 = timeit.timeit(lambda: x in set_1, number=n_times)
-    t2 = timeit.timeit(lambda: x in set_2, number=n_times)
-    print(f'CanonicalIntervalSet not contained in time: {t1}')
-    print(f'Z3IntegerSet not contained in time: {t2}')
+    contains_timing(interval_set, z3_set, 300, n_times)
 
     # subset
     start1 = 10
     end1 = 90
-    set_1_1 = CanonicalIntervalSet.get_interval_set(start1, end1)
-    set_2_1 = Z3IntegerSet.get_interval_set(start1, end1)
-
-    if set_1_1.contained_in(set_1):
-        print('set_1_1 is contained in set_1')
-    else:
-        print('set_1_1 is not contained in set_1')
-
-    if set_2_1.contained_in(set_2):
-        print('set_2_1 is contained in set_2')
-    else:
-        print('set_2_1 is not contained in set_2')
-
-    t1 = timeit.timeit(lambda: set_1_1.contained_in(set_1), number=n_times)
-    t2 = timeit.timeit(lambda: set_2_1.contained_in(set_2), number=n_times)
-    print(f'CanonicalIntervalSet contained_in time: {t1}')
-    print(f'Z3IntegerSet contained_in time: {t2}')
+    interval_set1 = CanonicalIntervalSet.get_interval_set(start1, end1)
+    z3_set1 = Z3IntegerSet.get_interval_set(start1, end1)
+    contained_in_timing(interval_set, interval_set1, z3_set, z3_set1, n_times)
 
     # not subset
     start2 = 10
     end2 = 150
-    set_1_2 = CanonicalIntervalSet.get_interval_set(start2, end2)
-    set_2_2 = Z3IntegerSet.get_interval_set(start2, end2)
-
-    if set_1_2.contained_in(set_1):
-        print('set_1_2 is contained in set_1')
-    else:
-        print('set_1_2 is not contained in set_1')
-
-    if set_2_2.contained_in(set_2):
-        print('set_2_2 is contained in set_2')
-    else:
-        print('set_2_2 is not contained in set_2')
-
-    t1 = timeit.timeit(lambda: set_1_2.contained_in(set_1), number=n_times)
-    t2 = timeit.timeit(lambda: set_2_2.contained_in(set_2), number=n_times)
-    print(f'CanonicalIntervalSet not contained_in time: {t1}')
-    print(f'Z3IntegerSet not contained_in time: {t2}')
+    interval_set2 = CanonicalIntervalSet.get_interval_set(start2, end2)
+    z3_set2 = Z3IntegerSet.get_interval_set(start2, end2)
+    contained_in_timing(interval_set, interval_set2, z3_set, z3_set2, n_times)
 
     # equivalence
-    # TODO: probably, the equivalence check in the CanonicalIntervalSet will be faster
-    set_1_eq = CanonicalIntervalSet.get_interval_set(start, end)
-    set_2_eq = Z3IntegerSet.get_interval_set(start, end)
-    if set_1_eq == set_1:
-        print('set_1_eq is equal to set_1')
-    else:
-        print('set_1_eq is not equal to set_1')
+    interval_set_eq = CanonicalIntervalSet.get_interval_set(start, end)
+    z3_set_eq = Z3IntegerSet.get_interval_set(start, end)
+    eq_timing(interval_set, interval_set_eq, z3_set, z3_set_eq, n_times)
 
-    if set_2_eq == set_2:
-        print('set_2_eq is equal to set_2')
-    else:
-        print('set_2_eq is not equal to set_2')
+    # copy
+    copy_timing(interval_set, z3_set, n_times)
 
-    t1 = timeit.timeit(lambda: set_1 == set_1_eq, number=n_times)
-    t2 = timeit.timeit(lambda: set_2 == set_2_eq, number=n_times)
+    # union
+    union_timing(interval_set, interval_set1, z3_set, z3_set1, n_times)
+
+    # intersection
+    intersect_timing(interval_set, interval_set1, z3_set, z3_set1, n_times)
+
+    # difference
+    difference_timing(interval_set, interval_set1, z3_set, z3_set1, n_times)
+
+    # now do all the tests when we take the union over disjoint sets (increasing number)
+    for i in range(2, 101, 2):
+        print(f'***{i // 2} intervals***')
+        low = i * 100
+        high = (i + 1) * 100
+        interval_set |= CanonicalIntervalSet.get_interval_set(low, high)
+        z3_set |= Z3IntegerSet.get_interval_set(low, high)
+
+        in_element = low + 50
+        contains_timing(interval_set, z3_set, in_element, n_times)
+
+        not_in_element = low - 50
+        contains_timing(interval_set, z3_set, not_in_element, n_times)
+
+        middle_element = (start + high) // 2
+        contains_timing(interval_set, z3_set, middle_element, n_times)
+
+
+def contains_timing(interval_set: CanonicalIntervalSet, z3_set: Z3IntegerSet, element: int, n_times: int):
+    t1 = timeit.timeit(lambda: element in interval_set, number=n_times)
+    t2 = timeit.timeit(lambda: element in z3_set, number=n_times)
+    print(f'CanonicalIntervalSet contained in time: {t1}')
+    print(f'Z3IntegerSet contained in time: {t2}')
+
+
+def copy_timing(interval_set: CanonicalIntervalSet, z3_set: Z3IntegerSet, n_times: int):
+    t1 = timeit.timeit(lambda: interval_set.copy(), number=n_times)
+    t2 = timeit.timeit(lambda: z3_set.copy(), number=n_times)
+    print(f'CanonicalIntervalSet copy time: {t1}')
+    print(f'Z3IntegerSet copy time: {t2}')
+    
+
+def contained_in_timing(interval_set: CanonicalIntervalSet, interval_set1: CanonicalIntervalSet, 
+                        z3_set: Z3IntegerSet, z3_set1: Z3IntegerSet, n_times: int):
+    t1 = timeit.timeit(lambda: interval_set1.contained_in(interval_set), number=n_times)
+    t2 = timeit.timeit(lambda: z3_set1.contained_in(z3_set), number=n_times)
+    print(f'CanonicalIntervalSet contained_in time: {t1}')
+    print(f'Z3IntegerSet contained_in time: {t2}')
+
+
+def eq_timing(interval_set: CanonicalIntervalSet, interval_set1: CanonicalIntervalSet,
+              z3_set: Z3IntegerSet, z3_set1: Z3IntegerSet, n_times: int):
+    t1 = timeit.timeit(lambda: interval_set1 == interval_set, number=n_times)
+    t2 = timeit.timeit(lambda: z3_set1 == z3_set, number=n_times)
     print(f'CanonicalIntervalSet __eq__ time: {t1}')
     print(f'Z3IntegerSet __eq__ time: {t2}')
 
-    # copy
-    t1 = timeit.timeit(lambda: set_1.copy(), number=n_times)
-    t2 = timeit.timeit(lambda: set_2.copy(), number=n_times)
-    print(f'CanonicalIntervalSet copy time: {t1}')
-    print(f'Z3IntegerSet copy time: {t2}')
 
-    # union
-    # intersection
-    # difference
+def union_timing(interval_set: CanonicalIntervalSet, interval_set1: CanonicalIntervalSet,
+                 z3_set: Z3IntegerSet, z3_set1: Z3IntegerSet, n_times: int):
+    interval_set = interval_set.copy()
+    z3_set = z3_set.copy()
 
-    # now do all the tests when we take the union over disjoint sets (increasing number)
+    t1 = timeit.timeit(lambda: interval_set.__ior__(interval_set1), number=n_times)
+    t2 = timeit.timeit(lambda: z3_set.__ior__(z3_set1), number=n_times)
+    print(f'CanonicalIntervalSet __ior__ time: {t1}')
+    print(f'Z3IntegerSet __ior__ time: {t2}')
+
+
+# TODO: save results to a file and make a graph of it.
+def intersect_timing(interval_set: CanonicalIntervalSet, interval_set1: CanonicalIntervalSet,
+                     z3_set: Z3IntegerSet, z3_set1: Z3IntegerSet, n_times: int):
+    interval_set = interval_set.copy()
+    z3_set = z3_set.copy()
+
+    t1 = timeit.timeit(lambda: interval_set.__iand__(interval_set1), number=n_times)
+    t2 = timeit.timeit(lambda: z3_set.__iand__(z3_set1), number=n_times)
+    print(f'CanonicalIntervalSet __iand__ time: {t1}')
+    print(f'Z3IntegerSet __iand__ time: {t2}')
+
+
+def difference_timing(interval_set: CanonicalIntervalSet, interval_set1: CanonicalIntervalSet,
+                      z3_set: Z3IntegerSet, z3_set1: Z3IntegerSet, n_times: int):
+    interval_set = interval_set.copy()
+    z3_set = z3_set.copy()
+
+    t1 = timeit.timeit(lambda: interval_set.__isub__(interval_set1), number=n_times)
+    t2 = timeit.timeit(lambda: z3_set.__isub__(z3_set1), number=n_times)
+    print(f'CanonicalIntervalSet __isub__ time: {t1}')
+    print(f'Z3IntegerSet __isub__ time: {t2}')
 
 
 if __name__ == "__main__":
