@@ -48,3 +48,21 @@ spec:
       protocol: MONGO
     hosts:
     - "*"
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: dummy-gateway
+  namespace: default
+spec:
+  selector:
+    app: my-gateway-controller
+  servers:
+  - port:
+      number: 81
+      name: http
+      protocol: HTTP
+    hosts:
+    - uk.bookinfo.com
+    - eu.bookinfo.com

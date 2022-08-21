@@ -53,3 +53,15 @@ spec:
         host: details.prod.svc.cluster.local
         port:
           number: 5555
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: dummy-for-test
+  namespace: bookinfo-namespace
+spec:
+  hosts:
+  - mongosvr.prod.svc.cluster.local # name of internal Mongo service
+  gateways:
+  - dummy-missing

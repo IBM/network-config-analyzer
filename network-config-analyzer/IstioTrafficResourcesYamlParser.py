@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+from functools import reduce
 from GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 from IstioTrafficResources import Gateway, VirtualService
 from DimensionsManager import DimensionsManager
@@ -10,7 +11,6 @@ from MinDFA import MinDFA
 from IngressPolicy import IngressPolicy
 from NetworkPolicy import NetworkPolicy
 from Peer import PeerSet
-from functools import reduce
 
 
 class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
@@ -64,22 +64,32 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         gtw_namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
         gtw_spec = gateway_resource.get('spec')
         if not gtw_spec:
-            self.warning(f'Spec is missing or null in Gateway {gtw_name}. Ignoring the gateway')
+            self.warning(f'spec is missing or null in Gateway {gtw_name}. Ignoring the gateway')
             return
 
         gateway = Gateway(gtw_name, gtw_namespace)
         selector = gtw_spec.get('selector')
         if not selector:
-            self.warning(f'Selector is missing or null in Gateway {gtw_name}. Ignoring the gateway')
+            self.warning(f'selector is missing or null in Gateway {gtw_name}. Ignoring the gateway')
             return
         peers = self.peer_container.get_all_peers_group()
         for key, val in selector.items():
             peers &= self.peer_container.get_peers_with_label(key, [val])
         if not peers:
-            self.warning(f'Selector {selector} does not reference any pods in Gateway {gtw_name}. Ignoring the gateway')
+            self.warning(f'selector {selector} does not reference any pods in Gateway {gtw_name}. Ignoring the gateway')
             return
 
         gateway.peers = peers
+        self.parse_gateway_servers(gtw_name, gtw_spec, gateway)
+        self.add_gateway(gateway)
+
+    def parse_gateway_servers(self, gtw_name, gtw_spec, gateway):
+        """
+        Parses servers list in Gateway resource.
+        :param gtw_name: the gateway name
+        :param gtw_spec: the gateway spec
+        :param gateway: the parsed gateway, to include the resulting parsed servers
+        """
         servers = gtw_spec.get('servers')
         if servers is None:
             self.warning(f'servers is missing or null in Gateway {gtw_name}. Ignoring the gateway')
@@ -93,14 +103,12 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             gtw_server = Gateway.Server(port)
             gtw_server.name = server.get('name')
             hosts = server.get('hosts')
-            if hosts:
-                for host in hosts:
-                    host_dfa = self.parse_host_value(host, gateway_resource)
-                    if host_dfa:
-                        gtw_server.add_host(host_dfa)
+            for host in hosts or []:
+                host_dfa = self.parse_host_value(host, gtw_spec)
+                if host_dfa:
+                    gtw_server.add_host(host_dfa)
 
             gateway.add_server(gtw_server)
-        self.add_gateway(gateway)
 
     def parse_host_value(self, host, resource):
         """
@@ -111,7 +119,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         """
         namespace_and_name = host.split('/', 1)
         if len(namespace_and_name) > 1:
-            self.syntax_error(f'Host {host}: namespace is not supported yet', resource)
+            self.syntax_error(f'host {host}: namespace is not supported yet', resource)
         return self.parse_regex_host_value(host, resource)
 
     def parse_gateway_port(self, server):
@@ -152,26 +160,19 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         vs_namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
         vs_spec = vs_resource.get('spec')
         if not vs_spec:
-            self.warning(f'Spec is missing or null in VirtualService {vs_name}. Ignoring the VirtualService.')
+            self.warning(f'spec is missing or null in VirtualService {vs_name}. Ignoring the VirtualService.')
             return
 
         vs = VirtualService(vs_name, vs_namespace)
-        hosts = vs_spec.get('hosts')
-        if hosts:
-            for host in hosts:
-                host_dfa = self.parse_host_value(host, vs_resource)
-                if host_dfa:
-                    vs.add_host_dfa(host_dfa)
 
-        if vs_spec.get('tls'):
-            self.warning(f'"tls" value is not yet supported (referenced in the VirtualService {vs.full_name()}).'
-                         f' Ignoring it.')
-        if vs_spec.get('exportTo'):
-            self.warning(f'"exportTo" value is not yet supported (referenced in the VirtualService {vs.full_name()}).'
-                         f' Ignoring it.')
-        if vs_spec.get('tcp'):
-            self.warning(f'"tcp" value is not yet supported (referenced in the VirtualService {vs.full_name()}).'
-                         f' Ignoring it.')
+        self.check_fields_validity(vs_spec, f'VirtualService {vs.full_name()}',
+                                   {'hosts': [0, list], 'gateways': [0, list], 'http': 0, 'tls': 3, 'tcp': 3,
+                                    'exportTo': [3, str]})
+        hosts = vs_spec.get('hosts')
+        for host in hosts or []:
+            host_dfa = self.parse_host_value(host, vs_resource)
+            if host_dfa:
+                vs.add_host_dfa(host_dfa)
 
         self.parse_vs_gateways(vs, vs_spec)
         self.parse_vs_http_route(vs, vs_spec)
@@ -208,25 +209,13 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         http = vs_spec.get('http')
         if http:
             for route in http:
+                self.check_fields_validity(route, f'HTTPRroute in the VirtualService {vs.full_name()}',
+                                           {'name': [0, str], 'match': 0, 'route': 0, 'redirect': 3, 'delegate': 3,
+                                            'rewrite': 3, 'timeout': 3, 'retries': 3, 'fault': 3, 'mirror': 3,
+                                            'mirrorPercentage': 3, 'corsPolicy': 3, 'headers': 3})
                 http_route = VirtualService.HTTPRoute()
                 self.parse_http_match_request(route, http_route, vs)
                 self.parse_http_route_destinations(route, http_route, vs)
-
-                delegate = route.get('delegate')
-                if delegate:
-                    self.warning(f'"delegate" is not yet supported in HTTPRoute '
-                                 f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
-
-                mirror = route.get('mirror')
-                if mirror:
-                    self.warning(f'"mirror" is not yet supported in HTTPRoute '
-                                 f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
-
-                headers = route.get('headers')
-                if headers:
-                    self.warning(f'"headers" are not yet supported in HTTPRoute '
-                                 f'(referenced in the VirtualService {vs.full_name()}). Ignoring them.')
-
                 vs.add_http_route(http_route)
 
     def parse_istio_regex_string(self, resource, attr_name, vs_name):
@@ -243,7 +232,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             return None
         items = list(res.items())
         if len(items) != 1:
-            self.warning(f'Wrong format of {attr_name} referenced in the VirtualService {vs_name}.')
+            self.warning(f'wrong format of {attr_name} referenced in the VirtualService {vs_name}.')
             return None
         regex = items[0][1]
         if items[0][0] == 'exact':
@@ -256,7 +245,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 # https://github.com/google/re2/wiki/Syntax#:~:text=group%3B%20non%2Dcapturing-,(%3Fflags%3Are),-set%20flags%20during
                 regex = '(?i:' + regex + ')'
         else:
-            self.warning(f'Illegal attribute {items[0]} in the VirtualService {vs_name}. Ignoring.')
+            self.warning(f'illegal attribute {items[0]} in the VirtualService {vs_name}. Ignoring.')
             return None
         return MinDFA.dfa_from_regex(regex)
 
@@ -272,39 +261,19 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         if not match:
             return
         for item in match:
+            self.check_fields_validity(item, f'HTTPMatchRequest in the VirtualService {vs.full_name()}',
+                                       {'name': [0, str], 'uri': 0, 'scheme': 3, 'method': 0, 'authority': 3,
+                                        'headers': [3, dict], 'withoutHeaders': 3, 'port': [3, int],
+                                        'sourceLabels': [3, dict], 'gateways': [3, list],
+                                        'queryParams': [3, dict], 'sourceNamespace': [3, str]})
+
+
             uri_dfa = self.parse_istio_regex_string(item, 'uri', vs.full_name())
             if uri_dfa:
                 parsed_route.add_uri_dfa(uri_dfa)
-            if item.get('scheme'):
-                self.warning(f'"scheme" is not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
             method_dfa = self.parse_istio_regex_string(item, 'method', vs.full_name())
             if method_dfa:
                 parsed_route.add_method_dfa(method_dfa)
-            if item.get('authority'):
-                self.warning(f'"authority" is not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
-            if item.get('headers'):
-                self.warning(f'"headers" are not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring them.')
-            if item.get('withoutHeaders'):
-                self.warning(f'"withoutHeaders" are not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring them.')
-            if item.get('port'):
-                self.warning(f'"port" is not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
-            if item.get('sourceLabels'):
-                self.warning(f'"sourceLabels" are not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring them.')
-            if item.get('gateways'):
-                self.warning(f'"gateways" are not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring them.')
-            if item.get('queryParams'):
-                self.warning(f'"queryParams" are not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring them.')
-            if item.get('sourceNamespace'):
-                self.warning(f'"sourceNamespace" is not yet supported in HTTPMatchRequest '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
 
     def parse_http_route_destinations(self, route, parsed_route, vs):
         """
@@ -320,12 +289,12 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         for item in http_route_dest:
             dest = item.get('destination')
             if not dest:
-                self.warning(f'Missing destination in HTTPRouteDestination in the VirtualService {vs.full_name()}. '
+                self.warning(f'missing destination in HTTPRouteDestination in the VirtualService {vs.full_name()}. '
                              f'Ignoring http route.')
                 return
             service = self.parse_service(dest, vs)
             if not service:
-                self.syntax_error(f'Missing service referenced in {dest} in the VirtualService {vs.full_name()}', route)
+                self.syntax_error(f'missing service referenced in {dest} in the VirtualService {vs.full_name()}', route)
             target_port = None
             port = dest.get('port')
             if port:
@@ -333,10 +302,10 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 if port_num:
                     service_port = service.get_port_by_number(port_num)
                     if not service_port:
-                        self.syntax_error(f'Missing port {port_num} in the service', service)
+                        self.syntax_error(f'missing port {port_num} in the service', service)
                     target_port = service_port.target_port
             if not target_port:  # either port or port.number is missing
-                self.warning(f'Missing port for service {dest} in the VirtualService {vs.full_name()}')
+                self.warning(f'missing port for service {dest} in the VirtualService {vs.full_name()}')
             parsed_route.add_destination(service, target_port)
 
             if item.get('headers'):
@@ -391,13 +360,14 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         """
 
         if not self.gateways:
-            self.warning('No valid Gateways found. Ignoring istio ingress traffic')
+            self.warning('no valid Gateways found. Ignoring istio ingress traffic')
             return []
         if not self.virtual_services:
-            self.warning('No valid VirtualServices found. Ignoring istio ingress traffic')
+            self.warning('no valid VirtualServices found. Ignoring istio ingress traffic')
             return []
 
         result = []
+        used_gateways = set()
         for vs in self.virtual_services.values():
             vs_policies = []
             gateways = []
@@ -406,9 +376,12 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 if gtw:
                     gateways.append(gtw)
                 else:
-                    self.warning(f'Missing gateway {gtw_name}, referenced in the VirtualService {vs.full_name()}. '
+                    self.warning(f'missing gateway {gtw_name}, referenced in the VirtualService {vs.full_name()}. '
                                  f'Ignoring the gateway')
-
+            if not gateways:
+                self.warning(f'virtual service {vs.full_name()} does not have valid gateways and is ignored')
+                continue
+            used_gateways.update(gateways)
             # build peers+hosts partition peers_to_hosts
             peers_to_hosts = {}
             for host_dfa in vs.hosts_dfa:
@@ -431,6 +404,12 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)
             if not vs_policies:
-                self.warning(f'VirtualService {vs.full_name()} does not affect traffic and is ignored')
+                self.warning(f'virtual service {vs.full_name()} does not affect traffic and is ignored')
             result.extend(vs_policies)
+        unused_gateways = set(self.gateways.values()) - used_gateways
+        if unused_gateways:
+            self.warning(f'the following gateways have no virtual services attached: '
+                         f'{",".join([gtw.full_name() for gtw in unused_gateways])}')
+        if not result:
+            self.warning('no valid VirtualServices found. Ignoring istio ingress traffic')
         return result

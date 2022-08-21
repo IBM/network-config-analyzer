@@ -133,7 +133,7 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         :param TcpLikeProperties tcp_conns: the given connections
         :return: the list of IngressPolicyRules
         """
-        peers_to_conns = dict()
+        peers_to_conns = {}
         res = []
         # extract peers dimension from cubes
         for cube in tcp_conns:

@@ -30,8 +30,14 @@ class K8sService:
             self.name = name
 
     def __init__(self, name, namespace_name):
+        """
+        :param str name: a service name
+        :param str namespace_name: a namespce name
+        """
         self.name = name
         self.namespace_name = namespace_name
+        # The following self.namespace is a K8sNamespace
+        # (to be retrieved from namespace_name by PeerContainer._set_services_and_populate_target_pods)
         self.namespace = None
         self.type = self.ServiceType.ClusterIP
         self.selector = {}
