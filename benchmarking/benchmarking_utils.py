@@ -23,11 +23,12 @@ class Benchmark:
 
 def get_repo_root_dir() -> Path:
     project_name = 'network-config-analyzer'
-    last_matching_parent = None
-    for parent in Path.cwd().parents:
+    cwd = Path.cwd()
+    last_matching_parent = cwd if cwd.name == project_name else None
+    for parent in cwd.parents:
         if parent.name == project_name:
             last_matching_parent = parent
-    if last_matching_parent:
+    if not last_matching_parent:
         raise RuntimeError(f'could not find project root directory {project_name}')
 
 
