@@ -35,7 +35,7 @@ def get_repo_root_dir() -> Path:
 
     return last_matching_parent
 
-    
+
 def get_benchmarks_dir() -> Path:
     return get_repo_root_dir() / 'benchmarks'
 
@@ -69,9 +69,9 @@ def iter_benchmarks():
     benchmark_dirs = get_benchmark_dirs()
     queries = get_queries()
     for benchmark_dir, query in product(benchmark_dirs, queries):
-        # TODO: this is just for testing
-        if benchmark_dir.name != 'dra':
-            continue
+        # TODO: this is just for testing -- maybe add that as a flag to "run_benchmarks?"
+        # if benchmark_dir.name != 'dra':
+        #     continue
         # TODO: currently, I skip this benchmark. I need to work on it to make it run
         if benchmark_dir.name == 'FromJakeKitchener':
             continue

@@ -6,10 +6,12 @@ import logging
 from nca import nca_main
 from pathlib import Path
 
+from benchmarking.benchmarking_utils import get_repo_root_dir
+
 
 logging.basicConfig(level=logging.INFO)
-TESTS_DIR = Path('../tests')
-PROFILE_RESULTS_DIR = Path('../profile_results')
+TESTS_DIR = get_repo_root_dir() / 'tests'
+PROFILE_RESULTS_DIR = get_repo_root_dir() / 'profile_results'
 
 
 def profile_all_scheme_files() -> None:
