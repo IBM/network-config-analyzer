@@ -1,12 +1,12 @@
 from pathlib import Path
 from pstats import Stats, FunctionProfile
 
-from benchmarking.benchmarking_utils import Benchmark, iter_benchmarks
+from benchmarking.benchmarking_utils import Benchmark, iter_benchmarks, get_repo_root_dir
 from benchmarking.profiling import load_profile_results, get_profile_results_path
 
 
 def get_source_dir() -> Path:
-    return Path('../network-config-analyzer').resolve()
+    return get_repo_root_dir() / 'network-config-analyzer'
 
 
 def filter_local_functions(profile_stats: Stats) -> dict[str, FunctionProfile]:

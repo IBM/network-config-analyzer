@@ -21,12 +21,22 @@ class Benchmark:
         return f'{self.name}-{self.query}'
 
 
+def get_repo_root_dir() -> Path:
+    project_name = 'network-config-analyzer'
+    last_matching_parent = None
+    for parent in Path.cwd().parents:
+        if parent.name == project_name:
+            last_matching_parent = parent
+    if last_matching_parent:
+        raise RuntimeError(f'could not find project root directory {project_name}')
+
+
 def get_benchmarks_dir() -> Path:
-    return Path('../benchmarks').resolve()
+    return get_repo_root_dir() / 'benchmarks'
 
 
 def get_benchmark_results_dir(experiment_name: str) -> Path:
-    results_dir = Path('../benchmark_results').resolve() / experiment_name
+    results_dir = get_repo_root_dir() / 'benchmark_results' / experiment_name
     results_dir.mkdir(parents=True, exist_ok=True)
     return results_dir
 
