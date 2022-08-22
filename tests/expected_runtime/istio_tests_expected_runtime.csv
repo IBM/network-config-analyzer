@@ -7,10 +7,14 @@ fw_rules_tests/policies/istio-test1-scheme.yaml,4.91
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-equiv-scheme.yaml,0.73
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-principals-scheme.yaml,0.25
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-request-attrs-scheme.yaml,3.95
+istio_testcases/example_policies/bookinfo-demo/sidcar_examples/bookinfo-sidecar-tests-scheme.yaml,0.95
 istio_testcases/example_policies/bookinfo-from-live-cluster/connectivity-map-by-deployments-scheme.yaml,0.39
 istio_testcases/example_policies/online_boutique/connectivity-scheme.yaml,35.98
 istio_testcases/example_policies/sidecar_examples/frontend_test/frontend-sidecar-test-scheme.yaml,0.23
 istio_testcases/example_policies/sidecar_examples/sidecars-syntax-tests-scheme.yaml,0.09
+istio_testcases/example_policies/sidecar_examples_w_onlineboutique/frontend_tests/frontend-sidecar-test-scheme.yaml,0.22
+istio_testcases/example_policies/sidecar_examples_w_onlineboutique/sidecar_disables_egress/sidecars-disable-egress-scheme.yaml,0.40
+istio_testcases/example_policies/sidecar_examples_w_onlineboutique/sidecars-syntax-tests-scheme.yaml,0.14
 istio_testcases/example_policies/test-istio-scheme-files-options/test-np-from-dir-scheme.yaml,0.20
 istio_testcases/example_policies/testcase1/testcase1-istio-scheme.yaml,9.52
 istio_testcases/example_policies/testcase2/testcase2-istio-scheme.yaml,7.35
