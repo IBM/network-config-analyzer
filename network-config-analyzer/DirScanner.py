@@ -47,4 +47,4 @@ class DirScanner(GenericTreeScanner):
             for file in files:
                 yield from self.check_and_yield_file(os.path.join(root, file))
             if not recursive:
-                break # don't walk into subdirs
+                break
