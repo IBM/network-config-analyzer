@@ -46,3 +46,5 @@ class DirScanner(GenericTreeScanner):
                     self._scan_dir_for_yamls(os.path.join(root, sub_dir), recursive)
             for file in files:
                 yield from self.check_and_yield_file(os.path.join(root, file))
+            if not recursive:
+                break

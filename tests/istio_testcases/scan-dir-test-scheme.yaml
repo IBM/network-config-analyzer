@@ -1,0 +1,12 @@
+podList: ./
+namespaceList: ./
+
+networkConfigList:
+  - name: test
+    networkPolicyList:
+      - ./example_policies
+
+queries:
+  - name: test-query
+    connectivityMap:
+      - test
