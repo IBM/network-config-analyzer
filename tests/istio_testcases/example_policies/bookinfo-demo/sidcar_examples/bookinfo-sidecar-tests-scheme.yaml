@@ -1,0 +1,150 @@
+resourceList:
+  - ../../../example_podlist/bookinfo_deployments.yaml
+  - ../../../example_podlist/bookinfo_ns_list.json
+  - ../../../example_podlist/bookinfo_services.yaml
+
+networkConfigList:
+  - name: bookinfo-default-sidecar-1
+    networkPolicyList:
+      - bookinfo-default-sidecar-1.yaml
+
+  - name: bookinfo-productpage-sidecar-1
+    networkPolicyList:
+      - bookinfo-productpage-sidecar-1.yaml
+
+  - name: bookinfo-reviews-sidecar
+    networkPolicyList:
+      - bookinfo-reviews-sidecar.yaml
+
+  - name: bookinfo-select-nothing-sidecar
+    networkPolicyList:
+      - bookinfo-select-nothing-sidecar.yaml
+    expectedWarnings: 1
+
+  - name: bookinfo-default-sidecar-overrides-istio-global-sidecar
+    networkPolicyList:
+      - global-sidecar.yaml
+      - bookinfo-default-sidecar-1.yaml
+
+  - name: bookinfo-two-selector-less-sidecars
+    networkPolicyList:
+      - bookinfo-default-sidecar-1.yaml
+      - bookinfo-default-sidecar-2.yaml
+
+  - name: sidecar-with-workload-selector-overrides-default-sidecar
+    networkPolicyList:
+      - bookinfo-default-sidecar-1.yaml
+      - bookinfo-reviews-sidecar.yaml
+
+  - name: sidecar-with-workload-selector-overrides-istio-global-sidecar
+    networkPolicyList:
+      - global-sidecar.yaml
+      - bookinfo-productpage-sidecar-1.yaml
+
+  - name: two-sidecars-with-same-workload-selector
+    networkPolicyList:
+      - bookinfo-productpage-sidecar-1.yaml
+      - bookinfo-productpage-sidecar-2.yaml
+
+  - name: multiple-sidecar-overrides
+    networkPolicyList:
+      - global-sidecar.yaml
+      - bookinfo-default-sidecar-2.yaml
+      - bookinfo-productpage-sidecar-2.yaml
+
+  - name: sidecars-with-different-selectors
+    networkPolicyList:
+      - bookinfo-reviews-sidecar.yaml
+      - bookinfo-productpage-sidecar-1.yaml
+
+  - name: two-different-sidecars-override-default-sidecar
+    networkPolicyList:
+      - bookinfo-default-sidecar-2.yaml
+      - bookinfo-reviews-sidecar.yaml
+      - bookinfo-productpage-sidecar-2.yaml
+
+  - name: sidecar-selects-nothing-test
+    networkPolicyList:
+      - bookinfo-default-sidecar-1.yaml
+      - bookinfo-select-nothing-sidecar.yaml
+
+  - name: adding-default-sidecar-after-specific # the workload selected in the specific sidecar should not be affected
+    networkPolicyList:
+      - bookinfo-reviews-sidecar.yaml
+      - bookinfo-default-sidecar-2.yaml
+
+queries:
+  - name: connectivity-map-default-sidecar-1
+    connectivityMap:
+      - bookinfo-default-sidecar-1
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_default_sidecar.txt
+
+  - name: connectivity-map-bookinfo-productpage
+    connectivityMap:
+      - bookinfo-productpage-sidecar-1
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_productpage_sidecar.txt
+
+  - name: connectivity-map-bookinfo-reviews
+    connectivityMap:
+      - bookinfo-reviews-sidecar
+    expected: 0
+
+  - name: connectivity-map-bookinfo-default-sidecar-overrides-istio-global-sidecar
+    connectivityMap:
+      - bookinfo-default-sidecar-overrides-istio-global-sidecar
+    expected: 0
+
+  - name: connectivity-map-bookinfo-ignoring-second-default-sidecar-in-same-namespace
+    connectivityMap:
+      - bookinfo-two-selector-less-sidecars
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_ignoring_second_default_sidecar.txt
+
+  - name: connectivity-map-bookinfo-specific-sidecar-overrides-default-sidecar # for relevant pods
+    connectivityMap:
+      - sidecar-with-workload-selector-overrides-default-sidecar
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_specific_sidecar_overrides_default_sidecar.txt
+
+  - name: connectivity-map-bookinfo-specific-sidecar-overrides-istio-global-sidecar
+    connectivityMap:
+      - sidecar-with-workload-selector-overrides-istio-global-sidecar
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_specific_sidecar_overrides_global_sidecar.txt
+
+  - name: connectivity-map-bookinfo-two-sidecars-with-same-workload-selector
+    connectivityMap:
+      - two-sidecars-with-same-workload-selector
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_two_sidecars_with_same_workload_selector.txt
+
+  - name: connectivity-map-bookinfo-multiple-sidecar-overrides
+    connectivityMap:
+      - multiple-sidecar-overrides
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_multiple_sidecar_overrides.txt
+
+  - name: connectivity-map-bookinfo-sidecars-with-different-selectors
+    connectivityMap:
+      - sidecars-with-different-selectors
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_sidecars_with_different_selectors.txt
+
+  - name: connectivity-map-bookinfo-two-different-sidecars-override-default-sidecar
+    connectivityMap:
+      - two-different-sidecars-override-default-sidecar
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_two_different_sidecars_override_default_sidecar.txt
+
+  - name: connectivity-map-bookinfo-sidecar-selects-nothing-test
+    connectivityMap:
+      - sidecar-selects-nothing-test
+    expected: 0
+
+  - name: connectivity-map-bookinfo-adding-default-sidecar-after-specific
+    connectivityMap:
+      - adding-default-sidecar-after-specific
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_adding_default_sidecar_after_specific.txt

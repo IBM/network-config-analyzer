@@ -1,0 +1,75 @@
+resourceList:
+  - ../online_boutique/new_online_boutique_manifests_istio/all_deployments.yaml
+  - onlineboutique-services.yaml
+
+networkConfigList:
+  - name: sidecar1
+    networkPolicyList:
+      - general_sidecar_examples_from_istio_ref/istio-sidecar-1.yaml
+
+  - name: sidecar2
+    networkPolicyList:
+      - general_sidecar_examples_from_istio_ref/istio-sidecar-2.yaml
+    expectedWarnings: 3
+
+  - name: sidecar3
+    networkPolicyList:
+      - general_sidecar_examples_from_istio_ref/istio-sidecar-3.yaml
+    expectedWarnings: 2
+
+  - name: onlineboutique-sidecars
+    networkPolicyList:
+      - onlineboutique-sidecars.yaml
+
+
+# bad path tests:
+
+  - name: invalid_host_1
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-1.yaml
+    expectedError: 1
+
+  - name: invalid_host_2
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-2.yaml
+    expectedError: 1
+
+  - name: invalid_host_3
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-3.yaml
+    expectedError: 1
+
+  - name: invalid_host_4
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-4.yaml
+    expectedError: 1
+
+  - name: invalid_host_5
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-5.yaml
+    expectedError: 1
+
+  - name: invalid_host_6
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-6.yaml
+    expectedError: 1
+
+  - name: invalid_host_7
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-7.yaml
+    expectedError: 1
+
+  - name: invalid_egress # empty_configuration
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-egress.yaml
+    expectedError: 1
+
+  - name: invalid_host_8
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-8.yaml
+    expectedError: 1
+
+  - name: invalid_host_9
+    networkPolicyList:
+      - sidecars_w_invalid_hosts/sidecar-invalid-host-9.yaml
+    expectedError: 1

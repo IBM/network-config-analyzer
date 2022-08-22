@@ -1,0 +1,9 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: empty-egress
+spec:
+  workloadSelector:
+    labels:
+      app: frontend
+  egress:

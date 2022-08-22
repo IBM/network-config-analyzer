@@ -22,11 +22,11 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         :rtype: (str, str)
         """
         if not host.count('/') == 1:
-            self.syntax_error(f'Illegal host format {host}. Host format must be namespace/dnsName', self)
+            self.syntax_error(f'Illegal host format "{host}". Host format must be namespace/dnsName', self)
 
         host_parts = list(filter(None, host.split('/')))
         if not len(host_parts) == 2:
-            self.syntax_error(f'Illegal host format {host}. Host must be consisted of both namespace and dnsName', self)
+            self.syntax_error(f'Illegal host format "{host}". Host must include both namespace and dnsName', self)
 
         return host_parts[0], host_parts[1]
 
@@ -41,7 +41,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         # since hosts expose services, target_pods of relevant services are returned in this method
         supported_chars = ('*', '.', '~')
         if any(s in namespace for s in supported_chars) and not len(namespace) == 1:
-            self.syntax_error(f'unsupported regex pattern for namespace {namespace}', self)
+            self.syntax_error(f'unsupported regex pattern for namespace "{namespace}"', self)
         if namespace == '*':
             # return self.peer_container.get_all_peers_group()
             return self.peer_container.get_all_services_target_pods()
@@ -66,18 +66,19 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         alphabet_str = dns_name if not dns_name == '*' else None
         # assuming wildcard char may be only *
         if '*' in dns_name:
-            if not (dns_name.count('*') == 1 and (dns_name.startswith('*.') or dns_name == '*')):
-                self.syntax_error(f'Illegal host value pattern: {dns_name}', self)
+            if not ((dns_name.startswith('*.') and dns_name.count('*') == 1) or dns_name == '*'):
+                self.syntax_error(f'Illegal host value pattern: "{dns_name}"', self)
             if dns_name.startswith('*.'):
-                alphabet_str = dns_name.split('*.')[1]
+                alphabet_str = dns_name.split('*')[1]
 
         # currently dnsName pattern supported is of "internal" services only (i.e. k8s service)
         # the dnsName in this case form looks like <service_name>.<domain>.svc.cluster.local
         # also FQDN is of the format [hostname].[domain].[tld]
-        fqdn_regex = "^((?!-)[A-Za-z0-9-]+(?<!-)\\.)+[A-Za-z]+"
-        if alphabet_str and not re.fullmatch(fqdn_regex, alphabet_str):
-            self.syntax_error(f'Illegal host value pattern: {dns_name}, '
-                              f'dnsName should be specified using FQDN format', self)
+        if alphabet_str:
+            fqdn_regex = "^((?!-)[A-Za-z0-9-]+(?<!-).)+[A-Za-z0-9.]+"
+            if alphabet_str.count('.') == 0 or not re.fullmatch(fqdn_regex, alphabet_str):
+                self.syntax_error(f'Illegal host value pattern: "{dns_name}", '
+                                  f'dnsName must be specified using FQDN format', self)
 
     def _get_peers_from_host_dns_name(self, dns_name):
         """
@@ -103,11 +104,11 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         self.check_fields_validity(egress_rule, 'Istio Egress Listener', allowed_keys)
 
         if egress_rule.get('port') or egress_rule.get('bind') or egress_rule.get('captureMode'):
-            self.warning('Only hosts field will be considered in policy connections of the sidecar egress', self)
+            self.warning('Only hosts field will be considered in policy connections of the sidecar egress', egress_rule)
 
         hosts = egress_rule.get('hosts')
         if not hosts:
-            self.syntax_error('One or more service hosts to be exposed by the listener are required', self)
+            self.syntax_error('One or more service hosts to be exposed by the listener are required', egress_rule)
         res_peers = PeerSet()
         for host in hosts:
             host_peers = PeerSet()
@@ -121,6 +122,25 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             res_peers |= host_peers
 
         return IstioSidecarRule(res_peers)
+
+    def _remove_peers_from_default_sidecar(self, sidecar_override_peers, override_global_only):
+        """
+        Checks if the current namespace or the istio root namespace has a default sidecar and removes
+        the given peers from these default sidecars since they are overridden by more specific sidecars (curr sidecar)
+        :param list sidecar_override_peers: list of peers to be removed from wider sidecars
+        :param bool override_global_only: a flag indicates if to override only the global sidecar of the mesh
+        """
+        if not override_global_only:
+            # override the current namespace's default (selector-less) sidecar
+            if self.namespace.default_sidecar is not None:
+                for peer in sidecar_override_peers:
+                    self.namespace.default_sidecar.selected_peers.remove(peer)
+                return
+
+        root_namespace = self.peer_container.get_namespace(IstioSidecarYamlParser.istio_root_namespace)
+        if root_namespace.default_sidecar is not None:
+            for peer in sidecar_override_peers:
+                root_namespace.default_sidecar.selected_peers.remove(peer)
 
     def parse_policy(self):
         """
@@ -146,21 +166,51 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
 
+        sidecar_with_selector = False
         workload_selector = sidecar_spec.get('workloadSelector')
         if workload_selector is None:
+            if self.namespace.default_sidecar is not None:
+                self.warning(f'Namespace "{self.namespace.name}" already has a Sidecar configuration '
+                             f'without any workloadSelector. Sidecar:'
+                             f' "{res_policy.full_name()}" will be ignored', sidecar_spec)
+                return None  # this sidecar is ignored
             res_policy.selected_peers = self.peer_container.get_all_peers_group()
+            self.namespace.default_sidecar = res_policy
         else:
             res_policy.selected_peers = self.parse_workload_selector(workload_selector, 'labels')
+            sidecar_with_selector = True
         # if sidecar's namespace is the root namespace, then it applies to all cluster's namespaces
         if self.namespace.name != IstioGenericYamlParser.istio_root_namespace:
             res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
 
+        # check if any wider (selector-less) sidecar should be overridden by this sidecar, or if any peers should not be
+        # selected in this sidecar since another sidecar already selects them
+        sidecar_override_peers = []
+        override_global_only = False
+        for peer in res_policy.selected_peers.copy():
+            if peer.specified_in_sidecar:
+                self.warning(f'Peer "{peer.full_name()}" already has a Sidecar configuration selecting it.'
+                             f'Sidecar: "{res_policy.full_name()}" will be ignored for it', sidecar_spec)
+                res_policy.selected_peers.remove(peer)
+            elif sidecar_with_selector:
+                peer.specified_in_sidecar = True
+                sidecar_override_peers.append(peer)
+        if not sidecar_with_selector and self.namespace.name != IstioGenericYamlParser.istio_root_namespace:
+            # current is a default sidecar in curr namespace, may override global sidecar if exists
+            override_global_only = True
+            sidecar_override_peers = res_policy.selected_peers
+        # calling this to remove relevant selected_peers from the default/global sidecar
+        self._remove_peers_from_default_sidecar(sidecar_override_peers, override_global_only)
+
         if sidecar_spec.get('ingress') is not None:
             self.warning('Sidecar ingress is not supported yet.'
-                         f'Although {res_policy.full_name()} contains ingress entry, '
-                         f'it is not considered in policy connections')
+                         f'Although "{res_policy.full_name()}" contains ingress entry, '
+                         f'it is not considered in policy connections', sidecar_spec)
 
-        for egress_rule in sidecar_spec.get('egress', []):
+        egress = sidecar_spec.get('egress', [])
+        if egress is None:
+            self.syntax_error('An empty configuration is provided', res_policy.name)  # behavior of live cluster
+        for egress_rule in egress:
             res_policy.add_egress_rule(self._parse_egress_rule(egress_rule))
 
         res_policy.findings = self.warning_msgs

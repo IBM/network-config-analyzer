@@ -16,7 +16,7 @@ class IstioSidecarRule:
         Init the Egress rule of an Istio Sidecar
         :param Peer.PeerSet peer_set: The set of mesh internal peers this rule allows connection to
         """
-        self.peer_set = peer_set
+        self.egress_peer_set = peer_set
 
 
 class IstioSidecar(NetworkPolicy):
@@ -43,7 +43,7 @@ class IstioSidecar(NetworkPolicy):
         conns = ConnectionSet(True)
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
-            if to_peer in rule.peer_set:
+            if to_peer in rule.egress_peer_set:
                 return PolicyConnections(True, allowed_conns=conns)
         # if to_peer not been captured in the rules no egress from from_peer to to_peer is allowed
         return PolicyConnections(True, denied_conns=conns)
@@ -59,7 +59,7 @@ class IstioSidecar(NetworkPolicy):
         empty_egress_rules = set()
         full_name = self.full_name(config_name)
         for rule_index, egress_rule in enumerate(self.egress_rules, start=1):
-            if not egress_rule.peer_set:
+            if not egress_rule.egress_peer_set:
                 emptiness = f'Rule no. {rule_index} in Sidecar {full_name} does not select any pods/services'
                 emptiness_explanation.append(emptiness)
                 empty_egress_rules.add(rule_index)
