@@ -17,8 +17,8 @@ class DirScanner(GenericTreeScanner, HelmScanner):
 
     def __init__(self, fs_path, rt_load=False):
         GenericTreeScanner.__init__(self, rt_load)
-        self.fs_path = fs_path
         HelmScanner.__init__(self)
+        self.fs_path = fs_path
 
     def check_and_yield_file(self, file_path):
         """
@@ -50,12 +50,12 @@ class DirScanner(GenericTreeScanner, HelmScanner):
                     self._scan_dir_for_yamls(os.path.join(root, sub_dir), recursive)
             for file in files:
                 if self.is_helm_chart(file):
-                    for file_name, file_content in self.parse_chart(root).items():
-                        file_stream = io.StringIO(file_content)
-                        yield from self._yield_yaml_file(file_name, file_stream)
-                        file_stream.close()
+                    file_name, file_content = self.parse_chart(root)
+                    file_stream = io.StringIO(file_content)
+                    yield from self._yield_yaml_file(file_name, file_stream)
+                    file_stream.close()
                 else:
-                    full_path = os.path.join(root, file)
+                    full_path = os.path.abspath(os.path.join(root, file))
                     # skip if file was resolved by HELM or Helm template
                     if self.is_yaml_file(full_path) and not self.is_resolved_template(full_path):
                         if self.is_template(full_path):

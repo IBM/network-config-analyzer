@@ -8,8 +8,8 @@ Utility class to control HELM
 """
 
 import os
-from CmdlineRunner import CmdlineRunner
 import re
+from CmdlineRunner import CmdlineRunner
 
 
 class HelmScanner:
@@ -24,30 +24,23 @@ class HelmScanner:
         """
         Resolve HELM Chart file and parse it for yamls.
         :param chart_dir: The path of the Chart package
-        :return: dict: dict of yaml filenames and their resolved content
+        :return: str filename: the char file that was resolved
+                 str resolved_yamls: the parsed yamel string
         """
-        resolved_yamls_dict = {}
-        resolved_yamls = CmdlineRunner.resolve_helm_chart(chart_dir)[:-1]
-        resolved_yamls = str(resolved_yamls).encode('ascii', 'ignore').decode('unicode_escape')
-        resolved_yamls = resolved_yamls[:-1]
-        resolved_yamls_list = str(resolved_yamls).split('---')[1:]
+        # Get Helm buffer and convert from a BYTE buffer to string
+        resolved_yamls = CmdlineRunner.resolve_helm_chart(chart_dir).decode('UTF-8')
 
         # insert Chart and Values into the templates list, so they will be not parsed again.
         self.template_files.append(os.path.join(chart_dir, 'Chart.yaml'))
         self.template_files.append(os.path.join(chart_dir, 'values.yaml'))
 
-        for index, file in enumerate(resolved_yamls_list):
-            file_name = re.findall('# Source: (.*\\.yaml)', file)[0]
-
-            # create the full path from the chart dir
-            file_name_idx = str(file_name).find('/')
-            file_name = file_name[file_name_idx + 1:]
-            file_name = os.path.join(chart_dir, file_name)
-            file_name = file_name.replace('/', '\\')
+        file_names = re.findall('# Source: \\w*(.*\\.yaml)', resolved_yamls)
+        for file_name in file_names:
+            file_name = os.path.abspath(chart_dir + file_name)
             self.template_files.append(file_name)
-            resolved_yamls_dict[file_name] = file
+        self.template_files = list(set(self.template_files))
 
-        return resolved_yamls_dict
+        return os.path.join(chart_dir, 'Chart.yaml'), resolved_yamls
 
     def is_resolved_template(self, file):
         """
@@ -61,15 +54,13 @@ class HelmScanner:
     def is_template(file):
         """
         Check if the given file is templated or not
-        :param file: file path to check
+        :param str file: file path to check
         :return: bool
         """
         if not file:
             return False
-        f = open(file, "r")
-        is_template = '{{' in f.read()
-        f.close()
-        return is_template
+        with open(file, "r") as f:
+            return '{{' in f.read()
 
     @staticmethod
     def is_helm_chart(file):
