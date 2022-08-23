@@ -51,27 +51,20 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param str gateway_file_name: the name of the gateway resource file (for reporting errors and warnings)
         """
         self.set_file_name(gateway_file_name)  # for error/warning messages
-
-        if gateway_resource.get('kind') != 'Gateway' or 'networking.istio.io' not in gateway_resource.get('apiVersion'):
+        self.check_fields_validity(gateway_resource, 'Gateway',
+                                   {'apiVersion': [1, str], 'kind': [1, str],
+                                    'metadata': [1, dict], 'spec': [1, dict]})
+        if gateway_resource['kind'] != 'Gateway' or 'networking.istio.io' not in gateway_resource['apiVersion']:
             return  # Not an Istio Gateway object
-
-        metadata = gateway_resource.get('metadata')
-        if not metadata:
-            return
-        gtw_name = metadata.get('name')
-        if not gtw_name:
-            return
+        metadata = gateway_resource['metadata']
+        self.check_fields_validity(metadata, 'Gateway metadata', {'name': [1, str], 'namespace': [0, str]})
+        gtw_name = metadata['name']
         gtw_namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
-        gtw_spec = gateway_resource.get('spec')
-        if not gtw_spec:
-            self.warning(f'spec is missing or null in Gateway {gtw_name}. Ignoring the gateway')
-            return
-
+        gtw_spec = gateway_resource['spec']
         gateway = Gateway(gtw_name, gtw_namespace)
-        selector = gtw_spec.get('selector')
-        if not selector:
-            self.warning(f'selector is missing or null in Gateway {gtw_name}. Ignoring the gateway')
-            return
+        self.check_fields_validity(gtw_spec, f'the spec of Gateway {gateway.full_name()}',
+                                   {'selector': [1, dict], 'servers': [1, list]})
+        selector = gtw_spec['selector']
         peers = self.peer_container.get_all_peers_group()
         for key, val in selector.items():
             peers &= self.peer_container.get_peers_with_label(key, [val])
@@ -90,24 +83,22 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param gtw_spec: the gateway spec
         :param gateway: the parsed gateway, to include the resulting parsed servers
         """
-        servers = gtw_spec.get('servers')
-        if servers is None:
-            self.warning(f'servers is missing or null in Gateway {gtw_name}. Ignoring the gateway')
-            return
+        servers = gtw_spec['servers']
 
         for i, server in enumerate(servers, start=1):
+            self.check_fields_validity(server, f'the server #{i} of the  Gateway {gtw_name}',
+                                       {'port': 1, 'bind': [0, str], 'hosts': [1, list], 'tls': 0, 'name': [0, str]})
             port = self.parse_gateway_port(server)
-            if not port:
-                self.warning(f'port is missing or null in server #{i} of Gateway {gtw_name}. Ignoring the server')
-                return
             gtw_server = Gateway.Server(port)
             gtw_server.name = server.get('name')
-            hosts = server.get('hosts')
+            hosts = server['hosts']
             for host in hosts or []:
                 host_dfa = self.parse_host_value(host, gtw_spec)
                 if host_dfa:
                     gtw_server.add_host(host_dfa)
-
+            if not gtw_server.hosts_dfa:
+                self.syntax_error(f'no valid hosts found for the server {gtw_server.name or i} '
+                                  f'of the Gateway {gtw_name}')
             gateway.add_server(gtw_server)
 
     def parse_host_value(self, host, resource):
@@ -119,18 +110,17 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         """
         namespace_and_name = host.split('/', 1)
         if len(namespace_and_name) > 1:
-            self.syntax_error(f'host {host}: namespace is not supported yet', resource)
+            self.warning(f'host {host}: namespace is not supported yet. Ignoring the host', resource)
+            return None
         return self.parse_regex_host_value(host, resource)
 
     def parse_gateway_port(self, server):
-        port = server.get('port')
-        if not port:
-            return None
-        number = port.get('number')
-        protocol = port.get('protocol')
-        name = port.get('name')
-        if port.get('targetPort'):
-            self.warning('targetPort is not supported yet in Gateway server', server)
+        port = server['port']
+        self.check_fields_validity(port, f'the port of the server {server}',
+                                   {'number': [1, int], 'protocol': [1, str], 'name': [1, str], 'targetPort': [3, str]})
+        number = port['number']
+        protocol = port['protocol']
+        name = port['name']
         return Gateway.GatewayPort(number, protocol, name)
 
     def add_virtual_service(self, vs):
@@ -147,22 +137,18 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param str vs_file_name: the name of the virtual service resource file
         """
         self.set_file_name(vs_file_name)  # for error/warning messages
+        self.check_fields_validity(vs_resource, 'VirtualService',
+                                   {'apiVersion': [1, str], 'kind': [1, str],
+                                    'metadata': [1, dict], 'spec': [1, dict]})
 
-        if vs_resource.get('kind') != 'VirtualService' or 'networking.istio.io' not in vs_resource.get('apiVersion'):
+        if vs_resource['kind'] != 'VirtualService' or 'networking.istio.io' not in vs_resource['apiVersion']:
             return  # Not an Istio VirtualService object
 
-        metadata = vs_resource.get('metadata')
-        if not metadata:
-            return
-        vs_name = metadata.get('name')
-        if not vs_name:
-            return
+        metadata = vs_resource['metadata']
+        self.check_fields_validity(metadata, 'VirtualService metadata', {'name': [1, str], 'namespace': [0, str]})
+        vs_name = metadata['name']
         vs_namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
-        vs_spec = vs_resource.get('spec')
-        if not vs_spec:
-            self.warning(f'spec is missing or null in VirtualService {vs_name}. Ignoring the VirtualService.')
-            return
-
+        vs_spec = vs_resource['spec']
         vs = VirtualService(vs_name, vs_namespace)
 
         self.check_fields_validity(vs_spec, f'VirtualService {vs.full_name()}',
@@ -285,11 +271,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         if not http_route_dest:
             return
         for item in http_route_dest:
-            dest = item.get('destination')
-            if not dest:
-                self.warning(f'missing destination in HTTPRouteDestination in the VirtualService {vs.full_name()}. '
-                             f'Ignoring http route.')
-                return
+            self.check_fields_validity(item, f'destination in route in VirtualService {vs.full_name()}',
+                                       {'destination': 1, 'weight': [0, int], 'headers': [3, dict]})
+            dest = item['destination']
+            self.check_fields_validity(dest, f'destination in route in VirtualService {vs.full_name()}',
+                                       {'host': [1, str], 'subset': [3, str], 'port': 0})
             service = self.parse_service(dest, vs)
             if not service:
                 self.syntax_error(f'missing service referenced in {dest} in the VirtualService {vs.full_name()}', route)
@@ -303,12 +289,15 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                         self.syntax_error(f'missing port {port_num} in the service', service)
                     target_port = service_port.target_port
             if not target_port:  # either port or port.number is missing
-                self.warning(f'missing port for service {dest} in the VirtualService {vs.full_name()}')
+                # check if this service exposes a single port
+                service_port = service.get_single_port()
+                if service_port:
+                    target_port = service_port.target_port
+                    self.warning(f'using single exposed port {target_port} for service {dest} '
+                                 f'in the VirtualService {vs.full_name()}', route)
+                else:
+                    self.warning(f'missing port for service {dest} in the VirtualService {vs.full_name()}', route)
             parsed_route.add_destination(service, target_port)
-
-            if item.get('headers'):
-                self.warning(f'"headers" are not yet supported in HTTPRouteDestination '
-                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring them.')
 
     def parse_service(self, dest, vs):
         """
@@ -318,9 +307,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param vs: the VirtualService contining this destinatnion
         :return K8sService: the service corresponding to the given destination resource
         """
-        host = dest.get('host')
-        if not host:
-            return None
+        host = dest['host']
         # according to https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
         # check for <service-name>.<namespace-name>.svc.cluster.local
         splitted_host = host.split('.')

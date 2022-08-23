@@ -3,34 +3,28 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+from dataclasses import dataclass
 from Peer import PeerSet
 from PortSet import PortSet
+from MinDFA import MinDFA
+from K8sService import K8sService
 
 
 class Gateway:
     """
     A class for keeping some elements of parsed Istio Gateway, needed for building IngressPolicy
     """
-
+    @dataclass
     class GatewayPort:
-        def __init__(self, number, protocol, name):
-            """
-            :param int number: the port number
-            :param str protocol: the protocol
-            :param str name: the port label
-            """
-            self.number = number
-            self.protocol = protocol
-            self.name = name
+        number: int
+        protocol: str
+        name: str
 
+    @dataclass
     class Server:
-        def __init__(self, port):
-            """
-            :param GatewayPort port: the server port
-            """
-            self.port = port
-            self.hosts_dfa = None
-            self.name = ""
+        port: int
+        hosts_dfa: MinDFA or None = None
+        name: str = ''
 
         def add_host(self, host_dfa):
             """
@@ -78,17 +72,13 @@ class VirtualService:
     A class for keeping some elements of parsed Istio VirtualService, needed for building IngressPolicy
     """
 
+    @dataclass
     class HTTPRouteDestination:
         """
         A class for keeping a parsed http route destination of a VirtualService
         """
-        def __init__(self, service, port):
-            """
-            :param K8sService service: the service mentioned by the VirtualService destination
-            :param PortSet port: the ports mentioned by the VirtualService destination (may contain named ports)
-            """
-            self.service = service
-            self.port = port  # may contain named port(s)
+        service: K8sService
+        port: PortSet
 
     class HTTPRoute:
         """

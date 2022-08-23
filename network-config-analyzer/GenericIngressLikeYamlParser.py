@@ -111,22 +111,6 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         """
         return self._make_rules_from_conns(allowed_conns)
 
-    def _make_deny_rules(self, allowed_conns):
-        """
-        Make deny rules from the given connections
-        :param TcpLikeProperties allowed_conns: the given allowed connections
-        :return: the list of deny IngressPolicyRules
-        """
-        all_peers_and_ip_blocks = self.peer_container.peer_set.copy()
-        all_peers_and_ip_blocks.add(IpBlock.get_all_ips_block())  # add IpBlock of all IPs
-        all_conns = self._make_tcp_like_properties(PortSet(True), all_peers_and_ip_blocks)
-        denied_conns = all_conns - allowed_conns
-        res = self._make_rules_from_conns(denied_conns)
-        # Add deny rule for all protocols but TCP , relevant for all peers and ip blocks
-        non_tcp_conns = ConnectionSet.get_non_tcp_connections()
-        res.append(IngressPolicyRule(all_peers_and_ip_blocks, non_tcp_conns))
-        return res
-
     def _make_rules_from_conns(self, tcp_conns):
         """
         Make IngressPolicyRules from the given connections

@@ -79,6 +79,9 @@ class K8sService:
         """
         self.selector[key] = value
 
+    def get_single_port(self):
+        return list(self.ports.values())[0] if len(self.ports) == 1 else None
+
     def get_port_by_name(self, name):
         return self.ports.get(name)
 
