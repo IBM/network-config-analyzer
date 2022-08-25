@@ -37,3 +37,5 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
 - [ ] think about how to extend the benchmark
 
 ### Other Improvements (not in the next iteration)
+- [ ] checkout tools like `line_profiler`, `memory_profiler` and 
+`continuous monitoring`
