@@ -24,7 +24,6 @@ class Peer:
         self.ordered_specific_sidecars = []  # list of sidecars with workloadSelector selecting
         # current peer in their injection order
 
-
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name
 
