@@ -21,7 +21,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         :return: namespace and dnsName - the parts of the host value
         :rtype: (str, str)
         """
-        if not host.count('/') == 1:
+        if host.count('/') != 1:
             self.syntax_error(f'Illegal host format "{host}". Host format must be namespace/dnsName', self)
 
         host_parts = list(filter(None, host.split('/')))
