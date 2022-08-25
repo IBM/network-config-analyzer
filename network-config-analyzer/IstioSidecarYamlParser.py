@@ -170,8 +170,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
 
         workload_selector = sidecar_spec.get('workloadSelector')
-        if workload_selector is None:
-            res_policy.default_sidecar = True
+        res_policy.default_sidecar = workload_selector is None
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
         self._append_sidecar_into_relevant_list(str(res_policy), res_policy.selected_peers, res_policy.default_sidecar)
 
