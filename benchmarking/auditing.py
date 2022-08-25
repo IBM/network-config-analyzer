@@ -11,6 +11,11 @@ def get_auditing_results_path(benchmark: Benchmark, experiment_name: str) -> Pat
     return get_benchmark_result_path(benchmark, experiment_name, 'auditing', 'json')
 
 
+def reduce_records(records: dict[list]):
+    # TODO: might need to be changed if what we are collecting is being changed
+    return {key: value[0] for key, value in records.items()}
+
+
 def audit_benchmarks(experiment_name: str):
     _global_logging_flag.ENABLED = True
 
@@ -29,6 +34,8 @@ def audit_benchmarks(experiment_name: str):
                     records[key].append(value)
         except Empty:
             pass
+
+        records = reduce_records(records)
 
         with result_path.open('w') as f:
             json.dump(records, f, indent=4)

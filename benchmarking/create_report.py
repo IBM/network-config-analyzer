@@ -14,7 +14,21 @@ def get_report_dir(experiment_name: str) -> Path:
     return report_dir
 
 
+def round_all_numeric_entries(lines: list[dict]) -> list[dict]:
+    new_lines = []
+    for line in lines:
+        new_line = {}
+        for key, value in line.items():
+            if isinstance(value, float):
+                new_line[key] = round(value, 5)
+            else:
+                new_line[key] = value
+        new_lines.append(new_line)
+    return new_lines
+
+
 def dict_list_to_csv(lines: list[dict], path: Path):
+    lines = round_all_numeric_entries(lines)
     with path.open('w', newline='') as f:
         writer = DictWriter(f, fieldnames=lines[0].keys())
         writer.writeheader()

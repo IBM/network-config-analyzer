@@ -21,8 +21,8 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
   This will not require to change existing functions and will not add overhead.
   - [ ] use logging - might require changing existing function code, but is easier to implement and easier to track 
   parameters in that way
-- [ ] remove the list in the `timing_report.csv`
-- [ ] limit the number of digits after the `.`
+- [x] remove the list in the `timing_report.csv`
+- [x] limit the number of digits after the `.`
 - [ ] add the type of layer (or the list of layer types)
 - [ ] add support for other queries (comparing two policies)
   - [ ] permit / forbid queries
@@ -44,4 +44,4 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
 - [ ] talk with ziv about logging options
 - [ ] -- compare running connectivity with .dot and .txt
 - [ ] add documentation of how to run stuff
-- [ ] list on box 
+- [ ] list on box of possible things to look at
