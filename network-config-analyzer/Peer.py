@@ -21,7 +21,9 @@ class Peer:
         self.namespace = namespace
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
-        self.specified_in_sidecar = False  # a flag to be used when parsing istio sidecar objects
+        self.ordered_specific_sidecars = []  # list of sidecars with workloadSelector selecting
+        # current peer in their injection order
+
 
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name

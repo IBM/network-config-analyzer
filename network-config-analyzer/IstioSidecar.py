@@ -23,6 +23,11 @@ class IstioSidecar(NetworkPolicy):
     """
     This class implements istio-specific logic for Sidecar
     """
+
+    def __init__(self, name, namespace):
+        super().__init__(name, namespace)
+        self.default_sidecar = False  # a flag that indicates if the sidecar is selector-less (default) or not
+
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
         Evaluate the set of connections this policy allows/denies/passes between two peers
@@ -37,7 +42,8 @@ class IstioSidecar(NetworkPolicy):
             return PolicyConnections(False, ConnectionSet(True))
 
         captured = from_peer in self.selected_peers
-        if not captured:
+        # if not captured, or captured but the sidecar is not in from_peer top priority, don't consider connections
+        if not captured or (captured and not self._is_sidecar_prior(from_peer)):
             return PolicyConnections(False)
 
         conns = ConnectionSet(True)
@@ -45,7 +51,7 @@ class IstioSidecar(NetworkPolicy):
         for rule in self.egress_rules:
             if to_peer in rule.egress_peer_set:
                 return PolicyConnections(True, allowed_conns=conns)
-        # if to_peer not been captured in the rules no egress from from_peer to to_peer is allowed
+        # if to_peer not been captured in the rules, egress from from_peer to to_peer is not allowed
         return PolicyConnections(True, denied_conns=conns)
 
     def has_empty_rules(self, config_name=''):
@@ -84,3 +90,33 @@ class IstioSidecar(NetworkPolicy):
             if rule != rule_to_exclude:
                 res.add_egress_rule(rule)
         return res
+
+    def _is_sidecar_prior(self, from_peer):
+        """
+        Check if the current sidecar is in the priority of the captured from_peer
+        to be considered in its connections or not
+        :param Peer.Peer from_peer: the source peer captured by the current sidecar
+        :return: True if the sidecar is in the peer's top priority to consider it in its connections, otherwise False
+        computing the return value is according to following:
+        1- for each peer, preference will be given to the first injected sidecar with
+        a workloadSelector that selected the peer.
+        2- if the specific sidecar from (1) does not exist, preference will be given to the
+        first injected selector-less sidecar in the peer's namespace
+        3- if sidecars from (1) and (2) don't exist, the preference will be given to the first default
+        sidecar of the istio root namespace
+        :rtype: bool
+        """
+        if not self.default_sidecar:  # specific sidecar
+            if from_peer.ordered_specific_sidecars and self.full_name() == from_peer.ordered_specific_sidecars[0]:
+                return True
+        else:  # selector-less sidecar
+            if from_peer.ordered_specific_sidecars:
+                return False
+            if from_peer.namespace.ordered_default_sidecars:
+                if self.full_name() == from_peer.namespace.ordered_default_sidecars[0]:
+                    return True
+            else:
+                if str(self.namespace) == NetworkPolicy.istio_root_namespace and \
+                        self.full_name() == self.namespace.ordered_default_sidecars[0]:
+                    return True
+        return False

@@ -123,24 +123,30 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
 
         return IstioSidecarRule(res_peers)
 
-    def _remove_peers_from_default_sidecar(self, sidecar_override_peers, override_global_only):
+    def _append_sidecar_into_relevant_list(self, sidecar_full_name, selected_peers, is_default_sidecar):
         """
-        Checks if the current namespace or the istio root namespace has a default sidecar and removes
-        the given peers from these default sidecars since they are overridden by more specific sidecars (curr sidecar)
-        :param list sidecar_override_peers: list of peers to be removed from wider sidecars
-        :param bool override_global_only: a flag indicates if to override only the global sidecar of the mesh
+        save the current (self) sidecar in the relevant list.
+        if the sidecar is selector less, then appends it to the current namespace's list
+        otherwise, appends it to the lists of the selected peers in this sidecar
+        :param str sidecar_full_name: the sidecar name in this form: <namespace>/<name>
+        :param list selected_peers: the peers selected by the workloadSelector of the sidecar
+        :param bool is_default_sidecar: indicates if the sidecar is selector-less (default in its namespace)
+        a warning message will be printed if current sidecar is not the first in its relevant list,
+        indicating that this sidecar will be ignored in the sidecar's connections
         """
-        if not override_global_only:
-            # override the current namespace's default (selector-less) sidecar
-            if self.namespace.default_sidecar is not None:
-                for peer in sidecar_override_peers:
-                    self.namespace.default_sidecar.selected_peers.remove(peer)
-                return
+        if is_default_sidecar:
+            if self.namespace.ordered_default_sidecars:  # this sidecar is not first one
+                self.warning(f'Namespace "{str(self.namespace)}" already has a Sidecar configuration '
+                             f'without any workloadSelector. '
+                             f'Connections in sidecar: "{sidecar_full_name}" will be ignored')
+            self.namespace.ordered_default_sidecars.append(sidecar_full_name)
+            return
 
-        root_namespace = self.peer_container.get_namespace(IstioSidecarYamlParser.istio_root_namespace)
-        if root_namespace.default_sidecar is not None:
-            for peer in sidecar_override_peers:
-                root_namespace.default_sidecar.selected_peers.remove(peer)
+        for peer in selected_peers:
+            if peer.ordered_specific_sidecars:  # this sidecar is not first one
+                self.warning(f'Peer "{peer.full_name()}" already has a Sidecar configuration selecting it.'
+                             f'Sidecar: "{sidecar_full_name}" will not be considered as connections for this workload')
+            peer.ordered_specific_sidecars.append(sidecar_full_name)
 
     def parse_policy(self):
         """
@@ -166,41 +172,11 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
 
-        sidecar_with_selector = False
         workload_selector = sidecar_spec.get('workloadSelector')
         if workload_selector is None:
-            if self.namespace.default_sidecar is not None:
-                self.warning(f'Namespace "{self.namespace.name}" already has a Sidecar configuration '
-                             f'without any workloadSelector. Sidecar:'
-                             f' "{res_policy.full_name()}" will be ignored', sidecar_spec)
-                return None  # this sidecar is ignored
-            res_policy.selected_peers = self.peer_container.get_all_peers_group()
-            self.namespace.default_sidecar = res_policy
-        else:
-            res_policy.selected_peers = self.parse_workload_selector(workload_selector, 'labels')
-            sidecar_with_selector = True
-        # if sidecar's namespace is the root namespace, then it applies to all cluster's namespaces
-        if self.namespace.name != IstioGenericYamlParser.istio_root_namespace:
-            res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
-
-        # check if any wider (selector-less) sidecar should be overridden by this sidecar, or if any peers should not be
-        # selected in this sidecar since another sidecar already selects them
-        sidecar_override_peers = []
-        override_global_only = False
-        for peer in res_policy.selected_peers.copy():
-            if peer.specified_in_sidecar:
-                self.warning(f'Peer "{peer.full_name()}" already has a Sidecar configuration selecting it.'
-                             f'Sidecar: "{res_policy.full_name()}" will be ignored for it', sidecar_spec)
-                res_policy.selected_peers.remove(peer)
-            elif sidecar_with_selector:
-                peer.specified_in_sidecar = True
-                sidecar_override_peers.append(peer)
-        if not sidecar_with_selector and self.namespace.name != IstioGenericYamlParser.istio_root_namespace:
-            # current is a default sidecar in curr namespace, may override global sidecar if exists
-            override_global_only = True
-            sidecar_override_peers = res_policy.selected_peers
-        # calling this to remove relevant selected_peers from the default/global sidecar
-        self._remove_peers_from_default_sidecar(sidecar_override_peers, override_global_only)
+            res_policy.default_sidecar = True
+        res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
+        self._append_sidecar_into_relevant_list(str(res_policy), res_policy.selected_peers, res_policy.default_sidecar)
 
         if sidecar_spec.get('ingress') is not None:
             self.warning('Sidecar ingress is not supported yet.'

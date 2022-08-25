@@ -545,13 +545,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         res_policy.affects_ingress = True
         res_policy.affects_egress = False
         pod_selector = policy_spec.get('selector')
-        if pod_selector is None:
-            res_policy.selected_peers = self.peer_container.get_all_peers_group()
-        else:
-            res_policy.selected_peers = self.parse_workload_selector(pod_selector, 'matchLabels')
-        # if policy's namespace is the root namespace, then it applies to all cluster's namespaces
-        if self.namespace.name != IstioGenericYamlParser.istio_root_namespace:
-            res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
+        res_policy.selected_peers = self.update_policy_peers(pod_selector, 'matchLabels')
         for ingress_rule in policy_spec.get('rules', []):
             res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule))
         if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:

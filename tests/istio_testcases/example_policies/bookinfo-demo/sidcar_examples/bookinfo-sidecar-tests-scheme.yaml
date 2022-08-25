@@ -1,6 +1,6 @@
 resourceList:
-  - ../../../example_podlist/bookinfo_deployments.yaml
   - ../../../example_podlist/bookinfo_ns_list.json
+  - ../../../example_podlist/bookinfo_deployments.yaml
   - ../../../example_podlist/bookinfo_services.yaml
 
 networkConfigList:

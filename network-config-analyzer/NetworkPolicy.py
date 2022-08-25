@@ -14,6 +14,10 @@ class NetworkPolicy:
     The base class for all network policies.
     """
 
+    # TODO: istio_root_namespace should be configurable from istio configuration, currently using default value for it
+    # If namespace is set to istio root namespace, the policy object applies to all namespaces in a mesh
+    istio_root_namespace = 'istio-config'
+
     class PolicyType(Enum):
         """
         The supported policy types
