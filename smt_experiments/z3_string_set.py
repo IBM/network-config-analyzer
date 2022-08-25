@@ -2,9 +2,15 @@
 # Prefix - "bla*": starts with "bla"
 # Suffix - "*bla": ends with "bla"
 # Presence - "*": any non-empty
+# TODO: how should we take into account the set of allowed alphabet?
+#   especially the "is_all_words" function
+# TODO: take the tests for the MinDFA module and compare it to the Z3
+#  implementation
+from typing import Optional
+
 import z3
 from z3 import And, BoolRef, Solver, sat, PrefixOf, \
-    SuffixOf, Length, unsat, Not, substitute, Or
+    SuffixOf, Length, unsat, Not, substitute, Or, BoolVal, ModelRef, SeqRef, Int, Exists
 
 
 class Z3StringSet:
@@ -18,11 +24,20 @@ class Z3StringSet:
         return f'{var_prefix}!{num}'
 
     @staticmethod
-    def _solve(constraints: BoolRef):
+    def _solve_without_model(constraints: BoolRef):
         solver = Solver()
         solver.add(constraints)
         result = solver.check()
         return result
+
+    @staticmethod
+    def _solve_with_model(constraints: BoolRef):
+        solver = Solver()
+        solver.add(constraints)
+        result = solver.check()
+        if result == sat:
+            return result, solver.model()
+        return result, None
 
     def __init__(self):
         var_name = self._get_fresh_var_name()
@@ -34,10 +49,10 @@ class Z3StringSet:
             self._var == item,
             self._constraints
         )
-        return self._solve(constraints) == sat
+        return self._solve_without_model(constraints) == sat
 
     def __eq__(self, other):
-        pass
+        return self.contained_in(other) and other.contained_in(self)
 
     @classmethod
     def from_str(cls, s: str):
@@ -59,14 +74,20 @@ class Z3StringSet:
         return str_set
 
     @classmethod
-    def get_all_words(cls):
+    def get_all_words_set(cls):
         str_set = cls()
-        str_set._constraints = True
+        str_set._constraints = BoolVal(True)
+        return str_set
+
+    @classmethod
+    def get_empty_set(cls):
+        str_set = cls()
+        str_set._constraints = BoolVal(False)
         return str_set
 
     def is_all_words(self) -> bool:
         constraints = Not(self._constraints)
-        return self._solve(constraints) == unsat
+        return self._solve_without_model(constraints) == unsat
 
     def __copy__(self):
         pass
@@ -84,16 +105,24 @@ class Z3StringSet:
     def is_finite(self) -> bool:
         # TODO: this is not directly available in z3, but there might be an elegant way
         #   of doing this
-        pass
+        #   I think that this might be done while the expression is constructed. maybe
+        # TODO: this assumes that if there is a word of length greater than 1000, then the
+        #   language is infinite
+        max_str_len = 100
+        constraints = And(
+            self._constraints,
+            Length(self._var) > max_str_len
+        )
+        return self._solve_without_model(constraints) == unsat
 
     def __str__(self):
         pass
 
     def is_empty(self):
-        return self._solve(self._constraints) == unsat
+        return self._solve_without_model(self._constraints) == unsat
 
     def contained_in(self, other) -> bool:
-        pass
+        return (self - other).is_empty()
 
     def _get_constraints_with_different_var(self, other):
         other: Z3StringSet
@@ -125,3 +154,11 @@ class Z3StringSet:
             Not(other._get_constraints_with_different_var(str_set)),
         )
         return str_set
+
+    def get_example_from_set(self) -> Optional[str]:
+        result, model = self._solve_with_model(self._constraints)
+        if result == sat:
+            model: ModelRef
+            example = model.eval(self._var).as_string()
+            return example
+        return None
