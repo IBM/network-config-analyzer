@@ -47,8 +47,9 @@ def get_benchmark_results_dir(experiment_name: str) -> Path:
 
 
 def get_benchmark_result_path(benchmark: Benchmark, experiment_name: str, label: str, suffix: str) -> Path:
-    results_dir = get_benchmark_results_dir(experiment_name)
-    return results_dir / f'{str(benchmark)}-{label}.{suffix}'
+    results_dir = get_benchmark_results_dir(experiment_name) / label
+    results_dir.mkdir(exist_ok=True)
+    return results_dir / f'{str(benchmark)}.{suffix}'
 
 
 def get_benchmark_dirs() -> list[Path]:

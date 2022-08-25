@@ -5,7 +5,7 @@ from pathlib import Path
 from benchmarking.auditing import get_auditing_results_path
 from benchmarking.benchmarking_utils import get_benchmark_results_dir, iter_benchmarks
 from benchmarking.timing import get_timing_results_path
-from benchmarking.analyze_profile_results import get_top_n_cumtime_funcs
+from benchmarking.analyze_profile_results import get_function_profiles
 
 
 def get_report_dir(experiment_name: str) -> Path:
@@ -40,7 +40,7 @@ def create_report(experiment_name: str):
         - it is in .csv format for easy reading
     :return: None
     """
-    top_n = 20
+    top_n = 40
     lines = []
     report_dir = get_report_dir(experiment_name)
 
@@ -59,11 +59,11 @@ def create_report(experiment_name: str):
 
         lines.append(line)
 
-        top_func_records = get_top_n_cumtime_funcs(top_n, experiment_name, benchmark)
+        top_func_records = get_function_profiles(experiment_name, benchmark)[:top_n]
         top_func_report_path = report_dir / f'{str(benchmark)}_top_func_report.csv'
         dict_list_to_csv(top_func_records, top_func_report_path)
 
-    top_func_records = get_top_n_cumtime_funcs(top_n, experiment_name)
+    top_func_records = get_function_profiles(experiment_name)[:top_n]
     top_func_report_path = report_dir / f'accumulated_top_func_report.csv'
     dict_list_to_csv(top_func_records, top_func_report_path)
 

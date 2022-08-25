@@ -21,18 +21,19 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
   This will not require to change existing functions and will not add overhead.
   - [ ] use logging - might require changing existing function code, but is easier to implement and easier to track 
   parameters in that way
+- [ ] New parameters to audit:
+  - [ ] add the type of layer (or the list of layer types)
 - [x] remove the list in the `timing_report.csv`
 - [x] limit the number of digits after the `.`
-- [ ] add the type of layer (or the list of layer types)
 - [ ] add support for other queries (comparing two policies)
   - [ ] permit / forbid queries
   - [ ] semantic diff. 
   - [ ] automatically generate the other policy
-- [ ] save the profiling results. place them in a different directory
-- [ ] add the `percall` statistics to the report (time per function call)
-- [ ] add percentage of time in each function to the report
-- [ ] show the same statistics for total time similarly to cumulative time.
-- [ ] show more than 20 top records
+- [x] save each type of result (profiling, auditing, timing) in a different directory
+- [x] add the `percall` statistics to the report (time per function call)
+- [x] add percentage of time in each function to the report
+- [x] show the same statistics for total time similarly to cumulative time.
+- [x] show more than 20 top records
 - [ ] add readme on how to run the benchmarks on the server -- don't post internal things on open source repo
 - [ ] checkout visualizations tools to the profiling results
 - [ ] think about how to extend the benchmark

@@ -1,3 +1,4 @@
+from operator import itemgetter
 from pathlib import Path
 from pstats import Stats, FunctionProfile
 
@@ -9,26 +10,16 @@ def get_source_dir() -> Path:
     return get_repo_root_dir() / 'network-config-analyzer'
 
 
-def filter_local_functions(profile_stats: Stats) -> dict[str, FunctionProfile]:
-    per_function_stats = profile_stats.get_stats_profile().func_profiles
+def is_local_function(func_profile: FunctionProfile) -> bool:
     source_dir = str(get_source_dir())
-    filtered_func_stats = {func_name: func_stats for func_name, func_stats in per_function_stats.items()
-                           if func_stats.file_name.startswith(source_dir)}
-    return filtered_func_stats
+    return func_profile.file_name.startswith(source_dir)
 
 
-def filter_non_interesting_funcs(func_stats_dict: dict[str, FunctionProfile]) -> dict[str, FunctionProfile]:
-    # TODO: it might be possible to target those by detecting which functions are called only once
-    funcs_to_filter = [
-        'nca_main',
-        'run_args',
-        'run_scheme',
-        'run_queries',
-        'run_query',
-        '_execute_one_config_query',
-        '_run_query_for_each_config',
-    ]
-    return {key: value for key, value in func_stats_dict.items() if key not in funcs_to_filter}
+def is_called_more_than(func_profile: FunctionProfile, times: int) -> bool:
+    try:
+        return int(func_profile.ncalls) > times
+    except ValueError:
+        return True
 
 
 def get_short_func_path(func_stats: FunctionProfile) -> str:
@@ -37,36 +28,48 @@ def get_short_func_path(func_stats: FunctionProfile) -> str:
     return short_func_path
 
 
-def get_top_n_cumtime_funcs(n: int, experiment_name: str, benchmark: Benchmark = None) -> list[dict]:
+def get_function_profiles(experiment_name: str, benchmark: Benchmark = None) -> list[dict]:
     """Returns a list of the top n functions that have the largest cumulative time,
     after filtering the python library functions, and not interesting functions
     """
     if benchmark is None:
         profile_results_paths = [str(get_profile_results_path(benchmark, experiment_name))
                                  for benchmark in iter_benchmarks()]
+        n_runs = len(profile_results_paths)
         profile_stats = Stats(*profile_results_paths)
     else:
+        n_runs = 1
         profile_stats = load_profile_results(benchmark, experiment_name)
 
-    func_stats_dict = filter_local_functions(profile_stats)
-    func_stats_dict = filter_non_interesting_funcs(func_stats_dict)
+    stats_profile = profile_stats.get_stats_profile()
+    total_time = stats_profile.total_tt
+    func_profiles = stats_profile.func_profiles
 
-    attribute = 'cumtime'
-    func_stats_list = list(sorted(
-        func_stats_dict.items(),
-        key=lambda item: getattr(item[1], attribute),
-        reverse=True
-    ))
+    # filter
+    func_profiles = {func_name: func_profile for func_name, func_profile in func_profiles.items()
+                     if is_local_function(func_profile)}
+    # TODO: I think that it is better not to remove those, since it might give us useful information
+    # and is_called_more_than(func_profile, n_runs)}
 
+    # map
     result = []
-    for i, (func_name, func_stats) in enumerate(func_stats_list[:n], start=1):
-        func_stats: FunctionProfile
+    for func_name, func_profile in func_profiles.items():
+        func_profile: FunctionProfile
         result.append({
-            'function': func_name,
-            'file': get_short_func_path(func_stats),
-            'line': func_stats.line_number,
-            'cumulative_time': func_stats.cumtime,
-            'n_calls': func_stats.ncalls
+            'func_name': func_name,
+            'file': get_short_func_path(func_profile),
+            'line': func_profile.line_number,
+            'cumtime': func_profile.cumtime,
+            'tottime': func_profile.tottime,
+            'n_calls': func_profile.ncalls,
+            'percall_cumtime': func_profile.percall_cumtime,
+            'percall_tottime': func_profile.percall_tottime,
+            'percent_cumtime': (func_profile.cumtime / total_time) * 100,
+            'percent_tottime': (func_profile.tottime / total_time) * 100,
         })
+
+        # sort
+        result.sort(key=itemgetter('func_name'))
+        result.sort(key=itemgetter('cumtime'), reverse=True)
 
     return result
