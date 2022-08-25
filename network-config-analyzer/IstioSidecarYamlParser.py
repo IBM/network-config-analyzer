@@ -159,8 +159,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
 
         if 'spec' not in self.policy or self.policy['spec'] is None:
-            self.warning('spec is missing or null in Sidecar ' + res_policy.full_name())
-            return res_policy
+            self.syntax_error('spec is missing or null in Sidecar ' + res_policy.full_name())
 
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress
@@ -174,10 +173,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
         self._check_and_save_sidecar_if_top_priority(res_policy)
 
-        egress = sidecar_spec.get('egress', [])
-        if egress is None:
-            self.syntax_error('An empty egress configuration is provided', res_policy.name)  # behavior of live cluster
-        for egress_rule in egress:
+        for egress_rule in sidecar_spec.get('egress', []) or []:
             res_policy.add_egress_rule(self._parse_egress_rule(egress_rule))
 
         res_policy.findings = self.warning_msgs

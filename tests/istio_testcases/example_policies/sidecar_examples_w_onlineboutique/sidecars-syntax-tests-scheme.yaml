@@ -26,50 +26,54 @@ networkConfigList:
 
   - name: invalid_host_1
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-1.yaml
+      - invalid_sidecars/sidecar-invalid-host-1.yaml
     expectedError: 1
 
   - name: invalid_host_2
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-2.yaml
+      - invalid_sidecars/sidecar-invalid-host-2.yaml
     expectedError: 1
 
   - name: invalid_host_3
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-3.yaml
+      - invalid_sidecars/sidecar-invalid-host-3.yaml
     expectedError: 1
 
   - name: invalid_host_4
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-4.yaml
+      - invalid_sidecars/sidecar-invalid-host-4.yaml
     expectedError: 1
 
   - name: invalid_host_5
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-5.yaml
+      - invalid_sidecars/sidecar-invalid-host-5.yaml
     expectedError: 1
 
   - name: invalid_host_6
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-6.yaml
+      - invalid_sidecars/sidecar-invalid-host-6.yaml
     expectedError: 1
 
   - name: invalid_host_7
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-7.yaml
+      - invalid_sidecars/sidecar-invalid-host-7.yaml
     expectedError: 1
 
-  - name: invalid_egress # empty_configuration
+  - name: invalid_egress # empty_egress , ignored
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-egress.yaml
-    expectedError: 1
+      - invalid_sidecars/sidecar-invalid-egress.yaml
 
   - name: invalid_host_8
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-8.yaml
+      - invalid_sidecars/sidecar-invalid-host-8.yaml
     expectedError: 1
 
   - name: invalid_host_9
     networkPolicyList:
-      - sidecars_w_invalid_hosts/sidecar-invalid-host-9.yaml
+      - invalid_sidecars/sidecar-invalid-host-9.yaml
+    expectedError: 1
+
+  - name: invalid_spec
+    networkPolicyList:
+      - invalid_sidecars/sidecar-missing-spec.yaml
     expectedError: 1
