@@ -85,6 +85,7 @@ class IstioSidecar(NetworkPolicy):
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress
+        res.default_sidecar = self.default_sidecar
 
         for rule in self.egress_rules:
             if rule != rule_to_exclude:

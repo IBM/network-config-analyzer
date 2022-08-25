@@ -21,7 +21,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         :return: namespace and dnsName - the parts of the host value
         :rtype: (str, str)
         """
-        if not host.count('/') == 1:
+        if host.count('/') != 1:
             self.syntax_error(f'Illegal host format "{host}". Host format must be namespace/dnsName', self)
 
         host_parts = list(filter(None, host.split('/')))
@@ -170,8 +170,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
 
         workload_selector = sidecar_spec.get('workloadSelector')
-        if workload_selector is None:
-            res_policy.default_sidecar = True
+        res_policy.default_sidecar = workload_selector is None
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
         self._append_sidecar_into_relevant_list(str(res_policy), res_policy.selected_peers, res_policy.default_sidecar)
 
