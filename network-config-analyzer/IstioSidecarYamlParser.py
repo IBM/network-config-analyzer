@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import re
-from GenericYamlParser import IstioGenericYamlParser
+from IstioGenericYamlParser import IstioGenericYamlParser
 from NetworkPolicy import NetworkPolicy
 from IstioSidecar import IstioSidecar, IstioSidecarRule
 from Peer import PeerSet
@@ -120,30 +120,30 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
 
         return IstioSidecarRule(res_peers)
 
-    def _append_sidecar_into_relevant_list(self, sidecar_full_name, selected_peers, is_default_sidecar):
+    def _check_and_save_sidecar_if_top_priority(self, curr_sidecar):
         """
-        save the current (self) sidecar in the relevant list.
-        if the sidecar is selector less, then appends it to the current namespace's list
-        otherwise, appends it to the lists of the selected peers in this sidecar
-        :param str sidecar_full_name: the sidecar name in this form: <namespace>/<name>
-        :param list selected_peers: the peers selected by the workloadSelector of the sidecar
-        :param bool is_default_sidecar: indicates if the sidecar is selector-less (default in its namespace)
-        a warning message will be printed if current sidecar is not the first in its relevant list,
+        check if current sidecar is top priority for its namespace or workloads.
+        if the sidecar is selector less, and is the first default sidecar for current namespace, save it
+        otherwise, save it for any peer if this is the first sidecar selecting it
+        :param IstioSidecar curr_sidecar: the sidecar parsed in self
+        a warning message will be printed if current sidecar is not the first for its relevant object,
         indicating that this sidecar will be ignored in the sidecar's connections
         """
-        if is_default_sidecar:
-            if self.namespace.ordered_default_sidecars:  # this sidecar is not first one
+        if curr_sidecar.default_sidecar:
+            if self.namespace.prior_default_sidecar:  # this sidecar is not first one
                 self.warning(f'Namespace "{str(self.namespace)}" already has a Sidecar configuration '
                              f'without any workloadSelector. '
-                             f'Connections in sidecar: "{sidecar_full_name}" will be ignored')
-            self.namespace.ordered_default_sidecars.append(sidecar_full_name)
+                             f'Connections in sidecar: "{curr_sidecar.full_name()}" will be ignored')
+                return
+            self.namespace.prior_default_sidecar = curr_sidecar
             return
 
-        for peer in selected_peers:
-            if peer.ordered_specific_sidecars:  # this sidecar is not first one
-                self.warning(f'Peer "{peer.full_name()}" already has a Sidecar configuration selecting it.'
-                             f'Sidecar: "{sidecar_full_name}" will not be considered as connections for this workload')
-            peer.ordered_specific_sidecars.append(sidecar_full_name)
+        for peer in curr_sidecar.selected_peers:
+            if peer.prior_sidecar:  # this sidecar is not first one
+                self.warning(f'Peer "{peer.full_name()}" already has a Sidecar configuration selecting it. Sidecar: '
+                             f'"{curr_sidecar.full_name()}" will not be considered as connections for this workload')
+                return
+            peer.prior_sidecar = curr_sidecar
 
     def parse_policy(self):
         """
@@ -172,7 +172,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         workload_selector = sidecar_spec.get('workloadSelector')
         res_policy.default_sidecar = workload_selector is None
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
-        self._append_sidecar_into_relevant_list(str(res_policy), res_policy.selected_peers, res_policy.default_sidecar)
+        self._check_and_save_sidecar_if_top_priority(res_policy)
 
         egress = sidecar_spec.get('egress', [])
         if egress is None:

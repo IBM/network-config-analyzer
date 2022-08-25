@@ -6,7 +6,7 @@ import re
 
 from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
-from GenericYamlParser import IstioGenericYamlParser
+from IstioGenericYamlParser import IstioGenericYamlParser
 from IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
 from NetworkPolicy import NetworkPolicy
 from Peer import IpBlock, PeerSet

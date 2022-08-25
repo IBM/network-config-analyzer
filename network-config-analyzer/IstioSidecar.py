@@ -2,10 +2,13 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-from NetworkPolicy import PolicyConnections, NetworkPolicy
+from dataclasses import dataclass
 from ConnectionSet import ConnectionSet
+from IstioGenericYamlParser import IstioGenericYamlParser
+from NetworkPolicy import PolicyConnections, NetworkPolicy
 
 
+@dataclass
 class IstioSidecarRule:
     """
     A class representing a single egress rule (IstioEgressListener) in an Istio Sidecar object
@@ -27,6 +30,9 @@ class IstioSidecar(NetworkPolicy):
     def __init__(self, name, namespace):
         super().__init__(name, namespace)
         self.default_sidecar = False  # a flag that indicates if the sidecar is selector-less (default) or not
+
+    def __eq__(self, other):
+        return super().__eq__(other) and self.default_sidecar == other.default_sidecar
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
@@ -94,12 +100,12 @@ class IstioSidecar(NetworkPolicy):
 
     def _is_sidecar_prior(self, from_peer):
         """
-        Check if the current sidecar is in the priority of the captured from_peer
+        Check if the current sidecar is in the top priority of the captured from_peer
         to be considered in its connections or not
         :param Peer.Peer from_peer: the source peer captured by the current sidecar
         :return: True if the sidecar is in the peer's top priority to consider it in its connections, otherwise False
         computing the return value is according to following:
-        1- for each peer, preference will be given to the first injected sidecar with
+        1- for from_peer, preference will be given to the first injected sidecar with
         a workloadSelector that selected the peer.
         2- if the specific sidecar from (1) does not exist, preference will be given to the
         first injected selector-less sidecar in the peer's namespace
@@ -108,16 +114,16 @@ class IstioSidecar(NetworkPolicy):
         :rtype: bool
         """
         if not self.default_sidecar:  # specific sidecar
-            if from_peer.ordered_specific_sidecars and self.full_name() == from_peer.ordered_specific_sidecars[0]:
+            if from_peer.prior_sidecar and self == from_peer.prior_sidecar:
                 return True
         else:  # selector-less sidecar
-            if from_peer.ordered_specific_sidecars:
+            if from_peer.prior_sidecar:
                 return False
-            if from_peer.namespace.ordered_default_sidecars:
-                if self.full_name() == from_peer.namespace.ordered_default_sidecars[0]:
+            if from_peer.namespace.prior_default_sidecar:
+                if self == from_peer.namespace.prior_default_sidecar:
                     return True
             else:
-                if str(self.namespace) == NetworkPolicy.istio_root_namespace and \
-                        self.full_name() == self.namespace.ordered_default_sidecars[0]:
+                if str(self.namespace) == IstioGenericYamlParser.istio_root_namespace and \
+                        self == self.namespace.prior_default_sidecar:
                     return True
         return False
