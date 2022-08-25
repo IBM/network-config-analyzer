@@ -13,6 +13,7 @@ results to `benchmark_results/<experiment_name>` and create a report
 This is a list of improvements to the benchmarks and the reporting to do in the next iteration:
 
 - [ ] add the tests to the benchmarks 
+  - Note -- there are tests that run several queries. 
   - [ ] group the tests by the type of query that they run to be consistent with the current format
 - [ ] add support for `FromJakeKitchener` benchmark
 - [ ] two options to audit the parameters:
@@ -32,10 +33,15 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
 - [ ] add percentage of time in each function to the report
 - [ ] show the same statistics for total time similarly to cumulative time.
 - [ ] show more than 20 top records
-- [ ] add readme on how to run the benchmarks on the server
+- [ ] add readme on how to run the benchmarks on the server -- don't post internal things on open source repo
 - [ ] checkout visualizations tools to the profiling results
 - [ ] think about how to extend the benchmark
 
 ### Other Improvements (not in the next iteration)
 - [ ] checkout tools like `line_profiler`, `memory_profiler` and 
 `continuous monitoring`
+- [ ] maybe open source benchmarks?
+- [ ] talk with ziv about logging options
+- [ ] -- compare running connectivity with .dot and .txt
+- [ ] add documentation of how to run stuff
+- [ ] list on box 
