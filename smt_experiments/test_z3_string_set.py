@@ -57,7 +57,7 @@ class BasicTests(unittest.TestCase):
 
     def test_or(self):
         pass
-    
+
     def test_sub(self):
         pass
 
