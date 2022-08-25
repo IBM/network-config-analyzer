@@ -214,9 +214,6 @@ class IstioNetworkLayer(NetworkLayer):
                                                                                    captured_cond_func)
         # for istio initialize non-captured conns with non-TCP connections
         allowed_non_captured_conns = ConnectionSet.get_non_tcp_connections()
-        # if not is_ingress:
-        #     # egress currently always allowed and not captured (unless denied by Ingress resource)
-        #     allowed_non_captured_conns = ConnectionSet(True)
         if not captured_res:  # no allow policies for target
             # add connections allowed by default that are not captured
             allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
