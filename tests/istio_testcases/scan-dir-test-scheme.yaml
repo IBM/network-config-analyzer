@@ -1,0 +1,13 @@
+# non-recursive scan of dirs with no files, no resources are expected to be found
+podList: ./
+namespaceList: ./
+
+networkConfigList:
+  - name: test
+    networkPolicyList:
+      - ./example_policies
+
+queries:
+  - name: test-query
+    connectivityMap:
+      - test
