@@ -1,10 +1,10 @@
-from collections import defaultdict
-from queue import Empty
 import json
+from collections import defaultdict
 from pathlib import Path
+from queue import Empty
 
-from benchmarking.benchmarking_utils import iter_benchmarks, get_benchmark_result_path, Benchmark
 import _global_logging_flag
+from benchmarking.benchmarking_utils import get_benchmark_result_path, Benchmark
 
 
 def get_auditing_results_path(benchmark: Benchmark, experiment_name: str) -> Path:
@@ -16,32 +16,27 @@ def reduce_records(records: dict[list]):
     return {key: value[0] for key, value in records.items()}
 
 
-def audit_benchmarks(experiment_name: str):
+def audit_benchmark(benchmark: Benchmark, experiment_name: str) -> None:
+    # TODO: this global flag is a messy. Find another way to do that
     _global_logging_flag.ENABLED = True
 
-    for benchmark in iter_benchmarks():
-        result_path = get_auditing_results_path(benchmark, experiment_name)
-        if result_path.exists():
-            continue
+    result_path = get_auditing_results_path(benchmark, experiment_name)
+    if result_path.exists():
+        return
 
-        benchmark.run()
+    benchmark.run()
+    records = defaultdict(list)
+    try:
+        while True:
+            record = _global_logging_flag.LOGGING_QUEUE.get(block=False)
+            for key, value in record.items():
+                records[key].append(value)
+    except Empty:
+        pass
 
-        records = defaultdict(list)
-        try:
-            while True:
-                record = _global_logging_flag.LOGGING_QUEUE.get(block=False)
-                for key, value in record.items():
-                    records[key].append(value)
-        except Empty:
-            pass
+    records = reduce_records(records)
 
-        records = reduce_records(records)
-
-        with result_path.open('w') as f:
-            json.dump(records, f, indent=4)
+    with result_path.open('w') as f:
+        json.dump(records, f, indent=4)
 
     _global_logging_flag.ENABLED = False
-
-
-if __name__ == "__main__":
-    audit_benchmarks('test')

@@ -2,8 +2,8 @@ from operator import itemgetter
 from pathlib import Path
 from pstats import Stats, FunctionProfile
 
-from benchmarking.benchmarking_utils import Benchmark, iter_benchmarks, get_repo_root_dir
-from benchmarking.profiling import load_profile_results, get_profile_results_path
+from benchmarking.benchmarking_utils import Benchmark, get_repo_root_dir
+from benchmarking.profiling import get_profile_results_path
 
 
 def get_source_dir() -> Path:
@@ -15,31 +15,19 @@ def is_local_function(func_profile: FunctionProfile) -> bool:
     return func_profile.file_name.startswith(source_dir)
 
 
-def is_called_more_than(func_profile: FunctionProfile, times: int) -> bool:
-    try:
-        return int(func_profile.ncalls) > times
-    except ValueError:
-        return True
-
-
 def get_short_func_path(func_stats: FunctionProfile) -> str:
     func_path = Path(func_stats.file_name)
     short_func_path = str(func_path.relative_to(get_source_dir()))
     return short_func_path
 
 
-def get_function_profiles(experiment_name: str, benchmark: Benchmark = None) -> list[dict]:
+def get_function_profiles(experiment_name: str, benchmark_list: list[Benchmark]) -> list[dict]:
     """Returns a list of the top n functions that have the largest cumulative time,
     after filtering the python library functions, and not interesting functions
     """
-    if benchmark is None:
-        profile_results_paths = [str(get_profile_results_path(benchmark, experiment_name))
-                                 for benchmark in iter_benchmarks()]
-        n_runs = len(profile_results_paths)
-        profile_stats = Stats(*profile_results_paths)
-    else:
-        n_runs = 1
-        profile_stats = load_profile_results(benchmark, experiment_name)
+    profile_results_paths = [str(get_profile_results_path(benchmark, experiment_name))
+                             for benchmark in benchmark_list]
+    profile_stats = Stats(*profile_results_paths)
 
     stats_profile = profile_stats.get_stats_profile()
     total_time = stats_profile.total_tt
@@ -48,8 +36,6 @@ def get_function_profiles(experiment_name: str, benchmark: Benchmark = None) -> 
     # filter
     func_profiles = {func_name: func_profile for func_name, func_profile in func_profiles.items()
                      if is_local_function(func_profile)}
-    # TODO: I think that it is better not to remove those, since it might give us useful information
-    # and is_called_more_than(func_profile, n_runs)}
 
     # map
     result = []

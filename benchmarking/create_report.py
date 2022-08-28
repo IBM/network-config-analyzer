@@ -2,10 +2,10 @@ import json
 from csv import DictWriter
 from pathlib import Path
 
-from benchmarking.auditing import get_auditing_results_path
-from benchmarking.benchmarking_utils import get_benchmark_results_dir, iter_benchmarks
-from benchmarking.timing import get_timing_results_path
 from benchmarking.analyze_profile_results import get_function_profiles
+from benchmarking.auditing import get_auditing_results_path
+from benchmarking.benchmarking_utils import get_benchmark_results_dir, iter_benchmarks, Benchmark
+from benchmarking.timing import get_timing_results_path
 
 
 def get_report_dir(experiment_name: str) -> Path:
@@ -35,7 +35,7 @@ def dict_list_to_csv(lines: list[dict], path: Path):
         writer.writerows(lines)
 
 
-def create_report(experiment_name: str):
+def create_report(experiment_name: str, benchmark_list: list[Benchmark]):
     """The report is organized as follows:
         - it is in .csv format for easy reading
     :return: None
@@ -44,8 +44,8 @@ def create_report(experiment_name: str):
     lines = []
     report_dir = get_report_dir(experiment_name)
 
-    for benchmark in iter_benchmarks():
-        line = {'name': benchmark.name, 'query': benchmark.query}
+    for benchmark in benchmark_list:
+        line = {'name': benchmark.name}
 
         timing_results_path = get_timing_results_path(benchmark, experiment_name)
         with timing_results_path.open('r') as f:
@@ -59,17 +59,13 @@ def create_report(experiment_name: str):
 
         lines.append(line)
 
-        top_func_records = get_function_profiles(experiment_name, benchmark)[:top_n]
-        top_func_report_path = report_dir / f'{str(benchmark)}_top_func_report.csv'
+        top_func_records = get_function_profiles(experiment_name, [benchmark])[:top_n]
+        top_func_report_path = report_dir / f'{benchmark.name}_top_func_report.csv'
         dict_list_to_csv(top_func_records, top_func_report_path)
 
-    top_func_records = get_function_profiles(experiment_name)[:top_n]
+    top_func_records = get_function_profiles(experiment_name, benchmark_list)[:top_n]
     top_func_report_path = report_dir / f'accumulated_top_func_report.csv'
     dict_list_to_csv(top_func_records, top_func_report_path)
 
     timing_report_path = report_dir / 'timing_report.csv'
     dict_list_to_csv(lines, timing_report_path)
-
-
-if __name__ == "__main__":
-    create_report('test')

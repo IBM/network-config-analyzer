@@ -147,13 +147,26 @@ class SchemeRunner(GenericYamlParser):
         for config_entry in self.scheme.get('networkConfigList', []):
             self._add_config(config_entry, resources_handler)
 
+        # TODO: problem here, we might have more then a single network configuration...
+        #   It might not be the best place to collect the data... for now I take the sum, but I'm sure
+        #   that it is not the right thing to do
         if _global_logging_flag.ENABLED:
-            network_config: NetworkConfig = self.network_configs['network']
-            item = {
-                'n_policies': len(network_config.policies_container.policies),
-                'n_namespaces': len(network_config.peer_container.namespaces),
-                'n_peers': len(network_config.peer_container.peer_set)
-            }
+            items = []
+            for network_config_name, network_config in self.network_configs.items():
+                # network_config: NetworkConfig
+                item = {
+                    'n_policies': len(network_config.policies_container.policies),
+                    'n_namespaces': len(network_config.peer_container.namespaces),
+                    'n_peers': len(network_config.peer_container.peer_set)
+                }
+                items.append(item)
+
+            def sum_dict(d1: dict, d2: dict) -> dict:
+                return {key: d1[key] + d2[key] for key in d1.keys()}
+
+            from functools import reduce
+            item = reduce(sum_dict, items)
+
             _global_logging_flag.LOGGING_QUEUE.put(item, block=False)
 
         self.run_queries(self.scheme.get('queries', []))

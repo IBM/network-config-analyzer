@@ -1,24 +1,26 @@
-from itertools import product
+import os
+from collections.abc import Iterable
+from contextlib import redirect_stdout, redirect_stderr
 from pathlib import Path
 
 from nca import nca_main
 
 
 class Benchmark:
-    def __init__(self, benchmark_dir: Path, query: str):
-        self.path = benchmark_dir
-        self.query = query
-        self.name = benchmark_dir.name
+    def __init__(self, scheme_file: Path):
+        assert str(scheme_file).endswith('-scheme.yaml')
+        file_name = scheme_file.name
+        self.name = file_name[:-len('-scheme.yaml')]
         self._argv = [
             '--scheme',
-            str(get_scheme_file_path(self))
+            str(scheme_file)
         ]
 
     def run(self):
-        nca_main(self._argv)
-
-    def __str__(self):
-        return f'{self.name}-{self.query}'
+        # TODO: Ask Adi if running with output redirection is the right thing todo
+        with open(os.devnull, 'w') as f:
+            with redirect_stdout(f), redirect_stderr(f):
+                nca_main(self._argv)
 
 
 def get_repo_root_dir() -> Path:
@@ -36,6 +38,10 @@ def get_repo_root_dir() -> Path:
     return last_matching_parent
 
 
+def get_tests_dir() -> Path:
+    return get_repo_root_dir() / 'tests'
+
+
 def get_benchmarks_dir() -> Path:
     return get_repo_root_dir() / 'benchmarks'
 
@@ -49,31 +55,29 @@ def get_benchmark_results_dir(experiment_name: str) -> Path:
 def get_benchmark_result_path(benchmark: Benchmark, experiment_name: str, label: str, suffix: str) -> Path:
     results_dir = get_benchmark_results_dir(experiment_name) / label
     results_dir.mkdir(exist_ok=True)
-    return results_dir / f'{str(benchmark)}.{suffix}'
+    return results_dir / f'{benchmark.name}.{suffix}'
 
 
-def get_benchmark_dirs() -> list[Path]:
-    benchmarks_dir = get_benchmarks_dir()
-    return [path for path in benchmarks_dir.iterdir() if path.is_dir()]
+def contains_github(scheme_file: Path) -> bool:
+    text = scheme_file.read_text()
+    return 'github' in text
 
 
-def get_queries() -> list[str]:
-    return ['sanity', 'connectivity']
+def iter_benchmarks(tests_only: bool = False) -> Iterable[Benchmark]:
+    benchmarks_dir_list = [get_tests_dir()]
+    if not tests_only:
+        benchmarks_dir_list.append(get_benchmarks_dir())
+    for benchmarks_dir in benchmarks_dir_list:
+        for scheme_file in benchmarks_dir.rglob('*-scheme.yaml'):
+            # TODO: is that the correct thing to do? to skip the github files?
+            if contains_github(scheme_file):
+                continue
+            # TODO: add support for this benchmark
+            if scheme_file.name.startswith('FromJakeKitchener'):
+                continue
+            yield Benchmark(scheme_file)
 
 
-def get_scheme_file_path(benchmark: Benchmark) -> Path:
-    return get_benchmarks_dir() / f'{benchmark}-scheme.yaml'
-
-
-def iter_benchmarks():
-    # TODO: add the tests as benchmarks to the iterator, I also want to create a report for that
-    benchmark_dirs = get_benchmark_dirs()
-    queries = get_queries()
-    for benchmark_dir, query in product(benchmark_dirs, queries):
-        # TODO: this is just for testing -- maybe add that as a flag to "run_benchmarks?"
-        # if benchmark_dir.name != 'dra':
-        #     continue
-        # TODO: currently, I skip this benchmark. I need to work on it to make it run
-        if benchmark_dir.name == 'FromJakeKitchener':
-            continue
-        yield Benchmark(benchmark_dir, query)
+if __name__ == '__main__':
+    for bm in iter_benchmarks():
+        print(bm.name)
