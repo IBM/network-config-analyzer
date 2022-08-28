@@ -46,16 +46,18 @@ class PeerContainer:
     def get_namespaces(self):
         return self.namespaces
 
-    def get_namespace(self, namespace):
+    def get_namespace(self, namespace, warn_if_missing=True):
         """
          Get a K8sNamespace object for a given namespace name. If namespace is missing, then add it to the
-         container's namespaces, sources for new namespaces may be networkpolicies or config queries
+         container's namespaces. Sources for new namespaces may be networkpolicies or config queries
         :param str namespace: The name of the required namespace
+        :param bool warn_if_missing: indicates if missing namespace is istio_root_ns which is handled as special case
         :return: A relevant K8sNamespace
         :rtype: K8sNamespace
         """
         if namespace not in self.namespaces:
-            print('Namespace', namespace, 'is missing from the network configuration', file=stderr)
+            if warn_if_missing:
+                print('Namespace', namespace, 'is missing from the network configuration', file=stderr)
             k8s_ns = K8sNamespace(namespace)
             self.namespaces[namespace] = k8s_ns
         return self.namespaces[namespace]
@@ -193,7 +195,7 @@ class PeerContainer:
                 res |= val.target_pods
         return res
 
-    def get_all_services_target_pods(self):
+    def get_all_services_target_pods(self, update_compare_ns_flag=False):
         """
         Returns all pods that belong to services
         :rtype: PeerSet
@@ -201,6 +203,9 @@ class PeerContainer:
         res = PeerSet()
         for service in self.services.values():
             res |= service.target_pods
+        if update_compare_ns_flag:
+            for peer in res:
+                peer.compare_namespaces_flag = True
         return res
 
     def get_services_target_pods_in_namespace(self, namespace):

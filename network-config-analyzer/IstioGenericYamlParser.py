@@ -48,7 +48,9 @@ class IstioGenericYamlParser(GenericYamlParser):
                                    {'apiVersion': [istio_version]})
         metadata = self.policy['metadata']
         self.check_metadata_validity(metadata)
-        self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
+        ns_name = metadata.get('namespace', 'default')
+        warn_if_missing = ns_name != self.istio_root_namespace
+        self.namespace = self.peer_container.get_namespace(ns_name, warn_if_missing)
         return metadata['name']
 
     def _parse_workload_selector(self, workload_selector, element_key):
@@ -93,7 +95,7 @@ class IstioGenericYamlParser(GenericYamlParser):
         else:
             selected_peers = self._parse_workload_selector(workload_selector, dict_key)
         # if policy's namespace is the root namespace, then it applies to all cluster's namespaces
-        if self.namespace.name != IstioGenericYamlParser.istio_root_namespace:
+        if self.namespace.name != self.istio_root_namespace:
             selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
 
         return selected_peers

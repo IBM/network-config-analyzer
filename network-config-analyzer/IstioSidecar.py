@@ -56,6 +56,10 @@ class IstioSidecar(NetworkPolicy):
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
             if to_peer in rule.egress_peer_set:
+                # handling the case of global sidecar with a host's ns = '.'
+                if str(self.namespace) == IstioGenericYamlParser.istio_root_namespace:
+                    if to_peer.compare_namespaces_flag and from_peer.namespace != to_peer.namespace:
+                        return PolicyConnections(True, denied_conns=conns)
                 return PolicyConnections(True, allowed_conns=conns)
         # if to_peer not been captured in the rules, egress from from_peer to to_peer is not allowed
         return PolicyConnections(True, denied_conns=conns)

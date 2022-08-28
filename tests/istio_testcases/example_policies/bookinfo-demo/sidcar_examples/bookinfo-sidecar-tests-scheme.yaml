@@ -4,6 +4,10 @@ resourceList:
   - ../../../example_podlist/bookinfo_services.yaml
 
 networkConfigList:
+  - name: global-sidecar-from-istio-ref
+    networkPolicyList:
+      - global-sidecar-from-istio-ref.yaml
+
   - name: bookinfo-default-sidecar-1
     networkPolicyList:
       - bookinfo-default-sidecar-1.yaml
@@ -74,6 +78,12 @@ networkConfigList:
       - bookinfo-default-sidecar-2.yaml
 
 queries:
+  - name: connectivity-map-global-sidecar
+    connectivityMap:
+      - global-sidecar-from-istio-ref
+    expected: 0
+    expectedOutput: ../../../expected_output/connectivity_map_global_sidecar_from_istio_ref.txt
+
   - name: connectivity-map-default-sidecar-1
     connectivityMap:
       - bookinfo-default-sidecar-1

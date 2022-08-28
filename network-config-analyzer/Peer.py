@@ -22,6 +22,8 @@ class Peer:
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
         self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
+        self.compare_namespaces_flag = False # indicates if namespaces should be compared when checking global sidecar
+        # connections
 
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name

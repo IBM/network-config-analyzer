@@ -46,6 +46,9 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             # return self.peer_container.get_all_peers_group()
             return self.peer_container.get_all_services_target_pods()
         if namespace == '.':
+            # if the sidecar is global and ns is '.', then allow egress traffic only in the same namespace
+            if str(self.namespace) == self.istio_root_namespace:
+                return self.peer_container.get_all_services_target_pods(True)
             # return self.peer_container.get_namespace_pods(self.namespace)
             return self.peer_container.get_services_target_pods_in_namespace(self.namespace)
         if namespace == '~':
@@ -170,6 +173,8 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
 
         workload_selector = sidecar_spec.get('workloadSelector')
         res_policy.default_sidecar = workload_selector is None
+        if str(self.namespace) == self.istio_root_namespace and workload_selector is not None:
+            self.syntax_error('Global Sidecar configuration should not have any workloadSelector.')
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
         self._check_and_save_sidecar_if_top_priority(res_policy)
 
