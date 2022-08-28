@@ -17,9 +17,14 @@ from benchmarking.timing import time_benchmark
 
 
 def run_benchmarks(experiment_name: str, tests_only: bool = False, limit_num: int = None):
-    # TODO: add logging
     logger = logging.getLogger('run_benchmarks')
     logger.setLevel(logging.INFO)
+    file_handler = logging.FileHandler('run_benchmarks.log', 'w')
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
     logger.info('running benchmarks...')
 
     benchmark_list = list(iter_benchmarks(tests_only))
