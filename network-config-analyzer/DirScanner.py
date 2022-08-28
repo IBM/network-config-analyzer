@@ -45,9 +45,6 @@ class DirScanner(GenericTreeScanner, HelmScanner):
 
     def _scan_dir_for_yamls(self, dir_path, recursive):
         for root, sub_dirs, files in os.walk(dir_path):
-            if recursive:
-                for sub_dir in sub_dirs:
-                    self._scan_dir_for_yamls(os.path.join(root, sub_dir), recursive)
             for file in files:
                 if self.is_helm_chart(file):
                     file_name, file_content = self.parse_chart(root)
@@ -62,3 +59,5 @@ class DirScanner(GenericTreeScanner, HelmScanner):
                             print('Warning: Skipping templated yaml file:', full_path, file=stderr)
                         else:
                             yield from self.check_and_yield_file(os.path.join(root, file))
+            if not recursive:
+                break
