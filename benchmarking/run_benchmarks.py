@@ -8,15 +8,10 @@ from benchmarking.profiling import profile_benchmark
 from benchmarking.timing import time_benchmark
 
 
-# TODO: consider adding some logging to this so I will know how much progress was made / how much time is left
-# TODO: move the code that iterates through the benchmarks here and outside of the timing / profiling / auditing code
-# TODO: add arguments that allow to run the code only on the project's tests (for fast checks)
-# TODO: make sure that this works after changes introduced to
-# TODO: consider adding tests, especially for verifying that everything works
 # TODO: how do we collect data about the configurations from a benchmark that has more then one policy?
 
 
-def run_benchmarks(experiment_name: str, tests_only: bool = False, limit_num: int = None):
+def get_logger():
     logger = logging.getLogger('run_benchmarks')
     logger.setLevel(logging.INFO)
     file_handler = logging.FileHandler('run_benchmarks.log', 'w')
@@ -24,6 +19,11 @@ def run_benchmarks(experiment_name: str, tests_only: bool = False, limit_num: in
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
+    return logger
+
+
+def run_benchmarks(experiment_name: str, tests_only: bool = False, limit_num: int = None):
+    logger = get_logger()
 
     logger.info('running benchmarks...')
 

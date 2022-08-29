@@ -3,6 +3,9 @@ from collections.abc import Iterable
 from contextlib import redirect_stdout, redirect_stderr
 from pathlib import Path
 
+from yaml import load, Loader
+
+from benchmarking.generate_single_query_scheme_file import generate_single_query_scheme_file, get_query_type
 from nca import nca_main
 
 
@@ -11,6 +14,7 @@ class Benchmark:
         assert str(scheme_file).endswith('-scheme.yaml')
         file_name = scheme_file.name
         self.name = file_name[:-len('-scheme.yaml')]
+        self._scheme_file = scheme_file
         self._argv = [
             '--scheme',
             str(scheme_file)
@@ -21,6 +25,12 @@ class Benchmark:
         with open(os.devnull, 'w') as f:
             with redirect_stdout(f), redirect_stderr(f):
                 nca_main(self._argv)
+
+    def get_query_type(self) -> str:
+        with self._scheme_file.open('r') as f:
+            scheme = load(f, Loader)
+
+        return get_query_type(scheme['queries'][0])
 
 
 def get_repo_root_dir() -> Path:
@@ -46,6 +56,12 @@ def get_benchmarks_dir() -> Path:
     return get_repo_root_dir() / 'benchmarks'
 
 
+def get_temp_scheme_dir() -> Path:
+    temp_scheme_dir = get_repo_root_dir() / 'temp_scheme'
+    temp_scheme_dir.mkdir(exist_ok=True)
+    return temp_scheme_dir
+
+
 def get_benchmark_results_dir(experiment_name: str) -> Path:
     results_dir = get_repo_root_dir() / 'benchmark_results' / experiment_name
     results_dir.mkdir(parents=True, exist_ok=True)
@@ -65,6 +81,7 @@ def contains_github(scheme_file: Path) -> bool:
 
 def iter_benchmarks(tests_only: bool = False) -> Iterable[Benchmark]:
     benchmarks_dir_list = [get_tests_dir()]
+    temp_scheme_dir = get_temp_scheme_dir()
     if not tests_only:
         benchmarks_dir_list.append(get_benchmarks_dir())
     for benchmarks_dir in benchmarks_dir_list:
@@ -75,7 +92,9 @@ def iter_benchmarks(tests_only: bool = False) -> Iterable[Benchmark]:
             # TODO: add support for this benchmark
             if scheme_file.name.startswith('FromJakeKitchener'):
                 continue
-            yield Benchmark(scheme_file)
+
+            for new_scheme_file in generate_single_query_scheme_file(scheme_file, temp_scheme_dir):
+                yield Benchmark(new_scheme_file)
 
 
 if __name__ == '__main__':

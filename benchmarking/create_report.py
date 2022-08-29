@@ -45,7 +45,7 @@ def create_report(experiment_name: str, benchmark_list: list[Benchmark]):
     report_dir = get_report_dir(experiment_name)
 
     for benchmark in benchmark_list:
-        line = {'name': benchmark.name}
+        line = {'name': benchmark.name, 'query_type': benchmark.get_query_type()}
 
         timing_results_path = get_timing_results_path(benchmark, experiment_name)
         with timing_results_path.open('r') as f:

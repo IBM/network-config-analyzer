@@ -5,9 +5,11 @@
 This is a list of improvements to the benchmarks and the reporting to do in the next iteration:
 
 - [x] add the tests to the benchmarks => there are tests that run several queries. 
-  - [ ] group the tests by the type of query that they run to be consistent with the current format
-  - [ ] I'm adding support for the scheme files, but I'm waiting for adi to let me know if support for the other 
-  things is important (CLI, github, live cluster) 
+  - [x] group the tests by the type of query that they run to be consistent with the current format -- 
+  I can do that by splitting the scheme files into multiple files with a single query.
+  - [x] I'm adding support for the scheme files, but I'm waiting for adi to let me know if support for the other 
+  things is important (CLI, github, live cluster) -- only support for the scheme files is required.
+  - [x] add a query type as a field to the benchmark report
 - [ ] add support for `FromJakeKitchener` benchmark
 - [ ] add support for other queries (comparing two policies)
   - [ ] permit / forbid queries
