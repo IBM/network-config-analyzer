@@ -22,9 +22,10 @@ class Benchmark:
 
     def run(self):
         # TODO: Ask Adi if running with output redirection is the right thing todo
-        with open(os.devnull, 'w') as f:
-            with redirect_stdout(f), redirect_stderr(f):
-                nca_main(self._argv)
+        # with open(os.devnull, 'w') as f:
+        #     with redirect_stdout(f), redirect_stderr(f):
+        #         nca_main(self._argv)
+        nca_main(self._argv)
 
     def get_query_type(self) -> str:
         with self._scheme_file.open('r') as f:
@@ -89,9 +90,9 @@ def iter_benchmarks(tests_only: bool = False) -> Iterable[Benchmark]:
             # TODO: is that the correct thing to do? to skip the github files?
             if contains_github(scheme_file):
                 continue
-            # TODO: add support for this benchmark
-            if scheme_file.name.startswith('FromJakeKitchener'):
-                continue
+            # TODO: this specific benchmark might take a long time. consider removing it.
+            # if scheme_file.name.startswith('FromJakeKitchener'):
+            #     continue
 
             for new_scheme_file in generate_single_query_scheme_file(scheme_file, temp_scheme_dir):
                 yield Benchmark(new_scheme_file)
