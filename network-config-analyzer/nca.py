@@ -118,6 +118,15 @@ def _compute_return_value(query_result, comparing_err, not_executed):
     return 4 * not_executed + 2 * comparing_err + query_result
 
 
+def _make_recursive(path_list):
+    if path_list:
+        for index, path in enumerate(path_list):
+            if os.path.isdir(path):
+                path_list[index] = str(path)+'**'
+    return path_list
+
+
+
 def run_args(args):
     """
     Given the parsed cmdline, decide what to run
@@ -198,15 +207,18 @@ def run_args(args):
         expected_output = args.expected_output or None
 
     resources_handler = ResourcesHandler()
-    network_config = resources_handler.get_network_config(np_list, ns_list, pod_list, resource_list,
+    network_config = resources_handler.get_network_config(_make_recursive(np_list), _make_recursive(ns_list),
+                                                          _make_recursive(pod_list), _make_recursive(resource_list),
                                                           save_flag=pair_query_flag)
     if pair_query_flag:
         base_np_list = args.base_np_list
         base_resource_list = args.base_resource_list
         base_ns_list = args.base_ns_list
         base_pod_list = args.base_pod_list
-        base_network_config = resources_handler.get_network_config(base_np_list, base_ns_list, base_pod_list,
-                                                                   base_resource_list)
+        base_network_config = resources_handler.get_network_config(_make_recursive(base_np_list),
+                                                                   _make_recursive(base_ns_list),
+                                                                   _make_recursive(base_pod_list),
+                                                                   _make_recursive(base_resource_list))
         if base_as_second:
             network_configs_array = [network_config, base_network_config]
         else:

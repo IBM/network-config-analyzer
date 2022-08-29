@@ -1,4 +1,4 @@
-final fw rules for query: :
+final fw rules for query: , config: **:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=grafana] conn: TCP 3000
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=redis] conn: TCP 6379,9121
 src: ::/0 dst_ns: [default] dst_pods: [app.kubernetes.io/instance=nca-extract and app.kubernetes.io/name=grafana] conn: TCP 3000
