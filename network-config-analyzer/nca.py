@@ -119,12 +119,16 @@ def _compute_return_value(query_result, comparing_err, not_executed):
 
 
 def _make_recursive(path_list):
+    """
+    when a directory is given (from the CLI), add '**' so subdirectories will also be scanned.
+    :param list path_list: list of paths
+    :return: list: the given list of paths with '**' at the end of dir paths
+    """
     if path_list:
         for index, path in enumerate(path_list):
             if os.path.isdir(path):
-                path_list[index] = str(path)+'**'
+                path_list[index] = str(path) + '**'
     return path_list
-
 
 
 def run_args(args):
