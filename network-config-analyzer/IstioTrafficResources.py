@@ -14,15 +14,16 @@ class Gateway:
     """
     A class for keeping some elements of parsed Istio Gateway, needed for building IngressPolicy
     """
-    @dataclass
-    class GatewayPort:
-        number: int
-        protocol: str
-        name: str
 
     @dataclass
     class Server:
-        port: int
+        @dataclass
+        class GatewayPort:
+            number: int
+            protocol: str
+            name: str
+
+        port: GatewayPort
         hosts_dfa: MinDFA or None = None
         name: str = ''
 

@@ -121,7 +121,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         number = port['number']
         protocol = port['protocol']
         name = port['name']
-        return Gateway.GatewayPort(number, protocol, name)
+        return Gateway.Server.GatewayPort(number, protocol, name)
 
     def add_virtual_service(self, vs):
         """
@@ -171,20 +171,18 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param dict vs_spec: the virtual service resource
         """
         gateways = vs_spec.get('gateways')
-        if gateways:
-            for gtw in gateways:
-                if gtw == 'mesh':
-                    # TODO - implement 'mesh' in gateways
-                    self.warning(f'"mesh" value of the gateways is not yet supported '
-                                 f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
-                else:
-                    gtw_name = gtw
-                    gtw_namespace = vs.namespace
-                    splitted_gtw = gtw.split('/', 1)
-                    if len(splitted_gtw) == 2:
-                        gtw_namespace = self.peer_container.get_namespace(splitted_gtw[0])
-                        gtw_name = splitted_gtw[1]
-                    vs.add_gateway(gtw_namespace, gtw_name)
+        for gtw in gateways or []:
+            if gtw == 'mesh':
+                self.warning(f'"mesh" value of the gateways is not yet supported '
+                             f'(referenced in the VirtualService {vs.full_name()}). Ignoring it.')
+            else:
+                gtw_name = gtw
+                gtw_namespace = vs.namespace
+                splitted_gtw = gtw.split('/', 1)
+                if len(splitted_gtw) == 2:
+                    gtw_namespace = self.peer_container.get_namespace(splitted_gtw[0])
+                    gtw_name = splitted_gtw[1]
+                vs.add_gateway(gtw_namespace, gtw_name)
 
     def parse_vs_http_route(self, vs, vs_spec):
         """
@@ -193,16 +191,15 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param dict vs_spec: the virtual service resource
         """
         http = vs_spec.get('http')
-        if http:
-            for route in http:
-                self.check_fields_validity(route, f'HTTPRroute in the VirtualService {vs.full_name()}',
-                                           {'name': [0, str], 'match': 0, 'route': 0, 'redirect': 3, 'delegate': 3,
-                                            'rewrite': 3, 'timeout': 3, 'retries': 3, 'fault': 3, 'mirror': 3,
-                                            'mirrorPercentage': 3, 'corsPolicy': 3, 'headers': 3})
-                http_route = VirtualService.HTTPRoute()
-                self.parse_http_match_request(route, http_route, vs)
-                self.parse_http_route_destinations(route, http_route, vs)
-                vs.add_http_route(http_route)
+        for route in http or []:
+            self.check_fields_validity(route, f'HTTPRroute in the VirtualService {vs.full_name()}',
+                                       {'name': [0, str], 'match': 0, 'route': 0, 'redirect': 3, 'delegate': 3,
+                                        'rewrite': 3, 'timeout': 3, 'retries': 3, 'fault': 3, 'mirror': 3,
+                                        'mirrorPercentage': 3, 'corsPolicy': 3, 'headers': 3})
+            http_route = VirtualService.HTTPRoute()
+            self.parse_http_match_request(route, http_route, vs)
+            self.parse_http_route_destinations(route, http_route, vs)
+            vs.add_http_route(http_route)
 
     def parse_istio_regex_string(self, resource, attr_name, vs_name):
         """
