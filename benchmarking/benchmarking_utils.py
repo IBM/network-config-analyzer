@@ -8,6 +8,8 @@ from yaml import load, Loader
 from benchmarking.generate_single_query_scheme_file import generate_single_query_scheme_file, get_query_type
 from nca import nca_main
 
+# TODO: create a sample benchmark that takes a short amount of time to run, and this will be used to test things
+
 
 class Benchmark:
     def __init__(self, scheme_file: Path):
@@ -80,24 +82,49 @@ def contains_github(scheme_file: Path) -> bool:
     return 'github' in text
 
 
-def iter_benchmarks(tests_only: bool = False) -> Iterable[Benchmark]:
-    benchmarks_dir_list = [get_tests_dir()]
+def is_example_benchmark(scheme_file: Path) -> bool:
+    return 'example_benchmark' in str(scheme_file)
+
+
+def at_most_one_true(bool_list: list[bool]) -> bool:
+    return sum(map(int, bool_list)) <= 1
+
+
+def iter_benchmarks(tests_only: bool = False, real_benchmarks_only: bool = False,
+                    example_benchmark_only: bool = False) -> Iterable[Benchmark]:
+    assert at_most_one_true([tests_only, real_benchmarks_only, example_benchmark_only])
+
+    if tests_only:
+        benchmarks_dir_list = [get_tests_dir()]
+    elif real_benchmarks_only or example_benchmark_only:
+        benchmarks_dir_list = [get_benchmarks_dir()]
+    else:
+        benchmarks_dir_list = [get_tests_dir(), get_benchmarks_dir()]
+
     temp_scheme_dir = get_temp_scheme_dir()
-    if not tests_only:
-        benchmarks_dir_list.append(get_benchmarks_dir())
     for benchmarks_dir in benchmarks_dir_list:
         for scheme_file in benchmarks_dir.rglob('*-scheme.yaml'):
-            # TODO: is that the correct thing to do? to skip the github files?
+            if example_benchmark_only and not is_example_benchmark(scheme_file):
+                continue
+
             if contains_github(scheme_file):
                 continue
-            # TODO: this specific benchmark might take a long time. consider removing it.
-            # if scheme_file.name.startswith('FromJakeKitchener'):
-            #     continue
 
             for new_scheme_file in generate_single_query_scheme_file(scheme_file, temp_scheme_dir):
                 yield Benchmark(new_scheme_file)
 
 
 if __name__ == '__main__':
+    print('***all benchmarks***')
     for bm in iter_benchmarks():
         print(bm.name)
+    print('***only tests***')
+    for bm in iter_benchmarks(tests_only=True):
+        print(bm.name)
+    print('***only real***')
+    for bm in iter_benchmarks(real_benchmarks_only=True):
+        print(bm.name)
+    print('***only example***')
+    for bm in iter_benchmarks(example_benchmark_only=True):
+        print(bm.name)
+

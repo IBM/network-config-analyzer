@@ -109,6 +109,7 @@ workdir
 # Benchmarking
 benchmarks/
 !benchmarks/README.md
+!benchmarks/example_benchmark/
 benchmark_results/
 !benchmark_results/README.md
 temp_scheme/

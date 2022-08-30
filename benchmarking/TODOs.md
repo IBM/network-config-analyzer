@@ -10,11 +10,12 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
   - [x] I'm adding support for the scheme files, but I'm waiting for adi to let me know if support for the other 
   things is important (CLI, github, live cluster) -- only support for the scheme files is required.
   - [x] add a query type as a field to the benchmark report
-- [x] add support for `FromJakeKitchener` benchmark
-- [ ] add support for other queries (comparing two policies)
-  - [ ] permit / forbid queries
-  - [ ] semantic diff. 
-  - [ ] automatically generate the other policy
+- [x] add support for `FromJakeKitchener` benchmark -- reorganized the directory and removed unnecessary files
+- [x] add support for other queries (comparing two policies)
+  - For each query, compare it with allow-all-default and a single policy from the benchmark
+    - [x] permit  
+    - [x] forbid queries
+    - [x] semantic diff
 - [ ] checkout visualizations tools to the profiling results
 - [ ] compare running connectivity with .dot and .txt
 - [ ] two options to audit the parameters: => ask Ziv about that.
@@ -42,3 +43,5 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
 `continuous monitoring`
 - [ ] maybe open source benchmarks?
 - [ ] list on box of possible things to look at
+- [ ] get feedback from Adi about the policies that I use in the two policies query
+- [ ] 
