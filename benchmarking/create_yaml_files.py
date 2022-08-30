@@ -13,6 +13,7 @@ def get_scheme_file_path(benchmark_dir: Path) -> Path:
 
 
 def get_scheme_file_text(benchmark_dir: Path) -> str:
+    # TODO: do this with the yaml module instead of this
     query_to_scheme_query = {'connectivity': 'connectivityMap', 'sanity': 'sanity'}
     scheme_file_text = f"""
 namespaceList: {benchmark_dir.name}
