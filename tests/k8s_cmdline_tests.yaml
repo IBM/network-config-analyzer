@@ -356,3 +356,51 @@
     --base_resource_list k8s_testcases/example_podlist/ns_list.json
     --base_resource_list k8s_testcases/example_podlist/pods_list.json
   expected: 1
+
+- name: helm_test_one_chart
+  args: >
+    --connectivity helm_tests/helm_test1/
+    --ns_list helm_tests/helm_test1/
+    --pod_list helm_tests/helm_test1/
+    --expected_output expected_cmdline_output_files/helm_test_one_chart.txt
+  expected: 0
+
+- name: helm_test_multi_chart
+  args: >
+    --connectivity helm_tests/helm_test2/
+    --ns_list helm_tests/helm_test2/
+    --pod_list helm_tests/helm_test2/
+    --expected_output expected_cmdline_output_files/helm_test_multi_chart.txt
+  expected: 0
+
+- name: helm_test_resolved_yaml_next_to_chart
+  args: >
+    --connectivity helm_tests/helm_test3/
+    --ns_list helm_tests/helm_test3/
+    --pod_list helm_tests/helm_test3/
+    --expected_output expected_cmdline_output_files/helm_test_resolved_yaml_next_to_chart.txt
+  expected: 0
+
+- name: helm_test_resolved_yaml_inside_chart
+  args: >
+    --connectivity helm_tests/helm_test4/
+    --ns_list helm_tests/helm_test4/
+    --pod_list helm_tests/helm_test4/
+    --expected_output expected_cmdline_output_files/helm_test_resolved_yaml_inside_chart.txt
+  expected: 0
+
+- name: helm_test_resolved_yaml_in_template_dir
+  args: >
+    --connectivity helm_tests/helm_test5/
+    --ns_list helm_tests/helm_test5/
+    --pod_list helm_tests/helm_test5/
+    --expected_output expected_cmdline_output_files/helm_test_resolved_yaml_in_template_dir.txt
+  expected: 0
+
+- name: helm_test_resolved_yaml_next_to_multi_charts
+  args: >
+    --connectivity helm_tests/helm_test6/
+    --ns_list helm_tests/helm_test6/
+    --pod_list helm_tests/helm_test6/
+    --expected_output expected_cmdline_output_files/helm_test_resolved_yaml_next_to_multi_charts.txt
+  expected: 0
