@@ -30,8 +30,15 @@ class K8sService:
             self.name = name
 
     def __init__(self, name, namespace_name):
+        """
+        :param str name: a service name
+        :param str namespace_name: a namespce name
+        """
         self.name = name
-        self.namespace = K8sNamespace(namespace_name)
+        self.namespace_name = namespace_name
+        # The following self.namespace is a K8sNamespace
+        # (to be retrieved from namespace_name by PeerContainer._set_services_and_populate_target_pods)
+        self.namespace = None
         self.type = self.ServiceType.ClusterIP
         self.selector = {}
         self.ports = {}  # a map from service port name to ServicePort object
@@ -71,6 +78,9 @@ class K8sService:
         :return: None
         """
         self.selector[key] = value
+
+    def get_single_port(self):
+        return list(self.ports.values())[0] if len(self.ports) == 1 else None
 
     def get_port_by_name(self, name):
         return self.ports.get(name)
