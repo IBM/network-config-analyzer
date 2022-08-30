@@ -23,7 +23,7 @@ class Gateway:
             protocol: str
             name: str
 
-        port: GatewayPort
+        port: GatewayPort  # the port field is not currently  used.
         hosts_dfa: MinDFA or None = None
         name: str = ''
 
