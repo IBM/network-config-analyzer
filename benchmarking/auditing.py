@@ -4,11 +4,13 @@ from pathlib import Path
 from queue import Empty
 
 import _global_logging_flag
-from benchmarking.benchmarking_utils import get_benchmark_result_path, Benchmark
+from benchmarking.benchmarking_utils import get_benchmark_result_file, Benchmark, \
+    BenchmarkResultType
 
 
 def get_auditing_results_path(benchmark: Benchmark, experiment_name: str) -> Path:
-    return get_benchmark_result_path(benchmark, experiment_name, 'auditing', 'json')
+    return get_benchmark_result_file(benchmark, experiment_name,
+                                     BenchmarkResultType.AUDIT)
 
 
 def reduce_records(records: dict[list]):

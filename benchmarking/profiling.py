@@ -2,11 +2,13 @@ from cProfile import Profile
 from pathlib import Path
 from pstats import Stats
 
-from benchmarking.benchmarking_utils import Benchmark, get_benchmark_result_path
+from benchmarking.benchmarking_utils import Benchmark, get_benchmark_result_file, \
+    BenchmarkResultType
 
 
 def get_profile_results_path(benchmark: Benchmark, experiment_name: str) -> Path:
-    profile_results_file = get_benchmark_result_path(benchmark, experiment_name, 'profile', 'profile')
+    profile_results_file = get_benchmark_result_file(benchmark, experiment_name,
+                                                     BenchmarkResultType.PROFILE)
     return profile_results_file
 
 

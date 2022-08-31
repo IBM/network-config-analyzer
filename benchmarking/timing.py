@@ -3,11 +3,11 @@ import json
 import timeit
 from pathlib import Path
 
-from benchmarking.benchmarking_utils import Benchmark, get_benchmark_result_path
+from benchmarking.benchmarking_utils import Benchmark, get_benchmark_result_file, BenchmarkResultType
 
 
 def get_timing_results_path(benchmark: Benchmark, experiment_name: str) -> Path:
-    return get_benchmark_result_path(benchmark, experiment_name, 'timing', 'json')
+    return get_benchmark_result_file(benchmark, experiment_name, BenchmarkResultType.TIME)
 
 
 def time_benchmark(benchmark: Benchmark, experiment_name: str) -> None:

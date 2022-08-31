@@ -1,7 +1,9 @@
 import os
 from collections.abc import Iterable
 from contextlib import redirect_stdout, redirect_stderr
+from enum import Enum
 from pathlib import Path
+from typing import Union
 
 from yaml import load, Loader
 
@@ -9,6 +11,17 @@ from benchmarking.generate_single_query_scheme_file import generate_single_query
 from nca import nca_main
 
 # TODO: create a sample benchmark that takes a short amount of time to run, and this will be used to test things
+_ALLOWED_LABELS = ['auditing', 'profile', 'timing', 'visualization']
+
+
+class BenchmarkResultType(Enum):
+    AUDIT = '.json'
+    PROFILE = '.profile'
+    TIME = '.json'
+    VISUAL = '.png'
+
+    def __init__(self, suffix: str):
+        self.suffix = suffix
 
 
 class Benchmark:
@@ -24,6 +37,7 @@ class Benchmark:
 
     def run(self):
         # TODO: Ask Adi if running with output redirection is the right thing todo
+        # TODO: add some flag for running with or without the output
         # with open(os.devnull, 'w') as f:
         #     with redirect_stdout(f), redirect_stderr(f):
         #         nca_main(self._argv)
@@ -65,16 +79,24 @@ def get_temp_scheme_dir() -> Path:
     return temp_scheme_dir
 
 
-def get_benchmark_results_dir(experiment_name: str) -> Path:
+def get_experiment_results_dir(experiment_name: str) -> Path:
     results_dir = get_repo_root_dir() / 'benchmark_results' / experiment_name
     results_dir.mkdir(parents=True, exist_ok=True)
     return results_dir
 
 
-def get_benchmark_result_path(benchmark: Benchmark, experiment_name: str, label: str, suffix: str) -> Path:
-    results_dir = get_benchmark_results_dir(experiment_name) / label
+def get_benchmark_results_dir(experiment_name: str, result_type: BenchmarkResultType) -> Path:
+    results_dir = get_experiment_results_dir(experiment_name) / result_type.name.lower()
+    # TODO: I'm not sure that this is the correct place to create the directory
     results_dir.mkdir(exist_ok=True)
-    return results_dir / f'{benchmark.name}.{suffix}'
+    return results_dir
+
+
+def get_benchmark_result_file(benchmark: Union[Benchmark, str], experiment_name: str, result_type: BenchmarkResultType) -> Path:
+    if isinstance(benchmark, Benchmark):
+        benchmark = benchmark.name
+    results_dir = get_benchmark_results_dir(experiment_name, result_type)
+    return results_dir / f'{benchmark}.{result_type.suffix}'
 
 
 def contains_github(scheme_file: Path) -> bool:

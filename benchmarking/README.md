@@ -9,6 +9,14 @@ results to `benchmark_results/<experiment_name>` and create a report
 
 
 ## Visualizing profile results
+The script `benchmarking/visualize_profiler_results.py` creates a `.png` files of the profiling results
+run from the command line:
+```commandline
+python benchmarking/visualize_profiler_results.py --experiment_name=<experiment_name>
+```
+This will create a new directory in the experiment results directory with the images.
+_Note that you need to install `graphviz` and `gprof2dot` and add it to `PATH` for the script to work_ 
+
 After running the benchmarks, and getting the profiling result we can 
 visualize the results.
 I use the profiling tool [gprof2dot](https://github.com/jrfonseca/gprof2dot).
@@ -27,7 +35,6 @@ gprof2dot --colour-nodes-by-selftime -f pstats <profiler_output_file> | dot -Tpn
 Note that functions are colored by the percentage of time that the program spends 
 in them (tottime).
 
-To visualize all the profile results you can run [TODO]
 
 ### gprof2dot options
 - 

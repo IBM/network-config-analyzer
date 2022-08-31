@@ -4,12 +4,12 @@ from pathlib import Path
 
 from benchmarking.analyze_profile_results import get_function_profiles
 from benchmarking.auditing import get_auditing_results_path
-from benchmarking.benchmarking_utils import get_benchmark_results_dir, iter_benchmarks, Benchmark
+from benchmarking.benchmarking_utils import get_experiment_results_dir, iter_benchmarks, Benchmark
 from benchmarking.timing import get_timing_results_path
 
 
 def get_report_dir(experiment_name: str) -> Path:
-    report_dir = get_benchmark_results_dir(experiment_name) / 'reports'
+    report_dir = get_experiment_results_dir(experiment_name) / 'reports'
     report_dir.mkdir(exist_ok=True)
     return report_dir
 
