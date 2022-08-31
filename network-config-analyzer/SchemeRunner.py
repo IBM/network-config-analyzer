@@ -4,6 +4,7 @@
 #
 
 import time
+from functools import reduce
 from os import path
 from ruamel.yaml import YAML
 from OutputConfiguration import OutputConfiguration
@@ -12,6 +13,7 @@ from NetworkConfig import NetworkConfig
 from NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from ResourcesHandler import ResourcesHandler
 import _global_logging_flag
+from benchmarking.auditor import Auditor
 
 
 class SchemeRunner(GenericYamlParser):
@@ -150,24 +152,25 @@ class SchemeRunner(GenericYamlParser):
         # TODO: problem here, we might have more then a single network configuration...
         #   It might not be the best place to collect the data... for now I take the sum, but I'm sure
         #   that it is not the right thing to do
-        if _global_logging_flag.ENABLED:
+        if Auditor.is_enabled():
             items = []
+            layers = set()
             for network_config_name, network_config in self.network_configs.items():
-                # network_config: NetworkConfig
+                network_config: NetworkConfig
                 item = {
                     'n_policies': len(network_config.policies_container.policies),
                     'n_namespaces': len(network_config.peer_container.namespaces),
                     'n_peers': len(network_config.peer_container.peer_set)
                 }
                 items.append(item)
+                layers.update(network_config.policies_container.layers.keys())
 
             def sum_dict(d1: dict, d2: dict) -> dict:
                 return {key: d1[key] + d2[key] for key in d1.keys()}
 
-            from functools import reduce
-            item = reduce(sum_dict, items)
-
-            _global_logging_flag.LOGGING_QUEUE.put(item, block=False)
+            record = reduce(sum_dict, items)
+            record['layers'] = [layer.name for layer in layers]
+            Auditor.log_dict(record)
 
         self.run_queries(self.scheme.get('queries', []))
         return self.global_res

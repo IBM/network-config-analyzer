@@ -1,7 +1,7 @@
 import os
 from collections.abc import Iterable
 from contextlib import redirect_stdout, redirect_stderr
-from enum import Enum
+from enum import Enum, auto
 from pathlib import Path
 from typing import Union
 
@@ -10,17 +10,14 @@ from yaml import load, Loader
 from benchmarking.generate_single_query_scheme_file import generate_single_query_scheme_file, get_query_type
 from nca import nca_main
 
-# TODO: create a sample benchmark that takes a short amount of time to run, and this will be used to test things
-_ALLOWED_LABELS = ['auditing', 'profile', 'timing', 'visualization']
-
 
 class BenchmarkResultType(Enum):
-    AUDIT = '.json'
-    PROFILE = '.profile'
-    TIME = '.json'
-    VISUAL = '.png'
+    AUDIT = (auto(), '.json')
+    PROFILE = (auto(), '.profile')
+    TIME = (auto(), '.json')
+    VISUAL = (auto(), '.png')
 
-    def __init__(self, suffix: str):
+    def __init__(self, identifier: int, suffix: str):
         self.suffix = suffix
 
 
@@ -38,10 +35,10 @@ class Benchmark:
     def run(self):
         # TODO: Ask Adi if running with output redirection is the right thing todo
         # TODO: add some flag for running with or without the output
-        # with open(os.devnull, 'w') as f:
-        #     with redirect_stdout(f), redirect_stderr(f):
-        #         nca_main(self._argv)
-        nca_main(self._argv)
+        with open(os.devnull, 'w') as f:
+            with redirect_stdout(f), redirect_stderr(f):
+                nca_main(self._argv)
+        # nca_main(self._argv)
 
     def get_query_type(self) -> str:
         with self._scheme_file.open('r') as f:

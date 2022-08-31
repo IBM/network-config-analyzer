@@ -17,16 +17,20 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
     - [x] forbid queries
     - [x] semantic diff
 - [x] checkout visualizations tools to the profiling results
-- [ ] compare running connectivity with .dot and .txt -- I'm
+- [x] compare running connectivity with .dot and .txt -- I'm
 not sure about this option, should we add some extra flags? for running with fw-rules? Ask Adi. 
 For now, I'm just adding the two different queries, one with `dot` output and one with `txt`
-- [ ] two options to audit the parameters: => ask Ziv about that.
+- [x] two options to audit the parameters: => ask Ziv about that.
   - add specialized functions to get the required parameters for auditing without running the benchmarks. 
   This will not require to change existing functions and will not add overhead.
   - use logging - might require changing existing function code, but is easier to implement and easier to track 
-  parameters in that way
+  parameters in that way -- I decided to go in that way. I might want to use a different method and process 
+  "on the fly" the incoming records, this is important if I want to make a histogram of the 
+  number of intervals for example.
 - [ ] New parameters to audit => do that after deciding how to collect the parameters.
-  - [ ] add the type of layer (or the list of layer types)
+  - [x] add the type of layer (or the list of layer types)
+- [ ] after implementing auditing, ask ziv to look at an example and ask if it makes sense to add this to the 
+code base
 - [ ] add readme on how to run the benchmarks on remote server => make sure to not push that into the GitHub
 - [ ] do some work on documentation and usability
 - [x] remove the list in the `timing_report.csv`

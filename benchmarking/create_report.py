@@ -3,8 +3,8 @@ from csv import DictWriter
 from pathlib import Path
 
 from benchmarking.analyze_profile_results import get_function_profiles
-from benchmarking.auditing import get_auditing_results_path
-from benchmarking.benchmarking_utils import get_experiment_results_dir, iter_benchmarks, Benchmark
+from benchmarking.audit import get_auditing_results_path
+from benchmarking.benchmarking_utils import get_experiment_results_dir, Benchmark
 from benchmarking.timing import get_timing_results_path
 
 
@@ -35,6 +35,11 @@ def dict_list_to_csv(lines: list[dict], path: Path):
         writer.writerows(lines)
 
 
+def extract_report_data_from_audit_result(audit_result: list[dict]) -> dict:
+    # TODO: change this when this becomes more complicated
+    return audit_result[0]
+
+
 def create_report(experiment_name: str, benchmark_list: list[Benchmark]):
     """The report is organized as follows:
         - it is in .csv format for easy reading
@@ -55,7 +60,9 @@ def create_report(experiment_name: str, benchmark_list: list[Benchmark]):
         auditing_results_path = get_auditing_results_path(benchmark, experiment_name)
         with auditing_results_path.open('r') as f:
             auditing_results = json.load(f)
-            line.update(auditing_results)
+
+        audit_data = extract_report_data_from_audit_result(auditing_results)
+        line.update(audit_data)
 
         lines.append(line)
 

@@ -1,7 +1,7 @@
 import logging
 from argparse import ArgumentParser
 
-from benchmarking.auditing import audit_benchmark
+from benchmarking.audit import audit_benchmark
 from benchmarking.benchmarking_utils import iter_benchmarks
 from benchmarking.create_report import create_report
 from benchmarking.create_yaml_files import create_scheme_files, create_allow_all_default_policy_file
