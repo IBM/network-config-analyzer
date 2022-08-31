@@ -16,8 +16,10 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
     - [x] permit  
     - [x] forbid queries
     - [x] semantic diff
-- [ ] checkout visualizations tools to the profiling results
-- [ ] compare running connectivity with .dot and .txt
+- [x] checkout visualizations tools to the profiling results
+- [ ] compare running connectivity with .dot and .txt -- I'm
+not sure about this option, should we add some extra flags? for running with fw-rules? Ask Adi. 
+For now, I'm just adding the two different queries, one with `dot` output and one with `txt`
 - [ ] two options to audit the parameters: => ask Ziv about that.
   - add specialized functions to get the required parameters for auditing without running the benchmarks. 
   This will not require to change existing functions and will not add overhead.

@@ -44,8 +44,6 @@ def get_scheme_dict(benchmark_dir: Path) -> dict:
         ],
         'queries': []
     }
-    # TODO: maybe I need relative path here
-    # TODO: also choose another policy from the benchmark
     min_len_policy_path = select_min_len_policy_file(benchmark_dir)
     min_len_policy_path = min_len_policy_path.relative_to(get_benchmarks_dir())
     min_len_policy_path = str(min_len_policy_path)
@@ -58,12 +56,17 @@ def get_scheme_dict(benchmark_dir: Path) -> dict:
             'name': policy_name,
             'networkPolicyList': [policy_file]
         })
-
-    single_policy_queries = ['connectivityMap', 'sanity']
-    for query in single_policy_queries:
-        scheme_dict['queries'].append({'name': query, query: ['network']})
-
-    # TODO: add two policies query, permit, forbid, semantic diff
+    scheme_dict['queries'].append({'name': 'sanity', 'sanity': ['network']})
+    scheme_dict['queries'].append({
+        'name': 'connectivityMap-txt',
+        'connectivityMap': ['network'],
+        'outputConfiguration': {'outputFormat': 'txt'}
+    })
+    scheme_dict['queries'].append({
+        'name': 'connectivityMap-dot',
+        'connectivityMap': ['network'],
+        'outputConfiguration': {'outputFormat': 'dot'}
+    })
     two_policy_queries = ['permits', 'forbids', 'semanticDiff']
     for query in two_policy_queries:
         for policy_name in other_network_configs.keys():
