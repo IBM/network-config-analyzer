@@ -1,5 +1,6 @@
 # TODO: place here all the logging stuff, auditing.py and logging in the code should be done using the
 #   given interface
+# TODO: I can do some fun filtering stuff with dataclasses
 import io
 import json
 import logging
@@ -15,7 +16,7 @@ class Auditor:
         return Auditor._audit_logger.isEnabledFor(logging.INFO)
 
     @staticmethod
-    def log_dict(data: dict) -> None:
+    def record(data) -> None:
         Auditor._audit_logger.info(json.dumps(data))
 
     def __init__(self, results_path: Path):

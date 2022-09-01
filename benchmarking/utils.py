@@ -1,17 +1,12 @@
-import os
 from collections.abc import Iterable
-from contextlib import redirect_stdout, redirect_stderr
 from enum import Enum, auto
 from pathlib import Path
 from typing import Union
 
-from yaml import load, Loader
-
-from benchmarking.generate_single_query_scheme_file import generate_single_query_scheme_file, get_query_type
+from benchmarking.generate_single_query_scheme_file import generate_single_query_scheme_file
 from nca import nca_main
 
-
-class BenchmarkResultType(Enum):
+class BenchmarkProcedure(Enum):
     AUDIT = (auto(), '.json')
     PROFILE = (auto(), '.profile')
     TIME = (auto(), '.json')
@@ -22,10 +17,11 @@ class BenchmarkResultType(Enum):
 
 
 class Benchmark:
-    def __init__(self, scheme_file: Path):
+    def __init__(self, scheme_file: Path, query_type: str):
         assert str(scheme_file).endswith('-scheme.yaml')
         file_name = scheme_file.name
         self.name = file_name[:-len('-scheme.yaml')]
+        self.query_type = query_type
         self._scheme_file = scheme_file
         self._argv = [
             '--scheme',
@@ -33,18 +29,10 @@ class Benchmark:
         ]
 
     def run(self):
-        # TODO: Ask Adi if running with output redirection is the right thing todo
-        # TODO: add some flag for running with or without the output
-        with open(os.devnull, 'w') as f:
-            with redirect_stdout(f), redirect_stderr(f):
-                nca_main(self._argv)
-        # nca_main(self._argv)
+        nca_main(self._argv)
 
-    def get_query_type(self) -> str:
-        with self._scheme_file.open('r') as f:
-            scheme = load(f, Loader)
 
-        return get_query_type(scheme['queries'][0])
+# ================================================= Get Paths ==========================================================
 
 
 def get_repo_root_dir() -> Path:
@@ -72,46 +60,54 @@ def get_benchmarks_dir() -> Path:
 
 def get_temp_scheme_dir() -> Path:
     temp_scheme_dir = get_repo_root_dir() / 'temp_scheme'
-    temp_scheme_dir.mkdir(exist_ok=True)
     return temp_scheme_dir
 
 
+def get_benchmark_results_dir() -> Path:
+    return get_repo_root_dir() / 'benchmark_results'
+
+
 def get_experiment_results_dir(experiment_name: str) -> Path:
-    results_dir = get_repo_root_dir() / 'benchmark_results' / experiment_name
-    results_dir.mkdir(parents=True, exist_ok=True)
+    results_dir = get_benchmark_results_dir() / experiment_name
     return results_dir
 
 
-def get_benchmark_results_dir(experiment_name: str, result_type: BenchmarkResultType) -> Path:
-    results_dir = get_experiment_results_dir(experiment_name) / result_type.name.lower()
-    # TODO: I'm not sure that this is the correct place to create the directory
-    results_dir.mkdir(exist_ok=True)
+def get_benchmark_procedure_results_dir(experiment_name: str, procedure: BenchmarkProcedure) -> Path:
+    results_dir = get_experiment_results_dir(experiment_name) / procedure.name.lower()
     return results_dir
 
 
-def get_benchmark_result_file(benchmark: Union[Benchmark, str], experiment_name: str, result_type: BenchmarkResultType) -> Path:
+def get_benchmark_result_file(benchmark: Union[Benchmark, str], experiment_name: str,
+                              procedure: BenchmarkProcedure) -> Path:
     if isinstance(benchmark, Benchmark):
         benchmark = benchmark.name
-    results_dir = get_benchmark_results_dir(experiment_name, result_type)
-    return results_dir / f'{benchmark}.{result_type.suffix}'
+    results_dir = get_benchmark_procedure_results_dir(experiment_name, procedure)
+    return results_dir / f'{benchmark}.{procedure.suffix}'
 
 
-def contains_github(scheme_file: Path) -> bool:
+def get_source_dir() -> Path:
+    return get_repo_root_dir() / 'network-config-analyzer'
+
+
+# ================================================= iterating over all benchmarks ======================================
+
+
+def _contains_github(scheme_file: Path) -> bool:
     text = scheme_file.read_text()
     return 'github' in text
 
 
-def is_example_benchmark(scheme_file: Path) -> bool:
+def _is_example_benchmark(scheme_file: Path) -> bool:
     return 'example_benchmark' in str(scheme_file)
 
 
-def at_most_one_true(bool_list: list[bool]) -> bool:
+def _at_most_one_true(bool_list: list[bool]) -> bool:
     return sum(map(int, bool_list)) <= 1
 
 
 def iter_benchmarks(tests_only: bool = False, real_benchmarks_only: bool = False,
                     example_benchmark_only: bool = False) -> Iterable[Benchmark]:
-    assert at_most_one_true([tests_only, real_benchmarks_only, example_benchmark_only])
+    assert _at_most_one_true([tests_only, real_benchmarks_only, example_benchmark_only])
 
     if tests_only:
         benchmarks_dir_list = [get_tests_dir()]
@@ -121,16 +117,17 @@ def iter_benchmarks(tests_only: bool = False, real_benchmarks_only: bool = False
         benchmarks_dir_list = [get_tests_dir(), get_benchmarks_dir()]
 
     temp_scheme_dir = get_temp_scheme_dir()
+    temp_scheme_dir.mkdir(exist_ok=True)
     for benchmarks_dir in benchmarks_dir_list:
         for scheme_file in benchmarks_dir.rglob('*-scheme.yaml'):
-            if example_benchmark_only and not is_example_benchmark(scheme_file):
+            if example_benchmark_only and not _is_example_benchmark(scheme_file):
                 continue
 
-            if contains_github(scheme_file):
+            if _contains_github(scheme_file):
                 continue
 
-            for new_scheme_file in generate_single_query_scheme_file(scheme_file, temp_scheme_dir):
-                yield Benchmark(new_scheme_file)
+            for new_scheme_file, query_type in generate_single_query_scheme_file(scheme_file, temp_scheme_dir):
+                yield Benchmark(new_scheme_file, query_type)
 
 
 if __name__ == '__main__':
@@ -146,4 +143,3 @@ if __name__ == '__main__':
     print('***only example***')
     for bm in iter_benchmarks(example_benchmark_only=True):
         print(bm.name)
-

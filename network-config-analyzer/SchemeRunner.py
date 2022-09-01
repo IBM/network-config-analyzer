@@ -153,24 +153,18 @@ class SchemeRunner(GenericYamlParser):
         #   It might not be the best place to collect the data... for now I take the sum, but I'm sure
         #   that it is not the right thing to do
         if Auditor.is_enabled():
-            items = []
-            layers = set()
+            item_list = []
             for network_config_name, network_config in self.network_configs.items():
                 network_config: NetworkConfig
                 item = {
                     'n_policies': len(network_config.policies_container.policies),
                     'n_namespaces': len(network_config.peer_container.namespaces),
-                    'n_peers': len(network_config.peer_container.peer_set)
+                    'n_peers': len(network_config.peer_container.peer_set),
+                    'layers': [layer.name for layer in network_config.policies_container.layers.keys()]
                 }
-                items.append(item)
-                layers.update(network_config.policies_container.layers.keys())
+                item_list.append(item)
 
-            def sum_dict(d1: dict, d2: dict) -> dict:
-                return {key: d1[key] + d2[key] for key in d1.keys()}
-
-            record = reduce(sum_dict, items)
-            record['layers'] = [layer.name for layer in layers]
-            Auditor.log_dict(record)
+            Auditor.record(item_list)
 
         self.run_queries(self.scheme.get('queries', []))
         return self.global_res

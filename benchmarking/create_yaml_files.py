@@ -3,20 +3,15 @@ from pathlib import Path
 
 import yaml
 
-from benchmarking.benchmarking_utils import get_benchmarks_dir
+from benchmarking.utils import get_benchmarks_dir
 
 
-def get_queries() -> list[str]:
-    return ['sanity', 'connectivity']
-
-
-def get_scheme_file_path(benchmark_dir: Path) -> Path:
-    # TODO: remove this bellow, this is just for comparison
-    # return get_benchmarks_dir() / f'{benchmark_dir.name}-v2-scheme.yaml'
+def _get_scheme_file_path(benchmark_dir: Path) -> Path:
     return get_benchmarks_dir() / f'{benchmark_dir.name}-scheme.yaml'
 
 
-def select_min_len_policy_file(benchmark_dir: Path) -> Path:
+def _select_min_len_policy_file(benchmark_dir: Path) -> Path:
+    """Searches for the shortest file in benchmark_dir that contains a network policy."""
     # TODO: I select the shortest policy file. is that the correct thing to do?
     policy_type_list = ['NetworkPolicy', 'GlobalNetworkPolicy', 'AuthorizationPolicy']
     min_len = None
@@ -28,11 +23,11 @@ def select_min_len_policy_file(benchmark_dir: Path) -> Path:
                 min_len = len(file_text) if min_len is None else min(len(file_text), min_len)
                 min_len_file = yaml_file
 
-    assert min_len_file is not None
+    assert min_len_file is not None, f'No policies in {benchmark_dir}'
     return min_len_file
 
 
-def get_scheme_dict(benchmark_dir: Path) -> dict:
+def _get_scheme_dict(benchmark_dir: Path) -> dict:
     scheme_dict = {
         'namespaceList': f'{benchmark_dir.name}',
         'podList': f'{benchmark_dir.name}',
@@ -44,11 +39,11 @@ def get_scheme_dict(benchmark_dir: Path) -> dict:
         ],
         'queries': []
     }
-    min_len_policy_path = select_min_len_policy_file(benchmark_dir)
+    min_len_policy_path = _select_min_len_policy_file(benchmark_dir)
     min_len_policy_path = min_len_policy_path.relative_to(get_benchmarks_dir())
     min_len_policy_path = str(min_len_policy_path)
     other_network_configs = {
-        'allow-all-default': get_allow_all_default_policy_file().name,
+        'allow-all-default': _get_allow_all_default_policy_file().name,
         'min-len-policy': min_len_policy_path
     }
     for policy_name, policy_file in other_network_configs.items():
@@ -75,19 +70,19 @@ def get_scheme_dict(benchmark_dir: Path) -> dict:
     return scheme_dict
 
 
-def iter_benchmark_dirs() -> Iterable[Path]:
+def _iter_benchmark_dirs() -> Iterable[Path]:
     return filter(lambda file: file.is_dir(), get_benchmarks_dir().iterdir())
 
 
-def create_scheme_files():
-    for benchmark_dir in iter_benchmark_dirs():
-        scheme_file = get_scheme_file_path(benchmark_dir)
-        scheme_data = get_scheme_dict(benchmark_dir)
+def create_scheme_file_for_benchmarks():
+    for benchmark_dir in _iter_benchmark_dirs():
+        scheme_file = _get_scheme_file_path(benchmark_dir)
+        scheme_data = _get_scheme_dict(benchmark_dir)
         with scheme_file.open('w') as f:
             yaml.dump(scheme_data, f)
 
 
-def get_allow_all_default_policy_dict():
+def _get_allow_all_default_policy_dict():
     return {
         'apiVersion': 'networking.k8s.io/v1',
         'kind': 'NetworkPolicy',
@@ -104,18 +99,18 @@ def get_allow_all_default_policy_dict():
     }
 
 
-def get_allow_all_default_policy_file():
+def _get_allow_all_default_policy_file():
     return get_benchmarks_dir() / 'allow-all-default-policy.yaml'
 
 
 def create_allow_all_default_policy_file():
-    yaml_data = get_allow_all_default_policy_dict()
-    with get_allow_all_default_policy_file().open('w') as f:
+    yaml_data = _get_allow_all_default_policy_dict()
+    with _get_allow_all_default_policy_file().open('w') as f:
         yaml.dump(yaml_data, f)
 
 
 if __name__ == "__main__":
-    create_scheme_files()
+    create_scheme_file_for_benchmarks()
     # create_allow_all_default_policy_file()
 
 
