@@ -8,7 +8,8 @@ from benchmarking.create_report import create_report
 from benchmarking.create_yaml_files import create_scheme_file_for_benchmarks, create_allow_all_default_policy_file
 from benchmarking.profiling import profile_benchmark
 from benchmarking.timing import time_benchmark
-from benchmarking.utils import iter_benchmarks, get_benchmark_result_file, BenchmarkProcedure
+from benchmarking.utils import iter_benchmarks, get_benchmark_result_file, BenchmarkProcedure, \
+    get_experiment_results_dir
 
 
 # TODO: maybe add an histogram of the number of intervals
@@ -16,10 +17,13 @@ from benchmarking.utils import iter_benchmarks, get_benchmark_result_file, Bench
 # TODO: maybe add a flag runs even if the file exists or skips existing files
 
 
-def _get_logger():
-    logger = logging.getLogger(__name__)
+def _get_logger(experiment_name: str):
+    logger = logging.getLogger(experiment_name)
     logger.setLevel(logging.INFO)
-    file_handler = logging.FileHandler(f'{logger.name}.log', 'w')
+    experiment_results_dir = get_experiment_results_dir(experiment_name)
+    experiment_results_dir.mkdir(parents=True, exist_ok=True)
+    log_file = experiment_results_dir / 'progress.log'
+    file_handler = logging.FileHandler(log_file, 'w')
     file_handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
@@ -30,7 +34,7 @@ def _get_logger():
 def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, tests_only: bool = False,
                    real_benchmarks_only: bool = False, limit_num: int = None, skip_existing: bool = True,
                    hide_output: bool = True):
-    logger = _get_logger()
+    logger = _get_logger(experiment_name)
     logger.info('running benchmarks...')
 
     logger.info('creating scheme files for real benchmarks')

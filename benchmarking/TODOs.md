@@ -27,12 +27,9 @@ For now, I'm just adding the two different queries, one with `dot` output and on
   parameters in that way -- I decided to go in that way. I might want to use a different method and process 
   "on the fly" the incoming records, this is important if I want to make a histogram of the 
   number of intervals for example.
-- [ ] New parameters to audit => do that after deciding how to collect the parameters.
+- [x] New parameters to audit => do that after deciding how to collect the parameters.
   - [x] add the type of layer (or the list of layer types)
-- [ ] after implementing auditing, ask ziv to look at an example and ask if it makes sense to add this to the 
-code base
-- [ ] add readme on how to run the benchmarks on remote server => make sure to not push that into the GitHub
-- [ ] do some work on documentation and usability
+- [x] do some work on documentation and usability
 - [x] remove the list in the `timing_report.csv`
 - [x] limit the number of digits after the `.`
 - [x] save each type of result (profiling, auditing, timing) in a different directory
@@ -44,10 +41,10 @@ code base
 
 ## Other
 - [ ] think of other ways to extend the benchmarks
-- [ ] discuss ziv how to integrate this in the code
+- [ ] discuss ziv how to integrate this in the code, and if we should.
 - [ ] checkout tools like `line_profiler`, `memory_profiler` and 
 `continuous monitoring`
-- [ ] maybe open source benchmarks?
+- [ ] adding open source benchmarks?
 - [ ] list on box of possible things to look at
-- [ ] get feedback from Adi about the policies that I use in the two policies query
-- [ ] 
+- [ ] get feedback about the policies that I use in the two policies queries
+- [ ] add readme on how to run the benchmarks on remote server => make sure to not push that into the GitHub

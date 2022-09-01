@@ -1,11 +1,13 @@
 # Benchmarking
 
 ## How to run
-1. place the benchmarks in the `benchmarks` directory, each in its own directory
-2. make sure that an appropriate `*-scheme.yaml` file exists in the `benchmarks` directory
-   - for creating a scheme file from a template run the script `create_scheme_files.py` and then modify it if needed
-3. run `python run_benchmarks.py --experiment_name=<experiment_name>`, this will run all the benchmarks and save the 
-results to `benchmark_results/<experiment_name>` and create a report
+1. place the benchmarks in the `benchmarks` directory, each in its own directory.
+2. the next command will run all the benchmarks with all the different procedures (timing, profiling and auditing) 
+save results in `benchmark_results/<experiment_name>` and create reports in that directory.
+```commandline
+python run_benchmarks.py --experiment_name=<experiment_name>
+```
+3. To visualize the profiling results read the next section.
 
 
 ## Visualizing profile results
@@ -34,11 +36,3 @@ gprof2dot --colour-nodes-by-selftime -f pstats <profiler_output_file> | dot -Tpn
 ```
 Note that functions are colored by the percentage of time that the program spends 
 in them (tottime).
-
-
-### gprof2dot options
-- 
-
-## TODO
-- [ ] create a script that generates the images
-

@@ -7,10 +7,10 @@ from benchmarking.generate_single_query_scheme_file import generate_single_query
 from nca import nca_main
 
 class BenchmarkProcedure(Enum):
-    AUDIT = (auto(), '.json')
-    PROFILE = (auto(), '.profile')
-    TIME = (auto(), '.json')
-    VISUAL = (auto(), '.png')
+    AUDIT = (auto(), 'json')
+    PROFILE = (auto(), 'profile')
+    TIME = (auto(), 'json')
+    VISUAL = (auto(), 'png')
 
     def __init__(self, identifier: int, suffix: str):
         self.suffix = suffix
