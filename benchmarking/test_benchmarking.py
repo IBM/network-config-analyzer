@@ -2,8 +2,6 @@ import unittest
 
 from benchmarking.run_benchmarks import run_benchmarks
 
-# TODO: run tests with skip existing, the order of running the tests is important
-
 
 class TestBenchmarking(unittest.TestCase):
     def setUp(self):

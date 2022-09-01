@@ -5,6 +5,8 @@ import yaml
 
 from benchmarking.utils import get_benchmarks_dir
 
+# TODO: check out what happens when I change it from giving it the path and giving it /**, does it find more resources?
+
 
 def _get_scheme_file_path(benchmark_dir: Path) -> Path:
     return get_benchmarks_dir() / f'{benchmark_dir.name}-scheme.yaml'
