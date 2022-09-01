@@ -5,10 +5,12 @@ from pathlib import Path
 from benchmarking.analyze_profile_results import get_function_profiles
 from benchmarking.utils import get_experiment_results_dir, Benchmark, get_benchmark_result_file, BenchmarkProcedure
 
+TOP_N = 40
+
 
 def _get_report_dir(experiment_name: str) -> Path:
     report_dir = get_experiment_results_dir(experiment_name) / 'reports'
-    report_dir.mkdir(exist_ok=True)
+    report_dir.mkdir(exist_ok=True, parents=True)
     return report_dir
 
 
@@ -38,9 +40,15 @@ def _extract_report_data_from_audit_result(audit_result: list) -> dict:
     return audit_result[0][0]
 
 
+def create_report_per_benchmark(experiment_name: str, benchmark: Benchmark):
+    report_dir = _get_report_dir(experiment_name)
+    top_func_records = get_function_profiles(experiment_name, [benchmark])[:TOP_N]
+    top_func_report_path = report_dir / f'{benchmark.name}_top_func_report.csv'
+    _dict_list_to_csv(top_func_records, top_func_report_path)
+
+
 def create_report(experiment_name: str, benchmark_list: list[Benchmark]):
     """Creates the report for the experiment, after running all the benchmarking procedures"""
-    top_n = 40
     lines = []
     report_dir = _get_report_dir(experiment_name)
 
@@ -61,11 +69,7 @@ def create_report(experiment_name: str, benchmark_list: list[Benchmark]):
 
         lines.append(line)
 
-        top_func_records = get_function_profiles(experiment_name, [benchmark])[:top_n]
-        top_func_report_path = report_dir / f'{benchmark.name}_top_func_report.csv'
-        _dict_list_to_csv(top_func_records, top_func_report_path)
-
-    top_func_records = get_function_profiles(experiment_name, benchmark_list)[:top_n]
+    top_func_records = get_function_profiles(experiment_name, benchmark_list)[:TOP_N]
     top_func_report_path = report_dir / f'accumulated_top_func_report.csv'
     _dict_list_to_csv(top_func_records, top_func_report_path)
 

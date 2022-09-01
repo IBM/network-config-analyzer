@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from contextlib import redirect_stdout, redirect_stderr
 
 from benchmarking.auditing import audit_benchmark
-from benchmarking.create_report import create_report
+from benchmarking.create_report import create_report, create_report_per_benchmark
 from benchmarking.create_yaml_files import create_scheme_file_for_benchmarks, create_allow_all_default_policy_file
 from benchmarking.profiling import profile_benchmark
 from benchmarking.timing import time_benchmark
@@ -65,6 +65,9 @@ def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, t
                         func(benchmark, result_file)
                 else:
                     func(benchmark, result_file)
+
+        logger.info(f'creating report for benchmark {benchmark.name}')
+        create_report_per_benchmark(experiment_name, benchmark)
 
     logger.info('finished running benchmarks. creating reports...')
     create_report(experiment_name, benchmark_list)

@@ -16,6 +16,9 @@ This is a list of improvements to the benchmarks and the reporting to do in the 
     - [x] permit  
     - [x] forbid queries
     - [x] semantic diff
+    - to forbid we can take one of the ports that we want to block
+    - try to thing about real use cases are allowed / denied.
+    - semantic-diff: change small things like port num.
 - [x] checkout visualizations tools to the profiling results
 - [x] compare running connectivity with .dot and .txt -- I'm
 not sure about this option, should we add some extra flags? for running with fw-rules? Ask Adi. 

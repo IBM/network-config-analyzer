@@ -13,21 +13,26 @@ def _relative_to_absolute_path(relative_path_str: str, relative_to_file: Path) -
     return str(path)
 
 
-def _process_network_config_list(original_network_config_list: list[dict], original_scheme_file: Path,
-                                 required_network_config_list: list[str]) -> list[dict]:
-    network_config_list = []
-    for original_network_config in original_network_config_list:
-        if original_network_config['name'] in required_network_config_list:
-            network_config = deepcopy(original_network_config)
-            if 'networkPolicyList' in network_config:
-                network_config['networkPolicyList'] = [_relative_to_absolute_path(path, original_scheme_file)
-                                                       for path in original_network_config['networkPolicyList']]
-            if 'resourceList' in network_config:
-                network_config['resourceList'] = [_relative_to_absolute_path(path, original_scheme_file)
-                                                  for path in original_network_config['resourceList']]
-            network_config_list.append(network_config)
+def _is_file(data, relative_to: Path) -> bool:
+    if isinstance(data, str):
+        path = relative_to.parent / data
+        path.resolve()
+        return path.exists()
+    return False
 
-    return network_config_list
+
+def _recursive_convert_all_relative_to_absolute(data, relative_to: Path):
+    if isinstance(data, list):
+        return [_recursive_convert_all_relative_to_absolute(value, relative_to) for value in data]
+    elif isinstance(data, dict):
+        return {key: _recursive_convert_all_relative_to_absolute(value, relative_to) for key, value in data.items()}
+    elif _is_file(data, relative_to):
+        return _relative_to_absolute_path(data, relative_to)
+    elif isinstance(data, str) and data.endswith('/**'):
+        data = data[:-3]
+        return _relative_to_absolute_path(data, relative_to) + '/**'
+    else:
+        return data
 
 
 def _get_query_type(query: dict):
@@ -50,19 +55,15 @@ def generate_single_query_scheme_file(scheme_file: Path, temp_dir: Path) -> Iter
         query_name = query['name']
         query_type = _get_query_type(query)
         query_network_config_list = query[query_type]
+        query_network_config_list = [network_policy_name.split('/')[0]
+                                     for network_policy_name in query_network_config_list]
 
-        new_scheme = {}
-        path_fields_to_convert = ['resourceList', 'namespaceList', 'podList']
-        for field in path_fields_to_convert:
-            if field in scheme:
-                if isinstance(scheme[field], list):
-                    new_scheme[field] = [_relative_to_absolute_path(path, scheme_file) for path in scheme[field]]
-                else:
-                    new_scheme[field] = _relative_to_absolute_path(scheme[field], scheme_file)
-
+        new_scheme = deepcopy(scheme)
         new_scheme['queries'] = [query]
-        new_scheme['networkConfigList'] = _process_network_config_list(network_config_list, scheme_file,
-                                                                       query_network_config_list)
+        new_scheme['networkConfigList'] = [network_config for network_config in new_scheme['networkConfigList']
+                                           if network_config['name'] in query_network_config_list]
+
+        new_scheme = _recursive_convert_all_relative_to_absolute(new_scheme, scheme_file)
 
         new_scheme_name = f'{scheme_name}-{query_name}-scheme.yaml'
         new_scheme_file = temp_dir / new_scheme_name
@@ -74,9 +75,6 @@ def generate_single_query_scheme_file(scheme_file: Path, temp_dir: Path) -> Iter
 
 if __name__ == '__main__':
     sf = r'C:\Users\018130756\repos\network-config-analyzer\tests\calico_testcases\example_policies\testcase1\testcase1-scheme.yaml'
-    # rp = r'../../example_podlist/ns_list.json'
-    # ap = to_absolute_path_str(rp, Path(sf))
-    # print(ap)
     sf = Path(sf)
     cwd = Path.cwd()
     for nsf, qt in generate_single_query_scheme_file(sf, cwd):

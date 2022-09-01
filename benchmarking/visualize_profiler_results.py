@@ -3,6 +3,8 @@ from argparse import ArgumentParser
 
 from benchmarking.utils import get_benchmark_result_file, get_benchmark_procedure_results_dir, BenchmarkProcedure
 
+# TODO: add logging to this, since it might take a while...
+
 
 def visualize_profiler_results(experiment_name: str, node_time_percent_threshold: float = 0.5,
                                edge_time_percent_threshold: float = 0.1, color_by_self_time: bool = True) -> None:
