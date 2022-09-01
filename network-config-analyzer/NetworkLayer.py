@@ -224,10 +224,12 @@ class IstioNetworkLayer(NetworkLayer):
 class IngressNetworkLayer(NetworkLayer):
 
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
-        denied_conns = ConnectionSet()
+        allowed_conns = ConnectionSet()
+        all_allowed_conns = ConnectionSet(True)
         captured_res = False
         if not is_ingress:
-            _, denied_conns, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress)
-        allowed_conns = ConnectionSet(True) - denied_conns
-        return PolicyConnections(captured=captured_res, allowed_conns=allowed_conns, denied_conns=denied_conns,
-                                 all_allowed_conns=allowed_conns)
+            allowed_conns, _, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress)
+            if captured_res:
+                all_allowed_conns = allowed_conns
+        return PolicyConnections(captured=captured_res, allowed_conns=allowed_conns, denied_conns=ConnectionSet(),
+                                 all_allowed_conns=all_allowed_conns)

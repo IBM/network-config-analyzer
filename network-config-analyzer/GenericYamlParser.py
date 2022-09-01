@@ -36,6 +36,13 @@ class GenericYamlParser:
         self.yaml_file_name = yaml_file_name
         self.warning_msgs = []  # Collect all warning messages during parsing here
 
+    def set_file_name(self, yaml_file_name):
+        """
+        Set the resource file name, to be used for error/warning messages
+        :param yaml_file_name: The file name to set
+        """
+        self.yaml_file_name = yaml_file_name
+
     def syntax_error(self, msg, obj=None):
         """
         Just raise a SyntaxError Exception, possibly with file-line-column context

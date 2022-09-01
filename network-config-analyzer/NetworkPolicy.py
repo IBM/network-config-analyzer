@@ -26,6 +26,8 @@ class NetworkPolicy:
         IstioAuthorizationPolicy = 10
         IstioSidecar = 11
         Ingress = 20
+        Gateway = 30
+        VirtualService = 31
         List = 500
 
         @staticmethod
@@ -150,6 +152,11 @@ class NetworkPolicy:
                 policy_type = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
             elif kind == 'Sidecar':
                 policy_type = NetworkPolicy.PolicyType.IstioSidecar
+            elif kind == 'Gateway':
+                policy_type = NetworkPolicy.PolicyType.Gateway
+            elif kind == 'VirtualService':
+                policy_type = NetworkPolicy.PolicyType.VirtualService
+
         elif kind == 'NetworkPolicy':
             policy_type = NetworkPolicy.PolicyType.K8sNetworkPolicy
         elif kind == 'Ingress':

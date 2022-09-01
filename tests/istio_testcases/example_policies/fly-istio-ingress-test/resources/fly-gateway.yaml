@@ -1,0 +1,58 @@
+# from https://medium.com/rahasak/kubernets-istio-ingress-gateway-c1202ba29dca
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: fly-gateway
+spec:
+  selector:
+    app: istio-ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: fly
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - fly-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /flights
+    #rewrite:
+    #uri: /    # rewrite the URI path to route to the root of the fly service
+    route:
+    - destination:
+        port:
+          number: 8761
+        host: fly-service
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: hora
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - fly-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /horas
+    #rewrite:
+    #uri: /    # rewrite the URI path to route to the root of the hora service
+    route:
+    - destination:
+        port:
+          number: 8762
+        host: hora-service

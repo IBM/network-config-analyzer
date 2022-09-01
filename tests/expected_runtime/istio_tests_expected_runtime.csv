@@ -17,4 +17,6 @@ istio_testcases/example_policies/test-istio-scheme-files-options/test-np-from-di
 istio_testcases/example_policies/testcase1/testcase1-istio-scheme.yaml,7.75
 istio_testcases/example_policies/testcase2/testcase2-istio-scheme.yaml,6.48
 istio_testcases/example_policies/testcase3/testcase3-istio-scheme.yaml,2.02
+istio_testcases/example_policies/fly-istio-ingress-test/fly-istio-ingress-test-scheme.yaml,82.07
+istio_testcases/example_policies/istio-ingress-test/istio-ingress-test-scheme.yaml,108.20
 istio_testcases/scan-dir-test-scheme.yaml,0.01
