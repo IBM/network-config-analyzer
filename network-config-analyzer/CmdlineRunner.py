@@ -83,6 +83,16 @@ class CmdlineRunner:
         """
         CmdlineRunner.locate_kube_config_file()
         cmdline_list = ['kubectl', 'get', resource, '-o=json']
-        if resource in ['networkPolicy', 'authorizationPolicy', 'pod', 'ingress']:
+        if resource in ['networkPolicy', 'authorizationPolicy', 'pod', 'ingress', 'Gateway', 'VirtualService']:
             cmdline_list.append('--all-namespaces')
+        return CmdlineRunner.run_and_get_output(cmdline_list)
+
+    @staticmethod
+    def resolve_helm_chart(chart_dir):
+        """
+        Run helm to get the resoled yaml files from the chart
+        :param str chart_dir: The name of the chart file
+        :return: The resolved yaml files generated from the chart file
+        """
+        cmdline_list = ['helm', 'template', 'nca-extract', chart_dir]
         return CmdlineRunner.run_and_get_output(cmdline_list)
