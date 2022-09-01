@@ -1,9 +1,9 @@
 import shutil
 import unittest
 
-from benchmarking.utils import get_experiment_results_dir, BenchmarkProcedure, get_benchmark_procedure_results_dir
+from benchmarking.run_benchmarks import run_benchmarks
+from benchmarking.utils import BenchmarkProcedure, get_benchmark_procedure_results_dir
 from benchmarking.visualize_profiler_results import visualize_profiler_results
-from run_benchmarks import run_benchmarks
 
 
 class TestBenchmarking(unittest.TestCase):

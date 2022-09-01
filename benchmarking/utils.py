@@ -6,6 +6,7 @@ from typing import Union
 from benchmarking.generate_single_query_scheme_file import generate_single_query_scheme_file
 from nca import nca_main
 
+
 class BenchmarkProcedure(Enum):
     AUDIT = (auto(), 'json')
     PROFILE = (auto(), 'profile')
