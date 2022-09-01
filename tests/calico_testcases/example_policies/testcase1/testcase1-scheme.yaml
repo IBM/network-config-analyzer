@@ -46,6 +46,14 @@ networkConfigList:
       - testcase1-open-default.yaml
     expectedWarnings: 0
 
+  # following a new version of np_nonequiv_local but using a globalNetworkPolicy with ns_selector
+  # to represent the np in testcase1-nonequiv-networkpolicy.yaml
+  - name: np_nonequiv_local_2
+    networkPolicyList:
+      - testcase1-nonequiv-global-networkpolicy-with-ns-selector.yaml
+      - testcase1-open-default.yaml
+    expectedWarnings: 0
+
   - name: np_equiv_global
     networkPolicyList:
       - testcase1-equiv-global-networkpolicy.yaml
@@ -131,6 +139,12 @@ queries:
       - np_equiv_local
     expected: 0
 
+  - name: localsNetworkPolicies_contain_does_interfere_v2
+    interferes:
+      - np_nonequiv_local_2
+      - np_equiv_local
+    expected: 0
+
   - name: non_equiv_local_and_global_different_protocol
     equivalence:
       - np_equiv_global
@@ -140,6 +154,12 @@ queries:
   - name: non_equiv_locals_different_protocol
     equivalence:
       - np_equiv_local
+      - np_different_protocol_local
+    expected: 1
+
+  - name: non_equiv_locals_different_protocol_v2
+    equivalence:
+      - np_nonequiv_local_2
       - np_different_protocol_local
     expected: 1
 
