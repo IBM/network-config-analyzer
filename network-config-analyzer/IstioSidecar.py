@@ -14,12 +14,16 @@ class IstioSidecarRule:
     A class representing a single egress rule (IstioEgressListener) in an Istio Sidecar object
     """
 
-    def __init__(self, peer_set):
+    def __init__(self, peer_set, peers_for_ns_compare):
         """
         Init the Egress rule of an Istio Sidecar
         :param Peer.PeerSet peer_set: The set of mesh internal peers this rule allows connection to
         """
         self.egress_peer_set = peer_set
+        self.special_egress_peer_set = peers_for_ns_compare  # set of peers captured by a global sidecar with hosts of
+        # './<any>' form - if the sidecar is global and host's ns is '.',
+        # then allow egress traffic only in the same namespace - then peers in this set will be in allowed connections
+        # only if are in the same namespace of the source peer captured by the sidecar
 
 
 class IstioSidecar(NetworkPolicy):
@@ -56,12 +60,14 @@ class IstioSidecar(NetworkPolicy):
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
             if to_peer in rule.egress_peer_set:
-                # handling the case of global sidecar with a host's ns = '.'
-                if str(self.namespace) == IstioGenericYamlParser.istio_root_namespace:
-                    if to_peer.compare_namespaces_flag and from_peer.namespace != to_peer.namespace:
-                        return PolicyConnections(True, denied_conns=conns)
                 return PolicyConnections(True, allowed_conns=conns)
-        # if to_peer not been captured in the rules, egress from from_peer to to_peer is not allowed
+            # handling the case of global sidecar with a host's ns = '.'
+            if str(self.namespace) == IstioGenericYamlParser.istio_root_namespace and \
+                    to_peer in rule.special_egress_peer_set and from_peer.namespace == to_peer.namespace:
+                return PolicyConnections(True, allowed_conns=conns)
+
+        # egress from from_peer to to_peer is not allowed : if to_peer not been captured in the rules' egress_peer_set,
+        # or if the sidecar is global and to_peer is not in same namespace of from_peer while rule host's ns is '.'
         return PolicyConnections(True, denied_conns=conns)
 
     def has_empty_rules(self, config_name=''):

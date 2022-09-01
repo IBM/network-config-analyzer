@@ -203,9 +203,6 @@ class PeerContainer:
         res = PeerSet()
         for service in self.services.values():
             res |= service.target_pods
-        if update_compare_ns_flag:
-            for peer in res:
-                peer.compare_namespaces_flag = True
         return res
 
     def get_services_target_pods_in_namespace(self, namespace):

@@ -120,7 +120,7 @@ class NetworkPolicy:
         self.egress_rules.append(rule)
 
     @staticmethod
-    def get_policy_type_from_dict(policy):
+    def get_policy_type_from_dict(policy):  # noqa: C901
         """
         Given a policy/policy-list resource, determines the type of policy it describes/contains (based on its 'kind')
         :param dict policy: The resource to examine
@@ -156,7 +156,6 @@ class NetworkPolicy:
                 policy_type = NetworkPolicy.PolicyType.Gateway
             elif kind == 'VirtualService':
                 policy_type = NetworkPolicy.PolicyType.VirtualService
-
         elif kind == 'NetworkPolicy':
             policy_type = NetworkPolicy.PolicyType.K8sNetworkPolicy
         elif kind == 'Ingress':

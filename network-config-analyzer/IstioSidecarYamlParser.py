@@ -43,20 +43,19 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         if any(s in namespace for s in supported_chars) and not len(namespace) == 1:
             self.syntax_error(f'unsupported regex pattern for namespace "{namespace}"', self)
         if namespace == '*':
-            # return self.peer_container.get_all_peers_group()
-            return self.peer_container.get_all_services_target_pods()
+            return self.peer_container.get_all_services_target_pods(), False
         if namespace == '.':
-            # if the sidecar is global and ns is '.', then allow egress traffic only in the same namespace
+            # if the sidecar is global and ns is '.', then allow egress traffic only in the same namespace,
+            # we return all matching peers in the mesh and later will compare namespaces to allow connections
             if str(self.namespace) == self.istio_root_namespace:
-                return self.peer_container.get_all_services_target_pods(True)
-            # return self.peer_container.get_namespace_pods(self.namespace)
-            return self.peer_container.get_services_target_pods_in_namespace(self.namespace)
+                return self.peer_container.get_all_services_target_pods(), True
+            return self.peer_container.get_services_target_pods_in_namespace(self.namespace), False
         if namespace == '~':
-            return PeerSet()
+            return PeerSet(), False
 
         ns_obj = self.peer_container.get_namespace(namespace)
         # get_namespace prints a msg to stderr if the namespace is missing from the configuration
-        return self.peer_container.get_services_target_pods_in_namespace(ns_obj)
+        return self.peer_container.get_services_target_pods_in_namespace(ns_obj), False
 
     def _validate_dns_name_pattern(self, dns_name):
         """
@@ -110,18 +109,21 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         if not hosts:
             self.syntax_error('One or more service hosts to be exposed by the listener are required', egress_rule)
         res_peers = PeerSet()
+        special_res_peers = PeerSet()
         for host in hosts:
-            host_peers = PeerSet()
             # Services in the specified namespace matching dnsName will be exposed.
             namespace, dns_name = self._validate_and_partition_host_format(host)
-            host_peers |= self._get_peers_from_host_namespace(namespace)
+            host_peers, special_case_host = self._get_peers_from_host_namespace(namespace)
             self._validate_dns_name_pattern(dns_name)
             if host_peers:  # if there are services in the specified namespace
                 if '*' not in dns_name:  # * means all services in namespace, all already in host_peers
                     host_peers &= self._get_peers_from_host_dns_name(dns_name)
-            res_peers |= host_peers
+            if special_case_host:
+                special_res_peers |= host_peers
+            else:
+                res_peers |= host_peers
 
-        return IstioSidecarRule(res_peers)
+        return IstioSidecarRule(res_peers, special_res_peers)
 
     def _check_and_save_sidecar_if_top_priority(self, curr_sidecar):
         """
@@ -178,7 +180,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
         self._check_and_save_sidecar_if_top_priority(res_policy)
 
-        for egress_rule in sidecar_spec.get('egress', []) or []:
+        for egress_rule in sidecar_spec.get('egress') or []:
             res_policy.add_egress_rule(self._parse_egress_rule(egress_rule))
 
         res_policy.findings = self.warning_msgs
