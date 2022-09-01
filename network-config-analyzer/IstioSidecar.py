@@ -21,8 +21,7 @@ class IstioSidecarRule:
         """
         self.egress_peer_set = peer_set
         self.special_egress_peer_set = peers_for_ns_compare  # set of peers captured by a global sidecar with hosts of
-        # './<any>' form - if the sidecar is global and host's ns is '.',
-        # then allow egress traffic only in the same namespace - then peers in this set will be in allowed connections
+        # './<any>' form - then peers in this set will be in allowed connections
         # only if are in the same namespace of the source peer captured by the sidecar
 
 
@@ -59,11 +58,8 @@ class IstioSidecar(NetworkPolicy):
         conns = ConnectionSet(True)
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
-            if to_peer in rule.egress_peer_set:
-                return PolicyConnections(True, allowed_conns=conns)
-            # handling the case of global sidecar with a host's ns = '.'
-            if str(self.namespace) == IstioGenericYamlParser.istio_root_namespace and \
-                    to_peer in rule.special_egress_peer_set and from_peer.namespace == to_peer.namespace:
+            if to_peer in rule.egress_peer_set or \
+                    (to_peer in rule.special_egress_peer_set and from_peer.namespace == to_peer.namespace):
                 return PolicyConnections(True, allowed_conns=conns)
 
         # egress from from_peer to to_peer is not allowed : if to_peer not been captured in the rules' egress_peer_set,
