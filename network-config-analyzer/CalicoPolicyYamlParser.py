@@ -545,6 +545,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         Inspect relevant fields in the spec to determine whether the policy affects ingress/egress
         :param dict policy_spec: The spec part of the policy
         :param bool is_profile: whether we parse a Profile object
+        :param bool is_global_np: whether we parse a GlobalNetworkPolicy
         :param CalicoNetworkPolicy res_policy: The NetworkPolicy object to update
         :return: None
         """
@@ -580,16 +581,22 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         :return: set of selected peers
         :rtype: PeerSet
         """
+        peers = self.peer_container.get_all_peers_group()  # default of selector/ ns_selector is all()
         pod_selector = policy_spec.get('selector')
         if pod_selector:
             if is_profile:
                 self.syntax_error('selector is not allowed in the spec of a Profile', policy_spec)
-            return self._parse_label_selector(pod_selector, policy_spec, self.namespace)
+            peers &= self._parse_label_selector(pod_selector, policy_spec, self.namespace)
         else:
             if is_profile:
                 return self.peer_container.get_profile_pods(policy_name, True)
             else:
                 return self.peer_container.get_namespace_pods(self.namespace)
+
+        ns_selector = policy_spec.get('namespaceSelector')
+        if ns_selector:
+            peers &= self._parse_label_selector(ns_selector, policy_spec, namespace_selector=True)
+        return peers
 
     def parse_policy(self):
         """
@@ -626,9 +633,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         policy_spec = self.policy['spec']
         self._set_affects_ingress_egress(policy_spec, is_profile, is_global_np, res_policy)
         res_policy.selected_peers = self._get_selected_peers(policy_spec, is_profile, res_policy.name)
-        ns_selector = policy_spec.get('namespaceSelector')
-        if ns_selector:
-            res_policy.selected_peers &= self._parse_label_selector(ns_selector, policy_spec, namespace_selector=True)
+
         res_policy.order = policy_spec.get('order')
         if res_policy.order and is_profile:
             self.syntax_error('order is not allowed in the spec of a Profile', policy_spec)
