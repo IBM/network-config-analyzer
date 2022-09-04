@@ -8,6 +8,9 @@ istio_testcases/example_policies/bookinfo-demo/bookinfo-test-equiv-scheme.yaml,0
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-principals-scheme.yaml,0.27
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-request-attrs-scheme.yaml,0.63
 istio_testcases/example_policies/bookinfo-from-live-cluster/connectivity-map-by-deployments-scheme.yaml,0.40
+istio_testcases/example_policies/dra-test/dra-istio-ingress-test-scheme.yaml,10.15
+istio_testcases/example_policies/dra-test/dra-k8s-ingress-cluster-test-scheme.yaml,8.77
+istio_testcases/example_policies/dra-test/dra-k8s-ingress-test-scheme.yaml,12.44
 istio_testcases/example_policies/fly-istio-ingress-test/fly-istio-ingress-test-scheme.yaml,82.07
 istio_testcases/example_policies/istio-ingress-test/istio-ingress-test-scheme.yaml,108.20
 istio_testcases/example_policies/online_boutique/connectivity-scheme.yaml,39.17
