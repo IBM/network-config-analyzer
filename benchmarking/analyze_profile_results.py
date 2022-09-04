@@ -1,19 +1,28 @@
 from operator import itemgetter
 from pathlib import Path
 from pstats import Stats, FunctionProfile
+from typing import Optional
 
-from benchmarking.utils import Benchmark, get_source_dir, BenchmarkProcedure, get_benchmark_result_file
+from benchmarking.utils import Benchmark, BenchmarkProcedure, get_benchmark_result_file
 
 
 def _is_local_function(func_profile: FunctionProfile) -> bool:
-    source_dir = str(get_source_dir())
-    return func_profile.file_name.startswith(source_dir)
+    function_path = Path(func_profile.file_name)
+    repo_name = 'network-config-analyzer'
+    source_dir_name = 'network-config-analyzer'
+    for parent in function_path.parents[:-1]:
+        if parent.name == source_dir_name and parent.parent.name == repo_name:
+            return True
+    return False
 
 
-def _get_short_func_path(func_stats: FunctionProfile) -> str:
-    func_path = Path(func_stats.file_name)
-    short_func_path = str(func_path.relative_to(get_source_dir()))
-    return short_func_path
+def _get_path_relative_to_source_dir(func_stats: FunctionProfile) -> Optional[str]:
+    function_path = Path(func_stats.file_name)
+    source_dir_name = 'network-config-analyzer'
+    for parent in function_path.parents:
+        if parent.name == source_dir_name:
+            return str(function_path.relative_to(parent))
+    return None
 
 
 def get_function_profiles(experiment_name: str, benchmark_list: list[Benchmark]) -> list[dict]:
@@ -36,7 +45,7 @@ def get_function_profiles(experiment_name: str, benchmark_list: list[Benchmark])
         func_profile: FunctionProfile
         result.append({
             'func_name': func_name,
-            'file': _get_short_func_path(func_profile),
+            'file': _get_path_relative_to_source_dir(func_profile),
             'line': func_profile.line_number,
             'cumtime': func_profile.cumtime,
             'tottime': func_profile.tottime,

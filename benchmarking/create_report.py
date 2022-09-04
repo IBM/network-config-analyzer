@@ -3,7 +3,8 @@ from csv import DictWriter
 from pathlib import Path
 
 from benchmarking.analyze_profile_results import get_function_profiles
-from benchmarking.utils import get_experiment_results_dir, Benchmark, get_benchmark_result_file, BenchmarkProcedure
+from benchmarking.utils import get_experiment_results_dir, Benchmark, get_benchmark_result_file, BenchmarkProcedure, \
+    iter_benchmarks
 
 TOP_N = 40
 
@@ -75,3 +76,23 @@ def create_report(experiment_name: str, benchmark_list: list[Benchmark]):
 
     timing_report_path = report_dir / 'timing_report.csv'
     _dict_list_to_csv(lines, timing_report_path)
+
+
+def benchmark_processed(experiment_name: str, benchmark: Benchmark) -> bool:
+    for benchmark_procedure in [BenchmarkProcedure.TIME, BenchmarkProcedure.PROFILE, BenchmarkProcedure.AUDIT]:
+        result_file = get_benchmark_result_file(benchmark, experiment_name, benchmark_procedure)
+        if not result_file.exists():
+            return False
+    return True
+
+
+def create_report_for_unfinished_benchmarking():
+    experiment_name = 'remote_07-09-2022'
+    # experiment_name = 'test'
+    processed_benchmarks_list = [benchmark for benchmark in iter_benchmarks() if
+                                 benchmark_processed(experiment_name, benchmark)]
+    create_report(experiment_name, processed_benchmarks_list)
+
+
+if __name__ == '__main__':
+    create_report_for_unfinished_benchmarking()

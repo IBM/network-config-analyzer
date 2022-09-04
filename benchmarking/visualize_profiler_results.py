@@ -1,19 +1,34 @@
+import logging
 import subprocess
 from argparse import ArgumentParser
 
 from benchmarking.utils import get_benchmark_result_file, get_benchmark_procedure_results_dir, BenchmarkProcedure
 
-# TODO: add logging to this, since it might take a while...
+# TODO: accumulate the profile results of the same query?
+
+
+def _get_logger():
+    logger = logging.getLogger('visualizations')
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    return logger
 
 
 def visualize_profiler_results(experiment_name: str, node_time_percent_threshold: float = 0.5,
                                edge_time_percent_threshold: float = 0.1, color_by_self_time: bool = True) -> None:
-    # TODO: maybe I can accumulate the profile results of the same query? could be interesting
+    logger = _get_logger()
     profile_results_dir = get_benchmark_procedure_results_dir(experiment_name, BenchmarkProcedure.PROFILE)
     visualization_results_dir = get_benchmark_procedure_results_dir(experiment_name, BenchmarkProcedure.VISUAL)
     visualization_results_dir.mkdir(exist_ok=True)
 
-    for profile_result_file in profile_results_dir.iterdir():
+    profile_results_file_list = list(profile_results_dir.iterdir())
+    for i, profile_result_file in enumerate(profile_results_file_list, 1):
+        logger.info(f'{i} / {len(profile_results_file_list)} : '
+                    f'creating visuals for profile results {profile_result_file.stem}')
         gprof2dot_args = [
                 'gprof2dot',
                 '--format=pstats',
