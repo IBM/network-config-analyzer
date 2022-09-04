@@ -1,0 +1,19 @@
+namespaceList: ./
+podList: ./
+
+networkConfigList:
+  - name: dra-istio-ingress-test
+    networkPolicyList:
+      - istio-ingress-gateway.yaml
+      - istio-ingress-virtualservice.yaml
+    expectedWarnings: 0
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - dra-istio-ingress-test
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/dra-istio-ingress-test-connectivity-map.txt

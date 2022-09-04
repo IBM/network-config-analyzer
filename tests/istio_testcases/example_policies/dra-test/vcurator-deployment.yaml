@@ -1,0 +1,41 @@
+---
+# Source: dra/templates/vcurator-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-vcurator
+  namespace: doi
+spec:
+  selector:
+    matchLabels:
+      app: vcurator
+      chart: dra
+      release: RELEASE-NAME
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: vcurator
+        chart: dra
+        release: RELEASE-NAME
+      
+    spec:
+      serviceAccountName: serviceaccount-vcurator
+      terminationGracePeriodSeconds: 60
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: dedicated
+                operator: In
+                values: 
+                - internal
+      volumes:
+        - name: config
+          configMap:
+            name: cfgmap-vcurator
+        - name: at-events
+          hostPath:
+            path: /var/log/at-no-rotate

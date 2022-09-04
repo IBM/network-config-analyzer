@@ -1,0 +1,12 @@
+---
+# Source: dra/templates/istio-ingress-destinationrule.yaml
+apiVersion: "networking.istio.io/v1beta1"
+kind: "DestinationRule"
+metadata:
+ name: "destination-mtls"
+ namespace: doi
+spec:
+ host: "*.local"
+ trafficPolicy:
+   tls:
+     mode: ISTIO_MUTUAL

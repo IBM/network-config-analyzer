@@ -1,0 +1,85 @@
+---
+# Source: dra/templates/ingress_cluster.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-cluster-dra
+  namespace: doi
+  annotations:
+    ingress.bluemix.net/client-max-body-size: "size=10m"
+    ingress.bluemix.net/hsts: enabled=true maxAge=31536000 includeSubdomains=true
+    ingress.bluemix.net/redirect-to-https: "True"
+    ingress.bluemix.net/rewrite-path: serviceName=svc-otcbroker rewrite=/;serviceName=svc-rcbroker
+      rewrite=/;serviceName=svc-gateservice rewrite=/;serviceName=svc-pipelinemetrics
+      rewrite=/;serviceName=svc-tagging rewrite=/;serviceName=svc-dlms rewrite=/;serviceName=svc-gitsecure 
+      rewrite=/;serviceName=svc-vcurator rewrite=/
+  labels:
+    chart: dra-0.0.1
+    release: RELEASE-NAME
+spec:
+    rules:
+    - host: "otc.mycloud.com"
+      http:
+        paths:
+        - backend:
+            service:
+              name: svc-rcbroker
+              port: 
+                number: 80
+          path: /rcbroker/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-otcbroker
+              port: 
+                number: 80
+          path: /otcbroker/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-gateservice
+              port:
+                number: 80
+          path: /gateservice/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-dlms
+              port: 
+                number: 80
+          path: /dlms/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-pipelinemetrics
+              port: 
+                number: 80
+          path: /pipelinemetrics/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-tagging
+              port: 
+                number: 80
+          path: /tagging/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-gitsecure
+              port: 
+                number: 80
+          path: /gitsecure/
+          pathType: ImplementationSpecific
+    
+        - backend:
+            service:
+              name: svc-vcurator
+              port: 
+                number: 80
+          path: /vcurator/
+          pathType: ImplementationSpecific
+    
+    tls:
+    - hosts:
+      - "otc.mycloud.com"
+      secretName: "mycloud.com"

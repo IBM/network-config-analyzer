@@ -1,0 +1,21 @@
+---
+# Source: dra/templates/snykupdater-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-snykupdater
+  namespace: "doi"
+  labels:
+    app: "snykupdater"
+    chart: dra-0.0.1
+    release: RELEASE-NAME
+spec:
+  type: ClusterIP
+  ports:
+  - name: serviceport
+    port: 80
+    protocol: TCP
+    targetPort: 9950
+  selector:
+    app: "snykupdater"
+    release: RELEASE-NAME

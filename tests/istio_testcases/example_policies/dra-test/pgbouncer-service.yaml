@@ -1,0 +1,25 @@
+---
+# Source: dra/templates/pgbouncer-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-pgbouncer
+  namespace: "doi"
+  labels:
+    app: "pgbouncer"
+    chart: dra-0.0.1
+    release: RELEASE-NAME
+spec:
+  type: ClusterIP
+  ports:
+  - name: serviceport
+    port: 6432
+    protocol: TCP
+    targetPort: 6432
+  - name: sysdigport
+    port: 15020
+    protocol: TCP
+    targetPort: 15020
+  selector:
+    app: "pgbouncer"
+    release: RELEASE-NAME

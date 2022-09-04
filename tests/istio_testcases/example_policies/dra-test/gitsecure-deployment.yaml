@@ -1,0 +1,41 @@
+---
+# Source: dra/templates/gitsecure-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-gitsecure
+  namespace: doi
+spec:
+  selector:
+    matchLabels:
+      app: gitsecure
+      chart: dra
+      release: RELEASE-NAME
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: gitsecure
+        chart: dra
+        release: RELEASE-NAME
+      
+    spec:
+      serviceAccountName: serviceaccount-gitsecure
+      terminationGracePeriodSeconds: 60
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: dedicated
+                operator: In
+                values: 
+                - internal
+      volumes:
+        - name: config
+          configMap:
+            name: cfgmap-gitsecure
+        - name: at-events
+          hostPath:
+            path: /var/log/at-no-rotate

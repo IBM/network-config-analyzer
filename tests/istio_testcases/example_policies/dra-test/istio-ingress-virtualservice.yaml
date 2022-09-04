@@ -1,0 +1,359 @@
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-tagging-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "tagging.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-tagging
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-gateservice-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "gateservice.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-gateservice
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-dlms-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "dlms.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-dlms
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-rcbroker-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "rcbroker.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-rcbroker
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-rcbroker-global-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "rcbroker.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-rcbroker
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-otcbroker-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "otcbroker.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-otcbroker
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-otcbroker-global-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "otcbroker.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-otcbroker
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-pipelinemetrics-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "pipelinemetrics.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-pipelinemetrics
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  creationTimestamp: null
+  name: istio-gitsecure-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "gitsecure.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-gitsecure
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  creationTimestamp: null
+  name: istio-vcurator-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "vcurator.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-vcurator
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  creationTimestamp: null
+  name: istio-snykupdater-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "snykupdater.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-snykupdater
+        port:
+          number: 80
+      weight: 100
+---
+# Source: dra/templates/istio-ingress-virtualservice.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-cluster-ingress
+  namespace: doi
+spec:
+  gateways:
+  - devops-insights-gateway
+  hosts:
+  - "otc.mycloud.com"
+  http:
+  - match:
+    - uri:
+        prefix: /rcbroker/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-rcbroker
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /otcbroker/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-otcbroker
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /gateservice/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-gateservice
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /dlms/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-dlms
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /pipelinemetrics/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-pipelinemetrics
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /tagging/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-tagging
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /gitsecure/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-gitsecure
+        port:
+          number: 80
+      weight: 100
+  
+  - match:
+    - uri:
+        prefix: /vcurator/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-vcurator
+        port:
+          number: 80
+      weight: 100
+  
+  - match:
+    - uri:
+        prefix: /snykupdater/
+#    rewrite:
+#      uri: /
+    route:
+    - destination:
+        host: svc-snykupdater
+        port:
+          number: 80
+      weight: 100

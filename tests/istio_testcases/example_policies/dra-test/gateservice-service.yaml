@@ -1,0 +1,25 @@
+---
+# Source: dra/templates/gateservice-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-gateservice
+  namespace: doi
+  labels:
+    app: gateservice
+    chart: dra-0.0.1
+    release: RELEASE-NAME
+spec:
+  type: ClusterIP
+  ports:
+  - name: serviceport
+    port: 80
+    protocol: TCP
+    targetPort: 3456
+  - name: sysdigport
+    port: 15020
+    protocol: TCP
+    targetPort: 15020
+  selector:
+    app: gateservice
+    release: RELEASE-NAME

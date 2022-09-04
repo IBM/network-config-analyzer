@@ -1,0 +1,43 @@
+final fw rules for query: connectivity, config: dra-istio-ingress-test:
+src: 0.0.0.0/0 dst_ns: [doi] dst_pods: [*] conn: All connections
+src: ::/0 dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-dlms] conn: TCP {'dst_ports': '3000', 'paths': '/dlms/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, dlms.mycloud.com'},{'dst_ports': '3000', 'paths': '/(([\\--9A-Z_abce-z]|d([\\--9A-Z_a-km-z]|l([\\--9A-Z_a-ln-z]|m([\\--9A-Z_a-rt-z]|s[\\-.0-9A-Z_a-z]))))[\\--9A-Z_a-z]*|d(l(ms?)?)?)?', 'hosts': 'dlms.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-gateservice] conn: TCP {'dst_ports': '3456', 'paths': '/gateservice/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, gateservice.mycloud.com'},{'dst_ports': '3456', 'paths': '/(([\\--9A-Z_a-fh-z]|g([\\--9A-Z_b-z]|a([\\--9A-Z_a-su-z]|t([\\--9A-Z_a-df-z]|e([\\--9A-Z_a-rt-z]|s([\\--9A-Z_a-df-z]|e([\\--9A-Z_a-qs-z]|r([\\--9A-Z_a-uw-z]|v([\\--9A-Z_a-hj-z]|i([\\--9A-Z_abd-z]|c([\\--9A-Z_a-df-z]|e[\\-.0-9A-Z_a-z])))))))))))[\\--9A-Z_a-z]*|g(a(t(e(s(e(r(v(i(ce?)?)?)?)?)?)?)?)?)?)?', 'hosts': 'gateservice.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-gitsecure] conn: TCP {'dst_ports': '9950', 'paths': '/gitsecure/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, gitsecure.mycloud.com'},{'dst_ports': '9950', 'paths': '/(([\\--9A-Z_a-fh-z]|g([\\--9A-Z_a-hj-z]|i([\\--9A-Z_a-su-z]|t([\\--9A-Z_a-rt-z]|s([\\--9A-Z_a-df-z]|e([\\--9A-Z_abd-z]|c([\\--9A-Z_a-tv-z]|u([\\--9A-Z_a-qs-z]|r([\\--9A-Z_a-df-z]|e[\\-.0-9A-Z_a-z])))))))))[\\--9A-Z_a-z]*|g(i(t(s(e(c(u(re?)?)?)?)?)?)?)?)?', 'hosts': 'gitsecure.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-otcbroker] conn: TCP {'dst_ports': '3200', 'paths': '/otcbroker/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, otcbroker.mycloud.com'},{'dst_ports': '3200', 'paths': '/(([\\--9A-Z_a-np-z]|o([\\--9A-Z_a-su-z]|t([\\--9A-Z_abd-z]|c([\\--9A-Z_ac-z]|b([\\--9A-Z_a-qs-z]|r([\\--9A-Z_a-np-z]|o([\\--9A-Z_a-jl-z]|k([\\--9A-Z_a-df-z]|e([\\--9A-Z_a-qs-z]|r[\\-.0-9A-Z_a-z])))))))))[\\--9A-Z_a-z]*|o(t(c(b(r(o(k(er?)?)?)?)?)?)?)?)?', 'hosts': 'otcbroker.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-pipelinemetrics] conn: TCP {'dst_ports': '3500', 'paths': '/pipelinemetrics/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, pipelinemetrics.mycloud.com'},{'dst_ports': '3500', 'paths': '/(([\\--9A-Z_a-oq-z]|p([\\--9A-Z_a-hj-z]|i([\\--9A-Z_a-oq-z]|p([\\--9A-Z_a-df-z]|e([\\--9A-Z_a-km-z]|l([\\--9A-Z_a-hj-z]|i([\\--9A-Z_a-mo-z]|n([\\--9A-Z_a-df-z]|e([\\--9A-Z_a-ln-z]|m([\\--9A-Z_a-df-z]|e([\\--9A-Z_a-su-z]|t([\\--9A-Z_a-qs-z]|r([\\--9A-Z_a-hj-z]|i([\\--9A-Z_abd-z]|c([\\--9A-Z_a-rt-z]|s[\\-.0-9A-Z_a-z])))))))))))))))[\\--9A-Z_a-z]*|p(i(p(e(l(i(n(e(m(e(t(r(i(cs?)?)?)?)?)?)?)?)?)?)?)?)?)?)?', 'hosts': 'pipelinemetrics.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-rcbroker] conn: TCP {'dst_ports': '4000', 'paths': '/rcbroker/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, rcbroker.mycloud.com'},{'dst_ports': '4000', 'paths': '/(([\\--9A-Z_a-qs-z]|r([\\--9A-Z_abd-z]|c([\\--9A-Z_ac-z]|b([\\--9A-Z_a-qs-z]|r([\\--9A-Z_a-np-z]|o([\\--9A-Z_a-jl-z]|k([\\--9A-Z_a-df-z]|e([\\--9A-Z_a-qs-z]|r[\\-.0-9A-Z_a-z]))))))))[\\--9A-Z_a-z]*|r(c(b(r(o(k(er?)?)?)?)?)?)?)?', 'hosts': 'rcbroker.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-snykupdater] conn: TCP {'dst_ports': '9950', 'paths': '/snykupdater/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, snykupdater.mycloud.com'},{'dst_ports': '9950', 'paths': '/(([\\--9A-Z_a-rt-z]|s([\\--9A-Z_a-mo-z]|n([\\--9A-Z_a-xz]|y([\\--9A-Z_a-jl-z]|k([\\--9A-Z_a-tv-z]|u([\\--9A-Z_a-oq-z]|p([\\--9A-Z_abce-z]|d([\\--9A-Z_b-z]|a([\\--9A-Z_a-su-z]|t([\\--9A-Z_a-df-z]|e([\\--9A-Z_a-qs-z]|r[\\-.0-9A-Z_a-z])))))))))))[\\--9A-Z_a-z]*|s(n(y(k(u(p(d(a(t(er?)?)?)?)?)?)?)?)?)?)?', 'hosts': 'snykupdater.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-tagging] conn: TCP {'dst_ports': '3000', 'paths': '/tag{2}ing/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, tagging.mycloud.com'},{'dst_ports': '3000', 'paths': '/(([\\--9A-Z_a-su-z]|t([\\--9A-Z_b-z]|a([\\--9A-Z_a-fh-z]|g([\\--9A-Z_a-fh-z]|g([\\--9A-Z_a-hj-z]|i([\\--9A-Z_a-mo-z]|n([\\--9A-Z_a-fh-z]|g[\\-.0-9A-Z_a-z])))))))[\\--9A-Z_a-z]*|t(a(g(g(i(ng?)?)?)?)?)?)?', 'hosts': 'tagging.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-vcurator] conn: TCP {'dst_ports': '9950', 'paths': '/vcurator/[\\--9A-Z_a-z]*', 'hosts': 'otc.mycloud.com, vcurator.mycloud.com'},{'dst_ports': '9950', 'paths': '/(([\\--9A-Z_a-uw-z]|v([\\--9A-Z_abd-z]|c([\\--9A-Z_a-tv-z]|u([\\--9A-Z_a-qs-z]|r([\\--9A-Z_b-z]|a([\\--9A-Z_a-su-z]|t([\\--9A-Z_a-np-z]|o([\\--9A-Z_a-qs-z]|r[\\-.0-9A-Z_a-z]))))))))[\\--9A-Z_a-z]*|v(c(u(r(a(t(or?)?)?)?)?)?)?)?', 'hosts': 'vcurator.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [istio-ingressgateway] conn: All connections
+src_ns: [doi] src_pods: [deploy-dlms] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-dlms] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-dlms] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-gateservice] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-gateservice] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-gateservice] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-gitsecure] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-gitsecure] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-gitsecure] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-otcbroker] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-otcbroker] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-otcbroker] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-pgbouncer] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-pgbouncer] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-pgbouncer] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-pipelinemetrics] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-pipelinemetrics] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-pipelinemetrics] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-rcbroker] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-rcbroker] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-rcbroker] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-snykupdater] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-snykupdater] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-snykupdater] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-tagging] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-tagging] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-tagging] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-vcurator] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-vcurator] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-vcurator] dst_ns: [doi] dst_pods: [*] conn: All connections

@@ -1,0 +1,25 @@
+---
+# Source: dra/templates/vcurator-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-vcurator
+  namespace: doi
+  labels:
+    app: vcurator
+    chart: dra-0.0.1
+    release: RELEASE-NAME
+spec:
+  type: ClusterIP
+  ports:
+  - name: serviceport
+    port: 80
+    protocol: TCP
+    targetPort: 9950
+  - name: sysdigport
+    port: 15020
+    protocol: TCP
+    targetPort: 15020
+  selector:
+    app: vcurator
+    release: RELEASE-NAME

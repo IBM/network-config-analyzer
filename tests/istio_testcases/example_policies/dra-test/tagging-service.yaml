@@ -1,0 +1,25 @@
+---
+# Source: dra/templates/tagging-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-tagging
+  namespace: doi
+  labels:
+    app: tagging
+    chart: dra-0.0.1
+    release: RELEASE-NAME
+spec:
+  type: ClusterIP
+  ports:
+  - name: serviceport
+    port: 80
+    protocol: TCP
+    targetPort: 3000
+  - name: sysdigport
+    port: 15020
+    protocol: TCP
+    targetPort: 15020
+  selector:
+    app: tagging
+    release: RELEASE-NAME

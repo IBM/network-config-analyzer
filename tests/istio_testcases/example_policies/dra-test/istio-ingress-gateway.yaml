@@ -1,0 +1,43 @@
+---
+# Source: dra/templates/istio-ingress-gateway.yaml
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: devops-insights-gateway
+  namespace: doi
+spec:
+  selector:
+    istio: custom-ingressgateway # use istio custom controller
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: "mycloud.com"
+    hosts:
+    - "rcbroker.mycloud.com"
+    - "otcbroker.mycloud.com"
+    - "dlms.mycloud.com"
+    - "gateservice.mycloud.com"
+    - "pipelinemetrics.mycloud.com"
+    - "tagging.mycloud.com"
+    - "gitsecure.mycloud.com"
+    
+    - "vcurator.mycloud.com"
+    
+    - "snykupdater.mycloud.com"
+    - "otc.mycloud.com"
+  
+  
+  - port:
+      number: 443
+      name: https-global
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: "mycloud.com"
+    hosts:
+    - "otcbroker.mycloud.com"
+    - "rcbroker.mycloud.com"

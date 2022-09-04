@@ -1,0 +1,142 @@
+---
+# Source: dra/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-dra
+  namespace: doi
+  annotations:
+    ingress.bluemix.net/client-max-body-size: "size=10m"
+    ingress.bluemix.net/hsts: enabled=true maxAge=31536000 includeSubdomains=true
+    ingress.bluemix.net/redirect-to-https: "True"
+  labels:
+    chart: dra-0.0.1
+    release: RELEASE-NAME
+spec:
+  tls:
+  
+  - hosts:
+    - "gateservice.mycloud.com"
+    - "dlms.mycloud.com"
+    - "rcbroker.mycloud.com"
+    - "otcbroker.mycloud.com"
+    - "pipelinemetrics.mycloud.com"
+    - "tagging.mycloud.com"
+    - "gitsecure.mycloud.com"
+    
+    - "vcurator.mycloud.com"
+    
+    secretName: "mycloud.com"
+  
+  
+  
+  - hosts:
+    - "otcbroker.mycloud.com"
+    - "rcbroker.mycloud.com"
+    secretName: "mycloud.com"
+  
+  
+  rules:
+  - host: "gateservice.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-gateservice
+            port: 
+              number: 80
+  - host: "gitsecure.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-gitsecure
+            port: 
+              number: 80
+  
+  - host: "vcurator.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-vcurator
+            port: 
+              number: 80
+  
+  - host: "dlms.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-dlms
+            port: 
+              number: 80
+  - host: "rcbroker.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-rcbroker
+            port: 
+              number: 80
+  - host: "otcbroker.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-otcbroker
+            port: 
+              number: 80
+  - host: "pipelinemetrics.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-pipelinemetrics
+            port: 
+              number: 80
+  - host: "tagging.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-tagging
+            port: 
+              number: 80
+  
+  - host: "otcbroker.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-otcbroker
+            port: 
+              number: 80
+  - host: "rcbroker.mycloud.com"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-rcbroker
+            port: 
+              number: 80
