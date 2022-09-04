@@ -73,6 +73,11 @@ networkConfigList:
       - testcase1-for-disjointness.yaml
     expectedWarnings: 0
 
+  - name: bad-np-test
+    networkPolicyList:
+      - networkpolicy-with-ns-selector-bad-path-test.yaml
+    expectedError: 1
+
 queries:
   - name: vacuous_policy
     vacuity:

@@ -540,7 +540,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             for label, value in labels_to_apply.items():
                 pod.set_extra_label(label, value)
 
-    def _set_affects_ingress_egress(self, policy_spec, is_profile, res_policy):
+    def _set_affects_ingress_egress(self, policy_spec, is_profile, is_global_np, res_policy):
         """
         Inspect relevant fields in the spec to determine whether the policy affects ingress/egress
         :param dict policy_spec: The spec part of the policy
@@ -549,7 +549,9 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         :return: None
         """
         allowed_policy_keys = {'order': 0, 'selector': 0, 'ingress': 0, 'egress': 0, 'types': 0, 'labelsToApply': 0,
-                               'namespaceSelector': 0, 'doNotTrack': 3, 'preDNAT': 3, 'applyOnForward': 3}
+                               'doNotTrack': 3, 'preDNAT': 3, 'applyOnForward': 3}
+        if is_global_np:
+            allowed_policy_keys |= {'namespaceSelector': 0}
         self.check_fields_validity(policy_spec, 'network policy spec', allowed_policy_keys)
 
         policy_types = policy_spec.get('types', [])
@@ -569,13 +571,13 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if not res_policy.affects_egress and 'egress' in policy_spec:
             self.syntax_error('A NetworkPolicy with egress field but no "Egress" in its policyTypes', policy_spec)
 
-    def _set_selected_peers(self, policy_spec, is_profile, policy_name):
+    def _get_selected_peers(self, policy_spec, is_profile, policy_name):
         """
-        Set the selected_peers member of the policy according to the spec
+         Returns a set of peers which are selected by the current policy according to its spec
         :param dict policy_spec: The spec part in the yaml
         :param bool is_profile: Whether we parse a Profile object
-        :param str policy_name: The NetworkPolicy to update the selected_peers for
-        :return: the selected peers
+        :param str policy_name: The current policy name
+        :return: set of selected peers
         :rtype: PeerSet
         """
         pod_selector = policy_spec.get('selector')
@@ -622,15 +624,11 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         res_policy.policy_kind = NetworkPolicy.get_policy_type_from_dict(self.policy)
 
         policy_spec = self.policy['spec']
-        self._set_affects_ingress_egress(policy_spec, is_profile, res_policy)
-        res_policy.selected_peers = self._set_selected_peers(policy_spec, is_profile, res_policy.name)
+        self._set_affects_ingress_egress(policy_spec, is_profile, is_global_np, res_policy)
+        res_policy.selected_peers = self._get_selected_peers(policy_spec, is_profile, res_policy.name)
         ns_selector = policy_spec.get('namespaceSelector')
         if ns_selector:
-            if not is_global_np:
-                self.syntax_error(f'namespaceSelector is not allowed in the spec of Calico {res_policy.policy_kind}')
-            else:
-                res_policy.selected_peers &= self._parse_label_selector(ns_selector, policy_spec,
-                                                                        namespace_selector=True)
+            res_policy.selected_peers &= self._parse_label_selector(ns_selector, policy_spec, namespace_selector=True)
         res_policy.order = policy_spec.get('order')
         if res_policy.order and is_profile:
             self.syntax_error('order is not allowed in the spec of a Profile', policy_spec)
