@@ -1,0 +1,18 @@
+namespaceList: ./
+podList: ./
+
+networkConfigList:
+  - name: dra-k8s-ingress-test
+    networkPolicyList:
+      - ingress.yaml
+    expectedWarnings: 0
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - dra-k8s-ingress-test
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/dra-k8s-ingress-test-connectivity-map.txt

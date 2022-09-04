@@ -1,0 +1,37 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-ingress-nginx
+  namespace: "doi"
+spec:
+  selector:
+    matchLabels:
+      app: ingress-nginx
+      chart: dra
+      release: RELEASE-NAME
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: ingress-nginx
+        chart: dra
+        release: RELEASE-NAME
+    spec:
+      serviceAccountName: serviceaccount-ingress-nginx
+      terminationGracePeriodSeconds: 60
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: dedicated
+                operator: In
+                values:
+                - internal
+      volumes:
+        - name: at-events
+          hostPath:
+            path: /var/log/at-no-rotate
+

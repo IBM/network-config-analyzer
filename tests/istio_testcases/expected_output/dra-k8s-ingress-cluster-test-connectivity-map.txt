@@ -1,0 +1,44 @@
+final fw rules for query: connectivity, config: dra-k8s-ingress-test:
+src: 0.0.0.0/0 dst_ns: [doi] dst_pods: [*] conn: All connections
+src: ::/0 dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-dlms] conn: TCP {'dst_ports': '3000', 'paths': '/dlms(/[\\--9A-Z_a-z]*)?', 'hosts': 'otc.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-gateservice] conn: TCP {'dst_ports': '3456', 'paths': '/gateservice(/[\\--9A-Z_a-z]*)?', 'hosts': 'otc.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-gitsecure] conn: TCP {'dst_ports': '9950', 'paths': '/gitsecure(/[\\--9A-Z_a-z]*)?', 'hosts': 'otc.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-otcbroker] conn: TCP {'dst_ports': '3200', 'paths': '/otcbroker(/[\\--9A-Z_a-z]*)?', 'hosts': 'otc.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-pipelinemetrics] conn: TCP {'dst_ports': '3500', 'paths': '/pipelinemetrics(/[\\--9A-Z_a-z]*)?', 'hosts': 'otc.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-rcbroker] conn: TCP {'dst_ports': '4000', 'paths': '/rcbroker(/[\\--9A-Z_a-z]*)?', 'hosts': 'otc.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-tagging] conn: TCP {'dst_ports': '3000', 'paths': '/tag{2}ing(/[\\--9A-Z_a-z]*)?', 'hosts': 'otc.mycloud.com'}
+src_ns: [doi] src_pods: [*] dst_ns: [doi] dst_pods: [deploy-vcurator] conn: TCP {'dst_ports': '9950', 'paths': '/vcurator(/[\\--9A-Z_a-z]*)?', 'hosts': 'otc.mycloud.com'}
+src_ns: [doi] src_pods: [deploy-dlms] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-dlms] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-dlms] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-gateservice] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-gateservice] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-gateservice] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-gitsecure] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-gitsecure] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-gitsecure] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-otcbroker] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-otcbroker] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-otcbroker] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-pgbouncer] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-pgbouncer] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-pgbouncer] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-pipelinemetrics] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-pipelinemetrics] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-pipelinemetrics] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-rcbroker] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-rcbroker] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-rcbroker] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-snykupdater] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-snykupdater] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-snykupdater] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-tagging] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-tagging] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-tagging] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-vcurator] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-vcurator] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-vcurator] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [istio-ingressgateway] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [istio-ingressgateway] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [istio-ingressgateway] dst_ns: [doi] dst_pods: [*] conn: All connections
