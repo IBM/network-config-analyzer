@@ -20,6 +20,9 @@ src_ns: [doi] src_pods: [deploy-gateservice] dst_ns: [doi] dst_pods: [*] conn: A
 src_ns: [doi] src_pods: [deploy-gitsecure] dst: 0.0.0.0/0 conn: All connections
 src_ns: [doi] src_pods: [deploy-gitsecure] dst: ::/0 conn: All connections
 src_ns: [doi] src_pods: [deploy-gitsecure] dst_ns: [doi] dst_pods: [*] conn: All connections
+src_ns: [doi] src_pods: [deploy-ingress-nginx] dst: 0.0.0.0/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-ingress-nginx] dst: ::/0 conn: All connections
+src_ns: [doi] src_pods: [deploy-ingress-nginx] dst_ns: [doi] dst_pods: [*] conn: All connections
 src_ns: [doi] src_pods: [deploy-otcbroker] dst: 0.0.0.0/0 conn: All connections
 src_ns: [doi] src_pods: [deploy-otcbroker] dst: ::/0 conn: All connections
 src_ns: [doi] src_pods: [deploy-otcbroker] dst_ns: [doi] dst_pods: [*] conn: All connections
