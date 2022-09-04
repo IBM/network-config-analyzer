@@ -551,7 +551,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         allowed_policy_keys = {'order': 0, 'selector': 0, 'ingress': 0, 'egress': 0, 'types': 0, 'labelsToApply': 0,
                                'doNotTrack': 3, 'preDNAT': 3, 'applyOnForward': 3}
         if is_global_np:
-            allowed_policy_keys |= {'namespaceSelector': 0}
+            allowed_policy_keys.update({'namespaceSelector': 0})
         self.check_fields_validity(policy_spec, 'network policy spec', allowed_policy_keys)
 
         policy_types = policy_spec.get('types', [])
