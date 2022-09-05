@@ -53,6 +53,9 @@ def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, t
         BenchmarkProcedure.AUDIT: audit_benchmark
     }
     for i, benchmark in enumerate(benchmark_list, 1):
+        # TODO: remove -- skipping sanity since it takes a long time
+        if benchmark.name == 'FromJakeKitchener-sanity':
+            continue
         for benchmark_procedure, func in benchmark_procedure_to_func.items():
             logger.info(f'{i} / {len(benchmark_list)} - running {benchmark_procedure.name} on {benchmark.name}')
             result_file = get_benchmark_result_file(benchmark, experiment_name, benchmark_procedure)
