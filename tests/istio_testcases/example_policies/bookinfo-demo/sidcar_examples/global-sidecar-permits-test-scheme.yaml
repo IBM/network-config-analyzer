@@ -1,0 +1,22 @@
+# Query in this file will not be executed since the global sidecar will change the topology for its NetworkConfig -
+# by registering the istio_root_namespace (isti-config), thus the Configs will not be comparable
+resourceList:
+  - ../../../example_podlist/bookinfo_ns_list.json
+  - ../../../example_podlist/bookinfo_deployments.yaml
+  - ../../../example_podlist/bookinfo_services.yaml
+
+networkConfigList:
+  - name: global-sidecar
+    networkPolicyList:
+      - global-sidecar.yaml
+
+  - name: bookinfo-default-sidecar-1
+    networkPolicyList:
+      - bookinfo-default-sidecar-1.yaml
+
+queries:
+  - name: permits-global-to-default
+    permits:
+      - global-sidecar
+      - bookinfo-default-sidecar-1
+    expectedNotExecuted: 1
