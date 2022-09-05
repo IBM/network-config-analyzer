@@ -66,7 +66,7 @@ class IstioSidecar(NetworkPolicy):
 
         # egress from from_peer to to_peer is not allowed : if to_peer not been captured in the rules' egress_peer_set,
         # or if the sidecar is global and to_peer is not in same namespace of from_peer while rule host's ns is '.'
-        return PolicyConnections(True, denied_conns=conns)
+        return PolicyConnections(True, allowed_conns=ConnectionSet())
 
     def has_empty_rules(self, config_name=''):
         """
