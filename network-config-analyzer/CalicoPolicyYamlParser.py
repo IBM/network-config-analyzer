@@ -594,6 +594,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             else:
                 peers = self.peer_container.get_namespace_pods(self.namespace)
 
+        # consider namespaceSelector for GlobalNetworkPolicy when it exists
         ns_selector = policy_spec.get('namespaceSelector')
         if ns_selector:
             peers &= self._parse_label_selector(ns_selector, policy_spec, namespace_selector=True)
