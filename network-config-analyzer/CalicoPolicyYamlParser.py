@@ -591,8 +591,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         else:
             if is_profile:
                 return self.peer_container.get_profile_pods(policy_name, True)
-            elif not is_global_np:
-                return self.peer_container.get_namespace_pods(self.namespace)
+            else:
+                peers = self.peer_container.get_namespace_pods(self.namespace)
 
         ns_selector = policy_spec.get('namespaceSelector')
         if ns_selector:
