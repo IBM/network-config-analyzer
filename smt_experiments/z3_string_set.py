@@ -12,6 +12,8 @@ import z3
 from z3 import And, BoolRef, Solver, sat, PrefixOf, \
     SuffixOf, Length, unsat, Not, substitute, Or, BoolVal, ModelRef, SeqRef, Int, Exists
 
+from smt_experiments.z3_utils import solve_without_model, solve_with_model
+
 
 class Z3StringSet:
     _fresh_var_counter = 0
@@ -23,22 +25,6 @@ class Z3StringSet:
         cls._fresh_var_counter += 1
         return f'{var_prefix}!{num}'
 
-    @staticmethod
-    def _solve_without_model(constraints: BoolRef):
-        solver = Solver()
-        solver.add(constraints)
-        result = solver.check()
-        return result
-
-    @staticmethod
-    def _solve_with_model(constraints: BoolRef):
-        solver = Solver()
-        solver.add(constraints)
-        result = solver.check()
-        if result == sat:
-            return result, solver.model()
-        return result, None
-
     def __init__(self):
         var_name = self._get_fresh_var_name()
         self._var = z3.String(var_name)
@@ -49,7 +35,7 @@ class Z3StringSet:
             self._var == item,
             self._constraints
         )
-        return self._solve_without_model(constraints) == sat
+        return solve_without_model(constraints) == sat
 
     def __eq__(self, other):
         return self.contained_in(other) and other.contained_in(self)
@@ -87,9 +73,9 @@ class Z3StringSet:
 
     def is_all_words(self) -> bool:
         constraints = Not(self._constraints)
-        return self._solve_without_model(constraints) == unsat
+        return solve_without_model(constraints) == unsat
 
-    def __copy__(self):
+    def copy(self):
         pass
 
     def __hash__(self):
@@ -113,13 +99,13 @@ class Z3StringSet:
             self._constraints,
             Length(self._var) > max_str_len
         )
-        return self._solve_without_model(constraints) == unsat
+        return solve_without_model(constraints) == unsat
 
     def __str__(self):
         pass
 
     def is_empty(self):
-        return self._solve_without_model(self._constraints) == unsat
+        return solve_without_model(self._constraints) == unsat
 
     def contained_in(self, other) -> bool:
         return (self - other).is_empty()
@@ -156,7 +142,7 @@ class Z3StringSet:
         return str_set
 
     def get_example_from_set(self) -> Optional[str]:
-        result, model = self._solve_with_model(self._constraints)
+        result, model = solve_with_model(self._constraints)
         if result == sat:
             model: ModelRef
             example = model.eval(self._var).as_string()
