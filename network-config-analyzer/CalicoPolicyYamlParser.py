@@ -572,12 +572,11 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if not res_policy.affects_egress and 'egress' in policy_spec:
             self.syntax_error('A NetworkPolicy with egress field but no "Egress" in its policyTypes', policy_spec)
 
-    def _get_selected_peers(self, policy_spec, is_profile, is_global_np, policy_name):
+    def _get_selected_peers(self, policy_spec, is_profile, policy_name):
         """
          Returns a set of peers which are selected by the current policy according to its spec
         :param dict policy_spec: The spec part in the yaml
         :param bool is_profile: Whether we parse a Profile object
-        :param bool is_global_np: whether we parse a GlobalNetworkPolicy
         :param str policy_name: The current policy name
         :return: set of selected peers
         :rtype: PeerSet
@@ -634,7 +633,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         policy_spec = self.policy['spec']
         self._set_affects_ingress_egress(policy_spec, is_profile, is_global_np, res_policy)
-        res_policy.selected_peers = self._get_selected_peers(policy_spec, is_profile, is_global_np, res_policy.name)
+        res_policy.selected_peers = self._get_selected_peers(policy_spec, is_profile, res_policy.name)
 
         res_policy.order = policy_spec.get('order')
         if res_policy.order and is_profile:
