@@ -1,0 +1,22 @@
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: testcase1-nonequiv-networkpolicy
+spec:
+  selector: tier == 'frontend'
+  namespaceSelector: unique-label == 'kubeSystemNameSpace'
+  types:
+  - Ingress
+  - Egress
+  ingress:
+  - action: Allow
+    protocol: TCP
+    source:
+      namespaceSelector: unique-label == 'defaultNameSpace'
+  - action: Allow
+    source:
+      selector: has(app)
+  egress:
+  - action: Allow
+    destination:
+      selector: has(app)
