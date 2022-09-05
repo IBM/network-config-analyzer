@@ -3,18 +3,18 @@ from typing import Any
 
 from z3 import BoolVal, And, sat, Or, Not, Int, unsat
 
-from smt_experiments.z3_utils import solve_without_model
+from smt_experiments.z3_sets.z3_utils import solve_without_model
 
 # TODO: create unittests to make sure that this works
 
 
-class Z3HyperCube:
+class Z3HyperCubeSet:
     def __init__(self, dimension_names: list[str]):
         self.constraints = BoolVal(False)
         self._variable_name_to_z3_var = {dimension_name: Int(dimension_name) for dimension_name in dimension_names}
 
     def __eq__(self, other):
-        other: Z3HyperCube
+        other: Z3HyperCubeSet
         assert self._check_dimensions(other._variable_name_to_z3_var)
         constraint = Or(
             And(self.constraints, Not(other.constraints)),
@@ -55,7 +55,7 @@ class Z3HyperCube:
         pass
 
     def contained_in(self, other) -> bool:
-        other: Z3HyperCube
+        other: Z3HyperCubeSet
         assert self._check_dimensions(other._variable_name_to_z3_var)
         constraint = And(self.constraints, Not(other.constraints))
         return solve_without_model(constraint) == unsat
