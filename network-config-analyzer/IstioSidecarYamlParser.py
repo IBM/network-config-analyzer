@@ -36,7 +36,8 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         The namespace can be set to *, ., or ~, representing any, the current, or no namespace, respectively
         :param str namespace: the namespace value
         :return: set of peers of services in the specified namespace value or empty PeerSet if no matching peers
-        :rtype: PeerSet
+        and a boolean value indicating if the sidecar is global with a host's namespace equal to '.'
+        :rtype: (PeerSet, bool)
         """
         # since hosts expose services, target_pods of relevant services are returned in this method
         supported_chars = ('*', '.', '~')
@@ -169,7 +170,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress
         allowed_spec_keys = {'workloadSelector': [0, dict], 'ingress': [3, list], 'egress': [0, list],
-                             'outboundTrafficPolicy': [2, str]}
+                             'outboundTrafficPolicy': [3, str]}
         self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
 

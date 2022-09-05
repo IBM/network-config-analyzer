@@ -18,6 +18,8 @@ class IstioSidecarRule:
         """
         Init the Egress rule of an Istio Sidecar
         :param Peer.PeerSet peer_set: The set of mesh internal peers this rule allows connection to
+        :param Peer.PeerSet peers_for_ns_compare: The set of peers captured by a global sidecar with hosts
+        having namespace equal to '.'
         """
         self.egress_peer_set = peer_set
         self.special_egress_peer_set = peers_for_ns_compare  # set of peers captured by a global sidecar with hosts of

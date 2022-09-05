@@ -51,7 +51,8 @@ class PeerContainer:
          Get a K8sNamespace object for a given namespace name. If namespace is missing, then add it to the
          container's namespaces. Sources for new namespaces may be networkpolicies or config queries
         :param str namespace: The name of the required namespace
-        :param bool warn_if_missing: indicates if missing namespace is istio_root_ns which is handled as special case
+        :param bool warn_if_missing: indicates if missing namespace is handled as special case
+        (e.g. a system root namespace)
         :return: A relevant K8sNamespace
         :rtype: K8sNamespace
         """
@@ -195,7 +196,7 @@ class PeerContainer:
                 res |= val.target_pods
         return res
 
-    def get_all_services_target_pods(self, update_compare_ns_flag=False):
+    def get_all_services_target_pods(self):
         """
         Returns all pods that belong to services
         :rtype: PeerSet
