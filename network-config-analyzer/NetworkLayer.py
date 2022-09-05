@@ -208,7 +208,7 @@ class IstioNetworkLayer(NetworkLayer):
         def captured_cond_func(policy):
             if policy.policy_kind == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 return policy.action == IstioNetworkPolicy.ActionType.Allow
-            return True  # sidecar always defines allowed connections
+            return True  # only for Istio AuthorizationPolicy the captured condition is more refined with 'Allow' policies
 
         allowed_conns, denied_conns, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress,
                                                                                    captured_cond_func)
