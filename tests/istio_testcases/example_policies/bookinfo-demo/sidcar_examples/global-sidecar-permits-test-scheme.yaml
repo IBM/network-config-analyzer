@@ -1,5 +1,5 @@
 # Query in this file will not be executed since the global sidecar will change the topology for its NetworkConfig -
-# by registering the istio_root_namespace (isti-config), thus the Configs will not be comparable
+# by registering the istio_root_namespace (isti-config), thus the Configs' topologies will not be comparable
 resourceList:
   - ../../../example_podlist/bookinfo_ns_list.json
   - ../../../example_podlist/bookinfo_deployments.yaml
