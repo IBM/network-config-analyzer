@@ -17,7 +17,7 @@ from DimensionsManager import DimensionsManager
 from smt_experiments.z3_sets.z3_hyper_cube_set import Z3HyperCubeSet
 
 INTERVALS = [(0, 100), (200, 300)]
-MAX_DIMENSIONS = 18
+MAX_DIMENSIONS = 15
 MIN_DIMENSIONS = 1
 STEP = 1
 N_TIMES = 10
