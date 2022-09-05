@@ -206,9 +206,9 @@ class IstioNetworkLayer(NetworkLayer):
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         # in istio applying default-allow if there is no capturing policy with action allow
         def captured_cond_func(policy):
-            if isinstance(policy, IstioNetworkPolicy):
+            if policy.policy_kind == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 return policy.action == IstioNetworkPolicy.ActionType.Allow
-            return True  # sidecar always defines allowed connections
+            return True  # only for Istio AuthorizationPolicy the captured condition is more refined with 'Allow' policies
 
         allowed_conns, denied_conns, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress,
                                                                                    captured_cond_func)
