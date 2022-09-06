@@ -157,15 +157,15 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         :return: a IstioSidecar object with proper PeerSets
         :rtype: IstioSidecar
         """
-        policy_name = self.parse_generic_istio_policy_fields('Sidecar', 'networking.istio.io/v1beta1')
+        policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['Sidecar'],
+                                                                        ['networking.istio.io/v1alpha3',
+                                                                         'networking.istio.io/v1beta1'], 'istio', True)
         if policy_name is None:
-            return None  # not relevant to build this policy
-
+            return None  # not an Istio Sidecar
+        warn_if_missing = policy_ns != self.istio_root_namespace
+        self.namespace = self.peer_container.get_namespace(policy_ns, warn_if_missing)
         res_policy = IstioSidecar(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
-
-        if 'spec' not in self.policy or self.policy['spec'] is None:
-            self.syntax_error('spec is missing or null in Sidecar ' + res_policy.full_name())
 
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress

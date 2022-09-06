@@ -12,7 +12,6 @@ from Peer import PeerSet, IpBlock
 from PeerContainer import PeerContainer
 from PortSet import PortSet
 from MethodSet import MethodSet
-from ConnectionSet import ConnectionSet
 from TcpLikeProperties import TcpLikeProperties
 
 

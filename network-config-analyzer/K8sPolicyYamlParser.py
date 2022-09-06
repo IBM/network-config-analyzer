@@ -384,33 +384,23 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :return: a K8sNetworkPolicy object with proper PeerSets and ConnectionSets
         :rtype: K8sNetworkPolicy
         """
-        if not isinstance(self.policy, dict):  # we don't get here
-            self.syntax_error('type of Top ds is not a map')
-        if self.policy.get('kind') != 'NetworkPolicy':
-            return None  # Not a NetworkPolicy object
-        api_version = self.policy.get('apiVersion')
-        if 'k8s' not in api_version and api_version != 'extensions/v1beta1':
-            return None  # apiVersion is not properly set
-        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [0, dict], 'status': [0, dict]}
-        self.check_fields_validity(self.policy, 'NetworkPolicy', valid_keys,
-                                   {'apiVersion': ['networking.k8s.io/v1', 'extensions/v1beta1']})
+        policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['NetworkPolicy'],
+                                                                        ['networking.k8s.io/v1', 'extensions/v1beta1'],
+                                                                        ['k8s', 'extensions'])
+        if policy_name is None:
+            return None  # not a K8s NetworkPolicy
 
-        policy_metadata = self.policy['metadata']
-        self.check_metadata_validity(policy_metadata)
-        self.check_dns_subdomain_name(policy_metadata['name'], policy_metadata)
-        if 'namespace' in policy_metadata and policy_metadata['namespace'] is not None:
-            self.check_dns_label_name(policy_metadata['namespace'], policy_metadata)
-            self.namespace = self.peer_container.get_namespace(policy_metadata['namespace'])
-        else:
-            self.namespace = self.peer_container.get_namespace('default')
-        res_policy = K8sNetworkPolicy(policy_metadata['name'], self.namespace)
+        self.check_dns_subdomain_name(policy_name, self.policy['metadata'])
+        self.check_dns_label_name(policy_ns, self.policy['metadata'])
+        self.namespace = self.peer_container.get_namespace(policy_ns)
+        res_policy = K8sNetworkPolicy(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.K8sNetworkPolicy
 
-        if 'spec' not in self.policy or self.policy['spec'] is None:
+        policy_spec = self.policy.get('spec')
+        if policy_spec is None:
             self.warning('spec is missing or null in NetworkPolicy ' + res_policy.full_name())
             return res_policy
 
-        policy_spec = self.policy['spec']
         allowed_spec_keys = {'podSelector': [1, dict], 'ingress': [0, list], 'egress': [0, list],
                              'policyTypes': [0, list]}
         self.check_fields_validity(policy_spec, 'spec', allowed_spec_keys,

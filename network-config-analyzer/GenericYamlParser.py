@@ -132,6 +132,38 @@ class GenericYamlParser:
             self.syntax_error(f'{bad_policy_keys.pop()} is not a valid entry in the specification of {dict_name}',
                               dict_to_check)
 
+    def parse_generic_yaml_objects_fields(self, yaml_object, object_kind, object_version, layer_keywords, spec_required=False):
+        """
+        Parse and check validity of the common fields in network yaml objects as policies and services.
+        e.g. kind, apiVersion, metadata and spec
+        :param dict yaml_object: the source dict of the network yaml object to be parsed
+        :param list object_kind : the possible kind value(s) of current object
+        :param list object_version : the expected apiVersion(s) of the yaml object
+        :param Union[str, list] layer_keywords: the keyword(s) describing networkLayer that the object belongs to
+        :param bool spec_required: indicates if spec field is mandatory for the parsed object
+        :return: the name and namespace.name of the current object
+        or None if the object does not match the expected kind and apiVersion requirements
+        :rtype: Union[(str, str), (None, None)]
+        """
+        if not isinstance(yaml_object, dict):
+            self.syntax_error('type of Top ds is not a map')
+        kind = yaml_object.get('kind')
+        if kind not in object_kind:
+            return None, None  # Not the relevant object
+        api_version = yaml_object.get('apiVersion')
+        version_keywords = [layer_keywords] if not isinstance(layer_keywords, list) else layer_keywords
+        if not any(keyword in api_version for keyword in version_keywords):
+            return None, None  # apiVersion is not properly set
+        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [spec_required, dict]}
+        if 'k8s' in layer_keywords:
+            valid_keys.update({'status': 3})
+        self.check_fields_validity(yaml_object, kind, valid_keys,
+                                   {'apiVersion': object_version})
+        metadata = yaml_object['metadata']
+        self.check_metadata_validity(metadata)
+        ns_name = metadata.get('namespace', 'default') if layer_keywords != 'calico' else metadata.get('namespace')
+        return metadata['name'], ns_name
+
     def validate_existing_key_is_not_null(self, dict_elem, key):
         """
         check that if key exists in dict_elem, its value is not null

@@ -28,31 +28,6 @@ class IstioGenericYamlParser(GenericYamlParser):
         self.namespace = None
         self.referenced_labels = set()
 
-    def parse_generic_istio_policy_fields(self, policy_kind, istio_version):
-        """
-        Parse the common fields in istio policies, e.g kind, apiVersion and metadata
-        :param str policy_kind : the kind of current policy
-        :param str istio_version : the apiVersion of the istio object
-        :return: the name of the current object or None if it is not relevant object
-        :rtype: str
-        """
-        if not isinstance(self.policy, dict):
-            self.syntax_error('type of Top ds is not a map')
-        if self.policy.get('kind') != policy_kind:
-            return None  # Not the relevant object
-        api_version = self.policy.get('apiVersion')
-        if 'istio' not in api_version:
-            return None  # apiVersion is not properly set
-        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [0, dict]}
-        self.check_fields_validity(self.policy, policy_kind, valid_keys,
-                                   {'apiVersion': [istio_version]})
-        metadata = self.policy['metadata']
-        self.check_metadata_validity(metadata)
-        ns_name = metadata.get('namespace', 'default')
-        warn_if_missing = ns_name != self.istio_root_namespace
-        self.namespace = self.peer_container.get_namespace(ns_name, warn_if_missing)
-        return metadata['name']
-
     def _parse_workload_selector(self, workload_selector, element_key):
         """
         Parse a LabelSelector element

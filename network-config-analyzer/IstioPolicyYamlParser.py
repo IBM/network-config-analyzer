@@ -525,14 +525,19 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         :return: a IstioNetworkPolicy object with proper PeerSets and ConnectionSets
         :rtype: IstioNetworkPolicy
         """
-        policy_name = self.parse_generic_istio_policy_fields('AuthorizationPolicy', 'security.istio.io/v1beta1')
+        policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['AuthorizationPolicy'],
+                                                                        ['security.istio.io/v1beta1'], 'istio')
         if policy_name is None:
-            return None  # not relevant to build this policy
-
+            return None  # not an Istio AuthorizationPolicy
+        warn_if_missing = policy_ns != self.istio_root_namespace
+        self.namespace = self.peer_container.get_namespace(policy_ns, warn_if_missing)
         res_policy = IstioNetworkPolicy(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
 
-        policy_spec = self.policy['spec']
+        policy_spec = self.policy.get('spec')
+        if policy_spec is None:
+            self.warning('spec is missing or null in NetworkPolicy ' + res_policy.full_name())
+            return res_policy
         # currently not supporting provider
         allowed_spec_keys = {'action': [0, str], 'rules': [0, list], 'selector': [0, dict], 'provider': 2}
         allowed_key_values = {'action': ['ALLOW', 'DENY']}

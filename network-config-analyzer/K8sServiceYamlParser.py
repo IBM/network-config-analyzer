@@ -24,20 +24,15 @@ class K8sServiceYamlParser(GenericYamlParser):
         :param dict srv_object: the service object to parse
         :return: K8sService object or None
         """
-        if srv_object.get('kind') != 'Service' or srv_object.get('apiVersion') != 'v1':
-            return None  # Not a v1 Service object
-        metadata = srv_object.get('metadata')
-        if not metadata:
-            return None
-        srv_name = metadata.get('name')
-        if not srv_name:
-            return None
-        srv_namespace = metadata.get('namespace', 'default')
+        srv_name, srv_ns = self.parse_generic_yaml_objects_fields(srv_object, 'Service', ['v1'], ['v1', 'k8s'])
+        if srv_name is None:
+            return None  # Not a k8s Service object
+
+        service = K8sService(srv_name, srv_ns)
         service_spec = srv_object.get('spec')
         if not service_spec:
             self.warning(f'Spec is missing or null in Service {srv_name}. Ignoring the service')
             return None
-        service = K8sService(srv_name, srv_namespace)
         service_type = service_spec.get('type', 'ClusterIP')
         if service_type == 'ExternalName':
             service.set_type(K8sService.ServiceType.ExternalName)
