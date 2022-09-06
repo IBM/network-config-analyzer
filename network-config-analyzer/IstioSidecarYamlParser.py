@@ -180,14 +180,12 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             self.syntax_error('Global Sidecar configuration should not have any workloadSelector.')
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
 
-        # Currently calling following method is regardless the existence of the 'egress' field.
         # istio ref declares both following statements:
-        # sidecar with workloadSelector takes precedence on a default sidecar
-        # if the egress field is not specified it will be inherited from the namespace-wide or
-        # the global default Sidecar.(See https://istio.io/latest/docs/reference/config/networking/sidecar/#Sidecar)
-        # But tests on live cluster behaves as if only the first statement is true
+        # 1.sidecar with workloadSelector takes precedence on a default sidecar. Handled in the following called method
         self._check_and_save_sidecar_if_top_priority(res_policy)
-
+        # 2.  If egress is not specified, inherits the system detected defaults
+        # from the namespace-wide or the global default Sidecar. However, istio does not merge User-defined sidecars.
+        # (See Clarification: https://discuss.istio.io/t/istio-sidecar-doc-description-vs-live-cluster-behavior/13849)
         for egress_rule in sidecar_spec.get('egress') or []:
             res_policy.add_egress_rule(self._parse_egress_rule(egress_rule))
 
