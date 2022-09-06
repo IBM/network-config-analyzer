@@ -1,0 +1,11 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: bad-network-policy
+  namespace: kube-system
+spec:
+  selector: has(app)
+  namespaceSelector: unique-label == 'defaultNameSpace'
+  types:
+  - Ingress
+  - Egress
