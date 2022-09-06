@@ -1,0 +1,141 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: productcatalogservice
+  namespace: onlineboutique
+  annotations:
+    iam.gke.io/gcp-service-account: onlineboutique-gsa@mygke-200.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productcatalogservice
+  namespace: onlineboutique
+spec:
+  selector:
+    matchLabels:
+      app: productcatalogservice
+  template:
+    metadata:
+      labels:
+        app: productcatalogservice
+    spec:
+      serviceAccountName: productcatalogservice
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/productcatalogservice:v0.3.7
+        ports:
+        - containerPort: 3550
+        env:
+        - name: PORT
+          value: "3550"
+        - name: DISABLE_STATS
+          value: "1"
+        - name: DISABLE_TRACING
+          value: "1"
+        - name: DISABLE_PROFILER
+          value: "1"
+        # - name: JAEGER_SERVICE_ADDR
+        #   value: "jaeger-collector:14268"
+        readinessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:3550"]
+        livenessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:3550"]
+        resources:
+          requests:
+            cpu: 15m
+            memory: 151Mi
+          limits:
+            cpu: 40m
+            memory: 170Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productcatalogservice
+  namespace: onlineboutique
+spec:
+  type: ClusterIP
+  selector:
+    app: productcatalogservice
+  ports:
+  - name: grpc
+    port: 3550
+    targetPort: 3550
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: productcatalogservice
+  namespace: onlineboutique
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: productcatalogservice
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: productcatalogservice
+  namespace: onlineboutique
+spec:
+  podSelector:
+    matchLabels:
+      app: productcatalogservice
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    - podSelector:
+        matchLabels:
+          app: recommendationservice
+    ports:
+     - port: 3550
+       protocol: TCP
+  egress:
+  - {}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: productcatalogservice
+  namespace: onlineboutique
+spec:
+  selector:
+    matchLabels:
+      app: productcatalogservice
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/onlineboutique/sa/frontend", "cluster.local/ns/onlineboutique/sa/checkoutservice", "cluster.local/ns/onlineboutique/sa/recommendationservice"]
+    to:
+      - operation:
+          paths: ["/hipstershop.ProductCatalogService/GetProduct", "/hipstershop.ProductCatalogService/ListProducts"]
+          methods: ["POST"]
+          ports: ["3550"]
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: productcatalogservice
+  namespace: onlineboutique
+spec:
+  workloadSelector:
+    labels:
+      app: productcatalogservice
+  egress:
+  - hosts:
+    - "istio-system/*"

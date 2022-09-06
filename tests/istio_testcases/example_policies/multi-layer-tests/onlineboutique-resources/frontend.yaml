@@ -1,0 +1,189 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend
+  namespace: onlineboutique
+  annotations:
+    iam.gke.io/gcp-service-account: onlineboutique-gsa@mygke-200.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: onlineboutique
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: frontend
+      containers:
+        - name: server
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/frontend:v0.3.7
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-readiness-probe"
+          livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+          env:
+          - name: PORT
+            value: "8080"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "productcatalogservice:3550"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currencyservice:7000"
+          - name: CART_SERVICE_ADDR
+            value: "cartservice:7070"
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: "recommendationservice:8080"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shippingservice:50051"
+          - name: CHECKOUT_SERVICE_ADDR
+            value: "checkoutservice:5050"
+          - name: AD_SERVICE_ADDR
+            value: "adservice:9555"
+          - name: ENV_PLATFORM
+            value: "gcp"
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          # - name: JAEGER_SERVICE_ADDR
+          #   value: "jaeger-collector:14268"
+          resources:
+            requests:
+              cpu: 30m
+              memory: 27Mi
+            limits:
+              cpu: 70m
+              memory: 151Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: onlineboutique
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: frontend
+  namespace: onlineboutique
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: frontend
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: frontend
+  namespace: onlineboutique
+spec:
+  hosts:
+    - ob.alwaysupalwayson.com
+  gateways:
+  - asm-ingress/asm-ingressgateway
+  http:
+  - route:
+    - destination:
+        host: frontend
+        port:
+          number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend
+  namespace: onlineboutique
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: loadgenerator
+    - namespaceSelector:
+        matchLabels:
+          name: asm-ingress
+      podSelector:
+        matchLabels:
+          app: asm-ingressgateway
+    ports:
+     - port: 8080
+       protocol: TCP
+  egress:
+  - {}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: frontend
+  namespace: onlineboutique
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/onlineboutique/sa/loadgenerator", "cluster.local/ns/asm-ingress/sa/asm-ingressgateway"]
+    to:
+      - operation:
+          ports: ["8080"]
+          methods: ["GET", "POST"]
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: frontend
+  namespace: onlineboutique
+spec:
+  workloadSelector:
+    labels:
+      app: frontend
+  egress:
+  - hosts:
+    - "istio-system/*"
+    - "./adservice.onlineboutique.svc.cluster.local"
+    - "./cartservice.onlineboutique.svc.cluster.local"
+    - "./checkoutservice.onlineboutique.svc.cluster.local"
+    - "./currencyservice.onlineboutique.svc.cluster.local"
+    - "./productcatalogservice.onlineboutique.svc.cluster.local"
+    - "./recommendationservice.onlineboutique.svc.cluster.local"
+    - "./shippingservice.onlineboutique.svc.cluster.local"
