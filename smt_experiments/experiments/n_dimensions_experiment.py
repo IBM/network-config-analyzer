@@ -2,11 +2,14 @@
 An experiment that measures how the time for element containment is influenced by the number of dimensions of a
 hyper cube, when the number of intervals is fixed.
 """
+import dataclasses
 import itertools
+import json
 import timeit
-from collections import defaultdict
 from collections.abc import Iterable
+from dataclasses import dataclass
 from enum import Enum, auto
+from itertools import product
 from statistics import mean
 
 import matplotlib.pyplot as plt
@@ -14,33 +17,22 @@ import matplotlib.pyplot as plt
 from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from CanonicalIntervalSet import CanonicalIntervalSet
 from DimensionsManager import DimensionsManager
+from smt_experiments.experiments.experiment_utils import Timer, CheckType, get_results_file, get_plot_file, EngineType
 from smt_experiments.z3_sets.z3_hyper_cube_set import Z3HyperCubeSet
 
 INTERVALS = [(0, 100), (200, 300)]
+# TODO: maybe do more experiments with the LINEAR option
+# MAX_DIMENSIONS = 5
 MAX_DIMENSIONS = 15
 MIN_DIMENSIONS = 1
 STEP = 1
-N_TIMES = 10
-
-
-# TODO: create different plots by the different number of cubes that we have in the hyper cube,
-# TODO: we don't count the time that it takes to create the cubes... should we?
+N_TIMES = 1
 
 
 class CubeIncreaseMode(Enum):
     CONSTANT = auto()
     LINEAR = auto()
     EXPONENTIAL = auto()
-
-
-class EngineType(Enum):
-    Z3 = auto()
-    OUR = auto()
-
-
-class CheckType(Enum):
-    CONTAINED = auto()
-    NOT_CONTAINED = auto()
 
 
 def get_dimension_names(n_dimensions: int) -> list[str]:
@@ -68,7 +60,7 @@ def iter_cubes(n_dimensions: int, mode: CubeIncreaseMode) -> Iterable[dict[str, 
             yield dict(zip(dimension_names, cube_limits))
 
 
-def get_z3_hyper_cube(n_dimensions: int, mode: CubeIncreaseMode) -> Z3HyperCubeSet:
+def get_z3_hyper_cube_set(n_dimensions: int, mode: CubeIncreaseMode) -> Z3HyperCubeSet:
     dimension_names = get_dimension_names(n_dimensions)
     hyper_cube = Z3HyperCubeSet(dimension_names)
     for cube in iter_cubes(n_dimensions, mode):
@@ -76,7 +68,7 @@ def get_z3_hyper_cube(n_dimensions: int, mode: CubeIncreaseMode) -> Z3HyperCubeS
     return hyper_cube
 
 
-def get_our_hyper_cube(n_dimensions: int, mode: CubeIncreaseMode) -> CanonicalHyperCubeSet:
+def get_our_hyper_cube_set(n_dimensions: int, mode: CubeIncreaseMode) -> CanonicalHyperCubeSet:
     dimension_names = get_dimension_names(n_dimensions)
     hyper_cube = CanonicalHyperCubeSet(dimension_names)
     for cube in iter_cubes(n_dimensions, mode):
@@ -88,9 +80,9 @@ def get_our_hyper_cube(n_dimensions: int, mode: CubeIncreaseMode) -> CanonicalHy
 
 def get_hyper_cube(n_dimensions: int, mode: CubeIncreaseMode, engine: EngineType):
     if engine == EngineType.Z3:
-        return get_z3_hyper_cube(n_dimensions, mode)
+        return get_z3_hyper_cube_set(n_dimensions, mode)
     if engine == EngineType.OUR:
-        return get_our_hyper_cube(n_dimensions, mode)
+        return get_our_hyper_cube_set(n_dimensions, mode)
 
 
 def get_contained_elements(n_dims: int, mode: CubeIncreaseMode) -> list[dict[str, int]]:
@@ -127,7 +119,7 @@ def get_elements(n_dims: int, mode: CubeIncreaseMode, check_type: CheckType) -> 
         return get_not_contained_in_elements(n_dims, mode)
 
 
-def containment_time(hyper_cube, element: dict[str, int]) -> float:
+def measure_containment_time(hyper_cube, element: dict[str, int]) -> float:
     if isinstance(hyper_cube, CanonicalHyperCubeSet):
         element = list(element.values())
         return timeit.timeit(lambda: element in hyper_cube, number=N_TIMES)
@@ -135,45 +127,118 @@ def containment_time(hyper_cube, element: dict[str, int]) -> float:
         return timeit.timeit(lambda: element in hyper_cube, number=N_TIMES)
 
 
-def avg_containment_time(hyper_cube, elements: list[dict[str, int]]) -> float:
-    return mean(containment_time(hyper_cube, element) for element in elements)
+def measure_avg_containment_time(hyper_cube, elements: list[dict[str, int]]) -> float:
+    return mean(measure_containment_time(hyper_cube, element) for element in elements)
 
 
-def run_experiment():
+@dataclass
+class ExperimentResult:
+    n_dims: int
+    mode: CubeIncreaseMode
+    engine: EngineType
+    check: CheckType
+    containment_time: float
+    creation_time: float
+
+    def to_dict(self):
+        d = self.__dict__
+        for key, value in d.items():
+            if isinstance(value, Enum):
+                d[key] = value.name.lower()
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict):
+        fields = dataclasses.fields(cls)
+        for field in fields:
+            if issubclass(field.type, Enum):
+                d[field.name] = field.type[d[field.name].upper()]
+        return cls(**d)
+
+
+def save_results(results: list[ExperimentResult]) -> None:
+    results = [result.to_dict() for result in results]
+    results_file = get_results_file(__file__)
+    with results_file.open('w') as f:
+        json.dump(results, f)
+
+
+def load_results() -> list[ExperimentResult]:
+    results_file = get_results_file(__file__)
+    with results_file.open('r') as f:
+        results = json.load(f)
+    return [ExperimentResult.from_dict(result) for result in results]
+
+
+def run_experiment() -> list[ExperimentResult]:
+    _init_dim_manager()
+
     n_dims_list = list(range(MIN_DIMENSIONS, MAX_DIMENSIONS + 1, STEP))
+    n_options = len(list(product(n_dims_list, CubeIncreaseMode, EngineType, CheckType)))
 
+    results = []
+    i = 1
+    for (n_dims, mode, engine) in product(n_dims_list, CubeIncreaseMode, EngineType):
+        with Timer() as creation_timer:
+            hyper_cube = get_hyper_cube(n_dims, mode, engine)
+
+        for check in CheckType:
+            print(f'{i} / {n_options}')
+            i += 1
+            elements = get_elements(n_dims, mode, check)
+            containment_time = measure_avg_containment_time(hyper_cube, elements)
+            result = ExperimentResult(
+                n_dims=n_dims,
+                mode=mode,
+                engine=engine,
+                check=check,
+                containment_time=containment_time,
+                creation_time=creation_timer.elapsed_time
+            )
+            results.append(result)
+
+    save_results(results)
+    return results
+
+
+def _init_dim_manager():
     dim_manager = DimensionsManager()
     dim_names = get_dimension_names(MAX_DIMENSIONS)
-
     for n in dim_names:
         dim_manager.set_domain(n, DimensionsManager.DimensionType.IntervalSet, (0, 100000))
 
-    option_list = list(itertools.product(n_dims_list, CubeIncreaseMode, EngineType, CheckType))
-    results = defaultdict(list)
 
-    for i, (n_dims, mode, engine, check) in enumerate(option_list, 1):
-        print(f'{i} / {len(option_list)}')
-        hyper_cube = get_hyper_cube(n_dims, mode, engine)
-        elements = get_elements(n_dims, mode, check)
-        avg_time = avg_containment_time(hyper_cube, elements)
-        results[(mode, engine, check)].append(avg_time)
+def plot_results() -> None:
+    results = load_results()
 
-    # TODO: maybe split into different axes?
     def get_label(engine: EngineType, check: CheckType) -> str:
         return f'{engine.name.lower()}.{check.name.lower()}'
 
-    fig, axes = plt.subplots(1, len(CubeIncreaseMode), )  # figsize=(10, 10))
-    for mode, ax in zip(CubeIncreaseMode, axes):
-        for engine, check in itertools.product(EngineType, CheckType):
-            avg_times = results[(mode, engine, check)]
-            ax.scatter(n_dims_list, avg_times, label=get_label(engine, check))
+    fig, (containment_axes, creation_axes) = plt.subplots(2, len(CubeIncreaseMode), figsize=(16, 10))
+    for mode, containment_ax, creation_ax in zip(CubeIncreaseMode, containment_axes, creation_axes):
+        plotted = []
+        for engine, check in product(EngineType, CheckType):
+            filtered_results = [result for result in results if
+                                result.mode == mode and result.engine == engine and result.check == check]
+            n_dims_list = [result.n_dims for result in filtered_results]
+            containment_time_list = [result.containment_time for result in filtered_results]
+            containment_ax.scatter(n_dims_list, containment_time_list, label=get_label(engine, check))
+            containment_ax.legend()
+            containment_ax.set_xlabel('#dimensions')
+            containment_ax.set_ylabel('containment time')
+            containment_ax.set_title(mode.name.lower())
 
-        ax.legend()
-        ax.set_xlabel('#dimensions')
-        ax.set_ylabel('contains time')
-        ax.set_title(mode.name.lower())
+            if engine not in plotted:
+                creation_time_list = [result.creation_time for result in filtered_results]
+                plotted.append(engine)
+                print(engine, creation_time_list)
+                creation_ax.scatter(n_dims_list, creation_time_list, label=engine.name.lower())
+                creation_ax.legend()
+                creation_ax.set_xlabel('#dimensions')
+                creation_ax.set_ylabel('creation time')
+                creation_ax.set_title(mode.name.lower())
 
-    plt.show()
+    plt.savefig(get_plot_file(__file__))
 
 
 def test_iter_cubes():
@@ -192,5 +257,6 @@ def test_iter_cubes():
 
 
 if __name__ == '__main__':
-    run_experiment()
     # test_iter_cubes()
+    # run_experiment()
+    plot_results()

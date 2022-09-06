@@ -12,7 +12,7 @@ import z3
 from z3 import And, BoolRef, Solver, sat, PrefixOf, \
     SuffixOf, Length, unsat, Not, substitute, Or, BoolVal, ModelRef, SeqRef, Int, Exists
 
-from smt_experiments.z3_utils import solve_without_model, solve_with_model
+from smt_experiments.z3_sets.z3_utils import solve_without_model, solve_with_model
 
 
 class Z3StringSet:
@@ -28,7 +28,7 @@ class Z3StringSet:
     def __init__(self):
         var_name = self._get_fresh_var_name()
         self._var = z3.String(var_name)
-        self._constraints = None
+        self._constraints = BoolVal(False)
 
     def __contains__(self, item: str):
         constraints = And(
