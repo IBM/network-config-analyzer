@@ -39,7 +39,7 @@ def _get_query_type(query: dict):
     return next(iter(filter(lambda key: key not in {'name', 'expected'}, query.keys())))
 
 
-def generate_single_query_scheme_file(scheme_file: Path, temp_dir: Path) -> Iterable[tuple[Path, str]]:
+def generate_single_query_scheme_file(scheme_file: Path, temp_dir: Path) -> Iterable[tuple[Path, str, str]]:
     """Takes a scheme file, and for each query, generates a new scheme file with only that query and only the required
     network configurations."""
     with scheme_file.open('r') as f:
@@ -70,7 +70,7 @@ def generate_single_query_scheme_file(scheme_file: Path, temp_dir: Path) -> Iter
         with new_scheme_file.open('w') as f:
             dump(new_scheme, f)
 
-        yield new_scheme_file, query_type
+        yield new_scheme_file, query_type, query_name
 
 
 if __name__ == '__main__':

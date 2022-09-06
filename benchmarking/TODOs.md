@@ -51,3 +51,6 @@ For now, I'm just adding the two different queries, one with `dot` output and on
 - [ ] list on box of possible things to look at
 - [ ] get feedback about the policies that I use in the two policies queries
 - [ ] add readme on how to run the benchmarks on remote server => make sure to not push that into the GitHub
+- [ ] collect information about the regular expressions that we deal with, maybe we can use a 
+  more simple solution
+- 

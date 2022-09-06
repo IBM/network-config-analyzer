@@ -18,7 +18,7 @@ class BenchmarkProcedure(Enum):
 
 
 class Benchmark:
-    def __init__(self, scheme_file: Path, query_type: str):
+    def __init__(self, scheme_file: Path, query_type: str, original_scheme_file: Path, query_name: str):
         assert str(scheme_file).endswith('-scheme.yaml')
         file_name = scheme_file.name
         self.name = file_name[:-len('-scheme.yaml')]
@@ -28,6 +28,8 @@ class Benchmark:
             '--scheme',
             str(scheme_file)
         ]
+        self.original_scheme_file = original_scheme_file
+        self.query_name = query_name
 
     def run(self):
         nca_main(self._argv)
@@ -127,8 +129,11 @@ def iter_benchmarks(tests_only: bool = False, real_benchmarks_only: bool = False
             if _contains_github(scheme_file):
                 continue
 
-            for new_scheme_file, query_type in generate_single_query_scheme_file(scheme_file, temp_scheme_dir):
-                yield Benchmark(new_scheme_file, query_type)
+            scheme_file_relative_to_repo = scheme_file.relative_to(get_repo_root_dir())
+            for new_scheme_file, query_type, query_name in generate_single_query_scheme_file(scheme_file,
+                                                                                             temp_scheme_dir):
+                yield Benchmark(new_scheme_file, query_type, original_scheme_file=scheme_file_relative_to_repo,
+                                query_name=query_name)
 
 
 if __name__ == '__main__':
