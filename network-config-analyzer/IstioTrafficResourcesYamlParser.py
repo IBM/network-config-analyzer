@@ -57,7 +57,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         if gateway_resource['kind'] != 'Gateway' or 'networking.istio.io' not in gateway_resource['apiVersion']:
             return  # Not an Istio Gateway object
         metadata = gateway_resource['metadata']
-        self.check_fields_validity(metadata, 'Gateway metadata', {'name': [1, str], 'namespace': [0, str]})
+        if 'name' not in metadata:
+            self.syntax_error('Gateway has no name', metadata)
         gtw_name = metadata['name']
         gtw_namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
         gtw_spec = gateway_resource['spec']
@@ -145,7 +146,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             return  # Not an Istio VirtualService object
 
         metadata = vs_resource['metadata']
-        self.check_fields_validity(metadata, 'VirtualService metadata', {'name': [1, str], 'namespace': [0, str]})
+        if 'name' not in metadata:
+            self.syntax_error('VirtualService has no name', metadata)
         vs_name = metadata['name']
         vs_namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
         vs_spec = vs_resource['spec']
