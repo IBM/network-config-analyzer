@@ -138,8 +138,8 @@ class GenericYamlParser:
         e.g. kind, apiVersion, metadata and spec
         :param dict yaml_object: the source dict of the network yaml object to be parsed
         :param list[str] object_kind : the possible kind value(s) of current object
-        :param list object_version : the expected apiVersion(s) of the yaml object
-        :param Union[str, list] layer_keywords: the keyword(s) describing networkLayer that the object belongs to
+        :param list[str] object_version : the expected apiVersion(s) of the yaml object
+        :param Union[str, list[str]] layer_keywords: the keyword(s) describing networkLayer that the object belongs to
         :param bool spec_required: indicates if spec field is mandatory for the parsed object
         :return: the name and namespace.name of the current object
         or None if the object does not match the expected kind and apiVersion requirements
