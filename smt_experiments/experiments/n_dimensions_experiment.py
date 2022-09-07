@@ -18,7 +18,7 @@ from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from CanonicalIntervalSet import CanonicalIntervalSet
 from DimensionsManager import DimensionsManager
 from smt_experiments.experiments.experiment_utils import Timer, CheckType, get_results_file, get_plot_file, EngineType
-from smt_experiments.z3_sets.z3_hyper_cube_set import Z3HyperCubeSet
+from smt_experiments.z3_sets.z3_hyper_cube_set import Z3ProductSet
 
 INTERVALS = [(0, 100), (200, 300)]
 # TODO: maybe do more experiments with the LINEAR option
@@ -64,9 +64,9 @@ def iter_cubes(n_dimensions: int, mode: CubeIncreaseMode) -> Iterable[dict[str, 
             yield dict(zip(dimension_names, cube_limits))
 
 
-def get_z3_hyper_cube_set(n_dimensions: int, mode: CubeIncreaseMode) -> Z3HyperCubeSet:
+def get_z3_hyper_cube_set(n_dimensions: int, mode: CubeIncreaseMode) -> Z3ProductSet:
     dimension_names = get_dimension_names(n_dimensions)
-    hyper_cube = Z3HyperCubeSet(dimension_names)
+    hyper_cube = Z3ProductSet(dimension_names)
     for cube in iter_cubes(n_dimensions, mode):
         hyper_cube.add_cube(cube)
     return hyper_cube
@@ -127,7 +127,7 @@ def measure_containment_time(hyper_cube, element: dict[str, int]) -> float:
     if isinstance(hyper_cube, CanonicalHyperCubeSet):
         element = list(element.values())
         return timeit.timeit(lambda: element in hyper_cube, number=N_TIMES)
-    if isinstance(hyper_cube, Z3HyperCubeSet):
+    if isinstance(hyper_cube, Z3ProductSet):
         return timeit.timeit(lambda: element in hyper_cube, number=N_TIMES)
 
 

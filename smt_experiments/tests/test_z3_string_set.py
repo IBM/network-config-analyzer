@@ -6,7 +6,7 @@ from smt_experiments.z3_sets.z3_string_set import Z3StringSet
 class BasicTests(unittest.TestCase):
     def test_contains_all_words(self):
         in_word = 'bla'
-        str_set = Z3StringSet.get_all_words_set()
+        str_set = Z3StringSet.get_universal_set()
         self.assertIn(in_word, str_set)
 
     def test_contains_exact_match(self):
@@ -103,15 +103,15 @@ class BasicTests(unittest.TestCase):
         self.assertTrue(str_set.is_empty())
 
     def test_is_all_words_1(self):
-        str_set = Z3StringSet.get_all_words_set()
-        self.assertTrue(str_set.is_all_words())
+        str_set = Z3StringSet.get_universal_set()
+        self.assertTrue(str_set.is_universal())
 
     def test_is_all_words_2(self):
-        str_set = Z3StringSet.get_all_words_set()
+        str_set = Z3StringSet.get_universal_set()
         str_set_1 = Z3StringSet.from_str('bla')
         str_set_2 = str_set | str_set_1
-        self.assertFalse(str_set_1.is_all_words())
-        self.assertTrue(str_set_2.is_all_words())
+        self.assertFalse(str_set_1.is_universal())
+        self.assertTrue(str_set_2.is_universal())
 
     def test_sample(self):
         str_set = Z3StringSet.from_str('bla')
