@@ -45,7 +45,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :rtype: Peer.PeerSet
         """
         if label_selector is None:
-            return PeerSet()  # A None value means the selector selects nothing
+            return PeerSet()  # A None value means the selector selects nothing - empty set
         if not label_selector:
             return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
 
