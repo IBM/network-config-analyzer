@@ -24,7 +24,7 @@ class K8sServiceYamlParser(GenericYamlParser):
         :param dict srv_object: the service object to parse
         :return: K8sService object or None
         """
-        srv_name, srv_ns = self.parse_generic_yaml_objects_fields(srv_object, 'Service', ['v1'], ['v1', 'k8s'])
+        srv_name, srv_ns = self.parse_generic_yaml_objects_fields(srv_object, ['Service'], ['v1'], ['v1', 'k8s'])
         if srv_name is None:
             return None  # Not a k8s Service object
 
