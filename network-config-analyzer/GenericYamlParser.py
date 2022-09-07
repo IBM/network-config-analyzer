@@ -156,7 +156,7 @@ class GenericYamlParser:
             return None, None  # apiVersion is not properly set
         valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [spec_required, dict]}
         if 'k8s' in layer_keywords:
-            valid_keys.update({'status': 3})
+            valid_keys.update({'status': [0, dict]})
         self.check_fields_validity(yaml_object, kind, valid_keys,
                                    {'apiVersion': object_version})
         metadata = yaml_object['metadata']

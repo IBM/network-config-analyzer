@@ -5,25 +5,25 @@ networkConfigList:
   - name: ip
     networkPolicyList:
       - policies.yaml
-    expectedWarnings: 1
+    expectedWarnings: 0
 
   - name: np0
     networkPolicyList:
       - services1-networkpolicy0.yaml
       - policies.yaml
-    expectedWarnings: 1
+    expectedWarnings: 0
 
   - name: np1
     networkPolicyList:
       - services1-networkpolicy1.yaml
       - policies.yaml
-    expectedWarnings: 1
+    expectedWarnings: 0
 
   - name: np2
     networkPolicyList:
       - services1-networkpolicy2.yaml
       - policies.yaml
-    expectedWarnings: 1
+    expectedWarnings: 0
 
 queries:
   - name: connectivity_map
