@@ -5,6 +5,10 @@ on:
     branches:
       - master
   pull_request:
+    types: [ opened, reopened, edited ]
+  pull_request_target:
+    paths:
+      - '**.csv'
   workflow_dispatch:
 
 permissions:
