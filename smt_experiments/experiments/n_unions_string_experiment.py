@@ -14,6 +14,7 @@ from smt_experiments.experiments.experiment_utils import Timer, CheckType, get_r
 from smt_experiments.z3_sets.z3_string_set import Z3StringSet
 
 # TODO: change instead to inplace union operations instead of not-inplace operations
+# TODO: refactor the way that experiments work.
 # TODO: test that the containment works (things that are in are in)
 # TODO: create a timeout for the experiment that will automatically stop the experiment when the time is over
 """Experiment setup:
