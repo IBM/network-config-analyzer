@@ -63,7 +63,7 @@ class IstioGenericYamlParser(GenericYamlParser):
         :param dict workload_selector: the workload selector of the policy object yaml
         :param str dict_key: the key used in the selector for labels
         :return the list of peers selected by the policy object
-        :rtype: list
+        :rtype: Peer.PeerSet
         """
         if workload_selector is None:
             selected_peers = self.peer_container.get_all_peers_group()
