@@ -2,16 +2,19 @@ import pickle
 import string
 from collections.abc import Iterable
 from dataclasses import dataclass
-from enum import Enum, auto
 from itertools import combinations, chain, product
-from typing import Any
+from typing import Any, Union
+
+import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 
 from MinDFA import MinDFA
-from smt_experiments.experiments.experiment_utils import Timer, CheckType, get_results_file, EngineType
+from smt_experiments.experiments.experiment_utils import Timer, CheckType, get_results_file, EngineType, EnumWithStr, \
+    get_plot_file
 from smt_experiments.z3_sets.z3_string_set import Z3StringSet
-from timeit import timeit
 
-# TODO: create the plot.
+# TODO: change instead to inplace union operations instead of not-inplace operations
+# TODO: test that the containment works (things that are in are in)
 # TODO: create a timeout for the experiment that will automatically stop the experiment when the time is over
 """Experiment setup:
 - The first parameter will be the number of unions of basic sets.
@@ -25,7 +28,7 @@ from timeit import timeit
 """
 
 
-class BasicSet(Enum):
+class BasicSet(EnumWithStr):
     CONSTANT = string.digits
     PREFIX = string.ascii_lowercase
     SUFFIX = string.ascii_uppercase
@@ -34,6 +37,7 @@ class BasicSet(Enum):
         self.alphabet = alphabet
 
 
+# TODO - write a representation function that I can automatically use in the plot
 @dataclass
 class ExperimentResult:
     n_unions: int
@@ -41,6 +45,7 @@ class ExperimentResult:
     construction_time: float
     membership_time: float
     check: CheckType
+    engine: EngineType
 
 
 def get_elements(n_unions: int, basic_set_combinations: tuple[BasicSet], check: CheckType) -> list[str]:
@@ -87,12 +92,11 @@ def get_string_set(n_unions: int, engine: EngineType, basic_set_combination: tup
                     s = s + '*'
                 string_set = string_set | Z3StringSet.from_str(s)
             else:  # engine == EngineType.OUR
-                if engine == EngineType.Z3:
-                    if basic_set == BasicSet.SUFFIX:
-                        s = '(.*)' + s
-                    elif basic_set == BasicSet.PREFIX:
-                        s = s + '(.*)'
-                    string_set = string_set | Z3StringSet.from_str(s)
+                if basic_set == BasicSet.SUFFIX:
+                    s = '(.*)' + s
+                elif basic_set == BasicSet.PREFIX:
+                    s = s + '(.*)'
+                string_set = string_set | MinDFA.dfa_from_regex(s)
 
     return string_set
 
@@ -111,89 +115,105 @@ def load_results() -> list[ExperimentResult]:
 
 def run_experiment():
     min_unions = 1
-    max_unions = 5
+    max_unions = 15
     step = 1
 
     n_unions_list = list(range(min_unions, max_unions, step))
     basic_set_combination_list = list(chain.from_iterable(combinations(BasicSet, i) for i in range(1, len(BasicSet) + 1)))
+    option_list = list(product(n_unions_list, EngineType, basic_set_combination_list))
     results = []
-    for n_unions in n_unions_list:
-        for engine, basic_set_combination in product(EngineType, basic_set_combination_list):
-            with Timer() as creation_timer:
-                string_set = get_string_set(n_unions, engine, basic_set_combination)
+    for i, (n_unions, engine, basic_set_combination) in enumerate(option_list, 1):
+        print(f'{i} out of {len(option_list)}')
 
-            for check in CheckType:
-                elements = get_elements(n_unions, basic_set_combination, check)
-                with Timer() as membership_timer:
-                    for element in elements:
-                        is_in = element in string_set
+        with Timer() as creation_timer:
+            string_set = get_string_set(n_unions, engine, basic_set_combination)
 
-                result = ExperimentResult(
-                    n_unions,
-                    basic_set_combination,
-                    creation_timer.elapsed_time,
-                    membership_timer.elapsed_time / len(elements),
-                    check
-                )
-                results.append(result)
+        for check in CheckType:
+            elements = get_elements(n_unions, basic_set_combination, check)
+            with Timer() as membership_timer:
+                for element in elements:
+                    is_in = element in string_set
+                    assert is_in == (check == CheckType.CONTAINED)
+
+            result = ExperimentResult(
+                n_unions,
+                basic_set_combination,
+                creation_timer.elapsed_time,
+                membership_timer.elapsed_time / len(elements),
+                check,
+                engine
+            )
+            results.append(result)
 
     save_results(results)
 
 
+def get_all_attr_options(results: list, attr: str) -> set:
+    return set(getattr(result, attr) for result in results)
+
+
+def iter_legend_options(legend_options: dict[str, set]) -> Iterable[dict[str, Any]]:
+    attr_category_tuples = []
+    for attr, options in legend_options.items():
+        attr_category_tuples.append([(attr, option) for option in options])
+
+    for option_tuples in product(*attr_category_tuples):
+        yield dict(option_tuples)
+
+
+def filter_results(results: list[ExperimentResult], filter_dict: dict[str, Any]) -> list[ExperimentResult]:
+    return [result for result in results
+            if all(getattr(result, key) == value for key, value in filter_dict.items())]
+
+
 def plot_results():
-    pass
+    # TODO: make this function work for all experiments
+    # TODO: these should be given as inputs to the function,
+    legend_vars = ['engine', 'check']
+    horizontal_var = 'basic_set_combination'
+    x_y_vars = [
+        ('n_unions', 'membership_time'),
+        ('n_unions', 'construction_time')
+    ]
 
+    def recursive_str(collection) -> str:
+        if isinstance(collection, dict):
+            return ', '.join(f'{str(key)}={recursive_str(value)}' for key, value in collection.items())
+        elif isinstance(collection, (list, tuple)):
+            return ', '.join(recursive_str(value) for value in collection)
+        return str(collection)
 
-def timeit_(func):
-    n_times = 1_000
-    return timeit(func, number=n_times)
+    results = load_results()
 
+    legend_var_to_options = {legend_var: get_all_attr_options(results, legend_var)
+                             for legend_var in legend_vars}
 
-def experiment():
-    # creation
-    dfa = MinDFA.dfa_from_regex('bla/(.*)')
-    t = timeit_(lambda: MinDFA.dfa_from_regex('bla/(.*)'))
-    print(f'dfa creation time: {t}')
+    horizontal_categories = get_all_attr_options(results, horizontal_var)
 
-    str_set = Z3StringSet.from_str('bla/*')
-    t = timeit_(lambda: Z3StringSet.from_str('bla/*'))
-    print(f'z3 creation time: {t}')
+    n_horizontal_axes = len(horizontal_categories)
+    n_vertical_axes = len(x_y_vars)
+    figsize = (6.4 * n_horizontal_axes, 4.8 * n_vertical_axes)
+    fig, axes = plt.subplots(n_vertical_axes, n_horizontal_axes, figsize=figsize)
 
-    # containment
-    t = timeit_(lambda: 'bla/bla' in dfa)
-    print(f'dfa containment time: {t}')
+    for vertical_i, (x_var, y_var) in enumerate(x_y_vars):
+        for horizontal_i, horizontal_category in enumerate(horizontal_categories):
+            ax: Axes = axes[vertical_i][horizontal_i]
+            for legend_option in iter_legend_options(legend_var_to_options):
+                filter_dict = legend_option.copy()
+                filter_dict[horizontal_var] = horizontal_category
+                filtered_results = filter_results(results, filter_dict)
+                x_list = [getattr(result, x_var) for result in filtered_results]
+                y_list = [getattr(result, y_var) for result in filtered_results]
+                ax.scatter(x_list, y_list, label=recursive_str(legend_option))
 
-    t = timeit_(lambda: 'bla/bla' in str_set)
-    print(f'z3 containment time: {t}')
+            ax.set_xlabel(x_var)
+            ax.set_ylabel(y_var)
+            ax.set_title(recursive_str(horizontal_category))
+            ax.legend()
 
-    # intersection
-    dfa1 = MinDFA.dfa_from_regex('(.*)/bla')
-    str_set1 = Z3StringSet.from_str('*/bla')
-
-    dfa2 = dfa1 & dfa
-    t = timeit_(lambda: dfa1 & dfa)
-    print(f'dfa intersection time: {t}')
-
-    str_set2 = str_set1 & str_set
-    t = timeit_(lambda: str_set1 & str_set)
-    print(f'z3 intersection time: {t}')
-
-    # containment
-    # if dfa2.contained_in(dfa1):
-    #     print('YES')
-    # if str_set2.contained_in(str_set1):
-    #     print('YES')
-    t = timeit_(lambda: dfa2.contained_in(dfa1))
-    print(f'dfa containment time: {t}')
-    t = timeit_(lambda: str_set2.contained_in(str_set1))
-    print(f'z3 containment time: {t}')
-
-    t = timeit_(lambda: dfa1.contained_in(dfa))
-    print(f'dfa not containment time: {t}')
-    t = timeit_(lambda: str_set1.contained_in(str_set))
-    print(f'z3 not containment time: {t}')
+    plt.savefig(get_plot_file(__file__))
 
 
 if __name__ == '__main__':
-    # experiment()
     run_experiment()
+    plot_results()

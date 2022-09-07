@@ -1,6 +1,6 @@
 import unittest
 
-from smt_experiments.z3_string_set import Z3StringSet
+from smt_experiments.z3_sets.z3_string_set import Z3StringSet
 
 
 class BasicTests(unittest.TestCase):
@@ -106,7 +106,8 @@ class BasicTests(unittest.TestCase):
         str_set = Z3StringSet.get_all_words_set()
         self.assertTrue(str_set.is_all_words())
 
-    def test_is_all_words_2(self, str_set):
+    def test_is_all_words_2(self):
+        str_set = Z3StringSet.get_all_words_set()
         str_set_1 = Z3StringSet.from_str('bla')
         str_set_2 = str_set | str_set_1
         self.assertFalse(str_set_1.is_all_words())
@@ -136,22 +137,6 @@ class BasicTests(unittest.TestCase):
         str_set_3 = Z3StringSet.from_str('*/moo')
         self.assertEqual(str_set_1, str_set_2)
         self.assertNotEqual(str_set_1, str_set_3)
-
-    def test_is_finite(self):
-        str_set_1 = Z3StringSet.from_str('bla/*')
-        self.assertFalse(str_set_1.is_finite())
-
-        str_set_2 = Z3StringSet.from_str('bla/bla/bla')
-        self.assertTrue(str_set_2.is_finite())
-
-        str_set_3 = Z3StringSet.from_str('*/bla')
-        self.assertFalse(str_set_3.is_finite())
-
-        str_set_4 = str_set_1 & str_set_3
-        self.assertFalse(str_set_4.is_finite())
-
-        str_set_5 = str_set_2 & str_set_4
-        self.assertTrue(str_set_5.is_finite())
 
 
 if __name__ == '__main__':

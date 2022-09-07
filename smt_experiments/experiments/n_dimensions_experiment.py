@@ -29,6 +29,10 @@ STEP = 1
 N_TIMES = 1
 
 
+
+
+
+# class CubeIncreaseMode(Enum):
 class CubeIncreaseMode(Enum):
     CONSTANT = auto()
     LINEAR = auto()

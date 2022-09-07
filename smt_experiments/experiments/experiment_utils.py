@@ -18,7 +18,12 @@ class Timer:
         self.elapsed_time = self.end - self.start
 
 
-class CheckType(Enum):
+class EnumWithStr(Enum):
+    def __str__(self):
+        return self.name.lower()
+
+
+class CheckType(EnumWithStr):
     CONTAINED = auto()
     NOT_CONTAINED = auto()
 
@@ -37,6 +42,7 @@ def get_plot_file(script_file: str):
     return results_file
 
 
-class EngineType(Enum):
+class EngineType(EnumWithStr):
     Z3 = auto()
     OUR = auto()
+
