@@ -51,7 +51,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param str gateway_file_name: the name of the gateway resource file (for reporting errors and warnings)
         """
         self.set_file_name(gateway_file_name)  # for error/warning messages
-        gtw_name, gtw_ns = self.parse_generic_yaml_objects_fields(gateway_resource, 'Gateway',
+        gtw_name, gtw_ns = self.parse_generic_yaml_objects_fields(gateway_resource, ['Gateway'],
                                                                   ['networking.istio.io/v1alpha3',
                                                                    'networking.istio.io/v1beta1'], 'istio', True)
         if gtw_name is None:
