@@ -536,7 +536,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
 
         policy_spec = self.policy.get('spec')
         if policy_spec is None:
-            self.warning('spec is missing or null in NetworkPolicy ' + res_policy.full_name())
+            self.warning('spec is missing or null in AuthorizationPolicy ' + res_policy.full_name())
             return res_policy
         # currently not supporting provider
         allowed_spec_keys = {'action': [0, str], 'rules': [0, list], 'selector': [0, dict], 'provider': 2}
