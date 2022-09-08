@@ -59,4 +59,4 @@ jobs:
           git add tests/expected_runtime/calico_tests_expected_runtime.csv tests/expected_runtime/istio_tests_expected_runtime.csv tests/expected_runtime/k8s_tests_expected_runtime.csv
           git diff-index --quiet HEAD || ( git commit -m"Updating expected-runtimes file" && git push )
   call-test-push-workflow:
-    uses: ./test-push.yaml
+    uses: ./.github/workflows/test-push.yml
