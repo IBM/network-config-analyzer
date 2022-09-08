@@ -93,7 +93,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         # <service_name>.<domain>.svc.cluster.local
         # the only relevant part of it is <service_name>
         service_name = dns_name.split('.')[0]
-        return self.peer_container.get_pods_with_service_name_containing_given_string(service_name)
+        return self.peer_container.get_target_pods_with_service_name(service_name)
 
     def _parse_egress_rule(self, egress_rule):
         """

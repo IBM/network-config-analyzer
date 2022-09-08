@@ -184,6 +184,18 @@ class PeerContainer:
                 res.add(peer)
         return res
 
+    def get_target_pods_with_service_name(self, service_name):
+        """
+        Returns all target pods that belong to the given service name
+        :param str service_name: the service name
+        :return: PeerSet
+        """
+        res = PeerSet()
+        for service in self.services.values():
+            if service.name == service_name:
+                res |= service.target_pods
+        return res
+
     def get_pods_with_service_name_containing_given_string(self, name_substring):
         """
         Returns all pods that belong to services whose name contains the given substring
@@ -291,8 +303,8 @@ class PeerContainer:
     def _set_services_and_populate_target_pods(self, service_list):
         """
         Populates services from the given service list,
-        and for every service computes and populates its target pods.
-        :param list service_list: list of service in K8sService format
+        and for every service computes and populates its target pods
+        :param list[k8sService] service_list: list of service in K8sService format
         :return: None
         """
         for srv in service_list:
