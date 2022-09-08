@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import copy
+import os.path
 from enum import Enum
 from NetworkConfig import NetworkConfig
 from PoliciesFinder import PoliciesFinder
@@ -225,6 +226,9 @@ class ResourcesParser:
             # if np list is not given and there are no policies in the resource list
             # then try to load policies from live cluster
             if self.policies_finder.has_empty_containers():
+                # if the resourceList refers to a dir path, and contains no policies don't try to load rom live cluster
+                if len(resource_list) == 1 and os.path.isdir(resource_list[0]):
+                    return config_name
                 live_cluster_flag = True
                 filling_container = True
         else:  # running without resources flags means running on k8s live cluster
