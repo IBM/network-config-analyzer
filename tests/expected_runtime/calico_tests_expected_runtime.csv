@@ -6,6 +6,7 @@ calico_testcases/example_policies/calico-demo/interferes-scheme.yaml,0.57
 calico_testcases/example_policies/calico-demo/sanity1-scheme.yaml,0.39
 calico_testcases/example_policies/calico-demo/sanity2-scheme.yaml,0.33
 calico_testcases/example_policies/calico-demo/sanity3-scheme.yaml,6.42
+calico_testcases/example_policies/testcase1/testcase1-copy-scheme.yaml,1.04
 calico_testcases/example_policies/testcase1/testcase1-scheme.yaml,0.74
 calico_testcases/example_policies/testcase10/testcase10-scheme.yaml,1.42
 calico_testcases/example_policies/testcase11/testcase11-scheme.yaml,4.75
