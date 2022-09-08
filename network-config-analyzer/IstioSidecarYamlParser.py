@@ -148,7 +148,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             if peer.prior_sidecar:  # this sidecar is not first one
                 self.warning(f'Peer "{peer.full_name()}" already has a Sidecar configuration selecting it. Sidecar: '
                              f'"{curr_sidecar.full_name()}" will not be considered as connections for this workload')
-                return
+                continue
             peer.prior_sidecar = curr_sidecar
 
     def parse_policy(self):
