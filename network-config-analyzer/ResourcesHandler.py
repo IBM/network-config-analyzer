@@ -9,6 +9,7 @@ from PoliciesFinder import PoliciesFinder
 from TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from GenericTreeScanner import TreeScannerFactory
 from PeerContainer import PeerContainer
+from CmdlineRunner import CmdlineRunner
 
 
 class ResourceType(Enum):
@@ -72,6 +73,7 @@ class ResourcesHandler:
                              policies_container=resources_parser.policies_finder.policies_container)
 
     def _set_config_peer_container(self, ns_list, pod_list, resource_list, config_name, save_flag, resources_parser):
+        filling_containers = False
         success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
         if success or res_type:
             if res_type:
@@ -81,8 +83,14 @@ class ResourcesHandler:
             # deepcopy is required since PoliciesFinder may change peer_container
             peer_container = copy.deepcopy(self.global_peer_container)
         else:  # the specific networkConfig has no topology input resources (not private, neither global)
-            print('loading topology objects from k8s live cluster')
-            resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
+            # this case is reachable when:
+            # 1. no topology paths are provided at all, i.e. user intended to get resources from live cluster
+            # 2. paths are provided only using resourceList flag, but no topology objects found; in this case
+            # we will try to get resources from live cluster silently
+            if resource_list:
+                filling_containers = True
+            resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods],
+                                                                  filling_containers)
             peer_container = resources_parser.build_peer_container(config_name)
 
         if save_flag:  # if called from scheme with global topology or cmdline with 2 configs query
@@ -110,9 +118,9 @@ class ResourcesHandler:
             resources_parser.ns_finder = self.global_ns_finder
         elif res_type == ResourceType.Namespaces and global_pod_exist:
             resources_parser.pods_finder = self.global_pods_finder
-        else:
+        else:  # this case is reachable only when paths are provided using resourceList but missing part of topology
             load_type = ResourceType.Namespaces if res_type == ResourceType.Pods else ResourceType.Pods
-            resources_parser.load_resources_from_k8s_live_cluster([load_type])
+            resources_parser.load_resources_from_k8s_live_cluster([load_type], True)
 
 
 class ResourcesParser:
@@ -173,7 +181,7 @@ class ResourcesParser:
         # calculating the return value:
         if (self.pods_finder.peer_set and self.ns_finder.namespaces) or \
                 (specific_pods and specific_ns):
-            # input resources include both pods and namespaces or include only pods- so their namespaces are taken
+            # input resources include both pods and namespaces or include only pods - so their namespaces are taken
             # or both pods and namespaces from specific switches (a specific switch may point to an empty file)
             return True, 0
         if specific_pods and self.ns_finder.namespaces:
@@ -201,6 +209,7 @@ class ResourcesParser:
         otherwise the name of the first policy in the input list
         """
         live_cluster_flag = False
+        filling_container = False
         config_name = None
         self.policies_finder.set_peer_container(peer_container)
         if np_list is not None:
@@ -214,22 +223,22 @@ class ResourcesParser:
             self._parse_resources_path(resource_list, [ResourceType.Policies])
             config_name = resource_list[0]
             # if np list is not given and there are no policies in the resource list
-            # then load policies from live cluster
+            # then try to load policies from live cluster
             if self.policies_finder.has_empty_containers():
                 live_cluster_flag = True
-        else:
+                filling_container = True
+        else:  # running without resources flags means running on k8s live cluster
+            print('loading policies from k8s live cluster')
             live_cluster_flag = True
 
         if live_cluster_flag:
-            config_name = 'k8s'
-            print('loading policies from k8s live cluster')
-            self._parse_resources_path(['k8s'], [ResourceType.Policies])
+            self.load_resources_from_k8s_live_cluster([ResourceType.Policies], filling_container)
 
         return config_name
 
     def _parse_resources_path(self, resource_list, resource_flags):
         """
-        parsing the resources path / live cluster using the Finder classes
+        parsing the resources paths / live cluster using the Finder classes
         :param list resource_list: list of input resources paths
         :param list resource_flags: resource types to search in the given resource_list
         list possibilities are: [ResourceType.Policies], [ResourceType.Namespaces], [ResourceType.Pods] and
@@ -264,7 +273,16 @@ class ResourcesParser:
 
         self.policies_finder.parse_policies_in_parse_queue()
 
-    def load_resources_from_k8s_live_cluster(self, resource_flags):
+    def load_resources_from_k8s_live_cluster(self, resource_flags, filling_containers=False):
+        """
+        attempt to load the resources in resource_flags from k8s live cluster
+        :param list resource_flags: resource types to load from k8s live cluster
+        :param bool filling_containers: indicates if resource paths are provided using resourceList flag but does not
+        include the required resource types.
+        """
+        # Setting a flag in the CmdlineRunner to indicate if we are trying to load resources silently
+        # from the live cluster
+        CmdlineRunner.ignore_live_cluster_err = filling_containers
         if ResourceType.Namespaces in resource_flags:
             self.ns_finder.load_ns_from_live_cluster()
         if ResourceType.Pods in resource_flags:
