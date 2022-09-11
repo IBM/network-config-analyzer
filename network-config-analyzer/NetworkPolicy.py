@@ -24,6 +24,7 @@ class NetworkPolicy:
         CalicoGlobalNetworkPolicy = 3
         CalicoProfile = 4
         IstioAuthorizationPolicy = 10
+        IstioSidecar = 11
         Ingress = 20
         Gateway = 30
         VirtualService = 31
@@ -39,6 +40,8 @@ class NetworkPolicy:
                 return NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy
             elif kind == "IstioAuthorizationPolicy":
                 return NetworkPolicy.PolicyType.IstioAuthorizationPolicy
+            elif kind == "IstioSidecar":
+                return NetworkPolicy.PolicyType.IstioSidecar
             elif kind == "K8sIngress":
                 return NetworkPolicy.PolicyType.Ingress
             return None
@@ -117,7 +120,7 @@ class NetworkPolicy:
         self.egress_rules.append(rule)
 
     @staticmethod
-    def get_policy_type_from_dict(policy):
+    def get_policy_type_from_dict(policy):  # noqa: C901
         """
         Given a policy/policy-list resource, determines the type of policy it describes/contains (based on its 'kind')
         :param dict policy: The resource to examine
@@ -147,6 +150,8 @@ class NetworkPolicy:
         elif 'istio' in api_version:
             if kind == 'AuthorizationPolicy':
                 policy_type = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
+            elif kind == 'Sidecar':
+                policy_type = NetworkPolicy.PolicyType.IstioSidecar
             elif kind == 'Gateway':
                 policy_type = NetworkPolicy.PolicyType.Gateway
             elif kind == 'VirtualService':

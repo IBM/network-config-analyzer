@@ -100,7 +100,7 @@ k8s_testcases/example_policies/namedPorts/namedPorts-scheme.yaml,0.07
 k8s_testcases/example_policies/network-policy-checks/network-policy-check-scheme.yaml,0.15
 k8s_testcases/example_policies/online_boutique/connectivity-scheme.yaml,1.12
 k8s_testcases/example_policies/resourcelist-one-path-example/resource-path-scheme.yaml,0.06
-k8s_testcases/example_policies/services1/services1-scheme.yaml,0.85
+k8s_testcases/example_policies/services1/services1-scheme.yaml,0.54
 k8s_testcases/example_policies/testcase1/testcase1-scheme.yaml,0.37
 k8s_testcases/example_policies/testcase10-json-version/testcase10-json-version-scheme.yaml,1.03
 k8s_testcases/example_policies/testcase10-nameSpace-podSelector/testcase10-all-resources-in-one-key-scheme.yaml,1.53
