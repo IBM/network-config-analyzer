@@ -1,0 +1,12 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: frontend
+spec:
+  workloadSelector:
+    labels:
+      app: frontend
+  egress:
+  - hosts:
+      - "*/abc." # passes on live cluster also
+      - "*/abc.abc09-"

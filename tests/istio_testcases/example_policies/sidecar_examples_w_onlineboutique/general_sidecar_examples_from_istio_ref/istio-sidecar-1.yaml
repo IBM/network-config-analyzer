@@ -1,0 +1,14 @@
+#The example below declares a Sidecar configuration in the prod-us1 namespace that configures the sidecars in the
+#namespace to allow egress traffic to public services in the prod-us1, prod-apis, and the istio-system namespaces.
+
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: default
+  namespace: prod-us1
+spec:
+  egress:
+  - hosts:
+    - "prod-us1/*"
+    - "prod-apis/*"
+    - "istio-system/*"

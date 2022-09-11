@@ -18,6 +18,7 @@ class GenericYamlParser:
     """
     A base class for yaml parsers, providing basic services
     """
+
     class FilterActionType(Enum):
         """
         Allowed actions for Calico's network policy rules
@@ -67,6 +68,19 @@ class GenericYamlParser:
         print(print_msg, file=stderr)
         self.warning_msgs.append(msg)
 
+    def check_metadata_validity(self, policy_metadata):
+        """
+        Checks the validity of metadata fields according to k8s ref. (used also with istio objects)
+        :param dict policy_metadata: the dict to be checked
+        :return: None
+        :raises SyntaxError: if some keys are not allowed/missing
+        """
+        allowed_metadata_keys = {'name': [1, str], 'namespace': [0, str], 'annotations': 0, 'clusterName': 0,
+                                 'creationTimestamp': 0, 'deletionGracePeriodSeconds': 0, 'deletionTimestamp': 0,
+                                 'finalizers': 0, 'generateName': 0, 'generation': 0, 'labels': 0, 'managedFields': 0,
+                                 'ownerReferences': 0, 'resourceVersion': 0, 'selfLink': 0, 'uid': 0}
+        self.check_fields_validity(policy_metadata, 'metadata', allowed_metadata_keys)
+
     def check_fields_validity(self, dict_to_check, dict_name, allowed_keys, allowed_values=None):
         """
         Check that all keys in dict_to_check are legal (appear in allowed_keys)
@@ -82,7 +96,7 @@ class GenericYamlParser:
          if type is specified, allowed_keys maps string to array.
         :param dict allowed_values: Map from a key name to its allowed values (optional)
         :return: None
-        :raises SyntaxError: if some of the keys are not allowed/missing
+        :raises SyntaxError: if some keys are not allowed/missing
         """
 
         for key, key_info in allowed_keys.items():
@@ -117,6 +131,38 @@ class GenericYamlParser:
         if bad_policy_keys:
             self.syntax_error(f'{bad_policy_keys.pop()} is not a valid entry in the specification of {dict_name}',
                               dict_to_check)
+
+    def parse_generic_yaml_objects_fields(self, yaml_object, object_kind, object_version, layer_keywords, spec_required=False):
+        """
+        Parse and check validity of the common fields in network yaml objects as policies and services.
+        e.g. kind, apiVersion, metadata and spec
+        :param dict yaml_object: the source dict of the network yaml object to be parsed
+        :param list[str] object_kind : the possible kind value(s) of current object
+        :param list[str] object_version : the expected apiVersion(s) of the yaml object
+        :param Union[str, list[str]] layer_keywords: the keyword(s) describing networkLayer that the object belongs to
+        :param bool spec_required: indicates if spec field is mandatory for the parsed object
+        :return: the name and namespace.name of the current object
+        or None if the object does not match the expected kind and apiVersion requirements
+        :rtype: Union[(str, str), (None, None)]
+        """
+        if not isinstance(yaml_object, dict):
+            self.syntax_error('type of Top ds is not a map')
+        kind = yaml_object.get('kind')
+        if kind not in object_kind:
+            return None, None  # Not the relevant object
+        api_version = yaml_object.get('apiVersion')
+        version_keywords = [layer_keywords] if not isinstance(layer_keywords, list) else layer_keywords
+        if not any(keyword in api_version for keyword in version_keywords):
+            return None, None  # apiVersion is not properly set
+        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [spec_required, dict]}
+        if 'k8s' in layer_keywords:
+            valid_keys.update({'status': [0, dict]})
+        self.check_fields_validity(yaml_object, kind, valid_keys,
+                                   {'apiVersion': object_version})
+        metadata = yaml_object['metadata']
+        self.check_metadata_validity(metadata)
+        ns_name = metadata.get('namespace', 'default') if layer_keywords != 'calico' else metadata.get('namespace')
+        return metadata['name'], ns_name
 
     def validate_existing_key_is_not_null(self, dict_elem, key):
         """

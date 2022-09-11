@@ -6,63 +6,19 @@ import re
 
 from MinDFA import MinDFA
 from DimensionsManager import DimensionsManager
-from GenericYamlParser import GenericYamlParser
+from IstioGenericYamlParser import IstioGenericYamlParser
 from IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
 from NetworkPolicy import NetworkPolicy
 from Peer import IpBlock, PeerSet
-from PeerContainer import PeerContainer
 from ConnectionSet import ConnectionSet
 from PortSet import PortSet
 from MethodSet import MethodSet
 
 
-class IstioPolicyYamlParser(GenericYamlParser):
+class IstioPolicyYamlParser(IstioGenericYamlParser):
     """
     A parser for Istio AuthorizationPolicy objects
     """
-
-    # TODO: root_namespace should be configurable from istio configuration, currently using default value for it
-    # If namespace is set to root namespace, the policy applies to all namespaces in a mesh
-    root_namespace = 'istio-config'
-
-    def __init__(self, policy, peer_container, policy_file_name=''):
-        """
-        :param dict policy: The policy object as provided by the yaml parser
-        :param PeerContainer peer_container: The policy will be evaluated against this set of peers
-        :param str policy_file_name: The name of the file in which the policy resides
-        """
-        GenericYamlParser.__init__(self, policy_file_name)
-        self.policy = policy
-        self.peer_container = peer_container
-        self.namespace = None
-        self.referenced_labels = set()
-
-    def parse_label_selector(self, label_selector):
-        """
-        Parse a LabelSelector element
-        :param dict label_selector: The element to parse
-        :return: A PeerSet containing all the pods captured by this selection
-        :rtype: Peer.PeerSet
-        """
-        if label_selector is None:
-            return PeerSet()  # A None value means the selector selects nothing
-        if not label_selector:
-            return self.peer_container.get_all_peers_group()  # An empty value means the selector selects everything
-
-        allowed_elements = {'matchLabels': [0, dict]}
-        self.check_fields_validity(label_selector, 'authorization policy WorkloadSelector', allowed_elements)
-
-        res = self.peer_container.get_all_peers_group()
-        match_labels = label_selector.get('matchLabels')
-        if match_labels:
-            for key, val in match_labels.items():
-                res &= self.peer_container.get_peers_with_label(key, [val])
-            self.referenced_labels.add(':'.join(match_labels.keys()))
-
-        if not res:
-            self.warning('A podSelector selects no pods. Better use "podSelector: Null"', label_selector)
-
-        return res
 
     def _validate_istio_regex_pattern(self, regex_str):
         """
@@ -569,27 +525,19 @@ class IstioPolicyYamlParser(GenericYamlParser):
         :return: a IstioNetworkPolicy object with proper PeerSets and ConnectionSets
         :rtype: IstioNetworkPolicy
         """
-        if not isinstance(self.policy, dict):
-            self.syntax_error('Top ds is not a map')
-        if self.policy.get('kind') != 'AuthorizationPolicy':
-            return None  # Not a AuthorizationPolicy object
-        api_version = self.policy.get('apiVersion', self.policy.get('api_version', ''))
-        if not api_version:
-            self.syntax_error('An object with no specified apiVersion', self.policy)
-        if 'istio' not in api_version:
-            return None  # apiVersion is not properly set
-        if api_version not in ['security.istio.io/v1beta1']:
-            raise Exception('Unsupported apiVersion: ' + api_version)
-        self.check_fields_validity(self.policy, 'AuthorizationPolicy', {'kind': 1, 'metadata': 1, 'spec': 1,
-                                                                        'apiVersion': 0, 'api_version': 0})
-        metadata = self.policy['metadata']
-        if 'name' not in metadata:
-            self.syntax_error('AuthorizationPolicy has no name', self.policy)
-        self.namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
-        res_policy = IstioNetworkPolicy(metadata['name'], self.namespace)
+        policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['AuthorizationPolicy'],
+                                                                        ['security.istio.io/v1beta1'], 'istio')
+        if policy_name is None:
+            return None  # not an Istio AuthorizationPolicy
+        warn_if_missing = policy_ns != self.istio_root_namespace
+        self.namespace = self.peer_container.get_namespace(policy_ns, warn_if_missing)
+        res_policy = IstioNetworkPolicy(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioAuthorizationPolicy
 
-        policy_spec = self.policy['spec']
+        policy_spec = self.policy.get('spec')
+        if policy_spec is None:
+            self.warning('spec is missing or null in AuthorizationPolicy ' + res_policy.full_name())
+            return res_policy
         # currently not supporting provider
         allowed_spec_keys = {'action': [0, str], 'rules': [0, list], 'selector': [0, dict], 'provider': 2}
         allowed_key_values = {'action': ['ALLOW', 'DENY']}
@@ -602,13 +550,7 @@ class IstioPolicyYamlParser(GenericYamlParser):
         res_policy.affects_ingress = True
         res_policy.affects_egress = False
         pod_selector = policy_spec.get('selector')
-        if pod_selector is None:
-            res_policy.selected_peers = self.peer_container.get_all_peers_group()
-        else:
-            res_policy.selected_peers = self.parse_label_selector(pod_selector)
-        # if policy's namespace is the root namespace, then it applies to all cluster's namespaces
-        if self.namespace.name != IstioPolicyYamlParser.root_namespace:
-            res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
+        res_policy.selected_peers = self.update_policy_peers(pod_selector, 'matchLabels')
         for ingress_rule in policy_spec.get('rules', []):
             res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule))
         if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:

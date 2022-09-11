@@ -1,0 +1,18 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: frontend
+spec:
+  workloadSelector:
+    labels:
+      app: frontend
+  egress:
+  - hosts:
+    #- "istio-system/*" - istio-system namespace is not configured in this example
+    - "./adservice.onlineboutique.svc.cluster.local"
+    - "./cartservice.onlineboutique.svc.cluster.local"
+    - "./checkoutservice.onlineboutique.svc.cluster.local"
+    - "./currencyservice.onlineboutique.svc.cluster.local"
+    - "./productcatalogservice.onlineboutique.svc.cluster.local"
+    - "./recommendationservice.onlineboutique.svc.cluster.local"
+    - "./shippingservice.onlineboutique.svc.cluster.local"

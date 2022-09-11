@@ -29,7 +29,7 @@ class NetworkLayerName(Enum):
         if policy_type in {NetworkPolicy.PolicyType.K8sNetworkPolicy, NetworkPolicy.PolicyType.CalicoNetworkPolicy,
                            NetworkPolicy.PolicyType.CalicoGlobalNetworkPolicy, NetworkPolicy.PolicyType.CalicoProfile}:
             return NetworkLayerName.K8s_Calico
-        elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
+        elif policy_type in {NetworkPolicy.PolicyType.IstioAuthorizationPolicy, NetworkPolicy.PolicyType.IstioSidecar}:
             return NetworkLayerName.Istio
         elif policy_type == NetworkPolicy.PolicyType.Ingress:
             return NetworkLayerName.Ingress
@@ -206,16 +206,15 @@ class IstioNetworkLayer(NetworkLayer):
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         # in istio applying default-allow if there is no capturing policy with action allow
         def captured_cond_func(policy):
-            return policy.action == IstioNetworkPolicy.ActionType.Allow
+            if policy.policy_kind == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
+                return policy.action == IstioNetworkPolicy.ActionType.Allow
+            return True  # only for Istio AuthorizationPolicy the captured condition is more refined with 'Allow' policies
 
         allowed_conns, denied_conns, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress,
                                                                                    captured_cond_func)
         # for istio initialize non-captured conns with non-TCP connections
         allowed_non_captured_conns = ConnectionSet.get_non_tcp_connections()
-        if not is_ingress:
-            # egress currently always allowed and not captured (unless denied by Ingress resource)
-            allowed_non_captured_conns = ConnectionSet(True)
-        elif not captured_res:  # no allow policies for target
+        if not captured_res:  # no allow policies for target
             # add connections allowed by default that are not captured
             allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
         return PolicyConnections(captured_res, allowed_conns, denied_conns,

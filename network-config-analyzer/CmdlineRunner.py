@@ -83,7 +83,7 @@ class CmdlineRunner:
         """
         CmdlineRunner.locate_kube_config_file()
         cmdline_list = ['kubectl', 'get', resource, '-o=json']
-        if resource in ['networkPolicy', 'authorizationPolicy', 'pod', 'ingress', 'Gateway', 'VirtualService']:
+        if resource in ['networkPolicy', 'authorizationPolicy', 'pod', 'ingress', 'Gateway', 'VirtualService', 'sidecar']:
             cmdline_list.append('--all-namespaces')
         return CmdlineRunner.run_and_get_output(cmdline_list)
 
