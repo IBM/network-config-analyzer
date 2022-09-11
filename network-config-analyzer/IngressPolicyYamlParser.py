@@ -245,7 +245,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],
-                             'rules': [0, list], 'TLS': [0, dict]}
+                             'rules': [0, list], 'tls': [0, list]}
         self.check_fields_validity(policy_spec, 'Ingress spec', allowed_spec_keys)
 
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
