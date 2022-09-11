@@ -11,6 +11,7 @@ from NetworkPolicy import NetworkPolicy
 from K8sPolicyYamlParser import K8sPolicyYamlParser
 from CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from IstioPolicyYamlParser import IstioPolicyYamlParser
+from IstioSidecarYamlParser import IstioSidecarYamlParser
 from IngressPolicyYamlParser import IngressPolicyYamlParser
 from IstioTrafficResourcesYamlParser import IstioTrafficResourcesYamlParser
 
@@ -49,6 +50,7 @@ class PoliciesFinder:
 
     def load_istio_policies_from_k8s_cluster(self):
         self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl')
+        self._add_policies(CmdlineRunner.get_k8s_resources('sidecar'), 'kubectl')
 
     def _add_policy(self, policy):
         """
@@ -70,6 +72,9 @@ class PoliciesFinder:
                 self._add_policy(parsed_element.parse_policy())
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
+                self._add_policy(parsed_element.parse_policy())
+            elif policy_type == NetworkPolicy.PolicyType.IstioSidecar:
+                parsed_element = IstioSidecarYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)

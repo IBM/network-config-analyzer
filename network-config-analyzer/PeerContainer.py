@@ -46,16 +46,19 @@ class PeerContainer:
     def get_namespaces(self):
         return self.namespaces
 
-    def get_namespace(self, namespace):
+    def get_namespace(self, namespace, warn_if_missing=True):
         """
          Get a K8sNamespace object for a given namespace name. If namespace is missing, then add it to the
-         container's namespaces, sources for new namespaces may be networkpolicies or config queries
+         container's namespaces. Sources for new namespaces may be networkpolicies or config queries
         :param str namespace: The name of the required namespace
+        :param bool warn_if_missing: indicates if missing namespace is handled as special case
+        (e.g. a system root namespace)
         :return: A relevant K8sNamespace
         :rtype: K8sNamespace
         """
         if namespace not in self.namespaces:
-            print('Namespace', namespace, 'is missing from the network configuration', file=stderr)
+            if warn_if_missing:
+                print('Namespace', namespace, 'is missing from the network configuration', file=stderr)
             k8s_ns = K8sNamespace(namespace)
             self.namespaces[namespace] = k8s_ns
         return self.namespaces[namespace]
@@ -181,6 +184,18 @@ class PeerContainer:
                 res.add(peer)
         return res
 
+    def get_target_pods_with_service_name(self, service_name):
+        """
+        Returns all target pods that belong to the given service name
+        :param str service_name: the service name
+        :return: PeerSet
+        """
+        res = PeerSet()
+        for service in self.services.values():
+            if service.name == service_name:
+                res |= service.target_pods
+        return res
+
     def get_pods_with_service_name_containing_given_string(self, name_substring):
         """
         Returns all pods that belong to services whose name contains the given substring
@@ -191,6 +206,28 @@ class PeerContainer:
         for key, val in self.services.items():
             if name_substring in key:
                 res |= val.target_pods
+        return res
+
+    def get_all_services_target_pods(self):
+        """
+        Returns all pods that belong to services
+        :rtype: PeerSet
+        """
+        res = PeerSet()
+        for service in self.services.values():
+            res |= service.target_pods
+        return res
+
+    def get_services_target_pods_in_namespace(self, namespace):
+        """
+        Returns all pods that belong to services in the given namespace
+        :param K8sNamespace namespace:   namespace object
+        :rtype: PeerSet
+        """
+        res = PeerSet()
+        for service in self.services.values():
+            if service.namespace == namespace:
+                res |= service.target_pods
         return res
 
     def get_pods_with_service_account_name(self, sa_name, namespace_str):
@@ -266,8 +303,8 @@ class PeerContainer:
     def _set_services_and_populate_target_pods(self, service_list):
         """
         Populates services from the given service list,
-        and for every service computes and populates its target pods.
-        :param list service_list: list of service in K8sService format
+        and for every service computes and populates its target pods
+        :param list[k8sService] service_list: list of service in K8sService format
         :return: None
         """
         for srv in service_list:

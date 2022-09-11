@@ -1,0 +1,15 @@
+resourceList: onlineboutique-resources/
+
+networkConfigList:
+  - name: onlineboutique-resources
+    resourceList:
+      - onlineboutique-resources/
+
+
+queries:
+  - name: connectivity-map-of-onlineboutique
+    connectivityMap:
+      - onlineboutique-resources
+    expected: 0
+    expectedOutput: ../../expected_output/connectivity_map_of_onlineboutique_resources.txt
+

@@ -12,7 +12,7 @@ the following is supported:
 |condition| source.ip, source.namespace, source.principal, destination.port|
 
 For Istio Ingress Traffic Management (see [Istio Traffic Management spec](https://istio.io/latest/docs/concepts/traffic-management/)), 
-VirtualServices and Gateways are supported. 
+VirtualServices, Gateways and Sidecars are supported. 
 
 In the VirtualService, the following is supported:
 
@@ -31,4 +31,11 @@ In the Gateway, the following is supported:
 | selector | string:string           |                        |      |
 | servers  | port                    | hosts                  | name |
 |          | number, protocol, name  |                        |
+
+In the Sidecar, the following is supported:
+
+| Field            | Supported (Sub)-Fields | 
+|------------------|------------------------|
+| workloadSelector | labels                 |
+| egress           | hosts                  |
 
