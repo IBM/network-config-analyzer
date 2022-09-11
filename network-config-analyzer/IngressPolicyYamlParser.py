@@ -227,25 +227,18 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         Parses the input object to create  IngressPolicy object (with deny rules only)
         :return: IngressPolicy object with proper deny egress_rules, or None for wrong input object
         """
-        if not isinstance(self.policy, dict):
-            self.syntax_error('Top ds is not a map')
-        if self.policy.get('kind') != 'Ingress':
+        policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['Ingress'],
+                                                                        ['networking.k8s.io/v1'], 'k8s', True)
+        if policy_name is None:
             return None  # Not an Ingress object
-        self.check_fields_validity(self.policy, 'Ingress', {'kind': 1, 'metadata': 1, 'spec': 1,
-                                                            'apiVersion': 1, 'status': 0})
-        if 'k8s' not in self.policy['apiVersion']:
-            return None  # apiVersion is not properly set
-        if 'name' not in self.policy['metadata']:
-            self.syntax_error('Ingress has no name', self.policy)
-        self.namespace = self.peer_container.get_namespace(self.policy['metadata'].get('namespace', 'default'))
 
-        res_policy = IngressPolicy(self.policy['metadata']['name'] + '/allow', self.namespace,
-                                   IngressPolicy.ActionType.Allow)
+        self.namespace = self.peer_container.get_namespace(policy_ns)
+        res_policy = IngressPolicy(policy_name + '/allow', self.namespace, IngressPolicy.ActionType.Allow)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
 
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],
-                             'rules': [0, list], 'TLS': [0, dict]}
+                             'rules': [0, list], 'tls': [0, list]}
         self.check_fields_validity(policy_spec, 'Ingress spec', allowed_spec_keys)
 
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),

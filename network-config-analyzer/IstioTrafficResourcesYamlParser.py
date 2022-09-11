@@ -51,17 +51,15 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param str gateway_file_name: the name of the gateway resource file (for reporting errors and warnings)
         """
         self.set_file_name(gateway_file_name)  # for error/warning messages
-        self.check_fields_validity(gateway_resource, 'Gateway',
-                                   {'apiVersion': [1, str], 'kind': [1, str],
-                                    'metadata': [1, dict], 'spec': [1, dict]})
-        if gateway_resource['kind'] != 'Gateway' or 'networking.istio.io' not in gateway_resource['apiVersion']:
-            return  # Not an Istio Gateway object
-        metadata = gateway_resource['metadata']
-        self.check_fields_validity(metadata, 'Gateway metadata', {'name': [1, str], 'namespace': [0, str]})
-        gtw_name = metadata['name']
-        gtw_namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
-        gtw_spec = gateway_resource['spec']
+        gtw_name, gtw_ns = self.parse_generic_yaml_objects_fields(gateway_resource, ['Gateway'],
+                                                                  ['networking.istio.io/v1alpha3',
+                                                                   'networking.istio.io/v1beta1'], 'istio', True)
+        if gtw_name is None:
+            return None  # not an Istio Gateway
+        gtw_namespace = self.peer_container.get_namespace(gtw_ns)
         gateway = Gateway(gtw_name, gtw_namespace)
+
+        gtw_spec = gateway_resource['spec']
         self.check_fields_validity(gtw_spec, f'the spec of Gateway {gateway.full_name()}',
                                    {'selector': [1, dict], 'servers': [1, list]})
         selector = gtw_spec['selector']
@@ -137,20 +135,15 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param str vs_file_name: the name of the virtual service resource file
         """
         self.set_file_name(vs_file_name)  # for error/warning messages
-        self.check_fields_validity(vs_resource, 'VirtualService',
-                                   {'apiVersion': [1, str], 'kind': [1, str],
-                                    'metadata': [1, dict], 'spec': [1, dict]})
-
-        if vs_resource['kind'] != 'VirtualService' or 'networking.istio.io' not in vs_resource['apiVersion']:
-            return  # Not an Istio VirtualService object
-
-        metadata = vs_resource['metadata']
-        self.check_fields_validity(metadata, 'VirtualService metadata', {'name': [1, str], 'namespace': [0, str]})
-        vs_name = metadata['name']
-        vs_namespace = self.peer_container.get_namespace(metadata.get('namespace', 'default'))
-        vs_spec = vs_resource['spec']
+        vs_name, vs_ns = self.parse_generic_yaml_objects_fields(vs_resource, ['VirtualService'],
+                                                                ['networking.istio.io/v1alpha3',
+                                                                 'networking.istio.io/v1beta1'], 'istio', True)
+        if vs_name is None:
+            return None  # Not an Istio VirtualService object
+        vs_namespace = self.peer_container.get_namespace(vs_ns)
         vs = VirtualService(vs_name, vs_namespace)
 
+        vs_spec = vs_resource['spec']
         self.check_fields_validity(vs_spec, f'VirtualService {vs.full_name()}',
                                    {'hosts': [0, list], 'gateways': [0, list], 'http': 0, 'tls': 3, 'tcp': 3,
                                     'exportTo': [3, str]})

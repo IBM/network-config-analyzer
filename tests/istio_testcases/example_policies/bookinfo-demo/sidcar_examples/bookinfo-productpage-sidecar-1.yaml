@@ -1,0 +1,12 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: bookinfo-productpage-sidecar-1
+spec:
+  workloadSelector:
+    labels:
+      app: productpage
+  egress:
+    - hosts:
+      - "./details.default.svc.cluster.local"
+      - "./reviews.default.svc.cluster.local"

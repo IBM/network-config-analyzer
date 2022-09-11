@@ -605,30 +605,23 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         :return: a CalicoNetworkPolicy object with proper PeerSets, ConnectionSets and Actions
         :rtype: CalicoNetworkPolicy
         """
-        if not isinstance(self.policy, dict):
-            self.syntax_error('Top ds is not a map')
-        kind = self.policy.get('kind')
-        if not kind or kind not in ['NetworkPolicy', 'GlobalNetworkPolicy', 'Profile']:
-            return None
+        policy_name, policy_ns = \
+            self.parse_generic_yaml_objects_fields(self.policy, ['NetworkPolicy', 'GlobalNetworkPolicy', 'Profile'],
+                                                   ['projectcalico.org/v3'], 'calico', True)
+        if policy_name is None:
+            return None  # not a Calico policy object
+
+        kind = self.policy['kind']
         is_profile = (kind == 'Profile')
         is_global_np = (kind == 'GlobalNetworkPolicy')
-        api_version = self.policy.get('apiVersion')
-        if 'calico' not in api_version:
-            return None
-        valid_keys = {'kind': [1, str], 'apiVersion': [1, str], 'metadata': [1, dict], 'spec': [1, dict]}
-        self.check_fields_validity(self.policy, 'NetworkPolicy', valid_keys, {'apiVersion': ['projectcalico.org/v3']})
-
-        metadata = self.policy['metadata']
-        if 'name' not in metadata:
-            self.syntax_error('NetworkPolicy has no name', metadata)
-        if 'namespace' in metadata:
+        if policy_ns:
             if is_global_np:
-                self.syntax_error('A GlobalNetworkPolicy should not have a namespace', metadata)
-            self.namespace = self.peer_container.get_namespace(metadata['namespace'])
+                self.syntax_error('A GlobalNetworkPolicy should not have a namespace', self.policy)
+            self.namespace = self.peer_container.get_namespace(policy_ns)
         else:
             if kind == 'NetworkPolicy':
                 self.namespace = self.peer_container.get_namespace('default')
-        res_policy = CalicoNetworkPolicy(metadata['name'], self.namespace)
+        res_policy = CalicoNetworkPolicy(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.get_policy_type_from_dict(self.policy)
 
         policy_spec = self.policy['spec']
