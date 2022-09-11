@@ -6,6 +6,10 @@ on:
       - master
   pull_request:
   workflow_dispatch:
+  workflow_run:
+    workflows: [reset-tests-expected-runtime, update-tests-expected-output, update-tests-expected-runtime]
+    types:
+      - completed
 
 permissions:
   actions: read
