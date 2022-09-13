@@ -31,7 +31,7 @@ jobs:
       - uses: ./.github/actions/setup-nca-env
       - run: pip install flake8
       - name: Lint with flake8
-        run: flake8 network-config-analyzer --count --max-complexity=15 --max-line-length=127 --statistics --ignore F401
+        run: flake8 nca --count --max-complexity=15 --max-line-length=127 --statistics --ignore F401
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -134,7 +134,7 @@ jobs:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
       - run: |
-          python network-config-analyzer/nca.py --daemon &
+          python nca/nca.py --daemon &
           NCA_PID=$!
           while true; do  # wait until REST server becomes responsive
             curl_status=0

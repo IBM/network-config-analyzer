@@ -3,17 +3,14 @@ import traceback
 import sys
 import os
 from fnmatch import fnmatch
-from os import path
 import time
 import yaml
 import csv
 from ruamel.yaml import YAML
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'network-config-analyzer'))
-from nca import nca_main
-from CmdlineRunner import CmdlineRunner
-from OutputFilesFlags import OutputFilesFlags
+from nca.nca import nca_main
+from nca.Utils.CmdlineRunner import CmdlineRunner
+from nca.Utils.OutputFilesFlags import OutputFilesFlags
 
 """
 The script runs tests based on tests specification in 'all_tests_spec.yaml'
@@ -145,7 +142,7 @@ class GeneralTest:
         if expected_run_time == 0.0:
             self.new_tests_error += 1
         if actual_run_time >= expected_run_time * 2:
-            if not path.isfile(output_file):
+            if not os.path.isfile(output_file):
                 write_header = True
             with open(output_file, 'a', newline='') as csv_file:
                 csv_writer = csv.writer(csv_file)
@@ -252,7 +249,7 @@ class TestsRunner:
         else:
             files_to_remove = failed_runtime_files
         for file_name in files_to_remove:
-            if path.isfile(file_name):
+            if os.path.isfile(file_name):
                 os.remove(file_name)
 
     def run_tests(self):
@@ -383,9 +380,9 @@ class TestsRunner:
                 for test in next(iter(code)):
                     query_name = test.get('name', '')
                     cli_test_name = f'{os.path.basename(test_file)}, query name: {query_name}'
-                    cliQuery = CliQuery(test, self.test_files_spec.root, cli_test_name)
+                    cli_query = CliQuery(test, self.test_files_spec.root, cli_test_name)
                     if self.category == '' or cli_test_name.startswith(self.category):
-                        self.create_and_run_test_obj(cliQuery, test.get('expected', 0))
+                        self.create_and_run_test_obj(cli_query, test.get('expected', 0))
 
 
 def main(argv=None):

@@ -1,11 +1,5 @@
-import sys
-import os
-
-sys.path.append(
-    os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
-
 import unittest
-from CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 
 
 class TestCanonicalIntervalSetMethods(unittest.TestCase):
