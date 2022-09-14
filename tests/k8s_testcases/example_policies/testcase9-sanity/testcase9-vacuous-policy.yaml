@@ -6,7 +6,7 @@
 ### The first mistake is detected since a podSelector is empty
 
 ### To execute from command line:
-### python nca.py --sanity tests/k8s_testcases/example_policies/demo_short/sanity1-networkpolicy.yaml  --base_np_list tests/example_policies/testcase3/testcase3-networkpolicy1.yaml --ns_list tests/example_podlist/ns_list.json  --pod
+### python nca_cli.py --sanity tests/k8s_testcases/example_policies/demo_short/sanity1-networkpolicy.yaml  --base_np_list tests/example_policies/testcase3/testcase3-networkpolicy1.yaml --ns_list tests/example_podlist/ns_list.json  --pod
 #_list tests/example_podlist/pods_list.json
 
 

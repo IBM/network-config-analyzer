@@ -1,13 +1,7 @@
-import sys
-import os
-
-sys.path.append(
-    os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
-
-from DimensionsManager import DimensionsManager
-from MinDFA import MinDFA
 import unittest
 from greenery.fsm import fsm, anything_else
+from nca.CoreDS.DimensionsManager import DimensionsManager
+from nca.CoreDS.MinDFA import MinDFA
 
 alphabet_regex = DimensionsManager().default_dfa_alphabet_str
 
