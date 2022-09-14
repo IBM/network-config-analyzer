@@ -38,7 +38,9 @@ jobs:
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
-      - run: python tests/run_unittests.py
+      - run: |
+          export PYTHONPATH=.
+          python tests/run_unittests.py
   k8s-tests:
     runs-on: ubuntu-latest
     steps:
@@ -52,6 +54,7 @@ jobs:
       - name: Run k8s tests
         env:
           GHE_TOKEN: ${{ github.token }}
+          PYTHONPATH: .
         run: python tests/run_all_tests.py --type=general --category=k8s --check_run_time | tee tests/k8s_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_k8s_tests log
         if: ${{ always() }}
@@ -74,6 +77,7 @@ jobs:
       - name: Run calico tests
         env:
           GHE_TOKEN: ${{ github.token }}
+          PYTHONPATH: .
         run: python tests/run_all_tests.py --type=general --category=calico --check_run_time | tee tests/calico_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_calico_tests log
         if: ${{ always() }}
@@ -96,6 +100,7 @@ jobs:
       - name: Run istio tests
         env:
           GHE_TOKEN: ${{ github.token }}
+          PYTHONPATH: .
         run: python tests/run_all_tests.py --type=general --category=istio --check_run_time | tee tests/istio_log.txt ; test ${PIPESTATUS[0]} -eq 0
       - name: upload run_istio_tests log
         if: ${{ always() }}
@@ -127,14 +132,16 @@ jobs:
           cd istio-1.*
           export PATH=$PWD/bin:$PATH
           istioctl install --set profile=demo -y
-      - run:  python tests/run_all_tests.py --type=k8s_live_general
+      - run: |
+          export PYTHONPATH=.
+          python tests/run_all_tests.py --type=k8s_live_general
   rest-api:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
       - run: |
-          python nca/nca.py --daemon &
+          python -m nca --daemon &
           NCA_PID=$!
           while true; do  # wait until REST server becomes responsive
             curl_status=0
