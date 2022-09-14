@@ -26,4 +26,5 @@ COPY nca/ /nca/
 
 USER 9000
 
-ENTRYPOINT ["python", "/nca/nca.py"]
+WORKDIR "/"
+ENTRYPOINT ["python", "-m", "nca"]
