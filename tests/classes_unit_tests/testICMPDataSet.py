@@ -1,6 +1,5 @@
 import unittest
-
-from ICMPDataSet import ICMPDataSet
+from nca.CoreDS.ICMPDataSet import ICMPDataSet
 
 
 class TestICMPDataSet(unittest.TestCase):
