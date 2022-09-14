@@ -9,7 +9,6 @@ Utility class to execute the cmdline executables 'kubectl' and 'calicoctl'
 
 import subprocess
 import os
-import sys
 from fnmatch import fnmatch
 
 
@@ -17,22 +16,16 @@ class CmdlineRunner:
     """
     A stateless class with only static functions to easily get k8s and calico resources using kubectl and calicoctl
     """
-    # a static variable to indicate if we want to ignore errors from running executable command
-    ignore_live_cluster_err = False
-
     @staticmethod
     def run_and_get_output(cmdline_list):
         """
         Run an executable with specific arguments and return its output to stdout
         :param list[str] cmdline_list: A list of arguments, the first of which is the executable path
-        :return: The executable's output to stdout ( a list-resources on success, otherwise empty value)
+        :return: The executable's output to stdout
         :rtype: str
         """
-        cmdline_process = subprocess.Popen(cmdline_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = cmdline_process.communicate()  # on success, err will be empty. on failure, out will be empty
-        if err and not CmdlineRunner.ignore_live_cluster_err:
-            print(err.decode().strip('\n'), file=sys.stderr)
-        return out
+        cmdline_process = subprocess.Popen(cmdline_list, stdout=subprocess.PIPE)
+        return cmdline_process.communicate()[0]
 
     @staticmethod
     def search_file_in_path(filename, search_path):

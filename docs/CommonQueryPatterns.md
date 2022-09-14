@@ -13,13 +13,18 @@ Patterns describing how to combine specific switches (global: `--<query_name> , 
 3. Using general base switch to specify all base resources, may be used with any combination of the global switches [above](#queries-with-one-config)\
 `--<query_name> --resource_list <networkPolicies, namespaces and pods paths> --base_resource_list <networkpolicies, namespaces and pods path>` [see example here](../tests/k8s_cmdline_tests.yaml#L293-L302)
 
-Handling missing resources and loading resources from live cluster:
-- For global and base configs, if networkPolicies paths are missing (i.e. the specific switch is not used and global switch does not refer to any policy), policies will be loaded from k8s live cluster
-- If global pods paths are missing (i.e. the specific switch is not used and global switch does not refer to any pod), pods will be loaded from k8s live cluster
+##### Handling missing resources:
+- When running without any switch (i.e. `--<query_name>`), all resources will be loaded from k8s live cluster.
+
+Running with switches:
+- When running with specific topology switches only (using only `pod_list` and `ns_list`) without providing networkPolicy path, policies will be loaded from k8s live cluster
+- When running with specific policies switches only (i.e. `--<query_name> <NetworkPolicy set> [--base_np_list <NetworkPolicy set>]`), topology objects will be loaded from k8s live cluster
+- For global and base configs, if networkPolicies paths are missing (i.e. the specific switch is not used and general switch does not refer to any policy), nca considers no policies in place. 
+- If global pods paths are missing (i.e. the specific switch is not used and general switch does not refer to any pod), an empty peer set is created.
 - If base pods are missing, global pods will be used 
 - If namespaces paths are missing:
     - if there are pods, the namespaces set will contain the pods' namespaces
-    - else global namespaces will be used if existed, otherwise, namespaces will be loaded from k8s live cluster
+    - else global namespaces will be used if existed, otherwise, empty namespaces container is used.
 - If any of the specific switches is specified, it overrides the relevant resources from paths in the argument of the general switch.
     
 ### Scheme File Patterns:
@@ -41,13 +46,14 @@ Handling missing resources and loading resources from live cluster:
   `- name: <config_name>`\
     `resourceList: [list of networkPolicies, namespaces and pods paths]` [see example here ](../tests/k8s_testcases/example_policies/resourcelist-one-path-example/resource-path-scheme.yaml#L3-L7)
 
-Handling missing resources and loading resources from live cluster:
-- If `networkPolicyList` is not used and `resourceList` does not refer to any policy, policies will be loaded from k8s live cluster
-- If global pods are missing (i.e. `podList` is not used and `resourceList` does not refer to any pod), pods will be loaded from k8s live cluster
+##### Handling missing resources:
+- If global scope does not exist, topology objects will be loaded from k8s live cluster.
+- If `networkPolicyList` is not used and `resourceList` does not refer to any policy, a query reading this considers empty network-policies list.
+- If global pods are missing (i.e. `podList` is not used and `resourceList` does not refer to any pod), global cluster will have 0 endpoints. 
 - If config's pods are missing, global pods will be used
 - If namespaces are missing,
   - if there are pods, namespaces set will contain the pods' namespaces
-  - otherwise, global namespaces will be used if existed or will be loaded from k8s live cluster if not
+  - otherwise, global namespaces will be used if existed else cluster has empty namespaces container
 - If any specific key is specified it will override the relevant contents in resourceList
 
 
