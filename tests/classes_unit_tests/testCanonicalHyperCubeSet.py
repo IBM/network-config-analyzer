@@ -1,14 +1,8 @@
-import sys
-import os
-
-sys.path.append(
-    os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
-
 import unittest
-from CanonicalIntervalSet import CanonicalIntervalSet
-from MinDFA import MinDFA
-from CanonicalHyperCubeSet import CanonicalHyperCubeSet
-from DimensionsManager import DimensionsManager
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.MinDFA import MinDFA
+from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
+from nca.CoreDS.DimensionsManager import DimensionsManager
 
 dimensions = ["src_ports", "ports", "methods_dfa", "paths"]
 dimensions2 = ["ports", "src_ports", "methods_dfa", "paths"]
@@ -30,7 +24,6 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
     """
     unit tests for CanonicalHyperCubeSet with methods_dfa dimension of type DFA.
     """
-
 
     def test_dfa_equality(self):
         dfa_all = dim_manager.get_dimension_domain_by_name("methods_dfa")

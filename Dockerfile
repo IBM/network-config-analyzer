@@ -22,8 +22,9 @@ RUN curl -L https://github.com/projectcalico/calicoctl/releases/download/v3.3.1/
 
 RUN apt-get purge curl -y && apt-get autoremove -y
 
-COPY network-config-analyzer/ /nca/
+COPY nca/ /nca/
 
 USER 9000
 
-ENTRYPOINT ["python", "/nca/nca.py"]
+WORKDIR "/"
+ENTRYPOINT ["python", "-m", "nca"]
