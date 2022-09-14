@@ -6,6 +6,7 @@
 import argparse
 import time
 import os
+import sys
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig import NetworkConfig
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
@@ -322,3 +323,7 @@ def nca_main(argv=None):
 
     _do_every(args.period * 60, run_args, args)
     return 0
+
+
+if __name__ == "__main__":
+    sys.exit(nca_main())

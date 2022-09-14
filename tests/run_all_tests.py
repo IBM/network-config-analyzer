@@ -8,7 +8,7 @@ import yaml
 import csv
 from ruamel.yaml import YAML
 
-from nca.nca import nca_main
+from nca.nca_cli import nca_main
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from nca.Utils.OutputFilesFlags import OutputFilesFlags
 
