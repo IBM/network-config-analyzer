@@ -43,7 +43,7 @@ class PeerContainer:
          and services
          :param PeerContainer other: the peer container to compare current with
         """
-        return isinstance(other, PeerContainer) and self.peer_set == other.peer_set
+        return isinstance(other, PeerContainer) and self.peer_set == other.peer_set and self.services == other.services
 
     def delete_all_namespaces(self):
         if self.get_num_peers() > 0:  # Only delete namespaces if no peers are present
