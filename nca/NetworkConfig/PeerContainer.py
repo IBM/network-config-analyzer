@@ -39,8 +39,8 @@ class PeerContainer:
 
     def is_comparable_with_other_container(self, other):
         """
-        Two peer containers are considered comparable if having same set of peers, regardless their namespaces
-         and services
+        Two peer containers are considered comparable if having same set of peers and services,
+        regardless their namespaces
          :param PeerContainer other: the peer container to compare current with
         """
         return isinstance(other, PeerContainer) and self.peer_set == other.peer_set and self.services == other.services
