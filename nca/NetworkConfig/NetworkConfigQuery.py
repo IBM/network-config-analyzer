@@ -715,7 +715,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         return QueryType.ComparisonToBaseConfigQuery
 
     def is_identical_topologies(self, check_same_policies=False):
-        if self.config1.peer_container != self.config2.peer_container:
+        if not self.config1.peer_container.is_comparable_with_other_container(self.config2.peer_container):
             return QueryAnswer(False, 'The two configurations have different network topologies '
                                       'and thus are not comparable.\n', query_not_executed=True)
         if check_same_policies and self.config1.policies_container.policies == self.config2.policies_container.policies:

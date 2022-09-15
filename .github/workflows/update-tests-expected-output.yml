@@ -16,7 +16,9 @@ jobs:
       - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - uses: ./.github/actions/setup-nca-env
       - name: update or add expected output files
-        run:  python tests/run_all_tests.py --type=general --override_expected_output_files --create_expected_output_files
+        run: |
+          export PYTHONPATH=.
+          python tests/run_all_tests.py --type=general --override_expected_output_files --create_expected_output_files
         env:
           GHE_TOKEN: ${{ github.token }}
       - name: Commit changes
