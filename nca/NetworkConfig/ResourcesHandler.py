@@ -31,7 +31,8 @@ class ResourcesHandler:
     def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list):
         """
         builds the global peer container based on global input resources,
-        it also saves the global pods and namespaces finder, to use in case specific configs missing one of them
+        it also saves the global pods and namespaces finder, to use in case specific configs missing one of them.
+        Note: if there are no input resources at all, loads them from k8s live cluster
         :param Union[list[str], None] global_ns_list: global namespaces entries
         :param Union[list[str], None] global_pod_list: global pods entries
         :param Union[list[str], None] global_resource_list: list of global entries of namespaces/pods to handle
@@ -44,7 +45,7 @@ class ResourcesHandler:
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False):
         """
         First tries to build a peer_container using the input resources (NetworkConfigs's resources)
-        If fails, it uses the global peer container otherwise build it from the k8s live cluster peers.
+        If fails, it uses the global peer container.
         Then parse the input resources for policies and builds the network config accordingly.
         :param Union[list[str], None] np_list: networkPolicies entries
         :param Union[list[str], None] ns_list: namespaces entries
@@ -81,8 +82,13 @@ class ResourcesHandler:
             # deepcopy is required since PoliciesFinder may change peer_container
             peer_container = copy.deepcopy(self.global_peer_container)
         else:  # the specific networkConfig has no topology input resources (not private, neither global)
-            print('loading topology objects from k8s live cluster')
-            resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
+            # this case is reachable when:
+            # 1. no input paths are provided at all, i.e. user intended to get resources from live cluster
+            # 2. paths are provided only using resourceList flag, but no topology objects found;
+            # in this case we will not load topology from live cluster - keeping peer container empty
+            if resource_list is None:  # getting here means ns_list and pod_list are None too
+                print('loading topology objects from k8s live cluster')
+                resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
             peer_container = resources_parser.build_peer_container(config_name)
 
         if save_flag:  # if called from scheme with global topology or cmdline with 2 configs query
@@ -97,12 +103,12 @@ class ResourcesHandler:
         :param ResourceType res_type: the topology resource type that was found from input resources
         :param ResourcesParser resources_parser: the current resources_parser object
         This function is called when one topology resource type is missing (the one different from input res_type).
-        It updates resources_parser with relevant topology finder, either from global config or from live cluster:
+        It updates resources_parser with relevant topology finder, from the global peer container:
 
         If res_type is ResourceType.Pods , then resources parser found only pods in the specific config,
-        use the global namespaces or load from k8s live cluster to build a peer container
+        use the global namespaces for its namespace list
         If res_type is ResourceType.Namespaces, then resources parser found only namespaces in the specific config,
-        use the global pods or load from k8s live cluster
+        use the global pods to fill its peer set
         """
         global_ns_exist = True if self.global_ns_finder else False
         global_pod_exist = True if self.global_pods_finder else False
@@ -110,9 +116,6 @@ class ResourcesHandler:
             resources_parser.ns_finder = self.global_ns_finder
         elif res_type == ResourceType.Namespaces and global_pod_exist:
             resources_parser.pods_finder = self.global_pods_finder
-        else:
-            load_type = ResourceType.Namespaces if res_type == ResourceType.Pods else ResourceType.Pods
-            resources_parser.load_resources_from_k8s_live_cluster([load_type])
 
 
 class ResourcesParser:
@@ -173,7 +176,7 @@ class ResourcesParser:
         # calculating the return value:
         if (self.pods_finder.peer_set and self.ns_finder.namespaces) or \
                 (specific_pods and specific_ns):
-            # input resources include both pods and namespaces or include only pods- so their namespaces are taken
+            # input resources include both pods and namespaces or include only pods - so their namespaces are taken
             # or both pods and namespaces from specific switches (a specific switch may point to an empty file)
             return True, 0
         if specific_pods and self.ns_finder.namespaces:
@@ -191,8 +194,7 @@ class ResourcesParser:
         """
         parses policies from np_list resource if exists,
         otherwise parses the resource_list for policies,
-        if no policies are found in the resource_list or if both np_list and resource_list does not exist
-        loads policies from k8s live cluster
+        Note: if both np_list and resource_list does not exist loads policies from k8s live cluster
         :param np_list: list of entries of networkPolicies
         :param resource_list: list of entries
         :param peer_container: the existing PeerContainer
@@ -200,7 +202,6 @@ class ResourcesParser:
         returns the config name - 'k8s' if policies are loaded from live cluster,
         otherwise the name of the first policy in the input list
         """
-        live_cluster_flag = False
         config_name = None
         self.policies_finder.set_peer_container(peer_container)
         if np_list is not None:
@@ -213,23 +214,15 @@ class ResourcesParser:
         elif resource_list:
             self._parse_resources_path(resource_list, [ResourceType.Policies])
             config_name = resource_list[0]
-            # if np list is not given and there are no policies in the resource list
-            # then load policies from live cluster
-            if self.policies_finder.has_empty_containers():
-                live_cluster_flag = True
-        else:
-            live_cluster_flag = True
-
-        if live_cluster_flag:
-            config_name = 'k8s'
+        else:  # running without any input flags means running on k8s live cluster
             print('loading policies from k8s live cluster')
-            self._parse_resources_path(['k8s'], [ResourceType.Policies])
+            self.load_resources_from_k8s_live_cluster([ResourceType.Policies])
 
         return config_name
 
     def _parse_resources_path(self, resource_list, resource_flags):
         """
-        parsing the resources path / live cluster using the Finder classes
+        parsing the resources paths / live cluster using the Finder classes
         :param list resource_list: list of input resources paths
         :param list resource_flags: resource types to search in the given resource_list
         list possibilities are: [ResourceType.Policies], [ResourceType.Namespaces], [ResourceType.Pods] and
