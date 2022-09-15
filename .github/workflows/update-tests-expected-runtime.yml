@@ -50,6 +50,7 @@ jobs:
           path: tests/
       - name: run script to update expected run time
         run: |
+          export PYTHONPATH=.
           python tests/update_expected_runtime.py --changed_tests ${{needs.changed-tests.outputs.changed_tests}}
           rm tests/*_log.txt
       - name: Commit changes
