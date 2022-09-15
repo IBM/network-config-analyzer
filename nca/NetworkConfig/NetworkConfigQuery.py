@@ -714,7 +714,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
     def get_query_type():
         return QueryType.ComparisonToBaseConfigQuery
 
-    def is_identical_configs(self, check_same_policies=False):
+    def is_identical_topologies(self, check_same_policies=False):
         if not self.config1.peer_container.is_comparable_with_other_container(self.config2.peer_container):
             return QueryAnswer(False, 'The two configurations have different network topologies '
                                       'and thus are not comparable.\n', query_not_executed=True)
@@ -760,7 +760,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         return QueryType.PairComparisonQuery
 
     def exec(self, layer_name=None):
-        query_answer = self.is_identical_configs(True)
+        query_answer = self.is_identical_topologies(True)
         if query_answer.output_result:
             return query_answer
 
@@ -1026,7 +1026,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                                                       conn_graph_added_per_key)
 
     def exec(self):
-        query_answer = self.is_identical_configs(True)
+        query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
             return query_answer
         res, explanation = self.compute_diff()
@@ -1060,7 +1060,7 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
         return QueryType.PairComparisonQuery
 
     def exec(self):
-        query_answer = self.is_identical_configs(True)
+        query_answer = self.is_identical_topologies(True)
         if query_answer.output_result:
             return query_answer
 
@@ -1145,7 +1145,7 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
         return QueryType.PairComparisonQuery
 
     def exec(self):
-        query_answer = self.is_identical_configs(True)
+        query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
             return query_answer  # identical configurations (contained)
 
@@ -1190,7 +1190,7 @@ class PermitsQuery(TwoNetworkConfigsQuery):
             return QueryAnswer(False,
                                output_result='There are no NetworkPolicies in the given permits config. '
                                              'No traffic is specified as permitted.', query_not_executed=True)
-        query_answer = self.is_identical_configs()
+        query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer  # non-identical configurations are not comparable
 
@@ -1224,7 +1224,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
     """
 
     def exec(self):
-        query_answer = self.is_identical_configs()
+        query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer
 
@@ -1277,7 +1277,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
     """
 
     def exec(self, only_captured=True):
-        query_answer = self.is_identical_configs()
+        query_answer = self.is_identical_topologies()
         if query_answer.output_result:
             return query_answer
 
