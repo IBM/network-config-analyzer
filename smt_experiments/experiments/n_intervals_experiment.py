@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from CanonicalIntervalSet import CanonicalIntervalSet
 from smt_experiments.z3_integer_set import Z3IntegerSet
 
+# TODO: convert to use the generic plot / run_experiment functions
 
 JUMP = 100
 INTERVAL_HALF_SIZE = 25

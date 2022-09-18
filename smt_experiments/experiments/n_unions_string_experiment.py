@@ -1,32 +1,19 @@
-import pickle
 import string
-from collections.abc import Iterable
-from dataclasses import dataclass
-from itertools import combinations, chain, product
-from typing import Any, Union
-
-import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
+from itertools import combinations
 
 from MinDFA import MinDFA
-from smt_experiments.experiments.experiment_utils import Timer, CheckType, get_results_file, EngineType, EnumWithStr, \
-    get_plot_file
+from smt_experiments.experiments.experiment_utils import CheckType, EngineType, EnumWithStr, iter_subsets, \
+    get_y_var_list, Variable
+from smt_experiments.experiments.plot_experiment_results import plot_results
+from smt_experiments.experiments.run_experiment import run_experiment, Operation
 from smt_experiments.z3_sets.z3_string_set import Z3StringSet
 
 # TODO: change instead to inplace union operations instead of not-inplace operations
 # TODO: refactor the way that experiments work.
 # TODO: test that the containment works (things that are in are in)
 # TODO: create a timeout for the experiment that will automatically stop the experiment when the time is over
-"""Experiment setup:
-- The first parameter will be the number of unions of basic sets.
-- a basic_sets = {singleton, prefix, suffix}.
-- for every nonempty subset of basic_sets, we create a new ax in the plot.
-    - prefixes will use lower case alphabet character combinations
-    - suffixes will use upper case alphabet character combinations
-    - singletons will use digit character combinations
-    - every time, we use a new letter, and duplicate it several times
-     (so that different elements will not share a prefix)   
-"""
+
+EXPERIMENT_NAME = 'n_union_string_experiment'
 
 
 class BasicSet(EnumWithStr):
@@ -38,18 +25,7 @@ class BasicSet(EnumWithStr):
         self.alphabet = alphabet
 
 
-# TODO - write a representation function that I can automatically use in the plot
-@dataclass
-class ExperimentResult:
-    n_unions: int
-    basic_set_combination: tuple[BasicSet]
-    construction_time: float
-    membership_time: float
-    check: CheckType
-    engine: EngineType
-
-
-def get_elements(n_unions: int, basic_set_combinations: tuple[BasicSet], check: CheckType) -> list[str]:
+def get_elements(n_unions: int, basic_set_combinations: set[BasicSet], check: CheckType) -> list[str]:
     elements = []
     for basic_set in basic_set_combinations:
         string_list = get_string_list(n_unions, basic_set.alphabet)
@@ -61,6 +37,14 @@ def get_elements(n_unions: int, basic_set_combinations: tuple[BasicSet], check: 
             string_list = ['xxx' + s for s in string_list]
         elements += string_list
     return elements
+
+
+def get_contained_elements(n_unions: int, basic_set_combination: set[BasicSet], engine: EngineType) -> list[str]:
+    return get_elements(n_unions, basic_set_combination, CheckType.CONTAINED)
+
+
+def get_not_contained_elements(n_unions: int, basic_set_combination: set[BasicSet], engine: EngineType) -> list[str]:
+    return get_elements(n_unions, basic_set_combination, CheckType.NOT_CONTAINED)
 
 
 def get_string_list(n_strings: int, alphabet: str) -> list[str]:
@@ -78,6 +62,7 @@ def get_string_list(n_strings: int, alphabet: str) -> list[str]:
 
 
 def get_string_set(n_unions: int, engine: EngineType, basic_set_combination: tuple[BasicSet]):
+    representation = 'empty_word'
     if engine == EngineType.Z3:
         string_set = Z3StringSet.from_str('')
     else:  # engine == EngineType.OUR
@@ -91,130 +76,85 @@ def get_string_set(n_unions: int, engine: EngineType, basic_set_combination: tup
                     s = '*' + s
                 elif basic_set == BasicSet.PREFIX:
                     s = s + '*'
-                string_set = string_set | Z3StringSet.from_str(s)
+                to_add = Z3StringSet.from_str(s)
             else:  # engine == EngineType.OUR
                 if basic_set == BasicSet.SUFFIX:
                     s = '(.*)' + s
                 elif basic_set == BasicSet.PREFIX:
                     s = s + '(.*)'
-                string_set = string_set | MinDFA.dfa_from_regex(s)
+                to_add = MinDFA.dfa_from_regex(s)
+            representation += '|' + s
+            string_set = string_set | to_add
 
-    return string_set
-
-
-def save_results(results: list[ExperimentResult]):
-    results_file = get_results_file(__file__)
-    with results_file.open('wb') as f:
-        pickle.dump(results, f)
+    return string_set, representation
 
 
-def load_results() -> list[ExperimentResult]:
-    results_file = get_results_file(__file__)
-    with results_file.open('rb') as f:
-        return pickle.load(f)
-
-
-def run_experiment():
+def run():
     min_unions = 1
-    max_unions = 15
-    step = 1
+    max_unions = 12
+    # max_unions = 3
+    n_unions_step = 1
 
-    n_unions_list = list(range(min_unions, max_unions, step))
-    basic_set_combination_list = list(chain.from_iterable(combinations(BasicSet, i) for i in range(1, len(BasicSet) + 1)))
-    option_list = list(product(n_unions_list, EngineType, basic_set_combination_list))
-    results = []
-    for i, (n_unions, engine, basic_set_combination) in enumerate(option_list, 1):
-        print(f'{i} out of {len(option_list)}')
+    membership_positive = Operation(
+        name='positive_membership',
+        get_input_list=get_contained_elements,
+        run_operation=lambda set_0, element: element in set_0,
+    )
+    membership_negative = Operation(
+        name='negative_membership',
+        get_input_list=get_not_contained_elements,
+        run_operation=lambda set_0, element: element in set_0,
+    )
+    operation_list = [
+        membership_positive,
+        membership_negative
+    ]
+    set_params_options = {
+        'engine': list(EngineType),
+        'n_unions': list(range(min_unions, max_unions + 1, n_unions_step)),
+        'basic_set_combination': list(iter_subsets(set(BasicSet), min_size=1))
+    }
 
-        with Timer() as creation_timer:
-            string_set = get_string_set(n_unions, engine, basic_set_combination)
-
-        for check in CheckType:
-            elements = get_elements(n_unions, basic_set_combination, check)
-            with Timer() as membership_timer:
-                for element in elements:
-                    is_in = element in string_set
-                    assert is_in == (check == CheckType.CONTAINED)
-
-            result = ExperimentResult(
-                n_unions,
-                basic_set_combination,
-                creation_timer.elapsed_time,
-                membership_timer.elapsed_time / len(elements),
-                check,
-                engine
-            )
-            results.append(result)
-
-    save_results(results)
-
-
-def get_all_attr_options(results: list, attr: str) -> set:
-    return set(getattr(result, attr) for result in results)
+    run_experiment(
+        experiment_name=EXPERIMENT_NAME,
+        set_params_options=set_params_options,
+        get_set_from_params=get_string_set,
+        operation_list=operation_list,
+    )
 
 
-def iter_legend_options(legend_options: dict[str, set]) -> Iterable[dict[str, Any]]:
-    attr_category_tuples = []
-    for attr, options in legend_options.items():
-        attr_category_tuples.append([(attr, option) for option in options])
+def plot():
 
-    for option_tuples in product(*attr_category_tuples):
-        yield dict(option_tuples)
+    x_var = Variable(
+        'n_unions',
+        lambda result: result['set_params']['n_unions']
+    )
 
+    y_var_list = get_y_var_list()
 
-def filter_results(results: list[ExperimentResult], filter_dict: dict[str, Any]) -> list[ExperimentResult]:
-    return [result for result in results
-            if all(getattr(result, key) == value for key, value in filter_dict.items())]
-
-
-def plot_results():
-    # TODO: make this function work for all experiments
-    # TODO: these should be given as inputs to the function,
-    legend_vars = ['engine', 'check']
-    horizontal_var = 'basic_set_combination'
-    x_y_vars = [
-        ('n_unions', 'membership_time'),
-        ('n_unions', 'construction_time')
+    horizontal_var_list = [
+        Variable(
+            'basic_set_combination',
+            lambda result: tuple(result['set_params']['basic_set_combination'])
+        )
     ]
 
-    def recursive_str(collection) -> str:
-        if isinstance(collection, dict):
-            return ', '.join(f'{str(key)}={recursive_str(value)}' for key, value in collection.items())
-        elif isinstance(collection, (list, tuple)):
-            return ', '.join(recursive_str(value) for value in collection)
-        return str(collection)
+    legend_var_list = [
+        Variable(
+            'engine',
+            lambda result: result['set_params']['engine']
+        )
+    ]
 
-    results = load_results()
-
-    legend_var_to_options = {legend_var: get_all_attr_options(results, legend_var)
-                             for legend_var in legend_vars}
-
-    horizontal_categories = get_all_attr_options(results, horizontal_var)
-
-    n_horizontal_axes = len(horizontal_categories)
-    n_vertical_axes = len(x_y_vars)
-    figsize = (6.4 * n_horizontal_axes, 4.8 * n_vertical_axes)
-    fig, axes = plt.subplots(n_vertical_axes, n_horizontal_axes, figsize=figsize)
-
-    for vertical_i, (x_var, y_var) in enumerate(x_y_vars):
-        for horizontal_i, horizontal_category in enumerate(horizontal_categories):
-            ax: Axes = axes[vertical_i][horizontal_i]
-            for legend_option in iter_legend_options(legend_var_to_options):
-                filter_dict = legend_option.copy()
-                filter_dict[horizontal_var] = horizontal_category
-                filtered_results = filter_results(results, filter_dict)
-                x_list = [getattr(result, x_var) for result in filtered_results]
-                y_list = [getattr(result, y_var) for result in filtered_results]
-                ax.scatter(x_list, y_list, label=recursive_str(legend_option))
-
-            ax.set_xlabel(x_var)
-            ax.set_ylabel(y_var)
-            ax.set_title(recursive_str(horizontal_category))
-            ax.legend()
-
-    plt.savefig(get_plot_file(__file__))
+    plot_results(
+        experiment_name=EXPERIMENT_NAME,
+        x_var=x_var,
+        y_var_list=y_var_list,
+        horizontal_var_list=horizontal_var_list,
+        legend_var_list=legend_var_list
+    )
 
 
 if __name__ == '__main__':
-    run_experiment()
-    plot_results()
+    run()
+    plot()

@@ -1,0 +1,1952 @@
+[
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 1,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100),)]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        0
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 1,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300),)]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 1,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100),), ((200, 300),)]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 2,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 2,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300), (0, 100)), ((0, 100), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 2,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100)), ((0, 100), (200, 300)), ((200, 300), (0, 100)), ((200, 300), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 3,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2,
+                        2
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 3,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 3,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100)), ((0, 100), (0, 100), (200, 300)), ((0, 100), (200, 300), (0, 100)), ((0, 100), (200, 300), (200, 300)), ((200, 300), (0, 100), (0, 100)), ((200, 300), (0, 100), (200, 300)), ((200, 300), (200, 300), (0, 100)), ((200, 300), (200, 300), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 4,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100), (0, 100))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        0,
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2,
+                        2,
+                        2
+                    ],
+                    [
+                        3,
+                        3,
+                        3,
+                        3
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 4,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300), (0, 100), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100), (0, 100)), ((0, 100), (0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (0, 100), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 4,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.015625,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100), (0, 100)), ((0, 100), (0, 100), (0, 100), (200, 300)), ((0, 100), (0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (200, 300), (200, 300)), ((0, 100), (200, 300), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100), (200, 300)), ((0, 100), (200, 300), (200, 300), (0, 100)), ((0, 100), (200, 300), (200, 300), (200, 300)), ((200, 300), (0, 100), (0, 100), (0, 100)), ((200, 300), (0, 100), (0, 100), (200, 300)), ((200, 300), (0, 100), (200, 300), (0, 100)), ((200, 300), (0, 100), (200, 300), (200, 300)), ((200, 300), (200, 300), (0, 100), (0, 100)), ((200, 300), (200, 300), (0, 100), (200, 300)), ((200, 300), (200, 300), (200, 300), (0, 100)), ((200, 300), (200, 300), (200, 300), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 5,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100), (0, 100), (0, 100))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2,
+                        2,
+                        2,
+                        2
+                    ],
+                    [
+                        3,
+                        3,
+                        3,
+                        3,
+                        3
+                    ],
+                    [
+                        4,
+                        4,
+                        4,
+                        4,
+                        4
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.046875,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 5,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300), (0, 100), (0, 100), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100), (0, 100), (0, 100)), ((0, 100), (0, 100), (200, 300), (0, 100), (0, 100)), ((0, 100), (0, 100), (0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (0, 100), (0, 100), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.046875,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 5,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.03125,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100), (0, 100), (0, 100)), ((0, 100), (0, 100), (0, 100), (0, 100), (200, 300)), ((0, 100), (0, 100), (0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (0, 100), (200, 300), (200, 300)), ((0, 100), (0, 100), (200, 300), (0, 100), (0, 100)), ((0, 100), (0, 100), (200, 300), (0, 100), (200, 300)), ((0, 100), (0, 100), (200, 300), (200, 300), (0, 100)), ((0, 100), (0, 100), (200, 300), (200, 300), (200, 300)), ((0, 100), (200, 300), (0, 100), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100), (0, 100), (200, 300)), ((0, 100), (200, 300), (0, 100), (200, 300), (0, 100)), ((0, 100), (200, 300), (0, 100), (200, 300), (200, 300)), ((0, 100), (200, 300), (200, 300), (0, 100), (0, 100)), ((0, 100), (200, 300), (200, 300), (0, 100), (200, 300)), ((0, 100), (200, 300), (200, 300), (200, 300), (0, 100)), ((0, 100), (200, 300), (200, 300), (200, 300), (200, 300)), ((200, 300), (0, 100), (0, 100), (0, 100), (0, 100)), ((200, 300), (0, 100), (0, 100), (0, 100), (200, 300)), ((200, 300), (0, 100), (0, 100), (200, 300), (0, 100)), ((200, 300), (0, 100), (0, 100), (200, 300), (200, 300))]...",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.046875,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 1,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100),)]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        0
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 1,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300),)]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 1,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100),), ((200, 300),)]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 2,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 2,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300), (0, 100)), ((0, 100), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 2,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100)), ((0, 100), (200, 300)), ((200, 300), (0, 100)), ((200, 300), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 3,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2,
+                        2
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 3,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 3,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100)), ((0, 100), (0, 100), (200, 300)), ((0, 100), (200, 300), (0, 100)), ((0, 100), (200, 300), (200, 300)), ((200, 300), (0, 100), (0, 100)), ((200, 300), (0, 100), (200, 300)), ((200, 300), (200, 300), (0, 100)), ((200, 300), (200, 300), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 4,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100), (0, 100))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        0,
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2,
+                        2,
+                        2
+                    ],
+                    [
+                        3,
+                        3,
+                        3,
+                        3
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 4,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300), (0, 100), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100), (0, 100)), ((0, 100), (0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (0, 100), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 4,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100), (0, 100)), ((0, 100), (0, 100), (0, 100), (200, 300)), ((0, 100), (0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (200, 300), (200, 300)), ((0, 100), (200, 300), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100), (200, 300)), ((0, 100), (200, 300), (200, 300), (0, 100)), ((0, 100), (200, 300), (200, 300), (200, 300)), ((200, 300), (0, 100), (0, 100), (0, 100)), ((200, 300), (0, 100), (0, 100), (200, 300)), ((200, 300), (0, 100), (200, 300), (0, 100)), ((200, 300), (0, 100), (200, 300), (200, 300)), ((200, 300), (200, 300), (0, 100), (0, 100)), ((200, 300), (200, 300), (0, 100), (200, 300)), ((200, 300), (200, 300), (200, 300), (0, 100)), ((200, 300), (200, 300), (200, 300), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 5,
+            "cube_increase_mode": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100), (0, 100), (0, 100))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ],
+                    [
+                        2,
+                        2,
+                        2,
+                        2,
+                        2
+                    ],
+                    [
+                        3,
+                        3,
+                        3,
+                        3,
+                        3
+                    ],
+                    [
+                        4,
+                        4,
+                        4,
+                        4,
+                        4
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 5,
+            "cube_increase_mode": "linear"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((200, 300), (0, 100), (0, 100), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100), (0, 100), (0, 100)), ((0, 100), (0, 100), (200, 300), (0, 100), (0, 100)), ((0, 100), (0, 100), (0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (0, 100), (0, 100), (200, 300))]",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 5,
+            "cube_increase_mode": "exponential"
+        },
+        "creation_time": 0.0,
+        "set_description": "intervals=[((0, 100), (0, 100), (0, 100), (0, 100), (0, 100)), ((0, 100), (0, 100), (0, 100), (0, 100), (200, 300)), ((0, 100), (0, 100), (0, 100), (200, 300), (0, 100)), ((0, 100), (0, 100), (0, 100), (200, 300), (200, 300)), ((0, 100), (0, 100), (200, 300), (0, 100), (0, 100)), ((0, 100), (0, 100), (200, 300), (0, 100), (200, 300)), ((0, 100), (0, 100), (200, 300), (200, 300), (0, 100)), ((0, 100), (0, 100), (200, 300), (200, 300), (200, 300)), ((0, 100), (200, 300), (0, 100), (0, 100), (0, 100)), ((0, 100), (200, 300), (0, 100), (0, 100), (200, 300)), ((0, 100), (200, 300), (0, 100), (200, 300), (0, 100)), ((0, 100), (200, 300), (0, 100), (200, 300), (200, 300)), ((0, 100), (200, 300), (200, 300), (0, 100), (0, 100)), ((0, 100), (200, 300), (200, 300), (0, 100), (200, 300)), ((0, 100), (200, 300), (200, 300), (200, 300), (0, 100)), ((0, 100), (200, 300), (200, 300), (200, 300), (200, 300)), ((200, 300), (0, 100), (0, 100), (0, 100), (0, 100)), ((200, 300), (0, 100), (0, 100), (0, 100), (200, 300)), ((200, 300), (0, 100), (0, 100), (200, 300), (0, 100)), ((200, 300), (0, 100), (0, 100), (200, 300), (200, 300))]...",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        250,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        250,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        250,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        250,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        250
+                    ]
+                ],
+                "result_list": [
+                    true,
+                    true,
+                    true,
+                    true,
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        150,
+                        50,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        150,
+                        50,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        150,
+                        50,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        150,
+                        50
+                    ],
+                    [
+                        50,
+                        50,
+                        50,
+                        50,
+                        150
+                    ]
+                ],
+                "result_list": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            }
+        }
+    }
+]

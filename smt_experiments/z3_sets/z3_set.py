@@ -1,4 +1,4 @@
-from z3 import sat, unsat, And, Not, BoolVal, Or, Int, ExprRef
+from z3 import sat, unsat, And, Not, BoolVal, Or, Int, ExprRef, simplify
 
 from smt_experiments.z3_sets.z3_utils import solve_without_model
 
@@ -78,3 +78,5 @@ class Z3Set:
         new -= other
         return new
 
+    def __str__(self):
+        return str(self.constraints)
