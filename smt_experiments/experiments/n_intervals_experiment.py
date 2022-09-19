@@ -8,9 +8,12 @@ from statistics import mean
 import matplotlib.pyplot as plt
 
 from CanonicalIntervalSet import CanonicalIntervalSet
-from smt_experiments.z3_integer_set import Z3IntegerSet
+from smt_experiments.experiments.plot_experiment_results import plot_results
+from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
 
 # TODO: convert to use the generic plot / run_experiment functions
+from smt_experiments.experiments.experiment_utils import EngineType, Variable, get_y_var_list
+from smt_experiments.experiments.run_experiment import run_experiment, Operation
 
 JUMP = 100
 INTERVAL_HALF_SIZE = 25
@@ -28,77 +31,99 @@ def get_intervals(n_intervals: int) -> list[tuple[int, int]]:
     return intervals
 
 
-def get_integer_set(n_intervals: int, cls):
+def get_integer_set(engine: EngineType, n_intervals: int):
     intervals = get_intervals(n_intervals)
+    if len(intervals) <= 20:
+        representation = f'intervals={intervals}'
+    else:
+        representation = f'intervals={intervals[:20]}...'
+
     first_start, first_end = intervals[0]
-    integer_set = cls.get_interval_set(first_start, first_end)
+    if engine == EngineType.Z3:
+        interval_constructor = Z3IntegerSet.get_interval_set
+    else:
+        interval_constructor = CanonicalIntervalSet.get_interval_set
+
+    integer_set = interval_constructor(first_start, first_end)
     for start, end in intervals[1:]:
-        integer_set_0 = cls.get_interval_set(start, end)
+        integer_set_0 = interval_constructor(start, end)
         integer_set |= integer_set_0
-    return integer_set
+
+    return integer_set, representation
 
 
-def get_set_z3(n_intervals: int) -> Z3IntegerSet:
-    return get_integer_set(n_intervals, Z3IntegerSet)
-
-
-def get_set_ours(n_intervals: int) -> CanonicalIntervalSet:
-    return get_integer_set(n_intervals, CanonicalIntervalSet)
-
-
-def get_contained_elements(n_intervals: int) -> list[int]:
+def get_contained_elements(engine: EngineType, n_intervals: int) -> list[int]:
     return [START_FROM + i * JUMP for i in range(n_intervals)]
 
 
-def get_not_contained_elements(n_intervals: int) -> list[int]:
+def get_not_contained_elements(engine: EngineType, n_intervals: int) -> list[int]:
     return [START_FROM + i * JUMP - INTERVAL_HALF_SIZE - 1 for i in range(n_intervals)]
 
 
-def time_containment(integer_set, element: int) -> float:
-    return timeit.timeit(lambda: element in integer_set, number=N_TIMES)
+def run():
+    experiment_name = 'n_intervals_experiment'
 
-
-def average_time_containment(integer_set, element_list: list[int]) -> float:
-    return mean(time_containment(integer_set, element) for element in element_list)
-
-
-def run_experiment():
     min_intervals = 1
-    max_intervals = 100
-    step = 2
-    n_intervals_list = list(range(min_intervals, max_intervals + 1, step))
+    # max_intervals = 2_000
+    max_intervals = 200
+    step = 10
 
-    contained_z3_time = []
-    contained_our_time = []
-    not_contained_z3_time = []
-    not_contained_our_time = []
+    set_params_options = {
+        'engine': EngineType,
+        'n_intervals': list(range(min_intervals, max_intervals + 1, step))
+    }
 
-    for i, n_interval in enumerate(n_intervals_list, 1):
-        print(f'{i} / {len(n_intervals_list)}')
+    # TODO: I think I can also reuse this operation_list in all of the experiments.
+    operation_list = [
+        Operation(
+            name='positive_membership',
+            get_input_list=get_contained_elements,
+            run_operation=lambda set_0, element: element in set_0,
+        ),
+        Operation(
+            name='negative_membership',
+            get_input_list=get_not_contained_elements,
+            run_operation=lambda set_0, element: element in set_0
+        ),
+    ]
 
-        z3_set = get_set_z3(n_interval)
-        our_set = get_set_ours(n_interval)
-        contained_elements = get_contained_elements(n_interval)
-        not_contained_elements = get_not_contained_elements(n_interval)
+    run_experiment(
+        experiment_name=experiment_name,
+        set_params_options=set_params_options,
+        get_set_from_params=get_integer_set,
+        operation_list=operation_list,
+    )
 
-        contained_z3_time.append(average_time_containment(z3_set, contained_elements))
-        not_contained_z3_time.append(average_time_containment(z3_set, not_contained_elements))
 
-        contained_our_time.append(average_time_containment(our_set, contained_elements))
-        not_contained_our_time.append(average_time_containment(our_set, not_contained_elements))
+def plot():
+    experiment_name = 'n_intervals_experiment'
+    x_var = Variable(
+        'n_intervals',
+        lambda result: result['set_params']['n_intervals']
+    )
 
-    # TODO: change it to save the figure instead of showing it
-    plt.figure(figsize=(10, 10), layout='constrained')
-    plt.scatter(n_intervals_list, contained_z3_time, label='z3_contained')
-    plt.scatter(n_intervals_list, contained_our_time, label='ours_contained')
-    plt.scatter(n_intervals_list, not_contained_z3_time, label='z3_not_contained')
-    plt.scatter(n_intervals_list, not_contained_our_time, label='ours_not_contained')
-    plt.xlabel('number of intervals')
-    plt.ylabel('element containment time')
-    plt.title("element containment time / number of intervals")
-    plt.legend()
-    plt.show()
+    horizontal_var_list = [
+        Variable(
+            '',
+            lambda result: None
+        )
+    ]
+
+    legend_var_list = [
+        Variable(
+            'engine',
+            lambda result: result['set_params']['engine']
+        )
+    ]
+    plot_results(
+        experiment_name=experiment_name,
+        x_var=x_var,
+        y_var_list=get_y_var_list(),
+        horizontal_var_list=horizontal_var_list,
+        legend_var_list=legend_var_list,
+    )
 
 
 if __name__ == '__main__':
-    run_experiment()
+    run()
+    plot()

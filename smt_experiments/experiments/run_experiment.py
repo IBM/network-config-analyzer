@@ -7,9 +7,6 @@ from smt_experiments.experiments.experiment_utils import Timer, dict_product, sa
 
 logging.basicConfig(level=logging.INFO)
 
-# TODO: check that the results for the Z3 set and our set are the same,
-#  this might be done after the creation
-
 
 @dataclass
 class Operation:

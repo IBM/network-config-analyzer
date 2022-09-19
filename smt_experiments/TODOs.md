@@ -5,7 +5,7 @@
 - [ ] compare different operations. (not only element containment)
   - [ ] membership
   - [ ] set containment
-- [ ] add assertions that z3 and our implementation gives the same results
+- [ ] add assertions that z3 and our implementation gives the same results (correct / expected results)
 - [ ] add a new plot for the overall time
 - [ ] maybe do the tests in a more explicit way. (input, output), so it will be easy to understand what is running, 
   without getting inside the code.

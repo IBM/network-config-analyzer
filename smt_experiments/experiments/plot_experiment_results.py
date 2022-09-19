@@ -41,10 +41,17 @@ def plot_results(experiment_name: str, x_var: Variable, y_var_list: list[Variabl
         horizontal_filtered_results = filter_by_var_list(all_results, horizontal_category, horizontal_var_list)
 
         col_title = var_values_to_str(horizontal_category, horizontal_var_list)
-        axes[0][horizontal_i].set_title(col_title)
+        if len(horizontal_category_list) == 1:
+            axes[0].set_title(col_title)
+        else:
+            axes[0][horizontal_i].set_title(col_title)
 
         for vertical_i, y_var in enumerate(y_var_list):
-            ax: Axes = axes[vertical_i][horizontal_i]
+            if len(horizontal_category_list) == 1:
+                ax: Axes = axes[vertical_i]
+            else:
+                ax: Axes = axes[vertical_i][horizontal_i]
+
             if horizontal_i == 0:
                 row_title = y_var.name
                 ax.set_ylabel(row_title)
