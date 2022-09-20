@@ -13,6 +13,7 @@ queries:
     connectivityMap:
       - complex-k8s-ingress-test
     outputConfiguration:
-      outputFormat: txt
+      outputFormat: dot
+      outputPath: complex-k8s-ingress-test-connectivity-map.dot
       fwRulesRunInTestMode: false
-    expectedOutput: ./complex-k8s-ingress-test-connectivity-map.txt
+    expectedOutput: ../../expected_output/complex-k8s-ingress-test-connectivity-map.dot
