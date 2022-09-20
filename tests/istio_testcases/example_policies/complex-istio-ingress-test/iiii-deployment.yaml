@@ -1,0 +1,15 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-iiii
+  namespace: example
+spec:
+  selector:
+    matchLabels:
+      app: iiii
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: iiii
