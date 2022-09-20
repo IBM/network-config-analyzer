@@ -1,0 +1,68 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-cluster-complex
+  namespace: example
+spec:
+    rules:
+    - host: ooo.y.z
+      http:
+        paths:
+        - backend:
+            service:
+              name: svc-gggg
+              port: 
+                number: 80
+          path: /gggg/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-dddd
+              port: 
+                number: 80
+          path: /dddd/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-bbbb
+              port:
+                number: 80
+          path: /bbbb/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-aaaa
+              port: 
+                number: 80
+          path: /aaaa/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-ffff
+              port: 
+                number: 80
+          path: /ffff/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-iiii
+              port: 
+                number: 80
+          path: /iiii/
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: svc-cccc
+              port: 
+                number: 80
+          path: /cccc/
+          pathType: ImplementationSpecific
+    
+        - backend:
+            service:
+              name: svc-jjjj
+              port: 
+                number: 80
+          path: /jjjj/
+          pathType: ImplementationSpecific

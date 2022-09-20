@@ -1,0 +1,36 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: example-gateway
+  namespace: example
+spec:
+  selector:
+    istio: custom-ingressgateway # use istio custom controller
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    - gggg.y.z
+    - dddd.y.z
+    - aaaa.y.z
+    - bbbb.y.z
+    - ffff.y.z
+    - iiii.y.z
+    - cccc.y.z
+    
+    - jjjj.y.z
+    
+    - hhhh.y.z
+    - ooo.y.z
+  
+  
+  - port:
+      number: 443
+      name: https-global
+      protocol: HTTPS
+    hosts:
+    - dddd.y.z
+    - gggg.y.z

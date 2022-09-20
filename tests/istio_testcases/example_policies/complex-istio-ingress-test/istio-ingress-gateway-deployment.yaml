@@ -1,0 +1,16 @@
+# based on https://istio.io/latest/docs/setup/additional-setup/gateway/#canary-upgrade-advanced
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: istio-ingressgateway
+  namespace: example
+spec:
+  selector:
+    matchLabels:
+      istio: custom-ingressgateway
+  template:
+    metadata:
+      labels:
+        istio: custom-ingressgateway
+

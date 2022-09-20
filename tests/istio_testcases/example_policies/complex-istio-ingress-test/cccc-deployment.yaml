@@ -1,0 +1,15 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-cccc
+  namespace: example
+spec:
+  selector:
+    matchLabels:
+      app: cccc
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: cccc

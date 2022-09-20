@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-bbbb
+  namespace: example
+  labels:
+    app: bbbb
+spec:
+  type: ClusterIP
+  ports:
+  - name: serviceport
+    port: 80
+    protocol: TCP
+    targetPort: 3456
+  selector:
+    app: bbbb
