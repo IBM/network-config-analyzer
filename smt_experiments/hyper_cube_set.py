@@ -1,7 +1,5 @@
 """Shared interface for hyper cube set"""
-# TODO: go through the interface of CanonicalHyperCubeSet and use the functions, also
-#   re-write the comments so that Adi can go through it and make sure that I correctly
-#   understand what everything is supposed to do.
+# TODO: go through the interface of CanonicalHyperCubeSet and use the functions that seem relevant,
 #   after finishing that, update.
 # TODO: also do that for CanonicalIntervalSet and MinDFA so I can pass the tests
 from abc import ABC, abstractmethod
