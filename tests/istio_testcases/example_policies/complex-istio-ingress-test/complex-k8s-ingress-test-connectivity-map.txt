@@ -1,0 +1,44 @@
+final fw rules for query: connectivity, config: complex-k8s-ingress-test:
+src: 0.0.0.0/0 dst_ns: [example] dst_pods: [*] conn: All connections
+src: ::/0 dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [*] dst_ns: [example] dst_pods: [deploy-aaaa] conn: TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'aaaa.y.z'}
+src_ns: [example] src_pods: [*] dst_ns: [example] dst_pods: [deploy-bbbb] conn: TCP {'dst_ports': '3456', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'bbbb.y.z'}
+src_ns: [example] src_pods: [*] dst_ns: [example] dst_pods: [deploy-cccc] conn: TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'cccc.y.z'}
+src_ns: [example] src_pods: [*] dst_ns: [example] dst_pods: [deploy-dddd] conn: TCP {'dst_ports': '3200', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'dddd.y.z'}
+src_ns: [example] src_pods: [*] dst_ns: [example] dst_pods: [deploy-ffff] conn: TCP {'dst_ports': '3500', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'ffff.y.z'}
+src_ns: [example] src_pods: [*] dst_ns: [example] dst_pods: [deploy-gggg] conn: TCP {'dst_ports': '4000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'gggg.y.z'}
+src_ns: [example] src_pods: [*] dst_ns: [example] dst_pods: [deploy-iiii] conn: TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'iiii.y.z'}
+src_ns: [example] src_pods: [*] dst_ns: [example] dst_pods: [deploy-jjjj] conn: TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'jjjj.y.z'}
+src_ns: [example] src_pods: [deploy-aaaa] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-aaaa] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-aaaa] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-bbbb] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-bbbb] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-bbbb] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-cccc] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-cccc] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-cccc] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-dddd] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-dddd] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-dddd] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-eeee] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-eeee] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-eeee] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-ffff] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-ffff] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-ffff] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-gggg] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-gggg] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-gggg] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-hhhh] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-hhhh] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-hhhh] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-iiii] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-iiii] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-iiii] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [deploy-jjjj] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [deploy-jjjj] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [deploy-jjjj] dst_ns: [example] dst_pods: [*] conn: All connections
+src_ns: [example] src_pods: [istio-ingressgateway] dst: 0.0.0.0/0 conn: All connections
+src_ns: [example] src_pods: [istio-ingressgateway] dst: ::/0 conn: All connections
+src_ns: [example] src_pods: [istio-ingressgateway] dst_ns: [example] dst_pods: [*] conn: All connections

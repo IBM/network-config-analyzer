@@ -1,0 +1,15 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-hhhh
+  namespace: example
+spec:
+  selector:
+    matchLabels:
+      app: hhhh
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: hhhh

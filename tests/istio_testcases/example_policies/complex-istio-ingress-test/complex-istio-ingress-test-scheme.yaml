@@ -1,0 +1,19 @@
+namespaceList: ./
+podList: ./
+
+networkConfigList:
+  - name: complex-istio-ingress-test
+    networkPolicyList:
+      - istio-ingress-gateway.yaml
+      - istio-ingress-virtualservice.yaml
+    expectedWarnings: 0
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - complex-istio-ingress-test
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ./complex-istio-ingress-test-connectivity-map.txt
