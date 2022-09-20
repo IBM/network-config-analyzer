@@ -60,7 +60,7 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
 
         self._check_cube(cube, cube_dimensions)
 
-        if len(cube) == 0 or any(dim_value.is_empty() for dim_value in cube):
+        if len(cube) == 0:  # or any(dim_value.is_empty() for dim_value in cube):
             return
 
         cube_formula = self._cube_to_formula(cube, cube_dimensions)
@@ -94,7 +94,7 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
 
         self._check_cube(cube, cube_dimensions)
 
-        if len(cube) == 0 or any(dim_value.is_empty() for dim_value in cube):
+        if len(cube) == 0:  # or any(dim_value.is_empty() for dim_value in cube):
             return
 
         cube_formula = self._cube_to_formula(cube, cube_dimensions)

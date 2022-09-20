@@ -1,3 +1,4 @@
+import z3
 from z3 import BoolRef, Solver, sat
 
 
@@ -8,6 +9,7 @@ from z3 import BoolRef, Solver, sat
 
 def solve_without_model(constraints: BoolRef):
     solver = Solver()
+    # constraints = z3.simplify(constraints)
     solver.add(constraints)
     result = solver.check()
     return result

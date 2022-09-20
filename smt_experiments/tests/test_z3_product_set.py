@@ -49,7 +49,6 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         print(dfa_put.fsm.finals == dfa_put_2.fsm.finals)
         print(dfa_put.fsm.map == dfa_put_2.fsm.map)
 
-    # Passed!
     def test_create_from_cube(self):
         s = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("PUT")], ["methods_dfa"])
         print(s)
@@ -318,7 +317,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual(x, y)
 
     # TODO: Run tests bellow this
-    # TODO: this test takes time. Try to check out what happens
+    # TODO: this test takes time. Try to check out what happens -- TODO:1
     def test_canonical_rep_dfa_new_2(self):
         dfa1 = get_str_dfa("a[a]+")
         dfa1_s = get_str_dfa("b")

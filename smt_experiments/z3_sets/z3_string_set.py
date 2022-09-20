@@ -2,6 +2,7 @@
 #   especially the "is_all_words" function
 # TODO: take the tests for the MinDFA module and compare it to the Z3
 #  implementation
+# TODO: Convert this to Regexp. -- re create the interface of MinDFA.
 import sre_parse
 from typing import Optional
 
@@ -15,6 +16,10 @@ from smt_experiments.z3_sets.z3_utils import solve_with_model
 
 class Z3StringSet(Z3Set):
     _var = String(Z3Set._var_name)
+
+    def __init__(self):
+        super(Z3StringSet, self).__init__()
+        self.regex = z3.Re('r')
 
     @classmethod
     def from_str(cls, s: str):
@@ -42,11 +47,16 @@ class Z3StringSet(Z3Set):
             example = model.eval(self._var).as_string()
             return example
         return None
-
     @classmethod
     def dfa_from_regex(cls, s: str):
         # TODO: make sure this works
-        z3_regex = regex_to_z3_expr(sre_parse.parse(s))
         z3_set = cls()
-        z3_set.constraints = z3.InRe(z3_set._var, z3_regex)
+        z3_set.regex = regex_to_z3_expr(sre_parse.parse(s))
+        z3_set.constraints = z3.InRe(z3_set._var, z3_set.regex)
         return z3_set
+
+    # # TODO: experimental
+    # def __ior__(self, other):
+    #     self.regex = z3.Union(self.regex, other.regex)
+    #     self.constraints = z3.InRe(self._var, self.regex)
+    #     return self
