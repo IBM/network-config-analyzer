@@ -35,6 +35,7 @@ jobs:
           path: tests/
       - name: run script to update expected run time for all tests
         run: |
+          export PYTHONPATH=.
           python tests/update_expected_runtime.py --changed_tests ALL_TESTS
           rm tests/*_log.txt
       - name: Commit changes
