@@ -14,6 +14,7 @@ queries:
     connectivityMap:
       - complex-istio-ingress-test
     outputConfiguration:
-      outputFormat: txt
+      outputFormat: dot
+      outputPath: complex-istio-ingress-test-connectivity-map.dot
       fwRulesRunInTestMode: false
-    expectedOutput: ./complex-istio-ingress-test-connectivity-map.txt
+    expectedOutput: ../../expected_output/complex-istio-ingress-test-connectivity-map.dot
