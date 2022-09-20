@@ -1,16 +1,9 @@
-import sys
-import os
-
-from MethodSet import MethodSet
-
-sys.path.append(
-    os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), '..', 'network-config-analyzer'))
-
 import unittest
-from CanonicalIntervalSet import CanonicalIntervalSet
-from MinDFA import MinDFA
-from CanonicalHyperCubeSet import CanonicalHyperCubeSet
-from DimensionsManager import DimensionsManager
+from nca.CoreDS.MethodSet import MethodSet
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.MinDFA import MinDFA
+from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
+from nca.CoreDS.DimensionsManager import DimensionsManager
 
 dimensions = ["src_ports", "ports", "methods", "paths"]
 dimensions2 = ["ports", "src_ports", "methods", "paths"]
