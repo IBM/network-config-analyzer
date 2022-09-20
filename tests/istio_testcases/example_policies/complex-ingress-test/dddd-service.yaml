@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-dddd
+  namespace: example
+  labels:
+    app: dddd
+spec:
+  type: ClusterIP
+  ports:
+  - name: serviceport
+    port: 80
+    protocol: TCP
+    targetPort: 3200
+  selector:
+    app: dddd
+

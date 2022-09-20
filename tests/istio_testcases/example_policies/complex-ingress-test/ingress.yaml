@@ -1,0 +1,111 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-complex
+  namespace: example
+spec:
+  rules:
+  - host: bbbb.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-bbbb
+            port: 
+              number: 80
+  - host: cccc.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-cccc
+            port: 
+              number: 80
+  
+  - host: jjjj.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-jjjj
+            port: 
+              number: 80
+  
+  - host: "aaaa.y.z"
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-aaaa
+            port: 
+              number: 80
+  - host: gggg.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-gggg
+            port: 
+              number: 80
+  - host: dddd.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-dddd
+            port: 
+              number: 80
+  - host: ffff.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-ffff
+            port: 
+              number: 80
+  - host: iiii.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-iiii
+            port: 
+              number: 80
+  
+  - host: dddd.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-dddd
+            port: 
+              number: 80
+  - host: gggg.y.z
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-gggg
+            port: 
+              number: 80
