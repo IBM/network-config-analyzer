@@ -7,7 +7,7 @@ import sre_parse
 from typing import Optional
 
 import z3
-from z3 import sat, PrefixOf, SuffixOf, Length, ModelRef, String
+from z3 import sat, PrefixOf, SuffixOf, Length, ModelRef, String, Or
 
 from smt_experiments.role_analyzer import regex_to_z3_expr
 from smt_experiments.z3_sets.z3_set import Z3Set
@@ -19,7 +19,7 @@ class Z3StringSet(Z3Set):
 
     def __init__(self):
         super(Z3StringSet, self).__init__()
-        self.regex = z3.Re('r')
+        # self.regex = z3.Re('r')
 
     @classmethod
     def from_str(cls, s: str):
@@ -47,13 +47,29 @@ class Z3StringSet(Z3Set):
             example = model.eval(self._var).as_string()
             return example
         return None
+
     @classmethod
     def dfa_from_regex(cls, s: str):
         # TODO: make sure this works
         z3_set = cls()
-        z3_set.regex = regex_to_z3_expr(sre_parse.parse(s))
-        z3_set.constraints = z3.InRe(z3_set._var, z3_set.regex)
+        if '+' in s:
+            raise ValueError
+        if '*' in s:
+            raise ValueError
+        if '[' in s:
+            raise ValueError
+        if '|' in s:
+            substring_list = s.split('|')
+            sub_regex_list = [cls.dfa_from_regex(substring) for substring in substring_list]
+            z3_set.constraints = Or([r.constraints for r in sub_regex_list])
+            return z3_set
+
+        z3_set.constraints = z3_set._var == s
         return z3_set
+        # s = sre_parse.parse(s)
+        # z3_set.regex = regex_to_z3_expr(s)
+        # z3_set.constraints = z3.InRe(z3_set._var, z3_set.regex)
+        # return z3_set
 
     # # TODO: experimental
     # def __ior__(self, other):

@@ -2,13 +2,10 @@
 # TODO: skip tests that are not good, and write a reason for doing that
 #   after doing that - update
 import unittest
-# from CanonicalIntervalSet import CanonicalIntervalSet
 from unittest import skip
 
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet as CanonicalIntervalSet
-# from MinDFA import MinDFA
 from smt_experiments.z3_sets.z3_string_set import Z3StringSet as MinDFA
-# from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from smt_experiments.z3_sets.z3_product_set import Z3ProductSet as CanonicalHyperCubeSet
 from DimensionsManager import DimensionsManager
 
@@ -158,7 +155,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual(new_empty, empty)
         self.assertEqual(all, y)
 
-    @skip('active_dimensions property not supported.')
+    @skip('active_dimensions not supported.')
     def test_basic_3(self):
         """
         test basic case for correctness of reduce_active_dimensions
@@ -260,6 +257,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(w)
         self.assertEqual(z, w)
 
+    @skip('full regex is not supported.')
     def test_canonical_rep_dfa_new(self):
         dfa1 = get_str_dfa("[ab]*")
         dfa2 = get_str_dfa("[bc]*")
@@ -316,8 +314,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(y)
         self.assertEqual(x, y)
 
-    # TODO: Run tests bellow this
-    # TODO: this test takes time. Try to check out what happens -- TODO:1
+    @skip('full regex is not supported.')
     def test_canonical_rep_dfa_new_2(self):
         dfa1 = get_str_dfa("a[a]+")
         dfa1_s = get_str_dfa("b")
@@ -341,6 +338,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(y)
         self.assertEqual(x, y)
 
+    @skip('full regex is not supported.')
     def test_empty_dfa_new(self):
         methods_dfa = get_str_dfa("[a]*")
         methods_dfa2 = get_str_dfa("[ab]*")
@@ -351,6 +349,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual(m, CanonicalHyperCubeSet(dimensions))
         # print(m)
 
+    @skip('active_dimensions not supported.')
     def test_intersection(self):
         methods_dfa = get_str_dfa("PUT")
         cube3 = [CanonicalIntervalSet.get_interval_set(500, 600)]
@@ -369,6 +368,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertNotEqual(k, m)
         self.assertNotEqual(n, m)
 
+    @skip('__len__ is not supported.')
     def test_add_cube_new(self):
         paths_dfa = get_str_dfa("abc")
         methods_dfa1 = get_str_dfa("PUT")
@@ -414,74 +414,8 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(x)
         # print(res)
 
-    '''
-    # TODO: test with base element as CanonicalIntervalSet instead of Interval
-    def test_cubes_count(self):
-        x = CanonicalHyperCubeSet(dimensions)
-        a1 = CanonicalIntervalSet.get_interval_set(1, 20)
-        x.add_cube([a1, a1], ["src_ports", "ports"])
-        print(x)
-        print(len(x))
-        a2 = CanonicalIntervalSet.get_interval_set(15, 40)
-        x.add_cube([a2], ["ports"])
-        print(x)
-        print(len(x))
-        a3 = CanonicalIntervalSet.get_interval_set(100, 200)
-        x.add_cube([a3, get_str_dfa("PUT")], ["ports", "methods_dfa"])
-        print(x)
-        print(len(x))
-        a4 = CanonicalIntervalSet.get_interval_set(300, 400)
-        x.add_cube([get_str_dfa("GET"),get_str_dfa("a") ], ["methods_dfa", "paths"])
-        print(x)
-        print(len(x))
-
-
-    def test_cubes_count_new(self):
-        dim_types = ["Interval"]*20
-        print(dim_types)
-        chars = list(string.ascii_lowercase)
-        dim_names = chars[0:20]
-        print(dim_names)
-        print(len(dim_names))
-        print(len(dim_types))
-        interval_domain = (1,100000)
-        dim_domains = [interval_domain]*20
-        print(dim_domains)
-        interval_domain_object = CanonicalIntervalSet.get_interval_set(1, 100000)
-        dim_domains_values = dict()
-        for n in dim_names:
-            dim_domains_values[n] =interval_domain_object
-        dimensions_new = Dimensions(dim_types, dim_names, dim_domains, dim_domains_values)
-
-        x = CanonicalHyperCubeSet(dimensions_new)
-        a1 = CanonicalIntervalSet.get_interval_set(1, 20)
-        x.add_cube([a1, a1], ["a", "b"])
-        print(x)
-        print(len(x))
-        a2 = CanonicalIntervalSet.get_interval_set(15, 40)
-        x.add_cube([a2], ["b"])
-        print(x)
-        print(len(x))
-        cube = [CanonicalIntervalSet.get_interval_set(100, 200), CanonicalIntervalSet.get_interval_set(300, 400)]
-        #print(str(cube[0]), str(cube[1]))
-        for i in range(1, 18):
-            cube_dims = [dim_names[i], dim_names[i+1]]
-            x.add_cube(cube, cube_dims)
-            if i<=3:
-                print(x)
-            #print(cube_dims)
-            w= cube[0]
-            y = cube[1]
-            w.start+= 200
-            w.end += 200
-            y.start+= 200
-            y.end += 200
-            cube = [w, y]
-            #print(str(cube[0]), str(cube[1]))
-            print(f'i: {i}, x_len: {len(x)}, layers_x_len:{len(x.layers)}')
-    '''
-
     # TODO: explore exponential blow-up !
+    @skip('_get_cubes_list_from_layers not supported.')
     def test_add_cube(self):
         x = CanonicalHyperCubeSet(dimensions)
 
@@ -604,6 +538,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
             cube_str = ','.join(str(x) for x in c)
             print(cube_str)
 
+    @skip('active_dimensions is not supported')
     def test_eq(self):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)
@@ -639,6 +574,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(y)
         self.assertEqual(x, y)
 
+    @skip('get_first_item is not supported.')
     def test_get_first_item(self):
         all = CanonicalHyperCubeSet(dimensions, True)
         item1 = all.get_first_item()
@@ -669,13 +605,26 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual(all, CanonicalHyperCubeSet(dimensions, True))
         x = CanonicalHyperCubeSet(dimensions)
         x.add_cube([])
-        x.add_cube([CanonicalIntervalSet(), get_str_dfa("PUT")])
+        # TODO: there is a bug in the original tests, the types of the dimensions
+        #   is not correct, but this is not tested as the first cube is empty.
+        #   This is the original line of code:
+        # x.add_cube([CanonicalIntervalSet(), get_str_dfa("PUT")])
+        #   and this is the fix:
+        x.add_cube([CanonicalIntervalSet(), get_str_dfa("PUT")], ['src_ports', 'methods_dfa'])
+
         self.assertEqual(x, CanonicalHyperCubeSet(dimensions))
-        x.add_cube([CanonicalIntervalSet.get_interval_set(10, 20), get_str_dfa("PUT") - get_str_dfa("PUT")])
+        # TODO: same as above
+        # x.add_cube([CanonicalIntervalSet.get_interval_set(10, 20), get_str_dfa("PUT") - get_str_dfa("PUT")])
+        x.add_cube([CanonicalIntervalSet.get_interval_set(10, 20), get_str_dfa("PUT") - get_str_dfa("PUT")],
+                   ['src_ports', 'methods_dfa'])
         self.assertEqual(x, CanonicalHyperCubeSet(dimensions))
-        x.add_cube([CanonicalIntervalSet.get_interval_set(10, 20), get_str_dfa("PUT")])
+        # TODO: same as above
+        # x.add_cube([CanonicalIntervalSet.get_interval_set(10, 20), get_str_dfa("PUT")])
+        x.add_cube([CanonicalIntervalSet.get_interval_set(10, 20), get_str_dfa("PUT")],
+                   ['src_ports', 'methods_dfa'])
         self.assertNotEqual(x, CanonicalHyperCubeSet(dimensions))
 
+    @skip('__iter__ is not supported.')
     def test_iter(self):
         x = CanonicalHyperCubeSet.create_from_cube(dimensions, [CanonicalIntervalSet.get_interval_set(1, 10)],
                                                    ["ports"])
@@ -774,17 +723,18 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         x1.add_hole(empty_hole, [])
         self.assertEqual(x1, x1_copy)
 
-        all_space_cube = x1._get_entire_space_cube()
-        x3 = x1.copy()
-        x3.add_cube(all_space_cube, dimensions)
-        self.assertEqual(x3, all)
-        x4 = x1.copy()
-        x4.add_hole(all_space_cube, dimensions)
-        self.assertEqual(x4, empty)
-        short_all_space_cube = [all_space_cube[2]]
-        x5 = x1.copy()
-        x5.add_cube(short_all_space_cube, ["methods_dfa"])
-        self.assertEqual(x5, all)
+        # skip this since we do not support _get_entire_space_cube
+        # all_space_cube = x1._get_entire_space_cube()
+        # x3 = x1.copy()
+        # x3.add_cube(all_space_cube, dimensions)
+        # self.assertEqual(x3, all)
+        # x4 = x1.copy()
+        # x4.add_hole(all_space_cube, dimensions)
+        # self.assertEqual(x4, empty)
+        # short_all_space_cube = [all_space_cube[2]]
+        # x5 = x1.copy()
+        # x5.add_cube(short_all_space_cube, ["methods_dfa"])
+        # self.assertEqual(x5, all)
 
     def test_contained_in_2(self):
         x = CanonicalHyperCubeSet(dimensions)
@@ -797,6 +747,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         y.add_cube([p3], ["ports"])
         self.assertTrue(x.contained_in(y))
 
+    @skip('full regex is not supported.')
     def test_contained_in(self):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)
@@ -911,6 +862,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         d = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("x|y|z")], ["methods_dfa"])
         self.assertTrue(c.contained_in(d))
 
+    @skip('_get_cubes_list_from_layers not supported.')
     def test_subtract_basic(self):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)
@@ -925,6 +877,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         z_cube_expected = [ports_range, dim_manager.get_dimension_domain_by_name("paths") - paths_dfa]
         self.assertEqual(z._get_cubes_list_from_layers(), [z_cube_expected])
 
+    @skip('_get_cubes_set not supported.')
     def test_subtract_new(self):
         all = CanonicalHyperCubeSet(dimensions3, True)
         paths_dfa = get_str_dfa("abc")
@@ -939,6 +892,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         expected_cubes = {res_cube_1, res_cube_2}
         self.assertEqual(expected_cubes, all._get_cubes_set())
 
+    @skip('_get_cubes_set not supported.')
     def test_basic_or(self):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)
@@ -957,6 +911,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual({z_cube_expected_1, z_cube_expected_2}, z._get_cubes_set())
         # print(z)
 
+    @skip('_get_cubes_list_from_layers not supported.')
     def test_basic_and_2(self):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)
@@ -971,6 +926,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual(z._get_cubes_list_from_layers(), [z_cube_expected])
         # print(z)
 
+    @skip('_get_cubes_list_from_layers not supported.')
     def test_basic_and(self):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)
@@ -1003,6 +959,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual(z2, x2)
         # print(z2)
 
+    @skip('_get_cubes_set not supported.')
     def test_add_hole_basic(self):
         x = CanonicalHyperCubeSet(dimensions)
         paths_dfa = get_str_dfa("abc")
@@ -1034,6 +991,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         res5 = {(get_str_dfa("y"), get_str_dfa("abcd")), (get_str_dfa("x"), get_str_dfa("a"))}
         self.assertEqual(x._get_cubes_set(), res5)
 
+    @skip('_get_cubes_set not supported.')
     def test_add_cube_dfa_basic_3(self):
         x = CanonicalHyperCubeSet(dimensions)
         paths_dfa = get_str_dfa("abc")
@@ -1053,6 +1011,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(x)
         # TODO: test: update_layers_from_cubes_list  (sorting issue with MinDFA)
 
+    @skip('_get_cubes_set not supported.')
     def test_add_cube_dfa_basic_2(self):
         x = CanonicalHyperCubeSet(dimensions)
         paths_dfa = get_str_dfa("abc")
@@ -1081,6 +1040,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual(x._get_cubes_set(), res3)
         # print(x)
 
+    @skip('_get_cubes_list_from_layers not supported.')
     def test_add_cube_dfa_basic(self):
         x = CanonicalHyperCubeSet(dimensions)
         paths_dfa = get_str_dfa("abc")
@@ -1114,6 +1074,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         '''
         # print(x)
 
+    @skip('_get_cubes_set not supported.')
     def test_basic_new(self):
         c = CanonicalHyperCubeSet(dimensions)
         c.add_cube([get_str_dfa("a"), get_str_dfa("PUT")], ["methods_dfa", "paths"])
@@ -1227,6 +1188,7 @@ class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):
                      ["x", "y"])
         self.assertEqual(c, res)
 
+    @skip('__hash__ is not supported.')
     def test_new(self):
         c = CanonicalHyperCubeSet(dimensions4)
         c.add_cube([CanonicalIntervalSet.get_interval_set(10, 20), CanonicalIntervalSet.get_interval_set(10, 20),
@@ -1293,6 +1255,7 @@ class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):
         # print(d)
         # print('done')
 
+    @skip('equality with string literal not supported.')
     def test_eq_2(self):
         a = CanonicalHyperCubeSet(dimensions4)
         b = CanonicalHyperCubeSet(dimensions4)  # TODO: change dimensions4
@@ -1416,7 +1379,8 @@ class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):
         d = CanonicalHyperCubeSet(dimensions4)
         d.add_cube([CanonicalIntervalSet.get_interval_set(1, 200), CanonicalIntervalSet.get_interval_set(200, 300)])
         self.assertEqual(c, d)
-        self.assertEqual(str(c), str(d))
+        # TODO: we do not support canonical string representation.
+        # self.assertEqual(str(c), str(d))
 
     def test_apply_intervals_union_2(self):
         c = CanonicalHyperCubeSet(dimensions4)
@@ -1601,6 +1565,7 @@ class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):
         d = c.copy()
         self.assertEqual(c, d)
 
+    @skip('__len__ not supported.')
     def test_len(self):
         c = CanonicalHyperCubeSet(dimensions4)
         c.add_cube([CanonicalIntervalSet.get_interval_set(1, 100), CanonicalIntervalSet.get_interval_set(200, 300)])
@@ -1613,6 +1578,7 @@ class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):
         c.add_cube([CanonicalIntervalSet.get_interval_set(200, 300), CanonicalIntervalSet.get_interval_set(200, 300)])
         self.assertEqual(len(c), 1)
 
+    @skip('get_first_item not supported.')
     def test_get_first_item(self):
         c = CanonicalHyperCubeSet(dimensions4)
         c.add_cube([CanonicalIntervalSet.get_interval_set(1, 100), CanonicalIntervalSet.get_interval_set(200, 300)])
@@ -1630,6 +1596,7 @@ class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):
         c.clear()
         self.assertEqual(c, d)
 
+    @skip('__hash__ not supported.')
     def test_hash(self):
         x = dict()
         c = CanonicalHyperCubeSet(dimensions4)
@@ -1641,6 +1608,7 @@ class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):
         self.assertEqual(x[c], x[d])
         self.assertNotEqual(x[c], x[e])
 
+    @skip('__str__ not supported.')
     def test_str(self):
         c = CanonicalHyperCubeSet(dimensions4)
         self.assertEqual(str(c), "Empty")

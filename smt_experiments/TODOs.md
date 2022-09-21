@@ -1,7 +1,11 @@
 # TODO
 
-- [ ] make abstract interface for hyperCubeSet with functions required for NCA (discuss with Adi about what is necessary)
-  - [ ] send Adi an update when it is done
+- [ ] maybe use the simplify method that we saw in the Z3 programming? using the solver? 
+(https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-subterm-simplification)
+- [ ] I think that one possible improvement is to just allow a set of strings as an implementation instead of a MinDFA
+"CanonicStringSet" that only uses a DFA if it needs full regular expression support.
+- [x] make abstract interface for hyperCubeSet with functions required for NCA (discuss with Adi about what is necessary)
+  - [x] send Adi an update when it is done
 - [ ] make a copy of the tests for the hyper cube set, and skip the once that don't make sense for Z3
   - the target is to pass relevant tests and execute the tests (without connectivity map queries)
 - [ ] Implement the abstract interface for hypercube with z3 and pass tests

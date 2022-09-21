@@ -4,7 +4,7 @@
 #   update when finished
 from typing import Type, Union
 
-from z3 import BoolVal, And, sat, Or, Not, Int, String, substitute
+from z3 import BoolVal, And, sat, Or, Not, Int, String, substitute, unsat
 
 from DimensionsManager import DimensionsManager
 from smt_experiments.hyper_cube_set import HyperCubeSet
@@ -24,6 +24,8 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
         int: Z3IntegerSet,
         str: Z3StringSet,
     }
+
+    _z3_set_to_type = {v: k for k, v in _type_to_z3_set.items()}
 
     _dim_manager_type_to_primitive_type = {
         DimensionsManager.DimensionType.IntervalSet: int,
@@ -66,17 +68,21 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
         cube_formula = self._cube_to_formula(cube, cube_dimensions)
         self.constraints = Or(self.constraints, cube_formula)
 
-    def _check_cube(self, cube: list[Z3Set], cube_dimensions: list[str]):
+    def _check_cube(self, cube: list[Z3Set], cube_dimensions: list[str]) -> None:
         if not isinstance(cube, list):
-            raise ValueError
+            raise ValueError(f'cube must be a list, got {type(cube)}')
 
         if len(cube_dimensions) != len(cube):
-            raise ValueError
+            raise ValueError(f'mismatch in the number of dimensions. '
+                             f'cube_dimensions has {len(cube_dimensions)}, '
+                             f'cube has {len(cube)}.')
 
-        for z3_set, dim_name in zip(cube, cube_dimensions):
-            dim_type = self._dim_dict[dim_name]['type']
-            if type(z3_set) != self._type_to_z3_set[dim_type]:
-                raise ValueError
+        given_types = [self._z3_set_to_type[type(z3_set)] for z3_set in cube]
+        expected_types = [self._dim_dict[dim_name]['type'] for dim_name in cube_dimensions]
+        if given_types != expected_types:
+            raise ValueError('given types do not match expected types. '
+                             f'given={given_types}, '
+                             f'expected={expected_types}.')
 
     def _cube_to_formula(self, cube: list[Z3Set], cube_dimensions: list[str]):
         formula_list = []
@@ -100,7 +106,7 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
         cube_formula = self._cube_to_formula(cube, cube_dimensions)
         self.constraints = And(self.constraints, Not(cube_formula))
 
-    def _check_other(self, other):
+    def _check_other(self, other) -> None:
         other: Z3ProductSet
         for dim_name1, dim_name2 in zip(self._dim_dict, other._dim_dict):
             if dim_name1 != dim_name2:
@@ -143,27 +149,37 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
         new.constraints = self.constraints
         return new
 
-    # TODO: functions bellow this line need to be checked
+    def _check_item(self, item: list[Union[int, str]]) -> None:
+        if len(item) != len(self._dim_dict):
+            raise ValueError('number of dimensions mismatch. '
+                             f'expected {len(self._dim_dict)}, '
+                             f'got {len(item)}.')
 
-    def _check_types(self, item: tuple) -> bool:
-        return all(type(element) == t for element, t in zip(item, self.dim_types))
+        given_types = [type(i) for i in item]
+        expected_types = [dim_data['type'] for _, dim_data in self._dim_dict.items()]
+        if given_types != expected_types:
+            raise ValueError(f'types mismatch. '
+                             f'expected types {expected_types}, '
+                             f'got {given_types}.')
 
-    def __contains__(self, item: tuple) -> bool:
-        assert self._check_types(item)
-        constraint = self.constraints
-        for var, value in zip(self._dim_name_to_z3_var, item):
-            constraint = And(constraint, var == value)
+    def __contains__(self, item: list[Union[int, str]]) -> bool:
+        self._check_item(item)
+        var_list = [dim_data['var'] for _, dim_data in self._dim_dict.items()]
+        value_eq_constraint = And([var == value for var, value in zip(var_list, item)])
+        constraint = And(value_eq_constraint, self.constraints)
         return solve_without_model(constraint) == sat
 
     def contained_in(self, other) -> bool:
-        assert self.dim_types == other.dim_types
+        self._check_other(other)
         return super(Z3ProductSet, self).contained_in(other)
 
     def is_all(self) -> bool:
-        pass
-
-    def set_all(self) -> None:
-        pass
+        return super(Z3ProductSet, self).is_universal()
 
     def clear(self) -> None:
-        pass
+        self.constraints = BoolVal(False)
+
+    def set_all(self) -> None:
+        self.constraints = BoolVal(True)
+
+

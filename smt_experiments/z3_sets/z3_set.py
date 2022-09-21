@@ -1,5 +1,5 @@
 import z3
-from z3 import sat, unsat, And, Not, BoolVal, Or, Int, ExprRef, simplify, substitute
+from z3 import sat, unsat, And, Not, BoolVal, Or, Int, ExprRef, simplify, substitute, Distinct
 
 from smt_experiments.z3_sets.z3_utils import solve_without_model
 
@@ -43,8 +43,9 @@ class Z3Set:
         return solve_without_model(constraints) == unsat
 
     def __eq__(self, other):
-        constraint = Or(And(self.constraints, Not(other.constraints)),
-                        And(Not(self.constraints), other.constraints))
+        # constraint = Or(And(self.constraints, Not(other.constraints)),
+        #                 And(Not(self.constraints), other.constraints))
+        constraint = Distinct(self.constraints, other.constraints)
         return solve_without_model(constraint) == unsat
 
     def copy(self):

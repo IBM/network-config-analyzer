@@ -1,3 +1,4 @@
+import z3
 from z3 import Re, Concat, Plus, String, Union, Solver, InRe, Or, Not, And, unsat
 
 
@@ -21,6 +22,9 @@ def test_0():
     )
     # check if the two formulas are identical
     solver = Solver()
+    # solver.set("smt.string_solver", "auto")
+    # solver.set("smt.string_solver", "seq")
+    solver.set("smt.string_solver", "z3str3")
     solver.add(formula)
     print(f'checking formula {formula}')
     result = solver.check()
@@ -30,4 +34,35 @@ def test_0():
         print('Found counter-example: ', solver.model())
 
 
-test_0()
+def test_1():
+    # Does not get stuck
+    a = Re('a')
+    a_plus = Plus(a)
+    two_or_more_a = Concat(a, a_plus)
+    b = Re('b')
+    b_plus = Plus(b)
+    two_or_more_b = Concat(b, b_plus)
+    union_regex = Union(two_or_more_a, two_or_more_b)
+    r = z3.Diff(union_regex, two_or_more_a)
+    r1 = z3.Diff(union_regex, two_or_more_b)
+    # r = z3.Diff(r, two_or_more_b)
+    s = String('s')
+    s1 = String('s1')
+    formula = InRe(s, r)
+    formula = And(formula, InRe(s1, r1))
+    formula = And(formula, InRe(s, r1))
+    solver = Solver()
+    solver.add(formula)
+    print(f'checking formula {formula}')
+    result = solver.check()
+    if result == unsat:
+        print('Two formulas are identical')
+    else:
+        print('Found counter-example: ', solver.model())
+    print(solver.statistics())
+    print(solver.cube())
+
+
+if __name__ == '__main__':
+    # test_0()
+    test_1()
