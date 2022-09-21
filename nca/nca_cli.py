@@ -7,6 +7,7 @@ import argparse
 import time
 import os
 import sys
+from pathlib import Path
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig import NetworkConfig
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
@@ -306,10 +307,17 @@ def nca_main(argv=None):
                                                             'relevant only with --connectivity and --semantic_diff')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
+    parser.add_argument('--version', '-v', action='store_true', help='Print version and exit')
     parser.add_argument('--output_endpoints', choices=['pods', 'deployments'],
                         help='Choose endpoints type in output (pods/deployments)', default='deployments')
 
     args = parser.parse_args(argv)
+
+    if args.version:
+        version_file_path = Path(__file__).parent.parent.resolve() / 'VERSION.txt'
+        with open(version_file_path) as version_file:
+            print(f'NCA version {version_file.readline()}')
+        return 0
 
     if args.ghe_token:
         os.environ['GHE_TOKEN'] = args.ghe_token
