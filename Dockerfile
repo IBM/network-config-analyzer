@@ -14,13 +14,17 @@ RUN apt-get update && apt-get install curl -y && rm -rf /var/lib/apt/lists
 RUN curl -L "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" --output /usr/local/bin/kubectl \
     && chmod +x /usr/local/bin/kubectl
 
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh \
+    && ./get_helm.sh
+
 RUN curl -L https://github.com/projectcalico/calicoctl/releases/download/v3.3.1/calicoctl --output /usr/local/bin/calicoctl \
     && chmod +x /usr/local/bin/calicoctl
 
 RUN apt-get purge curl -y && apt-get autoremove -y
 
-COPY network-config-analyzer/ /nca/
+COPY nca/ /nca/
 
 USER 9000
 
-ENTRYPOINT ["python", "/nca/nca.py"]
+WORKDIR "/"
+ENTRYPOINT ["python", "-m", "nca"]

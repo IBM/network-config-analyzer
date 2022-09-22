@@ -1,0 +1,9 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: bookinfo-default-sidecar-2
+  namespace: default
+spec:
+  egress:
+    - hosts:
+        - "./details.default.svc.cluster.local"

@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: loadgenerator
+  namespace: onlineboutique
+  annotations:
+    iam.gke.io/gcp-service-account: onlineboutique-gsa@mygke-200.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgenerator
+  namespace: onlineboutique
+spec:
+  selector:
+    matchLabels:
+      app: loadgenerator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: loadgenerator
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: loadgenerator
+      terminationGracePeriodSeconds: 5
+      restartPolicy: Always
+      containers:
+      - name: main
+        image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/loadgenerator:v0.3.7
+        env:
+        - name: FRONTEND_ADDR
+          value: "frontend:80"
+        - name: USERS
+          value: "10"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 118Mi
+          limits:
+            cpu: 55m
+            memory: 243Mi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: loadgenerator
+  namespace: onlineboutique
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: loadgenerator
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: loadgenerator
+  namespace: onlineboutique
+spec:
+  podSelector:
+    matchLabels:
+      app: loadgenerator
+  policyTypes:
+  - Egress
+  egress:
+  - {}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: loadgenerator
+  namespace: onlineboutique
+spec:
+  workloadSelector:
+    labels:
+      app: loadgenerator
+  egress:
+  - hosts:
+    - "istio-system/*"
+    - "./frontend.onlineboutique.svc.cluster.local"

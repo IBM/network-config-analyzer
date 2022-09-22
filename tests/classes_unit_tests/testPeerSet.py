@@ -1,7 +1,6 @@
 import unittest
-
-from Peer import PeerSet, Pod, IpBlock
-from K8sNamespace import K8sNamespace
+from nca.CoreDS.Peer import PeerSet, Pod, IpBlock
+from nca.Resources.K8sNamespace import K8sNamespace
 
 
 class TestPeerSetMethods(unittest.TestCase):
