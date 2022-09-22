@@ -7,7 +7,7 @@ import sre_parse
 from typing import Optional
 
 import z3
-from z3 import sat, PrefixOf, SuffixOf, Length, ModelRef, String, Or
+from z3 import sat, PrefixOf, SuffixOf, Length, ModelRef, String, Or, BoolVal
 
 from smt_experiments.role_analyzer import regex_to_z3_expr
 from smt_experiments.z3_sets.z3_set import Z3Set
@@ -19,17 +19,14 @@ class Z3StringSet(Z3Set):
 
     def __init__(self):
         super(Z3StringSet, self).__init__()
-        # self.regex = z3.Re('r')
 
     @classmethod
-    def from_str(cls, s: str):
+    def from_wildcard(cls, s: str):
         str_set = cls()
-
         if '*' not in s:
             str_set.constraints = str_set._var == s
         elif '*' == s:
-            # TODO: is it true that this means that the string is not empty?
-            str_set.constraints = Length(str_set._var) > 0
+            str_set.constraints = BoolVal(True)
         elif '*' == s[-1]:
             str_set.constraints = PrefixOf(s[:-1], str_set._var)
         elif '*' == s[0]:

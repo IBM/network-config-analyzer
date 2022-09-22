@@ -1,4 +1,5 @@
 import string
+from enum import auto
 from itertools import combinations
 
 from MinDFA import MinDFA
@@ -12,23 +13,20 @@ from smt_experiments.z3_sets.z3_string_set import Z3StringSet
 # TODO: refactor the way that experiments work.
 # TODO: test that the containment works (things that are in are in)
 # TODO: create a timeout for the experiment that will automatically stop the experiment when the time is over
-
+# TODO: maybe I can get the same results but with a simpler set of examples...
 EXPERIMENT_NAME = 'n_union_string_experiment'
 
 
 class BasicSet(EnumWithStr):
-    CONSTANT = string.digits
-    PREFIX = string.ascii_lowercase
-    SUFFIX = string.ascii_uppercase
-
-    def __init__(self, alphabet: str):
-        self.alphabet = alphabet
+    CONSTANT = auto()
+    PREFIX = auto()
+    SUFFIX = auto()
 
 
 def get_elements(n_unions: int, basic_set_combinations: set[BasicSet], check: CheckType) -> list[str]:
     elements = []
     for basic_set in basic_set_combinations:
-        string_list = get_string_list(n_unions, basic_set.alphabet)
+        string_list = get_string_list(n_unions)
         if check == CheckType.NOT_CONTAINED:
             string_list = [s[:-1] + '@' for s in string_list]
         if basic_set == BasicSet.PREFIX:
@@ -47,7 +45,7 @@ def get_not_contained_elements(n_unions: int, basic_set_combination: set[BasicSe
     return get_elements(n_unions, basic_set_combination, CheckType.NOT_CONTAINED)
 
 
-def get_string_list(n_strings: int, alphabet: str) -> list[str]:
+def get_string_list(n_strings: int, alphabet: str = string.ascii_lowercase) -> list[str]:
     work_len = 5
     n_chars_in_letter = 0
     string_list = []
@@ -62,36 +60,32 @@ def get_string_list(n_strings: int, alphabet: str) -> list[str]:
 
 
 def get_string_set(n_unions: int, engine: EngineType, basic_set_combination: tuple[BasicSet]):
-    representation = 'empty_word'
     if engine == EngineType.Z3:
-        string_set = Z3StringSet.from_str('')
+        string_set_cls = Z3StringSet
     else:  # engine == EngineType.OUR
-        string_set = MinDFA.dfa_from_regex('')
+        string_set_cls = MinDFA
 
-    for basic_set in basic_set_combination:
-        string_list = get_string_list(n_unions, basic_set.alphabet)
-        for s in string_list:
-            if engine == EngineType.Z3:
-                if basic_set == BasicSet.SUFFIX:
-                    s = '*' + s
-                elif basic_set == BasicSet.PREFIX:
-                    s = s + '*'
-                to_add = Z3StringSet.from_str(s)
-            else:  # engine == EngineType.OUR
-                if basic_set == BasicSet.SUFFIX:
-                    s = '(.*)' + s
-                elif basic_set == BasicSet.PREFIX:
-                    s = s + '(.*)'
-                to_add = MinDFA.dfa_from_regex(s)
-            representation += '|' + s
-            string_set = string_set | to_add
+    string_set = string_set_cls.from_wildcard('')
+    representation = 'epsilon'
+    string_list = get_string_list(n_unions)
+
+    for i in range(n_unions):
+        basic_set = basic_set_combination[i % len(basic_set_combination)]
+        s = string_list[i]
+        if basic_set == BasicSet.PREFIX:
+            s = s + '*'
+        if basic_set == BasicSet.SUFFIX:
+            s = '*' + s
+        to_add = string_set_cls.from_wildcard(s)
+        string_set |= to_add
+        representation += '|' + s
 
     return string_set, representation
 
 
 def run():
     min_unions = 1
-    max_unions = 12
+    max_unions = 24
     # max_unions = 3
     n_unions_step = 1
 
@@ -124,7 +118,6 @@ def run():
 
 
 def plot():
-
     x_var = Variable(
         'n_unions',
         lambda result: result['set_params']['n_unions']

@@ -1,34 +1,29 @@
 # TODO
 
-- [ ] maybe use the simplify method that we saw in the Z3 programming? using the solver? 
-(https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-subterm-simplification)
-- [ ] I think that one possible improvement is to just allow a set of strings as an implementation instead of a MinDFA
-"CanonicStringSet" that only uses a DFA if it needs full regular expression support.
-- [x] make abstract interface for hyperCubeSet with functions required for NCA (discuss with Adi about what is necessary)
-  - [x] send Adi an update when it is done
-- [ ] make a copy of the tests for the hyper cube set, and skip the once that don't make sense for Z3
-  - the target is to pass relevant tests and execute the tests (without connectivity map queries)
-- [ ] Implement the abstract interface for hypercube with z3 and pass tests
-  - [ ] send update after implementing some
+- [ ] One question: why does get_str_dfa  uses dfa_from_regex and not from_str (which supports prefix/suffix)? **fix
 - [ ] extend the experiments -- with some abstract examples, try to figure out the limits where z3 becomes more useful
   than our tools (maybe find some mathematical description of that? could be cool...)
-- [ ] make n_unions set with the same number of sets, that is, if we combine different types of constraints, then I 
-still have the same number of unions, and just take a round-robin of the different constraint types.
-- [ ] implement the same hyper-cube set interface with Z3 -- In progress
-- [ ] implement the same StringSet set interface with Z3
-- [ ] implement the same IntegerSet set interface with Z3
-- [ ] merge the benchmarking and z3 branches
-- [ ] compare different operations. (not only element containment)
-  - [x] membership
-  - [ ] set containment
+- [ ] make n_unions set with the same number of sets, that is, if we combine different types of constraints, then I
+  still have the same number of unions, and just take a round-robin of the different constraint types.
+- [ ] Add support for set containment operations.
 - [ ] add assertions that z3 and our implementation gives the same results (correct / expected results)
-- [ ] maybe do the tests in a more explicit way. (input, output), so it will be easy to understand what is running, 
-  without getting inside the code.
-- [ ] use the same scale for the axes
-- [ ] n_unions -> n_strings ( * num of basic sets), to have a fair comparison between the different
-  types
-- [ ] do regular expressions experiment (use open source code)
 - [ ] multiple dimensions with strings
+- [ ] merge the benchmarking and z3 branches
+- [ ] maybe use the simplify method that we saw in the Z3 programming? using the solver?
+  (https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-subterm-simplification)
+- [ ] I think that one possible improvement is to just allow a set of strings as an implementation instead of a MinDFA
+  "CanonicStringSet" that only uses a DFA if it needs full regular expression support. -- I'm not sure that this is so
+  simple. -- maybe a more simple solution? and only use MinDFA when there are more complex string set? "Hybrid representation"
+- [ ] do regular expressions experiment (use open source code)
+- [ ] use the same scale for the axes
+- [x] maybe do the tests in a more explicit way. (input, output), so it will be easy to understand what is running,
+  without getting inside the code. -- I record the inputs in a file.
+- [x] make abstract interface for hyperCubeSet with functions required for NCA (discuss with Adi about what is necessary)
+  - [x] send Adi an update when it is done
+- [x] make a copy of the tests for the hyper cube set, and skip the once that don't make sense for Z3
+  - the target is to pass relevant tests and execute the tests (without connectivity map queries)
+- [x] Implement the abstract interface for hypercube with z3 and pass tests
+  - [x] send update after implementing some
 - [x] create a scatter plot comparing time for element containment over the
   number of intervals, comparing z3 and our implementation
 - [x] create a scatter plot comparing time for element containment over

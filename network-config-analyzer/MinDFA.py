@@ -260,3 +260,19 @@ class MinDFA:
         str_generator = self.fsm.strings()
         str_val = next(str_generator)
         return ''.join(ch for ch in str_val)
+
+    # Shai added for compatibility with Z3StringSet
+    @classmethod
+    def from_wildcard(cls, s: str):
+        if '*' not in s:
+            regex = s
+        elif '*' == s:
+            regex = '.*'
+        elif '*' == s[-1]:
+            regex = s[:-1] + '(.*)'
+        elif '*' == s[0]:
+            regex = '(.*)' + s[1:]
+        else:
+            raise RuntimeError(f'* should only appear at the start or end of the string. got {s}.')
+
+        return cls.dfa_from_regex(regex)

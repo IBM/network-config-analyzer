@@ -10,7 +10,7 @@ class BasicTests(unittest.TestCase):
         self.assertIn(in_word, str_set)
 
     def test_contains_exact_match(self):
-        str_set = Z3StringSet.from_str('bla')
+        str_set = Z3StringSet.from_wildcard('bla')
         in_word = 'bla'
         not_in_word = 'blabla'
 
@@ -18,7 +18,7 @@ class BasicTests(unittest.TestCase):
         self.assertNotIn(not_in_word, str_set)
 
     def test_contains_prefix(self):
-        str_set = Z3StringSet.from_str('bla*')
+        str_set = Z3StringSet.from_wildcard('bla*')
         in_word = 'blablak'
         not_in_word = 'mblabla'
 
@@ -26,7 +26,7 @@ class BasicTests(unittest.TestCase):
         self.assertNotIn(not_in_word, str_set)
 
     def test_contains_suffix(self):
-        str_set = Z3StringSet.from_str('*bla')
+        str_set = Z3StringSet.from_wildcard('*bla')
         in_word = 'kablabla'
         not_in_word = 'mblablak'
 
@@ -34,7 +34,7 @@ class BasicTests(unittest.TestCase):
         self.assertNotIn(not_in_word, str_set)
 
     def test_contains_presence(self):
-        str_set = Z3StringSet.from_str('*')
+        str_set = Z3StringSet.from_wildcard('*')
         in_word = 'bla'
         not_in_word = ''
 
@@ -42,8 +42,8 @@ class BasicTests(unittest.TestCase):
         self.assertNotIn(not_in_word, str_set)
 
     def test_and(self):
-        str_set_1 = Z3StringSet.from_str('bla/*')
-        str_set_2 = Z3StringSet.from_str('*/bla')
+        str_set_1 = Z3StringSet.from_wildcard('bla/*')
+        str_set_2 = Z3StringSet.from_wildcard('*/bla')
         str_set = str_set_1 & str_set_2
         in_word_1 = 'bla/bla'
         in_word_2 = 'bla/moo/bla'
@@ -56,8 +56,8 @@ class BasicTests(unittest.TestCase):
         self.assertNotIn(not_in_word_2, str_set)
 
     def test_or(self):
-        str_set_1 = Z3StringSet.from_str('bla/*')
-        str_set_2 = Z3StringSet.from_str('*/bla')
+        str_set_1 = Z3StringSet.from_wildcard('bla/*')
+        str_set_2 = Z3StringSet.from_wildcard('*/bla')
         str_set = str_set_1 | str_set_2
         in_word_1 = 'food/bla'
         in_word_2 = 'bla/moo/moo'
@@ -70,8 +70,8 @@ class BasicTests(unittest.TestCase):
         self.assertNotIn(not_in_word_2, str_set)
 
     def test_sub(self):
-        str_set_1 = Z3StringSet.from_str('bla/*')
-        str_set_2 = Z3StringSet.from_str('*/bla')
+        str_set_1 = Z3StringSet.from_wildcard('bla/*')
+        str_set_2 = Z3StringSet.from_wildcard('*/bla')
         str_set = str_set_1 - str_set_2
         in_word_1 = 'bla/moo'
         in_word_2 = 'bla/moo/moo'
@@ -88,16 +88,16 @@ class BasicTests(unittest.TestCase):
         self.assertTrue(str_set.is_empty())
 
     def test_is_empty_2(self):
-        str_set_1 = Z3StringSet.from_str('ba')
-        str_set_2 = Z3StringSet.from_str('ka')
+        str_set_1 = Z3StringSet.from_wildcard('ba')
+        str_set_2 = Z3StringSet.from_wildcard('ka')
         str_set = str_set_1 & str_set_2
         self.assertFalse(str_set_1.is_empty())
         self.assertFalse(str_set_2.is_empty())
         self.assertTrue(str_set.is_empty())
 
     def test_is_empty_3(self):
-        str_set_1 = Z3StringSet.from_str('*/bla')
-        str_set_2 = Z3StringSet.from_str('*/bla')
+        str_set_1 = Z3StringSet.from_wildcard('*/bla')
+        str_set_2 = Z3StringSet.from_wildcard('*/bla')
         str_set = str_set_1 - str_set_2
         self.assertFalse(str_set_1.is_empty())
         self.assertTrue(str_set.is_empty())
@@ -108,33 +108,33 @@ class BasicTests(unittest.TestCase):
 
     def test_is_all_words_2(self):
         str_set = Z3StringSet.get_universal_set()
-        str_set_1 = Z3StringSet.from_str('bla')
+        str_set_1 = Z3StringSet.from_wildcard('bla')
         str_set_2 = str_set | str_set_1
         self.assertFalse(str_set_1.is_universal())
         self.assertTrue(str_set_2.is_universal())
 
     def test_sample(self):
-        str_set = Z3StringSet.from_str('bla')
+        str_set = Z3StringSet.from_wildcard('bla')
         sample = str_set.get_example_from_set()
         self.assertEqual(sample, 'bla')
 
-        str_set_1 = Z3StringSet.from_str('*/bla')
-        str_set_2 = Z3StringSet.from_str('bla/*')
+        str_set_1 = Z3StringSet.from_wildcard('*/bla')
+        str_set_2 = Z3StringSet.from_wildcard('bla/*')
         str_set = str_set_1 & str_set_2
         sample = str_set.get_example_from_set()
         self.assertTrue(sample.startswith('bla/'))
         self.assertTrue(sample.endswith('/bla'))
 
     def test_contained_in(self):
-        str_set_1 = Z3StringSet.from_str('bla/*')
-        str_set_2 = Z3StringSet.from_str('bla/moo/*')
+        str_set_1 = Z3StringSet.from_wildcard('bla/*')
+        str_set_2 = Z3StringSet.from_wildcard('bla/moo/*')
         self.assertTrue(str_set_2.contained_in(str_set_1))
         self.assertFalse(str_set_1.contained_in(str_set_2))
 
     def test_eq(self):
-        str_set_1 = Z3StringSet.from_str('bla/*')
-        str_set_2 = Z3StringSet.from_str('bla/*')
-        str_set_3 = Z3StringSet.from_str('*/moo')
+        str_set_1 = Z3StringSet.from_wildcard('bla/*')
+        str_set_2 = Z3StringSet.from_wildcard('bla/*')
+        str_set_3 = Z3StringSet.from_wildcard('*/moo')
         self.assertEqual(str_set_1, str_set_2)
         self.assertNotEqual(str_set_1, str_set_3)
 

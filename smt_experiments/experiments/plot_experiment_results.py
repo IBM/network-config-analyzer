@@ -15,7 +15,7 @@ def filter_by_var_list(results: list, var_values: tuple, var_list: list[Variable
 
 
 def get_unique_var_list_values(results: list, var_list: list[Variable]) -> list:
-    return list(set(compute_var_list(result, var_list) for result in results))
+    return sorted(list(set(compute_var_list(result, var_list) for result in results)))
 
 
 def var_values_to_str(values: list, var_list: list[Variable]) -> str:

@@ -29,7 +29,6 @@ def run_experiment(experiment_name: str, set_params_options: dict[str, list],
             s, representation = get_set_from_params(**set_params)
         experiment_result['creation_time'] = timer.elapsed_time
         experiment_result['set_description'] = representation
-        # experiment_result['set_description'] = repr(s)
 
         experiment_result['operation_result_dict'] = {}
         for j, operation in enumerate(operation_list, 1):

@@ -58,12 +58,12 @@ def dict_product(options_dict: dict[str, Iterable]) -> Iterable[dict[str, Any]]:
         yield dict(zip(options_dict.keys(), option_values_tuple))
 
 
-def iter_subsets(items: set, min_size: int = 0, max_size: int = None) -> Iterable[set]:
+def iter_subsets(items: set, min_size: int = 0, max_size: int = None) -> Iterable[tuple]:
     if max_size is None:
         max_size = len(items)
     for subset_size in range(min_size, max_size + 1):
         for combination in combinations(items, subset_size):
-            yield set(combination)
+            yield combination
 
 
 def save_results(experiment_result_list: list, experiment_name: str):
