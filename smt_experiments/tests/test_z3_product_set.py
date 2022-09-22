@@ -1,6 +1,3 @@
-# TODO: replace with z3 implementations
-# TODO: skip tests that are not good, and write a reason for doing that
-#   after doing that - update
 import unittest
 from unittest import skip
 
