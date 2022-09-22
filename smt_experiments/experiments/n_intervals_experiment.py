@@ -2,18 +2,13 @@
 An experiment that measures how the time for element containment is influenced by the number of intervals in a single
 interval set.
 """
-import timeit
-from statistics import mean
-
-import matplotlib.pyplot as plt
 
 from CanonicalIntervalSet import CanonicalIntervalSet
+from smt_experiments.experiments.experiment_utils import EngineType, Variable, get_y_var_list, \
+    get_positive_membership_operation, get_negative_membership_operation
 from smt_experiments.experiments.plot_experiment_results import plot_results
+from smt_experiments.experiments.run_experiment import run_experiment
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
-
-# TODO: convert to use the generic plot / run_experiment functions
-from smt_experiments.experiments.experiment_utils import EngineType, Variable, get_y_var_list
-from smt_experiments.experiments.run_experiment import run_experiment, Operation
 
 JUMP = 100
 INTERVAL_HALF_SIZE = 25
@@ -73,18 +68,9 @@ def run():
         'n_intervals': list(range(min_intervals, max_intervals + 1, step))
     }
 
-    # TODO: I think I can also reuse this operation_list in all of the experiments.
     operation_list = [
-        Operation(
-            name='positive_membership',
-            get_input_list=get_contained_elements,
-            run_operation=lambda set_0, element: element in set_0,
-        ),
-        Operation(
-            name='negative_membership',
-            get_input_list=get_not_contained_elements,
-            run_operation=lambda set_0, element: element in set_0
-        ),
+        get_positive_membership_operation(get_contained_elements),
+        get_negative_membership_operation(get_not_contained_elements),
     ]
 
     run_experiment(

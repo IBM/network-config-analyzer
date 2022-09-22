@@ -123,3 +123,29 @@ def get_y_var_list():
 class Variable:
     name: str
     compute: Callable
+
+
+@dataclass
+class Operation:
+    name: str
+    get_input_list: Callable
+    run_operation: Callable
+    expected_result: Any = None
+
+
+def get_positive_membership_operation(get_input_list: Callable) -> Operation:
+    return Operation(
+        name='positive_membership',
+        get_input_list=get_input_list,
+        run_operation=lambda set_0, element: element in set_0,
+        expected_result=True
+    )
+
+
+def get_negative_membership_operation(get_input_list: Callable) -> Operation:
+    return Operation(
+        name='negative_membership',
+        get_input_list=get_input_list,
+        run_operation=lambda set_0, element: element in set_0,
+        expected_result=False
+    )

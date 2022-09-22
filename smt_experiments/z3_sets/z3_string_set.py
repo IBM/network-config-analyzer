@@ -1,15 +1,10 @@
 # TODO: how should we take into account the set of allowed alphabet?
 #   especially the "is_all_words" function
-# TODO: take the tests for the MinDFA module and compare it to the Z3
-#  implementation
-# TODO: Convert this to Regexp. -- re create the interface of MinDFA.
-import sre_parse
+# TODO: add regex support -- re create the interface of MinDFA.
 from typing import Optional
 
-import z3
-from z3 import sat, PrefixOf, SuffixOf, Length, ModelRef, String, Or, BoolVal
+from z3 import sat, PrefixOf, SuffixOf, ModelRef, String, Or, BoolVal
 
-from smt_experiments.role_analyzer import regex_to_z3_expr
 from smt_experiments.z3_sets.z3_set import Z3Set
 from smt_experiments.z3_sets.z3_utils import solve_with_model
 
@@ -47,7 +42,7 @@ class Z3StringSet(Z3Set):
 
     @classmethod
     def dfa_from_regex(cls, s: str):
-        # TODO: make sure this works
+        # TODO: This is just temporary, should remove this.
         z3_set = cls()
         if '+' in s:
             raise ValueError
@@ -63,13 +58,3 @@ class Z3StringSet(Z3Set):
 
         z3_set.constraints = z3_set._var == s
         return z3_set
-        # s = sre_parse.parse(s)
-        # z3_set.regex = regex_to_z3_expr(s)
-        # z3_set.constraints = z3.InRe(z3_set._var, z3_set.regex)
-        # return z3_set
-
-    # # TODO: experimental
-    # def __ior__(self, other):
-    #     self.regex = z3.Union(self.regex, other.regex)
-    #     self.constraints = z3.InRe(self._var, self.regex)
-    #     return self

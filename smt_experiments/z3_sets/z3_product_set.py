@@ -1,10 +1,7 @@
 """Z3 implementation of hyper cube"""
-# TODO: inherit from HyperCubeSet interface and implement it, try to pass tests
-#   from `test_z3_hyper_cube_set`
-#   update when finished
-from typing import Type, Union
+from typing import Union
 
-from z3 import BoolVal, And, sat, Or, Not, Int, String, substitute, unsat
+from z3 import BoolVal, And, sat, Or, Not, Int, String
 
 from DimensionsManager import DimensionsManager
 from smt_experiments.hyper_cube_set import HyperCubeSet

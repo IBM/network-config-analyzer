@@ -1,18 +1,10 @@
 """a function that runs an experiment given some functions"""
 import logging
 from collections.abc import Callable
-from dataclasses import dataclass
 
-from smt_experiments.experiments.experiment_utils import Timer, dict_product, save_results
+from smt_experiments.experiments.experiment_utils import Timer, dict_product, save_results, Operation
 
 logging.basicConfig(level=logging.INFO)
-
-
-@dataclass
-class Operation:
-    name: str
-    get_input_list: Callable
-    run_operation: Callable
 
 
 def run_experiment(experiment_name: str, set_params_options: dict[str, list],
@@ -35,11 +27,18 @@ def run_experiment(experiment_name: str, set_params_options: dict[str, list],
             logging.info(f'    operation: {operation.name}. {j} out {len(operation_list)}')
 
             input_list = operation.get_input_list(**set_params)
+            result_list = []
             with Timer() as timer:
+                for x in input_list:
+                    result = operation.run_operation(s, x)
+                    if operation.expected_result is not None and operation.expected_result != result:
+                        raise RuntimeError(f'got {result}, expected {operation.expected_result}.')
+
+                    result_list.append(result)
                 result_list = [operation.run_operation(s, x) for x in input_list]
 
             experiment_result['operation_result_dict'][operation.name] = {
-                'time': timer.elapsed_time,
+                'time': timer.elapsed_time / len(input_list),
                 'input_list': input_list,
                 'result_list': result_list
             }

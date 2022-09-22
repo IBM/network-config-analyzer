@@ -1,12 +1,14 @@
+import itertools
 import string
+from collections.abc import Iterable
 from enum import auto
 from itertools import combinations
 
 from MinDFA import MinDFA
 from smt_experiments.experiments.experiment_utils import CheckType, EngineType, EnumWithStr, iter_subsets, \
-    get_y_var_list, Variable
+    get_y_var_list, Variable, Operation, get_positive_membership_operation, get_negative_membership_operation
 from smt_experiments.experiments.plot_experiment_results import plot_results
-from smt_experiments.experiments.run_experiment import run_experiment, Operation
+from smt_experiments.experiments.run_experiment import run_experiment
 from smt_experiments.z3_sets.z3_string_set import Z3StringSet
 
 # TODO: change instead to inplace union operations instead of not-inplace operations
@@ -23,40 +25,47 @@ class BasicSet(EnumWithStr):
     SUFFIX = auto()
 
 
-def get_elements(n_unions: int, basic_set_combinations: set[BasicSet], check: CheckType) -> list[str]:
-    elements = []
-    for basic_set in basic_set_combinations:
-        string_list = get_string_list(n_unions)
-        if check == CheckType.NOT_CONTAINED:
-            string_list = [s[:-1] + '@' for s in string_list]
-        if basic_set == BasicSet.PREFIX:
-            string_list = [s + 'xxx' for s in string_list]
-        elif basic_set == BasicSet.SUFFIX:
-            string_list = ['xxx' + s for s in string_list]
-        elements += string_list
-    return elements
-
-
-def get_contained_elements(n_unions: int, basic_set_combination: set[BasicSet], engine: EngineType) -> list[str]:
-    return get_elements(n_unions, basic_set_combination, CheckType.CONTAINED)
-
-
-def get_not_contained_elements(n_unions: int, basic_set_combination: set[BasicSet], engine: EngineType) -> list[str]:
-    return get_elements(n_unions, basic_set_combination, CheckType.NOT_CONTAINED)
-
-
 def get_string_list(n_strings: int, alphabet: str = string.ascii_lowercase) -> list[str]:
     work_len = 5
-    n_chars_in_letter = 0
+    n_chars_in_letter = 1
     string_list = []
     while len(string_list) < n_strings:
-        n_chars_in_letter += 1
         for letter in combinations(alphabet, n_chars_in_letter):
             letter = ''.join(letter)
             string_list.append(letter * work_len)
             if len(string_list) >= n_strings:
                 break
+        n_chars_in_letter += 1
     return string_list
+
+
+def union_iterator(n_unions: int, basic_set_combination: tuple[BasicSet]) -> Iterable[tuple[str, BasicSet]]:
+    string_list = get_string_list(n_unions)
+    basic_set_iter = itertools.cycle(basic_set_combination)
+    for s, basic_set in zip(string_list, basic_set_iter):
+        yield s, basic_set
+
+
+def get_elements(n_unions: int, basic_set_combinations: tuple[BasicSet], check: CheckType) -> list[str]:
+    # TODO: need to fix this according to round-robin basic set combinations.
+    elements = []
+    for s, basic_set in union_iterator(n_unions, basic_set_combinations):
+        if check == CheckType.NOT_CONTAINED:
+            s = s[:-1] + '@'
+        if basic_set == BasicSet.PREFIX:
+            s = s + 'xxx'
+        elif basic_set == BasicSet.SUFFIX:
+            s = 'xxx' + s
+        elements.append(s)
+    return elements
+
+
+def get_contained_elements(n_unions: int, basic_set_combination: tuple[BasicSet], engine: EngineType) -> list[str]:
+    return get_elements(n_unions, basic_set_combination, CheckType.CONTAINED)
+
+
+def get_not_contained_elements(n_unions: int, basic_set_combination: tuple[BasicSet], engine: EngineType) -> list[str]:
+    return get_elements(n_unions, basic_set_combination, CheckType.NOT_CONTAINED)
 
 
 def get_string_set(n_unions: int, engine: EngineType, basic_set_combination: tuple[BasicSet]):
@@ -67,11 +76,8 @@ def get_string_set(n_unions: int, engine: EngineType, basic_set_combination: tup
 
     string_set = string_set_cls.from_wildcard('')
     representation = 'epsilon'
-    string_list = get_string_list(n_unions)
 
-    for i in range(n_unions):
-        basic_set = basic_set_combination[i % len(basic_set_combination)]
-        s = string_list[i]
+    for s, basic_set in union_iterator(n_unions, basic_set_combination):
         if basic_set == BasicSet.PREFIX:
             s = s + '*'
         if basic_set == BasicSet.SUFFIX:
@@ -89,19 +95,9 @@ def run():
     # max_unions = 3
     n_unions_step = 1
 
-    membership_positive = Operation(
-        name='positive_membership',
-        get_input_list=get_contained_elements,
-        run_operation=lambda set_0, element: element in set_0,
-    )
-    membership_negative = Operation(
-        name='negative_membership',
-        get_input_list=get_not_contained_elements,
-        run_operation=lambda set_0, element: element in set_0,
-    )
     operation_list = [
-        membership_positive,
-        membership_negative
+        get_positive_membership_operation(get_contained_elements),
+        get_negative_membership_operation(get_not_contained_elements),
     ]
     set_params_options = {
         'engine': list(EngineType),

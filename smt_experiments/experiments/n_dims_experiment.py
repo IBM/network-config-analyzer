@@ -10,9 +10,10 @@ from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from CanonicalIntervalSet import CanonicalIntervalSet
 from DimensionsManager import DimensionsManager
 from smt_experiments.experiments.experiment_utils import EngineType, \
-    EnumWithStr, get_y_var_list, Variable
+    EnumWithStr, get_y_var_list, Variable, Operation, get_positive_membership_operation, \
+    get_negative_membership_operation
 from smt_experiments.experiments.plot_experiment_results import plot_results
-from smt_experiments.experiments.run_experiment import run_experiment, Operation
+from smt_experiments.experiments.run_experiment import run_experiment
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
 from smt_experiments.z3_sets.z3_product_set import Z3ProductSet
 
@@ -128,16 +129,8 @@ def run():
     _init_dim_manager(max_dims)
 
     operation_list = [
-        Operation(
-            name='positive_membership',
-            get_input_list=get_contained_elements,
-            run_operation=lambda set_0, element: element in set_0,
-        ),
-        Operation(
-            name='negative_membership',
-            get_input_list=get_not_contained_elements,
-            run_operation=lambda set_0, element: element in set_0
-        ),
+        get_positive_membership_operation(get_contained_elements),
+        get_negative_membership_operation(get_not_contained_elements),
     ]
     set_params_options = {
         'engine': list(EngineType),
