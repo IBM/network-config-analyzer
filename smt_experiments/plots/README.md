@@ -46,5 +46,11 @@ and gets to 15 seconds when 3 modes are combined (prefix, suffix and constant) w
 (which is actually 14 * 3 unions since we have a different set for each mode)
 
 
-
+## multiple_string_dimensions Notes:
+- when there is only a single cube, the z3 implementation and our implementation have constant runtime,
+and the z3 runtime is much worse. but this does not depend much on the number of dimensions.
+- but, when we have a linear number of cubes (#cubes = #dimensions) the construction time of our set is greater, 
+but membership checking appears to be faster in our implementation, but overall, z3 becomes better than our 
+- implementation at around 13 dimensions (in the simple cubes experiment).
+- 
 
