@@ -106,7 +106,10 @@ ENV/
 # place to test stuff
 workdir
 
-# Benchmarks
-benchmarks
-benchmark_results
-temp_scheme
+# Benchmarking
+benchmarks/
+!benchmarks/README.md
+!benchmarks/example_benchmark/
+benchmark_results/
+!benchmark_results/README.md
+temp_scheme/
