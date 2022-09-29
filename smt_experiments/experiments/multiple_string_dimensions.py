@@ -22,7 +22,7 @@ from smt_experiments.experiments.n_unions_string_experiment import BasicSet, get
 from smt_experiments.experiments.plot_experiment_results import plot_results
 from smt_experiments.experiments.run_experiment import run_experiment
 from smt_experiments.z3_sets.z3_product_set import Z3ProductSet
-from smt_experiments.z3_sets.z3_string_set import Z3StringSet
+from smt_experiments.z3_sets.z3_string_set import Z3SimpleStringSet
 
 
 def _get_contained_element(n_dims: int, basic_set: BasicSet) -> list[str]:
@@ -37,7 +37,7 @@ def _get_contained_element(n_dims: int, basic_set: BasicSet) -> list[str]:
 
 def get_classes(engine):
     if engine == EngineType.Z3:
-        single_dim_set_cls = Z3StringSet
+        single_dim_set_cls = Z3SimpleStringSet
         product_set_cls = Z3ProductSet
     else:  # engine == EngineType.OUR:
         single_dim_set_cls = MinDFA

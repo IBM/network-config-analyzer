@@ -1,25 +1,38 @@
 """Z3 implementation of hyper cube"""
 from typing import Union
 
-from z3 import BoolVal, And, sat, Or, Not, Int, String
+from z3 import BoolVal, And, sat, Or, Not, Int, String, unsat, substitute
 
 from DimensionsManager import DimensionsManager
 from smt_experiments.hyper_cube_set import HyperCubeSet
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
 from smt_experiments.z3_sets.z3_set import Z3Set
-from smt_experiments.z3_sets.z3_string_set import Z3StringSet
+from smt_experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
 from smt_experiments.z3_sets.z3_utils import solve_without_model
 
 
 class Z3ProductSet(Z3Set, HyperCubeSet):
+
+    @classmethod
+    def get_universal_set(cls):
+        raise NotImplementedError
+
+    @classmethod
+    def get_empty_set(cls):
+        raise NotImplementedError
+
+    @property
+    def python_type(self):
+        raise NotImplementedError
+
     _type_to_var_constructor = {
         int: Int,
         str: String
     }
-    
+
     _type_to_z3_set = {
         int: Z3IntegerSet,
-        str: Z3StringSet,
+        str: Z3SimpleStringSet,
     }
 
     _z3_set_to_type = {v: k for k, v in _type_to_z3_set.items()}
@@ -30,8 +43,6 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
     }
 
     def __init__(self, dimensions: list[str], allow_all: bool = False):
-        super(Z3ProductSet, self).__init__()
-
         self._dim_dict = {}
         for dim_name in dimensions:
             dim_type = DimensionsManager().get_dimension_type_by_name(dim_name)
@@ -39,7 +50,28 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
             dim_var = self._type_to_var_constructor[dim_type](dim_name)
             self._dim_dict[dim_name] = {'type': dim_type, 'var': dim_var}
 
-        self.constraints = BoolVal(allow_all)
+        self._constraints = BoolVal(allow_all)
+
+    def __iand__(self, other):
+        self._check_other(other)
+        self._constraints = And(self._constraints, other._constraints)
+        return self
+
+    def __ior__(self, other):
+        self._check_other(other)
+        self._constraints = Or(self._constraints, other._constraints)
+        return self
+
+    def __invert__(self):
+        new = self.copy()
+        new._constraints = Not(self._constraints)
+        return new
+
+    def is_empty(self):
+        return solve_without_model(self._constraints) == unsat
+
+    def __str__(self):
+        return str(self._constraints)
 
     def __bool__(self):
         return not self.is_empty()
@@ -63,7 +95,7 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
             return
 
         cube_formula = self._cube_to_formula(cube, cube_dimensions)
-        self.constraints = Or(self.constraints, cube_formula)
+        self._constraints = Or(self._constraints, cube_formula)
 
     def _check_cube(self, cube: list[Z3Set], cube_dimensions: list[str]) -> None:
         if not isinstance(cube, list):
@@ -85,7 +117,7 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
         formula_list = []
         for z3_set, dim_name in zip(cube, cube_dimensions):
             z3_var = self._dim_dict[dim_name]['var']
-            formula = z3_set.get_constraints_with_different_var(z3_var)
+            formula = substitute(z3_set._constraints, (z3_set._var, z3_var))
             formula_list.append(formula)
 
         return And(formula_list)
@@ -101,7 +133,7 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
             return
 
         cube_formula = self._cube_to_formula(cube, cube_dimensions)
-        self.constraints = And(self.constraints, Not(cube_formula))
+        self._constraints = And(self._constraints, Not(cube_formula))
 
     def _check_other(self, other) -> None:
         other: Z3ProductSet
@@ -113,37 +145,9 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
             if dim_type1 != dim_type2:
                 raise ValueError
 
-    def __eq__(self, other):
-        self._check_other(other)
-        return super(Z3ProductSet, self).__eq__(other)
-
-    def __and__(self, other):
-        self._check_other(other)
-        return super(Z3ProductSet, self).__and__(other)
-
-    def __iand__(self, other):
-        self._check_other(other)
-        return super(Z3ProductSet, self).__iand__(other)
-
-    def __or__(self, other):
-        self._check_other(other)
-        return super(Z3ProductSet, self).__or__(other)
-
-    def __ior__(self, other):
-        self._check_other(other)
-        return super(Z3ProductSet, self).__ior__(other)
-
-    def __sub__(self, other):
-        self._check_other(other)
-        return super(Z3ProductSet, self).__sub__(other)
-
-    def __isub__(self, other):
-        self._check_other(other)
-        return super(Z3ProductSet, self).__isub__(other)
-
     def copy(self):
         new = Z3ProductSet(list(self._dim_dict.keys()))
-        new.constraints = self.constraints
+        new._constraints = self._constraints
         return new
 
     def _check_item(self, item: list[Union[int, str]]) -> None:
@@ -163,20 +167,16 @@ class Z3ProductSet(Z3Set, HyperCubeSet):
         self._check_item(item)
         var_list = [dim_data['var'] for _, dim_data in self._dim_dict.items()]
         value_eq_constraint = And([var == value for var, value in zip(var_list, item)])
-        constraint = And(value_eq_constraint, self.constraints)
+        constraint = And(value_eq_constraint, self._constraints)
         return solve_without_model(constraint) == sat
 
-    def contained_in(self, other) -> bool:
-        self._check_other(other)
-        return super(Z3ProductSet, self).contained_in(other)
-
     def is_all(self) -> bool:
-        return super(Z3ProductSet, self).is_universal()
+        return self.is_universal()
 
     def clear(self) -> None:
-        self.constraints = BoolVal(False)
+        self._constraints = BoolVal(False)
 
     def set_all(self) -> None:
-        self.constraints = BoolVal(True)
+        self._constraints = BoolVal(True)
 
 

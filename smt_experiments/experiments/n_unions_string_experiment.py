@@ -9,7 +9,7 @@ from smt_experiments.experiments.experiment_utils import CheckType, EngineType, 
     get_y_var_list, Variable, Operation, get_positive_membership_operation, get_negative_membership_operation
 from smt_experiments.experiments.plot_experiment_results import plot_results
 from smt_experiments.experiments.run_experiment import run_experiment
-from smt_experiments.z3_sets.z3_string_set import Z3StringSet
+from smt_experiments.z3_sets.z3_string_set import Z3SimpleStringSet
 
 # TODO: change instead to inplace union operations instead of not-inplace operations
 # TODO: refactor the way that experiments work.
@@ -70,7 +70,7 @@ def get_not_contained_elements(n_unions: int, basic_set_combination: tuple[Basic
 
 def get_string_set(n_unions: int, engine: EngineType, basic_set_combination: tuple[BasicSet]):
     if engine == EngineType.Z3:
-        string_set_cls = Z3StringSet
+        string_set_cls = Z3SimpleStringSet
     else:  # engine == EngineType.OUR
         string_set_cls = MinDFA
 

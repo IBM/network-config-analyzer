@@ -3,7 +3,7 @@ from unittest import skip
 
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet as CanonicalIntervalSet
 from smt_experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet as MinDFA
-from smt_experiments.z3_sets.z3_product_set import Z3ProductSet as CanonicalHyperCubeSet
+from smt_experiments.z3_sets.z3_product_set_dnf import Z3ProductSetDNF as CanonicalHyperCubeSet
 from DimensionsManager import DimensionsManager
 
 dimensions = ["src_ports", "ports", "methods_dfa", "paths"]
