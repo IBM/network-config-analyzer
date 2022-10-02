@@ -1284,6 +1284,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
         peers_to_compare = self.config1.peer_container.get_all_peers_group()
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
+        intersect_pairs = {}
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -1295,10 +1296,16 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
-                    output_explanation = f'Both {self.name1} and {self.name2} allow the following connection ' \
-                                         f'from {peer1} to {peer2}\n'
-                    output_explanation += str(conns_in_both)
-                    return QueryAnswer(True, self.name2 + ' intersects with ' + self.name1, output_explanation)
+                    intersect_pairs[(peer1, peer2)] = str(conns_in_both)
+        if intersect_pairs:
+            output_explanation = f'Both {self.name1} and {self.name2} allow the following connection(s):\n'
+            first_elem = list(intersect_pairs.items())[0]  # first item is always printed
+            output_explanation += f'from {first_elem[0][0]} to {first_elem[0][1]} on {first_elem[1]}'
+            intersect_pairs.pop(first_elem[0])
+            if self.output_config.printAllPairs:
+                for peers, conns in intersect_pairs.items():
+                    output_explanation += f'\nfrom {peers[0]} to {peers[1]} on {conns}'
+            return QueryAnswer(True, self.name2 + ' intersects with ' + self.name1, output_explanation)
 
         return QueryAnswer(False, f'The connections allowed by {self.name1}'
                                   f' do not intersect the connections allowed by {self.name2}', numerical_result=1)
@@ -1320,7 +1327,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
 
         config1_without_ingress = self.clone_without_ingress(self.config1)
 
-        return IntersectsQuery(config1_without_ingress, self.config2).exec(True)
+        return IntersectsQuery(config1_without_ingress, self.config2, self.output_config).exec(True)
 
     def compute_query_output(self, query_answer, cmd_line_flag=False):
         res = not query_answer.numerical_result if cmd_line_flag else query_answer.bool_result

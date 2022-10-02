@@ -45,6 +45,14 @@ queries:
       - np-within-default
     expected: 1
 
+  - name: forbids_empty_impl_default_spec_all_examples
+    forbids:
+      - np-empty
+      - np-within-default
+    outputConfiguration:
+      printAllPairs: true
+    expected: 1
+
   - name: permits_default_impl_empty_spec
     permits:
       - np-within-default

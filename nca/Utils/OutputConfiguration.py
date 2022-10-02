@@ -19,7 +19,7 @@ class OutputConfiguration(dict):
                                  'fwRulesMaxIter': 10, 'outputFormat': 'txt', 'outputPath': None,
                                  'fwRulesOverrideAllowedLabels': None, 'prURL': None,
                                  'connectivityFilterIstioEdges': True, 'outputEndpoints': 'deployments',
-                                 'subset': {}}
+                                 'subset': {}, 'printAllPairs': False}
 
         super().__init__(default_output_config)
         if output_config_dict is not None:
