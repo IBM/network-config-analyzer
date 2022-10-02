@@ -253,12 +253,6 @@ def parse_constraint(
     return StringConstraint(value)
 
 
-# The Z3 regex matching all strings accepted by re1 but not re2.
-# Formatted in camelcase to mimic Z3 regex API.
-def Minus(re1: z3.ReRef, re2: z3.ReRef) -> z3.ReRef:
-    return z3.Intersect(re1, z3.Complement(re2))
-
-
 # The Z3 regex matching any character (currently only ASCII supported).
 # Formatted in camelcase to mimic Z3 regex API.
 def AnyChar() -> z3.ReRef:
@@ -278,13 +272,44 @@ def category_regex(category: sre_constants._NamedIntConstant) -> z3.ReRef:
         raise NotImplementedError(f'ERROR: regex category {category} not yet implemented')
 
 
+LITERAL_LIST = 999
+
+
+def _squash_literals(parsed_regex: sre_parse.SubPattern) -> sre_parse.SubPattern:
+    new_data = []
+    current_str = ''
+    active = False
+    for node in parsed_regex.data:
+        node_type, node_value = node
+        if node_type == sre_constants.LITERAL:
+            current_str += chr(node_value)
+            active = True
+        else:
+            if active:
+                new_node = (LITERAL_LIST, current_str)
+                new_data.append(new_node)
+                active = False
+                current_str = ''
+
+            new_data.append(node)
+
+    if active:
+        new_node = (LITERAL_LIST, current_str)
+        new_data.append(new_node)
+
+    parsed_regex.data = new_data
+    return parsed_regex
+
+
 # Translates a specific regex construct into its Z3 equivalent.
 def regex_construct_to_z3_expr(regex_construct) -> z3.ReRef:
     node_type, node_value = regex_construct
+    if node_type == LITERAL_LIST:
+        return z3.Re(node_value)
     if sre_constants.LITERAL == node_type:  # a
         return z3.Re(chr(node_value))
     if sre_constants.NOT_LITERAL == node_type:  # [^a]
-        return Minus(AnyChar(), z3.Re(chr(node_value)))
+        return z3.Diff(AnyChar(), z3.Re(chr(node_value)))
     if sre_constants.SUBPATTERN == node_type:
         _, _, _, value = node_value
         return regex_to_z3_expr(value)
@@ -303,7 +328,7 @@ def regex_construct_to_z3_expr(regex_construct) -> z3.ReRef:
     elif sre_constants.IN == node_type:  # [abc]
         first_subnode_type, _ = node_value[0]
         if sre_constants.NEGATE == first_subnode_type:  # [^abc]
-            return Minus(AnyChar(), z3.Union([regex_construct_to_z3_expr(value) for value in node_value[1:]]))
+            return z3.Diff(AnyChar(), z3.Union([regex_construct_to_z3_expr(value) for value in node_value[1:]]))
         else:
             return z3.Union([regex_construct_to_z3_expr(value) for value in node_value])
     elif sre_constants.BRANCH == node_type:  # ab|cd
@@ -316,15 +341,15 @@ def regex_construct_to_z3_expr(regex_construct) -> z3.ReRef:
         if sre_constants.CATEGORY_DIGIT == node_value:  # \d
             return category_regex(node_value)
         elif sre_constants.CATEGORY_NOT_DIGIT == node_value:  # \D
-            return Minus(AnyChar(), category_regex(sre_constants.CATEGORY_DIGIT))
+            return z3.Diff(AnyChar(), category_regex(sre_constants.CATEGORY_DIGIT))
         elif sre_constants.CATEGORY_SPACE == node_value:  # \s
             return category_regex(node_value)
         elif sre_constants.CATEGORY_NOT_SPACE == node_value:  # \S
-            return Minus(AnyChar(), category_regex(sre_constants.CATEGORY_SPACE))
+            return z3.Diff(AnyChar(), category_regex(sre_constants.CATEGORY_SPACE))
         elif sre_constants.CATEGORY_WORD == node_value:  # \w
             return category_regex(node_value)
         elif sre_constants.CATEGORY_NOT_WORD == node_value:  # \W
-            return Minus(AnyChar(), category_regex(sre_constants.CATEGORY_WORD))
+            return z3.Diff(AnyChar(), category_regex(sre_constants.CATEGORY_WORD))
         else:
             raise NotImplementedError(f'ERROR: regex category {node_value} not implemented')
     elif sre_constants.AT == node_type:
@@ -344,13 +369,15 @@ def regex_construct_to_z3_expr(regex_construct) -> z3.ReRef:
 
 # Translates a parsed regex into its Z3 equivalent.
 # The parsed regex is a sequence of regex constructs (literals, *, +, etc.)
-def regex_to_z3_expr(regex: sre_parse.SubPattern) -> z3.ReRef:
-    if 0 == len(regex.data):
+def regex_to_z3_expr(parsed_regex: sre_parse.SubPattern) -> z3.ReRef:
+    if 0 == len(parsed_regex.data):
         raise ValueError('ERROR: regex is empty')
-    elif 1 == len(regex.data):
-        return regex_construct_to_z3_expr(regex[0])
-    else:
-        return z3.Concat([regex_construct_to_z3_expr(construct) for construct in regex.data])
+
+    parsed_regex = _squash_literals(parsed_regex)
+    if len(parsed_regex.data) == 1:
+        return regex_construct_to_z3_expr(parsed_regex[0])
+
+    return z3.Concat([regex_construct_to_z3_expr(construct) for construct in parsed_regex.data])
 
 
 # Constructs an expression evaluating whether a specific label constraint

@@ -11,6 +11,17 @@ class MyTestCase(unittest.TestCase):
         s = Z3RegularStringSet()
         self.assertTrue(s.is_empty())
 
+    def test_from_regex_0(self):
+        regex = r'abc'
+        s = Z3RegularStringSet.from_regex(regex)
+        self.assertIn('abc', s)
+        self.assertNotIn('abcd', s)
+
+    def test_from_regex_1(self):
+        regex = r'abc(.*)'
+        s = Z3RegularStringSet.from_regex(regex)
+        self.assertIn('abcd', s)
+        self.assertNotIn('dabc', s)
 
 
 if __name__ == '__main__':
