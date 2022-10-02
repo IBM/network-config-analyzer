@@ -16,9 +16,9 @@ class HyperCubeSet(ABC):
     def __eq__(self, other):
         pass
 
-    @classmethod
+    @staticmethod
     @abstractmethod
-    def create_from_cube(cls, all_dims: list[str], cube: list, cube_dims: list[str]):
+    def create_from_cube(all_dims: list[str], cube: list, cube_dims: list[str]):
         pass
 
     @abstractmethod

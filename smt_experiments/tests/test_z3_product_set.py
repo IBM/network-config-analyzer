@@ -43,6 +43,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         print(dfa_put.fsm.finals == dfa_put_2.fsm.finals)
         print(dfa_put.fsm.map == dfa_put_2.fsm.map)
 
+    # FOR TRACE DEMO
     def test_create_from_cube(self):
         s = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("PUT")], ["methods_dfa"])
         print(s)

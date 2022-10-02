@@ -56,11 +56,11 @@ class Z3ProductSetDNF(Z3Set, HyperCubeSet):
     def __bool__(self):
         return not self.is_empty()
 
-    @classmethod
-    def create_from_cube(cls, all_dims: list[str], cube: list[Z3Set], cube_dims: list[str]):
+    @staticmethod
+    def create_from_cube(all_dims: list[str], cube: list[Z3Set], cube_dims: list[str]):
         assert len(cube) > 0
         assert len(cube) == len(cube_dims)
-        s = cls(all_dims, False)
+        s = Z3ProductSetDNF(all_dims, False)
         s.add_cube(cube, cube_dims)
         return s
 
