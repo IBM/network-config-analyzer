@@ -10,9 +10,10 @@ istio_testcases/example_policies/bookinfo-demo/bookinfo-test-request-attrs-schem
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-sidecar-tests-scheme.yaml,1.01
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/global-sidecar-permits-test-scheme.yaml,0.06
 istio_testcases/example_policies/bookinfo-from-live-cluster/connectivity-map-by-deployments-scheme.yaml,0.34
-istio_testcases/example_policies/complex-ingress-test/complex-istio-ingress-test-scheme.yaml,1.68
-istio_testcases/example_policies/complex-ingress-test/complex-k8s-ingress-cluster-test-scheme.yaml,2.02
-istio_testcases/example_policies/complex-ingress-test/complex-k8s-ingress-test-scheme.yaml,1.18
+istio_testcases/example_policies/complex-ingress-test/complex-istio-ingress-test-scheme.yaml,1.58
+istio_testcases/example_policies/complex-ingress-test/complex-k8s-ingress-all-test-scheme.yaml,0.68
+istio_testcases/example_policies/complex-ingress-test/complex-k8s-ingress-cluster-test-scheme.yaml,1.94
+istio_testcases/example_policies/complex-ingress-test/complex-k8s-ingress-test-scheme.yaml,1.16
 istio_testcases/example_policies/fly-istio-ingress-test/fly-istio-ingress-test-scheme.yaml,82.07
 istio_testcases/example_policies/istio-ingress-test/istio-ingress-test-scheme.yaml,108.20
 istio_testcases/example_policies/multi-layer-tests/onlineboutique-multi-layer-tests-scheme.yaml,35.1
