@@ -1,0 +1,15 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-gggg
+  namespace: example
+spec:
+  selector:
+    matchLabels:
+      app: gggg
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: gggg

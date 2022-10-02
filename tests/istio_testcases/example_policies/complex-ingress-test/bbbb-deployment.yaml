@@ -1,0 +1,15 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-bbbb
+  namespace: example
+spec:
+  selector:
+    matchLabels:
+      app: bbbb
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: bbbb

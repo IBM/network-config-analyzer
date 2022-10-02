@@ -1,0 +1,20 @@
+namespaceList: ./
+podList: ./
+
+networkConfigList:
+  - name: complex-k8s-ingress-all-test
+    networkPolicyList:
+      - ingress.yaml
+      - ingress_cluster.yaml
+    expectedWarnings: 0
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - complex-k8s-ingress-all-test
+    outputConfiguration:
+      outputFormat: dot
+      outputPath: complex-k8s-ingress-all-test-connectivity-map.dot
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/complex-k8s-ingress-all-test-connectivity-map.dot
