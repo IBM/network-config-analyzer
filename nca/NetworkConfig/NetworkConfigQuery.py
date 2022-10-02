@@ -1284,7 +1284,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
         peers_to_compare = self.config1.peer_container.get_all_peers_group()
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
-        intersect_pairs = {}
+        intersect_pairs_list = []
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -1296,15 +1296,13 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
-                    intersect_pairs[(peer1, peer2)] = str(conns_in_both)
-        if intersect_pairs:
+                    intersect_pairs_list.append(f'from {peer1} to {peer2} on {str(conns_in_both)}')
+        if intersect_pairs_list:
             output_explanation = f'Both {self.name1} and {self.name2} allow the following connection(s):\n'
-            first_elem = list(intersect_pairs.items())[0]  # first item is always printed
-            output_explanation += f'from {first_elem[0][0]} to {first_elem[0][1]} on {first_elem[1]}'
-            intersect_pairs.pop(first_elem[0])
+            # first item is always printed
+            output_explanation += intersect_pairs_list[0] + '\n'
             if self.output_config.printAllPairs:
-                for peers, conns in intersect_pairs.items():
-                    output_explanation += f'\nfrom {peers[0]} to {peers[1]} on {conns}'
+                output_explanation += '\n'.join(intersect_pairs_list[1:])
             return QueryAnswer(True, self.name2 + ' intersects with ' + self.name1, output_explanation)
 
         return QueryAnswer(False, f'The connections allowed by {self.name1}'
