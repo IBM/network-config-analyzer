@@ -775,8 +775,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2, layer_name)
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2, layer_name)
                 if conns1 != conns2:
-                    different_conns_list.append(f'Allowed connections from {peer1} to {peer2} are different\n' +
-                                                conns1.print_diff(conns2, self.name1, self.name2))
+                    different_conns_list.append(f'Allowed connections from {peer1} to {peer2}'
+                                                f' are different\n' + conns1.print_diff(conns2, self.name1, self.name2))
         if different_conns_list:
             explanation = different_conns_list[0] + '\n'
             if self.output_config.printAllPairs:
@@ -1125,9 +1125,9 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                 conns1 = conns1_captured if only_captured else conns1_all
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if not conns1.contained_in(conns2):
-                    not_contained_list.append(f'Allowed connections from {peer1} to {peer2} in {self.name1} '
-                                              f'are not a subset of those in {self.name2}\n'
-                                              + conns1.print_diff(conns2, self.name1, self.name2))
+                    not_contained_list.append(f'Allowed connections from {peer1} to {peer2}'
+                                              f' in {self.name1} are not a subset of those in '
+                                              f'{self.name2}\n' + conns1.print_diff(conns2, self.name1, self.name2))
         if not_contained_list:
             output_result = f'{self.name1} is not contained in {self.name2}'
             output_explanation = '\n' + not_contained_list[0] + '\n'
@@ -1252,8 +1252,9 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                     continue
                 _, captured2_flag, conns2_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if captured2_flag and not conns2_captured.contained_in(conns1_captured):
-                    extended_conns_list.append(f'{self.name1} extends the allowed connections from {peer1} to {peer2}\n'
-                                               + conns2_captured.print_diff(conns1_captured, self.name1, self.name2))
+                    extended_conns_list.append(f'{self.name1} extends the allowed connections from {peer1} '
+                                               f'to {peer2}\n' + conns2_captured.print_diff(conns1_captured,
+                                                                                            self.name1, self.name2))
         if extended_conns_list:
             output_explanation = '\n' + extended_conns_list[0] + '\n'
             if self.output_config.printAllPairs:
@@ -1314,7 +1315,6 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                     intersect_pairs_list.append(f'from {peer1} to {peer2} on {str(conns_in_both)}')
         if intersect_pairs_list:
             output_explanation = f'Both {self.name1} and {self.name2} allow the following connection(s):\n'
-            # first item is always printed
             output_explanation += intersect_pairs_list[0] + '\n'
             if self.output_config.printAllPairs:
                 output_explanation += '\n'.join(intersect_pairs_list[1:])
