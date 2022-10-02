@@ -47,6 +47,8 @@ queries:
     equivalence:
       - istio-test-methods-4/default/details-viewer-allow-get
       - istio-test-methods-4/default/details-viewer-allow-put
+    outputConfiguration:
+      printAllPairs: true
     expected: 1
 
   - name: equiv-diff-methods-1

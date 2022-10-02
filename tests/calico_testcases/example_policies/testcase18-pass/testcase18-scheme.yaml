@@ -78,6 +78,14 @@ queries:
       - np-ports-based/kube-system/testcase18-different-ranges-writing-slightly-bigger
     expected: 2
 
+  - name: interfere_different_ranges_writing_additional_port_print_all_pairs
+    pairwiseInterferes:
+      - np-ports-based/testcase18-different-ranges-writing1
+      - np-ports-based/testcase18-different-ranges-writing-slightly-bigger
+    outputConfiguration:
+      printAllPairs: true
+    expected: 2
+
   - name: containment_different_ranges_writing_additional_port
     containment:
       - np-ports-based/kube-system/testcase18-different-ranges-writing-slightly-bigger

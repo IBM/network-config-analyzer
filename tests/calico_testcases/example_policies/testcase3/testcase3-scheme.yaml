@@ -48,6 +48,15 @@ queries:
       - np_SupsetAllowFirst
       - np_SubsetDenyFirst
     expected: 1
+
+  - name: supAllow_and_subDeny_not_equiv_all_peer_pairs
+    equivalence:
+      - np_SupsetAllowFirst
+      - np_SubsetDenyFirst
+    outputConfiguration:
+      printAllPairs: true
+    expected: 1
+
   - name: onlyAllow_and_supAllowFirst_equiv
     equivalence:
       - np_onlyAllow

@@ -48,6 +48,13 @@ queries:
       - nt_notin
       - nt_notinwithexists
     expected: 1
+  - name: no_strong_equivalence_print_all_peers_pairs
+    strongEquivalence:
+      - nt_notin
+      - nt_notinwithexists
+    outputConfiguration:
+      printAllPairs: true
+    expected: 1
   - name: pairwiseInterferes_policies
     pairwiseInterferes:
       - nt_in

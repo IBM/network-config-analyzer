@@ -767,6 +767,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         peers_to_compare = self.config1.peer_container.get_all_peers_group()
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods(layer_name) | self.config2.get_captured_pods(layer_name)
+        different_conns_list = []
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -774,10 +775,14 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2, layer_name)
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2, layer_name)
                 if conns1 != conns2:
-                    explanation = f'Allowed connections from {peer1} to {peer2} are different\n' + \
-                                  conns1.print_diff(conns2, self.name1, self.name2)
-                    return QueryAnswer(False, self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.',
-                                       explanation)
+                    different_conns_list.append(f'Allowed connections from {peer1} to {peer2} are different\n' +
+                                                conns1.print_diff(conns2, self.name1, self.name2))
+        if different_conns_list:
+            explanation = different_conns_list[0] + '\n'
+            if self.output_config.printAllPairs:
+                explanation += '\n'.join(different_conns_list[1:])
+            return QueryAnswer(False, self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.\n',
+                               explanation)
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
 
     @staticmethod
@@ -1082,9 +1087,9 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
         for policy in self.config1.policies_container.policies.values():
             single_policy_config1 = self.config1.clone_with_just_one_policy(policy.full_name())
             single_policy_config2 = self.config2.clone_with_just_one_policy(policy.full_name())
-            full_result = EquivalenceQuery(single_policy_config1, single_policy_config2).exec()
+            full_result = EquivalenceQuery(single_policy_config1, single_policy_config2, self.output_config).exec()
             if not full_result.bool_result:
-                output_result = f'{self.policy_title(policy)} is not equivalent in {self.name1} and in {self.name2}'
+                output_result = f'{self.policy_title(policy)} is not equivalent in {self.name1} and in {self.name2}\n'
                 return QueryAnswer(False, output_result, full_result.output_explanation)
 
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are strongly equivalent.')
@@ -1109,6 +1114,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
 
         peers_to_compare = config1_peers | self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
+        not_contained_list = []
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -1119,11 +1125,15 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                 conns1 = conns1_captured if only_captured else conns1_all
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if not conns1.contained_in(conns2):
-                    output_result = f'{self.name1} is not contained in {self.name2}'
-                    output_explanation = f'Allowed connections from {peer1} to {peer2} in {self.name1} ' \
-                                         f'are not a subset of those in {self.name2}\n'
-                    output_explanation += conns1.print_diff(conns2, self.name1, self.name2)
-                    return QueryAnswer(False, output_result, output_explanation)
+                    not_contained_list.append(f'Allowed connections from {peer1} to {peer2} in {self.name1} '
+                                              f'are not a subset of those in {self.name2}\n'
+                                              + conns1.print_diff(conns2, self.name1, self.name2))
+        if not_contained_list:
+            output_result = f'{self.name1} is not contained in {self.name2}'
+            output_explanation = '\n' + not_contained_list[0] + '\n'
+            if self.output_config.printAllPairs:
+                output_explanation += '\n'.join(not_contained_list[1:])
+            return QueryAnswer(False, output_result, output_explanation)
 
         output_result = self.name1 + ' is contained in ' + self.name2
         return QueryAnswer(True, output_result, numerical_result=1)
@@ -1149,8 +1159,8 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
         if query_answer.bool_result and query_answer.output_result:
             return query_answer  # identical configurations (contained)
 
-        contained_1_in_2 = ContainmentQuery(self.config1, self.config2).exec()
-        contained_2_in_1 = ContainmentQuery(self.config2, self.config1).exec()
+        contained_1_in_2 = ContainmentQuery(self.config1, self.config2, self.output_config).exec()
+        contained_2_in_1 = ContainmentQuery(self.config2, self.config1, self.output_config).exec()
         explanation_not_contained_self_other = \
             contained_1_in_2.output_result + ':\n\t' + contained_1_in_2.output_explanation
         explanation_not_contained_other_self = \
@@ -1164,15 +1174,15 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
             output_explanation = explanation_not_contained_self_other + '\n' + explanation_not_contained_other_self
             return QueryAnswer(bool_result=False,
                                output_result=f'Neither network configuration {self.name1} and {self.name2} '
-                                             'are contained in the other.',
+                                             'are contained in the other.\n',
                                output_explanation=output_explanation, numerical_result=0)
         if contained_1_in_2.bool_result:
             return QueryAnswer(bool_result=False,
-                               output_result=f'Network configuration {self.name1} is a proper subset of {self.name2}.',
+                               output_result=f'Network configuration {self.name1} is a proper subset of {self.name2}.\n',
                                output_explanation=explanation_not_contained_other_self, numerical_result=2)
         # (contained_2_in_1)
         return QueryAnswer(bool_result=False,
-                           output_result=f'Network configuration {self.name2} is a proper subset of {self.name1}.',
+                           output_result=f'Network configuration {self.name2} is a proper subset of {self.name1}.\n',
                            output_explanation=explanation_not_contained_self_other, numerical_result=1)
 
     @staticmethod
@@ -1200,7 +1210,7 @@ class PermitsQuery(TwoNetworkConfigsQuery):
                                query_not_executed=True)
 
         config1_without_ingress = self.clone_without_ingress(self.config1)
-        return ContainmentQuery(config1_without_ingress, self.config2).exec(True)
+        return ContainmentQuery(config1_without_ingress, self.config2, self.output_config).exec(True)
 
     def compute_query_output(self, query_answer, cmd_line_flag=False):
         res = 0
@@ -1231,6 +1241,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
         peers_to_compare = self.config2.peer_container.get_all_peers_group()
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config2.get_captured_pods() | self.config1.get_captured_pods()
+        extended_conns_list = []
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -1241,9 +1252,13 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                     continue
                 _, captured2_flag, conns2_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if captured2_flag and not conns2_captured.contained_in(conns1_captured):
-                    output_explanation = f'{self.name1} extends the allowed connections from {peer1} to {peer2}\n' + \
-                                         conns2_captured.print_diff(conns1_captured, self.name1, self.name2)
-                    return QueryAnswer(True, self.name1 + ' interferes with ' + self.name2, output_explanation)
+                    extended_conns_list.append(f'{self.name1} extends the allowed connections from {peer1} to {peer2}\n'
+                                               + conns2_captured.print_diff(conns1_captured, self.name1, self.name2))
+        if extended_conns_list:
+            output_explanation = '\n' + extended_conns_list[0] + '\n'
+            if self.output_config.printAllPairs:
+                output_explanation += '\n'.join(extended_conns_list[1:])
+            return QueryAnswer(True, self.name1 + ' interferes with ' + self.name2, output_explanation)
 
         return QueryAnswer(False, self.name1 + ' does not interfere with ' + self.name2)
 
@@ -1264,7 +1279,7 @@ class PairwiseInterferesQuery(TwoNetworkConfigsQuery):
         return QueryType.PairwiseComparisonQuery
 
     def exec(self):
-        return InterferesQuery(self.config1, self.config2).exec()
+        return InterferesQuery(self.config1, self.config2, self.output_config).exec()
 
     @staticmethod
     def compute_query_output(query_answer, cmd_line_flag=False):

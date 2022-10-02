@@ -78,13 +78,13 @@ For example: `my_set/prod_ns/deny_all_policy`. If there are multiple policies na
 #### <a name="outputconfig"></a>Output Configuration object
 The supported entries in the outputConfiguration object are as follows:
 
-| Field           | Description                                                             | Value                                  |
-|-----------------|-------------------------------------------------------------------------|----------------------------------------|
-| outputFormat    | Output format specification.                                            | string [ txt / yaml / csv / md / dot ] |
-| outputPath      | A file path to redirect output into.                                    | string                                 |
-| outputEndpoints | Choose endpoints type in output.                                        | string [ pods / deployments ]          |
-| subset          | A dict object with the defined subset elements to display in the output | [subset](#subset) object               |
-| printAllPairs   | Choose if to print all counter peer pairs examples in the output        | bool                                   |
+| Field           | Description                                                                      | Value                                  |
+|-----------------|----------------------------------------------------------------------------------|----------------------------------------|
+| outputFormat    | Output format specification.                                                     | string [ txt / yaml / csv / md / dot ] |
+| outputPath      | A file path to redirect output into.                                             | string                                 |
+| outputEndpoints | Choose endpoints type in output.                                                 | string [ pods / deployments ]          |
+| subset          | A dict object with the defined subset elements to display in the output          | [subset](#subset) object               |
+| printAllPairs   | Choose if to print all counter peer pairs causing the query result in the output | bool                                   |
 
 #### <a name="subset"></a>Subset object
 The supported entries in the subset object are as follows:
