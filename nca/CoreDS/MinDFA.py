@@ -126,7 +126,7 @@ class MinDFA:
         res = MinDFA.dfa_from_regex(alphabet)
         res.is_all_words = MinDFA.Ternary.TRUE
 
-        res.creation_tree.value = f'(res.creation_tree.value)*'
+        res.creation_tree.value = f'({res.creation_tree.value})*'
         return res
 
     # TODO: this function may not be necessary, if keeping the current __eq__ override

@@ -60,6 +60,7 @@ RECORDS = []
 
 def track(func_name: str, *args, result=None):
     # TODO: implement recording - save to a file.
+    # TODO: add timing records
 
     record = {
         'operation_name': func_name,
