@@ -1,8 +1,7 @@
-from CanonicalIntervalSet import CanonicalIntervalSet
-from PortSet import PortSet
-from TcpLikeProperties import TcpLikeProperties
-
 import unittest
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 
 
 class TestNamedPorts(unittest.TestCase):

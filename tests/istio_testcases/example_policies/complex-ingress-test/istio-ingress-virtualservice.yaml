@@ -1,0 +1,329 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-iiii-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - iiii.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-iiii
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-bbbb-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - bbbb.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-bbbb
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-aaaa-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - aaaa.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-aaaa
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-gggg-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - gggg.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-gggg
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-gggg-global-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - gggg.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-gggg
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-dddd-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - dddd.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-dddd
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-dddd-global-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - dddd.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-dddd
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-ffff-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - ffff.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-ffff
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  creationTimestamp: null
+  name: istio-cccc-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - cccc.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-cccc
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  creationTimestamp: null
+  name: istio-jjjj-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - jjjj.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-jjjj
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  creationTimestamp: null
+  name: istio-hhhh-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - hhhh.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: svc-hhhh
+        port:
+          number: 80
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: istio-cluster-ingress
+  namespace: example
+spec:
+  gateways:
+  - example-gateway
+  hosts:
+  - ooo.y.z
+  http:
+  - match:
+    - uri:
+        prefix: /gggg/
+    route:
+    - destination:
+        host: svc-gggg
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /dddd/
+    route:
+    - destination:
+        host: svc-dddd
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /bbbb/
+    route:
+    - destination:
+        host: svc-bbbb
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /aaaa/
+    route:
+    - destination:
+        host: svc-aaaa
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /ffff/
+    route:
+    - destination:
+        host: svc-ffff
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /iiii/
+    route:
+    - destination:
+        host: svc-iiii
+        port:
+          number: 80
+      weight: 100
+  - match:
+    - uri:
+        prefix: /cccc/
+    route:
+    - destination:
+        host: svc-cccc
+        port:
+          number: 80
+      weight: 100
+  
+  - match:
+    - uri:
+        prefix: /jjjj/
+    route:
+    - destination:
+        host: svc-jjjj
+        port:
+          number: 80
+      weight: 100
+  
+  - match:
+    - uri:
+        prefix: /hhhh/
+    route:
+    - destination:
+        host: svc-hhhh
+        port:
+          number: 80
+      weight: 100

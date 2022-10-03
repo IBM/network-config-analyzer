@@ -10,3 +10,32 @@ the following is supported:
 |source| principals, notPrincipals, namespaces, notNamespaces, ipBlocks, notIpBlocks|
 |operation| hosts, notHosts, ports, notPorts, methods, notMethods, paths, notPaths|
 |condition| source.ip, source.namespace, source.principal, destination.port|
+
+For Istio Ingress Traffic Management (see [Istio Traffic Management spec](https://istio.io/latest/docs/concepts/traffic-management/)), 
+VirtualServices, Gateways and Sidecars are supported. 
+
+In the VirtualService, the following is supported:
+
+| Field    | Supported (Sub)-Fields     | Supported (Sub)-Fields |
+|----------|----------------------------|------------------------|
+| hosts    | string                     |                        |
+| gateways | string                     |                        |
+| http     | match                      | route                  |
+|          | uri, ignoreUriCase, method | destination            |
+|          |                            | host, port             |
+
+In the Gateway, the following is supported:
+
+| Field    | Supported (Sub)-Fields  | Supported (Sub)-Fields |      |
+|----------|-------------------------|------------------------|------|
+| selector | string:string           |                        |      |
+| servers  | port                    | hosts                  | name |
+|          | number, protocol, name  |                        |
+
+In the Sidecar, the following is supported:
+
+| Field            | Supported (Sub)-Fields | 
+|------------------|------------------------|
+| workloadSelector | labels                 |
+| egress           | hosts                  |
+

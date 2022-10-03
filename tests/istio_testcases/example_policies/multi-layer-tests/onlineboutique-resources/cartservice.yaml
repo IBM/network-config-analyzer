@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cartservice
+  namespace: onlineboutique
+  annotations:
+    iam.gke.io/gcp-service-account: onlineboutique-gsa@mygke-200.iam.gserviceaccount.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartservice
+  namespace: onlineboutique
+spec:
+  selector:
+    matchLabels:
+      app: cartservice
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/userVolumeMount: '[{"name":"redis-cert", "mountPath":"/etc/certs", "readonly":true}]'
+        sidecar.istio.io/userVolume: '[{"name":"redis-cert", "secret":{"secretName":"redis-cert"}}]'
+        proxy.istio.io/config: '{"holdApplicationUntilProxyStarts":true}'
+      labels:
+        app: cartservice
+    spec:
+      serviceAccountName: cartservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - all
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/cartservice:redis7
+        ports:
+        - containerPort: 7070
+        env:
+        - name: REDIS_ADDR
+          value: "10.159.147.219:6378"
+        - name: REDIS_AUTH
+          value: "0f84aec9-24e9-492f-a7df-ae4883bf17c3"
+        resources:
+          requests:
+            cpu: 60m
+            memory: 160Mi
+          limits:
+            cpu: 120m
+            memory: 320Mi
+        readinessProbe:
+          initialDelaySeconds: 15
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
+        livenessProbe:
+          initialDelaySeconds: 15
+          tcpSocket:
+            port: 7070
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartservice
+  namespace: onlineboutique
+spec:
+  type: ClusterIP
+  selector:
+    app: cartservice
+  ports:
+  - name: grpc
+    port: 7070
+    targetPort: 7070
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: cartservice
+  namespace: onlineboutique
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: cartservice
+  updatePolicy:
+    updateMode: "Off"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cartservice
+  namespace: onlineboutique
+spec:
+  podSelector:
+    matchLabels:
+      app: cartservice
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    - podSelector:
+        matchLabels:
+          app: checkoutservice
+    ports:
+     - port: 7070
+       protocol: TCP
+  egress:
+  - {}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: cartservice
+  namespace: onlineboutique
+spec:
+  selector:
+    matchLabels:
+      app: cartservice
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/onlineboutique/sa/frontend", "cluster.local/ns/onlineboutique/sa/checkoutservice"]
+    to:
+      - operation:
+          paths: ["/hipstershop.CartService/AddItem", "/hipstershop.CartService/GetCart", "/hipstershop.CartService/EmptyCart"]
+          methods: ["POST"]
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: cartservice
+  namespace: onlineboutique
+spec:
+  workloadSelector:
+    labels:
+      app: cartservice
+  egress:
+  - hosts:
+    - "istio-system/*"
+    - "./cart.memorystore-redis.onlineboutique"
