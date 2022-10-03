@@ -1,0 +1,122 @@
+[
+    {
+        "operation_name": "__init__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105785328
+            },
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            false
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "__init__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105780144
+            },
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            false
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105785328
+            },
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            10,
+                            20
+                        ]
+                    ]
+                }
+            ],
+            [
+                "ports"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105780144
+            },
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            1,
+                            5
+                        ]
+                    ]
+                }
+            ],
+            [
+                "ports"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105780144
+            },
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            8,
+                            200
+                        ]
+                    ]
+                }
+            ],
+            [
+                "ports"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "contained_in",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105785328
+            },
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105780144
+            }
+        ],
+        "result": true
+    }
+]

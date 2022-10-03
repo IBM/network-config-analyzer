@@ -1,0 +1,194 @@
+[
+    {
+        "operation_name": "__init__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105976320
+            },
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            false
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "__init__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105664880
+            },
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            false
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105976320
+            },
+            [
+                {
+                    "type": "MinDFA",
+                    "regex": "[ab]*"
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "a"
+                }
+            ],
+            [
+                "methods_dfa",
+                "paths"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105976320
+            },
+            [
+                {
+                    "type": "MinDFA",
+                    "regex": "[bc]*"
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "b"
+                }
+            ],
+            [
+                "methods_dfa",
+                "paths"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105976320
+            },
+            [
+                {
+                    "type": "MinDFA",
+                    "regex": "[ac]*"
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "c"
+                }
+            ],
+            [
+                "methods_dfa",
+                "paths"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105664880
+            },
+            [
+                {
+                    "type": "MinDFA",
+                    "regex": "[bc]*"
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "b"
+                }
+            ],
+            [
+                "methods_dfa",
+                "paths"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105664880
+            },
+            [
+                {
+                    "type": "MinDFA",
+                    "regex": "[ac]*"
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "c"
+                }
+            ],
+            [
+                "methods_dfa",
+                "paths"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105664880
+            },
+            [
+                {
+                    "type": "MinDFA",
+                    "regex": "[ab]*"
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "a"
+                }
+            ],
+            [
+                "methods_dfa",
+                "paths"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "__eq__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105976320
+            },
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668105664880
+            }
+        ],
+        "result": true
+    }
+]

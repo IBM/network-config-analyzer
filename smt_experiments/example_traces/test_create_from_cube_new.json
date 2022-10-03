@@ -1,0 +1,36 @@
+[
+    {
+        "operation_name": "create_from_cube",
+        "args": [
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            1,
+                            10
+                        ]
+                    ]
+                },
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": []
+                }
+            ],
+            [
+                "src_ports",
+                "ports"
+            ]
+        ],
+        "result": {
+            "type": "CanonicalHyperCubeSet",
+            "id": 2668107515216
+        }
+    }
+]

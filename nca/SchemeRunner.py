@@ -4,7 +4,6 @@
 #
 
 import time
-from functools import reduce
 from os import path
 from ruamel.yaml import YAML
 from benchmarking.auditor import Auditor

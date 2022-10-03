@@ -1,0 +1,219 @@
+[
+    {
+        "operation_name": "__init__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107520016
+            },
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            false
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107520016
+            },
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            10,
+                            20
+                        ]
+                    ]
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "PUT"
+                }
+            ],
+            [
+                "ports",
+                "methods_dfa"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107520016
+            },
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            500,
+                            600
+                        ]
+                    ]
+                }
+            ],
+            [
+                "ports"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "__init__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107519776
+            },
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            false
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107519776
+            },
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            100,
+                            200
+                        ]
+                    ]
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "PUT"
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "abc"
+                }
+            ],
+            [
+                "ports",
+                "methods_dfa",
+                "paths"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107519776
+            },
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            500,
+                            600
+                        ]
+                    ]
+                }
+            ],
+            [
+                "ports"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "__init__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107522032
+            },
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            false
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "add_cube",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107522032
+            },
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            500,
+                            600
+                        ]
+                    ]
+                }
+            ],
+            [
+                "ports"
+            ]
+        ],
+        "result": null
+    },
+    {
+        "operation_name": "__and__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107520016
+            },
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107519776
+            }
+        ],
+        "result": {
+            "type": "CanonicalHyperCubeSet",
+            "id": 2668107521648
+        }
+    },
+    {
+        "operation_name": "__eq__",
+        "args": [
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107521648
+            },
+            {
+                "type": "CanonicalHyperCubeSet",
+                "id": 2668107522032
+            }
+        ],
+        "result": true
+    }
+]

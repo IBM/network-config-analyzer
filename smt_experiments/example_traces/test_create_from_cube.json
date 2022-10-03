@@ -1,0 +1,60 @@
+[
+    {
+        "operation_name": "create_from_cube",
+        "args": [
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            [
+                {
+                    "type": "MinDFA",
+                    "regex": "PUT"
+                }
+            ],
+            [
+                "methods_dfa"
+            ]
+        ],
+        "result": {
+            "type": "CanonicalHyperCubeSet",
+            "id": 2668105663872
+        }
+    },
+    {
+        "operation_name": "create_from_cube",
+        "args": [
+            [
+                "src_ports",
+                "ports",
+                "methods_dfa",
+                "paths"
+            ],
+            [
+                {
+                    "type": "CanonicalIntervalSet",
+                    "intervals": [
+                        [
+                            100,
+                            200
+                        ]
+                    ]
+                },
+                {
+                    "type": "MinDFA",
+                    "regex": "PUT"
+                }
+            ],
+            [
+                "ports",
+                "methods_dfa"
+            ]
+        ],
+        "result": {
+            "type": "CanonicalHyperCubeSet",
+            "id": 2668105678656
+        }
+    }
+]

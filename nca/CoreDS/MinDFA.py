@@ -8,6 +8,9 @@ from functools import lru_cache
 
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
+from smt_experiments.dfa_creation_tree import CreationTree
+
+
 class MinDFA:
     """
     MinDFA is a wrapper class for greenery.fsm , to support the api required for dimensions in hypercube-set
@@ -62,6 +65,7 @@ class MinDFA:
         self.fsm = fsm(initial, finals, alphabet, states, map)
         self.is_all_words = MinDFA.Ternary.UNKNOWN
         self.complement_dfa = None
+        self.creation_tree = CreationTree()
 
     def __contains__(self, string):
         return string in self.fsm
@@ -108,6 +112,8 @@ class MinDFA:
         # TODO: currently assuming input str as regex only has '*' operator for infinity
         if '*' not in s:
             res.is_all_words = MinDFA.Ternary.FALSE
+
+        res.creation_tree = CreationTree(s)
         return res
 
     @staticmethod
@@ -119,6 +125,8 @@ class MinDFA:
         """
         res = MinDFA.dfa_from_regex(alphabet)
         res.is_all_words = MinDFA.Ternary.TRUE
+
+        res.creation_tree.value = f'(res.creation_tree.value)*'
         return res
 
     # TODO: this function may not be necessary, if keeping the current __eq__ override
@@ -218,6 +226,10 @@ class MinDFA:
         res = MinDFA.dfa_from_fsm(fsm_res)
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
+        res.creation_tree = CreationTree(
+            value='|',
+            children=[self.creation_tree, other.creation_tree]
+        )
         return res
 
     @lru_cache(maxsize=500)
@@ -230,6 +242,10 @@ class MinDFA:
         res = MinDFA.dfa_from_fsm(fsm_res)
         if self.is_all_words == MinDFA.Ternary.FALSE or other.is_all_words == MinDFA.Ternary.FALSE:
             res.is_all_words = MinDFA.Ternary.FALSE
+        res.creation_tree = CreationTree(
+            value='&',
+            children=[self.creation_tree, other.creation_tree]
+        )
         return res
 
     @lru_cache(maxsize=500)
@@ -247,6 +263,10 @@ class MinDFA:
             other.complement_dfa = res
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
+        res.creation_tree = CreationTree(
+            value='-',
+            children=[self.creation_tree, other.creation_tree]
+        )
         return res
 
     @lru_cache(maxsize=500)

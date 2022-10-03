@@ -1,6 +1,9 @@
-from CanonicalHyperCubeSet import CanonicalHyperCubeSet
-from CanonicalIntervalSet import CanonicalIntervalSet
-from MinDFA import MinDFA
+from pprint import pprint
+
+from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.DimensionsManager import DimensionsManager
+from nca.CoreDS.MinDFA import MinDFA
 
 
 def process_interval_set(interval_set: CanonicalIntervalSet) -> list[list[int]]:
@@ -8,8 +11,7 @@ def process_interval_set(interval_set: CanonicalIntervalSet) -> list[list[int]]:
 
 
 def process_min_dfa(min_dfa: MinDFA):
-    # TODO: implement
-    return r'a*'
+    return min_dfa.creation_tree.serialize()
 
 
 def process_args(args):
@@ -19,8 +21,14 @@ def process_args(args):
     if isinstance(args, (bool, int, str)):
         return args
 
-    if isinstance(args, list):
+    if isinstance(args, (list, tuple)):
         return [process_args(arg) for arg in args]
+
+    if isinstance(args, CanonicalHyperCubeSetTracker):
+        return {
+            'type': 'CanonicalHyperCubeSet',
+            'id': id(args.hyper_cube_set)
+        }
 
     if isinstance(args, CanonicalHyperCubeSet):
         return {
@@ -42,12 +50,17 @@ def process_args(args):
 
     raise TypeError(f'type {type(args)} is not supported.')
 
+# TODO: create a trace that I can run and show to Adi
+# TODO: I can augment the traces by permuting the order of operations, does it make sense? or by
+#   mutating them in some ways
+
 
 RECORDS = []
 
 
 def track(func_name: str, *args, result=None):
-    # TODO: implement
+    # TODO: implement recording - save to a file.
+
     record = {
         'operation_name': func_name,
         'args': process_args(args),
@@ -64,10 +77,13 @@ class CanonicalHyperCubeSetTracker:
 
     def __init__(self, dimensions=None, allow_all=False, hyper_cube_set: CanonicalHyperCubeSet = None):
         if hyper_cube_set is None:
-            track('__init__', self, dimensions, allow_all)
             self.hyper_cube_set = CanonicalHyperCubeSet(dimensions, allow_all)
+            track('__init__', self, dimensions, allow_all)
         else:
             self.hyper_cube_set = hyper_cube_set
+
+        if isinstance(self.hyper_cube_set, CanonicalHyperCubeSetTracker):
+            raise RuntimeError('got hyper cube set tracker')
 
     @staticmethod
     def create_from_cube(all_dims, cube, cube_dims):
@@ -81,12 +97,13 @@ class CanonicalHyperCubeSetTracker:
         return result
 
     def __eq__(self, other):
-        result = self.hyper_cube_set.__eq__(other)
+        result = self.hyper_cube_set.__eq__(other.hyper_cube_set)
         track('__eq__', self, other, result=result)
         return result
 
     def copy(self):
         result = self.hyper_cube_set.copy()
+        result = CanonicalHyperCubeSetTracker(hyper_cube_set=result)
         track('copy', self, result=result)
         return result
 
@@ -96,34 +113,37 @@ class CanonicalHyperCubeSetTracker:
         return result
 
     def __and__(self, other):
-        result = self.hyper_cube_set.__and__(other)
+        result = self.hyper_cube_set.__and__(other.hyper_cube_set)
+        result = CanonicalHyperCubeSetTracker(hyper_cube_set=result)
         track('__and__', self, other, result=result)
         return result
 
     def __iand__(self, other):
-        result = self.hyper_cube_set.__iand__(other)
+        result = self.hyper_cube_set.__iand__(other.hyper_cube_set)
         track('__iand__', self, other, result=result)
-        return result
+        return self
 
     def __or__(self, other):
-        result = self.hyper_cube_set.__or__(other)
+        result = self.hyper_cube_set.__or__(other.hyper_cube_set)
+        result = CanonicalHyperCubeSetTracker(hyper_cube_set=result)
         track('__or__', self, other, result=result)
         return result
 
     def __ior__(self, other):
-        result = self.hyper_cube_set.__ior__(other)
+        result = self.hyper_cube_set.__ior__(other.hyper_cube_set)
         track('__ior__', self, other, result=result)
-        return result
+        return self
 
     def __sub__(self, other):
-        result = self.hyper_cube_set.__sub__(other)
+        result = self.hyper_cube_set.__sub__(other.hyper_cube_set)
+        result = CanonicalHyperCubeSetTracker(hyper_cube_set=result)
         track('__sub__', self, other, result=result)
         return result
 
     def __isub__(self, other):
-        result = self.hyper_cube_set.__isub__(other)
+        result = self.hyper_cube_set.__isub__(other.hyper_cube_set)
         track('__isub__', self, other, result=result)
-        return result
+        return self
 
     def is_all(self):
         result = self.hyper_cube_set.is_all()
@@ -135,7 +155,7 @@ class CanonicalHyperCubeSetTracker:
         track('set_all', self)
 
     def contained_in(self, other):
-        result = self.hyper_cube_set.contained_in(other)
+        result = self.hyper_cube_set.contained_in(other.hyper_cube_set)
         track('contained_in', self, other, result=result)
         return result
 
@@ -153,9 +173,6 @@ class CanonicalHyperCubeSetTracker:
 
 
 def _example():
-    from DimensionsManager import DimensionsManager
-    from MinDFA import MinDFA
-    from CanonicalIntervalSet import CanonicalIntervalSet
 
     dimensions = ["src_ports", "ports", "methods_dfa", "paths"]
     dim_manager = DimensionsManager()
@@ -175,6 +192,7 @@ def _example():
         print('True')
     else:
         print('False')
+    pprint(RECORDS)
 
 
 if __name__ == '__main__':
