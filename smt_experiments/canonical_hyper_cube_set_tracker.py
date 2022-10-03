@@ -1,12 +1,59 @@
 from CanonicalHyperCubeSet import CanonicalHyperCubeSet
+from CanonicalIntervalSet import CanonicalIntervalSet
+from MinDFA import MinDFA
+
+
+def process_interval_set(interval_set: CanonicalIntervalSet) -> list[list[int]]:
+    return [[i.start, i.end] for i in interval_set.interval_set]
+
+
+def process_min_dfa(min_dfa: MinDFA):
+    # TODO: implement
+    return r'a*'
+
+
+def process_args(args):
+    if args is None:
+        return args
+
+    if isinstance(args, (bool, int, str)):
+        return args
+
+    if isinstance(args, list):
+        return [process_args(arg) for arg in args]
+
+    if isinstance(args, CanonicalHyperCubeSet):
+        return {
+            'type': 'CanonicalHyperCubeSet',
+            'id': id(args)
+        }
+
+    if isinstance(args, CanonicalIntervalSet):
+        return {
+            'type': 'CanonicalIntervalSet',
+            'intervals': process_interval_set(args)
+        }
+
+    if isinstance(args, MinDFA):
+        return {
+            'type': 'MinDFA',
+            'regex': process_min_dfa(args)
+        }
+
+    raise TypeError(f'type {type(args)} is not supported.')
+
+
+RECORDS = []
 
 
 def track(func_name: str, *args, result=None):
     # TODO: implement
-    print(f'operation={func_name}')
-    print(f'args={args}')
-    if result is not None:
-        print(f'result={result}')
+    record = {
+        'operation_name': func_name,
+        'args': process_args(args),
+        'result': process_args(result)
+    }
+    RECORDS.append(record)
 
 
 class CanonicalHyperCubeSetTracker:
