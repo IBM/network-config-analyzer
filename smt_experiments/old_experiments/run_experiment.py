@@ -2,7 +2,7 @@
 import logging
 from collections.abc import Callable
 
-from smt_experiments.experiments.experiment_utils import Timer, dict_product, save_results, Operation
+from smt_experiments.old_experiments.experiment_utils import Timer, dict_product, save_results, Operation
 
 logging.basicConfig(level=logging.INFO)
 

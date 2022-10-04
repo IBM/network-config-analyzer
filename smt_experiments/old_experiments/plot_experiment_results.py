@@ -3,7 +3,7 @@
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 
-from smt_experiments.experiments.experiment_utils import load_results, get_plot_file, Variable
+from smt_experiments.old_experiments.experiment_utils import load_results, get_plot_file, Variable
 
 
 def compute_var_list(result, var_list: list[Variable]) -> tuple:

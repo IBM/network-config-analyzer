@@ -1,0 +1,1892 @@
+[
+    {
+        "n_dims": 5,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 5,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.046875
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.046875
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 10,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 2,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 4,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 6,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 6,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 8,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 8,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 10,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 10,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 12,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 12,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 14,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 14,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 16,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 16,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 18,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.046875
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 18,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.046875
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 20,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.046875
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 20,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.03125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 22,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.046875
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 22,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 24,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.046875
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 24,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 26,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 26,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.078125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 28,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 28,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.078125
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 30,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "membership test",
+        "time": 0.0
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "creation",
+        "time": 0.0625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    },
+    {
+        "n_dims": 15,
+        "n_cubes": 30,
+        "class": "Z3ProductSet",
+        "operation": "membership test",
+        "time": 0.015625
+    }
+]

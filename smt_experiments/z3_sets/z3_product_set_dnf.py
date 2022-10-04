@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Union
 
-from DimensionsManager import DimensionsManager
+from nca.CoreDS.DimensionsManager import DimensionsManager
 from smt_experiments.hyper_cube_set import HyperCubeSet
 from smt_experiments.z3_sets.z3_set import Z3Set
 

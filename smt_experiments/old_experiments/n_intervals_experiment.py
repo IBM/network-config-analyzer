@@ -4,10 +4,10 @@ interval set.
 """
 
 from CanonicalIntervalSet import CanonicalIntervalSet
-from smt_experiments.experiments.experiment_utils import EngineType, Variable, get_y_var_list, \
+from smt_experiments.old_experiments.experiment_utils import EngineType, Variable, get_y_var_list, \
     get_positive_membership_operation, get_negative_membership_operation
-from smt_experiments.experiments.plot_experiment_results import plot_results
-from smt_experiments.experiments.run_experiment import run_experiment
+from smt_experiments.old_experiments.plot_experiment_results import plot_results
+from smt_experiments.old_experiments.run_experiment import run_experiment
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
 
 JUMP = 100

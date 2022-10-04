@@ -9,11 +9,11 @@ from enum import auto
 from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from CanonicalIntervalSet import CanonicalIntervalSet
 from DimensionsManager import DimensionsManager
-from smt_experiments.experiments.experiment_utils import EngineType, \
+from smt_experiments.old_experiments.experiment_utils import EngineType, \
     EnumWithStr, get_y_var_list, Variable, Operation, get_positive_membership_operation, \
     get_negative_membership_operation
-from smt_experiments.experiments.plot_experiment_results import plot_results
-from smt_experiments.experiments.run_experiment import run_experiment
+from smt_experiments.old_experiments.plot_experiment_results import plot_results
+from smt_experiments.old_experiments.run_experiment import run_experiment
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
 from smt_experiments.z3_sets.z3_product_set import Z3ProductSet
 

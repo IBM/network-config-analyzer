@@ -60,11 +60,4 @@ Other Ideas:
 """
 # TODO: write ideas down for 4 experiments.
 # TODO: write design on how to run those.
-
-# ========================================== Experiment 1 ==============================================================
-# TODO: generate the cubes
-# TODO: run and measure timing
-# TODO: plot the graphs
-
-if __name__ == '__main__':
-    pass
+# TODO: place this in a separate folder, add analysis, and ideas for more experiments.
