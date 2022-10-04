@@ -84,7 +84,7 @@ The supported entries in the outputConfiguration object are as follows:
 | outputPath      | A file path to redirect output into.                                           | string                                 |
 | outputEndpoints | Choose endpoints type in output.                                               | string [ pods / deployments ]          |
 | subset          | A dict object with the defined subset elements to display in the output        | [subset](#subset) object               |
-| FullExplanation | Choose if to print all counter examples causing the query result in the output | bool                                   |
+| FullExplanation | Choose if to print all counterexamples causing the query result in the output | bool                                   |
 
 #### <a name="subset"></a>Subset object
 The supported entries in the subset object are as follows:
