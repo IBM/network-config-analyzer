@@ -54,7 +54,7 @@ queries:
       - np_SupsetAllowFirst
       - np_SubsetDenyFirst
     outputConfiguration:
-      printAllPairs: true
+      FullExplanation: true
     expected: 1
 
   - name: onlyAllow_and_supAllowFirst_equiv

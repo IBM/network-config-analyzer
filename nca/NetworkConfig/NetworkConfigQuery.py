@@ -777,10 +777,10 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 if conns1 != conns2:
                     different_conns_list.append(f'Allowed connections from {peer1} to {peer2}'
                                                 f' are different\n' + conns1.print_diff(conns2, self.name1, self.name2))
+                    if not self.output_config.FullExplanation:
+                        break
         if different_conns_list:
-            explanation = different_conns_list[0] + '\n'
-            if self.output_config.printAllPairs:
-                explanation += '\n'.join(different_conns_list[1:])
+            explanation = '\n'.join(different_conns_list)
             return QueryAnswer(False, self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.\n',
                                explanation)
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
@@ -1128,11 +1128,11 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                     not_contained_list.append(f'Allowed connections from {peer1} to {peer2}'
                                               f' in {self.name1} are not a subset of those in '
                                               f'{self.name2}\n' + conns1.print_diff(conns2, self.name1, self.name2))
+                    if not self.output_config.FullExplanation:
+                        break
         if not_contained_list:
             output_result = f'{self.name1} is not contained in {self.name2}'
-            output_explanation = '\n' + not_contained_list[0] + '\n'
-            if self.output_config.printAllPairs:
-                output_explanation += '\n'.join(not_contained_list[1:])
+            output_explanation = '\n' + '\n'.join(not_contained_list)
             return QueryAnswer(False, output_result, output_explanation)
 
         output_result = self.name1 + ' is contained in ' + self.name2
@@ -1255,10 +1255,10 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                     extended_conns_list.append(f'{self.name1} extends the allowed connections from {peer1} '
                                                f'to {peer2}\n' + conns2_captured.print_diff(conns1_captured,
                                                                                             self.name1, self.name2))
+                    if not self.output_config.FullExplanation:
+                        break
         if extended_conns_list:
-            output_explanation = '\n' + extended_conns_list[0] + '\n'
-            if self.output_config.printAllPairs:
-                output_explanation += '\n'.join(extended_conns_list[1:])
+            output_explanation = '\n' + '\n'.join(extended_conns_list)
             return QueryAnswer(True, self.name1 + ' interferes with ' + self.name2, output_explanation)
 
         return QueryAnswer(False, self.name1 + ' does not interfere with ' + self.name2)
@@ -1313,11 +1313,11 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
                     intersect_pairs_list.append(f'from {peer1} to {peer2} on {str(conns_in_both)}')
+                    if not self.output_config.FullExplanation:
+                        break
         if intersect_pairs_list:
             output_explanation = f'Both {self.name1} and {self.name2} allow the following connection(s):\n'
-            output_explanation += intersect_pairs_list[0] + '\n'
-            if self.output_config.printAllPairs:
-                output_explanation += '\n'.join(intersect_pairs_list[1:])
+            output_explanation += '\n'.join(intersect_pairs_list)
             return QueryAnswer(True, self.name2 + ' intersects with ' + self.name1, output_explanation)
 
         return QueryAnswer(False, f'The connections allowed by {self.name1}'

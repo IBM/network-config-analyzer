@@ -83,7 +83,7 @@ queries:
       - np-ports-based/testcase18-different-ranges-writing1
       - np-ports-based/testcase18-different-ranges-writing-slightly-bigger
     outputConfiguration:
-      printAllPairs: true
+      FullExplanation: true
     expected: 2
 
   - name: containment_different_ranges_writing_additional_port

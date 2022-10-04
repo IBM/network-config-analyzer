@@ -105,7 +105,7 @@ queries:
       - config_a_with_ipBlock
       - config_a_with_b_ipBlock
     outputConfiguration:
-      printAllPairs: true
+      FullExplanation: true
     expected: 0
 
   - name: twoWayContainment_np1_np2

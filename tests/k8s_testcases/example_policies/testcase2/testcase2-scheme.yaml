@@ -53,7 +53,7 @@ queries:
       - nt_notin
       - nt_notinwithexists
     outputConfiguration:
-      printAllPairs: true
+      FullExplanation: true
     expected: 1
   - name: pairwiseInterferes_policies
     pairwiseInterferes:

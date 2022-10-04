@@ -56,7 +56,7 @@ queries:
       - np2
       - np1
     outputConfiguration:
-      printAllPairs: true
+      FullExplanation: true
     expected: 0
 
   - name: connectivity_map
