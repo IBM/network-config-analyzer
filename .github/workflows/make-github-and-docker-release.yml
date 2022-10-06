@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [master]
     types: [closed]
-    paths: ["VERSION.txt"]
+    paths: ["nca/VERSION.txt"]
 
 permissions:
   contents: read
@@ -27,7 +27,7 @@ jobs:
 
       - name: Set the version number
         run: |
-          export VERSION=$(cat VERSION.txt)
+          export VERSION=$(cat nca/VERSION.txt)
           echo "version=$VERSION" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub

@@ -314,7 +314,7 @@ def nca_main(argv=None):
     args = parser.parse_args(argv)
 
     if args.version:
-        version_file_path = Path(__file__).parent.parent.resolve() / 'VERSION.txt'
+        version_file_path = Path(__file__).parent.resolve() / 'VERSION.txt'
         with open(version_file_path) as version_file:
             print(f'NCA version {version_file.readline()}')
         return 0
