@@ -1,0 +1,15 @@
+np-empty intersects with np-within-default
+np-empty does not forbid connections specified in np-within-default:
+Both np-within-default and np-empty allow the following connection(s):
+src: default/cog-agents-d54st, dst: default/cog-agents-js4qc, conn: All connections
+src: default/cog-agents-d54st, dst: default/cog-agents-qr8gp, conn: All connections
+src: default/cog-agents-d54st, dst: default/cog-local-analyzer-7d77fb55cc-bs8rc, conn: All connections
+src: default/cog-agents-js4qc, dst: default/cog-agents-d54st, conn: All connections
+src: default/cog-agents-js4qc, dst: default/cog-agents-qr8gp, conn: All connections
+src: default/cog-agents-js4qc, dst: default/cog-local-analyzer-7d77fb55cc-bs8rc, conn: All connections
+src: default/cog-agents-qr8gp, dst: default/cog-agents-d54st, conn: All connections
+src: default/cog-agents-qr8gp, dst: default/cog-agents-js4qc, conn: All connections
+src: default/cog-agents-qr8gp, dst: default/cog-local-analyzer-7d77fb55cc-bs8rc, conn: All connections
+src: default/cog-local-analyzer-7d77fb55cc-bs8rc, dst: default/cog-agents-d54st, conn: All connections
+src: default/cog-local-analyzer-7d77fb55cc-bs8rc, dst: default/cog-agents-js4qc, conn: All connections
+src: default/cog-local-analyzer-7d77fb55cc-bs8rc, dst: default/cog-agents-qr8gp, conn: All connections

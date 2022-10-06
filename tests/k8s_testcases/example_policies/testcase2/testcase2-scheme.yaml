@@ -54,6 +54,7 @@ queries:
       - nt_notinwithexists
     outputConfiguration:
       FullExplanation: true
+    expectedOutput: ../../expected_output/no-strong-equivalence-all-peers-pairs.txt
     expected: 1
   - name: pairwiseInterferes_policies
     pairwiseInterferes:

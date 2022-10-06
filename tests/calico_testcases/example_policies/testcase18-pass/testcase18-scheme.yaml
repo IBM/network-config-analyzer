@@ -84,6 +84,7 @@ queries:
       - np-ports-based/testcase18-different-ranges-writing-slightly-bigger
     outputConfiguration:
       FullExplanation: true
+    expectedOutput: ../../expected_output/testcase18-scheme-pair-wise-interferes-different-ranges-writing-additional-port.txt
     expected: 2
 
   - name: containment_different_ranges_writing_additional_port

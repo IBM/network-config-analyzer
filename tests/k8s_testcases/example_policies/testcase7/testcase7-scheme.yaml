@@ -57,6 +57,7 @@ queries:
       - np1
     outputConfiguration:
       FullExplanation: true
+    expectedOutput: ../../expected_output/containment-np2-and-np1-all-pairs.txt
     expected: 0
 
   - name: connectivity_map
