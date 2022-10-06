@@ -8,6 +8,10 @@ from smt_experiments.z3_sets.z3_set import Z3Set
 
 # TODO: implement z3 regular string set, pass tests
 # TODO: change string set to regular, pass tests with regex
+# TODO: ideas for optimization:
+#  - trying to use a single solver might make things more efficient. Try that.
+#  - creating a benchmark for this set, to consider different implementations.
+
 
 class Z3ProductSetDNF(Z3Set, HyperCubeSet):
     @classmethod

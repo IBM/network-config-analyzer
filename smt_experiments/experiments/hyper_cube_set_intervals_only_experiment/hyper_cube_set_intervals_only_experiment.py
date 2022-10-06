@@ -1,7 +1,7 @@
 """Description:
 Question:
-    How n_cubes affects runtime (creation + containment), when the n_dims is fixed,
-    and the cubes are non-overlapping.
+    How n_cubes affects runtime of different operations, when n_dims is fixed,
+    and the cubes are non-overlapping?
 
 Experiment Design:
     Fix the value of n_dims to one of {5, 10, 15}, and increase n_cubes from ??? to ??? with steps of ???.
@@ -14,23 +14,22 @@ Expectations:
     - With n_dims=15, at the start CanonicalHyperCubeSet will outperform Z3, but at some point, Z3 will outperform
     CanonicalHyperCube.
 """
-# TODO: add another figure with membership test time.
-# TODO: add another figure with containment test time.
 # TODO: Analyze.
 # TODO: Write ideas for more experiments.
-# TODO: maybe use randomly generated (inputs, cubes)?
+# TODO: Maybe use randomly generated (inputs, cubes)?
 # TODO: I don't think that we should have `overall time` since we can just add the two figures.
 # TODO: add another figure with only the Z3ProductSet times, to look at the increase rate more closely.
-# TODO: also consider Z3ProductSetDNF, maybe try to optimize it.
-
+# TODO: also consider Z3ProductSetDNF, Try to optimize it. Currently it is much slower than the other two, so I don't
+#   place it in same plot (as it dominates the plot).
+# TODO: analyze what profile of operations is more efficient with z3 and which is more efficient with
+#   CanonicalHyperCubeSet, in terms of different combination of operations.
+#   For example, if we have 1 creation followed by 10 contained_in, which engine is more efficient?
 
 import json
 import logging
-from collections import defaultdict
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
@@ -57,20 +56,16 @@ def generate_non_overlapping_integer_cubes(n_dims: int, n_cubes: int) -> list[li
     return cubes
 
 
-def convert_cubes_aux(cubes: list[list[tuple[int, int]]], cls):
-    converted_cubes = []
-    for cube in cubes:
-        converted_cube = [cls.get_interval_set(start, end) for start, end in cube]
-        converted_cubes.append(converted_cube)
-    return converted_cubes
+def convert_cube(cube: list[tuple[int, int]], cls):
+    if cls == Z3ProductSet:
+        dim_cls = Z3IntegerSet
+    elif cls == CanonicalHyperCubeSet:
+        dim_cls = CanonicalIntervalSet
+    else:
+        raise ValueError
 
-
-def convert_cubes_to_canonical_interval_set(cubes: list[list[tuple[int, int]]]) -> list[list[CanonicalIntervalSet]]:
-    return convert_cubes_aux(cubes, CanonicalIntervalSet)
-
-
-def convert_cubes_to_z3_integer_set(cubes: list[list[tuple[int, int]]]) -> list[list[Z3IntegerSet]]:
-    return convert_cubes_aux(cubes, Z3IntegerSet)
+    converted_cube = [dim_cls.get_interval_set(start, end) for start, end in cube]
+    return converted_cube
 
 
 def get_dimension_names(n_dims: int) -> list[str]:
@@ -92,19 +87,17 @@ def get_member(cubes: list[list[tuple[int, int]]]) -> list[int]:
 
 def get_not_member(cubes: list[list[tuple[int, int]]]) -> list[int]:
     not_member = get_member(cubes)
-    # assumes that cubes are not touching
-    not_member[-1] += 1
+    # assumes that cubes not negative
+    not_member[-1] = -1
     return not_member
 
 
 def run_experiment():
-    # TODO: convert the result to a list of dictionaries, and filter the list accordingly. I have this implemented in
-    #   run_experiment.
     n_dims_options = [5, 10, 15]
     n_cubes_start = 2
     n_cubes_step = 2
-    # n_cubes_end = 150    # TODO: uncomment this
-    n_cubes_end = 30    # for running quickly TODO: comment this
+    n_cubes_end = 150    # TODO: uncomment this
+    # n_cubes_end = 30    # for running quickly TODO: comment this
 
     n_cubes_options = list(range(n_cubes_start, n_cubes_end + 1, n_cubes_step))
     # hyper_cube_set_classes = [CanonicalHyperCubeSet, Z3ProductSet, Z3ProductSetDNF]
@@ -123,15 +116,12 @@ def run_experiment():
             for cls in hyper_cube_set_classes:
                 logging.info(f'n_dims: {n_dims}, n_cubes: {n_cubes}, cls: {cls.__name__}.')
 
+                # creation
                 with Timer() as t:
-                    if cls == CanonicalHyperCubeSet:
-                        converted_cubes = convert_cubes_to_canonical_interval_set(cubes_subset)
-                    else:
-                        converted_cubes = convert_cubes_to_z3_integer_set(cubes_subset)
+                    converted_cubes = [convert_cube(cube, cls) for cube in cubes_subset]
                     s = cls(dim_names)
                     for converted_cube in converted_cubes:
                         s.add_cube(converted_cube)
-
                 results.append({
                     'n_dims': n_dims,
                     'n_cubes': n_cubes,
@@ -140,32 +130,103 @@ def run_experiment():
                     'time': t.elapsed_time
                 })
 
+                # membership test
                 member = get_member(cubes_subset)
                 with Timer() as t:
                     out = member in s
-
+                assert out
                 results.append({
                     'n_dims': n_dims,
                     'n_cubes': n_cubes,
                     'class': cls.__name__,
-                    'operation': 'membership test',
+                    'operation': 'membership_test',
                     'time': t.elapsed_time,
                 })
 
                 not_member = get_not_member(cubes_subset)
                 with Timer() as t:
                     out = not_member in s
-
+                assert not out
                 results.append({
                     'n_dims': n_dims,
                     'n_cubes': n_cubes,
                     'class': cls.__name__,
-                    'operation': 'membership test',
+                    'operation': 'membership_test',
                     'time': t.elapsed_time,
                 })
 
-                # TODO: I can also time the add_hole operation.
-                # TODO: add timing for containment test (I can do that by subtracting a cube or adding a new cube)
+                # add cube
+                cube_to_add = cubes[n_cubes]
+                superset = s.copy()
+                with Timer() as t:
+                    converted_cube = convert_cube(cube_to_add, cls)
+                    superset.add_cube(converted_cube)
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'add_cube',
+                    'time': t.elapsed_time,
+                })
+
+                # add hole
+                cube_to_subtract = cubes[n_cubes // 2]
+                subset = s.copy()
+                with Timer() as t:
+                    converted_cube = convert_cube(cube_to_subtract, cls)
+                    subset.add_hole(converted_cube)
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'add_hole',
+                    'time': t.elapsed_time,
+                })
+
+                # containment
+                with Timer() as t:
+                    out = subset.contained_in(s)
+                assert out
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'contained_in',
+                    'time': t.elapsed_time,
+                })
+
+                with Timer() as t:
+                    out = s.contained_in(subset)
+                assert not out
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'contained_in',
+                    'time': t.elapsed_time,
+                })
+
+                with Timer() as t:
+                    out = superset.contained_in(s)
+                assert not out
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'contained_in',
+                    'time': t.elapsed_time,
+                })
+
+                with Timer() as t:
+                    out = s.contained_in(superset)
+                assert out
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'contained_in',
+                    'time': t.elapsed_time,
+                })
 
     return results
 
@@ -188,59 +249,56 @@ def filter_on_key_value(data: list[dict], key: str, value) -> list[dict]:
     return [x for x in data if x[key] == value]
 
 
-def plot_results(results: list[dict]):
-    # TODO: convert the result to a list of dictionaries, and filter the list accordingly. I have this implemented in
-    #   run_experiment.
-    # TODO: refactor this to support creation, membership, add_hole, containment.
-    # TODO: I broke this, need to review.
+def plot_result_for_operation(results: list[dict], operation: str):
+    results_filtered_on_operation = filter_on_key_value(results, 'operation', operation)
+
+    # a new subplot for each value of n_dims
+    n_dims_options = get_unique_values_for_key(results_filtered_on_operation, 'n_dims')
+
     scale = 1.5
     figsize = (6.4 * scale, 4.8 * scale)
-    # fig, axes = plt.subplots(1, len(results), figsize=figsize)
-    fig, axes = plt.subplots(len(results), 1, figsize=figsize)
+    fig, axes = plt.subplots(len(n_dims_options), 1, figsize=figsize)
     fig: Figure
     fig.supxlabel('#cubes')
-    # fig.align_labels()
-    fig.suptitle('Effect of #cubes on creation time with fixed #dimensions and non-overlapping cubes')
-    fig.supylabel('creation time [sec]')
+    fig.suptitle(f'Effect of #cubes on {operation} time with fixed #dimensions and non-overlapping cubes')
+    fig.supylabel(f'{operation} time [sec]')
     fig.subplots_adjust(hspace=0.4)
-    # fig.tight_layout()
+    markers = ['x', '+', '1']
 
-    # now, we only plot the 'creation' results
-    results = filter_on_key_value(results, 'operation', 'creation')
-    n_dims_options = get_unique_values_for_key(results, 'n_dims')
+    for ax, n_dims in zip(axes, n_dims_options):
+        results_filtered_on_operation_and_n_dims = filter_on_key_value(results_filtered_on_operation, 'n_dims', n_dims)
+        cls_names = get_unique_values_for_key(results_filtered_on_operation_and_n_dims, 'class')
 
-    for i, n_dims in enumerate(n_dims_options):
-        n_dims_results = filter_on_key_value(results, 'n_dims', n_dims)
-        n_cubes_values_per_cls = defaultdict(list)
-        creation_times_per_cls = defaultdict(list)
-        class_names = get_unique_values_for_key(results, 'class')
-        for class_name in class_names:
-            for result in filter_on_key_value(n_dims_results, 'class', class_name):
-                n_cubes_values_per_cls[class_name].append(result['n_cubes'])
-                creation_times_per_cls[class_name].append(result['time'])
+        for cls_index, cls_name in enumerate(cls_names):
+            results_filtered_on_operation_and_n_dims_and_cls = filter_on_key_value(
+                results_filtered_on_operation_and_n_dims,
+                'class',
+                cls_name
+            )
+            n_cubes = []
+            operation_times = []
+            for result in results_filtered_on_operation_and_n_dims_and_cls:
+                n_cubes.append(result['n_cubes'])
+                operation_times.append(result['time'])
 
-        ax: Axes = axes[i]
+            ax.scatter(n_cubes, operation_times, label=cls_name, alpha=0.5, marker=markers[cls_index])
+
         ax.set_title(f'#dims = {n_dims}')
-        for cls_name, creation_times in creation_times_per_cls.items():
-            ax.scatter(n_cubes_values_per_cls[cls_name], creation_times, label=cls_name)
         ax.legend()
 
-    # This snippet is for creating a single legend for the entire figure.
-    # handles, labels = fig.gca().get_legend_handles_labels()
-    # by_label = dict(zip(labels, handles))
-    # fig.legend(by_label.values(), by_label.keys())
-    # fig.legend()
-
-    # plt.show()
-    fig.savefig(Path(__file__).with_suffix('.png'))
+    # plt.show()  # TODO: comment
+    fig_path = Path(__file__).with_stem(operation).with_suffix('.png')
+    fig.savefig(fig_path)
 
 
 def main():
     results_file = Path(__file__).with_suffix('.json')
-    results = run_experiment()
-    save_dict(results, results_file)
+    # results = run_experiment()  # TODO: uncomment to re-run the experiment
+    # save_dict(results, results_file)  # TODO: uncomment to re-run the experiment
     results = load_dict(results_file)
-    plot_results(results)
+    operations = get_unique_values_for_key(results, 'operation')
+    for operation in operations:
+        plot_result_for_operation(results, operation)
 
 
 if __name__ == '__main__':
