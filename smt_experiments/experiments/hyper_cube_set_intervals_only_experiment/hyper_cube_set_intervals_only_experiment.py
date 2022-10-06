@@ -27,6 +27,7 @@ Expectations:
 
 import json
 import logging
+from csv import DictWriter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -42,10 +43,17 @@ from smt_experiments.z3_sets.z3_product_set_dnf import Z3ProductSetDNF
 
 
 logging.basicConfig(level=logging.INFO)
+MIN_VALUE = 0
+MAX_VALUE = 100_000
 
 
 def generate_non_overlapping_integer_cubes(n_dims: int, n_cubes: int) -> list[list[tuple[int, int]]]:
-    # TODO: I think that this function is clear enough, and I don't need to save this output to a file. Ask Adi.
+    """
+    Returns cubes that look like: (for n_dims=2, n_cubes=3)
+    [[[0-10], [0-10]], # n_dims=2 so there are 2 columns, n_cubes=3 so there are 3 rows
+     [[20-30], [20-30]],
+     [[40-50], [40-50]]]
+    """
     start = 0
     step = 10
     cubes = []
@@ -53,6 +61,30 @@ def generate_non_overlapping_integer_cubes(n_dims: int, n_cubes: int) -> list[li
         cube = [(start, start + step) for _ in range(n_dims)]
         cubes.append(cube)
         start = start + 2 * step
+    return cubes
+
+
+def generate_overlapping_integer_cubes(n_dims: int, n_cubes: int) -> list[list[tuple[int, int]]]:
+    """
+    Returns cubes that look like: (for n_dims=2, n_cubes=4)
+    [[[0-10], [20-30], [MIN_VALUE-MAX_VALUE], # n_dims=3 so there are 3 columns, n_cubes=4 so there are 4 rows
+     [[MIN_VALUE-MAX_VALUE], [20-30], [40-50]],
+     [[60-70], [MIN_VALUE-MAX_VALUE], [40-50]]
+     [[60-70], [80-90], [MIN_VALUE-MAX_VALUE]]]
+
+    Each time we have 2 dimensions that are active, those shift right every step.
+    """
+    assert n_dims >= 3
+    assert n_cubes >= 3
+    cubes = []
+    start = 0
+    step = 10
+    for i in range(n_cubes):
+        cube = [(MIN_VALUE, MAX_VALUE) for _ in range(n_dims)]
+        cube[i % n_dims] = (start, start + step)
+        cube[(i + 1) % n_dims] = (start + 2 * step, start + 3 * step)
+        cubes.append(cube)
+        start += 2 * step
     return cubes
 
 
@@ -75,7 +107,7 @@ def get_dimension_names(n_dims: int) -> list[str]:
 def init_dim_manager(dim_names: list[str]):
     dim_manager = DimensionsManager()
     for dim_name in dim_names:
-        dim_manager.set_domain(dim_name, DimensionsManager.DimensionType.IntervalSet, (0, 100000))
+        dim_manager.set_domain(dim_name, DimensionsManager.DimensionType.IntervalSet, (MIN_VALUE, MAX_VALUE))
 
 
 def get_member(cubes: list[list[tuple[int, int]]]) -> list[int]:
@@ -86,18 +118,25 @@ def get_member(cubes: list[list[tuple[int, int]]]) -> list[int]:
 
 
 def get_not_member(cubes: list[list[tuple[int, int]]]) -> list[int]:
-    not_member = get_member(cubes)
-    # assumes that cubes not negative
-    not_member[-1] = -1
+    mid_cube = cubes[len(cubes) // 2]
+    not_member = []
+    for start, end in mid_cube:
+        if start == MIN_VALUE and end == MAX_VALUE:
+            entry = (MAX_VALUE + MIN_VALUE) // 2
+        elif end == MAX_VALUE:
+            entry = start - 1
+        else:
+            entry = end + 1
+        not_member.append(entry)
     return not_member
 
 
-def run_experiment():
+def run_experiment(overlapping: bool):
     n_dims_options = [5, 10, 15]
-    n_cubes_start = 2
-    n_cubes_step = 2
-    n_cubes_end = 150    # TODO: uncomment this
-    # n_cubes_end = 30    # for running quickly TODO: comment this
+    n_cubes_start = 3
+    n_cubes_step = 3
+    # n_cubes_end = 150    # TODO: uncomment this
+    n_cubes_end = 30    # for running quickly TODO: comment this
 
     n_cubes_options = list(range(n_cubes_start, n_cubes_end + 1, n_cubes_step))
     # hyper_cube_set_classes = [CanonicalHyperCubeSet, Z3ProductSet, Z3ProductSetDNF]
@@ -105,7 +144,10 @@ def run_experiment():
     results = []
 
     for n_dims in n_dims_options:
-        cubes = generate_non_overlapping_integer_cubes(n_dims, n_cubes_end + 1)  # I add one for the containment test
+        if overlapping:
+            cubes = generate_overlapping_integer_cubes(n_dims, n_cubes_end + 1)  # I add one for the containment test
+        else:
+            cubes = generate_non_overlapping_integer_cubes(n_dims, n_cubes_end + 1)
 
         dim_names = get_dimension_names(n_dims)
         init_dim_manager(dim_names)
@@ -231,17 +273,17 @@ def run_experiment():
     return results
 
 
-def save_dict(data: dict, file: Path):
+def save_results(data: list[dict], file: Path):
     with file.open('w') as f:
         json.dump(data, f, indent=4)
 
 
-def load_dict(file: Path) -> dict:
+def load_results(file: Path) -> list[dict]:
     with file.open('r') as f:
         return json.load(f)
 
 
-def get_unique_values_for_key(data: list[dict], key: str) -> list[dict]:
+def get_unique_values_for_key(data: list[dict], key: str) -> list:
     return sorted(set(x[key] for x in data))
 
 
@@ -249,7 +291,7 @@ def filter_on_key_value(data: list[dict], key: str, value) -> list[dict]:
     return [x for x in data if x[key] == value]
 
 
-def plot_result_for_operation(results: list[dict], operation: str):
+def plot_result_for_operation(results: list[dict], operation: str, overlapping: bool):
     results_filtered_on_operation = filter_on_key_value(results, 'operation', operation)
 
     # a new subplot for each value of n_dims
@@ -260,7 +302,10 @@ def plot_result_for_operation(results: list[dict], operation: str):
     fig, axes = plt.subplots(len(n_dims_options), 1, figsize=figsize)
     fig: Figure
     fig.supxlabel('#cubes')
-    fig.suptitle(f'Effect of #cubes on {operation} time with fixed #dimensions and non-overlapping cubes')
+    if overlapping:
+        fig.suptitle(f'Effect of #cubes on {operation} time with fixed #dimensions and overlapping cubes')
+    else:
+        fig.suptitle(f'Effect of #cubes on {operation} time with fixed #dimensions and non-overlapping cubes')
     fig.supylabel(f'{operation} time [sec]')
     fig.subplots_adjust(hspace=0.4)
     markers = ['x', '+', '1']
@@ -287,19 +332,44 @@ def plot_result_for_operation(results: list[dict], operation: str):
         ax.legend()
 
     # plt.show()  # TODO: comment
-    fig_path = Path(__file__).with_stem(operation).with_suffix('.png')
+    if overlapping:
+        stem = f'{operation}_overlapping'
+    else:
+        stem = f'{operation}_non_overlapping'
+
+    fig_path = Path(__file__).with_stem(stem).with_suffix('.png')
     fig.savefig(fig_path)
 
 
-def main():
-    results_file = Path(__file__).with_stem('results').with_suffix('.json')
-    results = run_experiment()  # TODO: uncomment to re-run the experiment
-    save_dict(results, results_file)  # TODO: uncomment to re-run the experiment
-    results = load_dict(results_file)
+def save_results_to_csv(results: list[dict], result_csv_file: Path):
+    with result_csv_file.open('w', newline='') as f:
+        writer = DictWriter(f, results[0].keys())
+        writer.writeheader()
+        writer.writerows(results)
+
+
+def plot_results(results: list[dict], overlapping: bool):
     operations = get_unique_values_for_key(results, 'operation')
     for operation in operations:
-        plot_result_for_operation(results, operation)
+        plot_result_for_operation(results, operation, overlapping)
+
+
+
+def run_experiment_and_plot(overlapping: bool):
+    if overlapping:
+        stem = 'results_overlapping'
+    else:
+        stem = 'results_non_overlapping'
+    results_file = Path(__file__).with_stem(stem).with_suffix('.json')
+    results = run_experiment(overlapping)  # TODO: uncomment to re-run the experiment
+    save_results(results, results_file)  # TODO: uncomment to re-run the experiment
+    results = load_results(results_file)
+    save_results_to_csv(results, results_file.with_suffix('.csv'))
+    plot_results(results, overlapping)
 
 
 if __name__ == '__main__':
-    main()
+    # run_experiment_and_plot(overlapping=False)
+    run_experiment_and_plot(overlapping=True)
+    # print(generate_overlapping_integer_cubes(3, 4))
+    # print(generate_non_overlapping_integer_cubes(3, 4))

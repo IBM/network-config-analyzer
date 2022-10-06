@@ -27,31 +27,26 @@ Z3ProductSet creation time is less than 0.5 and CanonicalHyperCubeSet is around 
 in creation, where most of the processing in Z3ProductSet is done when checking.
 
 ### membership_test
-- Membership test time appears to almost constant with both, 
-there are some out-layers, but it appears to be pretty constant, 
-with 0.015 seconds for Z3ProductSet and 0.0 seconds CanonicalHyperCubeSet.
-- The results for CanonicalHyperCubeSet are more consistent around 0.0 seconds.
-- The results for Z3ProductSet are less consistent. 
-It appears that there are two values that we get: 0.015 and 0.0. 
-The more dimensions and cubes that we have, the value falls on 0.015, 
-but this is not always the case.
+- Membership test time seems to be relatively constant with CanonicalHyperCubeSet with 0.0 seconds,
+and increasing linearly with the number of cubes with Z3ProductSet. 
+The slope also increases as the number of dimensions increases.
+- It appears that there are 2 lines for Z3ProductSet. 
+I think that checking non-membership is harder than checking membership, and this is what leads to the two lines.
 
 ### add_hole
-- The values for the time seem to be discrete, I don't know why that is the case. **Interesting**. 
-There are jumps with the size of ~0.015 seconds, 0.0, 0.015, 0.03, 0.045.
-  - Can I explain why this happens? 
-- Z3ProductSet times seem to be pretty constant at 0.0 seconds, except for some out-layers.
-- CanonicalHyperCubeSet time seems to be increasing as the number of dimensions and number of cubes increases.
-But it is a trend only, this does not apply to all points. 
+- Z3ProductSet times seem to be constant at 0.0 seconds, except for some out-layers.
+- CanonicalHyperCubeSet time seems to be linearly increasing with the number of cubes, 
+and the slope increases as the number of dimensions increases. 
 
 ### add_cube
 - Results seem very similar to add_hole, just that the times appear to be smaller in general.
 
 ### contained_in 
-- Similarly to add_cube and add_hole, the times seems to be discrete, with values in 0.0, 0.015, 0.03 and 0.045.
-- In most cases, it seems that Z3ProductSet takes more time than CanonicalHyperCubeSet, but not by much, and not always.
-  - It might be interesting to look at the examples where Z3ProductSet beats CanonicalHyperCube. Is there a trend there?
-- It appears that both are steadily increasing as the number of cubes and dimensions raises.
+- It appears that The CanonicalHyperCubeSet time increases super-linearly with the number of cubes. 
+The more dimensions, the slope gets bigger.
+- Z3ProductSet seems to be increasing linearly with the number of cubes, and has 2 slopes, Interesting why. I expect it 
+to be in the example that we reduce a cube from the set, and check if it is contained in it.
+- Z3ProductSet becomes more efficient at around 120 in all 3 n_dims values.
 
 ### Overall 
 - With the current implementation, If we consider the setting with 1 creation (Z3ProductSet is faster) 
@@ -59,21 +54,23 @@ and 2 contained_in (CanonicalHyperCubeSet is faster).
 - The difference between the wo
 
 ### Ideas:
-- [ ] check the granularity of the timer that I use. This might explain the discrete values that I see.
-- [ ] repeat the first experiment with overlapping cubes. look at adi's code for inspiration.
-- [ ] think about the different usage profiles that we want to compare the implementation to.
-- [ ] add in the comments a small example of how the input looks like, no need to document the entire thing, but only
-a part of it so people can easily understand what is going on, visually.
-- [ ] Create a csv format of the graphs, it might be more comfortable to use for different usages
-- [ ] For now, don't think about Z3ProductSetDNF, only after finishing with simple regular expressions and intervals I 
-need to look into that.
+- [ ] repeat the first experiment with overlapping cubes. look at adi's code for inspiration. **results are way too
+slow, try to make the number of dimensions smaller
 - [ ] Find more interesting test cases for contained_in. Maybe look at the tests and how it is implemented in 
 CanonicalHyperCubeSet can inform those.
-- [ ] I should consider randomly generated samples
 - [ ] After dealing with integer-only cubes, start experimenting with simple string constraints.
+- [ ] think about the different usage profiles that we want to compare the implementation to.
+- [ ] I should consider randomly generated samples.
 - [ ] Think about how to tell the story and what we discovered.
+- [ ] For now, don't think about Z3ProductSetDNF, only after finishing with simple regular expressions and intervals I 
+need to look into that.
 - [ ] it is interesting to look at the graph where the x-axis is #cubes * #dimensions, might we get something that 
 looks linear? I think that this might be the case with z3 (this is the number of constraints).
 - [ ] I can actually write code that checks how much samples (under different usage profiles) are more efficient with 
 Z3ProductSet and how many with CanonicalHyperCubeSet. Can I do this more methodically? 
 (e.g., by fitting a curve and extrapolating).
+- [x] check the granularity of the timer that I use. This might explain the discrete values that I see.
+  (using time.perf_counter() instead of time.process_time())
+- [x] review the findings after the granularity problem was fixed 
+- [x] Create a csv format of the graphs, it might be more comfortable to use for different usages
+- [x] add in the comments an example that visualizes how the inputs look like.
