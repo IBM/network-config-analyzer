@@ -50,7 +50,7 @@ queries:
       - np-empty
       - np-within-default
     outputConfiguration:
-      FullExplanation: true
+      fullExplanation: true
     expectedOutput: ../../expected_output/forbids-empty-impl-default-spec-all-examples.txt
     expected: 1
 
@@ -97,7 +97,7 @@ queries:
       - np-partly-within-default
       - np-within-default
     outputConfiguration:
-      FullExplanation: true
+      fullExplanation: true
     expectedOutput: ../../expected_output/permits-partly-default-impl-default-spec-print-all-pairs.txt
     expected: 1
 

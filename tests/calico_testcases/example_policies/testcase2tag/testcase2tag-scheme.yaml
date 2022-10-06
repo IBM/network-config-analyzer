@@ -55,7 +55,7 @@ queries:
       - local_np
       - global_np
     outputConfiguration:
-      FullExplanation: true
+      fullExplanation: true
     expectedOutput: ../../expected_output/global-interferes-local-print-all-pairs.txt
     expected: 1
 

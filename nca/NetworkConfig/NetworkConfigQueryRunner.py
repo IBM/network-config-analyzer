@@ -102,7 +102,7 @@ class NetworkConfigQueryRunner:
         self.output_configuration.print_query_output(query_output, formats)
         if self.expected_output_file is not None:
             if self.query_name in {'ConnectivityMapQuery', 'SemanticDiffQuery'} or\
-                    self.output_configuration.FullExplanation:
+                    self.output_configuration.fullExplanation:
                 comparing_err = self._compare_actual_vs_expected_output(query_output)
             else:
                 print(f'Warning: expectedOutput is not relevant for {self.query_name}. '

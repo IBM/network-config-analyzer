@@ -54,7 +54,7 @@ queries:
       - np_SupsetAllowFirst
       - np_SubsetDenyFirst
     outputConfiguration:
-      FullExplanation: true
+      fullExplanation: true
     expectedOutput: ../../expected_output/sup-allow-and-sub-deny-not-equiv-all-peer-pairs.txt
     expected: 1
 

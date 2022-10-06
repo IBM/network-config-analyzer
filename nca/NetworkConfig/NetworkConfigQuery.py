@@ -777,7 +777,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 if conns1 != conns2:
                     different_conns_list.append(f'src: {peer1}, dst: {peer2}, description: '
                                                 f'{conns1.print_diff(conns2, self.name1, self.name2)}')
-                    if not self.output_config.FullExplanation:
+                    if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(different_conns_list)
 
         if different_conns_list:
@@ -1132,7 +1132,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if not conns1.contained_in(conns2):
                     not_contained_list.append(f'src: {peer1}, dst: {peer2}, conn: {str(conns1)}')
-                    if not self.output_config.FullExplanation:
+                    if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(not_contained_list)
 
         if not_contained_list:
@@ -1171,16 +1171,16 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
         contained_1_in_2 = ContainmentQuery(self.config1, self.config2, self.output_config).exec()
         contained_2_in_1 = ContainmentQuery(self.config2, self.config1, self.output_config).exec()
         explanation_not_contained_self_other = \
-            contained_1_in_2.output_result + ':\n' + contained_1_in_2.output_explanation
+            contained_1_in_2.output_result + ':' + contained_1_in_2.output_explanation
         explanation_not_contained_other_self = \
-            contained_2_in_1.output_result + ':\n' + contained_2_in_1.output_explanation
+            contained_2_in_1.output_result + ':' + contained_2_in_1.output_explanation
         if contained_1_in_2.bool_result and contained_2_in_1.bool_result:
             return QueryAnswer(bool_result=True,
                                output_result=f'The two network configurations {self.name1} and {self.name2} '
                                              'are semantically equivalent.',
                                numerical_result=3)
         if not contained_1_in_2.bool_result and not contained_2_in_1.bool_result:
-            output_explanation = explanation_not_contained_self_other + '\n' + explanation_not_contained_other_self
+            output_explanation = explanation_not_contained_self_other + '\n\n' + explanation_not_contained_other_self
             return QueryAnswer(bool_result=False,
                                output_result=f'Neither network configuration {self.name1} and {self.name2} '
                                              'are contained in the other.\n',
@@ -1264,7 +1264,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                     extended_conns_list.append(f' src: {peer1}, dst: {peer2}, '
                                                f'description: ' + conns2_captured.print_diff(conns1_captured,
                                                                                              self.name1, self.name2))
-                    if not self.output_config.FullExplanation:
+                    if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(extended_conns_list)
 
         if extended_conns_list:
@@ -1327,7 +1327,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
                     intersect_pairs_list.append(f'src: {peer1}, dst: {peer2}, conn: {str(conns_in_both)}')
-                    if not self.output_config.FullExplanation:
+                    if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(intersect_pairs_list)
 
         if intersect_pairs_list:

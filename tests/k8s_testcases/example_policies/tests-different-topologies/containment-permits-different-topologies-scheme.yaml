@@ -105,7 +105,7 @@ queries:
       - config_a_with_ipBlock
       - config_a_with_b_ipBlock
     outputConfiguration:
-      FullExplanation: true
+      fullExplanation: true
     expectedOutput: ../../expected_output/two-way-containment-a-with-different-ipblock-policies-all-pairs.txt
     expected: 0
 
