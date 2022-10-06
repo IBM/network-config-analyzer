@@ -14,11 +14,11 @@ class Timer:
         self.elapsed_time = 0.0
 
     def __enter__(self):
-        self.start = time.process_time()
+        self.start = time.perf_counter()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.end = time.process_time()
+        self.end = time.perf_counter()
         self.elapsed_time = self.end - self.start
 
 

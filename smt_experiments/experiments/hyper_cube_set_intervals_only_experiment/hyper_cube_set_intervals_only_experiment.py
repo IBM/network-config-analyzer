@@ -292,9 +292,9 @@ def plot_result_for_operation(results: list[dict], operation: str):
 
 
 def main():
-    results_file = Path(__file__).with_suffix('.json')
-    # results = run_experiment()  # TODO: uncomment to re-run the experiment
-    # save_dict(results, results_file)  # TODO: uncomment to re-run the experiment
+    results_file = Path(__file__).with_stem('results').with_suffix('.json')
+    results = run_experiment()  # TODO: uncomment to re-run the experiment
+    save_dict(results, results_file)  # TODO: uncomment to re-run the experiment
     results = load_dict(results_file)
     operations = get_unique_values_for_key(results, 'operation')
     for operation in operations:
