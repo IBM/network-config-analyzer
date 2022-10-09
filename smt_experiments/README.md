@@ -106,7 +106,7 @@ more efficient with CanonicalHyperCubeSet.
 - 
 
 
-## Ideas:
+# Ideas:
 - [ ] String experiment with simple constraints. 
   - [ ] Start with a single dimension, and try out sets with increasing complexity.
   - [ ] Continue with multiple only string dimensions, and overlaps.
@@ -150,16 +150,16 @@ and use that to determine under what circumstances it might be better to use one
 - [x] Create a csv format of the graphs, it might be more comfortable to use for different usages
 - [x] add in the comments an example that visualizes how the inputs look like.
 
-## Notes about the experiments:
+# Notes about the experiments:
 
-### Parameters to study:
+## Parameters to study:
 1. (engine) How is the set represented? could be one of CanonicalHyperCubeSet, Z3ProductSet, Z3ProductSetDNF.
 2. (#cubes) How many cubes do we have in the creation of the set?
 3. (operation) Which operations do we preform on the sets? membership, containment, equality, creation.
 4. (???) Relations between the cubes - are the cubes overlapping?
 5. (#dims) The number of dimensions.
 
-### Things to note when preparing an experiment:
+## Things to note when preparing an experiment:
 - Simple readable graph.
 - It should be clear what are the inputs and output of the experiment.
 - Describe the outcome / results.
