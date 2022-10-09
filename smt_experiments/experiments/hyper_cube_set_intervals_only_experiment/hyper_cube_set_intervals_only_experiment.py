@@ -345,10 +345,23 @@ def plot_result_for_operation(results: list[dict], operation: str, overlapping: 
 
 
 def save_results_to_csv(results: list[dict], result_csv_file: Path):
+    z3_results = filter_on_key_value(results, 'class', 'Z3ProductSet')
+    tree_results = filter_on_key_value(results, 'class', 'CanonicalHyperCubeSet')
+    assert len(z3_results) == len(tree_results)
+    table_rows = []
+
+    for r1, r2 in zip(z3_results, tree_results):
+        row = r1.copy()
+        row.pop('time')
+        row.pop('class')
+        row['CanonicalHyperCubeSet'] = r1['time']
+        row['Z3ProductSet'] = r2['time']
+        table_rows.append(row)
+
     with result_csv_file.open('w', newline='') as f:
-        writer = DictWriter(f, results[0].keys())
+        writer = DictWriter(f, table_rows[0].keys())
         writer.writeheader()
-        writer.writerows(results)
+        writer.writerows(table_rows)
 
 
 def plot_results(results: list[dict], overlapping: bool):
@@ -363,8 +376,8 @@ def run_experiment_and_plot(overlapping: bool):
     else:
         stem = 'results_non_overlapping'
     results_file = Path(__file__).with_stem(stem).with_suffix('.json')
-    results = run_experiment(overlapping)  # TODO: uncomment to re-run the experiment
-    save_results(results, results_file)  # TODO: uncomment to re-run the experiment
+    # results = run_experiment(overlapping)  # TODO: uncomment to re-run the experiment
+    # save_results(results, results_file)  # TODO: uncomment to re-run the experiment
     results = load_results(results_file)
     save_results_to_csv(results, results_file.with_suffix('.csv'))
     plot_results(results, overlapping)
@@ -376,7 +389,7 @@ def main():
 
 
 if __name__ == '__main__':
-    run_experiment_and_plot(overlapping=True)
-    # main()
+    # run_experiment_and_plot(overlapping=True)
+    main()
     # print(generate_overlapping_integer_cubes(3, 4))
     # print(generate_non_overlapping_integer_cubes(3, 4))

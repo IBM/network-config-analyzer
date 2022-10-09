@@ -142,6 +142,7 @@ Z3ProductSet and how many with CanonicalHyperCubeSet. Can I do this more methodi
 - [ ] look for projects using z3 and try to figure out how they use it, and if they do anything differently.
 - [ ] perform scalability analysis - how different parameters affect the running time (mathematical description)
 and use that to determine under what circumstances it might be better to use one implementation over the other.
+- [x] make the `.csv` table have two columns - one Z3ProductSet and one for CanonicalHyperCubeSet.
 - [x] Analyze results with overlapping cubes.
 - [x] repeat the first experiment with overlapping cubes. look at adi's code for inspiration.
 - [x] check the granularity of the timer that I use. This might explain the discrete values that I see.
