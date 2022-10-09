@@ -113,3 +113,5 @@ benchmarks/
 benchmark_results/
 !benchmark_results/README.md
 temp_scheme/
+*.xlsx
+

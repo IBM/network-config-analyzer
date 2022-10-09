@@ -135,8 +135,11 @@ def run_experiment(overlapping: bool):
     n_dims_options = [5, 10, 15]
     n_cubes_start = 3
     n_cubes_step = 3
-    # n_cubes_end = 150    # TODO: uncomment this
-    n_cubes_end = 30    # for running quickly TODO: comment this
+    if overlapping:
+        n_cubes_end = 24
+    else:
+        n_cubes_end = 150
+    # n_cubes_end = 15  # for running quickly TODO: comment this
 
     n_cubes_options = list(range(n_cubes_start, n_cubes_end + 1, n_cubes_step))
     # hyper_cube_set_classes = [CanonicalHyperCubeSet, Z3ProductSet, Z3ProductSetDNF]
@@ -354,7 +357,6 @@ def plot_results(results: list[dict], overlapping: bool):
         plot_result_for_operation(results, operation, overlapping)
 
 
-
 def run_experiment_and_plot(overlapping: bool):
     if overlapping:
         stem = 'results_overlapping'
@@ -368,8 +370,13 @@ def run_experiment_and_plot(overlapping: bool):
     plot_results(results, overlapping)
 
 
+def main():
+    for overlapping in [False, True]:
+        run_experiment_and_plot(overlapping)
+
+
 if __name__ == '__main__':
-    # run_experiment_and_plot(overlapping=False)
     run_experiment_and_plot(overlapping=True)
+    # main()
     # print(generate_overlapping_integer_cubes(3, 4))
     # print(generate_non_overlapping_integer_cubes(3, 4))
