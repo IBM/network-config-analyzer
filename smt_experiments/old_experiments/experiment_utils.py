@@ -1,25 +1,10 @@
 import json
-import time
 from dataclasses import dataclass
 from enum import Enum, auto
-from itertools import product, combinations
 from pathlib import Path
-from typing import Any, Iterable, Callable
+from typing import Callable, Any
 
-
-class Timer:
-    def __init__(self):
-        self.start = 0.0
-        self.end = 0.0
-        self.elapsed_time = 0.0
-
-    def __enter__(self):
-        self.start = time.perf_counter()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.end = time.perf_counter()
-        self.elapsed_time = self.end - self.start
+from smt_experiments.experiments.experiment_utils import to_json_recursive
 
 
 class EnumWithStr(Enum):
@@ -38,61 +23,6 @@ class CheckType(EnumWithStr):
 class EngineType(EnumWithStr):
     Z3 = auto()
     OUR = auto()
-
-
-def get_results_file(experiment_name: str):
-    experiment_results_dir = Path('../experiment_results')
-    results_file = experiment_results_dir / (experiment_name + '.json')
-    return results_file
-
-
-def get_plot_file(experiment_name: str):
-    experiment_results_dir = Path('../plots')
-    results_file = experiment_results_dir / (experiment_name + '.png')
-    return results_file
-
-
-def dict_product(options_dict: dict[str, Iterable]) -> Iterable[dict[str, Any]]:
-    values_for_each_option = list(options_dict.values())
-    for option_values_tuple in product(*values_for_each_option):
-        yield dict(zip(options_dict.keys(), option_values_tuple))
-
-
-def iter_subsets(items: set, min_size: int = 0, max_size: int = None) -> Iterable[tuple]:
-    if max_size is None:
-        max_size = len(items)
-    for subset_size in range(min_size, max_size + 1):
-        for combination in combinations(items, subset_size):
-            yield combination
-
-
-def save_results(experiment_result_list: list, experiment_name: str):
-    results_file = get_results_file(experiment_name)
-    experiment_result_list = to_json_recursive(experiment_result_list)
-    with results_file.open('w') as f:
-        json.dump(experiment_result_list, f, indent=4)
-
-
-def load_results(experiment_name: str):
-    results_file = get_results_file(experiment_name)
-    with results_file.open('r') as f:
-        return json.load(f)
-
-
-def to_json_recursive(data):
-    if isinstance(data, (int, float, str, bool)):
-        return data
-
-    if hasattr(data, 'to_json'):
-        return data.to_json()
-
-    if isinstance(data, dict):
-        return {k: to_json_recursive(v) for k, v in data.items()}
-
-    if isinstance(data, Iterable):
-        return [to_json_recursive(x) for x in data]
-
-    raise ValueError
 
 
 def get_y_var_list():
@@ -149,3 +79,28 @@ def get_negative_membership_operation(get_input_list: Callable) -> Operation:
         run_operation=lambda set_0, element: element in set_0,
         expected_result=False
     )
+
+
+def get_results_file(experiment_name: str):
+    experiment_results_dir = Path('../experiment_results')
+    results_file = experiment_results_dir / (experiment_name + '.json')
+    return results_file
+
+
+def get_plot_file(experiment_name: str):
+    experiment_results_dir = Path('../plots')
+    results_file = experiment_results_dir / (experiment_name + '.png')
+    return results_file
+
+
+def save_results(experiment_result_list: list, experiment_name: str):
+    results_file = get_results_file(experiment_name)
+    experiment_result_list = to_json_recursive(experiment_result_list)
+    with results_file.open('w') as f:
+        json.dump(experiment_result_list, f, indent=4)
+
+
+def load_results(experiment_name: str):
+    results_file = get_results_file(experiment_name)
+    with results_file.open('r') as f:
+        return json.load(f)

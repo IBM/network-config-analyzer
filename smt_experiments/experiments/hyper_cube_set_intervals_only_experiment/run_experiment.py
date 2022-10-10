@@ -25,7 +25,6 @@ Expectations:
 #   CanonicalHyperCubeSet, in terms of different combination of operations.
 #   For example, if we have 1 creation followed by 10 contained_in, which engine is more efficient?
 
-import json
 import logging
 from csv import DictWriter
 from pathlib import Path
@@ -36,11 +35,10 @@ from matplotlib.figure import Figure
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
-from smt_experiments.old_experiments.experiment_utils import Timer
+from smt_experiments.experiments.experiment_utils import Timer, get_dimension_names, load_results, \
+    get_unique_values_for_key, filter_on_key_value
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
 from smt_experiments.z3_sets.z3_product_set import Z3ProductSet
-from smt_experiments.z3_sets.z3_product_set_dnf import Z3ProductSetDNF
-
 
 logging.basicConfig(level=logging.INFO)
 MIN_VALUE = 0
@@ -98,10 +96,6 @@ def convert_cube(cube: list[tuple[int, int]], cls):
 
     converted_cube = [dim_cls.get_interval_set(start, end) for start, end in cube]
     return converted_cube
-
-
-def get_dimension_names(n_dims: int) -> list[str]:
-    return [str(i) for i in range(n_dims)]
 
 
 def init_dim_manager(dim_names: list[str]):
@@ -274,24 +268,6 @@ def run_experiment(overlapping: bool):
                 })
 
     return results
-
-
-def save_results(data: list[dict], file: Path):
-    with file.open('w') as f:
-        json.dump(data, f, indent=4)
-
-
-def load_results(file: Path) -> list[dict]:
-    with file.open('r') as f:
-        return json.load(f)
-
-
-def get_unique_values_for_key(data: list[dict], key: str) -> list:
-    return sorted(set(x[key] for x in data))
-
-
-def filter_on_key_value(data: list[dict], key: str, value) -> list[dict]:
-    return [x for x in data if x[key] == value]
 
 
 def plot_result_for_operation(results: list[dict], operation: str, overlapping: bool):

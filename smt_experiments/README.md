@@ -10,6 +10,34 @@ Even in this case, creating the CanonicalHyperCube takes most of the time, and m
 with CanonicalHyperCube than with Z3ProductSet.
 - Creation time seems to be linear with the number of cubes with Z3ProductSet.
 
+## n_union_string_experiment (old)
+- I think that there is some timer granularity problems as we had before.
+- In all cases, membership test time is around 0.016 with Z3SimpleStringSet, and close to 0 with MinDFA.
+- with only equality constraints ('constant'), the creation time seems to be lower with Z3SimpleStringSet than 
+with MinDFA, even in 10 cubes. with Z3SimpleStringSet it is close to 0 and Z3SimpleStringSet it gets to 0.045 with 
+25 strings.
+- membership test time is lower with MinDFA (close to 0) and is greater with Z3SimpleStringSet, where it gets to around
+0.015 seconds.
+- results for prefix only and suffix only constraints are very similar. already at around 6 constraints the creation 
+time for Z3SimpleStringSet is less than MinDFA, and with 25 constraints, it is around 0.2 seconds for MinDFA creation. 
+- mixing constant constraints with prefix / suffix constraints does not seem to make the problem harder
+- mixing prefix and suffix constraints does seem to make it harder for MinDFA. with 25 unions, the creation time is 
+around 2 seconds. There is some double line in the prefix / suffix mixed constrains that is not so clear to me.
+
+## multiple_string_dimensions_single_simple_cube (old)
+- results are not that interesting. times are almost constant for both types of sets, and nothing 
+interesting happens.
+
+## multiple_string_dimensions_linear_number_of_non_intersecting_cubes (old)
+- The results for constant, suffix and prefix constraints are similar.
+- as #dims increases also #cubes increases, and also the creation time for both types of sets. 
+- as with non-overlapping integer cubes, it seems to be increasing super-linearly with CanonicalHyperCubeSet, and 
+linearly with Z3ProductSet.
+- membership test time appears constant with CanonicalHyperCubeSet, and increasing linearly with Z3ProductSet.
+- At around #dims=#cubes=10 it appears that the creation time is better with Z3ProductSet, 
+- At around #dims=#cubes=16 it appears that the overall time (creation + 2 membership tests) appears to be better with 
+Z3ProductSet.
+
 ## hyper_cube_set_intervals_only_experiment - non-overlapping cubes
 
 ### creation
@@ -105,15 +133,65 @@ differently, but it is somewhere around
 more efficient with CanonicalHyperCubeSet.
 - 
 
+## string_single_dim_experiments
+### contained_in
+- Z3SimpleStringSet performs pretty consistently, and we can see a linear increase as the combined set size increases.
+- Sometimes MinDFA performs better than Z3SimpleStringSet, and sometimes worse. When it performs better it is slightly
+better, and when it performs worse, it is much worse.
+- Containment time reaches to ~0.3 seconds with around ~30 strings in the set with MinDFA.
+- The timing for MinDFA has a very large variation, depending on the input sets.
+- It appears that Z3SimpleStringSet has an advantage when #strings > 8.
+
+### creation
+- Z3SimpleStringSet time is pretty consistent and close to 0 seconds.
+- MinDFA time seems to be increasing pretty rapidly, at super-linear rate. 
+- Creation time for MinDFA has a large variation depending on the exact set.
+- The creation time with MinDFA is always worse than Z3SimpleStringSet, and gets to 2 seconds with #strings=20.
+- It appears that Z3SimpleStringSet has an advantage from the start.
+
+### intersection
+- As before, Z3SimpleStringSet time is almost constant and is close to 0, and MinDFA has a large variation in times.
+- The maximal value for MinDFA is 0.08 seconds, with #strings is ~32.
+- It appears that Z3SimpleStringSet has an advantage from the start.
+
+
+### membership
+- MinDFA has an almost constant time close to 0.
+- Z3SimpleStringSet has some variation, but not that big, and is around 0.008 at the maximal value.
+- MinDFA has an advantage here.
+
+### union
+- Z3SimpleStringSet has an almost constant time close to 0.
+- MinDFA time seems to be increasing linearly with #strings, the time has a large variation.
+- The maximal value for MinDFA is ~0.7 seconds, with #strings=37.
+- It appears that Z3SimpleStringSet has an advantage from the start.
+
+### overall
+- For all operation except for membership test, it appears that Z3SimpleStringSet performs better than MinDFA, 
+especially when the number of strings increases.
+- Z3SimpleStringSet seems to be pretty constant throughout.
+- MinDFA times have large variations, depending on the strings it is given.
 
 # Ideas:
 - [ ] String experiment with simple constraints. 
+  - [x] Analyze the results that we have from the previous experiments.
+  - [ ] Implement experiment1.
+  - [ ] Analyze results of experiment1.
+  - [ ] Refine the experiment:
+    - [ ] make code cleaner
+    - [ ] adjust parameters
+    - [ ] add description where necessary
+    - [ ] add csv table
   - [ ] Start with a single dimension, and try out sets with increasing complexity.
   - [ ] Continue with multiple only string dimensions, and overlaps.
   - [ ] Extend this to mixed dimensions.
+  - [ ] add experiment with full regex
+- [ ] Benchmark the z3 sets, so I can experiment with different options, for example using "simple_solver", or by 
+using the same solver per instance or global.
 - [ ] Usage profiles that we want to compare the implementation to.
   - [ ] Collect traces from benchmarks and the tests, so that I have a database of real usage profiles.
   - [ ] Analyze those, can I characterize them in some way?
+- [ ] order the experiments by how interesting they are.
 - [ ] Possible improvements:
   - [ ] implement a prototype of MBDDs 
   - [ ] experiment with different SMT optimizations:

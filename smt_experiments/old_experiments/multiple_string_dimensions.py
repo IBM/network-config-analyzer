@@ -16,7 +16,7 @@ from abc import abstractmethod
 from CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from DimensionsManager import DimensionsManager
 from MinDFA import MinDFA
-from smt_experiments.old_experiments.experiment_utils import EngineType, Variable, get_y_var_list, \
+from smt_experiments.old_experiments.experiment_utils import EngineType, get_y_var_list, Variable, \
     get_positive_membership_operation, get_negative_membership_operation
 from smt_experiments.old_experiments.n_unions_string_experiment import BasicSet, get_string_list
 from smt_experiments.old_experiments.plot_experiment_results import plot_results
