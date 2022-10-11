@@ -33,7 +33,7 @@ def _get_logger(experiment_name: str):
 
 def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, tests_only: bool = False,
                    real_benchmarks_only: bool = False, limit_num: int = None, skip_existing: bool = True,
-                   hide_output: bool = True):
+                   hide_output: bool = True, timing_only: bool = False):
     logger = _get_logger(experiment_name)
     logger.info('running benchmarks...')
 
@@ -47,14 +47,21 @@ def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, t
     if limit_num is not None:
         benchmark_list = benchmark_list[:limit_num]
 
-    benchmark_procedure_to_func = {
-        BenchmarkProcedure.TIME: time_benchmark,
-        BenchmarkProcedure.PROFILE: profile_benchmark,
-        BenchmarkProcedure.AUDIT: audit_benchmark
-    }
+    if timing_only:
+        benchmark_procedure_to_func = {
+            BenchmarkProcedure.TIME: time_benchmark,
+        }
+    else:
+        benchmark_procedure_to_func = {
+            BenchmarkProcedure.TIME: time_benchmark,
+            BenchmarkProcedure.PROFILE: profile_benchmark,
+            BenchmarkProcedure.AUDIT: audit_benchmark
+        }
     for i, benchmark in enumerate(benchmark_list, 1):
         # TODO: remove -- skipping sanity since it takes a long time
-        if benchmark.name == 'FromJakeKitchener-sanity':
+        # TODO: skip this benchmark
+        # if benchmark.name == 'FromJakeKitchener-sanity':
+        if 'FromJakeKitchener' in benchmark.name:
             continue
         for benchmark_procedure, func in benchmark_procedure_to_func.items():
             logger.info(f'{i} / {len(benchmark_list)} - running {benchmark_procedure.name} on {benchmark.name}')

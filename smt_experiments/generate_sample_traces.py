@@ -6,8 +6,8 @@ from unittest import skip
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MinDFA import MinDFA
-from smt_experiments.canonical_hyper_cube_set_tracker import CanonicalHyperCubeSetTracker as CanonicalHyperCubeSet
-import smt_experiments.canonical_hyper_cube_set_tracker as tracker
+from smt_experiments.canonical_hyper_cube_set_tracker.canonical_hyper_cube_set_tracker import CanonicalHyperCubeSetTracker as CanonicalHyperCubeSet
+import smt_experiments.canonical_hyper_cube_set_tracker.canonical_hyper_cube_set_tracker as tracker
 
 dimensions = ["src_ports", "ports", "methods_dfa", "paths"]
 dimensions2 = ["ports", "src_ports", "methods_dfa", "paths"]
