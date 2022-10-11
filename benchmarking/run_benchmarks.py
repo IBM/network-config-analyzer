@@ -33,7 +33,7 @@ def _get_logger(experiment_name: str):
 
 def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, tests_only: bool = False,
                    real_benchmarks_only: bool = False, limit_num: int = None, skip_existing: bool = True,
-                   hide_output: bool = True, timing_only: bool = False):
+                   hide_output: bool = True, tracking: bool = False):
     logger = _get_logger(experiment_name)
     logger.info('running benchmarks...')
 
@@ -47,7 +47,7 @@ def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, t
     if limit_num is not None:
         benchmark_list = benchmark_list[:limit_num]
 
-    if timing_only:
+    if tracking:
         benchmark_procedure_to_func = {
             BenchmarkProcedure.TIME: time_benchmark,
         }
@@ -75,13 +75,14 @@ def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, t
                         func(benchmark, result_file)
                 else:
                     func(benchmark, result_file)
+        if not tracking:
+            logger.info(f'creating report for benchmark {benchmark.name}')
+            create_report_per_benchmark(experiment_name, benchmark)
 
-        logger.info(f'creating report for benchmark {benchmark.name}')
-        create_report_per_benchmark(experiment_name, benchmark)
-
-    logger.info('finished running benchmarks. creating reports...')
-    create_report(experiment_name, benchmark_list)
-    logger.info('finished creating reports')
+    if not tracking:
+        logger.info('finished running benchmarks. creating reports...')
+        create_report(experiment_name, benchmark_list)
+        logger.info('finished creating reports')
 
 
 if __name__ == '__main__':

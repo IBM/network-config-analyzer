@@ -1,0 +1,277 @@
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219989824}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "set_all", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219989824}], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219989824}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220813696}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "set_all", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220813696}], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220813696}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847088}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847088}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220848096}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220848096}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220844304}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220844304}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847568}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847568}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220845072}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220845072}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220845072}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220845072}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220844400}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220844400}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220848000}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220848000}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847952}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847952}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847520}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847520}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220845072}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220845072}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847808}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847808}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847664}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847664}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847616}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220847616}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220848144}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220848144}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864720}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864720}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220860640}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220860640}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865008}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865008}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220860640}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220860640}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220860928}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220860928}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864432}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864432}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865056}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865056}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864672}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864672}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864864}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864864}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865008}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865008}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864768}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864768}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864816}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864816}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865056}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865056}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864576}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864576}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864672}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864672}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864144}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864144}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865248}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220865248}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864144}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864144}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220863280}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220863280}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864240}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220864240}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220860928}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220860928}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220739600}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "set_all", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220739600}], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220739600}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220876192}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "set_all", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220876192}], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220876192}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220976576}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220976576}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980032}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980032}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981232}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981232}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980176}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980176}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980272}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980272}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981520}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981520}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980992}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980992}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980032}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980032}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980464}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980464}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980176}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980176}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980992}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980992}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980752}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980752}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980608}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980608}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981424}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981424}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980272}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980272}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980080}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980080}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980608}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980608}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981664}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981664}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980176}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980176}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980464}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980464}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980464}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980464}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980224}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980224}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980416}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980416}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220977344}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220977344}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220979984}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220979984}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220976576}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220976576}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980320}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980320}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981664}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981664}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981328}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981328}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981424}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981424}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220978352}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220978352}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220976576}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220976576}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981616}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981616}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981664}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220981664}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220978352}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220978352}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980512}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220980512}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220871248}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "set_all", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220871248}], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220871248}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220868128}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "add_cube", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220868128}, [{"type": "CanonicalIntervalSet", "intervals": [[20, 21], [23, 23]]}], ["dst_ports"]], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220868128}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936160}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936160}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937120}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937120}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219442864}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937168}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936112}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937216}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937216}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934960}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934960}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219441616}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934720}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936016}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936928}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936928}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936112}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936112}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219436528}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934624}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937600}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935200}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935200}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935632}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935632}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219436432}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937360}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936208}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936784}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936784}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934960}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934960}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219436384}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937408}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936928}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934864}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934864}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937264}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937264}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219436720}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936016}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935200}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937168}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937168}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937360}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937360}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219441328}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220927760}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936784}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937312}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937312}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937408}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937408}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219442480}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935968}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934864}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935296}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935296}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936016}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936016}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219437776}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937216}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937168}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936640}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936640}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220927760}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220927760}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219436672}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936208}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937312}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936976}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936976}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935968}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935968}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219442912}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936928}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935296}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937648}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937648}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937216}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937216}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219442576}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935200}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936640}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936112}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936112}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936208}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936208}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219442672}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936784}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936976}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934624}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934624}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936928}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936928}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219436624}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934864}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937648}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937600}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937600}], "result": false}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935200}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935200}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219439552}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937168}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936112}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937600}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__bool__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937600}], "result": true}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219442720}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220936016}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220937264}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219442432}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219441520}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509219440800}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220934720}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}
+{"operation_name": "__init__", "args": [{"type": "CanonicalHyperCubeSet", "id": 1509220935200}, ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"], false], "result": null}

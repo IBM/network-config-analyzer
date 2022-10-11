@@ -39,7 +39,6 @@ class CanonicalHyperCubeSet:
 
     # TODO: should move dimensions order to DimensionsManager?
     def __init__(self, dimensions, allow_all=False):
-        print('HiHi')
         self.layers = dict()  # layers are w.r.t active dimensions
         self.dimensions_manager = DimensionsManager()
         self.all_dimensions_list = dimensions  # ordered list of all dimensions
