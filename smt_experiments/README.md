@@ -133,7 +133,7 @@ differently, but it is somewhere around
 more efficient with CanonicalHyperCubeSet.
 - 
 
-## string_single_dim_experiments
+## string_single_dim_experiments (constant)
 ### contained_in
 - Z3SimpleStringSet performs pretty consistently, and we can see a linear increase as the combined set size increases.
 - Sometimes MinDFA performs better than Z3SimpleStringSet, and sometimes worse. When it performs better it is slightly
@@ -172,28 +172,76 @@ especially when the number of strings increases.
 - Z3SimpleStringSet seems to be pretty constant throughout.
 - MinDFA times have large variations, depending on the strings it is given.
 
+## string_single_dim_experiments (prefix)
+- The results look very similar to the *constant* results, except for `contained_in`, and having a different scale.
+- If I omit some operation it means that the results are the same.
+
+### contained_in
+- It seems that Z3SimpleStringSet does no longer have a clear advantage. Some examples are faster with MinDFA, and some
+with Z3SimpleStringSet.
+- The maximal amount of time is ~45 seconds.
+
+### creation
+- similar results as before, with the maximal time of ~9 seconds for MinDFA with 20 constraints.
+
+### intersection
+- similar to previous experiment, maximal time for MinDFA ~0.6 seconds.
+
+### membership
+- similar to previous experiment.
+
+### union
+- similar to previous experiment, maximal time for MinDFA ~3 seconds.
+
+### overall
+- note that union takes more time than intersection.
+
+## string_single_dim_experiments (prefix + suffix)
+
+### contained_in
+- In most cases, Z3SimpleStringSet is better than MinDFA, but not for all. 
+- In a small number of cases, Z3SimpleStringSet performs worse than MinDFA.
+- In a medium number of cases, Z3SimpleStringSet performs similarly to MinDFA.
+- The maximum amount of time for MinDFA was around 160 seconds, with around 30 constraints.
+- The maximum amount of time for SimpleStringSet was around 80 seconds, with around 15 constraints.
+
+
+### creation
+- similar trend as in previous experiments, the maximal time being ~80 seconds with #constraints=18.
+
+
+### intersection
+- similar trend as before. The maximal time is ~45 seconds with #constraints ~32.
+
+### membership
+- similar trend, similar values.
+
+### union
+- similar trend, the maximal time is 140 seconds with #constraints ~40.
+
+
+### overall
+- with exact match constraints, it seems that Z3SimpleStringSet is a clear winner.
+- with only prefix constraints, in some cases Z3SimpleStringSet is better and in some MinDFA.
+- with a combination of prefix and suffix constraints, in most cases Z3SimpleStringSet is better, but in some cases
+
 # Ideas:
 - [ ] String experiment with simple constraints. 
   - [x] Analyze the results that we have from the previous experiments.
-  - [ ] Implement experiment1.
-  - [ ] Analyze results of experiment1.
-  - [ ] Refine the experiment:
-    - [ ] make code cleaner
-    - [ ] adjust parameters
-    - [ ] add description where necessary
-    - [ ] add csv table
-  - [ ] Start with a single dimension, and try out sets with increasing complexity.
+  - [x] Implement experiment.
+  - [x] Analyze results of experiment. (still need to analyze prefix + suffix)
+  - [ ] add csv tables?
+  - [ ] What are the cases where Z3SimpleStringSet performs worse than MinDFA?
   - [ ] Continue with multiple only string dimensions, and overlaps.
   - [ ] Extend this to mixed dimensions.
-  - [ ] add experiment with full regex
+  - [ ] Experiment with regex.
 - [ ] Benchmark the z3 sets, so I can experiment with different options, for example using "simple_solver", or by 
 using the same solver per instance or global.
 - [ ] Usage profiles that we want to compare the implementation to.
   - [ ] Collect traces from benchmarks and the tests, so that I have a database of real usage profiles.
   - [ ] Analyze those, can I characterize them in some way?
-- [ ] order the experiments by how interesting they are.
 - [ ] Possible improvements:
-  - [ ] implement a prototype of MBDDs 
+  - [ ] Implement a prototype of MBDDs 
   - [ ] experiment with different SMT optimizations:
     - [ ] trying out different solver (cvc5)
     - [ ] maybe use the simplify method that we saw in the Z3 programming? 

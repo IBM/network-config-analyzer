@@ -1,11 +1,13 @@
 """Comparing Z3SimpleStringSet and MinDFA for string sets with equality, prefix and suffix constraints.
+I only consider constant, prefix, and prefix + suffix, because we know from previous experiments that those are the
+interesting cases.
 
-Question1:
-- How does Z3SimpleStringSet compare to MinDFA when the string constraints are only exact string match?
-(the set is a finite set of strings).
-- How does the number of strings affects the performance?
+Question:
+- How does Z3SimpleStringSet compare to MinDFA when the string constraints are exact string match, prefix, or
+prefix + suffix?
+- How does the number of constraints affect the performance?
 
-Sketch1:
+Sketch:
 - The alpha-bet is going to be lower-case english letters.
 - fix the random seed.
 - Generate a set of strings of varying length.
@@ -15,48 +17,30 @@ Sketch1:
 - Measure creation time, membership test, containment, union, intersection, (negation is not yet tested).
 - Save the inputs for each operation for farther analysis.
 - Plot the time per-operation over the number of strings. [It is not clear how to plot this when we have two sets]
+- repeat for prefix and prefix + suffix constraints by adding '*' at the start and end of the strings.
 
-Expectations1:
+Expectations:
 - I expect that MinDFA will increase more rapidly with complexity, I think it is going to be linear increase.
 Especially creation time. Also, Z3SimpleStringSet will show a linear increase in time.
 - The content of the strings will affect MinDFA more than Z3SimpleStringSet,
 since it affects the underlying automata construction.
+- using prefix will increase the advantage that Z3 has on MinDFA.
+- using prefix + suffix will increase the advantage even more.
 
-
-Possible Questions:
-- For which instances the z3-based implementation more efficient than that tree-based implementation?
-- What are the different parameters that affect runtimes, and how?
-- How the length of the strings involved affects the performance?
-
-List of operations compared:
+List of operations to compare:
 - Construction
 - Membership test
 - Set containment test
 - Intersection
 - Union
-
-Parameters to consider:
-- number of constraints.
-- types of constraints - constant, prefix, suffix, prefix + suffix.
-- size of the alpha-bet
-
-IDEAS:
-- it is easier here to randomly generate input to the tests, is it useful here? maybe... I can generate and run until
-I get to some time-limit.
-- (idea) only use constant strings, and compare the two implementations.
-- (idea) start with constant strings, then pass through a sequence of operations :
-    - on strings - equal, prefix, suffix
-    - on sets - union, intersection, negation
-    - and build over this set of operations.
-
 """
-# TODO: increase the number of strings that we have in the set, to see a more clear trend in creation time.
-# TODO: figure out how to incorporate prefix, suffix into the mix. Maybe open a new experiment?
-
+# TODO: could it be that we give different inputs to MinDFA and to Z3SimpleStringSet in membership test?
 import itertools
 import logging
 import random
 import string
+from collections import defaultdict
+from csv import DictWriter
 from pathlib import Path
 
 from matplotlib import pyplot as plt
@@ -79,7 +63,8 @@ def generate_random_string(alphabet: list[str], stop_probability: float) -> str:
     return s
 
 
-def run_experiment():
+def run_experiment(mode: str):
+    assert mode in ['constant', 'prefix', 'prefix_and_suffix']
     alphabet = list(string.ascii_lowercase)
     n_strings = 100
     stop_prob = 0.1
@@ -96,6 +81,19 @@ def run_experiment():
         random_strings.add(generate_random_string(alphabet, stop_prob))
 
     random_strings = list(random_strings)
+    membership_sample = random.sample(random_strings, n_str_for_membership)
+
+    if mode == 'prefix':
+        random_strings = [s + '*' for s in random_strings]
+    if mode == 'prefix_and_suffix':
+        new_random_strings = []
+        for i, s in enumerate(random_strings):
+            if i % 2 == 0:
+                s = s + '*'
+            else:
+                s = '*' + s
+            new_random_strings.append(s)
+        random_strings = new_random_strings
 
     # generate subsets of changing lengths
     set_of_sets = set()
@@ -107,50 +105,63 @@ def run_experiment():
 
     results = []
     sets_of_all_types = []
+
     # compute the creation time
     for i, string_set in enumerate(set_of_sets, 1):
-        logging.info(f'{i} out of {len(set_of_sets)}')
+        logging.info(f'{i} out of {len(set_of_sets)} in mode={mode}')
         set_of_all_type = {'frozenset': string_set}
-        string_set = list(string_set)
+
+        results_check = {}
         for set_type in set_types:
             # creation time
             with Timer() as t:
-                s = set_type.from_wildcard(string_set[0])
-                for s0 in string_set[1:]:
-                    s = s | set_type.from_wildcard(s0)
+                s = None
+                for s0 in string_set:
+                    if s is None:
+                        s = set_type.from_wildcard(s0)
+                    else:
+                        s = s | set_type.from_wildcard(s0)
             set_of_all_type[set_type] = s
             results.append({
                 'class': set_type.__name__,
                 'time': t.elapsed_time,
-                'string_set': string_set,
+                'string_set': list(string_set),
                 'operation': 'creation',
             })
 
             # membership
-            membership_sample = random.sample(random_strings, n_str_for_membership)
             for s0 in membership_sample:
                 with Timer() as t:
                     out = s0 in s
-                assert (s0 in string_set) == out
+                if mode == 'constant':
+                    assert (s0 in string_set) == out
+                else:
+                    if set_type == set_types[0]:
+                        results_check[s0] = out
+                    else:
+                        assert results_check[s0] == out
+
                 results.append({
                     'class': set_type.__name__,
                     'time': t.elapsed_time,
-                    'string_set': string_set,
+                    'string_set': list(string_set),
                     'string': s0,
                     'operation': 'membership',
                 })
+
             sets_of_all_types.append(set_of_all_type)
 
     # select pairs of sets, and compute their intersection, union, and containment test
     pairs_of_sets = list(itertools.combinations(sets_of_all_types, 2))
     pairs_of_sets = random.sample(pairs_of_sets, n_pairs)
     for i, (all_types_of_set1, all_types_of_set2) in enumerate(pairs_of_sets, 1):
-        logging.info(f'pair {i} out of {len(pairs_of_sets)}')
+        logging.info(f'pair {i} out of {len(pairs_of_sets)} in mode={mode}')
         gt_set1 = all_types_of_set1['frozenset']
         gt_set2 = all_types_of_set2['frozenset']
         gt_intersection_set = gt_set1 & gt_set2
         gt_union_set = gt_set1 | gt_set2
 
+        results_check1, results_check2 = {}, {}
         for set_type in set_types:
             set1 = all_types_of_set1[set_type]
             set2 = all_types_of_set2[set_type]
@@ -180,7 +191,13 @@ def run_experiment():
             # containment
             with Timer() as t:
                 out = set1.contained_in(set2)
-            assert out == (gt_set1.issubset(gt_set2))
+            if mode == 'constant':
+                assert out == (gt_set1.issubset(gt_set2))
+            else:
+                if set_type == set_types[0]:
+                    results_check1[(gt_set1, gt_set2)] = out
+                else:
+                    assert results_check1[(gt_set1, gt_set2)] == out
             results.append({
                 'class': set_type.__name__,
                 'time': t.elapsed_time,
@@ -190,7 +207,13 @@ def run_experiment():
             })
             with Timer() as t:
                 out = set2.contained_in(set1)
-            assert out == (gt_set2.issubset(gt_set1))
+            if mode == 'constant':
+                assert out == (gt_set2.issubset(gt_set1))
+            else:
+                if set_type == set_types[0]:
+                    results_check2[(gt_set1, gt_set2)] = out
+                else:
+                    assert results_check2[(gt_set1, gt_set2)] == out
             results.append({
                 'class': set_type.__name__,
                 'time': t.elapsed_time,
@@ -222,12 +245,12 @@ def run_experiment():
     return results
 
 
-def plot_results_per_operation(results: list[dict], operation: str):
+def plot_results_per_operation(results: list[dict], operation: str, mode: str):
+    """
+    x variable is the number of elements in the set.
+    y variable is the time of the operation.
+    """
     results_filtered_on_operation = filter_on_key_value(results, 'operation', operation)
-    # single subplot for now (maybe later add suffix prefix),
-    # x variable is the number of elements in the set
-    # y variable is the time
-    # TODO: add support for operations that take two sets.
     scale = 1.5
     figsize = (6.4 * scale, 4.8 * scale)
     fig, ax = plt.subplots(1, 1, figsize=figsize)
@@ -258,17 +281,76 @@ def plot_results_per_operation(results: list[dict], operation: str):
     ax.legend()
 
     # plt.show()  # TODO: comment
-    fig_path = Path(__file__).with_stem(operation).with_suffix('.png')
+    fig_path = Path(__file__).with_stem(f'{mode}_{operation}').with_suffix('.png')
     fig.savefig(fig_path)
 
 
+def create_csv_table():
+    all_results = []
+    for mode in ['constant', 'prefix', 'prefix_and_suffix']:
+        result_file = get_results_file(mode)
+        results = load_results(result_file)
+        for result in results:
+            result['mode'] = mode
+        all_results += results
+
+    field_names = [
+        'mode',         # key
+        'operation',    # key
+        'string_set1',  # key
+        'string_set2',  # key - default value = ''
+        'string',       # key - default value = ''
+        'MinDFA',
+        'Z3SimpleStringSet'
+    ]
+    table = defaultdict(dict)
+    for result in all_results:
+        mode = result['mode']
+        operation = result['operation']
+        string_set1 = frozenset(result.get('string_set', result.get('string_set1')))
+        string_set2 = frozenset(result.get('string_set2', []))
+        string = result.get('string', '')
+
+        key = (mode, operation, string_set1, string_set2, string)
+        table[key][result['class']] = result['time']
+
+    rows = []   # TODO
+    for key, value in table.items():
+        mode, operation, string_set1, string_set2, string = key
+        row = {
+            'mode': mode,
+            'operation': operation,
+            'string_set1': list(string_set1),
+            'string_set2': list(string_set2),
+            'string': string,
+            'MinDFA': value['MinDFA'],
+            'Z3SimpleStringSet': value['Z3SimpleStringSet']
+        }
+        rows.append(row)
+
+    csv_file = Path(__file__).with_stem('table').with_suffix('.csv')
+    with csv_file.open('w', newline='') as f:
+        writer = DictWriter(f, field_names)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def main():
+    # for mode in ['constant']:
+    for mode in ['constant', 'prefix', 'prefix_and_suffix']:
+        results_file = get_results_file(mode)
+        results = run_experiment(mode)          # TODO: comment to avoid re-running the experiment
+        save_results(results, results_file)     # TODO: comment to avoid re-running the experiment
+        results = load_results(results_file)
+        for operation in ['creation', 'membership', 'intersection', 'union', 'contained_in']:
+            plot_results_per_operation(results, operation, mode)
+
+
+def get_results_file(mode: str):
+    return Path(__file__).with_stem(f'{mode}_results').with_suffix('.json')
+
+
 if __name__ == '__main__':
-    results_file = Path(__file__).with_stem('results').with_suffix('.json')
-    # res = run_experiment()            # TODO: comment to avoid re-running the experiment
-    # save_results(res, results_file)   # TODO: comment to avoid re-running the experiment
-    res = load_results(results_file)
-    plot_results_per_operation(res, 'creation')
-    plot_results_per_operation(res, 'membership')
-    plot_results_per_operation(res, 'intersection')
-    plot_results_per_operation(res, 'union')
-    plot_results_per_operation(res, 'contained_in')
+    # main()
+    create_csv_table()
+
