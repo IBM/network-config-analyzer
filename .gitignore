@@ -115,3 +115,8 @@ benchmark_results/
 temp_scheme/
 *.xlsx
 
+# Tracing
+smt_experiments/trace.txt
+smt_experiments/canonical_hyper_cube_set_tracker/backup
+
+

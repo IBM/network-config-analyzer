@@ -1,3 +1,4 @@
+import inspect
 import json
 
 from smt_experiments.canonical_hyper_cube_set_tracker.CanonicalHyperCubeSetOriginal import CanonicalHyperCubeSetOriginal
@@ -50,6 +51,7 @@ def process_args(args):
 
     raise TypeError(f'type {type(args)} is not supported.')
 
+
 # TODO: create a trace that I can run and show to Adi
 # TODO: I can augment the traces by permuting the order of operations, does it make sense? or by
 #   mutating them in some ways
@@ -72,11 +74,47 @@ def track(func_name: str, *args, result=None):
 class CanonicalHyperCubeSet:
     """Note: I have to manually copy the code since dynamically overriding magic functions (e.g. __eq__) does not
     work correctly."""
-    def __getattr__(self, attr):
-        return getattr(self.hyper_cube_set, attr)
+
+    # def __getattr__(self, attr):
+    #     # print(f'Hi, {attr}')
+    #     # curframe = inspect.currentframe()
+    #     # calframe = inspect.getouterframes(curframe, 2)
+    #     # caller_frame = calframe[1]
+    #     # print(f'file={caller_frame.filename}, function={caller_frame.function}')
+    #     return getattr(self.hyper_cube_set, attr)
+
+    @staticmethod
+    def _copy_layer_elem(elem):
+        return CanonicalHyperCubeSetOriginal._copy_layer_elem(elem)
+
+    @property
+    def layers(self):
+        return self.hyper_cube_set.layers
+
+    @layers.setter
+    def layers(self, value):
+        self.hyper_cube_set.layers = value
+
+    @property
+    def active_dimensions(self):
+        return self.hyper_cube_set.active_dimensions
+
+    @active_dimensions.setter
+    def active_dimensions(self, value):
+        self.hyper_cube_set.active_dimensions = value
+
+    def __len__(self):
+        return len(self.hyper_cube_set)
+
+    def __hash__(self):
+        return hash(self.hyper_cube_set)
+
+    def __iter__(self):
+        return iter(self.hyper_cube_set)
+
+    empty_interval = CanonicalIntervalSet()
 
     def __init__(self, dimensions=None, allow_all=False, hyper_cube_set: CanonicalHyperCubeSetOriginal = None):
-        print('Hi')
         if hyper_cube_set is None:
             self.hyper_cube_set = CanonicalHyperCubeSetOriginal(dimensions, allow_all)
             track('__init__', self, dimensions, allow_all)
@@ -89,8 +127,9 @@ class CanonicalHyperCubeSet:
     @staticmethod
     def create_from_cube(all_dims, cube, cube_dims):
         result = CanonicalHyperCubeSetOriginal.create_from_cube(all_dims, cube, cube_dims)
+        result = CanonicalHyperCubeSet(hyper_cube_set=result)
         track('create_from_cube', all_dims, cube, cube_dims, result=result)
-        return CanonicalHyperCubeSet(hyper_cube_set=result)
+        return result
 
     def __bool__(self):
         result = self.hyper_cube_set.__bool__()
