@@ -118,5 +118,5 @@ temp_scheme/
 # Tracing
 smt_experiments/trace.txt
 smt_experiments/canonical_hyper_cube_set_tracker/backup
-
+smt_experiments/canonical_hyper_cube_set_tracker/traces
 
