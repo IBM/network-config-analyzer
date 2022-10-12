@@ -3,15 +3,15 @@
 # TODO: NOTE that every answer that I try to get should be presented in a very clear way. Easy to convey and present.
 # TODO: think of the questions that I want to answer with the traces, how do I present that, and do I need to collect
 #   any data points that I do not currently have?
-# TODO: maybe separate between runs of different benchmarks, to make things a little more compact and
-#   readable.
-# TODO: for each object, collect the sequence (only the operation name) and count how many from each.
-# TODO: maybe create an histogram of how many active dimensions does a cube has, and of what types?
-# TODO: what type of string constraints do we get? (constant, prefix, suffix).
 # TODO: try to think a little about a plan on how to run the sequence of actions, and try to think about how much
 #   time it is going to take to implement.
-# TODO: try to figure out what are the typical usage profiles that we encounter?
-# TODO: collect traces from the real benchmarks
+# TODO: collect traces from the real benchmarks.
+"""
+Questions that we want to answer:
+1. What are the typical usage profiles that we encounter?
+2. What types of string constraints do we get? (constant, prefix, suffix).
+3. How many active dimensions does a hyper-cube-set have, and of what types?
+"""
 import json
 from collections import Counter
 from pprint import pprint, pformat
@@ -47,7 +47,6 @@ def get_trace_per_object(trace_data: list[dict]) -> list[tuple[int, list[dict]]]
         tracking_dict[object_id].append(operation_data)
 
     for operation_data in trace_data:
-        # This is the case of a creation of a new object with __init__.
         # TODO: I noticed that `create_from_cube` is never called. so we don't need to account for that.
         operation_name = operation_data['operation_name']
         if operation_name == '__init__':
@@ -60,7 +59,6 @@ def get_trace_per_object(trace_data: list[dict]) -> list[tuple[int, list[dict]]]
             track_new_object(new_object_id, operation_data)
             track_existing_object(old_object_id, operation_data)
 
-        # binary operations that create new objects
         elif operation_data['operation_name'] in ['__and__', '__or__', '__sub__']:
             new_object_id = operation_data['result']['id']
             object1_id = operation_data['args'][0]['id']
@@ -69,14 +67,12 @@ def get_trace_per_object(trace_data: list[dict]) -> list[tuple[int, list[dict]]]
             track_existing_object(object1_id, operation_data)
             track_existing_object(object2_id, operation_data)
 
-        # all other operations
         else:
             for arg in operation_data['args']:
                 if isinstance(arg, dict) and arg['type'] == 'CanonicalHyperCubeSet':
                     object_id = arg['id']
                     track_existing_object(object_id, operation_data)
 
-    # save the records that are currently being tracked.
     for object_id, operations in tracking_dict.items():
         trace_per_object.append((object_id, operations))
 

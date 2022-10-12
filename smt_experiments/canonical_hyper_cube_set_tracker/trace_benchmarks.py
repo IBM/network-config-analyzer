@@ -5,15 +5,14 @@ import traceback
 from contextlib import redirect_stdout, redirect_stderr
 from pprint import pformat
 
-from smt_experiments.canonical_hyper_cube_set_tracker.trace_logger import init_benchmark_tracing
 from smt_experiments.canonical_hyper_cube_set_tracker.utils import get_repo_root_dir, replace_files, \
-    revert_replace_files, get_traces_dir
+    revert_replace_files, get_traces_dir, init_benchmark_tracing
 
 
 def get_logger():
     logger = logging.getLogger('tracing')
     logger.setLevel(logging.INFO)
-    log_file = get_traces_dir() / 'progress.log'
+    log_file = get_repo_root_dir() / 'smt_experiments' / 'canonical_hyper_cube_set_tracker' / 'progress.log'
     handler = logging.FileHandler(log_file, 'w')
     handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -24,6 +23,8 @@ def get_logger():
 
 def benchmark_filter(benchmark) -> bool:
     if 'FromJakeKitchener' in benchmark.name:
+        return False
+    if benchmark.name == 'SCC_test_calico_resources-sanity':
         return False
     return True
 
@@ -79,4 +80,5 @@ def trace_benchmarks(example_benchmark_only: bool = False, tests_only: bool = Fa
 
 
 if __name__ == '__main__':
-    trace_benchmarks(tests_only=True, limit_num=20)
+    trace_benchmarks()
+    # trace_benchmarks(tests_only=True, limit_num=20)
