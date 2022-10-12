@@ -1,10 +1,9 @@
-import inspect
 import json
 
 from smt_experiments.canonical_hyper_cube_set_tracker.CanonicalHyperCubeSetOriginal import CanonicalHyperCubeSetOriginal
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.MinDFA import MinDFA
-from smt_experiments.canonical_hyper_cube_set_tracker.utils import GLOBAL_LOGFILE
+from smt_experiments.canonical_hyper_cube_set_tracker.trace_logger import get_trace_logger
 
 
 def process_interval_set(interval_set: CanonicalIntervalSet) -> list[list[int]]:
@@ -13,6 +12,9 @@ def process_interval_set(interval_set: CanonicalIntervalSet) -> list[list[int]]:
 
 def process_min_dfa(min_dfa: MinDFA):
     return min_dfa.creation_tree.serialize()
+
+
+TRACE_LOGGER = get_trace_logger()
 
 
 def process_args(args):
@@ -58,17 +60,13 @@ def process_args(args):
 
 
 def track(func_name: str, *args, result=None):
-    # TODO: add timing records
-
     record = {
         'operation_name': func_name,
         'args': process_args(args),
         'result': process_args(result)
     }
-    with GLOBAL_LOGFILE.open('a') as f:
-        record_str = json.dumps(record)
-        f.write(record_str)
-        f.write('\n')
+    record_str = json.dumps(record)
+    TRACE_LOGGER.info(record_str)
 
 
 class CanonicalHyperCubeSet:

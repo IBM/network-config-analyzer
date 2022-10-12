@@ -1,22 +1,13 @@
+# TODO: after testing, run with all of the benchmarks
 import logging
 import os
 import traceback
 from contextlib import redirect_stdout, redirect_stderr
-from pathlib import Path
 from pprint import pformat
 
+from smt_experiments.canonical_hyper_cube_set_tracker.trace_logger import init_benchmark_tracing
 from smt_experiments.canonical_hyper_cube_set_tracker.utils import get_repo_root_dir, replace_files, \
-    revert_replace_files, GLOBAL_LOGFILE
-
-
-# TODO: after testing, run with all of the benchmarks
-# TODO: figure out how to place breaks between benchmarks. (if we even want this)
-# TODO: fix run_benchmarking...
-# TODO: keep a different file for each benchmark?
-
-
-def get_traces_dir() -> Path:
-    return get_repo_root_dir() / 'smt_experiments' / 'canonical_hyper_cube_set_tracker' / 'traces'
+    revert_replace_files, get_traces_dir
 
 
 def get_logger():
@@ -37,13 +28,9 @@ def benchmark_filter(benchmark) -> bool:
     return True
 
 
-def clear_records():
-    GLOBAL_LOGFILE.unlink(missing_ok=True)
-
-
 def trace_benchmarks(example_benchmark_only: bool = False, tests_only: bool = False,
                      real_benchmarks_only: bool = False, limit_num: int = None, hide_output: bool = True):
-    logger = get_logger(to_file=True)
+    logger = get_logger()
     logger.info('tracing benchmarks...')
 
     file_to_replace = 'CanonicalHyperCubeSet.py'
@@ -51,8 +38,6 @@ def trace_benchmarks(example_benchmark_only: bool = False, tests_only: bool = Fa
     replacement_dir = get_repo_root_dir() / 'smt_experiments' / 'canonical_hyper_cube_set_tracker'
     logger.info(f'replacing file {file_to_replace} in {original_dir} and {replacement_dir}.')
     replace_files(file_to_replace, original_dir, replacement_dir)
-
-    clear_records()
 
     from benchmarking.create_yaml_files import create_scheme_file_for_benchmarks
     from benchmarking.create_yaml_files import create_allow_all_default_policy_file
@@ -71,6 +56,8 @@ def trace_benchmarks(example_benchmark_only: bool = False, tests_only: bool = Fa
     benchmarks_with_exception = []
     for i, benchmark in enumerate(benchmarks, 1):
         logger.info(f'{i} / {len(benchmarks)} - tracing benchmark {benchmark.name}.')
+        # TODO: make sure that we do not have benchmarks with duplicate names.
+        init_benchmark_tracing(benchmark.name)
         try:
             if hide_output:
                 with open(os.devnull, 'w') as f, redirect_stdout(f), redirect_stderr(f):
@@ -92,4 +79,4 @@ def trace_benchmarks(example_benchmark_only: bool = False, tests_only: bool = Fa
 
 
 if __name__ == '__main__':
-    trace_benchmarks(example_benchmark_only=True)
+    trace_benchmarks(tests_only=True, limit_num=20)

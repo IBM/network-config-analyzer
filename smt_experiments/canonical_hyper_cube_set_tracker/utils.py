@@ -40,8 +40,5 @@ def revert_replace_files(file_to_replace: str, original_dir: Path, replacement_d
     replace_files(file_to_replace, original_dir, replacement_dir, backup=False)
 
 
-def get_global_logfile():
-    return get_repo_root_dir() / 'smt_experiments' / 'trace.txt'
-
-
-GLOBAL_LOGFILE = get_global_logfile()
+def get_traces_dir() -> Path:
+    return get_repo_root_dir() / 'smt_experiments' / 'canonical_hyper_cube_set_tracker' / 'traces'
