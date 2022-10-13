@@ -3,7 +3,7 @@ import json
 from smt_experiments.canonical_hyper_cube_set_tracker.CanonicalHyperCubeSetOriginal import CanonicalHyperCubeSetOriginal
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.MinDFA import MinDFA
-from smt_experiments.canonical_hyper_cube_set_tracker.trace_logger import get_trace_logger
+from smt_experiments.canonical_hyper_cube_set_tracker.utils import get_trace_logger
 
 
 def process_interval_set(interval_set: CanonicalIntervalSet) -> list[list[int]]:

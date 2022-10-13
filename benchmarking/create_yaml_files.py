@@ -109,10 +109,3 @@ def create_allow_all_default_policy_file():
     yaml_data = _get_allow_all_default_policy_dict()
     with _get_allow_all_default_policy_file().open('w') as f:
         yaml.dump(yaml_data, f)
-
-
-if __name__ == "__main__":
-    create_scheme_file_for_benchmarks()
-    # create_allow_all_default_policy_file()
-
-

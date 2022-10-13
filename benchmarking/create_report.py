@@ -3,8 +3,8 @@ from csv import DictWriter, DictReader
 from pathlib import Path
 
 from benchmarking.analyze_profile_results import get_function_profiles
-from benchmarking.utils import get_experiment_results_dir, Benchmark, get_benchmark_result_file, BenchmarkProcedure, \
-    iter_benchmarks
+from benchmarking.utils import get_experiment_results_dir, Benchmark, get_benchmark_result_file, BenchmarkProcedure
+from benchmarking.iter_benchmarks import iter_benchmarks
 
 TOP_N = 40
 # TODO: some benchmarks appear more then once... This is problematic, think about how to give them unique names
@@ -66,7 +66,7 @@ def create_report(experiment_name: str, benchmark_list: list[Benchmark]):
         line = {
             'name': benchmark.name,
             'query_type': benchmark.query_type,
-            'original_scheme_file': str(benchmark.original_scheme_file),
+            'original_scheme_file': str(benchmark.original_scheme_file_relative_to_repo),
             'query_name': benchmark.query_name
         }
 
@@ -123,7 +123,7 @@ def add_original_scheme_file_and_query_name_to_report():
     not_aligned_count = 0
     for i, (benchmark, line) in enumerate(zip(benchmark_list, lines)):
         if line['name'] == benchmark.name:
-            line['original_scheme_file'] = str(benchmark.original_scheme_file)
+            line['original_scheme_file'] = str(benchmark.original_scheme_file_relative_to_repo)
             line['query_name'] = benchmark.query_name
         else:
             print(f'{i} NOT ALIGNED')

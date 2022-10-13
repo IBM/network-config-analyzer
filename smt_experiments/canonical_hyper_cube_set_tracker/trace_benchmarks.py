@@ -1,12 +1,11 @@
-# TODO: after testing, run with all of the benchmarks
 import logging
 import os
 import traceback
 from contextlib import redirect_stdout, redirect_stderr
-from pprint import pformat
+from pprint import pformat, pprint
 
 from smt_experiments.canonical_hyper_cube_set_tracker.utils import get_repo_root_dir, replace_files, \
-    revert_replace_files, get_traces_dir, init_benchmark_tracing
+    revert_replace_files, init_benchmark_tracing
 
 
 def get_logger():
@@ -40,14 +39,7 @@ def trace_benchmarks(example_benchmark_only: bool = False, tests_only: bool = Fa
     logger.info(f'replacing file {file_to_replace} in {original_dir} and {replacement_dir}.')
     replace_files(file_to_replace, original_dir, replacement_dir)
 
-    from benchmarking.create_yaml_files import create_scheme_file_for_benchmarks
-    from benchmarking.create_yaml_files import create_allow_all_default_policy_file
-    from benchmarking.utils import iter_benchmarks
-
-    logger.info('creating scheme files for real benchmarks.')
-    create_scheme_file_for_benchmarks()
-    logger.info('creating policy for permits.')
-    create_allow_all_default_policy_file()
+    from benchmarking.iter_benchmarks import iter_benchmarks
 
     benchmarks = iter_benchmarks(tests_only, real_benchmarks_only, example_benchmark_only)
     benchmarks = list(filter(benchmark_filter, benchmarks))
@@ -57,8 +49,7 @@ def trace_benchmarks(example_benchmark_only: bool = False, tests_only: bool = Fa
     benchmarks_with_exception = []
     for i, benchmark in enumerate(benchmarks, 1):
         logger.info(f'{i} / {len(benchmarks)} - tracing benchmark {benchmark.name}.')
-        # TODO: make sure that we do not have benchmarks with duplicate names.
-        init_benchmark_tracing(benchmark.name)
+        init_benchmark_tracing(benchmark)
         try:
             if hide_output:
                 with open(os.devnull, 'w') as f, redirect_stdout(f), redirect_stderr(f):
@@ -67,7 +58,7 @@ def trace_benchmarks(example_benchmark_only: bool = False, tests_only: bool = Fa
                 benchmark.run()
         except:
             tb = traceback.format_exc()
-            benchmarks_with_exception.append(benchmark)
+            benchmarks_with_exception.append(benchmark.name)
             logger.info(f'got exception in {benchmark.name}.')
             logger.info(tb)
 

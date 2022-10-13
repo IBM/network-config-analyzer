@@ -1,20 +1,19 @@
+# TODO: important -- it appears that Windows does not support by default path names that
+#   are longer than 260 characters. to solve this, do as described in
+#   https://learn.microsoft.com/en-us/answers/questions/730467/long-paths-not-working-in-windows-2019.html
+
 import logging
 from pathlib import Path
 
 
 def get_repo_root_dir() -> Path:
     project_name = 'network-config-analyzer'
-    cwd = Path.cwd()
-    last_matching_parent = cwd if cwd.name == project_name else None
 
-    for parent in cwd.parents:
+    for parent in Path(__file__).parents:
         if parent.name == project_name:
-            last_matching_parent = parent
+            return parent
 
-    if last_matching_parent is None:
-        raise RuntimeError(f'could not find project root directory {project_name}')
-
-    return last_matching_parent
+    raise RuntimeError(f'could not find a parent directory with the name "{project_name}"')
 
 
 def replace_files(file_to_replace: str, original_dir: Path, replacement_dir: Path, backup: bool = True):
@@ -51,9 +50,8 @@ def get_trace_logger():
     return logging.getLogger('trace_logger')
 
 
-def init_benchmark_tracing(benchmark_name: str):
+def init_benchmark_tracing(benchmark):
     # TODO: if I want to add timing I can do that in here. by adding a formatter.
-
     logger = get_trace_logger()
     logger.setLevel(logging.INFO)
 
@@ -62,7 +60,15 @@ def init_benchmark_tracing(benchmark_name: str):
         handler = logger.handlers[0]
         logger.removeHandler(handler)
 
-    file = get_traces_dir() / (benchmark_name + '.txt')
-    handler = logging.FileHandler(file, 'w')
+    trace_dir = get_traces_dir() / benchmark.get_original_dir_relative_to_repo()
+    trace_dir.mkdir(parents=True, exist_ok=True)
+    trace_file = trace_dir / (benchmark.name + '.trace')
+    handler = logging.FileHandler(trace_file, 'w')
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
+
+
+def _long_path_error_example():
+    file = 'C:\\Users\\018130756\\repos\\network-config-analyzer\\smt_experiments\\canonical_hyper_cube_set_tracker\\traces\\tests\\calico_testcases\\example_policies\\testcase19-profiles\\testcase19-sanity_np8-0-cnc-fe-bewteen-namespaces-namespaceSelector-without-opening-egress.trace'
+    file = Path(file)
+    file.write_text('blabla')

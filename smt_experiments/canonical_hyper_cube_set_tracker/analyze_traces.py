@@ -6,6 +6,7 @@
 # TODO: try to think a little about a plan on how to run the sequence of actions, and try to think about how much
 #   time it is going to take to implement.
 # TODO: collect traces from the real benchmarks.
+# TODO: NOTE that the trace files are quite large ~2.5GB. I might want to be careful on how I handle them.
 """
 Questions that we want to answer:
 1. What are the typical usage profiles that we encounter?
@@ -14,9 +15,11 @@ Questions that we want to answer:
 """
 import json
 from collections import Counter
+from collections.abc import Iterable
+from pathlib import Path
 from pprint import pprint, pformat
 
-from smt_experiments.canonical_hyper_cube_set_tracker.utils import get_repo_root_dir
+from smt_experiments.canonical_hyper_cube_set_tracker.utils import get_repo_root_dir, get_traces_dir
 
 
 def read_trace_data():
@@ -87,16 +90,20 @@ def count_operation_sequences(trace_per_object: list[tuple[int, list[dict]]]) ->
     return operation_sequence_counter
 
 
+def iter_benchmark_trace_files() -> Iterable[Path]:
+    trace_dir = get_traces_dir()
+    yield from trace_dir.rglob('*.trace')
+
+
+def collect_all_initial_string_constraints():
+
+
 def main():
-    trace_data = read_trace_data()
-    trace_per_object = get_trace_per_object(trace_data)
-    # file = r'C:\Users\018130756\repos\network-config-analyzer\smt_experiments\canonical_hyper_cube_set_tracker\tracking_log.log'
-    # with open(file, 'w') as f:
-    #     s = pformat(trace_per_object)
-    #     f.write(s)
-        # json.dump(trace_per_object, f, indent=4)
-    operation_sequence_counter = count_operation_sequences(trace_per_object)
-    pprint(operation_sequence_counter)
+    collect_all_initial_string_constraints()
+    # trace_data = read_trace_data()
+    # trace_per_object = get_trace_per_object(trace_data)
+    # operation_sequence_counter = count_operation_sequences(trace_per_object)
+    # pprint(operation_sequence_counter)
 
 
 if __name__ == '__main__':

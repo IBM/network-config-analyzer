@@ -5,16 +5,17 @@ from contextlib import redirect_stdout, redirect_stderr
 
 from benchmarking.auditing import audit_benchmark
 from benchmarking.create_report import create_report, create_report_per_benchmark
-from benchmarking.create_yaml_files import create_scheme_file_for_benchmarks, create_allow_all_default_policy_file
+from benchmarking.iter_benchmarks import iter_benchmarks
 from benchmarking.profiling import profile_benchmark
 from benchmarking.timing import time_benchmark
-from benchmarking.utils import iter_benchmarks, get_benchmark_result_file, BenchmarkProcedure, \
+from benchmarking.utils import get_benchmark_result_file, BenchmarkProcedure, \
     get_experiment_results_dir
 
 
 # TODO: maybe add an histogram of the number of intervals
 # TODO: how do we collect data about the configurations from a benchmark that has more then one policy?
-
+# TODO: refactor the code so the results will be saved with the same file structure as they appear in the repo? as we
+#   do in `trace_benchmarks.py`?
 
 def _get_logger(experiment_name: str):
     logger = logging.getLogger(experiment_name)
@@ -35,12 +36,6 @@ def run_benchmarks(experiment_name: str, example_benchmark_only: bool = False, t
                    hide_output: bool = True):
     logger = _get_logger(experiment_name)
     logger.info('running benchmarks...')
-
-    logger.info('creating scheme files for real benchmarks.')
-    create_scheme_file_for_benchmarks()
-
-    logger.info('creating policy for permits.')
-    create_allow_all_default_policy_file()
 
     benchmark_list = list(iter_benchmarks(tests_only, real_benchmarks_only, example_benchmark_only))
     if limit_num is not None:
