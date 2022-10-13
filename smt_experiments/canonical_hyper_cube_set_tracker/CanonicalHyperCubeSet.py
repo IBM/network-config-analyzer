@@ -101,6 +101,12 @@ class CanonicalHyperCubeSet:
     def active_dimensions(self, value):
         self.hyper_cube_set.active_dimensions = value
 
+    def get_first_item(self, relevant_dimensions=None):
+        return self.hyper_cube_set.get_first_item(relevant_dimensions)
+
+    def _get_cubes_list_from_layers(self):
+        return self.hyper_cube_set._get_cubes_list_from_layers()
+
     def __len__(self):
         return len(self.hyper_cube_set)
 

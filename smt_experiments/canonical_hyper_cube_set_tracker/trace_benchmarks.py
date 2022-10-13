@@ -7,6 +7,11 @@ from pprint import pformat, pprint
 from smt_experiments.canonical_hyper_cube_set_tracker.utils import get_repo_root_dir, replace_files, \
     revert_replace_files, init_benchmark_tracing
 
+# TODO: discuss with Adi of the different types of exceptions that we get (currently, got exception in 13 out of 938)
+#   - SyntaxError: type of outboundTrafficPolicy is not <class 'str'> in Sidecar spec
+#   - AttributeError: 'CanonicalHyperCubeSet' object has no attribute 'get_properties_obj'
+#   - AttributeError: 'CanonicalHyperCubeSet' object has no attribute 'print_diff'
+
 
 def get_logger():
     logger = logging.getLogger('tracing')
