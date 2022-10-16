@@ -1,4 +1,4 @@
-# TODO: important -- it appears that Windows does not support by default path names that
+# Note: important -- it appears that Windows does not support by default path names that
 #   are longer than 260 characters. to solve this, do as described in
 #   https://learn.microsoft.com/en-us/answers/questions/730467/long-paths-not-working-in-windows-2019.html
 
@@ -51,7 +51,6 @@ def get_trace_logger():
 
 
 def init_benchmark_tracing(benchmark):
-    # TODO: if I want to add timing I can do that in here. by adding a formatter.
     logger = get_trace_logger()
     logger.setLevel(logging.INFO)
 

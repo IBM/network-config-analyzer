@@ -1,0 +1,4278 @@
+[
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/abc|/abc/[.\\w/\\-]*",
+                "/abc/def|/abc/def/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/xyz|/xyz/[.\\w/\\-]*",
+                "/xyz"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/abc|/abc/[.\\w/\\-]*",
+                        "/abc/def|/abc/def/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "first[.]bar[.]com",
+                "first[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/abc/def|/abc/def/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "first[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                },
+                {
+                    "operation": "-",
+                    "children": [
+                        "/xyz|/xyz/[.\\w/\\-]*",
+                        "/xyz"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "second[.]bar[.]com",
+                "second[.]bar[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/xyz"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "second[.]bar[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "([.\\w/\\-]*)*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/good_path1|/good_path2|/some/path1|/some/path2",
+                "/bad/path1|/some/path1"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "([.\\w/\\-]*)*",
+                "disallowed-host[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "([.\\w/\\-]*)*",
+                "/bad/path1|/bad/path3|/some/path2"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "allowed-host[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/some/path3"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/info[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/data"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[.\\w/\\-]+"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[.\\w/\\-]+"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/foo[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/foo/bar[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/foo[.\\w/\\-]*",
+                "/foo/bar[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/foo/bar[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[.\\w/\\-]+"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[.\\w/\\-]+"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[.\\w/\\-]+"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[.\\w/\\-]+"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "/good_path1|/good_path2|/some/path1|/some/path2",
+                "/bad/path1|/some/path1"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "([.\\w/\\-]*)*",
+                "disallowed-host[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "-",
+            "children": [
+                "([.\\w/\\-]*)*",
+                "/bad/path1|/bad/path3|/some/path2"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "allowed-host[.]com"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/some/path3"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/info[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/data"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "iiii[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "iiii[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "bbbb[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "bbbb[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "aaaa[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "aaaa[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "gggg[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "gggg[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "gggg[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "gggg[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "dddd[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "dddd[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "dddd[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "dddd[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ffff[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ffff[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "cccc[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "cccc[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "jjjj[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "jjjj[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "hhhh[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "hhhh[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/gggg/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/dddd/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/bbbb/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/aaaa/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/ffff/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/iiii/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/cccc/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/jjjj/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hhhh/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/gggg/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/dddd/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/bbbb/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/aaaa/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/iiii/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/ffff/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/cccc/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/jjjj/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hhhh/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "bbbb[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "cccc[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "jjjj[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "aaaa[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "gggg[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "dddd[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ffff[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "iiii[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "dddd[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "gggg[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "bbbb[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "cccc[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "jjjj[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "aaaa[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "iiii[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "gggg[.]y[.]z",
+                "gggg[.]y[.]z"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "dddd[.]y[.]z",
+                "dddd[.]y[.]z"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ffff[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/gggg|/gggg/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/dddd|/dddd/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/bbbb|/bbbb/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/aaaa|/aaaa/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/ffff|/ffff/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/iiii|/iiii/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/cccc|/cccc/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/jjjj|/jjjj/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/gggg|/gggg/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/dddd|/dddd/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/bbbb|/bbbb/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/aaaa|/aaaa/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/iiii|/iiii/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/ffff|/ffff/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/cccc|/cccc/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/jjjj|/jjjj/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/gggg|/gggg/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/dddd|/dddd/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/bbbb|/bbbb/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/aaaa|/aaaa/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/ffff|/ffff/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/iiii|/iiii/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/cccc|/cccc/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/jjjj|/jjjj/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/gggg|/gggg/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/dddd|/dddd/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/bbbb|/bbbb/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/aaaa|/aaaa/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/iiii|/iiii/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/ffff|/ffff/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/cccc|/cccc/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/jjjj|/jjjj/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ooo[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "bbbb[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "cccc[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "jjjj[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "aaaa[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "gggg[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "dddd[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ffff[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "iiii[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "dddd[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "gggg[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "bbbb[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "cccc[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "jjjj[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "aaaa[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "iiii[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "gggg[.]y[.]z",
+                "gggg[.]y[.]z"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "/[.\\w/\\-]*",
+                "/[.\\w/\\-]*"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                "dddd[.]y[.]z",
+                "dddd[.]y[.]z"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "ffff[.]y[.]z"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/flights[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[\\w]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/flights[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[\\w]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/horas[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[\\w]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/horas[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "[\\w]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "|",
+            "children": [
+                "uk[.]bookinfo[.]com",
+                "eu[.]bookinfo[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/reviews/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "|",
+            "children": [
+                "uk[.]bookinfo[.]com",
+                "eu[.]bookinfo[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/reviews/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "|",
+            "children": [
+                "uk[.]bookinfo[.]com",
+                "eu[.]bookinfo[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "|",
+            "children": [
+                "/reviews/[.\\w/\\-]*",
+                {
+                    "operation": "-",
+                    "children": [
+                        "([.\\w/\\-]*)*",
+                        "/reviews/[.\\w/\\-]*"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "&",
+            "children": [
+                {
+                    "operation": "|",
+                    "children": [
+                        "uk[.]bookinfo[.]com",
+                        "eu[.]bookinfo[.]com"
+                    ]
+                },
+                {
+                    "operation": "|",
+                    "children": [
+                        "uk[.]bookinfo[.]com",
+                        "eu[.]bookinfo[.]com"
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/reviews/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": {
+            "operation": "|",
+            "children": [
+                "uk[.]bookinfo[.]com",
+                "eu[.]bookinfo[.]com"
+            ]
+        }
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]AdService/GetAds"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]CartService/AddItem|/hipstershop[.]CartService/GetCart|/hipstershop[.]CartService/EmptyCart"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]CheckoutService/PlaceOrder"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]CurrencyService/Convert|/hipstershop[.]CurrencyService/GetSupportedCurrencies"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]EmailService/SendOrderConfirmation"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]PaymentService/Charge"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]ProductCatalogService/GetProduct|/hipstershop[.]ProductCatalogService/ListProducts"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]RecommendationService/ListRecommendations"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]ShippingService/GetQuote|/hipstershop[.]ShippingService/ShipOrder"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]AdService/GetAds"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]CartService/AddItem|/hipstershop[.]CartService/GetCart|/hipstershop[.]CartService/EmptyCart"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]CheckoutService/PlaceOrder"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]CurrencyService/Convert|/hipstershop[.]CurrencyService/GetSupportedCurrencies"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]EmailService/SendOrderConfirmation"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]PaymentService/Charge"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]ProductCatalogService/GetProduct|/hipstershop[.]ProductCatalogService/ListProducts"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]RecommendationService/ListRecommendations"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/hipstershop[.]ShippingService/GetQuote|/hipstershop[.]ShippingService/ShipOrder"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/details|/details/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "/[.\\w/\\-]*"
+    },
+    {
+        "type": "MinDFA",
+        "regex": "demo[.]localdev[.]me"
+    }
+]

@@ -3,9 +3,6 @@
 #   any data points that I do not currently have?
 # TODO: try to think a little about a plan on how to run the sequence of actions, and try to think about how much
 #   time it is going to take to implement.
-# TODO: NOTE that the trace files are quite large ~2.5GB. I might want to be careful on how I handle them.
-# TODO: I have collected the MinDFAs that appear in the benchmarks. Now what do we do with that? I can discuss that
-#   with Adi.
 """
 Questions that we want to answer:
 1. What are the typical usage profiles that we encounter?
@@ -48,7 +45,6 @@ def get_trace_per_object(trace_data: list[dict]) -> list[tuple[int, list[dict]]]
         tracking_dict[object_id].append(operation_data)
 
     for operation_data in trace_data:
-        # TODO: I noticed that `create_from_cube` is never called. so we don't need to account for that.
         operation_name = operation_data['operation_name']
         if operation_name == '__init__':
             object_id = operation_data['args'][0]['id']
@@ -128,7 +124,7 @@ def is_regex_constant(regex):
 
 
 def analyze_min_dfa_list(min_dfa_list: list[dict] = None):
-    # TODO: are there any other questions that we would like to ask?
+    # TODO: are there any other questions that we would like to ask on the MinDFAs that appear?
     if min_dfa_list is None:
         min_dfa_records_file = get_min_dfa_file()
         if not min_dfa_records_file.exists():
@@ -150,8 +146,7 @@ def analyze_min_dfa_list(min_dfa_list: list[dict] = None):
 
 def analyze_usage_profiles():
     """Get the most common sequence of operations on a CanonicalHyperCubeSet."""
-    # TODO: I got the results for this. How do I use them for the experiments, and how
-    #   do I present them?
+    # TODO: I got the results for this. How do I use them for the experiments, and how do I present them?
     trace_files = list(iter_benchmark_trace_files())
     operation_sequence_counter = Counter()
     for i, trace_file in enumerate(trace_files, 1):
@@ -168,32 +163,16 @@ def analyze_usage_profiles():
 
 def analyze_number_of_dimensions():
     """Analyzes the number of active dimensions that a cube has."""
-    # TODO: create a counter of how many dimensions we have for
-    #   each that was created.
-    # TODO: print the maximal value
-    # TODO: how many dimensions of what types?
-    # TODO: currently, I decided to skip this.
+    # TODO: is this a good idea to do this? discuss with Adi. Since we know what are the dimensions that we are using.
     # functions that tell us what dimensions are active
     #   1. __init__
     #   2. add_cube
     #   3. add_hole
-    trace_files = list(iter_benchmark_trace_files())
-    n_active_dims_counter = Counter()
-    for i, trace_file in enumerate(trace_files, 1):
-        logging.info(f'Analyzing usage profiles. Processing {i} out of {len(trace_files)}.')
-        trace_data = read_trace_data(trace_file)
-        trace_data_per_object = get_trace_per_object(trace_data)
-
-        n_active_dims_counter += count_operation_sequences(trace_data_per_object)
-
-    most_common = n_active_dims_counter.most_common()
-    output_file = get_analysis_results_dir() / 'most_common_operation_sequences.txt'
-    with output_file.open('w') as f:
-        f.write(pformat(most_common))
+    pass
 
 
 def main():
-    # analyze_min_dfa_list()
+    analyze_min_dfa_list()
     analyze_usage_profiles()
     # min_dfa_list = collect_all_min_dfa_instances()
     # trace_data = read_trace_data()

@@ -225,20 +225,43 @@ with Z3SimpleStringSet.
 - with only prefix constraints, in some cases Z3SimpleStringSet is better and in some MinDFA.
 - with a combination of prefix and suffix constraints, in most cases Z3SimpleStringSet is better, but in some cases
 
+
+## Analyzing traces
+### How to run analysis:
+- The trace files are currently in .gitignore since they are quite large. To create them:
+  - run `canonical_hyper_cube_set_tracker/trace_benchmarks.py` to collect the traces from the benchmarks.
+- The following files are in the repo since they are smaller, but creating them
+requires that we have the trace files mentioned above: 
+  - from `analyze_traces.py` run the function `analyze_min_dfa_list()`.
+    - This will create the file `canonical_hyper_cube_set_tracker/analysis_results/min_dfa.json` that contains
+    the MinDFAs that appear in the run of the benchmarks. This will also print percentage of 
+    exact match constraints.
+  - from `analyze_traces.py` run the function `analyze_usage_profiles()`.
+  - This will create the file `canonical_hyper_cube_set_tracker/analysis_results/most_common_operation_sequences.txt`
+  that contains a list of the most common sequence of operations on an instance of CanonicalHyperCubeSet
+  that occur when running the benchmarks.
+
+### Observations
+- I should be careful to draw conclusions from the traces, since a lot of them are tests, and the benchmarks
+are not that diverse.
+- MinDFA constraints: Out of 751 MinDFA constraints given to CanonicalHyperCubeSet operations, 361 (49%) are
+exact match constraints, meaning that there might be something to improve if we consider this special case.
+- The usage profiles appear in the file `smt_experiments/canonical_hyper_cube_set_tracker/analysis_results/most_common_operation_sequences.txt`
+but I'm not so sure how to interpret that, maybe we should take some of the most common once and use that for evaluation?
+
 # Ideas:
 - [ ] String experiment with simple constraints. 
   - [x] Analyze the results that we have from the previous experiments.
   - [x] Implement experiment.
   - [x] Analyze results of experiment. (still need to analyze prefix + suffix)
-  - [ ] add csv tables?
-  - [ ] What are the cases where Z3SimpleStringSet performs worse than MinDFA?
+  - [x] add csv tables?
   - [ ] Continue with multiple only string dimensions, and overlaps.
   - [ ] Extend this to mixed dimensions.
   - [ ] Experiment with regex.
 - [ ] Benchmark the z3 sets, so I can experiment with different options, for example using "simple_solver", or by 
 using the same solver per instance or global.
 - [ ] Usage profiles that we want to compare the implementation to.
-  - [ ] Collect traces from benchmarks and the tests, so that I have a database of real usage profiles.
+  - [x] Collect traces from benchmarks and the tests, so that I have a database of real usage profiles.
   - [ ] Analyze those, can I characterize them in some way?
 - [ ] Possible improvements:
   - [ ] Implement a prototype of MBDDs 

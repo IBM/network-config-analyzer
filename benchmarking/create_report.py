@@ -8,6 +8,8 @@ from benchmarking.iter_benchmarks import iter_benchmarks
 
 TOP_N = 40
 # TODO: some benchmarks appear more then once... This is problematic, think about how to give them unique names
+#   I can do that by placing the benchmarks in their current file directory
+# TODO: make sure that I add this path to the report.
 
 
 def _get_report_dir(experiment_name: str) -> Path:
@@ -46,7 +48,6 @@ def _dict_list_to_csv(lines: list[dict], path: Path):
 
 
 def _extract_report_data_from_audit_result(audit_result: list) -> dict:
-    # TODO: change this when this becomes more complicated
     return audit_result[0][0]
 
 
@@ -106,41 +107,3 @@ def create_report_for_unfinished_benchmarking():
     processed_benchmarks_list = [benchmark for benchmark in iter_benchmarks() if
                                  _benchmark_processed(experiment_name, benchmark)]
     create_report(experiment_name, processed_benchmarks_list)
-
-
-def add_original_scheme_file_and_query_name_to_report():
-    experiment_name = 'remote_07-09-2022'
-    timing_report_file = _get_report_dir(experiment_name) / 'timing_report.csv'
-    new_timing_report_file = timing_report_file.with_stem('timing_report_new')
-
-    with timing_report_file.open('r') as f:
-        reader = DictReader(f)
-        lines = [d for d in reader]
-
-    benchmark_list = list(iter_benchmarks())
-    # TODO: I think that we can assume that the two lists are aligned, and not loop them both (what is missing was just
-    #  not executed
-    not_aligned_count = 0
-    for i, (benchmark, line) in enumerate(zip(benchmark_list, lines)):
-        if line['name'] == benchmark.name:
-            line['original_scheme_file'] = str(benchmark.original_scheme_file_relative_to_repo)
-            line['query_name'] = benchmark.query_name
-        else:
-            print(f'{i} NOT ALIGNED')
-            not_aligned_count += 1
-
-    _dict_list_to_csv(lines, new_timing_report_file)
-    print(f'{not_aligned_count} are not aligned out of {min(len(benchmark_list),len(lines))}')
-
-
-# TODO: check how many benchmarks there are and how much unique names
-def count_unique_benchmark_names():
-    benchmark_list = list(iter_benchmarks())
-    unique_names = {benchmark.name for benchmark in benchmark_list}
-    print(f'n_unique_names={len(unique_names)}, n_benchmarks={len(benchmark_list)}')
-
-
-if __name__ == '__main__':
-    # create_report_for_unfinished_benchmarking()
-    add_original_scheme_file_and_query_name_to_report()
-    # count_unique_benchmark_names()

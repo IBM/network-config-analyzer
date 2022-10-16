@@ -34,7 +34,8 @@ List of operations to compare:
 - Intersection
 - Union
 """
-# TODO: could it be that we give different inputs to MinDFA and to Z3SimpleStringSet in membership test?
+# TODO: add an experiment with regex.
+
 import itertools
 import logging
 import random

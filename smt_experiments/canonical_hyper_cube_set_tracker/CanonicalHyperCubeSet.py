@@ -54,11 +54,6 @@ def process_args(args):
     raise TypeError(f'type {type(args)} is not supported.')
 
 
-# TODO: create a trace that I can run and show to Adi
-# TODO: I can augment the traces by permuting the order of operations, does it make sense? or by
-#   mutating them in some ways
-
-
 def track(func_name: str, *args, result=None):
     record = {
         'operation_name': func_name,
