@@ -6,7 +6,8 @@ Parameters that we can play with:
 3. how many string dimensions and integer dimensions?
 4. overlapping and non-overlapping cubes?
 5. dimensions ordering.
-6. types of operations - creation, membership, contained_in, add_cube, add_hole.
+6. types of operations - creation, contained_in, add_cube, add_hole.
+*** I skip the membership check since it is clear that CanonicalHyperCubeSet is more effective there.
 
 
 Questions:
@@ -21,7 +22,6 @@ strings, and half are integers? Interleaved. (int, string, int, string, ...)
 3. Dimensions ordering: Is it better to place dimensions that are more complex (strings) earlier or later?
 Play with how the dimensions are ordered, and see if we get some clear results on that.
 
-
 Sketch:
 
 Experiment 1: Non-overlapping string dimensions only.
@@ -31,30 +31,390 @@ Experiment 1: Non-overlapping string dimensions only.
 - The string constraints will be a combination of exact match and prefix.
 *** I can copy most of the code from multiple integer dimensions, and just change a few things.
 
-
 Expectations:
-- The results will
+- The results will be similar to multiple integer dimensions, but the advantage for z3 will show-up earlier,
+as it becomes more efficient with strings faster than with integers.
 
 Experiment 2: Overlapping string dimensions only.
 - Same as the above, but with overlapping cubes.
 
+Expectation:
+- Similar to the previous one, but, as in multiple integer dimensions, we should see that z3 is not that affected by
+this, and CanonicalHyperCubeSet is very much so.
+
 Experiment 3: Mixed string-integer dimensions, with interleaved dimensions.
 - Same as the above, but with mixed dimensions.
 - Repeat overlapping and non-overlapping versions.
+- Experiment with different dimensions ordering. strings first, strings last, interleaved.
 
-Experiment 4: Different dimensions ordering
-- set #dims = 9, and have 3 types of complex dimensions -
-    1. strings with prefix + suffix.
-    2. strings with exact match + prefix.
-    3. intervals.
-- compare between CanonicalHyperCubeSet with the same cubes, but with different dimensions ordering,
-- one ordering that is interleaving, one where the more complex dimensions are first, and one where the
-more complex dimensions are last.
-- repeat for overlapping and non-overlapping cubes.
+Expectation:
+- I expect the results to be quite similar to the previous 2 experiments.
+- I think that the dimensions ordering should have some effect.
+- I think that placing the more complex dimensions first should be most efficient, since we will have to duplicate
+it less times.
 
 """
+import itertools
+import logging
+import string
+from csv import DictWriter
+from pathlib import Path
+from typing import Type
+
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+
+from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.DimensionsManager import DimensionsManager
+from nca.CoreDS.MinDFA import MinDFA
+from smt_experiments.experiments.experiment_utils import Timer, get_dimension_names, load_results, \
+    get_unique_values_for_key, filter_on_key_value, save_results
+from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
+from smt_experiments.z3_sets.z3_product_set import Z3ProductSet
+from smt_experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
+
+logging.basicConfig(level=logging.INFO)
+MIN_VALUE = 0
+MAX_VALUE = 100_000
 
 
-def generate_overlapping_cubes(dim_idx_to_set_generator: ):
-    pass
+def non_overlapping_string_set_generator():
+    letters = list(string.ascii_letters + string.digits)
+    for letter in letters:
+        exact_match = letter * 5
+        prefix = (letter * 5) + '/' + (letter * 5) + '/*'
+        yield [exact_match, prefix]
+
+
+def non_overlapping_interval_generator():
+    start = 10
+    step = 10
+    while True:
+        yield [start, start + step]
+        start = start + 2 * step
+
+
+def non_overlapping_cube_generator(dim_types: list[Type]):
+    string_set_generator = non_overlapping_string_set_generator()
+    interval_set_generator = non_overlapping_interval_generator()
+    for str_set, interval in zip(string_set_generator, interval_set_generator):
+        cube = []
+        for t in dim_types:
+            if t == int:
+                cube.append(interval)
+            elif t == str:
+                cube.append(str_set)
+        yield cube
+
+
+def overlapping_cube_generator(dim_types: list[Type]):
+    string_set_generator = non_overlapping_string_set_generator()
+    interval_set_generator = non_overlapping_interval_generator()
+
+    def get_next(i: int):
+        if dim_types[i] == int:
+            return next(interval_set_generator)
+        elif dim_types[i] == str:
+            return next(string_set_generator)
+
+    curr_i = 0
+    curr_set = get_next(curr_i)
+    while True:
+        prev_i = curr_i
+        prev_set = curr_set
+        curr_i = (curr_i + 1) % len(dim_types)
+        curr_set = get_next(curr_i)
+        cube = []
+        for i in range(len(dim_types)):
+            if i == prev_i:
+                cube.append(prev_set)
+            elif i == curr_i:
+                cube.append(curr_set)
+            else:
+                cube.append(None)   # getting None means that the dimension is not active.
+        yield cube
+
+
+def convert_cube(cube: list, cls, dim_types: list[Type], dim_names: list[str]):
+    if cls == Z3ProductSet:
+        interval_cls = Z3IntegerSet
+        str_cls = Z3SimpleStringSet
+    elif cls == CanonicalHyperCubeSet:
+        interval_cls = CanonicalIntervalSet
+        str_cls = MinDFA
+    else:
+        raise ValueError
+
+    converted_cube = []
+    active_dims = []
+    for i, (s, t) in enumerate(zip(cube, dim_types)):
+        if s is None:
+            continue
+        if t == int:
+            converted_s = interval_cls.get_interval_set(s[0], s[1])
+        else:
+            converted_s = str_cls.from_wildcard(s[0]) | str_cls.from_wildcard(s[1])
+        converted_cube.append(converted_s)
+        active_dims.append(i)
+
+    active_dims = [dim_names[d] for d in active_dims]
+    return converted_cube, active_dims
+
+
+def init_dim_manager(dim_names: list[str], dim_types: list[Type]):
+    dim_manager = DimensionsManager()
+    for name, t in zip(dim_names, dim_types):
+        if t == int:
+            dim_manager.set_domain(name, DimensionsManager.DimensionType.IntervalSet)
+        else:
+            dim_manager.set_domain(name, DimensionsManager.DimensionType.DFA)
+            
+
+def run_experiment(overlapping: bool):
+    n_dims_options = [5, 10, 15]
+    n_cubes_start = 3
+    n_cubes_step = 3
+    # if overlapping:
+    #     n_cubes_end = 24
+    # else:
+    #     n_cubes_end = 150
+    n_cubes_end = 15  # for running quickly TODO: comment this
+
+    n_cubes_options = list(range(n_cubes_start, n_cubes_end + 1, n_cubes_step))
+    # hyper_cube_set_classes = [CanonicalHyperCubeSet, Z3ProductSet, Z3ProductSetDNF]
+    # hyper_cube_set_classes = [CanonicalHyperCubeSet, Z3ProductSet]
+    hyper_cube_set_classes = [Z3ProductSet, CanonicalHyperCubeSet]
+    results = []
+
+    for n_dims in n_dims_options:
+        # TODO: add support for the other types combinations
+        dim_types = [str for _ in range(n_dims)]
+        dim_names = get_dimension_names(n_dims)
+
+        if overlapping:
+            cubes_generator = overlapping_cube_generator(dim_types)
+        else:
+            cubes_generator = non_overlapping_cube_generator(dim_types)
+            
+        cubes = [next(cubes_generator) for _ in range(n_cubes_end + 1)]
+        init_dim_manager(dim_names, dim_types)
+
+        for n_cubes in n_cubes_options:
+            for cls in hyper_cube_set_classes:
+                logging.info(f'n_dims: {n_dims}, n_cubes: {n_cubes}, cls: {cls.__name__}.')
+
+                # creation
+                with Timer() as t:
+                    s = cls(dim_names)
+                    for cube in cubes[:n_cubes]:
+                        converted_cube, active_dims = convert_cube(cube, cls, dim_types, dim_names)
+                        s.add_cube(converted_cube, active_dims)
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'creation',
+                    'time': t.elapsed_time
+                })
+
+                # add cube
+                cube_to_add = cubes[n_cubes]
+                superset = s.copy()
+                with Timer() as t:
+                    converted_cube, active_dims = convert_cube(cube_to_add, cls, dim_types, dim_names)
+                    superset.add_cube(converted_cube, active_dims)
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'add_cube',
+                    'time': t.elapsed_time,
+                })
+
+                # add hole
+                cube_to_subtract = cubes[n_cubes // 2]
+                subset = s.copy()
+                with Timer() as t:
+                    converted_cube, active_dims = convert_cube(cube_to_subtract, cls, dim_types, dim_names)
+                    subset.add_hole(converted_cube, active_dims)
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'add_hole',
+                    'time': t.elapsed_time,
+                })
+
+                # containment
+                with Timer() as t:
+                    out = subset.contained_in(s)
+                assert out
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'contained_in',
+                    'time': t.elapsed_time,
+                })
+
+                with Timer() as t:
+                    out = s.contained_in(subset)
+                assert not out
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'contained_in',
+                    'time': t.elapsed_time,
+                })
+
+                with Timer() as t:
+                    out = superset.contained_in(s)
+                assert not out
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'contained_in',
+                    'time': t.elapsed_time,
+                })
+
+                with Timer() as t:
+                    out = s.contained_in(superset)
+                assert out
+                results.append({
+                    'n_dims': n_dims,
+                    'n_cubes': n_cubes,
+                    'class': cls.__name__,
+                    'operation': 'contained_in',
+                    'time': t.elapsed_time,
+                })
+
+    return results
+
+
+def plot_result_for_operation(results: list[dict], operation: str, overlapping: bool):
+    # TODO: it appears that this is generic and can be reused here.
+    results_filtered_on_operation = filter_on_key_value(results, 'operation', operation)
+
+    # a new subplot for each value of n_dims
+    n_dims_options = get_unique_values_for_key(results_filtered_on_operation, 'n_dims')
+
+    scale = 1.5
+    figsize = (6.4 * scale, 4.8 * scale)
+    fig, axes = plt.subplots(len(n_dims_options), 1, figsize=figsize)
+    fig: Figure
+    fig.supxlabel('#cubes')
+    if overlapping:
+        fig.suptitle(f'Effect of #cubes on {operation} time with fixed #dimensions and overlapping cubes')
+    else:
+        fig.suptitle(f'Effect of #cubes on {operation} time with fixed #dimensions and non-overlapping cubes')
+    fig.supylabel(f'{operation} time [sec]')
+    fig.subplots_adjust(hspace=0.4)
+    markers = ['x', '+', '1']
+
+    for ax, n_dims in zip(axes, n_dims_options):
+        results_filtered_on_operation_and_n_dims = filter_on_key_value(results_filtered_on_operation, 'n_dims', n_dims)
+        cls_names = get_unique_values_for_key(results_filtered_on_operation_and_n_dims, 'class')
+
+        for cls_index, cls_name in enumerate(cls_names):
+            results_filtered_on_operation_and_n_dims_and_cls = filter_on_key_value(
+                results_filtered_on_operation_and_n_dims,
+                'class',
+                cls_name
+            )
+            n_cubes = []
+            operation_times = []
+            for result in results_filtered_on_operation_and_n_dims_and_cls:
+                n_cubes.append(result['n_cubes'])
+                operation_times.append(result['time'])
+
+            ax.scatter(n_cubes, operation_times, label=cls_name, alpha=0.5, marker=markers[cls_index])
+
+        ax.set_title(f'#dims = {n_dims}')
+        ax.legend()
+
+    # plt.show()  # TODO: comment
+    if overlapping:
+        stem = f'{operation}_overlapping'
+    else:
+        stem = f'{operation}_non_overlapping'
+
+    fig_path = Path(__file__).with_stem(stem).with_suffix('.png')
+    fig.savefig(fig_path)
+
+
+def save_results_to_csv(results: list[dict], result_csv_file: Path):
+    z3_results = filter_on_key_value(results, 'class', 'Z3ProductSet')
+    tree_results = filter_on_key_value(results, 'class', 'CanonicalHyperCubeSet')
+    assert len(z3_results) == len(tree_results)
+    table_rows = []
+
+    for r1, r2 in zip(z3_results, tree_results):
+        row = r1.copy()
+        row.pop('time')
+        row.pop('class')
+        row['CanonicalHyperCubeSet'] = r1['time']
+        row['Z3ProductSet'] = r2['time']
+        table_rows.append(row)
+
+    with result_csv_file.open('w', newline='') as f:
+        writer = DictWriter(f, table_rows[0].keys())
+        writer.writeheader()
+        writer.writerows(table_rows)
+
+
+def plot_results(results: list[dict], overlapping: bool):
+    operations = get_unique_values_for_key(results, 'operation')
+    for operation in operations:
+        plot_result_for_operation(results, operation, overlapping)
+
+
+def run_experiment_and_plot(overlapping: bool):
+    if overlapping:
+        stem = 'results_overlapping'
+    else:
+        stem = 'results_non_overlapping'
+    results_file = Path(__file__).with_stem(stem).with_suffix('.json')
+    results = run_experiment(overlapping)  # TODO: uncomment to re-run the experiment
+    save_results(results, results_file)  # TODO: uncomment to re-run the experiment
+    results = load_results(results_file)
+    save_results_to_csv(results, results_file.with_suffix('.csv'))
+    plot_results(results, overlapping)
+
+
+def main():
+    # for overlapping in [False, True]:
+    for overlapping in [True]:
+        run_experiment_and_plot(overlapping)
+
+
+def reproduce_error():
+    n_dims = 5
+    dim_types = [str for _ in range(n_dims)]
+    dim_names = [str(i) for i in range(n_dims)]
+    init_dim_manager(dim_names, dim_types)
+
+    cube_generator = overlapping_cube_generator(dim_types)
+    cubes = [next(cube_generator) for _ in range(4)]
+
+    s = CanonicalHyperCubeSet(dim_names)
+    for cube in cubes[:-1]:
+        cube, active_dims = convert_cube(cube, CanonicalHyperCubeSet, dim_types, dim_names)
+        s.add_cube(cube, active_dims)
+
+    superset = s.copy()
+    cube, active_dims = convert_cube(cubes[-1], CanonicalHyperCubeSet, dim_types, dim_names)
+    superset.add_cube(cube, active_dims)
+
+    assert s.contained_in(superset)
+
+
+if __name__ == '__main__':
+    # run_experiment_and_plot(overlapping=True)
+    # main()
+    # print(generate_overlapping_integer_cubes(3, 4))
+    # print(generate_non_overlapping_integer_cubes(3, 4))
+    reproduce_error()
 
