@@ -284,14 +284,15 @@ class MinDFA:
     # Shai added for compatibility with Z3StringSet
     @classmethod
     def from_wildcard(cls, s: str):
+        any_regex = '[.\w/\-]*'
         if '*' not in s:
             regex = s
         elif '*' == s:
-            regex = '.*'
+            regex = any_regex
         elif '*' == s[-1]:
-            regex = s[:-1] + '(.*)'
+            regex = s[:-1] + any_regex
         elif '*' == s[0]:
-            regex = '(.*)' + s[1:]
+            regex = any_regex + s[1:]
         else:
             raise RuntimeError(f'* should only appear at the start or end of the string. got {s}.')
 

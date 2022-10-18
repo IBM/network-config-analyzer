@@ -225,6 +225,85 @@ with Z3SimpleStringSet.
 - with only prefix constraints, in some cases Z3SimpleStringSet is better and in some MinDFA.
 - with a combination of prefix and suffix constraints, in most cases Z3SimpleStringSet is better, but in some cases
 
+## sensitivity_to_constraint_length
+- I had some thoughts that z3 might be sensitive to the length of the string constraint that it is given.
+- Thus, I wanted to check that in the file `sensitivity_to_constraint_length.py`. 
+- It does seem to have some effect, but not that significant.
+
+## multiple_string_dimensions
+- The results are a little unexpected. It was not a simple conclusion of the `multiple_integer_dimensions` experiment
+results and the `string_single_dim_experiments` results.
+- From `multiple_integer_dimensions` we would expect that Z3ProductSet gets an advantage over CanonicalHyperCubeSet
+as #dims increases.
+- From `string_single_dim_experiments` we would expect that Z3StringSet performs better than MinDFA when the number of 
+cubes increases.
+- From the previous two facts, I would expect that in multiple string dimensions, Z3ProductSet will have a clear 
+advantage over CanonicalHyperCubeSet, but this does not seem to be the case. 
+- It appears that the `contained_in` operation that takes the most time is checking `superset.contained_in(s)`, that is,
+adding a cube to the set `s` and getting `superset`, and then checking if the new set is contained in the old set.
+The solver needs to find a counter-example for that I think.
+- 
+
+### add_cube_non_overlapping
+- I think that some strange results with CanonicalHyperCubeSet is due to the fact that MinDFA is using caching.
+- Z3 operations are only syntactic, this makes the time pretty low.
+- We see an increase in the time it takes to add a cube as #cubes increases, to about
+  - 0.1 seconds in #dims=4.
+  - 0.06 seconds in #dims=8.
+  - 0.06 seconds in #dims=12.
+
+### add_cube_overlapping
+- Similarly to the non-overlapping case, the longest time is for #dims=4 which I think might be due to caching with 
+MinDFA.
+- The time increases as #cubes increases, and gets to:
+  - 10 seconds with #dims=4
+  - 2 seconds with #dims=8
+  - 5 seconds with #dims=12
+
+### add_hole_non_overlapping
+- Similar trend as add_cube, but the numbers are lower.
+  - 0.01 for #dims=4
+  - 0.01 for #dims=8
+  - 0.0125 for #dims=12
+
+### add_hole_overlapping
+- It appears that most of the results are quite similar and fast, but some take significantly longer, like
+#cubes=21, and #dims=4, or #dims=12 which take significantly more than the rest of the points. I suspect that it might 
+be due to caching.
+- highlights:
+  - 8 seconds with #dims=4, #cubes=21
+  - 0.8 sec with #dims=8, #cubes=24
+  - 5 seconds with #dims=12, #cubes=21
+
+### contained_in_non_overlapping
+- In this case, it is pretty obvious that CanonicalHyperCubeSet outperforms Z3ProductSet, by a few orders of magnitude.
+- with #dims=4, #cubes=24 it gets to ~25 seconds 
+- with #dims=8, #cubes=24 it gets to ~40 seconds
+- with #dims=12, #cubes=24 it gets to ~200 seconds
+- In some cases Z3ProductSet takes more time, and less in others. It is interesting to characterize this.
+- In all of the above, CanonicalHyperCubeSet time is close to 0.
+
+### contained_in_overlapping
+- In this case, there is more competition between Z3ProductSet and CanonicalHyperCubeSet.
+- It appears that there is 1 example that takes Z3 more time, and the other examples are OK.
+- with #dims=4, Z3ProductSet and CanonicalHyperCubeSet perform comparably. for some instances Z3ProductSet is slower,
+and for others, CanonicalHyperCubeSet is slower. The longest time for both is with Z3, ~20 seconds.
+- with #dims=8, Z3ProductSet (on the tough example) is slower than CanonicalHyperCubeSet. The worst time gets to around
+30 seconds, with Z3ProductSet.
+- with #dims=12, it is again not so clear which is preferable, Z3ProductSet or CanonicalHyperCubeSet. The worst time is 
+~30 seconds with both CanonicalHyperCubeSet and Z3ProductSet.
+
+### creation_non_overlapping
+- we can see a steady growth in time as #cubes increases.
+- the times for #dims=4 is the highest, I suspect it is an effect of caching. 
+- The top time is 0.2 seconds with #dims=4, and ~0.15 seconds with #dims=8,12.
+
+### creation_overlapping
+- We can see that the creation times with CanonicalHyperCubeSet are worse with overlapping cubes.
+- We can see a similar trend to the non-overlapping case, but with higher numbers:
+  - #dims=4, ~15 seconds
+  - #dims=8, ~5 seconds (I think that we get a faster time than with #dims=4 is due to MinDFA caching)
+  - #dims=12, ~25 seconds
 
 ## Analyzing traces
 ### How to run analysis:
@@ -250,7 +329,14 @@ exact match constraints, meaning that there might be something to improve if we 
 but I'm not so sure how to interpret that, maybe we should take some of the most common once and use that for evaluation?
 
 # Ideas:
-- [ ] String experiment with simple constraints. 
+- [x] (priority) Analyze the results that we got with multiple string dimensions.
+  - I think that we get some weird results due to MinDFA caching.
+- [x] (priority) Figure out what are the instances of Z3 that take more time for it to solve.
+- [ ] (priority) add regex to `string_single_dim_experiments`.
+- [ ] (priority) Try to create interesting instances of K8s network configurations and compare Z3ProductSet and 
+  CanonicalHyperCubeSet. (maybe do that without going through all the API stuff, but with pure python?)
+- [ ] Re-run the experiments that involve string constraints, with caching disabled.
+- [ ] String experiment with simple constraints.
   - [x] Analyze the results that we have from the previous experiments.
   - [x] Implement experiment.
   - [x] Analyze results of experiment. (still need to analyze prefix + suffix)
@@ -260,6 +346,8 @@ but I'm not so sure how to interpret that, maybe we should take some of the most
   - [ ] Experiment with regex.
 - [ ] Benchmark the z3 sets, so I can experiment with different options, for example using "simple_solver", or by 
 using the same solver per instance or global.
+- [ ] In some figures, it seems that there are a few different trends. Try to figure out what are does trends, and 
+what causes them.
 - [ ] Usage profiles that we want to compare the implementation to.
   - [x] Collect traces from benchmarks and the tests, so that I have a database of real usage profiles.
   - [ ] Analyze those, can I characterize them in some way?
@@ -291,6 +379,8 @@ Z3ProductSet and how many with CanonicalHyperCubeSet. Can I do this more methodi
 - [ ] look for projects using z3 and try to figure out how they use it, and if they do anything differently.
 - [ ] perform scalability analysis - how different parameters affect the running time (mathematical description)
 and use that to determine under what circumstances it might be better to use one implementation over the other.
+- [ ] Another thing that I might want to check is how the length of the string constraints affects performance. Very 
+Interesting.
 - [x] make the `.csv` table have two columns - one Z3ProductSet and one for CanonicalHyperCubeSet.
 - [x] Analyze results with overlapping cubes.
 - [x] repeat the first experiment with overlapping cubes. look at adi's code for inspiration.
@@ -299,6 +389,7 @@ and use that to determine under what circumstances it might be better to use one
 - [x] review the findings after the granularity problem was fixed 
 - [x] Create a csv format of the graphs, it might be more comfortable to use for different usages
 - [x] add in the comments an example that visualizes how the inputs look like.
+
 
 # Notes about the experiments:
 
