@@ -19,7 +19,7 @@ dim_manager.set_domain("z", DimensionsManager.DimensionType.IntervalSet, (1, 655
 
 
 def get_str_dfa(s):
-    return MinDFA.from_regex(s)
+    return MinDFA.dfa_from_regex(s)
 
 
 class TestCanonicalHyperCubeSetMethods(unittest.TestCase):

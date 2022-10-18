@@ -2,6 +2,7 @@
 #   especially the "is_all_words" function
 from typing import Optional
 
+import z3
 from z3 import sat, PrefixOf, SuffixOf, ModelRef, String, Or, BoolVal, unsat, And, Not
 
 from smt_experiments.z3_sets.z3_set import Z3Set
@@ -78,3 +79,10 @@ class Z3SimpleStringSet(Z3Set):
             raise ValueError(f'* should only appear at the start or end of the string. got {s}.')
 
         return str_set
+
+    @classmethod
+    def dfa_from_regex(cls, regex: str):
+        str_set = cls()
+        z3_regex = z3.Re(regex)
+        str_set._constraints = z3.InRe(str_set._var, z3_regex)
+        return z3_regex

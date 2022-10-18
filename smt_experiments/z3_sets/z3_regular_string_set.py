@@ -34,7 +34,7 @@ class Z3RegularStringSet(Z3Set):
         return str
 
     @classmethod
-    def from_regex(cls, regex: str):
+    def dfa_from_regex(cls, regex: str):
         parsed_regex = sre_parse.parse(regex)
         z3_regex = regex_to_z3_expr(parsed_regex)
         new = cls()

@@ -13,13 +13,13 @@ class MyTestCase(unittest.TestCase):
 
     def test_from_regex_0(self):
         regex = r'abc'
-        s = Z3RegularStringSet.from_regex(regex)
+        s = Z3RegularStringSet.dfa_from_regex(regex)
         self.assertIn('abc', s)
         self.assertNotIn('abcd', s)
 
     def test_from_regex_1(self):
         regex = r'abc(.*)'
-        s = Z3RegularStringSet.from_regex(regex)
+        s = Z3RegularStringSet.dfa_from_regex(regex)
         self.assertIn('abcd', s)
         self.assertNotIn('dabc', s)
 
