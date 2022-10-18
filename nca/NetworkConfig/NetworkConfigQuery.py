@@ -4,9 +4,10 @@
 #
 import itertools
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from collections import defaultdict
 from enum import Enum
+import yaml
 
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.CoreDS.ConnectionSet import ConnectionSet
@@ -32,9 +33,11 @@ class QueryAnswer:
     """
     bool_result: bool = False
     output_result: str = ''
-    output_explanation: str = ''
+    output_explanation: str = ''  # currently used only in classes derived from NetworkConfigQuery - to be removed
     numerical_result: int = 0
     query_not_executed: bool = False
+    explanation_list: list = field(default_factory=list)  # replacing output_explanation, used in classes derived from
+    # TwoNetworkConfigsQuery
 
 
 class BaseNetworkQuery:
@@ -709,15 +712,20 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         self.config2 = config2
         self.name1 = os.path.basename(config1.name) if config1.name.startswith('./') else config1.name
         self.name2 = os.path.basename(config2.name) if config2.name.startswith('./') else config2.name
+        self._update_output_configuration_with_config_names()
 
     @staticmethod
     def get_query_type():
         return QueryType.ComparisonToBaseConfigQuery
 
+    @staticmethod
+    def get_supported_output_formats():
+        return {'txt', 'yaml'}
+
     def is_identical_topologies(self, check_same_policies=False):
         if not self.config1.peer_container.is_comparable_with_other_container(self.config2.peer_container):
-            return QueryAnswer(False, 'The two configurations have different network topologies '
-                                      'and thus are not comparable.\n', query_not_executed=True)
+            return QueryAnswer(False, 'The two configurations have different network '
+                                      'topologies and thus are not comparable.', query_not_executed=True)
         if check_same_policies and self.config1.policies_container.policies == self.config2.policies_container.policies:
             return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network '
                                      'topology and the same set of policies.\n')
@@ -749,6 +757,95 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                 config_without_ingress.append_policy_to_config(policy)
         return config_without_ingress
 
+    def _update_output_configuration_with_config_names(self):
+        self.output_config.configName = self.name1
+        self.output_config.secondConfigName = self.name2
+
+    def write_query_output(self, query_answer, query_result, txt_explanation_header='', yaml_explanation_descriptions=None):
+        if self.output_config.outputFormat not in self.get_supported_output_formats():
+            return ''
+
+        if self.output_config.outputFormat == 'txt':
+            return self.write_txt_output(query_answer, txt_explanation_header)
+
+        if self.output_config.outputFormat == 'yaml':
+            return self.write_yaml_output(query_answer, query_result, yaml_explanation_descriptions or [])
+
+    def write_txt_output(self, query_answer, explanation_header):
+        query_output = query_answer.output_result + '\n'
+        if query_answer.explanation_list:
+            txt_connections_form, _ = \
+                self.convert_explanation_to_required_format(explanation_list=query_answer.explanation_list,
+                                                            conns_diff=(len(query_answer.explanation_list[0]) == 4))
+            query_output += explanation_header + ':\n' + txt_connections_form + '\n'
+        return query_output
+
+    def write_yaml_output(self, query_answer, query_result, descriptions):
+        query_name = self.output_config.queryName or type(self).__name__
+        configs = [self.output_config.configName, self.output_config.secondConfigName]
+        yaml_content = {'query': query_name, 'configs': configs}
+        if query_answer.query_not_executed:
+            yaml_content.update({'executed': 0, 'description': query_answer.output_result})
+            return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
+        yaml_content.update({'numerical_result': query_result})
+        yaml_content.update({'textual_result': query_answer.output_result})
+        if query_answer.explanation_list:
+            connections1, connections2 = self.convert_explanation_to_required_format(
+                explanation_list=query_answer.explanation_list, conns_diff=(len(descriptions) == 2))
+            yaml_content_1 = yaml_content
+            if isinstance(query_answer.explanation_list[0], str):
+                yaml_content_1.update({'explanation': [{'description': descriptions[0]}, {'peers': connections1}]})
+            else:
+                yaml_content_1.update({'explanation': [{'description': descriptions[0]},
+                                                       {'connections': connections1}]})
+            res1 = yaml.dump(yaml_content_1, None, default_flow_style=False, sort_keys=False)
+            if connections2:
+                yaml_content_2 = yaml_content
+                yaml_content_2.update({'explanation': [{'description': descriptions[1]},
+                                                       {'connections': connections2}]})
+                res2 = yaml.dump(yaml_content_2, None, default_flow_style=False, sort_keys=False)
+                return res1 + '---\n' + res2 + '---\n'
+            return res1 + '---\n'
+        return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
+
+    def convert_explanation_to_required_format(self, explanation_list, conns_diff=False):
+        # case of peers list
+        if isinstance(explanation_list[0], str):
+            if self.output_config.outputFormat == 'txt':
+                return ', '.join(explanation_list), ''
+            return explanation_list, []   # yaml
+        # case of (src, dst, conns1, "conns2") list
+        conns1 = []
+        conns2 = []
+        for peers_conn in explanation_list:
+            if self.output_config.outputFormat == 'txt':
+                if conns_diff:
+                    conns1.append(f'src: {peers_conn[0]}, dst: {peers_conn[1]}, description: '
+                                  f'{peers_conn[2].print_diff(peers_conn[3], self.output_config.configName, self.output_config.secondConfigName)}')  # noqa: E501
+                else:
+                    conns1.append(f'src: {peers_conn[0]}, dst: {peers_conn[1]}, conn: {peers_conn[2]}')
+            else:  # yaml
+                conns1.append({'src': peers_conn[0], 'dst': peers_conn[1], 'conn': str(peers_conn[2])})
+                if conns_diff:
+                    conns2.append({'src': peers_conn[0], 'dst': peers_conn[1], 'conn': str(peers_conn[3])})
+
+        if self.output_config.outputFormat == 'txt':
+            return '\n'.join(conns1), ''
+
+        return conns1, conns2
+
+    def _handle_equivalence_outputs(self, query_answer):
+        # this def is to avoid duplications in EquivalenceQuery and StrongEquivalenceQuery
+        query_result = not query_answer.bool_result
+        txt_explanation_header = f'Connections allowed in {self.output_config.configName} and' \
+                                 f' {self.output_config.secondConfigName} are different as following'
+        yaml_explanation_descriptions = [
+            f'Connections in {self.output_config.configName} which are different in {self.output_config.secondConfigName}',
+            f'Connections in {self.output_config.secondConfigName} which are different in {self.output_config.configName}']
+        query_output = self.write_query_output(query_answer, int(query_result), txt_explanation_header,
+                                               yaml_explanation_descriptions)
+        return query_result, query_output, query_answer.query_not_executed
+
 
 class EquivalenceQuery(TwoNetworkConfigsQuery):
     """
@@ -768,6 +865,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods(layer_name) | self.config2.get_captured_pods(layer_name)
         different_conns_list = []
+        negative_output_result = self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.'
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -775,28 +873,18 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2, layer_name)
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2, layer_name)
                 if conns1 != conns2:
-                    different_conns_list.append(f'src: {peer1}, dst: {peer2}, description: '
-                                                f'{conns1.print_diff(conns2, self.name1, self.name2)}')
+                    different_conns_list.append((str(peer1), str(peer2), conns1, conns2))
                     if not self.output_config.fullExplanation:
-                        return self._query_answer_with_relevant_explanation(different_conns_list)
+                        return QueryAnswer(False, negative_output_result, explanation_list=different_conns_list)
 
         if different_conns_list:
-            return self._query_answer_with_relevant_explanation(sorted(different_conns_list))
+            return QueryAnswer(False, negative_output_result, explanation_list=sorted(different_conns_list))
 
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.')
 
-    def _query_answer_with_relevant_explanation(self, explanation_list):
-        explanation = f'Connections allowed in {self.name1} and {self.name2} are different as following:\n'
-        explanation += '\n'.join(explanation_list)
-        return QueryAnswer(False, self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.\n',
-                           explanation)
-
-    @staticmethod
-    def compute_query_output(query_answer, _):
-        query_output = query_answer.output_result
-        if not query_answer.bool_result:
-            query_output += query_answer.output_explanation + '\n'
-        return not query_answer.bool_result, query_output, query_answer.query_not_executed
+    def execute_and_write_output_in_required_format(self, _):
+        query_answer = self.exec()
+        return self._handle_equivalence_outputs(query_answer)
 
 
 class SemanticDiffQuery(TwoNetworkConfigsQuery):
@@ -1052,7 +1140,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                            output_explanation=explanation,
                            numerical_result=res)
 
-    def compute_query_output(self, query_answer, cmd_line_flag=False):
+    def execute_and_write_output_in_required_format(self, cmd_line_flag=False):
+        query_answer = self.exec()
         res = query_answer.numerical_result if not cmd_line_flag else not query_answer.bool_result
         query_output = ''
         if self.output_config.outputFormat == 'txt':
@@ -1095,14 +1184,14 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
             single_policy_config2 = self.config2.clone_with_just_one_policy(policy.full_name())
             full_result = EquivalenceQuery(single_policy_config1, single_policy_config2, self.output_config).exec()
             if not full_result.bool_result:
-                output_result = f'{self.policy_title(policy)} is not equivalent in {self.name1} and in {self.name2}\n'
-                return QueryAnswer(False, output_result, full_result.output_explanation)
+                output_result = f'{self.policy_title(policy)} is not equivalent in {self.name1} and in {self.name2}'
+                return QueryAnswer(False, output_result, explanation_list=full_result.explanation_list)
 
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are strongly equivalent.')
 
-    @staticmethod
-    def compute_query_output(query_answer, cmd_line_flag=False):
-        return EquivalenceQuery.compute_query_output(query_answer, cmd_line_flag)
+    def execute_and_write_output_in_required_format(self, _):
+        query_answer = self.exec()
+        return self._handle_equivalence_outputs(query_answer)
 
 
 class ContainmentQuery(TwoNetworkConfigsQuery):
@@ -1114,13 +1203,13 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
         config1_peers = self.config1.peer_container.get_all_peers_group()
         peers_in_config1_not_in_config2 = config1_peers - self.config2.peer_container.get_all_peers_group()
         if peers_in_config1_not_in_config2:
-            peers = ', '.join(str(e) for e in peers_in_config1_not_in_config2)
-            return QueryAnswer(False, f'{self.name1} is not contained in {self.name2} '
-                                      f'because the following pods in {self.name1} are not in {self.name2}: {peers}')
+            peers_list = [str(e) for e in peers_in_config1_not_in_config2]
+            return QueryAnswer(False, f'{self.name1} is not contained in {self.name2} ', explanation_list=peers_list)
 
         peers_to_compare = config1_peers | self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         not_contained_list = []
+        negative_output_result = f'{self.name1} is not contained in {self.name2}'
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -1131,27 +1220,35 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                 conns1 = conns1_captured if only_captured else conns1_all
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if not conns1.contained_in(conns2):
-                    not_contained_list.append(f'src: {peer1}, dst: {peer2}, conn: {str(conns1)}')
+                    not_contained_list.append((str(peer1), str(peer2), conns1))
                     if not self.output_config.fullExplanation:
-                        return self._query_answer_with_relevant_explanation(not_contained_list)
+                        return QueryAnswer(False, negative_output_result, explanation_list=not_contained_list)
 
         if not_contained_list:
-            return self._query_answer_with_relevant_explanation(sorted(not_contained_list))
+            return QueryAnswer(False, negative_output_result, explanation_list=sorted(not_contained_list))
 
-        output_result = self.name1 + ' is contained in ' + self.name2
-        return QueryAnswer(True, output_result, numerical_result=1)
+        return QueryAnswer(True, self.name1 + ' is contained in ' + self.name2, numerical_result=1)
 
-    def _query_answer_with_relevant_explanation(self, explanation_list):
-        output_result = f'{self.name1} is not contained in {self.name2}'
-        output_explanation = f'\nConnections allowed in {self.name1} which are not a subset of those in {self.name2}:\n'
-        output_explanation += '\n'.join(explanation_list)
-        return QueryAnswer(False, output_result, output_explanation)
+    def execute_and_write_output_in_required_format(self, cmd_line_flag=False):
+        query_answer = self.exec()
+        query_result = query_answer.numerical_result if not cmd_line_flag else not query_answer.bool_result
+        explanation_header = ''
+        yaml_description = []
+        if query_answer.explanation_list:
+            explanation_header = \
+                self.determine_explanation_header(self.output_config.configName, self.output_config.secondConfigName,
+                                                  query_answer.explanation_list[0])
+            yaml_description = [explanation_header]
+
+        query_output = self.write_query_output(query_answer, int(query_result), explanation_header, yaml_description)
+        return query_result, query_output, query_answer.query_not_executed
 
     @staticmethod
-    def compute_query_output(query_answer, cmd_line_flag=False):
-        res = query_answer.numerical_result if not cmd_line_flag else not query_answer.bool_result
-        query_output = query_answer.output_result + query_answer.output_explanation + '\n'
-        return res, query_output, query_answer.query_not_executed
+    def determine_explanation_header(config_name_1, config_name_2, first_elem):
+        if isinstance(first_elem, str):
+            return f'Pods in {config_name_1} which are not in {config_name_2}'
+        else:
+            return f'Connections allowed in {config_name_1} which are not a subset of those in {config_name_2}'
 
 
 class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
@@ -1166,37 +1263,72 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
     def exec(self):
         query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
-            return query_answer  # identical configurations (contained)
+            return query_answer, None, None  # identical configurations (contained)
 
         contained_1_in_2 = ContainmentQuery(self.config1, self.config2, self.output_config).exec()
         contained_2_in_1 = ContainmentQuery(self.config2, self.config1, self.output_config).exec()
-        explanation_not_contained_self_other = \
-            contained_1_in_2.output_result + ':' + contained_1_in_2.output_explanation
-        explanation_not_contained_other_self = \
-            contained_2_in_1.output_result + ':' + contained_2_in_1.output_explanation
         if contained_1_in_2.bool_result and contained_2_in_1.bool_result:
             return QueryAnswer(bool_result=True,
                                output_result=f'The two network configurations {self.name1} and {self.name2} '
                                              'are semantically equivalent.',
-                               numerical_result=3)
+                               numerical_result=3), None, None
+
+        sub_query_answer1 = QueryAnswer(output_result=contained_1_in_2.output_result,
+                                        explanation_list=contained_1_in_2.explanation_list)
+        sub_query_answer2 = QueryAnswer(output_result=contained_2_in_1.output_result,
+                                        explanation_list=contained_2_in_1.explanation_list)
         if not contained_1_in_2.bool_result and not contained_2_in_1.bool_result:
-            output_explanation = explanation_not_contained_self_other + '\n\n' + explanation_not_contained_other_self
             return QueryAnswer(bool_result=False,
                                output_result=f'Neither network configuration {self.name1} and {self.name2} '
-                                             'are contained in the other.\n',
-                               output_explanation=output_explanation, numerical_result=0)
+                                             f'are contained in the other.', numerical_result=0), sub_query_answer1,\
+                sub_query_answer2
         if contained_1_in_2.bool_result:
             return QueryAnswer(bool_result=False,
-                               output_result=f'Network configuration {self.name1} is a proper subset of {self.name2}.\n',
-                               output_explanation=explanation_not_contained_other_self, numerical_result=2)
+                               output_result=f'Network configuration {self.name1} is a proper'
+                                             f' subset of {self.name2}.', numerical_result=2), None, sub_query_answer2
         # (contained_2_in_1)
         return QueryAnswer(bool_result=False,
-                           output_result=f'Network configuration {self.name2} is a proper subset of {self.name1}.\n',
-                           output_explanation=explanation_not_contained_self_other, numerical_result=1)
+                           output_result=f'Network configuration {self.name2} is a proper subset of {self.name1}.',
+                           numerical_result=1), sub_query_answer1, None
 
-    @staticmethod
-    def compute_query_output(query_answer, cmd_line_flag=False):
-        return ContainmentQuery.compute_query_output(query_answer, cmd_line_flag)
+    def execute_and_write_output_in_required_format(self, cmd_line_flag=False):
+        query_answer, sub_query_answer_1, sub_query_answer_2 = self.exec()
+        query_result = query_answer.numerical_result if not cmd_line_flag else not query_answer.bool_result
+        if sub_query_answer_1 is None and sub_query_answer_2 is None:
+            return query_result, \
+                self.write_query_output(query_answer, int(query_result)), query_answer.query_not_executed
+
+        description_2 = ''
+        description_1 = ''
+        if sub_query_answer_2:
+            description_2 = ContainmentQuery.determine_explanation_header(self.output_config.configName,
+                                                                          self.output_config.secondConfigName,
+                                                                          sub_query_answer_2.explanation_list[0])
+            explanation_header_2 = sub_query_answer_2.output_result + '\n' + description_2
+            if sub_query_answer_1 is None:
+                query_answer.explanation_list = sub_query_answer_2.explanation_list
+                return query_result, self.write_query_output(query_answer, int(query_result), explanation_header_2,
+                                                             [description_2]), query_answer.query_not_executed
+        if sub_query_answer_1:
+            description_1 = ContainmentQuery.determine_explanation_header(self.output_config.secondConfigName,
+                                                                          self.output_config.configName,
+                                                                          sub_query_answer_1.explanation_list[0])
+            explanation_header_1 = sub_query_answer_1.output_result + '\n' + description_1
+            if sub_query_answer_2 is None:
+                query_answer.explanation_list = sub_query_answer_1.explanation_list
+                return query_result, self.write_query_output(query_answer, int(query_result), explanation_header_1,
+                                                             [description_1]), query_answer.query_not_executed
+
+        if self.output_config.outputFormat == 'txt':
+            query_output = query_answer.output_result + '\n'
+            query_output += self.write_txt_output(sub_query_answer_1, description_1)
+            query_output += '\n' + self.write_txt_output(sub_query_answer_2, description_2)
+            return query_result, query_output, query_answer.query_not_executed
+        elif self.output_config.outputFormat == 'yaml':
+            query_output = self.write_yaml_output(sub_query_answer_1, int(query_result), [description_1])
+            query_output += self.write_yaml_output(sub_query_answer_2, int(query_result), [description_2])
+            return query_result, query_output, query_answer.query_not_executed
+        return query_result, '', query_answer.query_not_executed
 
 
 class PermitsQuery(TwoNetworkConfigsQuery):
@@ -1221,20 +1353,25 @@ class PermitsQuery(TwoNetworkConfigsQuery):
         config1_without_ingress = self.clone_without_ingress(self.config1)
         return ContainmentQuery(config1_without_ingress, self.config2, self.output_config).exec(True)
 
-    def compute_query_output(self, query_answer, cmd_line_flag=False):
-        res = 0
-        if not query_answer.bool_result:
-            if not query_answer.output_explanation:
-                query_output = query_answer.output_result
-            else:
-                res = 1
-                query_output = f'{self.config2.name} does not permit connections specified in {self.config1.name}:'
-                query_output += query_answer.output_explanation
-        else:
-            query_output = f'{self.config2.name} permits all connections specified in {self.config1.name}'
-        if cmd_line_flag:
-            res = not query_answer.bool_result
-        return res, query_output, query_answer.query_not_executed
+    def execute_and_write_output_in_required_format(self, cmd_line_flag=False):
+        query_answer = self.exec()
+        query_result = not query_answer.bool_result if cmd_line_flag else 1 \
+            if not query_answer.bool_result and query_answer.explanation_list else 0
+        description = ''
+        yaml_description = []
+        if query_answer.bool_result:
+            query_answer.output_result = f'{self.output_config.secondConfigName} permits all connections' \
+                                         f' specified in {self.output_config.configName}'
+        if query_answer.explanation_list:
+            description = ContainmentQuery.determine_explanation_header(self.output_config.configName,
+                                                                        self.output_config.secondConfigName,
+                                                                        query_answer.explanation_list[0])
+            yaml_description = [description]
+            query_answer.output_result = f'{self.output_config.secondConfigName} does not permit ' \
+                                         f'connections specified in {self.output_config.configName}'
+        return query_result,\
+            self.write_query_output(query_answer, int(query_result), description, yaml_description),\
+            query_answer.query_not_executed
 
 
 class InterferesQuery(TwoNetworkConfigsQuery):
@@ -1251,6 +1388,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config2.get_captured_pods() | self.config1.get_captured_pods()
         extended_conns_list = []
+        interfere_result_msg = self.name1 + ' interferes with ' + self.name2
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -1261,29 +1399,26 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                     continue
                 _, captured2_flag, conns2_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if captured2_flag and not conns2_captured.contained_in(conns1_captured):
-                    extended_conns_list.append(f' src: {peer1}, dst: {peer2}, '
-                                               f'description: ' + conns2_captured.print_diff(conns1_captured,
-                                                                                             self.name1, self.name2))
+                    extended_conns_list.append((str(peer1), str(peer2), conns2_captured, conns1_captured))
                     if not self.output_config.fullExplanation:
-                        return self._query_answer_with_relevant_explanation(extended_conns_list)
+                        return QueryAnswer(True, interfere_result_msg, explanation_list=extended_conns_list)
 
         if extended_conns_list:
-            return self._query_answer_with_relevant_explanation(sorted(extended_conns_list))
+            return QueryAnswer(True, interfere_result_msg, explanation_list=sorted(extended_conns_list))
 
         return QueryAnswer(False, self.name1 + ' does not interfere with ' + self.name2)
 
-    def _query_answer_with_relevant_explanation(self, explanation_list):
-        output_explanation = f'\nAllowed connections from {self.name2} which are extended in {self.name1}:\n'
-        output_explanation += '\n'.join(explanation_list)
-        return QueryAnswer(True, self.name1 + ' interferes with ' + self.name2, output_explanation)
-
-    @staticmethod
-    def compute_query_output(query_answer, cmd_line_flag=False):
-        res = query_answer.bool_result if not cmd_line_flag else not query_answer.bool_result
-        query_output = query_answer.output_result
-        if query_answer.bool_result:
-            query_output += query_answer.output_explanation
-        return res, query_output, query_answer.query_not_executed
+    def execute_and_write_output_in_required_format(self, cmd_line_flag=False):
+        query_answer = self.exec()
+        query_result = query_answer.bool_result if not cmd_line_flag else not query_answer.bool_result
+        txt_explanation_header = f'Allowed connections from {self.output_config.secondConfigName} which' \
+                                 f' are extended in {self.output_config.configName}'
+        yaml_explanation_descriptions = [f'Connections in {self.output_config.configName} which extend '
+                                         f'connections in {self.output_config.secondConfigName}',
+                                         f'The narrow connections in {self.output_config.secondConfigName}']
+        query_output = self.write_query_output(query_answer, int(query_result), txt_explanation_header,
+                                               yaml_explanation_descriptions)
+        return query_result, query_output, query_answer.query_not_executed
 
 
 # Checks whether any two sets in the list interfere each other
@@ -1293,12 +1428,9 @@ class PairwiseInterferesQuery(TwoNetworkConfigsQuery):
     def get_query_type():
         return QueryType.PairwiseComparisonQuery
 
-    def exec(self):
-        return InterferesQuery(self.config1, self.config2, self.output_config).exec()
-
-    @staticmethod
-    def compute_query_output(query_answer, cmd_line_flag=False):
-        return InterferesQuery.compute_query_output(query_answer, cmd_line_flag)
+    def execute_and_write_output_in_required_format(self, cmd_line_flag=False):
+        return InterferesQuery(self.config1, self.config2, self.output_config).\
+            execute_and_write_output_in_required_format(cmd_line_flag)
 
 
 class IntersectsQuery(TwoNetworkConfigsQuery):
@@ -1315,6 +1447,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         intersect_pairs_list = []
+        intersect_result_msg = self.name2 + ' intersects with ' + self.name1
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
@@ -1326,20 +1459,15 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
-                    intersect_pairs_list.append(f'src: {peer1}, dst: {peer2}, conn: {str(conns_in_both)}')
+                    intersect_pairs_list.append((str(peer1), str(peer2), conns_in_both))
                     if not self.output_config.fullExplanation:
-                        return self._query_answer_with_relevant_explanation(intersect_pairs_list)
+                        return QueryAnswer(True, intersect_result_msg, explanation_list=intersect_pairs_list)
 
         if intersect_pairs_list:
-            return self._query_answer_with_relevant_explanation(sorted(intersect_pairs_list))
+            return QueryAnswer(True, intersect_result_msg, explanation_list=sorted(intersect_pairs_list))
 
         return QueryAnswer(False, f'The connections allowed by {self.name1}'
                                   f' do not intersect the connections allowed by {self.name2}', numerical_result=1)
-
-    def _query_answer_with_relevant_explanation(self, explanation_list):
-        output_explanation = f'\nBoth {self.name1} and {self.name2} allow the following connection(s):\n'
-        output_explanation += '\n'.join(explanation_list)
-        return QueryAnswer(True, self.name2 + ' intersects with ' + self.name1, output_explanation)
 
 
 class ForbidsQuery(TwoNetworkConfigsQuery):
@@ -1360,15 +1488,20 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
 
         return IntersectsQuery(config1_without_ingress, self.config2, self.output_config).exec(True)
 
-    def compute_query_output(self, query_answer, cmd_line_flag=False):
-        res = not query_answer.numerical_result if cmd_line_flag else query_answer.bool_result
-        query_output = query_answer.output_result + '\n'
-        if query_answer.bool_result and not query_answer.query_not_executed:
-            query_output += f'{self.config2.name} does not forbid connections specified in {self.config1.name}:' \
-                            f'{query_answer.output_explanation}'
-        elif query_answer.numerical_result == 1 and not query_answer.query_not_executed:
-            query_output += f'{self.config2.name} forbids connections specified in {self.config1.name}'
-        return res, query_output, query_answer.query_not_executed
+    def execute_and_write_output_in_required_format(self, cmd_line_flag=False):
+        query_answer = self.exec()
+        query_result = not query_answer.numerical_result if cmd_line_flag else query_answer.bool_result
+        explanation_header = f'Both {self.output_config.configName} and ' \
+                             f'{self.output_config.secondConfigName} allow the following connection(s)'
+        if query_answer.numerical_result == 1:
+            query_answer.output_result += f'\n{self.output_config.secondConfigName} forbids connections specified in ' \
+                                          f'{self.output_config.configName}'
+        if query_answer.explanation_list:
+            query_answer.output_result = f'{self.output_config.secondConfigName} does not forbid connections specified ' \
+                                         f'in {self.output_config.configName}'
+        return query_result,\
+            self.write_query_output(query_answer, int(query_result), explanation_header, [explanation_header]), \
+            query_answer.query_not_executed
 
 
 class AllCapturedQuery(NetworkConfigQuery):

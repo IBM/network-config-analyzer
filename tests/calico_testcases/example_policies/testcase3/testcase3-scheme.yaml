@@ -58,6 +58,16 @@ queries:
     expectedOutput: ../../expected_output/sup-allow-and-sub-deny-not-equiv-all-peer-pairs.txt
     expected: 1
 
+  - name: supAllow_and_subDeny_not_equiv_all_peer_pairs_yaml
+    equivalence:
+      - np_SupsetAllowFirst
+      - np_SubsetDenyFirst
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/sup-allow-and-sub-deny-not-equiv-all-peer-pairs.yaml
+    expected: 1
+
   - name: onlyAllow_and_supAllowFirst_equiv
     equivalence:
       - np_onlyAllow

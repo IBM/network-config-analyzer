@@ -109,6 +109,16 @@ queries:
     expectedOutput: ../../expected_output/two-way-containment-a-with-different-ipblock-policies-all-pairs.txt
     expected: 0
 
+  - name: twoWayContainment_a_with_different_ipBlock_policies_print_all_pairs
+    twoWayContainment:
+      - config_a_with_ipBlock
+      - config_a_with_b_ipBlock
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/two-way-containment-a-with-different-ipblock-policies-all-pairs.yaml
+    expected: 0
+
   - name: twoWayContainment_np1_np2
     twoWayContainment:
       - np1
@@ -120,6 +130,15 @@ queries:
       - config_a
       - config_b
     #expected: 0 - the result is not relevant since the query is not executed on the given pair
+    expectedNotExecuted: 1 # config_a and config_b are not comparable (have different network topologies)
+
+  - name: permits_a_b
+    permits:
+      - config_a
+      - config_b
+    outputConfiguration:
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/permits-a-b-not-executed.yaml
     expectedNotExecuted: 1 # config_a and config_b are not comparable (have different network topologies)
 
   - name: permits_a_with_different_ipBlock_policies

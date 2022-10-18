@@ -36,6 +36,20 @@ queries:
       - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
     expected: 0
 
+  - name: equiv_all_range1_yaml  # all policies are identical
+    equivalence:
+      - equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+      - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+      - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+    outputConfiguration:
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/equiv-all-range1.yaml
+    expected: 0
+
 # containment games
   - name: contained_all_ranges_not_specifiying
     twoWayContainment:

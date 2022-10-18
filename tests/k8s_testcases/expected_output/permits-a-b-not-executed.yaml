@@ -1,0 +1,8 @@
+query: permits_a_b
+configs:
+- config_b
+- config_a
+executed: 0
+description: The two configurations have different network topologies and thus are
+  not comparable.
+---

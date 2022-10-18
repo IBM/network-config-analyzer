@@ -115,7 +115,7 @@ class NetworkConfigQueryRunner:
 
     def _execute_pair_configs_query(self, query_type, config1, config2, cmd_line_flag=False):
         query_to_exec = getattr(NetworkConfigQuery, query_type)(config1, config2, self.output_configuration)
-        return query_to_exec.compute_query_output(query_to_exec.exec(), cmd_line_flag)
+        return query_to_exec.execute_and_write_output_in_required_format(cmd_line_flag)
 
     def _run_query_for_each_config(self):
         res = 0

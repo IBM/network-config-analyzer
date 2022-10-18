@@ -27,6 +27,7 @@ class OutputConfiguration(dict):
 
         self.queryName = query_name
         self.configName = ''
+        self.secondConfigName = ''
 
     def __getattr__(self, name):
         return super().__getitem__(name)
