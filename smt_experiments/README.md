@@ -333,6 +333,7 @@ but I'm not so sure how to interpret that, maybe we should take some of the most
   - I think that we get some weird results due to MinDFA caching.
 - [x] (priority) Figure out what are the instances of Z3 that take more time for it to solve.
 - [ ] (priority) add regex to `string_single_dim_experiments`.
+- [ ] (priority) start working on presentation (30 min).
 - [ ] (priority) Try to create interesting instances of K8s network configurations and compare Z3ProductSet and 
   CanonicalHyperCubeSet. (maybe do that without going through all the API stuff, but with pure python?)
 - [ ] Re-run the experiments that involve string constraints, with caching disabled.
