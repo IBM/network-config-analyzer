@@ -48,6 +48,9 @@ class Z3Set(ABC):
     def __str__(self):
         pass
 
+    def __bool__(self):
+        return not self.is_empty()
+
     def is_universal(self) -> bool:
         return (~self).is_empty()
 

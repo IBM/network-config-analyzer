@@ -7,9 +7,10 @@ from z3 import BoolRef, Solver, sat
 # TODO: use the pop, push mechanism for z3
 
 
-def solve_without_model(constraints: BoolRef):
+def solve_without_model(constraints: BoolRef, timeout=False):
     solver = Solver()
-    # constraints = z3.simplify(constraints)
+    if timeout:
+        solver.set('timeout', 5)
     solver.add(constraints)
     result = solver.check()
     return result

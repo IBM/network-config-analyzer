@@ -1,10 +1,12 @@
 # TODO: how should we take into account the set of allowed alphabet?
 #   especially the "is_all_words" function
+import sre_parse
 from typing import Optional
 
 import z3
-from z3 import sat, PrefixOf, SuffixOf, ModelRef, String, Or, BoolVal, unsat, And, Not
+from z3 import sat, PrefixOf, SuffixOf, ModelRef, String, Or, BoolVal, unsat, And, Not, InRe, unknown
 
+from smt_experiments.role_analyzer import regex_to_z3_expr
 from smt_experiments.z3_sets.z3_set import Z3Set
 from smt_experiments.z3_sets.z3_utils import solve_with_model, solve_without_model
 
@@ -26,7 +28,13 @@ class Z3SimpleStringSet(Z3Set):
         return new
 
     def is_empty(self):
-        return solve_without_model(self._constraints) == unsat
+        res = solve_without_model(self._constraints, timeout=True)
+        if res == unsat:
+            return True
+        if res == sat:
+            return False
+        if res == unknown:
+            raise TimeoutError
 
     @classmethod
     def get_empty_set(cls):
@@ -83,6 +91,7 @@ class Z3SimpleStringSet(Z3Set):
     @classmethod
     def dfa_from_regex(cls, regex: str):
         str_set = cls()
-        z3_regex = z3.Re(regex)
-        str_set._constraints = z3.InRe(str_set._var, z3_regex)
-        return z3_regex
+        parsed_regex = sre_parse.parse(regex)
+        z3_regex = regex_to_z3_expr(parsed_regex)
+        str_set._constraints = InRe(str_set._var, z3_regex)
+        return str_set

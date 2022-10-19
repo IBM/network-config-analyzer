@@ -1,152 +1,168 @@
 """Comparing Z3SimpleStringSet, Z3RegularStringSet and MinDFA for string sets with general regex constraints.
-
-# TODO: hard-code the basic regular expressions.
-#
-
+This is relatively quick & dirty experiment for basic comparison of the two sets, and showing that
+Z3SimpleStringSet times-out.
 """
-# TODO: implement and run.
-# TODO: add timeout for Z3SimpleStringSet.
 
-import itertools
-import logging
-import random
-import string
-from collections import defaultdict
+import time
 from csv import DictWriter
 from pathlib import Path
 
-from matplotlib import pyplot as plt
-from matplotlib.figure import Figure
-
 from nca.CoreDS.MinDFA import MinDFA
-from smt_experiments.experiments.experiment_utils import Timer, save_results, load_results, filter_on_key_value, \
-    get_unique_values_for_key
 from smt_experiments.z3_sets.z3_regular_string_set import Z3RegularStringSet
 from smt_experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
-logging.basicConfig(level=logging.INFO)
 
-
-def run_experiment():
+def run_hard_coded_experiment():
     set_types = [Z3SimpleStringSet, Z3RegularStringSet, MinDFA]
+    results = {}
     for cls in set_types:
-        # TODO: hard-code the sets and operations.
+        times = []
+
+        def record_time(operation: str):
+            t = time.perf_counter()
+            times.append((operation, t))
+
+        record_time('start')
         regex1 = 'aabb'
-        regex2 = '(ab)+'
-        regex3 = '(f)?zz(x)*'
         s1 = cls.dfa_from_regex(regex1)
+        record_time('creation')
+        assert 'aabb' in s1
+        assert 'abab' not in s1
+        record_time('membership')
+
+        regex2 = '(ab)+'
         s2 = cls.dfa_from_regex(regex2)
+        record_time('creation')
+        assert 'ababab' in s2
+        assert 'ababba' not in s2
+        record_time('membership')
+
+        regex3 = '(f)?zz(x)*'
         s3 = cls.dfa_from_regex(regex3)
-    print('done')
+        record_time('creation')
+        assert 'zz' in s3
+        assert 'ffzzxxx' not in s3
+        record_time('membership')
 
+        regex4 = 'abab(ab)*'
+        s4 = cls.dfa_from_regex(regex4)
+        record_time('creation')
+        try:
+            assert s4.contained_in(s2)
+            record_time('contained_in')
+            assert not s1.contained_in(s4)
+            record_time('contained_in')
+        except TimeoutError:
+            print(f'cls {cls.__name__} timed out 1.')
 
+        s5 = s3 | s4  # (f)?zz(x)* | abab(ab)*
+        record_time('union')
+        assert 'fzzx' in s5
+        assert 'abab' in s5
+        assert 'ab' not in s5
+        record_time('membership')
 
-def plot_results_per_operation(results: list[dict], operation: str, mode: str):
-    """
-    x variable is the number of elements in the set.
-    y variable is the time of the operation.
-    """
-    results_filtered_on_operation = filter_on_key_value(results, 'operation', operation)
-    scale = 1.5
-    figsize = (6.4 * scale, 4.8 * scale)
-    fig, ax = plt.subplots(1, 1, figsize=figsize)
-    fig: Figure
-    fig.supxlabel('set size')
-    fig.suptitle(f'{operation} time over set size')
-    fig.supylabel(f'{operation} time [sec]')
-    fig.subplots_adjust(hspace=0.4)
+        regex6 = '(.*)zz(.*)'
+        s6 = cls.dfa_from_regex(regex6)
+        record_time('creation')
+        assert 'blazzxxx' in s6
+        assert 'blazkkzxx' not in s6
+        record_time('membership')
 
-    markers = ['x', '+', '1']
+        s7 = s6 - s3    # (.*)zz(.*) - (f)?zz(x)*
+        record_time('subtraction')
+        assert 'xzzf' in s7
+        assert 'zz' not in s7
+        record_time('membership')
 
-    cls_names = get_unique_values_for_key(results_filtered_on_operation, 'class')
+        s8 = s5 & s7  # empty set
+        record_time('intersection')
+        try:
+            assert not s8  # s8 is empty
+            record_time('contained_in')
+        except TimeoutError:
+            print(f'cls {cls.__name__} timed out 2.')
 
-    for cls_index, cls_name in enumerate(cls_names):
-        results_filtered_on_operation_and_cls = filter_on_key_value(results_filtered_on_operation, 'class', cls_name)
-        set_sizes = []
-        operation_times = []
-        for result in results_filtered_on_operation_and_cls:
-            if 'string_set1' in result and 'string_set2' in result:
-                size = len(result['string_set1']) + len(result['string_set2'])
-            else:
-                size = len(result['string_set'])
-            set_sizes.append(size)
-            operation_times.append(result['time'])
+        regex9 = '(a*)|(b*)|(a|b)*'
+        s9 = cls.dfa_from_regex(regex9)
+        record_time('creation')
+        assert 'ababbba' in s9
+        assert 'abbazab' not in s9
+        record_time('membership')
+        try:
+            assert s1.contained_in(s9)
+            record_time('contained_in')
+            assert s2.contained_in(s9)
+            record_time('contained_in')
+            assert s4.contained_in(s9)
+            record_time('contained_in')
+            assert not s6.contained_in(s9)
+            record_time('contained_in')
+        except TimeoutError:
+            print(f'cls {cls.__name__} timed out 3.')
 
-        ax.scatter(set_sizes, operation_times, label=cls_name, alpha=0.5, marker=markers[cls_index])
+        regex10 = '((.*)(a|b|z|x)(.*))+'
+        s10 = cls.dfa_from_regex(regex10)
+        record_time('creation')
+        assert 'bjkabsd' in s10
+        assert 'jjuq' not in s10
+        record_time('membership')
+        try:
+            assert s2.contained_in(s10)
+            record_time('contained_in')
+            assert not s9.contained_in(s10)
+            record_time('contained_in')
+            assert not s10.contained_in(s9)
+            record_time('contained_in')
+        except TimeoutError:
+            print(f'cls {cls.__name__} timed out 4.')
 
-    ax.legend()
+        s11 = ((s9 - s4) | (s6 - s2)) & s10
+        record_time('mixed_bool_operation')
+        try:
+            assert s6.contained_in(s11)
+            record_time('contained_in')
+        except TimeoutError:
+            print(f'cls {cls.__name__} timed out 5.')
 
-    # plt.show()  # TODO: comment
-    fig_path = Path(__file__).with_stem(f'{mode}_{operation}').with_suffix('.png')
-    fig.savefig(fig_path)
+        if cls != Z3SimpleStringSet:
+            total_time = times[-1][1] - times[0][1]
+            per_operation_times = []
+            for i in range(len(times) - 1):
+                operation, t2 = times[i+1]
+                _, t1 = times[i]
+                t = t2 - t1
+                per_operation_times.append((operation, t))
+            results[cls] = {
+                'total_time': total_time,
+                'per_operation_times': per_operation_times
+            }
 
+    # save results in a csv file
+    columns = ['operation', 'Z3RegularStringSet', 'MinDFA']
+    entries = []
+    entries.append({
+        'operation': 'total_time',
+        'Z3RegularStringSet': results[Z3RegularStringSet]['total_time'],
+        'MinDFA': results[MinDFA]['total_time'],
+    })
+    per_operation_times = zip(
+        results[Z3RegularStringSet]['per_operation_times'],
+        results[MinDFA]['per_operation_times'],
+    )
+    for (op1, t1), (op2, t2) in per_operation_times:
+        entries.append({
+            'operation': op1,
+            'Z3RegularStringSet': t1,
+            'MinDFA': t2,
+        })
 
-def create_csv_table():
-    all_results = []
-    for mode in ['constant', 'prefix', 'prefix_and_suffix']:
-        result_file = get_results_file(mode)
-        results = load_results(result_file)
-        for result in results:
-            result['mode'] = mode
-        all_results += results
-
-    field_names = [
-        'mode',  # key
-        'operation',  # key
-        'string_set1',  # key
-        'string_set2',  # key - default value = ''
-        'string',  # key - default value = ''
-        'MinDFA',
-        'Z3SimpleStringSet'
-    ]
-    table = defaultdict(dict)
-    for result in all_results:
-        mode = result['mode']
-        operation = result['operation']
-        string_set1 = frozenset(result.get('string_set', result.get('string_set1')))
-        string_set2 = frozenset(result.get('string_set2', []))
-        string = result.get('string', '')
-
-        key = (mode, operation, string_set1, string_set2, string)
-        table[key][result['class']] = result['time']
-
-    rows = []  # TODO
-    for key, value in table.items():
-        mode, operation, string_set1, string_set2, string = key
-        row = {
-            'mode': mode,
-            'operation': operation,
-            'string_set1': list(string_set1),
-            'string_set2': list(string_set2),
-            'string': string,
-            'MinDFA': value['MinDFA'],
-            'Z3SimpleStringSet': value['Z3SimpleStringSet']
-        }
-        rows.append(row)
-
-    csv_file = Path(__file__).with_stem('table').with_suffix('.csv')
+    csv_file = Path(__file__).with_stem('hard_coded_times').with_suffix('.csv')
     with csv_file.open('w', newline='') as f:
-        writer = DictWriter(f, field_names)
+        writer = DictWriter(f, columns)
         writer.writeheader()
-        writer.writerows(rows)
-
-
-def main():
-    # for mode in ['constant']:
-    for mode in ['constant', 'prefix', 'prefix_and_suffix']:
-        results_file = get_results_file(mode)
-        results = run_experiment(mode)  # TODO: comment to avoid re-running the experiment
-        save_results(results, results_file)  # TODO: comment to avoid re-running the experiment
-        results = load_results(results_file)
-        for operation in ['creation', 'membership', 'intersection', 'union', 'contained_in']:
-            plot_results_per_operation(results, operation, mode)
-
-
-def get_results_file(mode: str):
-    return Path(__file__).with_stem(f'{mode}_results').with_suffix('.json')
+        writer.writerows(entries)
 
 
 if __name__ == '__main__':
-    # main()
-    # create_csv_table()
-    run_experiment()
+    run_hard_coded_experiment()
