@@ -328,15 +328,23 @@ exact match constraints, meaning that there might be something to improve if we 
 - The usage profiles appear in the file `smt_experiments/canonical_hyper_cube_set_tracker/analysis_results/most_common_operation_sequences.txt`
 but I'm not so sure how to interpret that, maybe we should take some of the most common once and use that for evaluation?
 
+## dnf_scalability experiments
+- The results for string constraints and integer constraints are similar, with string constraints
+having some extra overhead time, but not substantial compared to the total time.
+- Z3ProductSetDNF is very slow. It takes ~1700 seconds for a `contained_in` operation 
+that takes 0.002 for CanonicalHyperCubeSet, with #dims=3, #cubes=4.
+
+
 # Ideas:
 - [x] (priority) Analyze the results that we got with multiple string dimensions.
   - I think that we get some weird results due to MinDFA caching.
 - [x] (priority) Figure out what are the instances of Z3 that take more time for it to solve.
-- [ ] (priority) add regex to `string_single_dim_experiments`.
-- [ ] (priority) add regex to `multiple_string_dimensions` and `Z3ProductSetDNF`.
+- [x] (priority) add regex to `string_single_dim_experiments`.
+- [x] (priority) add regex to `multiple_string_dimensions` and `Z3ProductSetDNF`.
 - [ ] (priority) start working on presentation (30 min).
 - [ ] (priority) Try to create interesting instances of K8s network configurations and compare Z3ProductSet and 
   CanonicalHyperCubeSet. (maybe do that without going through all the API stuff, but with pure python?)
+- [ ] (priority) Answer the question - what percentage of time is spent on hypercube set?
 - [ ] Re-run the experiments that involve string constraints, with caching disabled.
 - [ ] String experiment with simple constraints.
   - [x] Analyze the results that we have from the previous experiments.

@@ -32,15 +32,15 @@ class Z3ProductSetDNF(Z3Set, HyperCubeSet):
     }
 
     def __init__(self, dimensions: list[str], allow_all: bool = False):
-        # TODO: invariant - if a cube is empty, then the solver dismisses it
+        # If a cube is empty, it will not be added.
         self._dim_name_to_type = {}
         for dim_name in dimensions:
             dim_type = DimensionsManager().get_dimension_type_by_name(dim_name)
             dim_type = self._dim_manager_type_to_primitive_type[dim_type]
             self._dim_name_to_type[dim_name] = dim_type
 
-        # TODO: each cube is a dictionary from dim name to a set.
-        #  If a give dim does not appear in there then it is assumed to be the universal set
+        # each cube is a dictionary from dim name to a set.
+        # If a give dim does not appear in there then it is assumed to be the universal set
         self.cubes = []
 
         if allow_all:
@@ -52,13 +52,11 @@ class Z3ProductSetDNF(Z3Set, HyperCubeSet):
         return {}
 
     def is_empty(self) -> bool:
-        for cube in self.cubes:
-            if not self._cube_is_empty(cube):
-                return False
-        return True
-
-    def __bool__(self):
-        return not self.is_empty()
+        return len(self.cubes) == 0
+        # for cube in self.cubes:
+        #     if not self._cube_is_empty(cube):
+        #         return False
+        # return True
 
     @staticmethod
     def create_from_cube(all_dims: list[str], cube: list[Z3Set], cube_dims: list[str]):
@@ -224,3 +222,34 @@ class Z3ProductSetDNF(Z3Set, HyperCubeSet):
                     new_cubes.append(new_cube)
         self.cubes = new_cubes
         return self
+
+
+def example():
+    dims = ['0', '1', '2']
+    from smt_experiments.experiments.multiple_integer_dimensions.run_experiment import init_dim_manager
+    init_dim_manager(dims)
+    s = Z3ProductSetDNF(dims)
+    from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
+    start = 0
+    step = 10
+    s.add_cube([
+        Z3IntegerSet.get_interval_set(start, start+step),
+        Z3IntegerSet.get_interval_set(start, start+step),
+        Z3IntegerSet.get_interval_set(start, start+step),
+    ])
+    assert [5, 5, 5] in s
+    assert [0, 10, 11] not in s
+    s1 = s.copy()
+
+    start += 2 * step
+    s.add_cube([
+        Z3IntegerSet.get_interval_set(start, start + step),
+        Z3IntegerSet.get_interval_set(start, start + step),
+        Z3IntegerSet.get_interval_set(start, start + step),
+    ])
+
+    s1.contained_in(s)
+
+
+if __name__ == '__main__':
+    example()

@@ -41,6 +41,23 @@ class Z3RegularStringSet(Z3Set):
         new._regex = z3_regex
         return new
 
+    @classmethod
+    def from_wildcard(cls, s: str):
+        any_regex = '[.\w/\-]*'
+        if '*' not in s:
+            regex = s
+        elif '*' == s:
+            regex = any_regex
+        elif '*' == s[-1]:
+            regex = s[:-1] + any_regex
+        elif '*' == s[0]:
+            regex = any_regex + s[1:]
+        else:
+            raise RuntimeError(f'* should only appear at the start or end of the string. got {s}.')
+
+        return cls.dfa_from_regex(regex)
+
+
     def __contains__(self, item: str) -> bool:
         constraint = InRe(item, self._regex)
         return solve_without_model(constraint) == sat

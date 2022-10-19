@@ -1,0 +1,1178 @@
+[
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 3.620004281401634e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 3.9499951526522636e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 2.0300038158893585e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 8.00006091594696e-07
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 6.998889148235321e-07
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 6.90016895532608e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 4.200031980872154e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.010403000051155686
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.010771699948236346
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.02437369991093874
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.01787129999138415
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.009482900146394968
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.03410520008765161
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.04159740009345114
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 8.860020898282528e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 2.8799986466765404e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 2.529984340071678e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 6.6999346017837524e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 4.299916326999664e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 4.299916326999664e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.600027412176132e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.01875409996137023
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.010382900014519691
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.03953319997526705
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.054752100026234984
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.033215400064364076
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.05457550007849932
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.062090500025078654
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.00011619995348155499
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 2.9399991035461426e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 2.9100105166435242e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 7.4999406933784485e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 4.600035026669502e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 5.100155249238014e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 5.00003807246685e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.026223500026389956
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.008721000049263239
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.03539890004321933
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.06217549997381866
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.05392899992875755
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.08553509996272624
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.08358470001257956
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0001450998242944479
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 3.150012344121933e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 2.8999987989664078e-05
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 8.899951353669167e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 5.00003807246685e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 5.90016134083271e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 5.00003807246685e-06
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.03543379995971918
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.008767899824306369
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.041742799803614616
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.08469549985602498
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.07885750010609627
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.09927070001140237
+    },
+    {
+        "n_dims": 1,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.10644730017520487
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 5.3800176829099655e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 5.230004899203777e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 3.9899954572319984e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 8.00006091594696e-07
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 6.998889148235321e-07
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.5300000086426735e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 8.499948307871819e-06
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.01756760012358427
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.017479600152000785
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.042220700066536665
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.031403400003910065
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.017797600012272596
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.08967659994959831
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.1369894000235945
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.00011720019392669201
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 5.120015703141689e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 5.460018292069435e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.3199867680668831e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.0599847882986069e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.7300015315413475e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.4299992471933365e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.03531830012798309
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.017724000150337815
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.07732490007765591
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.1749026000034064
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.18928729998879135
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.23755550011992455
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.3708247998729348
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.00024169986136257648
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 8.779997006058693e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 8.810008876025677e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 2.9799994081258774e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 2.6399968191981316e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.920006565749645e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.2700132578611374e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.05235100002028048
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.01657729991711676
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.10393309989012778
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.5334326000884175
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.9478810001164675
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.5817758000921458
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.9200693999882787
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.00023699994198977947
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 6.83001708239317e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 7.21001997590065e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 2.9700109735131264e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 2.719997428357601e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.569992259144783e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.0700117349624634e-05
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.06618409999646246
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.01661070017144084
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.14931469992734492
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 1.4418234000913799
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 4.457981399958953
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 1.3545749001204967
+    },
+    {
+        "n_dims": 2,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 2.1894585001282394
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 7.699988782405853e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 7.040007039904594e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 5.929986946284771e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 6.998889148235321e-07
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 8.00006091594696e-07
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.950003206729889e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.2600095942616463e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.025029900018125772
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.02528609987348318
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.06886070012114942
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.048685300163924694
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.027787900064140558
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.16478180000558496
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 1,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.2991480999626219
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.0001514002215117216
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 7.319985888898373e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 7.870001718401909e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.8300022929906845e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 1.559988595545292e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 2.629985101521015e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 2.2300053387880325e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.04977259994484484
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.024751799879595637
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.14362449990585446
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.5738678998313844
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 1.4879989998880774
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 0.6579179000109434
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 2,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 1.3584932000376284
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.00022849999368190765
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 8.500018157064915e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 9.440002031624317e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.0700117349624634e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 2.659996971487999e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.809994086623192e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.4400029107928276e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.07461430015973747
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.02464120020158589
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.23280330002307892
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 2.941591300070286
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 51.91869150009006
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 2.4424282999243587
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 3,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 5.469826600048691
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "creation",
+        "time": 0.00033510010689496994
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_cube",
+        "time": 9.980006143450737e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "add_hole",
+        "time": 0.00010599987581372261
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 4.329998046159744e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 3.9800070226192474e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 5.239993333816528e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "CanonicalHyperCubeSet",
+        "operation": "contained_in",
+        "time": 4.719989374279976e-05
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "creation",
+        "time": 0.10602440009824932
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_cube",
+        "time": 0.02499640011228621
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "add_hole",
+        "time": 0.29438229999504983
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 13.13541950006038
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 1701.61095630005
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 9.106165600009263
+    },
+    {
+        "n_dims": 3,
+        "n_cubes": 4,
+        "class": "Z3ProductSetDNF",
+        "operation": "contained_in",
+        "time": 21.632390999933705
+    }
+]
