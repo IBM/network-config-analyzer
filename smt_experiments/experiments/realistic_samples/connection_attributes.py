@@ -12,7 +12,6 @@ from nca.CoreDS.MinDFA import MinDFA
 class ConnectionAttributes:
     """If a certain attribute is None, it means that all
     values are allowed."""
-    peers: list[Union[tuple[int, int], int]] = None
     src_ports: list[Union[tuple[int, int], int]] = None
     negate_src_ports: bool = False
     dst_ports: list[Union[tuple[int, int], int]] = None
@@ -20,7 +19,7 @@ class ConnectionAttributes:
     methods: list[str] = None
     negate_methods: bool = False
     paths: list[str] = None
-    negate_paths = False
+    negate_paths: bool = False
     hosts: list[str] = None
     negate_hosts: bool = False
 
@@ -28,7 +27,6 @@ class ConnectionAttributes:
         cube = []
         active_dims = []
 
-        self.convert_integer_dim('peers', active_dims, cube)
         self.convert_integer_dim('src_ports', active_dims, cube)
         self.convert_integer_dim('dst_ports', active_dims, cube)
 
@@ -96,7 +94,6 @@ def main():
     s = CanonicalHyperCubeSet(all_dims)
 
     policy_attr = ConnectionAttributes(
-        peers=[0, 2, 10],
         src_ports=[(0, 10), (20, 500), (1234, 2345)],
         methods=['POST'],
         negate_methods=True,
