@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum, auto
+from typing import Union
 
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
@@ -8,31 +8,14 @@ from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.MinDFA import MinDFA
 
 
-def run_experiment():
-    # TODO: I want to run comparison between
-    pass
-# TODO: figure out how to make an interesting benchmark here.
-# TODO: start by finding the real dimensions and possible values that we might get.
-# ports (source / dest):
-#   - protocol (TCP, UDP, SCTP)
-#   - port numbers (0 - 2 ** 16)
-# peers (numbers)
-# methods: [PUT, ...]
-# paths: [/info*, /data, ...]
-# hosts string[]
-# There is also notMethods, notPaths, notHosts, notPorts
-# https://istio.io/latest/docs/reference/config/security/authorization-policy/#Operation
-# TODO: enable deny, allow.
-
-
 @dataclass
-class PolicyAttributes:
+class ConnectionAttributes:
     """If a certain attribute is None, it means that all
     values are allowed."""
-    peers: list[int] = None
-    src_ports: list[tuple[int, int]] = None
+    peers: list[Union[tuple[int, int], int]] = None
+    src_ports: list[Union[tuple[int, int], int]] = None
     negate_src_ports: bool = False
-    dst_ports: list[tuple[int, int]] = None
+    dst_ports: list[Union[tuple[int, int], int]] = None
     negate_dst_ports: bool = False
     methods: list[str] = None
     negate_methods: bool = False
@@ -45,32 +28,9 @@ class PolicyAttributes:
         cube = []
         active_dims = []
 
-        if self.peers is not None:
-            peers = CanonicalIntervalSet()
-            for peer in self.peers:
-                peers |= CanonicalIntervalSet.get_interval_set(peer, peer)
-            active_dims.append('peers')
-            cube.append(peers)
-
-        if self.src_ports is not None:
-            ports = CanonicalIntervalSet()
-            for start, end in self.src_ports:
-                ports |= CanonicalIntervalSet.get_interval_set(start, end)
-            if self.negate_src_ports:
-                domain = DimensionsManager().get_dimension_domain_by_name('src_ports')
-                ports = domain - ports
-            active_dims.append('src_ports')
-            cube.append(ports)
-
-        if self.dst_ports is not None:
-            ports = CanonicalIntervalSet()
-            for start, end in self.dst_ports:
-                ports |= CanonicalIntervalSet.get_interval_set(start, end)
-            if self.negate_dst_ports:
-                domain = DimensionsManager().get_dimension_domain_by_name('dst_ports')
-                ports = domain - ports
-            active_dims.append('dst_ports')
-            cube.append(ports)
+        self.convert_integer_dim('peers', active_dims, cube)
+        self.convert_integer_dim('src_ports', active_dims, cube)
+        self.convert_integer_dim('dst_ports', active_dims, cube)
 
         if self.methods is not None:
             methods = CanonicalIntervalSet()
@@ -105,12 +65,37 @@ class PolicyAttributes:
 
         return cube, active_dims
 
+    def convert_integer_dim(self, attr_name: str, active_dims: list, cube: list):
+        attr_value = getattr(self, attr_name)
+
+        negate_attr_name = 'negate_' + attr_name
+        negate = False
+        if hasattr(self, negate_attr_name):
+            negate = getattr(self, negate_attr_name)
+
+        if attr_value is not None:
+            s = CanonicalIntervalSet()
+            for value in attr_value:
+                if isinstance(value, tuple):
+                    start, end = value
+                    s |= CanonicalIntervalSet.get_interval_set(start, end)
+                elif isinstance(value, int):
+                    s |= CanonicalIntervalSet.get_interval_set(value, value)
+                else:
+                    raise RuntimeError
+
+            if negate:
+                domain = DimensionsManager().get_dimension_domain_by_name(attr_name)
+                s = domain - s
+            active_dims.append(attr_name)
+            cube.append(s)
+
 
 def main():
     all_dims = ['peers', 'src_ports', 'dst_ports', 'methods', 'paths', 'hosts']
     s = CanonicalHyperCubeSet(all_dims)
 
-    policy_attr = PolicyAttributes(
+    policy_attr = ConnectionAttributes(
         peers=[0, 2, 10],
         src_ports=[(0, 10), (20, 500), (1234, 2345)],
         methods=['POST'],

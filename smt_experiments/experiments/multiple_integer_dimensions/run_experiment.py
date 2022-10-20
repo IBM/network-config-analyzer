@@ -326,12 +326,14 @@ def save_results_to_csv(results: list[dict], result_csv_file: Path):
     assert len(z3_results) == len(tree_results)
     table_rows = []
 
-    for r1, r2 in zip(z3_results, tree_results):
-        row = r1.copy()
+    for i in range(len(z3_results)):
+        z3_res = z3_results[i]
+        tree_res = tree_results[i]
+        row = z3_res.copy()
         row.pop('time')
         row.pop('class')
-        row['CanonicalHyperCubeSet'] = r1['time']
-        row['Z3ProductSet'] = r2['time']
+        row['Z3ProductSet'] = z3_res['time']
+        row['CanonicalHyperCubeSet'] = tree_res['time']
         table_rows.append(row)
 
     with result_csv_file.open('w', newline='') as f:
