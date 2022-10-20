@@ -344,7 +344,11 @@ that takes 0.002 for CanonicalHyperCubeSet, with #dims=3, #cubes=4.
 - [ ] (priority) start working on presentation (30 min).
 - [ ] (priority) Try to create interesting instances of K8s network configurations and compare Z3ProductSet and 
   CanonicalHyperCubeSet. (maybe do that without going through all the API stuff, but with pure python?)
-- [ ] (priority) Answer the question - what percentage of time is spent on hypercube set?
+- [ ] (priority?) Answer the question - what percentage of time is spent on hypercube set?
+- [ ] (priority?) Go back to the benchmark results and analyze them. maybe a need to re-run them.
+- [ ] (priority) I want to run the traces and see what is happening.
+- [ ] (priority) I can create usage profiles by looking at the trace files.
+- [ ] (priority) try to optimize z3.
 - [ ] Re-run the experiments that involve string constraints, with caching disabled.
 - [ ] String experiment with simple constraints.
   - [x] Analyze the results that we have from the previous experiments.
