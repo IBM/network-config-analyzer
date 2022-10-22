@@ -336,65 +336,53 @@ that takes 0.002 for CanonicalHyperCubeSet, with #dims=3, #cubes=4.
 
 
 # Ideas:
+- [ ] (priority) presentation (30 min).
+- [ ] (priority) realistic hyper-cube experiment
+- [ ] (priority) analyze benchmarking results.
+- [ ] (priority) discuss adi about closing things up.
 - [x] (priority) Analyze the results that we got with multiple string dimensions.
   - I think that we get some weird results due to MinDFA caching.
 - [x] (priority) Figure out what are the instances of Z3 that take more time for it to solve.
 - [x] (priority) add regex to `string_single_dim_experiments`.
 - [x] (priority) add regex to `multiple_string_dimensions` and `Z3ProductSetDNF`.
-- [ ] (priority) start working on presentation (30 min).
-- [ ] (priority) Try to create interesting instances of K8s network configurations and compare Z3ProductSet and 
-  CanonicalHyperCubeSet. (maybe do that without going through all the API stuff, but with pure python?)
-- [ ] (priority?) Answer the question - what percentage of time is spent on hypercube set?
-- [ ] (priority?) Go back to the benchmark results and analyze them. maybe a need to re-run them.
-- [ ] (priority) I want to run the traces and see what is happening.
-- [ ] (priority) I can create usage profiles by looking at the trace files.
-- [ ] (priority) try to optimize z3.
+- [ ] SMT optimizations. -- If I have the time, experiment with this.
+  - [ ] Benchmark the z3 sets, to help optimizations.
+  - [ ] experiment with using `simple_solver` instead of the default one.
+  - [ ] instead of creating a new solver every time, try to share the solver between instances.
+  - [ ] trying out different solvers (cvc5).
+  - [ ] Use the simplify method similar to the one in
+[Z3 programming](https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-subterm-simplification).
+  - [ ] using z3 bit-vectors to represent things instead of integer sets?
 - [ ] Re-run the experiments that involve string constraints, with caching disabled.
 - [ ] String experiment with simple constraints.
   - [x] Analyze the results that we have from the previous experiments.
   - [x] Implement experiment.
   - [x] Analyze results of experiment. (still need to analyze prefix + suffix)
   - [x] add csv tables?
-  - [ ] Continue with multiple only string dimensions, and overlaps.
+  - [x] Continue with multiple only string dimensions, and overlaps.
   - [ ] Extend this to mixed dimensions.
-  - [ ] Experiment with regex.
-- [ ] Benchmark the z3 sets, so I can experiment with different options, for example using "simple_solver", or by 
-using the same solver per instance or global.
-- [ ] In some figures, it seems that there are a few different trends. Try to figure out what are does trends, and 
-what causes them.
+  - [x] Experiment with regex.
+- [ ] It seems that in some graphs there are different trends. Figure out what are does trends, and what causes them.
 - [ ] Usage profiles that we want to compare the implementation to.
   - [x] Collect traces from benchmarks and the tests, so that I have a database of real usage profiles.
   - [ ] Analyze those, can I characterize them in some way?
-- [ ] Possible improvements:
-  - [ ] Implement a prototype of MBDDs 
-  - [ ] experiment with different SMT optimizations:
-    - [ ] trying out different solver (cvc5)
-    - [ ] maybe use the simplify method that we saw in the Z3 programming? 
-    (https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-subterm-simplification)
-    - [ ] maybe using a single solver, or using some other z3 tricks can make our implementation more
-    efficient.
-    - [ ] using z3 bit-vectors to represent things instead of integer sets?
-  - [ ] Hybrid string set. Instead of MinDFA, some sort of hybrid string set that only uses MinDFA when it is required.
+- [ ] Implement a prototype of MBDDs.
+- [ ] Hybrid string set. Instead of MinDFA, some sort of hybrid string set that only uses MinDFA when it is required.
 - [ ] Figure out how the number of dimensions affects things (mathematical description).
 - [ ] Figure out where is the limit where z3 based implementation outperforms the tree-based implementation.
 - [ ] Find more interesting test cases for contained_in. Maybe look at the tests and how it is implemented in 
 CanonicalHyperCubeSet can inform those.
 - [ ] Experiment with randomly generated samples.
-- [ ] Think about how to tell the story and what we discovered.
-- [ ] For now, don't think about Z3ProductSetDNF, only after finishing with simple regular expressions and intervals I 
-need to look into that.
 - [ ] It is interesting to look at the graph where the x-axis is #cubes * #dimensions, might we get something that 
 looks linear? I think that this might be the case with z3 (this is the number of constraints).
 - [ ] I can actually write code that checks how much samples (under different usage profiles) are more efficient with 
 Z3ProductSet and how many with CanonicalHyperCubeSet. Can I do this more methodically? 
 (e.g., by fitting a curve and extrapolating).
-- [ ] maybe create a plot of overlapping and non-overlapping cubes?
-- [ ] String experiment with full regex support.
+- [x] maybe create a plot of overlapping and non-overlapping cubes?
 - [ ] look for projects using z3 and try to figure out how they use it, and if they do anything differently.
 - [ ] perform scalability analysis - how different parameters affect the running time (mathematical description)
 and use that to determine under what circumstances it might be better to use one implementation over the other.
-- [ ] Another thing that I might want to check is how the length of the string constraints affects performance. Very 
-Interesting.
+- [ ] Another thing that I might want to check is how the length of the string constraints affects performance. 
 - [x] make the `.csv` table have two columns - one Z3ProductSet and one for CanonicalHyperCubeSet.
 - [x] Analyze results with overlapping cubes.
 - [x] repeat the first experiment with overlapping cubes. look at adi's code for inspiration.
