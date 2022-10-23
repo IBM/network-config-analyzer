@@ -1,11 +1,14 @@
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, Type
 
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.MinDFA import MinDFA
+from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
+from smt_experiments.z3_sets.z3_product_set import Z3ProductSet
+from smt_experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
 
 @dataclass
@@ -23,67 +26,96 @@ class ConnectionAttributes:
     hosts: list[str] = None
     negate_hosts: bool = False
 
-    def to_canonical_cube(self):
+    @staticmethod
+    def _cls_to_integer_cls(cls):
+        if cls == CanonicalHyperCubeSet:
+            return CanonicalIntervalSet
+        else:
+            return Z3IntegerSet
+
+    @staticmethod
+    def _cls_to_str_cls(cls):
+        if cls == CanonicalHyperCubeSet:
+            return MinDFA
+        else:
+            return Z3SimpleStringSet
+
+    @staticmethod
+    def _get_domain(attr_name: str, cls):
+        domain = DimensionsManager().get_dimension_domain_by_name(attr_name)
+        if cls == CanonicalHyperCubeSet:
+            return domain
+
+        if isinstance(domain, CanonicalIntervalSet):
+            interval = domain.interval_set[0]
+            domain = Z3IntegerSet.get_interval_set(interval.start, interval.end)
+            return domain
+        else:   # MinDFA
+            return Z3SimpleStringSet.get_universal_set()
+
+    def to_cube(self, cls: Type):
+        assert cls in [CanonicalHyperCubeSet, Z3ProductSet]
         cube = []
         active_dims = []
 
-        self.convert_integer_dim('src_ports', active_dims, cube)
-        self.convert_integer_dim('dst_ports', active_dims, cube)
+        self._convert_integer_dim('src_ports', active_dims, cube, cls)
+        self._convert_integer_dim('dst_ports', active_dims, cube, cls)
 
         if self.methods is not None:
-            methods = CanonicalIntervalSet()
+            integer_cls = self._cls_to_integer_cls(cls)
+            methods = integer_cls()
             for method in self.methods:
                 method_index = MethodSet.all_methods_list.index(method)
-                methods = methods | CanonicalIntervalSet.get_interval_set(method_index, method_index)
+                methods = methods | integer_cls.get_interval_set(method_index, method_index)
             if self.negate_methods:
-                domain = DimensionsManager().get_dimension_domain_by_name('methods')
+                domain = self._get_domain('methods', cls)
                 methods = domain - methods
             active_dims.append('methods')
             cube.append(methods)
 
-        if self.paths is not None:
-            paths = MinDFA.from_wildcard(self.paths[0])
-            for path in self.paths[1:]:
-                paths = paths | MinDFA.from_wildcard(path)
-            if self.negate_paths:
-                domain = DimensionsManager().get_dimension_domain_by_name('paths')
-                paths = domain - paths
-            active_dims.append('paths')
-            cube.append(paths)
-
-        if self.hosts is not None:
-            hosts = MinDFA.from_wildcard(self.hosts[0])
-            for host in self.hosts[1:]:
-                hosts = hosts | MinDFA.from_wildcard(host)
-            if self.negate_hosts:
-                domain = DimensionsManager().get_dimension_domain_by_name('hosts')
-                hosts = domain - hosts
-            active_dims.append('hosts')
-            cube.append(hosts)
+        self._convert_str_dim('paths', active_dims, cube, cls)
+        self._convert_str_dim('hosts', active_dims, cube, cls)
 
         return cube, active_dims
 
-    def convert_integer_dim(self, attr_name: str, active_dims: list, cube: list):
+    def _convert_integer_dim(self, attr_name: str, active_dims: list, cube: list, cls):
         attr_value = getattr(self, attr_name)
-
         negate_attr_name = 'negate_' + attr_name
         negate = False
         if hasattr(self, negate_attr_name):
             negate = getattr(self, negate_attr_name)
 
+        integer_cls = self._cls_to_integer_cls(cls)
         if attr_value is not None:
-            s = CanonicalIntervalSet()
+            s = integer_cls()
             for value in attr_value:
                 if isinstance(value, tuple):
                     start, end = value
-                    s |= CanonicalIntervalSet.get_interval_set(start, end)
+                    s |= integer_cls.get_interval_set(start, end)
                 elif isinstance(value, int):
-                    s |= CanonicalIntervalSet.get_interval_set(value, value)
+                    s |= integer_cls.get_interval_set(value, value)
                 else:
                     raise RuntimeError
-
             if negate:
-                domain = DimensionsManager().get_dimension_domain_by_name(attr_name)
+                domain = self._get_domain(attr_name, cls)
+                s = domain - s
+            active_dims.append(attr_name)
+            cube.append(s)
+
+    def _convert_str_dim(self, attr_name: str, active_dims: list, cube: list, cls):
+        attr_value = getattr(self, attr_name)
+        negate_attr_name = 'negate_' + attr_name
+        negate = False
+        if hasattr(self, negate_attr_name):
+            negate = getattr(self, negate_attr_name)
+
+        str_cls = self._cls_to_str_cls(cls)
+        if attr_value is not None:
+            s = str_cls.from_wildcard(attr_value[0])
+            for v in attr_value[1:]:
+                s = s | str_cls.from_wildcard(v)
+            if negate:
+                domain = self._get_domain(attr_name, cls)
                 s = domain - s
             active_dims.append(attr_name)
             cube.append(s)

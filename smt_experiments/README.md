@@ -334,6 +334,27 @@ having some extra overhead time, but not substantial compared to the total time.
 - Z3ProductSetDNF is very slow. It takes ~1700 seconds for a `contained_in` operation 
 that takes 0.002 for CanonicalHyperCubeSet, with #dims=3, #cubes=4.
 
+## realistic_samples experiment
+### contained_in
+- There are a lot of points in the graph. 
+- It appears that in most places, Z3ProductSet and CanonicalHyperCubeSet perform quite similarly, but,
+in many instances Z3ProductSet takes significantly longer to run. 
+- The longest time for Z3ProductSet is ~45 seconds.
+- The longest time for CanonicalHyperCubeSet is ~5 seconds.
+
+### creation_and_emptiness
+- In most cases, Z3 and CanonicalHyperCubeSet take similar time to run.
+- It appears that in some cases, CanonicalHyperCubeSet takes significantly more time than Z3ProductSet.
+- There is one sample, with id ~35 where Z3ProductSet takes significantly more time than CanonicalHyperCubeSet.
+- The longest time that CanonicalHyperCubeSet takes is ~7 seconds.
+- The longest time that Z3ProductSet takes is ~11 seconds.
+
+### equivalence
+- most points are pretty close to 0 seconds, but, Z3ProductSet clearly takes more time than CanonicalHyperCubeSet,
+in many points.
+- The longest time for Z3ProductSet is around 25 seconds.
+- The longest time for CanonicalHyperCubeSet is around 0 seconds. 
+
 
 # Ideas:
 - [ ] (priority) presentation (30 min).

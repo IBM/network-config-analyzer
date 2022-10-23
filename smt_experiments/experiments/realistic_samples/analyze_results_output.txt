@@ -1,0 +1,22 @@
+Category=creation_and_emptiness.
+Z3 wins 22 times out of 41.
+The top positive difference for z3 is 6.230 at index 18.
+The top negative difference for z3 is 8.434 at index 35.
+Total time for Z3ProductSet in this category is 28.631.
+Total time for CanonicalHyperCubeSet in this category is 41.141.
+
+Category=equivalence.
+Z3 wins 0 times out of 820.
+The top negative difference for z3 is 25.006 at index 521.
+Total time for Z3ProductSet in this category is 730.673.
+Total time for CanonicalHyperCubeSet in this category is 0.004.
+
+Category=contained_in.
+Z3 wins 263 times out of 1640.
+The top positive difference for z3 is 5.959 at index 1216.
+The top negative difference for z3 is 44.151 at index 937.
+Total time for Z3ProductSet in this category is 1668.988.
+Total time for CanonicalHyperCubeSet in this category is 207.542.
+
+Total time for Z3ProductSet for all categories is 2428.292.
+Total time for CanonicalHyperCubeSet for all categories is 248.688.
