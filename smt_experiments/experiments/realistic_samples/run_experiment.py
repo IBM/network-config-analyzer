@@ -13,15 +13,27 @@ Presenting the results:
 - graph with equivalence check times.
 - table with all the results.
 """
+#   - (think about this a little more) The analyze_results is redundant.
+#   I can do this check with Excel once I have the results in .csv format.
+#   Delete the python file and create a workbook, and upload to github.
+
+# TODO: add more simple policies that are more realistic, and compare performance on those.
+#   I hope that this will show us that CanonicalHyperCubeSet is definitely better than z3 on the common cubes.
+
+
 import itertools
 import json
 import logging
+from copy import deepcopy
 from csv import DictWriter
 
 from matplotlib import pyplot as plt
 
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from smt_experiments.experiments.experiment_utils import Timer
+from smt_experiments.experiments.realistic_samples.connection_attributes import ConnectionAttributes
+from smt_experiments.experiments.realistic_samples.connection_attributes_list import SIMPLE_CONNECTION_ATTR_LIST, \
+    COMPLEX_CONNECTION_ATTR_LIST
 from smt_experiments.experiments.realistic_samples.create_connection_set_combinations import get_allow_deny_combinations
 from smt_experiments.z3_sets.z3_product_set import Z3ProductSet
 
@@ -32,159 +44,174 @@ def get_all_dims():
     return ['src_ports', 'dst_ports', 'methods', 'paths', 'hosts']
 
 
+def cls_name_to_marker(cls_name):
+    if cls_name == 'Z3ProductSet':
+        return '+'
+    elif cls_name == 'CanonicalHyperCubeSet':
+        return 'x'
+
+
+def get_cls_list():
+    return [CanonicalHyperCubeSet, Z3ProductSet]
+
+
 def config_to_str(config):
     return f'allow_list={config[0]}; deny_list={config[1]}'
 
 
-def run_experiment():
-    cls_list = [CanonicalHyperCubeSet, Z3ProductSet]
-    # a `configuration` is an allow_list and a deny_list of connection attributes.
-    config_list = list(get_allow_deny_combinations())
+def run_experiment(allow_deny_combinations: list[tuple[list[ConnectionAttributes], list[ConnectionAttributes]]]):
+    cls_list = get_cls_list()
+
+    results = {}
+    for level_1_key in ['creation', 'emptiness', 'equivalence', 'contained_in']:
+        results[level_1_key] = {}
+        for level_2_key in [cls.__name__ for cls in cls_list]:
+            results[level_1_key][level_2_key] = {}
+            for level_3_key in ['times', 'outcomes', 'indices']:
+                results[level_1_key][level_2_key][level_3_key] = []
+
     all_dims = get_all_dims()
-
-    creation_and_emptiness_results = {cls.__name__: [] for cls in cls_list}
-    equivalence_results = {cls.__name__: [] for cls in cls_list}
-    contained_in_results = {cls.__name__: [] for cls in cls_list}
-
+    n = len(allow_deny_combinations)
     for cls in cls_list:
-        # first part - for each of configuration, create a hyper-cube and check emptiness.
-        hyper_cube_set_list = []
-        for i, config in enumerate(config_list, 1):
-            logging.info(f'cls={cls.__name__}, creation and emptiness check {i} out of {len(config_list)}')
-            with Timer() as t:
-                allow_list, deny_list = config
-                hyper_cube_set = cls(all_dims)
+        s_list = []
+        for i in range(n):
+            allow_list, deny_list = allow_deny_combinations[i]
+
+            logging.info(f'cls={cls.__name__} | creation | {i+1} out of {n}')
+            with Timer() as creation_timer:
+                s = cls(all_dims)
                 for connection_attr in allow_list:
                     cube, dims = connection_attr.to_cube(cls)
-                    hyper_cube_set.add_cube(cube, dims)
+                    s.add_cube(cube, dims)
                 for connection_attr in deny_list:
                     cube, dims = connection_attr.to_cube(cls)
-                    hyper_cube_set.add_hole(cube, dims)
-                is_empty = bool(hyper_cube_set)
-                hyper_cube_set_list.append(hyper_cube_set)
+                    s.add_hole(cube, dims)
+            results['creation'][cls.__name__]['times'].append(creation_timer.elapsed_time)
+            results['creation'][cls.__name__]['outcomes'].append(None)
+            results['creation'][cls.__name__]['indices'].append([i])
+            s_list.append(s)
 
-            creation_and_emptiness_results[cls.__name__].append({
-                'value': is_empty,
-                'time': t.elapsed_time,
-                'descriptor': config_to_str(config)
-            })
-
-        def config_pair_to_str(config_i1, config_i2):
-            return f'config1=<{config_to_str(config_list[config_i1])}>;' \
-                   f'config2=<{config_to_str(config_list[config_i2])}>'
+            logging.info(f'cls={cls.__name__} | emptiness | {i+1} out of {n}')
+            with Timer() as emptiness_timer:
+                emptiness_outcome = bool(s)
+            results['emptiness'][cls.__name__]['times'].append(emptiness_timer.elapsed_time)
+            results['emptiness'][cls.__name__]['outcomes'].append(emptiness_outcome)
+            results['emptiness'][cls.__name__]['indices'].append([i])
 
         # second part - for each of configuration pair, check containment in both directions, and equivalence.
-        all_pairs = list(itertools.combinations(range(len(hyper_cube_set_list)), 2))
+        all_pairs = list(itertools.combinations(range(n), 2))
         for i, (j1, j2) in enumerate(all_pairs, 1):
-            hyper_cube_set_1, hyper_cube_set_2 = hyper_cube_set_list[j1], hyper_cube_set_list[j2]
-            logging.info(f'cls={cls.__name__}, equivalence check {i} out of {len(all_pairs)}')
-            with Timer() as t:
-                are_equivalent = hyper_cube_set_1 == hyper_cube_set_2
+            s1, s2 = s_list[j1], s_list[j2]
 
-            equivalence_results[cls.__name__].append({
-                'value': are_equivalent,
-                'time': t.elapsed_time,
-                'descriptor': config_pair_to_str(j1, j2)
+            logging.info(f'cls={cls.__name__} | equivalence | {i} out of {len(all_pairs)}')
+            with Timer() as equivalence_timer:
+                equivalence_outcome = s1 == s2
+            results['equivalence'][cls.__name__]['times'].append(equivalence_timer.elapsed_time)
+            results['equivalence'][cls.__name__]['outcomes'].append(equivalence_outcome)
+            results['equivalence'][cls.__name__]['indices'].append([j1, j2])
+
+            logging.info(f'cls={cls.__name__} | contained_in_12 | {i} out of {len(all_pairs)}')
+            with Timer() as contained_in_12_timer:
+                contained_in_12_outcome = s1.contained_in(s2)
+            results['contained_in'][cls.__name__]['times'].append(contained_in_12_timer.elapsed_time)
+            results['contained_in'][cls.__name__]['outcomes'].append(contained_in_12_outcome)
+            results['contained_in'][cls.__name__]['indices'].append([j1, j2])
+
+            logging.info(f'cls={cls.__name__} | contained_in_21 | {i} out of {len(all_pairs)}')
+            with Timer() as contained_in_21_timer:
+                contained_in_21_outcome = s2.contained_in(s1)
+            results['contained_in'][cls.__name__]['times'].append(contained_in_21_timer.elapsed_time)
+            results['contained_in'][cls.__name__]['outcomes'].append(contained_in_21_outcome)
+            results['contained_in'][cls.__name__]['indices'].append([j2, j1])
+
+    return results
+
+
+def add_creation_times(results):
+    for operation in ['emptiness', 'equivalence', 'contained_in']:
+        level_1_key = f'{operation}+creation'
+        results[level_1_key] = deepcopy(results[operation])
+
+        for cls in get_cls_list():
+            creation_times = results['creation'][cls.__name__]['times']
+            for i in range(len(results[operation][cls.__name__]['times'])):
+                for j in results[operation][cls.__name__]['indices'][i]:
+                    results[level_1_key][cls.__name__]['times'][i] += creation_times[j]
+
+    return results
+
+
+def draw_graphs(results, mode):
+    for operation, operation_results in results.items():
+        for cls_name, cls_results in operation_results.items():
+            x = list(range(len(cls_results['times'])))
+            plt.scatter(
+                x,
+                cls_results['times'],
+                marker=cls_name_to_marker(cls_name),
+                alpha=0.5,
+                label=cls_name
+            )
+        plt.legend()
+        plt.title(operation)
+        plt.xlabel('sample id')
+        plt.ylabel('time [seconds]')
+        file_name = f'{operation}_{mode}.png'
+        plt.savefig(file_name)
+        plt.clf()
+
+
+def create_tables(results, allow_deny_combinations, mode):
+    for operation, operation_results in results.items():
+        rows = []
+        z3_results = operation_results['Z3ProductSet']
+        canonical_results = operation_results['CanonicalHyperCubeSet']
+        assert z3_results['indices'] == canonical_results['indices']
+
+        for i in range(len(z3_results['times'])):
+            sub_descriptions = []
+            for j in z3_results['indices'][i]:
+                allow_list, deny_list = allow_deny_combinations[j]
+                sub_descriptions.append(f'<allow_list={allow_list}; deny_list={deny_list}>')
+            description = ';'.join(sub_descriptions)
+
+            rows.append({
+                'Z3ProductSet_time': z3_results['times'][i],
+                'CanonicalHyperCubeSet_times': canonical_results['times'][i],
+                'Z3ProductSet_outcome': z3_results['outcomes'][i],
+                'CanonicalHyperCubeSet_outcome': canonical_results['outcomes'][i],
+                'description': description
             })
-
-            logging.info(f'cls={cls.__name__}, containment check {i} out of {len(all_pairs)}')
-            with Timer() as t:
-                contained_in_1_2 = hyper_cube_set_1.contained_in(hyper_cube_set_2)
-            contained_in_results[cls.__name__].append({
-                'value': contained_in_1_2,
-                'time': t.elapsed_time,
-                'descriptor': config_pair_to_str(j1, j2)
-            })
-            with Timer() as t:
-                contained_in_2_1 = hyper_cube_set_2.contained_in(hyper_cube_set_1)
-            contained_in_results[cls.__name__].append({
-                'value': contained_in_2_1,
-                'time': t.elapsed_time,
-                'descriptor': config_pair_to_str(j2, j1)
-            })
-
-    return creation_and_emptiness_results, equivalence_results, contained_in_results
-
-
-def check_results(results: dict[str, list[dict]]):
-    results1 = results['CanonicalHyperCubeSet']
-    results2 = results['Z3ProductSet']
-    for v1, v2 in zip(results1, results2):
-        assert v1['value'] == v2['value']
-
-
-def draw_graph(data: dict[str, list[dict]], name: str):
-    z3_times = [r['time'] for r in data['Z3ProductSet']]
-    canonical_times = [r['time'] for r in data['CanonicalHyperCubeSet']]
-
-    plt.clf()
-    plt.title(name)
-    plt.xlabel('sample id')
-    plt.ylabel('time [seconds]')
-
-    assert len(canonical_times) == len(z3_times)
-    x = [i for i in range(len(canonical_times))]
-    plt.scatter(x, canonical_times, marker='x', alpha=0.5, label='CanonicalHyperCubeSet')
-    plt.scatter(x, z3_times, marker='+', alpha=0.5, label='Z3ProductSet')
-    plt.legend()
-    plt.savefig(name + '.png')
-
-
-def save_results_to_csv(data: dict[str, list[dict]], name: str):
-    z3_data = data['Z3ProductSet']
-    canonical_data = data['CanonicalHyperCubeSet']
-    assert len(z3_data) == len(canonical_data)
-    rows = []
-    for i in range(len(z3_data)):
-        assert z3_data[i]['descriptor'] == canonical_data[i]['descriptor']
-        rows.append({
-            'Z3ProductSet': z3_data[i]['time'],
-            'CanonicalHyperCubeSet': canonical_data[i]['time'],
-            'descriptor': z3_data[i]['descriptor']
-        })
-
-    with open(name + '.csv', 'w', newline='') as f:
-        writer = DictWriter(f, fieldnames=['Z3ProductSet', 'CanonicalHyperCubeSet', 'descriptor'])
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def save_results(data, category: str):
-    with open(category + '_results.json', 'w') as f:
-        json.dump(data, f)
-
-
-def load_results(category: str):
-    with open(category + '_results.json', 'r') as f:
-        return json.load(f)
+        file_name = f'{operation}_{mode}.csv'
+        with open(file_name, 'w', newline='') as f:
+            writer = DictWriter(f, fieldnames=rows[0].keys())
+            writer.writeheader()
+            writer.writerows(rows)
 
 
 def main():
     skip_run = False
-    skip_check = True
-    if not skip_run:
-        creation_and_emptiness_results, equivalence_results, contained_in_results = run_experiment()
-        save_results(creation_and_emptiness_results, 'creation_and_emptiness')
-        save_results(equivalence_results, 'equivalence')
-        save_results(contained_in_results, 'contained_in')
+    for mode in ['simple', 'complex']:
+        logging.info(f'mode={mode}')
+        if mode == 'simple':
+            connection_attr_list = SIMPLE_CONNECTION_ATTR_LIST
+        else:
+            connection_attr_list = COMPLEX_CONNECTION_ATTR_LIST
+        allow_deny_combinations = list(get_allow_deny_combinations(connection_attr_list))
+        # allow_deny_combinations = allow_deny_combinations[:5]  # TODO: comment
+        results_file = f'results_{mode}.json'
 
-    creation_and_emptiness_results = load_results('creation_and_emptiness')
-    equivalence_results = load_results('equivalence')
-    contained_in_results = load_results('contained_in')
+        if not skip_run:
+            results = run_experiment(allow_deny_combinations)
+            results = add_creation_times(results)
+            with open(results_file, 'w') as f:
+                json.dump(results, f)
 
-    # check that the results align
-    if not skip_check:
-        check_results(creation_and_emptiness_results)
-        check_results(equivalence_results)
-        check_results(contained_in_results)
+        with open(results_file, 'r') as f:
+            results = json.load(f)
 
-    draw_graph(creation_and_emptiness_results, 'creation_and_emptiness')
-    draw_graph(equivalence_results, 'equivalence')
-    draw_graph(contained_in_results, 'contained_in')
-
-    save_results_to_csv(creation_and_emptiness_results, 'creation_and_emptiness')
-    save_results_to_csv(equivalence_results, 'equivalence')
-    save_results_to_csv(contained_in_results, 'contained_in')
+        draw_graphs(results, mode)
+        create_tables(results, allow_deny_combinations, mode)
 
 
 if __name__ == '__main__':

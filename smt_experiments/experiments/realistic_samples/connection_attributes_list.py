@@ -3,7 +3,7 @@ from smt_experiments.experiments.realistic_samples.connection_attributes import 
 N_PEERS = 1_000
 MAX_PORT = 2 ** 16
 
-CONNECTION_ATTR_LIST = [
+COMPLEX_CONNECTION_ATTR_LIST = [
     # 1: capture-all communication with GET
     ConnectionAttributes(
         methods=['GET']
@@ -80,5 +80,55 @@ CONNECTION_ATTR_LIST = [
         methods=['PUT', 'DELETE', 'CONNECT'],
         paths=['*/update', '*/request', '/server3/*'],
         hosts=['/my/funny/cat'],
+    ),
+]
+
+SIMPLE_CONNECTION_ATTR_LIST = [
+    # 1.
+    ConnectionAttributes(
+        src_ports=[(30000, 32767)],
+        dst_ports=[(30000, 32767)],
+    ),
+    # 2.
+    ConnectionAttributes(
+        src_ports=[9050],
+        dst_ports=[9000],
+    ),
+    # 3.
+    ConnectionAttributes(
+        src_ports=[5555],
+        dst_ports=[5555],
+    ),
+    # 4.
+    ConnectionAttributes(
+        src_ports=[3456],
+    ),
+    # 5.
+    ConnectionAttributes(
+        dst_ports=[6543],
+    ),
+    # 6.
+    ConnectionAttributes(
+        src_ports=[(0, 1024)],
+        negate_src_ports=True,
+        dst_ports=[(0, 1024)],
+        negate_dst_ports=True
+    ),
+    # 7.
+    ConnectionAttributes(
+        methods=['GET'],
+        paths=['/info*']
+    ),
+    # 8.
+    ConnectionAttributes(
+        methods=['POST'],
+        paths=['/data']
+    ),
+    # 9.
+    ConnectionAttributes(
+        methods=['GET', 'HEAD'],
+        hosts=['*.example.com'],
+        paths=['/admin*'],
+        negate_paths=True
     ),
 ]

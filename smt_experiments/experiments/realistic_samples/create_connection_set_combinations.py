@@ -1,9 +1,6 @@
-from smt_experiments.experiments.realistic_samples.connection_attributes_list import CONNECTION_ATTR_LIST
-
-
 def _get_allow_deny_combinations_indices(n_items: int):
     """A combination is a pair of lists, one is the allow_list, and the second is the deny list.
-    yeilds two lists, first is the allow_list, the second is the deny_list."""
+    yields two lists, first is the allow_list, the second is the deny_list."""
     # singleton: for each item i, allow_list=[x] and deny_list=[]
     for i in range(n_items):
         allow_list = [i]
@@ -49,17 +46,18 @@ def _get_allow_deny_combinations_indices(n_items: int):
     yield allow_list, deny_list
 
 
-def get_allow_deny_combinations():
-    n_items = len(CONNECTION_ATTR_LIST)
+def get_allow_deny_combinations(connection_attr_list: list):
+    n_items = len(connection_attr_list)
     for allow_list_indices, deny_list_indices in _get_allow_deny_combinations_indices(n_items):
-        allow_list = [CONNECTION_ATTR_LIST[i] for i in allow_list_indices]
-        deny_list = [CONNECTION_ATTR_LIST[i] for i in deny_list_indices]
+        allow_list = [connection_attr_list[i] for i in allow_list_indices]
+        deny_list = [connection_attr_list[i] for i in deny_list_indices]
         yield allow_list, deny_list
 
 
 def example():
     counter = 0
-    n_items = len(CONNECTION_ATTR_LIST)
+    from smt_experiments.experiments.realistic_samples.connection_attributes_list import COMPLEX_CONNECTION_ATTR_LIST
+    n_items = len(COMPLEX_CONNECTION_ATTR_LIST)
     print(f'n_items={n_items}')
     for allow_list, deny_list in _get_allow_deny_combinations_indices(n_items):
         print(f'allow_list={allow_list}')
