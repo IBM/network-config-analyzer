@@ -52,7 +52,7 @@ COMPLEX_CONNECTION_ATTR_LIST = [
     ),
     # 7:
     ConnectionAttributes(
-        src_ports=[i for i in range(0, MAX_PORT, 100)],
+        src_ports=[(0, MAX_PORT // 5), (2 * (MAX_PORT // 5), 3 * (MAX_PORT // 5)), (4 * (MAX_PORT // 5), MAX_PORT)],
         dst_ports=[(0, MAX_PORT // 3), (2 * (MAX_PORT // 3), MAX_PORT)],
         paths=['/server2/*', '*/update', '*/request', '/server3/fun', '/server1/not/fun'],
     ),

@@ -1,0 +1,2522 @@
+[
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 1,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 1",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 1,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 1",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 1,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 1",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 2,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 2",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 2,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 2",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 2,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 2",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 3,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 3",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 3,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 3",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 3,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 3",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 4,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 4",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 4,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 4",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 4,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 4",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 5,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 5",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 5,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 5",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 5,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 5",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 6,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 6",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 6,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 6",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 6,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 6",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 7,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 7",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.03125,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 7,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.015625,
+        "set_description": "aaaaa* ^ 7",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 7,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.015625,
+        "set_description": "*aaaaa ^ 7",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 8,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.015625,
+        "set_description": "aaaaa ^ 8",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 8,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 8",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 8,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 8",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 9,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 9",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 9,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.015625,
+        "set_description": "aaaaa* ^ 9",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 9,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 9",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 10,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 10",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 10,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 10",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "z3",
+            "n_dims": 10,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 10",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 1,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 1",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 1,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 1",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 1,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 1",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 2,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 2",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 2,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 2",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 2,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 2",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 3,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 3",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 3,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 3",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 3,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 3",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 4,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 4",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 4,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 4",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 4,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 4",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 5,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 5",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 5,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 5",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 5,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 5",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 6,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 6",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 6,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 6",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 6,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 6",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 7,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 7",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 7,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 7",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 7,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 7",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 8,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 8",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 8,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 8",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 8,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 8",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 9,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 9",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 9,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 9",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.015625,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 9,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 9",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 10,
+            "basic_set": "constant"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa ^ 10",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa",
+                        "aaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a",
+                        "aaa@a"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 10,
+            "basic_set": "prefix"
+        },
+        "creation_time": 0.0,
+        "set_description": "aaaaa* ^ 10",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx",
+                        "aaaaaxxx"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx",
+                        "aaa@axxx"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    },
+    {
+        "set_params": {
+            "engine": "our",
+            "n_dims": 10,
+            "basic_set": "suffix"
+        },
+        "creation_time": 0.0,
+        "set_description": "*aaaaa ^ 10",
+        "operation_result_dict": {
+            "positive_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa",
+                        "xxxaaaaa"
+                    ]
+                ],
+                "result_list": [
+                    true
+                ]
+            },
+            "negative_membership": {
+                "time": 0.0,
+                "input_list": [
+                    [
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa",
+                        "xxx@aaaa"
+                    ]
+                ],
+                "result_list": [
+                    false
+                ]
+            }
+        }
+    }
+]

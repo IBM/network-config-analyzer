@@ -82,13 +82,13 @@ def get_negative_membership_operation(get_input_list: Callable) -> Operation:
 
 
 def get_results_file(experiment_name: str):
-    experiment_results_dir = Path('../experiment_results')
+    experiment_results_dir = Path('experiment_results')
     results_file = experiment_results_dir / (experiment_name + '.json')
     return results_file
 
 
 def get_plot_file(experiment_name: str):
-    experiment_results_dir = Path('../plots')
+    experiment_results_dir = Path('plots')
     results_file = experiment_results_dir / (experiment_name + '.png')
     return results_file
 

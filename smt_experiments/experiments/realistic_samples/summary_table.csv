@@ -1,0 +1,7 @@
+operation,mode,#samples,#z3_wins,#z3_wins_percent,total_z3,total_canonical,max_z3,max_canonical,var_z3,var_canonical,max_z3_advantage,max_canonical_advantage
+contained_in,simple,1332,316,0.237,31.74,35.873,0.085,0.545,0,0.003,0.504,0.073
+contained_in,complex,1640,1063,0.648,1610.665,2029.715,40.11,11.658,6.788,3.516,11.376,32.217
+emptiness,simple,37,3,0.081,0.744,0.409,0.05,0.141,0,0.001,0.129,0.047
+emptiness,complex,41,23,0.561,16.974,24.29,7.847,7.445,1.456,1.791,3.974,0.505
+equivalence,simple,666,114,0.171,18.793,14.721,0.083,0.256,0,0.002,0.208,0.079
+equivalence,complex,820,517,0.63,705.715,971.611,22.419,11.562,3.831,3.411,11.328,22.149

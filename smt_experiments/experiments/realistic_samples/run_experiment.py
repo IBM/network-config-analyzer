@@ -177,7 +177,7 @@ def create_tables(results, allow_deny_combinations, mode):
 
             rows.append({
                 'Z3ProductSet_time': z3_results['times'][i],
-                'CanonicalHyperCubeSet_times': canonical_results['times'][i],
+                'CanonicalHyperCubeSet_time': canonical_results['times'][i],
                 'Z3ProductSet_outcome': z3_results['outcomes'][i],
                 'CanonicalHyperCubeSet_outcome': canonical_results['outcomes'][i],
                 'description': description

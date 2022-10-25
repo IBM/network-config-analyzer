@@ -1,70 +1,90 @@
 from contextlib import redirect_stdout
+from csv import DictReader, DictWriter
+from statistics import variance
 
-from smt_experiments.experiments.realistic_samples.run_experiment import load_results
+
+def analyze_table(table: list[dict]):
+    total_our_time = sum(float(entry['CanonicalHyperCubeSet_time']) for entry in table)
+    print(f'total canonical time: {total_our_time}')
+
+    total_z3_time = sum(float(entry['Z3ProductSet_time']) for entry in table)
+    print(f'total z3 time: {total_z3_time}')
+
+    max_our_time = max(float(entry['CanonicalHyperCubeSet_time']) for entry in table)
+    print(f'max canonical time: {max_our_time}')
+
+    max_z3_time = max(float(entry['Z3ProductSet_time']) for entry in table)
+    print(f'max z3 time: {max_z3_time}')
+
+    our_time_var = variance(float(entry['CanonicalHyperCubeSet_time']) for entry in table)
+    print(f'canonical time variance: {our_time_var}')
+
+    z3_time_var = variance(float(entry['Z3ProductSet_time']) for entry in table)
+    print(f'z3 time variance: {z3_time_var}')
+
+    for entry in table:
+        entry['time_diff'] = float(entry['Z3ProductSet_time']) - float(entry['CanonicalHyperCubeSet_time'])
+
+    n_z3_wins = sum(entry['time_diff'] < 0 for entry in table)
+    print(f'z3_wins in {n_z3_wins} out of {len(table)}')
+
+    n_entries_to_print = 10
+    table_sorted_by_time_diff = sorted(table, key=lambda x: x['time_diff'])
+    print('Samples with highest advantage to z3')
+    for entry in table_sorted_by_time_diff[:n_entries_to_print]:
+        print(f'advantage: {-entry["time_diff"]}, sample: {entry["description"]}')
+
+    print()
+
+    table_sorted_by_time_diff = sorted(table, key=lambda x: x['time_diff'])
+    print('Samples with highest advantage to canonical')
+    for entry in reversed(table_sorted_by_time_diff[-n_entries_to_print:]):
+        print(f'advantage: {entry["time_diff"]}, sample: {entry["description"]}')
+
+    res = {
+        '#samples': len(table),
+        '#z3_wins': n_z3_wins,
+        '#z3_wins_percent': n_z3_wins / len(table),
+        'total_z3': total_z3_time,
+        'total_canonical': total_our_time,
+        'max_z3': max_z3_time,
+        'max_canonical': max_our_time,
+        'var_z3': z3_time_var,
+        'var_canonical': our_time_var,
+        'max_z3_advantage': -table_sorted_by_time_diff[0]['time_diff'],
+        'max_canonical_advantage': table_sorted_by_time_diff[-1]['time_diff']
+    }
+    res = {k: round(v, 3) for k, v in res.items()}
+    return res
 
 
-def analyze():
-    categories = ['creation_and_emptiness', 'equivalence', 'contained_in']
-    total_z3_time = 0
-    total_canonical_time = 0
+def main():
+    # TODO: create a table with summery statistics
+    summary_table = []
+    # for with_creation in [True, False]:
+    for with_creation in [True]:
+        for operation in ['contained_in', 'emptiness', 'equivalence']:
+            for mode in ['simple', 'complex']:
+                if with_creation:
+                    filename = f'{operation}+creation_{mode}.csv'
+                else:
+                    filename = f'{operation}_{mode}.csv'
 
-    for category in categories:
-        print(f'Category={category}.')
+                with open(filename, 'r') as f:
+                    reader = DictReader(f)
+                    table = [entry for entry in reader]
+                print('=' * 30)
+                print(f'analyzing table {filename}')
+                summary_row = {'operation': operation, 'mode': mode}
+                summary_row.update(analyze_table(table))
+                summary_table.append(summary_row)
 
-        results = load_results(category)
-        z3_results = results['Z3ProductSet']
-        canonical_results = results['CanonicalHyperCubeSet']
-
-        # figure out in each category, how much times z3 wins ours and vice versa.
-        z3_wins_counter = 0
-        for z3_res, canonical_res in zip(z3_results, canonical_results):
-            if z3_res['time'] < canonical_res['time']:
-                z3_wins_counter += 1
-        print(f'Z3 wins {z3_wins_counter} times out of {len(z3_results)}.')
-
-        # find the most extreme examples of differences between z3 and our implementation.
-        top_z3_positive_diff_i = None
-        top_z3_positive_diff = None
-        top_z3_negative_diff_i = None
-        top_z3_negative_diff = None
-
-        for i in range(len(z3_results)):
-            z3_res = z3_results[i]
-            canonical_res = canonical_results[i]
-            diff = canonical_res['time'] - z3_res['time']
-            if diff > 0:
-                if top_z3_positive_diff_i is None or diff > top_z3_positive_diff:
-                    top_z3_positive_diff_i = i
-                    top_z3_positive_diff = diff
-            else:
-                diff = -diff
-                if top_z3_negative_diff_i is None or diff > top_z3_negative_diff:
-                    top_z3_negative_diff_i = i
-                    top_z3_negative_diff = diff
-        if top_z3_positive_diff_i is not None:
-            print(f'The top positive difference for z3 is {top_z3_positive_diff:.3f} '
-                  f'at index {top_z3_positive_diff_i}.')
-        if top_z3_negative_diff_i is not None:
-            print(f'The top negative difference for z3 is {top_z3_negative_diff:.3f} '
-                  f'at index {top_z3_negative_diff_i}.')
-
-        # for each category, compute the total for z3 and our.
-        total_z3_time_per_category = 0
-        total_canonical_time_per_category = 0
-        for z3_res, canonical_res in zip(z3_results, canonical_results):
-            total_z3_time_per_category += z3_res['time']
-            total_canonical_time_per_category += canonical_res['time']
-        print(f'Total time for Z3ProductSet in this category is {total_z3_time_per_category:.3f}.')
-        print(f'Total time for CanonicalHyperCubeSet in this category is {total_canonical_time_per_category:.3f}.')
-        total_z3_time += total_z3_time_per_category
-        total_canonical_time += total_canonical_time_per_category
-        print()
-
-    # for all the categories, compute the total time for z3 and ours.
-    print(f'Total time for Z3ProductSet for all categories is {total_z3_time:.3f}.')
-    print(f'Total time for CanonicalHyperCubeSet for all categories is {total_canonical_time:.3f}.')
+    with open('summary_table.csv', 'w', newline='') as f:
+        writer = DictWriter(f, fieldnames=summary_table[0].keys())
+        writer.writeheader()
+        writer.writerows(summary_table)
 
 
 if __name__ == '__main__':
-    with open('analyze_results_output.txt', 'w') as f, redirect_stdout(f):
-        analyze()
+    with open('analysis_output.txt', 'w') as f, redirect_stdout(f):
+        main()

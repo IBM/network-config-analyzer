@@ -342,7 +342,7 @@ in many instances Z3ProductSet takes significantly longer to run.
 - The longest time for Z3ProductSet is ~45 seconds.
 - The longest time for CanonicalHyperCubeSet is ~5 seconds.
 
-### creation_and_emptiness
+### emptiness+creation
 - In most cases, Z3 and CanonicalHyperCubeSet take similar time to run.
 - It appears that in some cases, CanonicalHyperCubeSet takes significantly more time than Z3ProductSet.
 - There is one sample, with id ~35 where Z3ProductSet takes significantly more time than CanonicalHyperCubeSet.
