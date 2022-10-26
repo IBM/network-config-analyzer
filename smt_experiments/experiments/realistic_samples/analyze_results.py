@@ -43,16 +43,16 @@ def analyze_table(table: list[dict]):
 
     res = {
         '#samples': len(table),
-        '#z3_wins': n_z3_wins,
-        '#z3_wins_percent': n_z3_wins / len(table),
-        'total_z3': total_z3_time,
-        'total_canonical': total_our_time,
-        'max_z3': max_z3_time,
-        'max_canonical': max_our_time,
-        'var_z3': z3_time_var,
-        'var_canonical': our_time_var,
-        'max_z3_advantage': -table_sorted_by_time_diff[0]['time_diff'],
-        'max_canonical_advantage': table_sorted_by_time_diff[-1]['time_diff']
+        '#z3 wins': n_z3_wins,
+        'z3 wins (%)': n_z3_wins / len(table) * 100,
+        'z3 total time': total_z3_time,
+        'canonical total time': total_our_time,
+        'z3 max time': max_z3_time,
+        'canonical max time': max_our_time,
+        'z3 variance': z3_time_var,
+        'canonical variance': our_time_var,
+        'z3 max advantage': -table_sorted_by_time_diff[0]['time_diff'],
+        'canonical max advantage': table_sorted_by_time_diff[-1]['time_diff']
     }
     res = {k: round(v, 3) for k, v in res.items()}
     return res

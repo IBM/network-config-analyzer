@@ -30,13 +30,15 @@ from csv import DictWriter
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from smt_experiments.experiments.experiment_utils import Timer, get_dimension_names, load_results, \
-    get_unique_values_for_key, filter_on_key_value
+    get_unique_values_for_key, filter_on_key_value, save_results
+from smt_experiments.experiments.realistic_samples.run_experiment import cls_name_to_marker
 from smt_experiments.z3_sets.z3_integer_set import Z3IntegerSet
 from smt_experiments.z3_sets.z3_product_set import Z3ProductSet
 
@@ -125,6 +127,166 @@ def get_not_member(cubes: list[list[tuple[int, int]]]) -> list[int]:
     return not_member
 
 
+def run_experiment_aux(overlapping: bool, n_dims: int, n_cubes_start: int, n_cubes_end: int, n_cubes_step: int):
+    results = []
+    if overlapping:
+        cubes = generate_overlapping_integer_cubes(n_dims, n_cubes_end + 1)  # I add one for the containment test
+    else:
+        cubes = generate_non_overlapping_integer_cubes(n_dims, n_cubes_end + 1)
+
+    dim_names = get_dimension_names(n_dims)
+    init_dim_manager(dim_names)
+
+    for n_cubes in range(n_cubes_start, n_cubes_end + 1, n_cubes_step):
+        cubes_subset = cubes[:n_cubes]
+        for cls in [CanonicalHyperCubeSet, Z3ProductSet]:
+            logging.info(f'n_dims: {n_dims}, n_cubes: {n_cubes}, cls: {cls.__name__}.')
+            # TODO: add times for creation + containment
+            # creation
+            with Timer() as t:
+                converted_cubes = [convert_cube(cube, cls) for cube in cubes_subset]
+                s = cls(dim_names)
+                for converted_cube in converted_cubes:
+                    s.add_cube(converted_cube)
+            s_creation_time = t.elapsed_time
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'creation',
+                'time': s_creation_time
+            })
+
+            # membership test
+            member = get_member(cubes_subset)
+            with Timer() as t:
+                out = member in s
+            assert out
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'membership_test',
+                'time': t.elapsed_time,
+            })
+
+            not_member = get_not_member(cubes_subset)
+            with Timer() as t:
+                out = not_member in s
+            assert not out
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'membership_test',
+                'time': t.elapsed_time,
+            })
+
+            # add cube
+            cube_to_add = cubes[n_cubes]
+            superset = s.copy()
+            with Timer() as t:
+                converted_cube = convert_cube(cube_to_add, cls)
+                superset.add_cube(converted_cube)
+            superset_creation_time = s_creation_time + t.elapsed_time
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'add_cube',
+                'time': t.elapsed_time,
+            })
+
+            # add hole
+            cube_to_subtract = cubes[n_cubes // 2]
+            subset = s.copy()
+            with Timer() as t:
+                converted_cube = convert_cube(cube_to_subtract, cls)
+                subset.add_hole(converted_cube)
+            subset_creation_time = s_creation_time + t.elapsed_time
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'add_hole',
+                'time': t.elapsed_time,
+            })
+
+            # containment
+            with Timer() as t:
+                out = subset.contained_in(s)
+            assert out
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'contained_in',
+                'time': t.elapsed_time,
+            })
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'contained_in+creation',
+                'time': t.elapsed_time + subset_creation_time + s_creation_time
+            })
+
+            with Timer() as t:
+                out = s.contained_in(subset)
+            assert not out
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'contained_in',
+                'time': t.elapsed_time,
+            })
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'contained_in+creation',
+                'time': t.elapsed_time + subset_creation_time + s_creation_time
+            })
+
+            with Timer() as t:
+                out = superset.contained_in(s)
+            assert not out
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'contained_in',
+                'time': t.elapsed_time,
+            })
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'contained_in+creation',
+                'time': t.elapsed_time + superset_creation_time + s_creation_time
+            })
+
+            with Timer() as t:
+                out = s.contained_in(superset)
+            assert out
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'contained_in',
+                'time': t.elapsed_time,
+            })
+            results.append({
+                'n_dims': n_dims,
+                'n_cubes': n_cubes,
+                'class': cls.__name__,
+                'operation': 'contained_in+creation',
+                'time': t.elapsed_time + subset_creation_time + s_creation_time
+            })
+    return results
+
+
 def run_experiment(overlapping: bool):
     n_dims_options = [5, 10, 15]
     n_cubes_start = 3
@@ -133,139 +295,10 @@ def run_experiment(overlapping: bool):
         n_cubes_end = 24
     else:
         n_cubes_end = 150
-    # n_cubes_end = 15  # for running quickly TODO: comment this
 
-    n_cubes_options = list(range(n_cubes_start, n_cubes_end + 1, n_cubes_step))
-    # hyper_cube_set_classes = [CanonicalHyperCubeSet, Z3ProductSet, Z3ProductSetDNF]
-    hyper_cube_set_classes = [CanonicalHyperCubeSet, Z3ProductSet]
     results = []
-
     for n_dims in n_dims_options:
-        if overlapping:
-            cubes = generate_overlapping_integer_cubes(n_dims, n_cubes_end + 1)  # I add one for the containment test
-        else:
-            cubes = generate_non_overlapping_integer_cubes(n_dims, n_cubes_end + 1)
-
-        dim_names = get_dimension_names(n_dims)
-        init_dim_manager(dim_names)
-
-        for n_cubes in n_cubes_options:
-            cubes_subset = cubes[:n_cubes]
-
-            for cls in hyper_cube_set_classes:
-                logging.info(f'n_dims: {n_dims}, n_cubes: {n_cubes}, cls: {cls.__name__}.')
-
-                # creation
-                with Timer() as t:
-                    converted_cubes = [convert_cube(cube, cls) for cube in cubes_subset]
-                    s = cls(dim_names)
-                    for converted_cube in converted_cubes:
-                        s.add_cube(converted_cube)
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'creation',
-                    'time': t.elapsed_time
-                })
-
-                # membership test
-                member = get_member(cubes_subset)
-                with Timer() as t:
-                    out = member in s
-                assert out
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'membership_test',
-                    'time': t.elapsed_time,
-                })
-
-                not_member = get_not_member(cubes_subset)
-                with Timer() as t:
-                    out = not_member in s
-                assert not out
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'membership_test',
-                    'time': t.elapsed_time,
-                })
-
-                # add cube
-                cube_to_add = cubes[n_cubes]
-                superset = s.copy()
-                with Timer() as t:
-                    converted_cube = convert_cube(cube_to_add, cls)
-                    superset.add_cube(converted_cube)
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'add_cube',
-                    'time': t.elapsed_time,
-                })
-
-                # add hole
-                cube_to_subtract = cubes[n_cubes // 2]
-                subset = s.copy()
-                with Timer() as t:
-                    converted_cube = convert_cube(cube_to_subtract, cls)
-                    subset.add_hole(converted_cube)
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'add_hole',
-                    'time': t.elapsed_time,
-                })
-
-                # containment
-                with Timer() as t:
-                    out = subset.contained_in(s)
-                assert out
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'contained_in',
-                    'time': t.elapsed_time,
-                })
-
-                with Timer() as t:
-                    out = s.contained_in(subset)
-                assert not out
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'contained_in',
-                    'time': t.elapsed_time,
-                })
-
-                with Timer() as t:
-                    out = superset.contained_in(s)
-                assert not out
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'contained_in',
-                    'time': t.elapsed_time,
-                })
-
-                with Timer() as t:
-                    out = s.contained_in(superset)
-                assert out
-                results.append({
-                    'n_dims': n_dims,
-                    'n_cubes': n_cubes,
-                    'class': cls.__name__,
-                    'operation': 'contained_in',
-                    'time': t.elapsed_time,
-                })
+        results += run_experiment_aux(overlapping, n_dims, n_cubes_start, n_cubes_end, n_cubes_step)
 
     return results
 
@@ -310,7 +343,6 @@ def plot_result_for_operation(results: list[dict], operation: str, overlapping: 
         ax.set_title(f'#dims = {n_dims}')
         ax.legend()
 
-    # plt.show()  # TODO: comment
     if overlapping:
         stem = f'{operation}_overlapping'
     else:
@@ -349,13 +381,17 @@ def plot_results(results: list[dict], overlapping: bool):
 
 
 def run_experiment_and_plot(overlapping: bool):
+    skip_run = True
     if overlapping:
         stem = 'results_overlapping'
     else:
         stem = 'results_non_overlapping'
     results_file = Path(__file__).with_stem(stem).with_suffix('.json')
-    # results = run_experiment(overlapping)  # TODO: uncomment to re-run the experiment
-    # save_results(results, results_file)  # TODO: uncomment to re-run the experiment
+
+    if not skip_run:
+        results = run_experiment(overlapping)
+        save_results(results, results_file)
+
     results = load_results(results_file)
     save_results_to_csv(results, results_file.with_suffix('.csv'))
     plot_results(results, overlapping)
@@ -366,8 +402,43 @@ def main():
         run_experiment_and_plot(overlapping)
 
 
+def plot_ax(ax, data):
+    ax: Axes
+    data = filter_on_key_value(data, 'operation', 'contained_in+creation')
+    for cls_name in get_unique_values_for_key(data, 'class'):
+        cls_data = filter_on_key_value(data, 'class', cls_name)
+        n_cubes_list = [d['n_cubes'] for d in cls_data]
+        time_list = [d['time'] for d in cls_data]
+        marker = cls_name_to_marker(cls_name)
+        ax.scatter(n_cubes_list, time_list, marker=marker, alpha=0.5, label=cls_name)
+    ax.legend()
+
+
+def generate_graphs_for_presentation():
+    n_dims = 5
+    n_cubes_start = 2
+    n_cubes_step = 2
+    n_cubes_end = 50
+
+    non_overlapping_results = run_experiment_aux(False, n_dims, n_cubes_start, n_cubes_end, n_cubes_step)
+    overlapping_results = run_experiment_aux(True, n_dims, n_cubes_start, n_cubes_end, n_cubes_step)
+
+    fig, (non_overlapping_ax, overlapping_ax) = plt.subplots(1, 2)
+    fig: Figure
+    non_overlapping_ax: Axes
+    overlapping_ax: Axes
+
+    non_overlapping_ax.set_title('Non-Overlapping')
+    overlapping_ax.set_title('Overlapping')
+    # fig.suptitle('Containment + Creation Times with 5 Integer Dimensions')
+    fig.supylabel('contained_in+creation time [seconds]')
+    fig.supxlabel('#cubes')
+    fig.set_size_inches(w=12, h=4.8)
+
+    plot_ax(non_overlapping_ax, non_overlapping_results)
+    plot_ax(overlapping_ax, overlapping_results)
+    fig.savefig('presentation_graph.png')
+
+
 if __name__ == '__main__':
-    # run_experiment_and_plot(overlapping=True)
-    main()
-    # print(generate_overlapping_integer_cubes(3, 4))
-    # print(generate_non_overlapping_integer_cubes(3, 4))
+    generate_graphs_for_presentation()

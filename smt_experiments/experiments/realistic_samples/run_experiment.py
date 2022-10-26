@@ -153,7 +153,8 @@ def draw_graphs(results, mode):
                 label=cls_name
             )
         plt.legend()
-        plt.title(operation)
+        title = f'{operation} {mode}'
+        plt.title(title)
         plt.xlabel('sample id')
         plt.ylabel('time [seconds]')
         file_name = f'{operation}_{mode}.png'
@@ -189,8 +190,32 @@ def create_tables(results, allow_deny_combinations, mode):
             writer.writerows(rows)
 
 
+def sort_results_by_list_sizes(results, allow_deny_combinations):
+    results_copy = deepcopy(results)
+    for operation, operation_results in results.items():
+        for cls_name, cls_results in operation_results.items():
+            def sort_key(i):
+                allow_len = 0
+                deny_len = 0
+                indices = cls_results['indices'][i]
+                for j in indices:
+                    allow_list, deny_list = allow_deny_combinations[j]
+                    allow_len += len(allow_list)
+                    deny_len += len(deny_list)
+                return allow_len + deny_len, deny_len, allow_len
+
+            sorted_order = sorted(range(len(cls_results['indices'])), key=sort_key)
+            for key, value_list in cls_results.items():
+                results_copy[operation][cls_name][key] = [value_list[i] for i in sorted_order]
+
+    return results_copy
+
+
 def main():
-    skip_run = False
+    # TODO: create a more compact representation for ConnectionAttr, maybe this will make things more clear.
+    # TODO: add simple / complex to the title of the plot
+    # TODO: I would like to make a random experiment with 1 dim with integers only.
+    skip_run = True
     for mode in ['simple', 'complex']:
         logging.info(f'mode={mode}')
         if mode == 'simple':
@@ -210,6 +235,7 @@ def main():
         with open(results_file, 'r') as f:
             results = json.load(f)
 
+        results = sort_results_by_list_sizes(results, allow_deny_combinations)
         draw_graphs(results, mode)
         create_tables(results, allow_deny_combinations, mode)
 
