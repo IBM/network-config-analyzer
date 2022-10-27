@@ -6,9 +6,9 @@ numerical_result: 1
 textual_result: np-partly-within-default does not permit connections specified in
   np-within-default
 explanation:
-- description: Connections allowed in np-within-default which are not a subset of
+  description: Connections allowed in np-within-default which are not a subset of
     those in np-partly-within-default
-- connections:
+  connections:
   - src: default/cog-agents-d54st
     dst: default/cog-agents-qr8gp
     conn: All connections

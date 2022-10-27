@@ -76,6 +76,7 @@ queries:
   - name: has_redundancy
     redundancy:
       - np_global
+    expectedOutput: ../../expected_output/testcase10-has-redundancy.txt
     expected: 4
 
   - name: all_contained_in_globalAllowAll

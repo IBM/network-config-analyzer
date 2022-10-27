@@ -5,8 +5,8 @@ configs:
 numerical_result: 1
 textual_result: global_np interferes with local_np
 explanation:
-- description: Connections in global_np which extend connections in local_np
-- connections:
+  description: Connections in global_np which extend connections in local_np
+  connections:
   - src: default/cog-agents-d54st
     dst: kube-system/calico-node-mgdlr
     conn: 'Protocol: TCP, '
@@ -231,8 +231,8 @@ configs:
 numerical_result: 1
 textual_result: global_np interferes with local_np
 explanation:
-- description: The narrow connections in local_np
-- connections:
+  description: The narrow connections in local_np
+  connections:
   - src: default/cog-agents-d54st
     dst: kube-system/calico-node-mgdlr
     conn: No connections

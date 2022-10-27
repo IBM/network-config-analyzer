@@ -1,0 +1,6 @@
+query: vacuous_policy_new
+config: np_globalAllowAll
+numerical_result: 1
+textual_result: Network configuration np_globalAllowAll is vacuous - it allows all
+  default connections
+---

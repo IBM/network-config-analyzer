@@ -1,4 +1,4 @@
-Neither network configuration config_a_with_ipBlock and config_a_with_b_ipBlock are contained in the other.
+Neither network configuration config_a_with_ipBlock and config_a_with_b_ipBlock are contained in the other
 config_a_with_ipBlock is not contained in config_a_with_b_ipBlock
 Connections allowed in config_a_with_ipBlock which are not a subset of those in config_a_with_b_ipBlock:
 src: 10.0.0.0-10.9.255.255, dst: default/pod-2, conn: All connections

@@ -22,7 +22,17 @@ queries:
   - name: emptiness
     emptiness:
       - np1
+    expectedOutput: ../../expected_output/emptiness-in-np1.txt
     expected: 3
+
+  - name: emptiness_yaml
+    emptiness:
+      - np1
+    outputConfiguration:
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/emptiness-in-np1.yaml
+    expected: 3
+
   - name: redundancy
     redundancy:
       - np1

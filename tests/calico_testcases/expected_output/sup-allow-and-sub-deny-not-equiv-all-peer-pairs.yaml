@@ -5,8 +5,8 @@ configs:
 numerical_result: 1
 textual_result: np_SupsetAllowFirst and np_SubsetDenyFirst are not semantically equivalent.
 explanation:
-- description: Connections in np_SupsetAllowFirst which are different in np_SubsetDenyFirst
-- connections:
+  description: Connections in np_SupsetAllowFirst which are different in np_SubsetDenyFirst
+  connections:
   - src: kube-system/file-plugin-7bfb8b69bf-p86gk
     dst: kube-system/calico-node-mgdlr
     conn: 'Protocol: TCP, '
@@ -87,8 +87,8 @@ configs:
 numerical_result: 1
 textual_result: np_SupsetAllowFirst and np_SubsetDenyFirst are not semantically equivalent.
 explanation:
-- description: Connections in np_SubsetDenyFirst which are different in np_SupsetAllowFirst
-- connections:
+  description: Connections in np_SubsetDenyFirst which are different in np_SupsetAllowFirst
+  connections:
   - src: kube-system/file-plugin-7bfb8b69bf-p86gk
     dst: kube-system/calico-node-mgdlr
     conn: No connections

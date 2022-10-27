@@ -3,11 +3,12 @@ configs:
 - config_a_with_b_ipBlock
 - config_a_with_ipBlock
 numerical_result: 0
-textual_result: config_a_with_ipBlock is not contained in config_a_with_b_ipBlock
+textual_result: Neither network configuration config_a_with_ipBlock and config_a_with_b_ipBlock 
+  are contained in the other
 explanation:
-- description: Connections allowed in config_a_with_ipBlock which are not a subset
+- description: Connections allowed in config_a_with_ipBlock which are not a subset 
     of those in config_a_with_b_ipBlock
-- connections:
+  connections:
   - src: 10.0.0.0-10.9.255.255
     dst: default/pod-2
     conn: All connections
@@ -29,17 +30,9 @@ explanation:
   - src: default/pod-4
     dst: default/pod-2
     conn: All connections
----
-query: twoWayContainment_a_with_different_ipBlock_policies_print_all_pairs
-configs:
-- config_a_with_b_ipBlock
-- config_a_with_ipBlock
-numerical_result: 0
-textual_result: config_a_with_b_ipBlock is not contained in config_a_with_ipBlock
-explanation:
-- description: Connections allowed in config_a_with_b_ipBlock which are not a subset
+- description: Connections allowed in config_a_with_b_ipBlock which are not a subset 
     of those in config_a_with_ipBlock
-- connections:
+  connections:
   - src: 10.10.0.0-10.10.255.255
     dst: default/pod-1
     conn: All connections

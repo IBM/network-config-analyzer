@@ -1,0 +1,3 @@
+Redundancies found in np_global
+Policies that are redundant in np_global:
+testcase10-global-allowAll, testcase10-global-no-egress-rule, testcase10-global-no-ingress-rule, testcase10-global-onlyTypes
