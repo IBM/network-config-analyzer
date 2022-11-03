@@ -8,7 +8,7 @@ from functools import lru_cache
 
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
-from smt_experiments.dfa_creation_tree import CreationTree
+from experiments.dfa_creation_tree import CreationTree
 
 
 class MinDFA:
