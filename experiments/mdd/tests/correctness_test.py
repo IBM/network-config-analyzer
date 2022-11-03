@@ -72,6 +72,32 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(dd, x)
         self.assertNotEqual(dd6, x)
 
+    def test_sub_1(self):
+        # TODO: pass
+        dd1 = SetValuedDecisionDiagram.from_cube([{0, 1, 2}, {0, 1, 2}])
+        dd2 = SetValuedDecisionDiagram.from_cube([{0, 2}, {0, 2}])
+        dd = dd1 - dd2
+
+        target = SetValuedDecisionDiagram.from_cube([{1}, {0, 1, 2}])
+        target = target | SetValuedDecisionDiagram.from_cube([{0, 2}, {1}])
+
+        self.assertEqual(dd, target)
+
+    def test_sub_2(self):
+        # TODO: pass
+        dd1 = SetValuedDecisionDiagram.from_cube([{0, 1, 2}, {0, 1, 2}])
+        dd1 = dd1 | SetValuedDecisionDiagram.from_cube([{3, 4, 5}, {3, 4, 5}])
+        dd2 = SetValuedDecisionDiagram.from_cube([{0, 2, 4}, {0, 2, 4}])
+        dd2 = dd2 | SetValuedDecisionDiagram.from_cube([{1, 3, 5}, {1, 3, 5}])
+        dd = dd1 - dd2
+
+        target = SetValuedDecisionDiagram.from_cube([{0, 2}, {1}])
+        target = target | SetValuedDecisionDiagram.from_cube([{1}, {0, 2}])
+        target = target | SetValuedDecisionDiagram.from_cube([{3, 5}, {4}])
+        target = target | SetValuedDecisionDiagram.from_cube([{4}, {3, 5}])
+
+        self.assertEqual(dd, target)
+
     @unittest.skip
     def test_empty_basic(self):
         dd = SetValuedDecisionDiagram.get_empty()

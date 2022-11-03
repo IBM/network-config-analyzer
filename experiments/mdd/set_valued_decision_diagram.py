@@ -128,5 +128,5 @@ class SetValuedDecisionDiagram:
                     return False
         return False
 
-    def __le__(self, other):
+    def issubset(self, other):
         pass
