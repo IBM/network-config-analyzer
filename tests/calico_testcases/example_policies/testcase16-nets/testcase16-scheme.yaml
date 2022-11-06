@@ -46,6 +46,7 @@ queries:
       - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
       - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
     outputConfiguration:
+      fullExplanation: true
       outputFormat: yaml
     expectedOutput: ../../expected_output/equiv-all-range1.yaml
     expected: 0

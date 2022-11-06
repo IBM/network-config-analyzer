@@ -137,6 +137,7 @@ queries:
       - config_a
       - config_b
     outputConfiguration:
+      fullExplanation: true
       outputFormat: yaml
     expectedOutput: ../../expected_output/permits-a-b-not-executed.yaml
     expectedNotExecuted: 1 # config_a and config_b are not comparable (have different network topologies)
