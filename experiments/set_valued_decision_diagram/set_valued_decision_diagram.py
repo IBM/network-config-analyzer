@@ -8,6 +8,8 @@ properties that we want to preserve / graph transformations:
 """
 from typing import Union
 
+from experiments.set_valued_decision_diagram.canonical_set import CanonicalSet
+
 """Ideas
 - since each set takes space, if we have the same value (set) that is represented over and over again,
 we might want to create a cache, the has indices to the object instead of a copy of it, and we share?
@@ -33,7 +35,16 @@ we might want to create a cache, the has indices to the object instead of a copy
 TERMINAL = -1
 
 
-class SetValuedDecisionDiagram:
+class SetValuedDecisionDiagram(CanonicalSet):
+    def contained_in(self, other):
+        pass
+
+    def __repr__(self):
+        pass
+
+    def __copy__(self):
+        pass
+
     def __init__(self, children: dict):
         """Constructor should not be called directly."""
         self.children = children
@@ -88,7 +99,19 @@ class SetValuedDecisionDiagram:
         return SetValuedDecisionDiagram(children)
 
     def __sub__(self, other):
-        pass
+        assert isinstance(other, SetValuedDecisionDiagram)
+        # TODO: implement
+        children = {}
+        for value1, subtree1 in self.children.items():
+            for value2, subtree2 in other.children.items():
+                intersection = value1 & value2
+                if intersection:
+                    value1 = value1 - intersection
+                    subtree = subtree1 - subtree2
+                    children[intersection] = subtree
+            if value1:
+                children[value1] = subtree1
+        return SetValuedDecisionDiagram(children)
 
     def __bool__(self):     # if not empty
         pass
@@ -109,9 +132,6 @@ class SetValuedDecisionDiagram:
         assert isinstance(other, SetValuedDecisionDiagram)
         for (value1, subtree1), (value2, subtree2) in zip(self.children.items(), other.children.items()):
             return value1 == value2 and subtree1 == subtree2
-
-    def __hash__(self):
-        pass
 
     def __iter__(self):
         pass

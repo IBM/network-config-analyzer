@@ -1,6 +1,6 @@
 import unittest
 
-from experiments.mdd.set_valued_decision_diagram import SetValuedDecisionDiagram
+from experiments.set_valued_decision_diagram.set_valued_decision_diagram import SetValuedDecisionDiagram
 
 
 class MyTestCase(unittest.TestCase):
