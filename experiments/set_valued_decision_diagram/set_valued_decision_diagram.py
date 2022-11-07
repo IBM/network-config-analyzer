@@ -6,7 +6,7 @@ properties that we want to preserve / graph transformations:
 - (new) DAG: if two subtrees are isomorphic, we use a pointer. only one copy of each.
 - note that DAG and merging might conflict. and create a different tree based on the order of operations
 """
-from typing import Union
+from typing import Union, Any
 
 from experiments.set_valued_decision_diagram.canonical_set import CanonicalSet
 
@@ -31,35 +31,131 @@ we might want to create a cache, the has indices to the object instead of a copy
 # TODO: possible implementation - make it a binary tree, so we would not have to compare all pairs, but only by search
 #   for the correct one.
 # TODO: create benchmarks for that in order to check how small changes affect behavior.
-
-TERMINAL = -1
+# TODO: split between TerminalNode and Non-Terminal Nodes
+# TODO: add caching at the Interval and MinDFA level also?
+# TODO: write down the data structure invariants that we have, and try to test them.
+# TODO: hash without full representation, using edges indices
+# TODO: need to figure out how to treat the terminal node. Leave it to the end
+#   after I have added support for the other aspects. I think that I want to do that with
+#   inheritance and polymorphism
+# TODO: use real variable ordering, for now it is just variable names that matter
+# TODO: I somehow need to make sure that the dimensions align and are
+#   correctly typed.
+# TODO: add support for don't cares
 
 
 class SetValuedDecisionDiagram(CanonicalSet):
-    def contained_in(self, other):
-        pass
+    """Data Structure Invariants:
+    - __UNIQUE_LIST contains no repetitions / equivalent elements
+    - Canonical form
+    - edges are sorted
+    """
+    # Special index for the terminal node
+    __TERMINAL = -1
+    # List for all the created decision diagrams, no duplicates
+    __UNIQUE_LIST = []
+    # a dictionary for quick searching __UNIQUE_LIST
+    __UNIQUE_ID_LOOKUP = {}
+    # Map from (operation, *args (indices)) -> index of result in UNIQUE_LIST
+    __COMPUTE_CACHE: dict[tuple, int] = {}
 
-    def __repr__(self):
-        pass
-
-    def __copy__(self):
-        pass
-
-    def __init__(self, children: dict):
+    def __init__(self, var: str, edges: tuple[tuple[CanonicalSet, int]]):
         """Constructor should not be called directly."""
-        self.children = children
+        self.var = var
+        self.edges = edges
 
     @staticmethod
-    def from_cube(cube: list[Union[frozenset, set]]):
-        assert len(cube) > 0
-        value = cube[0]
-        if isinstance(value, set):
-            value = frozenset(value)
+    def from_cube(cube: tuple[tuple[str, CanonicalSet]]):
+        """
+        :param cube: a tuple of cubes, with (var, set) combinations. We want it to be a tuple so
+        we can use hash(cube)
+        :return:
+        """
+        # TODO: I think that I might need to return the index so that I can do the recursive call
+        assert len(cube) > 0, 'Cube must contain at least 1 dimension.'
+
+        compute_cache_key = ('from_cube', cube)
+        result_index = SetValuedDecisionDiagram.__COMPUTE_CACHE.get(compute_cache_key, None)
+        if result_index is not None:
+            return SetValuedDecisionDiagram.__UNIQUE_LIST[result_index]
+
+        var, dim_value = cube[0]
 
         if len(cube) == 1:
-            return SetValuedDecisionDiagram({value: TERMINAL})
+            s = SetValuedDecisionDiagram(
+                var=var,
+                edges=((dim_value, SetValuedDecisionDiagram.__TERMINAL),),
+            )
 
-        return SetValuedDecisionDiagram({value: SetValuedDecisionDiagram.from_cube(cube[1:])})
+        else:
+            sub_cube = cube[1:]
+            sub_graph = SetValuedDecisionDiagram.from_cube(sub_cube)
+            sub_graph_id = SetValuedDecisionDiagram.__UNIQUE_ID_LOOKUP[sub_graph]
+            s = SetValuedDecisionDiagram(
+                var=var,
+                edges=((dim_value, sub_graph_id),)
+            )
+
+        unique_id = SetValuedDecisionDiagram.__get_unique_id(s)
+        SetValuedDecisionDiagram.__COMPUTE_CACHE[compute_cache_key] = unique_id
+        return s
+
+    @staticmethod
+    def __get_unique_id(s):
+        assert isinstance(s, SetValuedDecisionDiagram)
+
+        unique_id = SetValuedDecisionDiagram.__UNIQUE_ID_LOOKUP.get(s, None)
+        if unique_id is None:
+            unique_id = len(SetValuedDecisionDiagram.__UNIQUE_LIST)
+            SetValuedDecisionDiagram.__UNIQUE_LIST.append(s)
+            SetValuedDecisionDiagram.__UNIQUE_ID_LOOKUP[s] = unique_id
+        return unique_id
+
+    def __repr_aux(self):
+        return self.var, self.edges
+
+    def __hash__(self):
+        return hash(self.__repr_aux())
+
+    def __eq__(self, other):
+        assert isinstance(other, SetValuedDecisionDiagram)
+        return self.__repr_aux() == other.__repr_aux()
+
+    def __repr__(self):
+        return repr(self.__repr_aux())
+
+    def __le__(self, other):
+        return self.__repr_aux() <= other.__repr_aux()
+
+    def __contains__(self, item: tuple[str, Any]):
+        assert len(item) > 0
+
+        var, value = item[0]
+        if var == self.var:
+            for edge_value, child_index in self.edges:
+                if value in edge_value:
+                    # TODO: better treatment of terminals
+                    if child_index == self.__TERMINAL:
+                        return True
+                    return item[1:] in self.__UNIQUE_LIST[child_index]
+            return False
+        elif var < self.var:    # var is a don't care
+            return item[1:] in self
+        else:
+            assert False, 'should not get here.'
+
+    def __and__(self, other):
+        assert isinstance(other, SetValuedDecisionDiagram)
+
+        children = {}
+        for value1, subtree1 in self.children.items():
+            for value2, subtree2 in other.children.items():
+                intersection = value1 & value2
+                if intersection:
+                    # TODO: add check if the subtree is not empty. if so we don't want to add it.
+                    subtree = subtree1 & subtree2
+                    children[intersection] = subtree
+        return SetValuedDecisionDiagram(children)
 
     def __or__(self, other):
         assert isinstance(other, SetValuedDecisionDiagram)
@@ -85,19 +181,6 @@ class SetValuedDecisionDiagram(CanonicalSet):
         children = {value: subtree for value, subtree in children}
         return SetValuedDecisionDiagram(children)
 
-    def __and__(self, other):
-        assert isinstance(other, SetValuedDecisionDiagram)
-
-        children = {}
-        for value1, subtree1 in self.children.items():
-            for value2, subtree2 in other.children.items():
-                intersection = value1 & value2
-                if intersection:
-                    # TODO: add check if the subtree is not empty. if so we don't want to add it.
-                    subtree = subtree1 & subtree2
-                    children[intersection] = subtree
-        return SetValuedDecisionDiagram(children)
-
     def __sub__(self, other):
         assert isinstance(other, SetValuedDecisionDiagram)
         # TODO: implement
@@ -113,40 +196,22 @@ class SetValuedDecisionDiagram(CanonicalSet):
                 children[value1] = subtree1
         return SetValuedDecisionDiagram(children)
 
-    def __bool__(self):     # if not empty
+    def contained_in(self, other):
         pass
-
-    def is_universal(self):
-        pass
-
-    @staticmethod
-    def get_empty():
-        pass
-
-    @staticmethod
-    def get_universal():
-        pass
-
-    def __eq__(self, other):
-        # TODO: probably need to sort that in some way so it will be consistent.
-        assert isinstance(other, SetValuedDecisionDiagram)
-        for (value1, subtree1), (value2, subtree2) in zip(self.children.items(), other.children.items()):
-            return value1 == value2 and subtree1 == subtree2
 
     def __iter__(self):
         pass
 
-    def __contains__(self, item: list):
-        assert len(item) > 0
-        for value, subtree in self.children.items():
-            if item[0] in value:
-                if len(item) == 1:
-                    return True
-                elif item[1:] in subtree:
-                    return True
-                else:
-                    return False
-        return False
+    @classmethod
+    def get_empty_set(cls):
+        pass
 
-    def issubset(self, other):
+    def __bool__(self):
+        pass
+
+    @classmethod
+    def get_universal_set(cls):
+        pass
+
+    def is_all(self):
         pass

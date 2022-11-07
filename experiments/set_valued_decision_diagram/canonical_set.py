@@ -3,6 +3,20 @@ from abc import ABC, abstractmethod
 
 class CanonicalSet(ABC):
     @abstractmethod
+    def is_all(self):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_universal_set(cls):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_empty_set(cls):
+        pass
+
+    @abstractmethod
     def __and__(self, other):
         """Set intersection"""
         pass
@@ -39,12 +53,10 @@ class CanonicalSet(ABC):
         pass
 
     @abstractmethod
-    def __copy__(self):
+    def __le__(self, other):
+        """Total order for enabling canonical representation"""
         pass
 
-    def __le__(self, other):
-        """Total order for canonical representation"""
-        return repr(self) <= repr(other)
-
+    @abstractmethod
     def __hash__(self):
-        return hash(repr(self))
+        pass
