@@ -51,11 +51,3 @@ queries:
       outputFormat: yaml
     expectedOutput: ../../../expected_output/redundancy-test-on-misconception-podSelector-namespaceSelector.yaml
     expected: 2
-
-  - name: redundancy_test_on_misconception_podSelector-namespaceSelector_json
-    redundancy:
-      - sanity-misconception-podSelector-namespaceSelector
-    outputConfiguration:
-      outputFormat: json
-    expectedOutput: ../../../expected_output/redundancy-test-on-misconception-podSelector-namespaceSelector.json
-    expected: 2

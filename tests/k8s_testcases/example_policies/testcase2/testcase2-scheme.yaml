@@ -65,17 +65,6 @@ queries:
       outputFormat: yaml
     expectedOutput: ../../expected_output/no-strong-equivalence-all-peers-pairs.yaml
     expected: 1
-
-  - name: no_strong_equivalence_print_all_peers_pairs_json
-    strongEquivalence:
-      - nt_notin
-      - nt_notinwithexists
-    outputConfiguration:
-      fullExplanation: true
-      outputFormat: json
-    expectedOutput: ../../expected_output/no-strong-equivalence-all-peers-pairs.json
-    expected: 1
-
   - name: pairwiseInterferes_policies
     pairwiseInterferes:
       - nt_in

@@ -9,7 +9,6 @@ from collections import defaultdict
 from enum import Enum
 from typing import Union
 import yaml
-import json
 
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.CoreDS.ConnectionSet import ConnectionSet
@@ -54,7 +53,7 @@ class BaseNetworkQuery:
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'json'}
+        return {'txt', 'yaml'}
 
     @staticmethod
     def policy_title(policy):
@@ -80,8 +79,9 @@ class BaseNetworkQuery:
         numerical_result = query_result if query_result is not None else int(query_answer.numerical_result)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
             return ''
-        if self.output_config.outputFormat in {'yaml', 'json'}:
-            return self.write_yaml_or_json_output(query_answer, yaml_description, numerical_result)
+
+        if self.output_config.outputFormat == 'yaml':
+            return self.write_yaml_output(query_answer, yaml_description, numerical_result)
 
         return self.write_txt_output(query_answer, explanation_header)
 
@@ -91,30 +91,20 @@ class BaseNetworkQuery:
             query_output += self.compute_txt_explanation(query_answer, explanation_description) + '\n'
         return query_output
 
-    def write_yaml_or_json_output(self, query_answer, descriptions, query_result):
-        result_content = self._generate_base_fields_for_yaml_and_json(query_answer, query_result)
-        if query_answer.output_explanation:
-            return self.compute_yaml_or_json_with_explanation(result_content, descriptions,
-                                                              query_answer.output_explanation)
-        if self.output_config.outputFormat == 'yaml':
-            return yaml.dump(result_content, None, default_flow_style=False, sort_keys=False) + '---\n'
-
-        return json.dumps(result_content, indent=2, sort_keys=False)
-
-    def _generate_base_fields_for_yaml_and_json(self, query_answer, query_result):
+    def write_yaml_output(self, query_answer, descriptions, query_result):
         query_name = self.output_config.queryName or type(self).__name__
         configs_field = 'config' if isinstance(self, NetworkConfigQuery) else 'configs'
-        content = {'query': query_name, configs_field: self.get_configs_names()}
+        yaml_content = {'query': query_name, configs_field: self.get_configs_names()}
         if query_answer.query_not_executed:
-            content.update({'executed': 0, 'description': query_answer.output_result})
-            return content
-        content.update({'numerical_result': query_result, 'textual_result': query_answer.output_result})
-        return content
+            yaml_content.update({'executed': 0, 'description': query_answer.output_result})
+            return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
+        yaml_content.update({'numerical_result': query_result})
+        yaml_content.update({'textual_result': query_answer.output_result})
+        if query_answer.output_explanation:
+            return self.compute_yaml_with_explanation(yaml_content, descriptions, query_answer.output_explanation)
+        return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
 
     def compute_txt_explanation(self, query_answer, explanation):  # virtual
-        raise NotImplementedError
-
-    def compute_yaml_or_json_with_explanation(self, content, descriptions, output_explanation):
         raise NotImplementedError
 
 
@@ -172,20 +162,17 @@ class NetworkConfigQuery(BaseNetworkQuery):
     def get_configs_names(self):
         return self.output_config.configName
 
-    def compute_yaml_or_json_with_explanation(self, generated_content, explanation_description, output_explanation):
+    def compute_yaml_with_explanation(self, yaml_content, explanation_description, output_explanation):
         """
-        generates the query's explanation in yaml/json and returns the query's output in the required format
-        :param dict generated_content: the already generated content of the yaml/json object
+        returns the query's output explanation in a yaml format
+        :param dict yaml_content: the already generated content of the yaml object
         :param str explanation_description: the txt message that describes the query's output explanation
         :param output_explanation: the query output explanation
         :rtype: str
         """
-        explanation_formed = self.convert_explanation_to_required_format(output_explanation, explanation_description)
-        generated_content.update({'explanation': explanation_formed})
-        if self.output_config.outputFormat == 'yaml':
-            return yaml.dump(generated_content, None, default_flow_style=False, sort_keys=False) + '---\n'
-        else:  # json
-            return json.dumps(generated_content, indent=2, sort_keys=False)
+        yaml_format = self.convert_explanation_to_required_format(output_explanation, explanation_description)
+        yaml_content.update({'explanation': yaml_format})
+        return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
 
     def convert_explanation_to_required_format(self, explanation_lists, explanation_description):
         """
@@ -199,20 +186,19 @@ class NetworkConfigQuery(BaseNetworkQuery):
         """
         assert isinstance(explanation_lists, tuple)  # tuple of (policies, ingress_rules, egress_rules)
         txt_res = ''
-        txt_flag = self.output_config.outputFormat == 'txt'
-        yaml_json_result = []
+        yaml_result = []
         policies_list = explanation_lists[0]
         if policies_list:
             description = 'Policies' + explanation_description
-            if txt_flag:
+            if self.output_config.outputFormat == 'txt':
                 txt_res = description + ':\n' + ', '.join(policies_list) + '\n'
-            else:  # yaml/json
-                yaml_json_result.append({'description': description,
-                                         'policies': [policy.split()[1] for policy in policies_list]})
+            else:  # yaml
+                yaml_result.append({'description': description,
+                                    'policies': [policy.split()[1] for policy in policies_list]})
         ingress_rules_map = explanation_lists[1]
         if ingress_rules_map:
             description = 'Ingress rules' + explanation_description
-            if txt_flag:
+            if self.output_config.outputFormat == 'txt':
                 txt_res += '\n' + description + ':\n'
                 for key, value in ingress_rules_map.items():
                     txt_res += key + ', ingress rules indexes: ' + ', '.join(str(idx) for idx in value) + '\n'
@@ -220,11 +206,11 @@ class NetworkConfigQuery(BaseNetworkQuery):
                 rules = []
                 for key, value in ingress_rules_map.items():
                     rules.append({'policy': key.split()[1], 'ingress_rules_indexes': [str(idx) for idx in value]})
-                yaml_json_result.append({'description': description, 'pairs': rules})
+                yaml_result.append({'description': description, 'pairs': rules})
         egress_rules_map = explanation_lists[2]
         if egress_rules_map:
             description = 'Egress rules' + explanation_description
-            if txt_flag:
+            if self.output_config.outputFormat == 'txt':
                 txt_res += '\n' + description + ':\n'
                 for key, value in egress_rules_map.items():
                     txt_res += key + ', egress rules indexes: ' + ', '.join(str(idx) for idx in value) + '\n'
@@ -232,10 +218,10 @@ class NetworkConfigQuery(BaseNetworkQuery):
                 rules = []
                 for key, value in egress_rules_map.items():
                     rules.append({'policy': key.split()[1], 'egress_rules_indexes': [str(idx) for idx in value]})
-                yaml_json_result.append({'description': description, 'pairs': rules})
-        if txt_flag:
-            return txt_res
-        return yaml_json_result
+                yaml_result.append({'description': description, 'pairs': rules})
+        if self.output_config.outputFormat == 'yaml':
+            return yaml_result
+        return txt_res
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -286,9 +272,9 @@ class DisjointnessQuery(NetworkConfigQuery):
             else:
                 result.append({'policies': [item[0].split(' ')[1], item[1].split(' ')[1]],
                                'pods': str(item[2]).split(', ')})
-        if self.output_config.outputFormat == 'txt':
-            return explanation_description + ':\n' + '\n'.join(result)  # txt
-        return {'description': explanation_description, 'examples': result}  # yaml and json
+        if self.output_config.outputFormat == 'yaml':
+            return {'description': explanation_description, 'examples': result}
+        return explanation_description + ':\n' + '\n'.join(result)  # txt
 
 
 class EmptinessQuery(NetworkConfigQuery):
@@ -946,11 +932,11 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         """
         return [self.output_config.configName, self.output_config.secondConfigName]
 
-    def compute_yaml_or_json_with_explanation(self, output_content, explanation_descriptions, explanation_list):
+    def compute_yaml_with_explanation(self, yaml_content, explanation_descriptions, explanation_list):
         """
         adds the query's output explanation to the yaml object/s generated for the query output
         and returns the relevant yaml object/s
-        :param dict output_content: the already generated content of the yaml object
+        :param dict yaml_content: the already generated content of the yaml object
         :param list[str] explanation_descriptions: the descriptions of the query output explanation
         if this list include 2 items, then two parallel yaml objects are generated for the query output (each describe
         connections from one config)
@@ -966,59 +952,39 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         assert isinstance(explanation_list, list)
         if not isinstance(explanation_list[0], list):  # not list[lists]
             # handling the cases of one or 2 yaml objects
-            out_form_1, out_form_2 = self.convert_explanation_to_required_format(
+            yaml_form_1, yaml_form_2 = self.convert_explanation_to_required_format(
                 explanation_list=explanation_list, conns_diff=(len(explanation_descriptions) == 2))
             list_of_peers = isinstance(explanation_list[0], str)
-            return self._dump_one_or_two_yaml_objects_with_relevant_explanations(output_content,
-                                                                                 explanation_descriptions, out_form_1,
-                                                                                 out_form_2, list_of_peers)
+            return self._dump_one_or_two_yaml_objects_with_relevant_explanations(yaml_content, explanation_descriptions,
+                                                                                 yaml_form_1, yaml_form_2, list_of_peers)
 
         # special case of twoWayContainment when both configs do not contain each other - list[lists]
         assert len(explanation_list) == 2
-        out_form_1, _ = self.convert_explanation_to_required_format(explanation_list[0])
-        out_form_2, _ = self.convert_explanation_to_required_format(explanation_list[1])
-        return self.dump_explanations_in_one_yaml_object(output_content, explanation_descriptions,
-                                                         out_form_1, out_form_2)
+        yaml_form_1, _ = self.convert_explanation_to_required_format(explanation_list[0])
+        yaml_form_2, _ = self.convert_explanation_to_required_format(explanation_list[1])
+        return TwoWayContainmentQuery.dump_explanations_in_one_yaml_object(yaml_content, explanation_descriptions,
+                                                                           yaml_form_1, yaml_form_2)
 
-    def _dump_one_or_two_yaml_objects_with_relevant_explanations(self, output_content, explanation_descriptions, out_form_1,
-                                                                 out_form_2, str_flag):
+    @staticmethod
+    def _dump_one_or_two_yaml_objects_with_relevant_explanations(yaml_content, explanation_descriptions, yaml_form_1,
+                                                                 yaml_form_2, str_flag):
         # handles the case of one or two yaml objects for a query with same pair of configs.
         #  Queries that may produce two yaml objects for same pair of configs are : EquivalenceQuery,
         #          StrongEquivalenceQuery, InterferesQuery and PairwiseInterferesQuery
-        # in case of creating two results for a query, for json these results will be written in a list object
-        json_res = []
-        res1 = ''
-        output_content_1 = output_content.copy()
+        yaml_content_1 = yaml_content
         if str_flag:  # the specific case of peers in containment
-            output_content_1.update({'explanation': {'description': explanation_descriptions[0], 'peers': out_form_1}})
+            yaml_content_1.update({'explanation': {'description': explanation_descriptions[0], 'peers': yaml_form_1}})
         else:
-            output_content_1.update({'explanation': {'description': explanation_descriptions[0],
-                                                     'connections': out_form_1}})
-        if self.output_config.outputFormat == 'yaml':
-            res1 = yaml.dump(output_content_1, None, default_flow_style=False, sort_keys=False) + '---\n'
-        else:  # json
-            if not out_form_2:
-                return json.dumps(output_content_1, indent=2, sort_keys=False)
-            json_res.append(output_content_1)
-        if out_form_2:  # two parallel yaml objects since connections differ in the configs (e.g. in equivalence query)
-            output_content_2 = output_content.copy()
-            output_content_2.update({'explanation': {'description': explanation_descriptions[1],
-                                                     'connections': out_form_2}})
-            if self.output_config.outputFormat == 'yaml':
-                res2 = yaml.dump(output_content_2, None, default_flow_style=False, sort_keys=False) + '---\n'
-                return res1 + res2
-            else:  # json
-                json_res.append(output_content_2)
-                return json.dumps(json_res, indent=2)
-        return res1  # yaml
-
-    def dump_explanations_in_one_yaml_object(self, output_content, explanation_descriptions, out_form_1, out_form_2):
-        output_content.update({'explanation': [{'description': explanation_descriptions[0], 'connections': out_form_1},
-                                               {'description': explanation_descriptions[1],
-                                                'connections': out_form_2}]})
-        if self.output_config.outputFormat == 'yaml':
-            return yaml.dump(output_content, None, default_flow_style=False, sort_keys=False) + '---\n'
-        return json.dumps(output_content, indent=2, sort_keys=False)
+            yaml_content_1.update({'explanation': {'description': explanation_descriptions[0],
+                                                   'connections': yaml_form_1}})
+        res1 = yaml.dump(yaml_content_1, None, default_flow_style=False, sort_keys=False)
+        if yaml_form_2:  # two parallel yaml objects since connections differ in the configs (e.g. in equivalence query)
+            yaml_content_2 = yaml_content
+            yaml_content_2.update({'explanation': {'description': explanation_descriptions[1],
+                                                   'connections': yaml_form_2}})
+            res2 = yaml.dump(yaml_content_2, None, default_flow_style=False, sort_keys=False)
+            return res1 + '---\n' + res2 + '---\n'
+        return res1 + '---\n'
 
     def convert_explanation_to_required_format(self, explanation_list, conns_diff=False):
         """
@@ -1034,17 +1000,16 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
          :rtype: Union[(str, ''), (list[str], list[str] or [])]
         """
         # case of peers list (from containment query)
-        txt_flag = self.output_config.outputFormat == 'txt'
         if isinstance(explanation_list[0], str):
-            if txt_flag:
-                return ', '.join(explanation_list), ''  # txt
-            return explanation_list, []  # yaml or json
+            if self.output_config.outputFormat == 'yaml':
+                return explanation_list, []
+            return ', '.join(explanation_list), ''  # txt
 
         # case of (src, dst, conns1, "conns2") list - conns2 is optional
         conns1 = []
         conns2 = []
         for peers_conn in explanation_list:
-            if txt_flag:
+            if self.output_config.outputFormat == 'txt':
                 if conns_diff:
                     conns1.append(f'src: {peers_conn[0]}, dst: {peers_conn[1]}, description: '
                                   f'{peers_conn[2].print_diff(peers_conn[3], self.output_config.configName, self.output_config.secondConfigName)}')  # noqa: E501
@@ -1055,9 +1020,10 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                 if conns_diff:
                     conns2.append({'src': peers_conn[0], 'dst': peers_conn[1], 'conn': str(peers_conn[3])})
 
-        if txt_flag:
-            return '\n'.join(conns1), ''
-        return conns1, conns2  # yaml or json
+        if self.output_config.outputFormat == 'yaml':
+            return conns1, conns2
+
+        return '\n'.join(conns1), ''  # txt
 
     def _handle_equivalence_outputs(self, query_answer):
         # this def is to avoid duplications in EquivalenceQuery and StrongEquivalenceQuery
@@ -1566,12 +1532,19 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
             query_output += self.write_txt_output(sub_query_answer_1, description_1)
             query_output += '\n' + self.write_txt_output(sub_query_answer_2, description_2)
             return query_result, query_output, query_answer.query_not_executed
-        else:
+        elif self.output_config.outputFormat == 'yaml':
             query_answer.output_explanation = [sub_query_answer_1.output_explanation,
                                                sub_query_answer_2.output_explanation]
             yaml_descriptions = [description_1, description_2]
             query_output = self.write_query_output(query_answer, '', yaml_descriptions, int(query_result))
             return query_result, query_output, query_answer.query_not_executed
+        return query_result, '', query_answer.query_not_executed
+
+    @staticmethod
+    def dump_explanations_in_one_yaml_object(yaml_content, explanation_descriptions, yaml_form_1, yaml_form_2):
+        yaml_content.update({'explanation': [{'description': explanation_descriptions[0], 'connections': yaml_form_1},
+                                             {'description': explanation_descriptions[1], 'connections': yaml_form_2}]})
+        return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
 
 
 class PermitsQuery(TwoNetworkConfigsQuery):
@@ -1809,23 +1782,22 @@ class AllCapturedQuery(NetworkConfigQuery):
         assert isinstance(explanation_lists, tuple)
         assert len(explanation_lists) == 2
         txt_res = ''
-        txt_flag = self.output_config.outputFormat == 'txt'
-        yaml_json_result = []
+        yaml_result = []
         ingress_pods = explanation_lists[0]
         if ingress_pods:
             description = explanation_prefix + 'ingress'
-            if txt_flag:
+            if self.output_config.outputFormat == 'txt':
                 txt_res += '\n' + description + ':\n' + ', '.join(e for e in ingress_pods) + '\n'
-            else:  # yaml/ json
-                yaml_json_result.append({'description': description, 'uncaptured_pods': list(ingress_pods)})
+            else:  # yaml
+                yaml_result.append({'description': description, 'uncaptured_pods': list(ingress_pods)})
         egress_pods = explanation_lists[1]
         if egress_pods:
             description = explanation_prefix + 'egress'
-            if txt_flag:
+            if self.output_config.outputFormat == 'txt':
                 txt_res += '\n' + description + ':\n' + ', '.join(e for e in egress_pods) + '\n'
             else:
-                yaml_json_result.append({'description': description, 'uncaptured_pods': list(egress_pods)})
+                yaml_result.append({'description': description, 'uncaptured_pods': list(egress_pods)})
 
-        if txt_flag:
-            return txt_res
-        return yaml_json_result
+        if self.output_config.outputFormat == 'yaml':
+            return yaml_result
+        return txt_res
