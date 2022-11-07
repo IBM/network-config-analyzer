@@ -6,7 +6,7 @@ In here you can find the implementation of different z3 sets.
 - `hyper_cube_set.py` is the interface for hyper cube set.
 - `z3_set.py` contains an interface shared by all sets.
 - `z3_integer_set.py` is a z3 based implementation of a set of integers similar to `CanonicalIntervalSet`.
-- - `z3_regular_string_set.py` is a z3 based implementation for string sets with regex constraints,
+- `z3_regular_string_set.py` is a z3 based implementation for string sets with regex constraints,
 similar to `MinDFA`.
 - `z3_simple_string_set.py` is a z3 based implementation for string sets 
 with prefix, suffix and exact match constraints.
