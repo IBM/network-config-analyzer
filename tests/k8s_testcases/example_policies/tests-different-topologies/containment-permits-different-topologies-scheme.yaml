@@ -100,6 +100,15 @@ queries:
       - config_a_with_b_ipBlock
     expected: 0
 
+  - name: twoWayContainment_a_with_different_ipBlock_policies_print_all_pairs
+    twoWayContainment:
+      - config_a_with_ipBlock
+      - config_a_with_b_ipBlock
+    outputConfiguration:
+      fullExplanation: true
+    expectedOutput: ../../expected_output/two-way-containment-a-with-different-ipblock-policies-all-pairs.txt
+    expected: 0
+
   - name: twoWayContainment_np1_np2
     twoWayContainment:
       - np1

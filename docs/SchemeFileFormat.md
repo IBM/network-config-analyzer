@@ -6,7 +6,7 @@ It should contain at least the `networkConfigList` and the `queries` fields.
 |-------|-------------|-------|---------|
 |namespaceList|A globally-scoped list of namespaces in the cluster|directory, git-repo or yaml/json file|Cluster namespaces|
 |podList|A globally-scoped list of pods in the cluster|directory, git-repo or yaml/json file|Cluster pods|
-|resourceList|A globally-scoped list of namespaces and pods |directory, git-repo or yaml/json file|Specific field (namespaceList/podList) overrides relevant resource, missing resources with the absence of specific field defaults to cluster items
+|resourceList|A globally-scoped list of namespaces and pods |directory, git-repo or yaml/json file|Specific field (namespaceList/podList) overrides relevant resource, missing resources with the absence of specific field defaults to cluster items|
 |networkConfigList|A list of network configurations and policies to reason about|list of [NetworkConfig](#NetworkConfigobject) objects|
 |queries|Queries for the tool to run|list of [Query](#queryobject) objects|
 
@@ -23,7 +23,7 @@ If `networkPolicyList` is not provided and `resourceList` contains no policies, 
 |namespaceList|A specific list of namespaces|directory, git-repo or yaml/json file|global namespaceList|
 |podList|A specific list of pods|directory, git-repo or yaml/json file|global podList|
 |networkPolicyList|A list of sources for NetworkPolicies|list of sources |
-|resourceList|A list of sources for pods, namespaces and NetworkPolicies|list of sources|Specific field (namespaceList/podList/NetworkPolicyList) overrides relevant resource
+|resourceList|A list of sources for pods, namespaces and NetworkPolicies|list of sources|Specific field (namespaceList/podList/NetworkPolicyList) overrides relevant resource|
 |expectedWarnings|The expected sum of returned warnings for all resources of this configuration (an error is issued on mismatch)|integer |
 |expectedError|indicates if there is an expected error from a networkPolicy|0/1|
 
@@ -78,12 +78,13 @@ For example: `my_set/prod_ns/deny_all_policy`. If there are multiple policies na
 #### <a name="outputconfig"></a>Output Configuration object
 The supported entries in the outputConfiguration object are as follows:
 
-| Field | Description | Value |
-|-------|-------------|-------|
-|outputFormat|Output format specification.|string [ txt / yaml / csv / md / dot ] |
-|outputPath|A file path to redirect output into.|string|
-|outputEndpoints|Choose endpoints type in output.|string [ pods / deployments ]|
-|subset| A dict object with the defined subset elements to display in the output|[subset](#subset) object|
+| Field           | Description                                                                    | Value                                  |
+|-----------------|--------------------------------------------------------------------------------|----------------------------------------|
+| outputFormat    | Output format specification.                                                   | string [ txt / yaml / csv / md / dot ] |
+| outputPath      | A file path to redirect output into.                                           | string                                 |
+| outputEndpoints | Choose endpoints type in output.                                               | string [ pods / deployments ]          |
+| subset          | A dict object with the defined subset elements to display in the output        | [subset](#subset) object               |
+| fullExplanation | Choose if to print all counterexamples causing the query result in the output | bool                                   |
 
 #### <a name="subset"></a>Subset object
 The supported entries in the subset object are as follows:
