@@ -1,9 +1,8 @@
 import unittest
 
-from z3 import Re, Plus, Concat, Union, String, InRe, Or, And, Not, Solver, unsat, Diff, Distinct, sat, ForAll, Exists, \
-    Tactic, Repeat, OrElse
+from z3 import Re, Plus, Concat, Union, String, InRe, Or, And, Not, Diff, Distinct, sat
 
-from experiments.z3_sets.z3_utils import solve_with_model
+from z3_sets.z3_utils import solve_with_model
 
 
 class MyTestCase(unittest.TestCase):

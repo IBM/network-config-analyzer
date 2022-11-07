@@ -1,6 +1,6 @@
 import unittest
 
-from experiments.z3_sets.z3_regular_string_set import Z3RegularStringSet
+from z3_sets.z3_regular_string_set import Z3RegularStringSet
 
 
 class MyTestCase(unittest.TestCase):

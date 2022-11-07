@@ -1,10 +1,10 @@
 import unittest
 from unittest import skip
 
-from experiments.z3_sets.z3_integer_set import Z3IntegerSet as CanonicalIntervalSet
-from experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet as MinDFA
-from experiments.z3_sets.z3_product_set import Z3ProductSet as CanonicalHyperCubeSet
-from DimensionsManager import DimensionsManager
+from nca.CoreDS.DimensionsManager import DimensionsManager
+from z3_sets.z3_integer_set import Z3IntegerSet as CanonicalIntervalSet
+from z3_sets.z3_regular_string_set import Z3RegularStringSet as MinDFA
+from z3_sets.z3_product_set_dnf import Z3ProductSetDNF as CanonicalHyperCubeSet
 
 dimensions = ["src_ports", "ports", "methods_dfa", "paths"]
 dimensions2 = ["ports", "src_ports", "methods_dfa", "paths"]
@@ -19,7 +19,7 @@ dim_manager.set_domain("z", DimensionsManager.DimensionType.IntervalSet, (1, 655
 
 
 def get_str_dfa(s):
-    return MinDFA.from_wildcard(s)
+    return MinDFA.dfa_from_regex(s)
 
 
 class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
@@ -43,7 +43,6 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         print(dfa_put.fsm.finals == dfa_put_2.fsm.finals)
         print(dfa_put.fsm.map == dfa_put_2.fsm.map)
 
-    # FOR TRACE DEMO
     def test_create_from_cube(self):
         s = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("PUT")], ["methods_dfa"])
         print(s)
@@ -255,7 +254,6 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(w)
         self.assertEqual(z, w)
 
-    @skip('full regex is not supported.')
     def test_canonical_rep_dfa_new(self):
         dfa1 = get_str_dfa("[ab]*")
         dfa2 = get_str_dfa("[bc]*")
@@ -284,6 +282,7 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(y)
         self.assertEqual(x, y)
 
+    # TODO: pass the tests
     def test_canonical_rep_dfa_new_1(self):
         dfa1 = get_str_dfa("ab|bc")
         dfa2 = get_str_dfa("bc|ac")
@@ -312,7 +311,6 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(y)
         self.assertEqual(x, y)
 
-    @skip('full regex is not supported.')
     def test_canonical_rep_dfa_new_2(self):
         dfa1 = get_str_dfa("a[a]+")
         dfa1_s = get_str_dfa("b")
@@ -336,7 +334,6 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(y)
         self.assertEqual(x, y)
 
-    @skip('full regex is not supported.')
     def test_empty_dfa_new(self):
         methods_dfa = get_str_dfa("[a]*")
         methods_dfa2 = get_str_dfa("[ab]*")
@@ -745,7 +742,6 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         y.add_cube([p3], ["ports"])
         self.assertTrue(x.contained_in(y))
 
-    @skip('full regex is not supported.')
     def test_contained_in(self):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)
@@ -817,7 +813,6 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         # print(res6)
         self.assertTrue(res6)
 
-    @skip('regex not supported.')
     def test_contained_in_new(self):
         x = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("abc")], ["methods_dfa"])
         y = CanonicalHyperCubeSet.create_from_cube(dimensions, [CanonicalIntervalSet.get_interval_set(10, 20)],

@@ -1,6 +1,6 @@
 import unittest
 
-from experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
+from z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
 
 class BasicTests(unittest.TestCase):

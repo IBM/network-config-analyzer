@@ -1,5 +1,5 @@
 import unittest
-from experiments.z3_sets.z3_integer_set import Z3IntegerSet
+from z3_sets.z3_integer_set import Z3IntegerSet
 
 
 class TestZ3IntegerSetBasic(unittest.TestCase):
