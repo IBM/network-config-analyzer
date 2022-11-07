@@ -1,5 +1,5 @@
 from experiments.experiments.experiment_utils import Timer
-from experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
+from z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
 for length in range(10, 1000, 10):
     c1 = ('a' * length) + '*'

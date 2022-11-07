@@ -1,9 +1,10 @@
-"""Shared interface for hyper cube set"""
 from abc import ABC, abstractmethod
 from typing import Union
 
 
 class HyperCubeSet(ABC):
+    """Interface for hyper cube set"""
+
     @abstractmethod
     def __init__(self, dimensions: list[str], allow_all: bool = False):
         pass

@@ -8,8 +8,8 @@ from csv import DictWriter
 from pathlib import Path
 
 from nca.CoreDS.MinDFA import MinDFA
-from experiments.z3_sets.z3_regular_string_set import Z3RegularStringSet
-from experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
+from z3_sets.z3_regular_string_set import Z3RegularStringSet
+from z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
 
 def run_hard_coded_experiment():

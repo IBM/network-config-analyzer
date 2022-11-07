@@ -50,7 +50,7 @@ from matplotlib.figure import Figure
 from nca.CoreDS.MinDFA import MinDFA
 from experiments.experiments.experiment_utils import Timer, save_results, load_results, filter_on_key_value, \
     get_unique_values_for_key
-from experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
+from z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
 random.seed(42)
 logging.basicConfig(level=logging.INFO)

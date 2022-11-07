@@ -21,7 +21,7 @@ from experiments.old_experiments.experiment_utils import EngineType, get_y_var_l
 from experiments.old_experiments.n_unions_string_experiment import BasicSet, get_string_list
 from experiments.old_experiments.plot_experiment_results import plot_results
 from experiments.old_experiments.run_experiment import run_experiment
-from experiments.z3_sets.z3_product_set import Z3ProductSet
+from z3_sets.z3_product_set import Z3ProductSet
 from experiments.z3_sets.z3_string_set import Z3SimpleStringSet
 
 

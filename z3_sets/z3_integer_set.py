@@ -1,10 +1,11 @@
 from z3 import And, Int, BoolVal, unsat, sat, Or, Not
 
-from experiments.z3_sets.z3_set import Z3Set
-from experiments.z3_sets.z3_utils import solve_without_model
+from z3_sets.z3_set import Z3Set
+from z3_sets.z3_utils import solve_without_model
 
 
 class Z3IntegerSet(Z3Set):
+    """Z3 based implementation for interval set."""
 
     def __init__(self):
         self._var = Int('x')

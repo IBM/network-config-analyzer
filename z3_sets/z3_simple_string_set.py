@@ -1,18 +1,18 @@
-# TODO: how should we take into account the set of allowed alphabet?
-#   especially the "is_all_words" function
+# TODO: There is no support for a specific alphabet, currently it is set to z3's default.
 import sre_parse
-from typing import Optional
 
-import z3
-from z3 import sat, PrefixOf, SuffixOf, ModelRef, String, Or, BoolVal, unsat, And, Not, InRe, unknown
+from z3 import sat, PrefixOf, SuffixOf, String, Or, BoolVal, unsat, And, Not, InRe, unknown
 
-from experiments.role_analyzer import regex_to_z3_expr
-from experiments.z3_sets.z3_set import Z3Set
-from experiments.z3_sets.z3_utils import solve_with_model, solve_without_model
+from z3_sets.role_analyzer import regex_to_z3_expr
+from z3_sets.z3_set import Z3Set
+from z3_sets.z3_utils import solve_without_model
 
 
-# TODO: create a new version that supports regexps
 class Z3SimpleStringSet(Z3Set):
+    """String set with simple constraints (prefix, suffix, exact match) implementation with z3.
+    Note that there is support for creation from regex, but it is not recommended as z3
+    tends to get stuck when there are multiple regex constraints.
+    """
     @property
     def python_type(self):
         return str

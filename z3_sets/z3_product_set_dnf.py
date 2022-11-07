@@ -2,29 +2,11 @@ from copy import deepcopy
 from typing import Union
 
 from nca.CoreDS.DimensionsManager import DimensionsManager
-from experiments.hyper_cube_set import HyperCubeSet
-from experiments.z3_sets.z3_set import Z3Set
-
-
-# TODO: implement z3 regular string set, pass tests
-# TODO: change string set to regular, pass tests with regex
-# TODO: ideas for optimization:
-#  - trying to use a single solver might make things more efficient. Try that.
-#  - creating a benchmark for this set, to consider different implementations.
+from z3_sets.hyper_cube_set import HyperCubeSet
+from z3_sets.z3_set import Z3Set
 
 
 class Z3ProductSetDNF(Z3Set, HyperCubeSet):
-    @classmethod
-    def get_universal_set(cls):
-        raise NotImplementedError
-
-    @classmethod
-    def get_empty_set(cls):
-        raise NotImplementedError
-
-    @property
-    def python_type(self):
-        raise NotImplementedError
 
     _dim_manager_type_to_primitive_type = {
         DimensionsManager.DimensionType.IntervalSet: int,
@@ -53,10 +35,6 @@ class Z3ProductSetDNF(Z3Set, HyperCubeSet):
 
     def is_empty(self) -> bool:
         return len(self.cubes) == 0
-        # for cube in self.cubes:
-        #     if not self._cube_is_empty(cube):
-        #         return False
-        # return True
 
     @staticmethod
     def create_from_cube(all_dims: list[str], cube: list[Z3Set], cube_dims: list[str]):
@@ -223,33 +201,14 @@ class Z3ProductSetDNF(Z3Set, HyperCubeSet):
         self.cubes = new_cubes
         return self
 
+    @classmethod
+    def get_universal_set(cls):
+        raise NotImplementedError
 
-def example():
-    dims = ['0', '1', '2']
-    from experiments.experiments.multiple_integer_dimensions.run_experiment import init_dim_manager
-    init_dim_manager(dims)
-    s = Z3ProductSetDNF(dims)
-    from experiments.z3_sets.z3_integer_set import Z3IntegerSet
-    start = 0
-    step = 10
-    s.add_cube([
-        Z3IntegerSet.get_interval_set(start, start+step),
-        Z3IntegerSet.get_interval_set(start, start+step),
-        Z3IntegerSet.get_interval_set(start, start+step),
-    ])
-    assert [5, 5, 5] in s
-    assert [0, 10, 11] not in s
-    s1 = s.copy()
+    @classmethod
+    def get_empty_set(cls):
+        raise NotImplementedError
 
-    start += 2 * step
-    s.add_cube([
-        Z3IntegerSet.get_interval_set(start, start + step),
-        Z3IntegerSet.get_interval_set(start, start + step),
-        Z3IntegerSet.get_interval_set(start, start + step),
-    ])
-
-    s1.contained_in(s)
-
-
-if __name__ == '__main__':
-    example()
+    @property
+    def python_type(self):
+        raise NotImplementedError

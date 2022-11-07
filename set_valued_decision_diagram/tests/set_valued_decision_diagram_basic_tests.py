@@ -1,6 +1,6 @@
 import unittest
 
-from experiments.set_valued_decision_diagram.set_valued_decision_diagram import SetValuedDecisionDiagram
+from set_valued_decision_diagram.set_valued_decision_diagram import SetValuedDecisionDiagram
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.MinDFA import MinDFA
 

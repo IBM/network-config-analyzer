@@ -2,12 +2,19 @@ import sre_parse
 
 from z3 import Empty, ReSort, Full, sat, StringSort, InRe, Intersect, Union, Complement
 
-from experiments.role_analyzer import regex_to_z3_expr
-from experiments.z3_sets.z3_set import Z3Set
-from experiments.z3_sets.z3_utils import solve_without_model
+from z3_sets.role_analyzer import regex_to_z3_expr
+from z3_sets.z3_set import Z3Set
+from z3_sets.z3_utils import solve_without_model
 
 
 class Z3RegularStringSet(Z3Set):
+    """String set with regular expression constraints implementation with z3.
+    It can solve more complex constraints than Z3SimpleStringSet by combining all the constraints into
+    a single regular expression, since z3 is tends to get stuck when we have multiple regex constraints.
+
+    Note that this class cannot be used in Z3ProductSet, only with Z3ProductSetDNF, since it does not have
+    a `self._constraints` attribute.
+    """
     def __init__(self):
         self._regex = self._get_empty_regex()
 
@@ -57,7 +64,6 @@ class Z3RegularStringSet(Z3Set):
 
         return cls.dfa_from_regex(regex)
 
-
     def __contains__(self, item: str) -> bool:
         constraint = InRe(item, self._regex)
         return solve_without_model(constraint) == sat
@@ -84,4 +90,3 @@ class Z3RegularStringSet(Z3Set):
 
     def __str__(self):
         return str(self._regex)
-

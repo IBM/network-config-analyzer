@@ -1,13 +1,14 @@
 from abc import abstractmethod, ABC
 
 
-# TODO: maybe look at others code using Z3 to get ideas on how to optimize implementation
-
-
 class Z3Set(ABC):
+    """An abstract class that is the interface of z3 sets."""
     @classmethod
     @abstractmethod
     def get_universal_set(cls):
+        """
+        :return: a set that contains all the elements.
+        """
         pass
 
     @abstractmethod
@@ -17,15 +18,22 @@ class Z3Set(ABC):
     @classmethod
     @abstractmethod
     def get_empty_set(cls):
+        """
+        :return: a set that contains no elements.
+        """
         pass
 
     @property
     @abstractmethod
     def python_type(self):
+        """
+        :return: the corresponding python type of the elements that are contained in the set.
+        Could be either `int` of `str`.
+        """
         pass
 
     @abstractmethod
-    def __contains__(self, item) -> bool:
+    def __contains__(self, item):
         pass
 
     @abstractmethod
@@ -42,6 +50,9 @@ class Z3Set(ABC):
 
     @abstractmethod
     def __invert__(self):
+        """
+        :return: the complement of the set.
+        """
         pass
 
     @abstractmethod
@@ -52,6 +63,7 @@ class Z3Set(ABC):
         return not self.is_empty()
 
     def is_universal(self) -> bool:
+        """Check if the set contains all elements."""
         return (~self).is_empty()
 
     def contained_in(self, other) -> bool:

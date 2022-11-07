@@ -58,26 +58,21 @@ it less times.
 # TODO: rename this file to string only experiment
 # TODO: separate between the mixed and the string only experiments
 
-import itertools
 import logging
 import string
-from csv import DictWriter
 from pathlib import Path
 from typing import Type
-
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MinDFA import MinDFA
 from experiments.experiments.experiment_utils import Timer, get_dimension_names, load_results, \
-    get_unique_values_for_key, filter_on_key_value, save_results
+    filter_on_key_value, save_results
 from experiments.experiments.multiple_integer_dimensions.run_experiment import save_results_to_csv, plot_results
-from experiments.z3_sets.z3_integer_set import Z3IntegerSet
-from experiments.z3_sets.z3_product_set import Z3ProductSet
-from experiments.z3_sets.z3_simple_string_set import Z3SimpleStringSet
+from z3_sets.z3_integer_set import Z3IntegerSet
+from z3_sets.z3_product_set import Z3ProductSet
+from z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
 logging.basicConfig(level=logging.INFO)
 MIN_VALUE = 0

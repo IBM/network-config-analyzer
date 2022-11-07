@@ -1,10 +1,4 @@
-import z3
 from z3 import BoolRef, Solver, sat
-
-
-# TODO: check out z3 simple solver, or other optimization options
-# TODO: maybe don't instantiate a new solver every time
-# TODO: use the pop, push mechanism for z3
 
 
 def solve_without_model(constraints: BoolRef, timeout=False):

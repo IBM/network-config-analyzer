@@ -8,7 +8,7 @@ from experiments.old_experiments.experiment_utils import EngineType, get_y_var_l
     get_positive_membership_operation, get_negative_membership_operation
 from experiments.old_experiments.plot_experiment_results import plot_results
 from experiments.old_experiments.run_experiment import run_experiment
-from experiments.z3_sets.z3_integer_set import Z3IntegerSet
+from z3_sets.z3_integer_set import Z3IntegerSet
 
 JUMP = 100
 INTERVAL_HALF_SIZE = 25

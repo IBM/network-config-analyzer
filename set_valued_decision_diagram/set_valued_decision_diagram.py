@@ -6,9 +6,9 @@ properties that we want to preserve / graph transformations:
 - (new) DAG: if two subtrees are isomorphic, we use a pointer. only one copy of each.
 - note that DAG and merging might conflict. and create a different tree based on the order of operations
 """
-from typing import Union, Any
+from typing import Any
 
-from experiments.set_valued_decision_diagram.canonical_set import CanonicalSet
+from set_valued_decision_diagram.canonical_set import CanonicalSet
 
 """Ideas
 - since each set takes space, if we have the same value (set) that is represented over and over again,

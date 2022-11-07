@@ -17,9 +17,9 @@ from experiments.experiments.experiment_utils import Timer, get_dimension_names,
     get_unique_values_for_key, filter_on_key_value, save_results
 from experiments.experiments.multiple_string_dimensions.run_experiment import non_overlapping_cube_generator, \
     init_dim_manager
-from experiments.z3_sets.z3_integer_set import Z3IntegerSet
-from experiments.z3_sets.z3_product_set_dnf import Z3ProductSetDNF
-from experiments.z3_sets.z3_regular_string_set import Z3RegularStringSet
+from z3_sets.z3_integer_set import Z3IntegerSet
+from z3_sets.z3_product_set_dnf import Z3ProductSetDNF
+from z3_sets.z3_regular_string_set import Z3RegularStringSet
 
 logging.basicConfig(level=logging.INFO)
 

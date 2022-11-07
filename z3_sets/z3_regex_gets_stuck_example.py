@@ -5,11 +5,10 @@ from z3 import Re, Plus, Concat, Union, String, InRe, Or, And, Not, Diff, Distin
 from z3_sets.z3_utils import solve_with_model
 
 
-class MyTestCase(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, False)  # add assertion here
-
-    def check_formula(self, formula):
+class Z3RegexGetsStuckExample(unittest.TestCase):
+    """This test cases present examples of z3 getting stuck when we have multiple regex constraints."""
+    @staticmethod
+    def check_formula(formula):
         print(f'checking formula: {formula}.')
         result, model = solve_with_model(formula)
         if result == sat:

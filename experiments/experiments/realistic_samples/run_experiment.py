@@ -35,7 +35,7 @@ from experiments.experiments.realistic_samples.connection_attributes import Conn
 from experiments.experiments.realistic_samples.connection_attributes_list import SIMPLE_CONNECTION_ATTR_LIST, \
     COMPLEX_CONNECTION_ATTR_LIST
 from experiments.experiments.realistic_samples.create_connection_set_combinations import get_allow_deny_combinations
-from experiments.z3_sets.z3_product_set import Z3ProductSet
+from z3_sets.z3_product_set import Z3ProductSet
 
 logging.basicConfig(level=logging.INFO)
 
