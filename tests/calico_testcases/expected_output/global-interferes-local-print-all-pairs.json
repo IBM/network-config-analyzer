@@ -1,0 +1,752 @@
+[
+  [
+    {
+      "query": "global_interferes_local_print_all_pairs",
+      "configs": [
+        "global_np",
+        "local_np"
+      ],
+      "numerical_result": 1,
+      "textual_result": "global_np interferes with local_np",
+      "explanation": {
+        "description": "Connections in global_np which extend connections in local_np",
+        "connections": [
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "Protocol: TCP, "
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-57ghx",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-57ghx",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-57ghx",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-57ghx",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-gzdfm",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-gzdfm",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-gzdfm",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-gzdfm",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-wczq8",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-wczq8",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-wczq8",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-wczq8",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/kube-fluentd-h6rjg",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/kube-fluentd-h6rjg",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/kube-fluentd-h6rjg",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/kube-fluentd-h6rjg",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/vpn-858f6d9777-2bw5m",
+            "dst": "default/cog-agents-d54st",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/vpn-858f6d9777-2bw5m",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/vpn-858f6d9777-2bw5m",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/vpn-858f6d9777-2bw5m",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "All connections"
+          }
+        ]
+      }
+    },
+    {
+      "query": "global_interferes_local_print_all_pairs",
+      "configs": [
+        "global_np",
+        "local_np"
+      ],
+      "numerical_result": 1,
+      "textual_result": "global_np interferes with local_np",
+      "explanation": {
+        "description": "The narrow connections in local_np",
+        "connections": [
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-d54st",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-js4qc",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-agents-qr8gp",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "No connections"
+          },
+          {
+            "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-57ghx",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-57ghx",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-57ghx",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-57ghx",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-gzdfm",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-gzdfm",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-gzdfm",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-gzdfm",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-wczq8",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-wczq8",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-wczq8",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/keepalived-watcher-wczq8",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/kube-fluentd-h6rjg",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/kube-fluentd-h6rjg",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/kube-fluentd-h6rjg",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/kube-fluentd-h6rjg",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/vpn-858f6d9777-2bw5m",
+            "dst": "default/cog-agents-d54st",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/vpn-858f6d9777-2bw5m",
+            "dst": "default/cog-agents-js4qc",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/vpn-858f6d9777-2bw5m",
+            "dst": "default/cog-agents-qr8gp",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/vpn-858f6d9777-2bw5m",
+            "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+            "conn": "No connections"
+          }
+        ]
+      }
+    }
+  ]
+]

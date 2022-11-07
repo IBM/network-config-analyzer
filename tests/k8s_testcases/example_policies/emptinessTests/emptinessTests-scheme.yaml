@@ -33,6 +33,14 @@ queries:
     expectedOutput: ../../expected_output/emptiness-in-np1.yaml
     expected: 3
 
+  - name: emptiness_json
+    emptiness:
+      - np1
+    outputConfiguration:
+      outputFormat: json
+    expectedOutput: ../../expected_output/emptiness-in-np1.json
+    expected: 3
+
   - name: redundancy
     redundancy:
       - np1

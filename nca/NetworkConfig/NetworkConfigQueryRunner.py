@@ -2,6 +2,8 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+import json
+
 from nca.Utils.OutputFilesFlags import OutputFilesFlags
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .NetworkConfig import NetworkConfig
@@ -120,31 +122,48 @@ class NetworkConfigQueryRunner:
     def _run_query_for_each_config(self):
         res = 0
         output = ''
+        json_flag = self.output_configuration.outputFormat == 'json'
+        json_output = []  # for handling json output Format, when running a query several times all results need
+        # to be concatenated under one top json object
         queries_not_executed = 0
         for config in self.configs_array:
             query_res, query_output, query_not_executed =\
                 self._execute_one_config_query(self.query_name, self._get_config(config))
             res += query_res
-            output += query_output + '\n'
+            if json_flag:
+                json_output.append(json.loads(query_output))
+            else:
+                output += query_output + '\n'
             queries_not_executed += query_not_executed
+        if json_flag:
+            output = json.dumps(json_output, indent=2)
         return res, output, queries_not_executed
 
     def _run_query_on_configs_vs_base_config(self, cmd_line_flag):
         res = 0
         output = ''
+        json_flag = self.output_configuration.outputFormat == 'json'
+        json_output = []
         queries_not_executed = 0
         base_config = self._get_config(self.configs_array[0])
         for config in self.configs_array[1:]:
             query_res, query_output, query_not_executed = self._execute_pair_configs_query(
                 self.query_name, self._get_config(config), base_config, cmd_line_flag)
             res += query_res
-            output += query_output + '\n'
+            if json_flag:
+                json_output.append(json.loads(query_output))
+            else:
+                output += query_output + '\n'
             queries_not_executed += query_not_executed
+        if json_flag:
+            output = json.dumps(json_output, indent=2)
         return res, output, queries_not_executed
 
     def _run_query_on_config_vs_followed_configs(self, cmd_line_flag):
         res = 0
         output = ''
+        json_flag = self.output_configuration.outputFormat == 'json'
+        json_output = []
         queries_not_executed = 0
         for ind1 in range(len(self.configs_array) - 1):
             config1 = self.configs_array[ind1]
@@ -153,13 +172,20 @@ class NetworkConfigQueryRunner:
                     self.query_name, self._get_config(config1), self._get_config(self.configs_array[ind2]),
                     cmd_line_flag)
                 res += query_res
-                output += query_output + '\n'
+                if json_flag:
+                    json_output.append(json.loads(query_output))
+                else:
+                    output += query_output + '\n'
                 queries_not_executed += query_not_executed
+        if json_flag:
+            output = json.dumps(json_output, indent=2)
         return res, output, queries_not_executed
 
     def _run_query_on_all_pairs(self):
         res = 0
         output = ''
+        json_flag = self.output_configuration.outputFormat == 'json'
+        json_output = []
         queries_not_executed = 0
         for config1 in self.configs_array:
             for config2 in self.configs_array:
@@ -167,8 +193,13 @@ class NetworkConfigQueryRunner:
                     query_res, query_output, query_not_executed = self._execute_pair_configs_query(
                         self.query_name, self._get_config(config1), self._get_config(config2))
                     res += query_res
-                    output += query_output + '\n'
+                    if json_flag:
+                        json_output.append(json.loads(query_output))
+                    else:
+                        output += query_output + '\n'
                     queries_not_executed += query_not_executed
+        if json_flag:
+            output = json.dumps(json_output, indent=2)
         return res, output, queries_not_executed
 
     def _compare_actual_vs_expected_output(self, query_output):

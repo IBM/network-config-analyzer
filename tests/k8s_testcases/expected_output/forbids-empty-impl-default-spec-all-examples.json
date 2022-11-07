@@ -1,0 +1,76 @@
+[
+  {
+    "query": "forbids_empty_impl_default_spec_all_examples_json",
+    "configs": [
+      "np-within-default",
+      "np-empty"
+    ],
+    "numerical_result": 1,
+    "textual_result": "np-empty does not forbid connections specified in np-within-default",
+    "explanation": {
+      "description": "Both np-within-default and np-empty allow the following connection(s)",
+      "connections": [
+        {
+          "src": "default/cog-agents-d54st",
+          "dst": "default/cog-agents-js4qc",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-agents-d54st",
+          "dst": "default/cog-agents-qr8gp",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-agents-d54st",
+          "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-agents-js4qc",
+          "dst": "default/cog-agents-d54st",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-agents-js4qc",
+          "dst": "default/cog-agents-qr8gp",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-agents-js4qc",
+          "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-agents-qr8gp",
+          "dst": "default/cog-agents-d54st",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-agents-qr8gp",
+          "dst": "default/cog-agents-js4qc",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-agents-qr8gp",
+          "dst": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+          "dst": "default/cog-agents-d54st",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+          "dst": "default/cog-agents-js4qc",
+          "conn": "All connections"
+        },
+        {
+          "src": "default/cog-local-analyzer-7d77fb55cc-bs8rc",
+          "dst": "default/cog-agents-qr8gp",
+          "conn": "All connections"
+        }
+      ]
+    }
+  }
+]

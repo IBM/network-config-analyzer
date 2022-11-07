@@ -1,0 +1,552 @@
+[
+  [
+    {
+      "query": "no_strong_equivalence_print_all_peers_pairs_json",
+      "configs": [
+        "nt_notin/kube-system/allow-ingress-app-notin-predefined",
+        "nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined"
+      ],
+      "numerical_result": 1,
+      "textual_result": "NetworkPolicy kube-system/allow-ingress-app-notin-predefined is not equivalent in nt_notin and in nt_notinwithexists",
+      "explanation": {
+        "description": "Connections in nt_notin/kube-system/allow-ingress-app-notin-predefined which are different in nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined",
+        "connections": [
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/calico-node-ns8kw",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/calico-node-ptdgj",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/kube-fluentd-2qw2g",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/kube-fluentd-qmp4w",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/calico-node-ptdgj",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/kube-fluentd-2qw2g",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/kube-fluentd-qmp4w",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/calico-node-ns8kw",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/kube-fluentd-2qw2g",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/kube-fluentd-qmp4w",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/calico-node-ns8kw",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/calico-node-ptdgj",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/kube-fluentd-2qw2g",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/kube-fluentd-qmp4w",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "All connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "All connections"
+          }
+        ]
+      }
+    },
+    {
+      "query": "no_strong_equivalence_print_all_peers_pairs_json",
+      "configs": [
+        "nt_notin/kube-system/allow-ingress-app-notin-predefined",
+        "nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined"
+      ],
+      "numerical_result": 1,
+      "textual_result": "NetworkPolicy kube-system/allow-ingress-app-notin-predefined is not equivalent in nt_notin and in nt_notinwithexists",
+      "explanation": {
+        "description": "Connections in nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined which are different in nt_notin/kube-system/allow-ingress-app-notin-predefined",
+        "connections": [
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/calico-node-ns8kw",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/calico-node-ptdgj",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/kube-fluentd-2qw2g",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/kube-fluentd-qmp4w",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-mgdlr",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/calico-node-ptdgj",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/kube-fluentd-2qw2g",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/kube-fluentd-qmp4w",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ns8kw",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/calico-node-ns8kw",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/kube-fluentd-2qw2g",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/kube-fluentd-qmp4w",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/calico-node-ptdgj",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/calico-node-mgdlr",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/calico-node-ns8kw",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/calico-node-ptdgj",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/file-plugin-7bfb8b69bf-p86gk",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/keepalived-watcher-57ghx",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/keepalived-watcher-gzdfm",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/keepalived-watcher-wczq8",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/kube-fluentd-2qw2g",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/kube-fluentd-h6rjg",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/kube-fluentd-qmp4w",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/storage-watcher-8494b4b8bb-f8csd",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/tiller-deploy-5c45c9966b-nqwz6",
+            "conn": "No connections"
+          },
+          {
+            "src": "kube-system/heapster-7df8cb8c66-zxkk2",
+            "dst": "kube-system/vpn-858f6d9777-2bw5m",
+            "conn": "No connections"
+          }
+        ]
+      }
+    }
+  ]
+]
