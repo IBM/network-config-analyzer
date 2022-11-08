@@ -1,41 +1,28 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod, ABC
 
 
-class CanonicalSet(ABC):
+class Node(ABC):
     @abstractmethod
     def is_all(self):
         pass
 
-    @classmethod
-    @abstractmethod
-    def get_universal_set(cls):
-        pass
-
-    @classmethod
-    @abstractmethod
-    def get_empty_set(cls):
-        pass
-
     @abstractmethod
     def __and__(self, other):
-        """Set intersection"""
         pass
 
     @abstractmethod
     def __or__(self, other):
-        """Set union"""
-        pass
-
-    @abstractmethod
-    def __sub__(self, other):
         pass
 
     @abstractmethod
     def complement(self):
         pass
 
+    @abstractmethod
+    def __sub__(self, other):
+        pass
+
     def __bool__(self):
-        """:return: True if the set is not empty, otherwise False"""
         return not self.is_empty()
 
     @abstractmethod
@@ -52,7 +39,6 @@ class CanonicalSet(ABC):
 
     @abstractmethod
     def __repr__(self):
-        """Canonic representation"""
         pass
 
     @abstractmethod
