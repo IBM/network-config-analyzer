@@ -146,3 +146,14 @@ class DimensionsManager:
             if complement_dfa.has_finite_len():
                 return f'all but {complement_dfa}'  # return set of words not accepted by this MinDFA
             return str(dim_values)  # return regex representing this MinDFA
+
+    def dimension_precedence(self, dim_name1: str, dim_name2: str) -> bool:
+        """:return: True if `dim_name1` is before `dim_name2` in the variable ordering."""
+        if dim_name1 == dim_name2:
+            return False
+        for dim_name, _ in self.dim_dict.items():
+            if dim_name == dim_name1:
+                return True
+            if dim_name == dim_name2:
+                return False
+        assert False, f'{dim_name1} and {dim_name2} are not valid dimensions.'

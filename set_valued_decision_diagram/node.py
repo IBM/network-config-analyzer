@@ -15,10 +15,6 @@ class Node(ABC):
         pass
 
     @abstractmethod
-    def complement(self):
-        pass
-
-    @abstractmethod
     def __sub__(self, other):
         pass
 

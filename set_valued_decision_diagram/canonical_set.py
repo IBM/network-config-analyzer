@@ -30,10 +30,6 @@ class CanonicalSet(ABC):
     def __sub__(self, other):
         pass
 
-    @abstractmethod
-    def complement(self):
-        pass
-
     def __bool__(self):
         """:return: True if the set is not empty, otherwise False"""
         return not self.is_empty()

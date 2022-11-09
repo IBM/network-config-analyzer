@@ -8,7 +8,7 @@ def Interval(start: int, end: int):
 
 
 def example1():
-    """This is an example of merging identical sub-trees."""
+    """This is an example of merging identical subtrees."""
     dim_names = init_dims()
     s = CanonicalHyperCubeSet(dim_names)
     cubes = [
@@ -39,11 +39,6 @@ def example2():
     s.add_cube([Interval(20, 30), Interval(1, 10), Interval(1, 10)])
     s.add_cube([Interval(20, 30), Interval(20, 30), Interval(20, 30)])
     print(s)
-
-
-def example3():
-    """An example of a DAG instead of a Tree"""
-
 
 
 if __name__ == '__main__':

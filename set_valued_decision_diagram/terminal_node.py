@@ -1,5 +1,4 @@
 from set_valued_decision_diagram.node import Node
-# TODO: make sure that this module does not depend on internal_node.py
 
 
 class TerminalNode(Node):
@@ -23,9 +22,6 @@ class TerminalNode(Node):
             return self
         else:
             return other
-
-    def complement(self):
-        return TerminalNode(not self.value)
 
     def __sub__(self, other: Node):
         if self.value:

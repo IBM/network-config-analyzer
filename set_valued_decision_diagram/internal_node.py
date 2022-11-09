@@ -1,14 +1,39 @@
-from typing import Any
 
+from typing import Any, Union
+
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.DimensionsManager import DimensionsManager
+from nca.CoreDS.MinDFA import MinDFA
 from set_valued_decision_diagram.cache import search_compute_cache, get_true_terminal, node_to_id, \
     update_compute_cache, id_to_node
 from set_valued_decision_diagram.canonical_set import CanonicalSet
 from set_valued_decision_diagram.node import Node
 from set_valued_decision_diagram.terminal_node import TerminalNode
 
+# TODO: create a real variable ordering (using DimensionsManager?),
+#  and set the appropriate domain for each. Use this to support complement and universality check.
+# TODO: add the ability to check if a CanonicalIntervalSet is all
+# TODO: add the ability to complement CanonicalIntervalSet
+# TODO: add checks for invariants
+# TODO: add the ability to give as input to the experiments the sets that we
+#  want to test. This will enable us to benchmark the results of a single implementation.
+# TODO: I'm not sure that we want to use a complement. Do we?
+
+
+DIM_MANAGER = DimensionsManager()
+
 
 class InternalNode(Node):
-    """TODO: write down the data structure invariant properties and make sure to keep them."""
+    """
+    Invariants:
+    - every pair of edges is disjoint
+    - edges are sorted by the child_id.
+    - if two edges point to the same child_id, then they should be merged into one.
+    - if we have a single outgoing edge to the entire space, then skip the node.
+    - if two nodes have the same id, then they must be identical
+    -
+    """
+    # TODO: write down the data structure invariant properties and make sure to keep them.
     # TODO: for each operation, first check terminal cases, then check the cache, then use recursion.
     def __init__(self, var: str, children: tuple[tuple[CanonicalSet, int]]):
         """Constructor should not be called directly."""
@@ -121,7 +146,7 @@ class InternalNode(Node):
 
         else:
             # TODO: This is not correct, but CanonicalIntervalSet does not support ".is_all()"
-            #  so this will default to false
+            #  so this will default to false. How to check that we have covered the entire dimensions?
             return False
             # union = None
             # for var_set, child_id in other.children:
@@ -134,14 +159,43 @@ class InternalNode(Node):
             #         union = union | var_set
             # return union.is_all()
 
-    def complement(self):
-        pass
+    def __or__(self, other):
+        assert isinstance(other, Node)
+        # terminal condition
+        if isinstance(other, TerminalNode):
+            return other | self
+
+        # check the cache
+        other: InternalNode
+        self_id = node_to_id(self)
+        other_id = node_to_id(other)
+        # using frozenset to utilize the fact that the operation is symmetric
+        compute_cache_key = ('|', frozenset({self_id, other_id}))
+        result_id, found = search_compute_cache(compute_cache_key)
+        if found:
+            return id_to_node(result_id)
+
+        # compute according to variable ordering
+        # TODO: make sure to sort the edges and to merge ones with identical subtrees
 
     def __and__(self, other):
-        pass
+        assert isinstance(other, Node)
+        # terminal condition
+        if isinstance(other, TerminalNode):
+            return other | self
 
-    def __or__(self, other):
-        pass
+        # check the cache
+        other: InternalNode
+        self_id = node_to_id(self)
+        other_id = node_to_id(other)
+        # using frozenset to utilize the fact that the operation is symmetric
+        compute_cache_key = ('|', frozenset({self_id, other_id}))
+        result_id, found = search_compute_cache(compute_cache_key)
+        if found:
+            return id_to_node(result_id)
+
+        # compute according to variable ordering
+        # TODO: make sure to sort the edges and to merge ones with identical subtrees
 
     def __sub__(self, other):
         pass
