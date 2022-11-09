@@ -1,12 +1,18 @@
 from set_valued_decision_diagram.node import Node
 
 
-class TerminalNode(Node):
-    def is_empty(self):
-        return not self.value
+FALSE_TERMINAL_ID = 0
+TRUE_TERMINAL_ID = 1
 
+
+class TerminalNode(Node):
     def __init__(self, value: bool):
         self.value = value
+        node_id = TRUE_TERMINAL_ID if value else FALSE_TERMINAL_ID
+        super().__init__(node_id)
+
+    def is_empty(self):
+        return not self.value
 
     def is_all(self):
         return self.value
@@ -49,3 +55,6 @@ class TerminalNode(Node):
 
     def __hash__(self):
         return hash(self.value)
+
+    def complement(self):
+        return TerminalNode(not self.value)

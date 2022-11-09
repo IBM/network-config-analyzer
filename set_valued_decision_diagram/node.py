@@ -2,6 +2,9 @@ from abc import abstractmethod, ABC
 
 
 class Node(ABC):
+    def __init__(self, node_id: int):
+        self.id = node_id
+
     @abstractmethod
     def is_all(self):
         pass
@@ -43,4 +46,8 @@ class Node(ABC):
 
     @abstractmethod
     def __hash__(self):
+        pass
+
+    @abstractmethod
+    def complement(self):
         pass

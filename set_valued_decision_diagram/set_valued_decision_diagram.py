@@ -22,7 +22,7 @@ class SetValuedDecisionDiagram(CanonicalSet):
 
     @staticmethod
     def from_cube(cube: tuple[tuple[str, CanonicalSet]]):
-        root, root_index = InternalNode.from_cube(cube)
+        root = InternalNode.from_cube(cube)
         return SetValuedDecisionDiagram(root)
 
     def __hash__(self):
@@ -38,14 +38,14 @@ class SetValuedDecisionDiagram(CanonicalSet):
     def __contains__(self, item: tuple[str, Union[int, str]]):
         return item in self.root
 
-    def __and__(self, other):
-        assert isinstance(other, SetValuedDecisionDiagram)
-        new_root = self.root & other.root
-        return SetValuedDecisionDiagram(new_root)
-
     def __or__(self, other):
         assert isinstance(other, SetValuedDecisionDiagram)
         new_root = self.root | other.root
+        return SetValuedDecisionDiagram(new_root)
+
+    def __and__(self, other):
+        assert isinstance(other, SetValuedDecisionDiagram)
+        new_root = self.root & other.root
         return SetValuedDecisionDiagram(new_root)
 
     def __sub__(self, other):
@@ -69,6 +69,10 @@ class SetValuedDecisionDiagram(CanonicalSet):
 
     def is_all(self):
         return self.root == TerminalNode(True)
+
+    def complement(self):
+        new_root = self.root.complement()
+        return SetValuedDecisionDiagram(new_root)
 
     def __iter__(self):
         # TODO: implement? should we place this here or in InternalNode?
