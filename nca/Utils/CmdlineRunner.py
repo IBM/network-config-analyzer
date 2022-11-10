@@ -21,18 +21,19 @@ class CmdlineRunner:
     ignore_live_cluster_err = False
 
     @staticmethod
-    def run_and_get_output(cmdline_list):
+    def run_and_get_output(cmdline_list, helm_flag=False):
         """
         Run an executable with specific arguments and return its output to stdout
         if a communicate error occurs, it will be ignored in case this is a silent try to communicate with live cluster,
         otherwise, will be printed to stderr
         :param list[str] cmdline_list: A list of arguments, the first of which is the executable path
+        :param helm_flag: indicates if the executable is helm - communicate errors are always considered for helm
         :return: The executable's output to stdout ( a list-resources on success, otherwise empty value)
         :rtype: str
         """
         cmdline_process = subprocess.Popen(cmdline_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = cmdline_process.communicate()
-        if err and not CmdlineRunner.ignore_live_cluster_err:
+        if err and (not CmdlineRunner.ignore_live_cluster_err or helm_flag):
             print(err.decode().strip('\n'), file=sys.stderr)
         return out
 
@@ -104,4 +105,4 @@ class CmdlineRunner:
         :return: The resolved yaml files generated from the chart file
         """
         cmdline_list = ['helm', 'template', 'nca-extract', chart_dir]
-        return CmdlineRunner.run_and_get_output(cmdline_list)
+        return CmdlineRunner.run_and_get_output(cmdline_list, helm_flag=True)
