@@ -45,7 +45,7 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         s = SetValuedDecisionDiagram.from_cube(cube),
         self.assertTrue(True)
 
-    def test_contains_no_dont_cares(self):
+    def test_contains_no_dont_care(self):
         cube = (
             ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
             ('i1', CanonicalIntervalSet.get_interval_set(10, 20)),
@@ -65,7 +65,7 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         self.assertIn(in_item, s)
         self.assertNotIn(not_in_item, s)
 
-    def test_contained_with_dont_cares(self):
+    def test_contained_with_dont_care(self):
         cube = (
             ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
             ('i2', CanonicalIntervalSet.get_interval_set(20, 30))
@@ -84,7 +84,7 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         self.assertIn(in_item, s)
         self.assertNotIn(not_in_item, s)
 
-    def test_contained_in_single_cube_no_dont_cares(self):
+    def test_contained_in_no_dont_care(self):
         cube1 = (
             ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
             ('i1', CanonicalIntervalSet.get_interval_set(10, 20)),
@@ -104,7 +104,38 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         self.assertTrue(s1.contained_in(s2))
         self.assertFalse(s2.contained_in(s1))
 
-    def test_contained_in_single_cube_with_dont_cares(self):
+    def test_contained_in_with_dont_care_in_self(self):
+        cube1 = (
+            ('i1', CanonicalIntervalSet.get_interval_set(10, 20)),
+            ('i2', CanonicalIntervalSet.get_interval_set(20, 30))
+        )
+        s1 = SetValuedDecisionDiagram.from_cube(cube1)
+        cube2 = (
+            ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
+            ('i1', CanonicalIntervalSet.get_interval_set(0, 20)),
+            ('i2', CanonicalIntervalSet.get_interval_set(20, 30))
+        )
+        s2 = SetValuedDecisionDiagram.from_cube(cube2)
+        i0_complement = DimensionsManager().get_dimension_domain_by_name('i0') - \
+                        CanonicalIntervalSet.get_interval_set(0, 10)
+        cube3 = (
+            ('i0', i0_complement),
+            ('i1', CanonicalIntervalSet.get_interval_set(10, 30)),
+            ('i2', CanonicalIntervalSet.get_interval_set(20, 30))
+        )
+        s3 = SetValuedDecisionDiagram.from_cube(cube3)
+        s4 = s2 | s3
+
+        self.assertTrue(s1.contained_in(s4))
+        self.assertFalse(s4.contained_in(s1))
+        self.assertTrue(s2.contained_in(s4))
+        self.assertFalse(s4.contained_in(s2))
+        self.assertTrue(s3.contained_in(s4))
+        self.assertFalse(s4.contained_in(s3))
+        self.assertFalse(s1.contained_in(s3))
+        self.assertFalse(s3.contained_in(s1))
+
+    def test_contained_in_with_dont_care_in_other(self):
         cube1 = (
             ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
             ('i1', CanonicalIntervalSet.get_interval_set(10, 20)),
@@ -123,8 +154,7 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         self.assertTrue(s1.contained_in(s2))
         self.assertFalse(s2.contained_in(s1))
 
-    # TODO: some more extensive tests for contained_in, using MinDFA and complex don't care situations
-    def test_union_basic_no_dont_cares(self):
+    def test_union_basic_no_dont_care(self):
         cube1 = (
             ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
             ('i1', CanonicalIntervalSet.get_interval_set(10, 20)),
@@ -156,7 +186,7 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         self.assertIn(in_element, s)
         self.assertNotIn(not_in_element, s)
 
-    def test_union_basic_with_dont_cares(self):
+    def test_union_basic_with_dont_care(self):
         cube1 = (
             ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
             ('i1', CanonicalIntervalSet.get_interval_set(10, 20)),
@@ -199,7 +229,7 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         self.assertNotIn(not_in_element1, s)
         self.assertNotIn(not_in_element2, s)
 
-    def test_intersection_basic_no_dont_cares(self):
+    def test_intersection_basic_no_dont_care(self):
         cube1 = (
             ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
             ('i1', CanonicalIntervalSet.get_interval_set(0, 10)),
@@ -237,7 +267,7 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         self.assertNotIn(not_in_item1, s)
         self.assertNotIn(not_in_item2, s)
 
-    def test_intersection_basic_with_dont_cares(self):
+    def test_intersection_basic_with_dont_care(self):
         cube1 = (
             ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
             ('i1', CanonicalIntervalSet.get_interval_set(0, 10)),
@@ -295,13 +325,189 @@ class SetValuedDecisionDiagramBasicTests(unittest.TestCase):
         self.assertIn(in_item, s)
         self.assertNotIn(not_in_item, s)
 
-    def test_subtraction_basic_no_dont_cares(self):
-        # TODO
-        pass
+    def test_complement_basic_with_dont_care(self):
+        cube1 = (
+            ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
+            ('i2', CanonicalIntervalSet.get_interval_set(0, 10))
+        )
+        s1 = SetValuedDecisionDiagram.from_cube(cube1)
+        cube2 = (
+            ('i1', CanonicalIntervalSet.get_interval_set(5, 15)),
+            ('i2', CanonicalIntervalSet.get_interval_set(5, 15))
+        )
+        s2 = SetValuedDecisionDiagram.from_cube(cube2)
+        s = s1 | s2
+        s_complement = s.complement()
+        all_s = s | s_complement
+        empty_s = s & s_complement
+        in_item1 = (
+            ('i0', 12),
+            ('i1', 10),
+            ('i2', 2)
+        )
+        in_item2 = (
+            ('i0', 2),
+            ('i1', 2),
+            ('i2', 12)
+        )
+        in_item3 = (
+            ('i0', 20),
+            ('i1', 20),
+            ('i2', 20)
+        )
+        not_in_item1 = (
+            ('i0', 10),
+            ('i1', 10),
+            ('i2', 10)
+        )
+        not_in_item2 = (
+            ('i0', 100),
+            ('i1', 12),
+            ('i2', 12)
+        )
+        not_in_item3 = (
+            ('i0', 4),
+            ('i1', 100),
+            ('i2', 4)
+        )
 
-    def test_subtraction_basic_with_dont_cares(self):
-        # TODO
-        pass
+        self.assertTrue(all_s.is_all())
+        self.assertTrue(empty_s.is_empty())
+        self.assertFalse(s_complement.contained_in(s))
+        self.assertFalse(s.contained_in(s_complement))
+        self.assertIn(in_item1, s_complement)
+        self.assertIn(in_item2, s_complement)
+        self.assertIn(in_item3, s_complement)
+        self.assertNotIn(not_in_item1, s_complement)
+        self.assertNotIn(not_in_item2, s_complement)
+        self.assertNotIn(not_in_item3, s_complement)
+
+    def test_subtraction_basic_no_dont_care(self):
+        cube1 = (
+            ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
+            ('i1', CanonicalIntervalSet.get_interval_set(0, 10)),
+            ('i2', CanonicalIntervalSet.get_interval_set(0, 10))
+        )
+        s1 = SetValuedDecisionDiagram.from_cube(cube1)
+        cube2 = (
+            ('i0', CanonicalIntervalSet.get_interval_set(0, 2)),
+            ('i1', CanonicalIntervalSet.get_interval_set(3, 5)),
+            ('i2', CanonicalIntervalSet.get_interval_set(6, 8))
+        )
+        s2 = SetValuedDecisionDiagram.from_cube(cube2)
+        s = s1 - s2
+        in_item1 = (
+            ('i0', 1),
+            ('i1', 4),
+            ('i2', 5)
+        )
+        in_item2 = (
+            ('i0', 1),
+            ('i1', 6),
+            ('i2', 7)
+        )
+        not_in_item1 = (
+            ('i0', 9),
+            ('i1', 11),
+            ('i2', 9)
+        )
+        not_in_item2 = (
+            ('i0', 1),
+            ('i1', 4),
+            ('i2', 7)
+        )
+        self.assertTrue(s.contained_in(s1))
+        self.assertFalse(s1.contained_in(s))
+        self.assertFalse(s.contained_in(s2))
+        self.assertFalse(s2.contained_in(s))
+        self.assertIn(in_item1, s)
+        self.assertIn(in_item2, s)
+        self.assertNotIn(not_in_item1, s)
+        self.assertNotIn(not_in_item2, s)
+
+    def test_subtraction_basic_with_dont_care_in_self(self):
+        cube1 = (
+            ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
+            ('i2', CanonicalIntervalSet.get_interval_set(0, 10))
+        )
+        s1 = SetValuedDecisionDiagram.from_cube(cube1)
+        cube2 = (
+            ('i0', CanonicalIntervalSet.get_interval_set(0, 2)),
+            ('i1', CanonicalIntervalSet.get_interval_set(3, 5)),
+            ('i2', CanonicalIntervalSet.get_interval_set(6, 8))
+        )
+        s2 = SetValuedDecisionDiagram.from_cube(cube2)
+        s = s1 - s2
+        in_item1 = (
+            ('i0', 1),
+            ('i1', 4),
+            ('i2', 5)
+        )
+        in_item2 = (
+            ('i0', 5),
+            ('i1', 6),
+            ('i2', 7)
+        )
+        not_in_item1 = (
+            ('i0', 11),
+            ('i1', 11),
+            ('i2', 9)
+        )
+        not_in_item2 = (
+            ('i0', 1),
+            ('i1', 4),
+            ('i2', 7)
+        )
+        self.assertTrue(s.contained_in(s1))
+        self.assertFalse(s1.contained_in(s))
+        self.assertFalse(s.contained_in(s2))
+        self.assertFalse(s2.contained_in(s))
+        self.assertIn(in_item1, s)
+        self.assertIn(in_item2, s)
+        self.assertNotIn(not_in_item1, s)
+        self.assertNotIn(not_in_item2, s)
+
+    def test_subtraction_basic_with_dont_care_in_other(self):
+        cube1 = (
+            ('i0', CanonicalIntervalSet.get_interval_set(0, 10)),
+            ('i1', CanonicalIntervalSet.get_interval_set(0, 10)),
+            ('i2', CanonicalIntervalSet.get_interval_set(0, 10))
+        )
+        s1 = SetValuedDecisionDiagram.from_cube(cube1)
+        cube2 = (
+            ('i1', CanonicalIntervalSet.get_interval_set(3, 5)),
+            ('i2', CanonicalIntervalSet.get_interval_set(6, 8))
+        )
+        s2 = SetValuedDecisionDiagram.from_cube(cube2)
+        s = s1 - s2
+        in_item1 = (
+            ('i0', 7),
+            ('i1', 7),
+            ('i2', 7)
+        )
+        in_item2 = (
+            ('i0', 4),
+            ('i1', 4),
+            ('i2', 4)
+        )
+        not_in_item1 = (
+            ('i0', 9),
+            ('i1', 11),
+            ('i2', 9)
+        )
+        not_in_item2 = (
+            ('i0', 5),
+            ('i1', 4),
+            ('i2', 7)
+        )
+        self.assertTrue(s.contained_in(s1))
+        self.assertFalse(s1.contained_in(s))
+        self.assertFalse(s.contained_in(s2))
+        self.assertFalse(s2.contained_in(s))
+        self.assertIn(in_item1, s)
+        self.assertIn(in_item2, s)
+        self.assertNotIn(not_in_item1, s)
+        self.assertNotIn(not_in_item2, s)
 
 
 if __name__ == '__main__':

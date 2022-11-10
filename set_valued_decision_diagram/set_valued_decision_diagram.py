@@ -6,15 +6,15 @@ Might we benefit from caching those?
 """
 from typing import Union
 
+from set_valued_decision_diagram.cache import get_true_terminal, get_false_terminal
 from set_valued_decision_diagram.canonical_set import CanonicalSet
 from set_valued_decision_diagram.internal_node import InternalNode
 from set_valued_decision_diagram.node import Node
-from set_valued_decision_diagram.terminal_node import TerminalNode
 
 
 class SetValuedDecisionDiagram(CanonicalSet):
     def is_empty(self):
-        return self.root == TerminalNode(False)
+        return self.root == get_false_terminal()
 
     def __init__(self, root: Node):
         """Constructor should not be called directly."""
@@ -59,16 +59,16 @@ class SetValuedDecisionDiagram(CanonicalSet):
 
     @classmethod
     def get_empty_set(cls):
-        root = TerminalNode(False)
+        root = get_false_terminal()
         return SetValuedDecisionDiagram(root)
 
     @classmethod
     def get_universal_set(cls):
-        root = TerminalNode(True)
+        root = get_true_terminal()
         return SetValuedDecisionDiagram(root)
 
     def is_all(self):
-        return self.root == TerminalNode(True)
+        return self.root == get_true_terminal()
 
     def complement(self):
         new_root = self.root.complement()
