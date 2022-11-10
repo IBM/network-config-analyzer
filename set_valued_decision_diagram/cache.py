@@ -43,3 +43,10 @@ def update_compute_cache(compute_cache_key, result: Union[int, bool]):
 
 def id_to_node(node_id: int) -> Node:
     return __UNIQUE_LIST[node_id]
+
+
+def reset_cache() -> None:
+    global __UNIQUE_LIST, __NODE_TO_UNIQUE_ID_MAP, __COMPUTE_CACHE
+    __UNIQUE_LIST = [TerminalNode(False), TerminalNode(True)]
+    __NODE_TO_UNIQUE_ID_MAP = {}
+    __COMPUTE_CACHE = {}

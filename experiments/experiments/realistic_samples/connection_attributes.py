@@ -6,6 +6,7 @@ from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.MinDFA import MinDFA
+from set_valued_decision_diagram.hyper_cube_set_dd import HyperCubeSetDD
 from z3_sets.z3_integer_set import Z3IntegerSet
 from z3_sets.z3_product_set import Z3ProductSet
 from z3_sets.z3_simple_string_set import Z3SimpleStringSet
@@ -28,14 +29,14 @@ class ConnectionAttributes:
 
     @staticmethod
     def _cls_to_integer_cls(cls):
-        if cls == CanonicalHyperCubeSet:
+        if cls in [CanonicalHyperCubeSet, HyperCubeSetDD]:
             return CanonicalIntervalSet
         else:
             return Z3IntegerSet
 
     @staticmethod
     def _cls_to_str_cls(cls):
-        if cls == CanonicalHyperCubeSet:
+        if cls in [CanonicalHyperCubeSet, HyperCubeSetDD]:
             return MinDFA
         else:
             return Z3SimpleStringSet
@@ -43,7 +44,7 @@ class ConnectionAttributes:
     @staticmethod
     def _get_domain(attr_name: str, cls):
         domain = DimensionsManager().get_dimension_domain_by_name(attr_name)
-        if cls == CanonicalHyperCubeSet:
+        if cls in [CanonicalHyperCubeSet, HyperCubeSetDD]:
             return domain
 
         if isinstance(domain, CanonicalIntervalSet):
@@ -54,7 +55,7 @@ class ConnectionAttributes:
             return Z3SimpleStringSet.get_universal_set()
 
     def to_cube(self, cls: Type):
-        assert cls in [CanonicalHyperCubeSet, Z3ProductSet]
+        assert cls in [CanonicalHyperCubeSet, HyperCubeSetDD, Z3ProductSet]
         cube = []
         active_dims = []
 
@@ -119,22 +120,3 @@ class ConnectionAttributes:
                 s = domain - s
             active_dims.append(attr_name)
             cube.append(s)
-
-
-def main():
-    all_dims = ['peers', 'src_ports', 'dst_ports', 'methods', 'paths', 'hosts']
-    s = CanonicalHyperCubeSet(all_dims)
-
-    policy_attr = ConnectionAttributes(
-        src_ports=[(0, 10), (20, 500), (1234, 2345)],
-        methods=['POST'],
-        negate_methods=True,
-        paths=['bla/bla/*'],
-    )
-    cube, active_dims = policy_attr.to_canonical_cube()
-    s.add_cube(cube, active_dims)
-    print(cube, active_dims)
-
-
-if __name__ == '__main__':
-    main()

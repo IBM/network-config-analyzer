@@ -13,19 +13,19 @@ Presenting the results:
 - graph with equivalence check times.
 - table with all the results.
 """
-#   - (think about this a little more) The analyze_results is redundant.
-#   I can do this check with Excel once I have the results in .csv format.
-#   Delete the python file and create a workbook, and upload to github.
-
-# TODO: add more simple policies that are more realistic, and compare performance on those.
-#   I hope that this will show us that CanonicalHyperCubeSet is definitely better than z3 on the common cubes.
+# TODO: add support for HyperCubeSetDD
+# TODO: fill up README.md
+# TODO: extract class names from the data!
+# TODO: add the ability to direct the output to a specific directory with the CLI, should be interesting
 
 
 import itertools
 import json
 import logging
+from argparse import ArgumentParser
 from copy import deepcopy
 from csv import DictWriter
+from pathlib import Path
 
 from matplotlib import pyplot as plt
 
@@ -35,33 +35,43 @@ from experiments.experiments.realistic_samples.connection_attributes import Conn
 from experiments.experiments.realistic_samples.connection_attributes_list import SIMPLE_CONNECTION_ATTR_LIST, \
     COMPLEX_CONNECTION_ATTR_LIST
 from experiments.experiments.realistic_samples.create_connection_set_combinations import get_allow_deny_combinations
+from set_valued_decision_diagram.cache import reset_cache
+from set_valued_decision_diagram.hyper_cube_set_dd import HyperCubeSetDD
 from z3_sets.z3_product_set import Z3ProductSet
 
 logging.basicConfig(level=logging.INFO)
 
 
+# TODO: maybe move this to utils?
 def get_all_dims():
     return ['src_ports', 'dst_ports', 'methods', 'paths', 'hosts']
 
 
+# TODO: maybe move this to utils?
 def cls_name_to_marker(cls_name):
     if cls_name == 'Z3ProductSet':
         return '+'
     elif cls_name == 'CanonicalHyperCubeSet':
         return 'x'
-
-
-def get_cls_list():
-    return [CanonicalHyperCubeSet, Z3ProductSet]
+    elif cls_name == 'HyperCubeSetDD':
+        return '*'
 
 
 def config_to_str(config):
     return f'allow_list={config[0]}; deny_list={config[1]}'
 
 
-def run_experiment(allow_deny_combinations: list[tuple[list[ConnectionAttributes], list[ConnectionAttributes]]]):
-    cls_list = get_cls_list()
-
+def run_experiment(allow_deny_combinations: list[tuple[list[ConnectionAttributes], list[ConnectionAttributes]]],
+                   cls_list: list):
+    """
+    :param allow_deny_combinations: list of pairs of allow policies and deny policies
+    :param cls_list: a list of classes to run the experiment on.
+    :return: a result dict, organized in the following levels:
+    1. the operation, one of {'creation', 'emptiness', 'contained_in', 'equivalence'}
+    2. the class name
+    3. the type of data, one of {'times', 'outcomes', 'indices'}
+    4. a list with the according data.
+    """
     results = {}
     for level_1_key in ['creation', 'emptiness', 'equivalence', 'contained_in']:
         results[level_1_key] = {}
@@ -75,6 +85,7 @@ def run_experiment(allow_deny_combinations: list[tuple[list[ConnectionAttributes
     for cls in cls_list:
         s_list = []
         for i in range(n):
+            reset_cache()
             allow_list, deny_list = allow_deny_combinations[i]
 
             logging.info(f'cls={cls.__name__} | creation | {i+1} out of {n}')
@@ -132,16 +143,16 @@ def add_creation_times(results):
         level_1_key = f'{operation}+creation'
         results[level_1_key] = deepcopy(results[operation])
 
-        for cls in get_cls_list():
-            creation_times = results['creation'][cls.__name__]['times']
-            for i in range(len(results[operation][cls.__name__]['times'])):
-                for j in results[operation][cls.__name__]['indices'][i]:
-                    results[level_1_key][cls.__name__]['times'][i] += creation_times[j]
+        for cls_name in results['creation'].keys():
+            creation_times = results['creation'][cls_name]['times']
+            for i in range(len(results[operation][cls_name]['times'])):
+                for j in results[operation][cls_name]['indices'][i]:
+                    results[level_1_key][cls_name]['times'][i] += creation_times[j]
 
     return results
 
 
-def draw_graphs(results, mode):
+def draw_graphs(results, mode, output_dir: Path):
     for operation, operation_results in results.items():
         for cls_name, cls_results in operation_results.items():
             x = list(range(len(cls_results['times'])))
@@ -157,34 +168,35 @@ def draw_graphs(results, mode):
         plt.title(title)
         plt.xlabel('sample id')
         plt.ylabel('time [seconds]')
-        file_name = f'{operation}_{mode}.png'
-        plt.savefig(file_name)
+        file = output_dir / f'{operation}_{mode}.png'
+        plt.savefig(str(file))
         plt.clf()
 
 
-def create_tables(results, allow_deny_combinations, mode):
+def create_tables(results, allow_deny_combinations, mode, output_dir: Path):
     for operation, operation_results in results.items():
-        rows = []
-        z3_results = operation_results['Z3ProductSet']
-        canonical_results = operation_results['CanonicalHyperCubeSet']
-        assert z3_results['indices'] == canonical_results['indices']
+        cls_names = list(operation_results.keys())
+        first_cls_name = cls_names[0]
+        n_items = len(operation_results[first_cls_name]['times'])
+        rows = [{} for _ in range(n_items)]
 
-        for i in range(len(z3_results['times'])):
+        for i in range(n_items):
+            # time
+            for cls_name in cls_names:
+                rows[i][cls_name+'_time'] = operation_results[cls_name]['times'][i]
+            # outcome
+            for cls_name in cls_names:
+                rows[i][cls_name+'_outcome'] = operation_results[cls_name]['outcomes'][i]
+            # description
             sub_descriptions = []
-            for j in z3_results['indices'][i]:
+            for j in operation_results[first_cls_name]['indices'][i]:
                 allow_list, deny_list = allow_deny_combinations[j]
                 sub_descriptions.append(f'<allow_list={allow_list}; deny_list={deny_list}>')
             description = ';'.join(sub_descriptions)
+            rows[i]['description'] = description
 
-            rows.append({
-                'Z3ProductSet_time': z3_results['times'][i],
-                'CanonicalHyperCubeSet_time': canonical_results['times'][i],
-                'Z3ProductSet_outcome': z3_results['outcomes'][i],
-                'CanonicalHyperCubeSet_outcome': canonical_results['outcomes'][i],
-                'description': description
-            })
-        file_name = f'{operation}_{mode}.csv'
-        with open(file_name, 'w', newline='') as f:
+        file = output_dir / f'{operation}_{mode}.csv'
+        with open(file, 'w', newline='') as f:
             writer = DictWriter(f, fieldnames=rows[0].keys())
             writer.writeheader()
             writer.writerows(rows)
@@ -211,34 +223,78 @@ def sort_results_by_list_sizes(results, allow_deny_combinations):
     return results_copy
 
 
-def main():
+def main(first_cls_name: str, second_cls_name: str, skip_run: bool, mode: str):
     # TODO: create a more compact representation for ConnectionAttr, maybe this will make things more clear.
-    # TODO: add simple / complex to the title of the plot
-    # TODO: I would like to make a random experiment with 1 dim with integers only.
-    skip_run = True
-    for mode in ['simple', 'complex']:
-        logging.info(f'mode={mode}')
-        if mode == 'simple':
-            connection_attr_list = SIMPLE_CONNECTION_ATTR_LIST
-        else:
-            connection_attr_list = COMPLEX_CONNECTION_ATTR_LIST
-        allow_deny_combinations = list(get_allow_deny_combinations(connection_attr_list))
-        # allow_deny_combinations = allow_deny_combinations[:5]  # TODO: comment
-        results_file = f'results_{mode}.json'
+    # TODO: check that the outputs align
+    logging.info(f'first_cls_name={first_cls_name}, second_cls_name={second_cls_name}, mode={mode}, '
+                 f'skip_run={skip_run}.')
+    first_cls = cls_name_to_cls(first_cls_name)
+    second_cls = cls_name_to_cls(second_cls_name)
+    if mode == 'simple':
+        connection_attr_list = SIMPLE_CONNECTION_ATTR_LIST
+    else:
+        connection_attr_list = COMPLEX_CONNECTION_ATTR_LIST
+    allow_deny_combinations = list(get_allow_deny_combinations(connection_attr_list))
+    # allow_deny_combinations = allow_deny_combinations[:5]  # TODO: comment
+    output_dir = Path() / f'{first_cls_name}_{second_cls_name}_{mode}_results'
+    output_dir.mkdir(exist_ok=True)
 
-        if not skip_run:
-            results = run_experiment(allow_deny_combinations)
-            results = add_creation_times(results)
-            with open(results_file, 'w') as f:
-                json.dump(results, f)
+    results_file = output_dir / f'results.json'
 
-        with open(results_file, 'r') as f:
-            results = json.load(f)
+    if not skip_run:
+        results = run_experiment(allow_deny_combinations, [first_cls, second_cls])
+        results = add_creation_times(results)
+        with open(results_file, 'w') as f:
+            json.dump(results, f)
 
-        results = sort_results_by_list_sizes(results, allow_deny_combinations)
-        draw_graphs(results, mode)
-        create_tables(results, allow_deny_combinations, mode)
+    with open(results_file, 'r') as f:
+        results = json.load(f)
+
+    results = sort_results_by_list_sizes(results, allow_deny_combinations)
+    draw_graphs(results, mode, output_dir)
+    create_tables(results, allow_deny_combinations, mode, output_dir)
+    check_results_align(results)
+
+
+def check_results_align(results):
+    # TODO: debug the examples
+    for operation, operation_result in results.items():
+        cls1, cls2 = list(operation_result.keys())
+        cls1_results = operation_result[cls1]
+        error_count = 0
+        total = len(cls1_results['outcomes'])
+        cls2_results = operation_result[cls2]
+        for i in range(total):
+            cls1_res = cls1_results['outcomes'][i]
+            cls2_res = cls2_results['outcomes'][i]
+            if cls1_res != cls2_res:
+                error_count += 1
+                # logging.info(f'outcomes in operation={operation} do not align.'
+                #              f'{cls1} is {cls1_res} and {cls2} is {cls2_res}.')
+        logging.info(f'operation={operation}, {error_count} out of {total} errors.')
+
+
+def supported_cls_choices():
+    return [CanonicalHyperCubeSet, HyperCubeSetDD, Z3ProductSet]
+
+
+def supported_cls_names_choices():
+    return [cls.__name__ for cls in supported_cls_choices()]
+
+
+def cls_name_to_cls(cls_name: str):
+    return eval(cls_name)
 
 
 if __name__ == '__main__':
-    main()
+    arg_parser = ArgumentParser()
+    arg_parser.add_argument('--first_cls', choices=supported_cls_names_choices(),
+                            help='which class to compare first.')
+    arg_parser.add_argument('--second_cls', choices=supported_cls_names_choices(),
+                            help='which class to compare second.')
+    arg_parser.add_argument('--skip_run', action='store_true',
+                            help='run results analysis without running the experiment again.')
+    arg_parser.add_argument('--mode', choices=['simple', 'complex'],
+                            help='which set of samples to use.')
+    args = arg_parser.parse_args()
+    main(args.first_cls, args.second_cls, args.skip_run, args.mode)

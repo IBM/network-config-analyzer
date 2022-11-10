@@ -1,6 +1,7 @@
 from contextlib import redirect_stdout
 from csv import DictReader, DictWriter
 from statistics import variance
+# TODO: update this script to support HyperCubeSetDD
 
 
 def analyze_table(table: list[dict]):
