@@ -5,6 +5,7 @@
 import copy
 from enum import Enum
 from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
+from nca.Utils.CmdlineRunner import CmdlineRunner
 from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
@@ -83,14 +84,14 @@ class ResourcesHandler:
             peer_container = copy.deepcopy(self.global_peer_container)
         else:  # the specific networkConfig has no topology input resources (not private, neither global)
             # this case is reachable when:
-            # 1. no input paths are provided at all, i.e. user intended to get resources from live cluster
+            # 1. no input paths are provided at all, then try to load from live cluster silently
+            # if communication fails then build an empty peer container
             # 2. paths are provided only using resourceList flag, but no topology objects found;
             # in this case we will not load topology from live cluster - keeping peer container empty
             if resource_list is None:  # getting here means ns_list and pod_list are None too
-                print('loading topology objects from k8s live cluster')
-                resources_parser.load_resources_from_k8s_live_cluster([ResourceType.Namespaces, ResourceType.Pods])
+                resources_parser.try_to_load_topology_from_live_cluster([ResourceType.Namespaces, ResourceType.Pods],
+                                                                        config_name)
             peer_container = resources_parser.build_peer_container(config_name)
-
         if save_flag:  # if called from scheme with global topology or cmdline with 2 configs query
             self.global_peer_container = peer_container
             self.global_ns_finder = resources_parser.ns_finder
@@ -214,9 +215,8 @@ class ResourcesParser:
         elif resource_list:
             self._parse_resources_path(resource_list, [ResourceType.Policies])
             config_name = resource_list[0]
-        else:  # running without any input flags means running on k8s live cluster
-            print('loading policies from k8s live cluster')
-            self.load_resources_from_k8s_live_cluster([ResourceType.Policies])
+        else:  # running without any input flags - try to load from k8s live cluster silently
+            self.try_to_load_topology_from_live_cluster([ResourceType.Policies])
 
         return config_name
 
@@ -257,7 +257,17 @@ class ResourcesParser:
 
         self.policies_finder.parse_policies_in_parse_queue()
 
-    def load_resources_from_k8s_live_cluster(self, resource_flags):
+    def load_resources_from_k8s_live_cluster(self, resource_flags, run_silently=False):
+        """
+        attempt to load the resources in resource_flags from k8s live cluster
+        :param list resource_flags: resource types to load from k8s live cluster
+        :param bool run_silently: indicates if this attempt should run silently, i.e. ignore errors if fails to
+        communicate.
+        """
+        # Setting a flag in the CmdlineRunner to indicate if we are trying to load resources silently
+        # from the live cluster (e.g. global resources are missing)
+        CmdlineRunner.ignore_live_cluster_err = run_silently
+
         if ResourceType.Namespaces in resource_flags:
             self.ns_finder.load_ns_from_live_cluster()
         if ResourceType.Pods in resource_flags:
@@ -267,6 +277,30 @@ class ResourcesParser:
             self.services_finder.load_services_from_live_cluster()
         if ResourceType.Policies in resource_flags:
             self.policies_finder.load_policies_from_k8s_cluster()
+
+    def try_to_load_topology_from_live_cluster(self, resources_flags, config_name='global'):
+        """
+        an attempt to load resources from k8s live cluster silently.
+        in this case, communication with a k8s live cluster is not a must.
+        so the attempt occurs silently, if succeed to connect and load resources then a relevant message will be printed
+        otherwise, a warning message of not found resources will be printed
+        :param  list resources_flags: resource types to load from k8s live cluster
+        :param str config_name: configuration name
+        """
+        try:
+            self.load_resources_from_k8s_live_cluster(resources_flags, run_silently=True)
+            if ResourceType.Policies in resources_flags:
+                success = self.policies_finder.policies_container.policies
+            else:
+                success = self.ns_finder.namespaces or self.pods_finder.peer_set
+        except FileNotFoundError:  # in case that kube-config file is not found
+            success = False  # ignore the exception since this is a silent try
+
+        resource_names = ' and '.join(str(resource).split('.')[1].lower() for resource in resources_flags)
+        if success:  # we got resources from live cluster
+            print(f'{config_name}: loading {resource_names} from k8s live cluster')
+        else:
+            print(f'Warning: {config_name} - {resource_names} were not found')
 
     def _handle_calico_inputs(self, resource_flags):
         if ResourceType.Namespaces in resource_flags:
