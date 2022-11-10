@@ -2,11 +2,11 @@ from copy import deepcopy
 from typing import Union
 
 from nca.CoreDS.DimensionsManager import DimensionsManager
-from z3_sets.hyper_cube_set import HyperCubeSet
+from hyper_cube_set_interface import HyperCubeSetInterface
 from z3_sets.z3_set import Z3Set
 
 
-class Z3ProductSetDNF(Z3Set, HyperCubeSet):
+class Z3ProductSetDNF(Z3Set, HyperCubeSetInterface):
 
     _dim_manager_type_to_primitive_type = {
         DimensionsManager.DimensionType.IntervalSet: int,

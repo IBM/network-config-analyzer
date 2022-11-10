@@ -2,7 +2,7 @@ import logging
 import os
 import traceback
 from contextlib import redirect_stdout, redirect_stderr
-from pprint import pformat, pprint
+from pprint import pformat
 
 from experiments.canonical_hyper_cube_set_tracker.utils import get_repo_root_dir, replace_files, \
     revert_replace_files, init_benchmark_tracing

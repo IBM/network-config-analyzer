@@ -119,4 +119,5 @@ temp_scheme/
 experiments/canonical_hyper_cube_set_tracker/backup
 experiments/canonical_hyper_cube_set_tracker/traces
 smt_experiments/canonical_hyper_cube_set_tracker/*.dot
+*.trace
 #smt_experiments/canonical_hyper_cube_set_tracker/analysis_results/

@@ -3,14 +3,14 @@ from typing import Union
 from z3 import BoolVal, And, sat, Or, Not, Int, String, unsat, substitute
 
 from nca.CoreDS.DimensionsManager import DimensionsManager
-from z3_sets.hyper_cube_set import HyperCubeSet
+from hyper_cube_set_interface import HyperCubeSetInterface
 from z3_sets.z3_integer_set import Z3IntegerSet
 from z3_sets.z3_set import Z3Set
 from z3_sets.z3_simple_string_set import Z3SimpleStringSet
 from z3_sets.z3_utils import solve_without_model
 
 
-class Z3ProductSet(Z3Set, HyperCubeSet):
+class Z3ProductSet(Z3Set, HyperCubeSetInterface):
     """Z3 implementation of hyper cube, implemented by creating a single long formula."""
     _type_to_var_constructor = {
         int: Int,

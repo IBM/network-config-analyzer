@@ -4,7 +4,7 @@ from unittest import skip
 from z3_sets.z3_integer_set import Z3IntegerSet as CanonicalIntervalSet
 from z3_sets.z3_simple_string_set import Z3SimpleStringSet as MinDFA
 from z3_sets.z3_product_set import Z3ProductSet as CanonicalHyperCubeSet
-from DimensionsManager import DimensionsManager
+from nca.CoreDS.DimensionsManager import DimensionsManager
 
 dimensions = ["src_ports", "ports", "methods_dfa", "paths"]
 dimensions2 = ["ports", "src_ports", "methods_dfa", "paths"]

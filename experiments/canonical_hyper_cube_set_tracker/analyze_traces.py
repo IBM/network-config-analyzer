@@ -14,7 +14,7 @@ import logging
 from collections import Counter
 from collections.abc import Iterable
 from pathlib import Path
-from pprint import pprint, pformat
+from pprint import pformat
 
 from experiments.canonical_hyper_cube_set_tracker.utils import get_repo_root_dir, get_traces_dir
 logging.basicConfig(level=logging.INFO)
