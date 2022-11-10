@@ -149,11 +149,10 @@ class DimensionsManager:
 
     def dimension_precedence(self, dim_name1: str, dim_name2: str) -> bool:
         """:return: True if `dim_name1` is before `dim_name2` in the variable ordering."""
-        if dim_name1 == dim_name2:
-            return False
-        for dim_name, _ in self.dim_dict.items():
-            if dim_name == dim_name1:
-                return True
-            if dim_name == dim_name2:
-                return False
-        assert False, f'{dim_name1} and {dim_name2} are not valid dimensions.'
+        return self.dimension_order(dim_name1) < self.dimension_order(dim_name2)
+
+    def dimension_order(self, dim_name: str) -> int:
+        for i, dim_name0 in enumerate(self.dim_dict.keys()):
+            if dim_name == dim_name0:
+                return i
+        assert False, f'{dim_name} is not a valid dimensions.'

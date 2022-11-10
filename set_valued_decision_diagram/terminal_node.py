@@ -48,7 +48,10 @@ class TerminalNode(Node):
             return True
 
     def __repr__(self):
-        return f'<Terminal={self.value}>'
+        if self.value:
+            return 'All'
+        else:
+            return 'Empty'
 
     def __contains__(self, item):
         return self.value

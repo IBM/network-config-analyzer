@@ -54,9 +54,12 @@ class InternalNode(Node):
             return id_to_node(result_id)
 
         var, edge_label = cube[0]
-        child = InternalNode.from_cube(cube[1:])
-        edges = ((edge_label, child.id),)
-        node = InternalNode(var, edges)
+        if edge_label:
+            child = InternalNode.from_cube(cube[1:])
+            edges = [(edge_label, child.id)]
+            node = InternalNode.__create_canonical_node(var, edges)
+        else:
+            node = get_false_terminal()
         update_compute_cache(compute_cache_key, node.id)
         return node
 
