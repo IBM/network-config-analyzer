@@ -34,8 +34,8 @@ class CmdlineRunner:
         """
         cmdline_process = subprocess.Popen(cmdline_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = cmdline_process.communicate()
-        print_err_flag = not check_for_silent_exec or \
-                         (check_for_silent_exec and not CmdlineRunner.ignore_live_cluster_err)
+        print_err_flag = \
+            not check_for_silent_exec or (check_for_silent_exec and not CmdlineRunner.ignore_live_cluster_err)
         if err and print_err_flag:
             print(err.decode().strip('\n'), file=sys.stderr)
         return out
