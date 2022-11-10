@@ -17,23 +17,26 @@ class CmdlineRunner:
     """
     A stateless class with only static functions to easily get k8s and calico resources using kubectl and calicoctl
     """
-    # a static variable to indicate if we want to ignore errors from running executable command
+    # a static variable to indicate if we want to ignore errors from running executable command - i.e. run silently
     ignore_live_cluster_err = False
 
     @staticmethod
-    def run_and_get_output(cmdline_list, helm_flag=False):
+    def run_and_get_output(cmdline_list, check_for_silent_exec=False):
         """
         Run an executable with specific arguments and return its output to stdout
         if a communicate error occurs, it will be ignored in case this is a silent try to communicate with live cluster,
         otherwise, will be printed to stderr
         :param list[str] cmdline_list: A list of arguments, the first of which is the executable path
-        :param helm_flag: indicates if the executable is helm - communicate errors are always considered for helm
+        :param check_for_silent_exec: when true consider the static variable that indicates whether to ignore errors
+        or not
         :return: The executable's output to stdout ( a list-resources on success, otherwise empty value)
         :rtype: str
         """
         cmdline_process = subprocess.Popen(cmdline_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = cmdline_process.communicate()
-        if err and (not CmdlineRunner.ignore_live_cluster_err or helm_flag):
+        print_err_flag = not check_for_silent_exec or \
+                         (check_for_silent_exec and not CmdlineRunner.ignore_live_cluster_err)
+        if err and print_err_flag:
             print(err.decode().strip('\n'), file=sys.stderr)
         return out
 
@@ -95,7 +98,7 @@ class CmdlineRunner:
         cmdline_list = ['kubectl', 'get', resource, '-o=json']
         if resource in ['networkPolicy', 'authorizationPolicy', 'pod', 'ingress', 'Gateway', 'VirtualService', 'sidecar']:
             cmdline_list.append('--all-namespaces')
-        return CmdlineRunner.run_and_get_output(cmdline_list)
+        return CmdlineRunner.run_and_get_output(cmdline_list, check_for_silent_exec=True)
 
     @staticmethod
     def resolve_helm_chart(chart_dir):
@@ -105,4 +108,4 @@ class CmdlineRunner:
         :return: The resolved yaml files generated from the chart file
         """
         cmdline_list = ['helm', 'template', 'nca-extract', chart_dir]
-        return CmdlineRunner.run_and_get_output(cmdline_list, helm_flag=True)
+        return CmdlineRunner.run_and_get_output(cmdline_list)
