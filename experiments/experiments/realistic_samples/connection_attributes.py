@@ -27,6 +27,9 @@ class ConnectionAttributes:
     hosts: list[str] = None
     negate_hosts: bool = False
 
+    def __repr__(self):
+        return repr(self.__dict__)
+
     @staticmethod
     def _cls_to_integer_cls(cls):
         if cls in [CanonicalHyperCubeSet, HyperCubeSetDD]:

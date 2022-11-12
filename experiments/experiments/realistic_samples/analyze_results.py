@@ -60,6 +60,7 @@ def analyze_table(table: list[dict]):
 
 
 def main():
+    # TODO: create this in a different directory, move this to "run_experiment.py"
     # TODO: create a table with summery statistics
     summary_table = []
     # for with_creation in [True, False]:
