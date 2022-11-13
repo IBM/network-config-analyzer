@@ -1,7 +1,7 @@
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.MinDFA import MinDFA
-from set_valued_decision_diagram.hyper_cube_set_dd import HyperCubeSetDD
+from decision_diagram.hyper_cube_set_dd import HyperCubeSetDD
 
 
 def possible_bug():

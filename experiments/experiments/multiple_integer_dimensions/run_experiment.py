@@ -38,7 +38,7 @@ from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from experiments.experiments.experiment_utils import Timer, get_dimension_names, load_results, \
     get_unique_values_for_key, filter_on_key_value, save_results
-from experiments.experiments.realistic_samples.run_experiment import cls_name_to_marker
+from experiments.experiments.realistic_samples.analyze_results import cls_name_to_marker
 from z3_sets.z3_integer_set import Z3IntegerSet
 from z3_sets.z3_product_set import Z3ProductSet
 

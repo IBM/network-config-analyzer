@@ -6,7 +6,7 @@ from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.MinDFA import MinDFA
-from set_valued_decision_diagram.hyper_cube_set_dd import HyperCubeSetDD
+from decision_diagram.hyper_cube_set_dd import HyperCubeSetDD
 from z3_sets.z3_integer_set import Z3IntegerSet
 from z3_sets.z3_product_set import Z3ProductSet
 from z3_sets.z3_simple_string_set import Z3SimpleStringSet
