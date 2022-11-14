@@ -1,28 +1,15 @@
-# TODO: the experiment name should be automatically inferred from the file name + function_name.
-# TODO: after writing this experiment, do some refactoring in the experiments code.
-# TODO: object oriented experiments to not duplicate data.
-
-# TODO: create the experiment with the following parts: (each in a separate figure).
-# TODO: single cube with increasing number of dimensions, with increasing cube complexity.
-# TODO: linear #cubes without interference between cubes
-# TODO: linear #cubes with interference between cubes
-# TODO: quadratic #cubes without interference between cubes
-# TODO: quadratic #cubes with interference between cubes
-# TODO: IDEA: I can actually get positive examples by drawing from the set, and negative samples using
-#   randomization.
-# TODO: consider creating a class for running an experiment. might be useful.
 from abc import abstractmethod
 
-from CanonicalHyperCubeSet import CanonicalHyperCubeSet
-from DimensionsManager import DimensionsManager
-from MinDFA import MinDFA
+from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
+from nca.CoreDS.DimensionsManager import DimensionsManager
+from nca.CoreDS.MinDFA import MinDFA
 from experiments.experiments_old.experiment_utils import EngineType, get_y_var_list, Variable, \
     get_positive_membership_operation, get_negative_membership_operation
 from experiments.experiments_old.n_unions_string_experiment import BasicSet, get_string_list
 from experiments.experiments_old.plot_experiment_results import plot_results
 from experiments.experiments_old.run_experiment import run_experiment
 from z3_sets.z3_product_set import Z3ProductSet
-from experiments.z3_sets.z3_string_set import Z3SimpleStringSet
+from z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
 
 def _get_contained_element(n_dims: int, basic_set: BasicSet) -> list[str]:
@@ -223,8 +210,7 @@ class LinearNumberOfNonIntersectingCubes(MultipleStringDimensionsExperiment):
 
 
 if __name__ == '__main__':
-    # experiment = SingleSimpleCube()
-    experiment = LinearNumberOfNonIntersectingCubes()
-    experiment.run()
-    experiment.plot()
+    for experiment in [SingleSimpleCube(), LinearNumberOfNonIntersectingCubes()]:
+        experiment.run()
+        experiment.plot()
 

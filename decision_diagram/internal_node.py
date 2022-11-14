@@ -8,12 +8,6 @@ from decision_diagram.canonical_set import CanonicalSet
 from decision_diagram.node import Node
 from decision_diagram.terminal_node import TerminalNode
 
-# TODO: add the ability to give as input to the experiments the sets that we
-#  want to test. This will enable us to benchmark the results of a single implementation.
-
-# TODO: reduce the size of the functions by extracting subroutines and refactoring
-# TODO: add checks for invariants
-# TODO: go over CanonicalHyperCubeSet code and try understand if the algorithms are the same.
 # TODO: validate dimensions correctness
 
 DIM_MANAGER = DimensionsManager()

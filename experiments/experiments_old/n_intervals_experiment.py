@@ -1,9 +1,8 @@
 """
-An experiment that measures how the time for element containment is influenced by the number of intervals in a single
-interval set.
+
 """
 
-from CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from experiments.experiments_old.experiment_utils import EngineType, get_y_var_list, Variable, \
     get_positive_membership_operation, get_negative_membership_operation
 from experiments.experiments_old.plot_experiment_results import plot_results

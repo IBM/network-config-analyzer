@@ -1,24 +1,16 @@
-"""
-An experiment that measures how the time for element containment is influenced by the number of dimensions of a
-hyper cube, when the number of intervals is fixed.
-"""
 import itertools
 from collections.abc import Iterable
 from enum import auto
 
-from CanonicalHyperCubeSet import CanonicalHyperCubeSet
-from CanonicalIntervalSet import CanonicalIntervalSet
-from DimensionsManager import DimensionsManager
+from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
+from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
+from nca.CoreDS.DimensionsManager import DimensionsManager
 from experiments.experiments_old.experiment_utils import EnumWithStr, EngineType, get_y_var_list, Variable, \
     get_positive_membership_operation, get_negative_membership_operation
 from experiments.experiments_old.plot_experiment_results import plot_results
 from experiments.experiments_old.run_experiment import run_experiment
 from z3_sets.z3_integer_set import Z3IntegerSet
 from z3_sets.z3_product_set import Z3ProductSet
-
-
-# TODO: maybe do more experiments with the LINEAR option
-# TODO: convert this to use the generic run_experiment and plot_results functions
 
 
 class CubeIncreaseMode(EnumWithStr):
@@ -174,6 +166,5 @@ def plot():
 
 
 if __name__ == '__main__':
-    # test_iter_cubes()
     run()
     plot()

@@ -441,4 +441,4 @@ def generate_graphs_for_presentation():
 
 
 if __name__ == '__main__':
-    generate_graphs_for_presentation()
+    main()

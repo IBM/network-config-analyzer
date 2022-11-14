@@ -4,19 +4,14 @@ from collections.abc import Iterable
 from enum import auto
 from itertools import combinations
 
-from MinDFA import MinDFA
+from nca.CoreDS.MinDFA import MinDFA
 from experiments.experiments.experiment_utils import iter_subsets
 from experiments.experiments_old.experiment_utils import EnumWithStr, CheckType, EngineType, get_y_var_list, \
     Variable, get_positive_membership_operation, get_negative_membership_operation
 from experiments.experiments_old.plot_experiment_results import plot_results
 from experiments.experiments_old.run_experiment import run_experiment
-from experiments.z3_sets.z3_string_set import Z3SimpleStringSet
+from z3_sets.z3_simple_string_set import Z3SimpleStringSet
 
-# TODO: change instead to inplace union operations instead of not-inplace operations
-# TODO: refactor the way that experiments work.
-# TODO: test that the containment works (things that are in are in)
-# TODO: create a timeout for the experiment that will automatically stop the experiment when the time is over
-# TODO: maybe I can get the same results but with a simpler set of examples...
 EXPERIMENT_NAME = 'n_union_string_experiment'
 
 
@@ -48,7 +43,6 @@ def union_iterator(n_unions: int, basic_set_combination: tuple[BasicSet]) -> Ite
 
 
 def get_elements(n_unions: int, basic_set_combinations: tuple[BasicSet], check: CheckType) -> list[str]:
-    # TODO: need to fix this according to round-robin basic set combinations.
     elements = []
     for s, basic_set in union_iterator(n_unions, basic_set_combinations):
         if check == CheckType.NOT_CONTAINED:

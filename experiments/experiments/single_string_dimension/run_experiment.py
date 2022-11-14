@@ -34,8 +34,6 @@ List of operations to compare:
 - Intersection
 - Union
 """
-# TODO: add an experiment with regex.
-
 import itertools
 import logging
 import random
@@ -281,7 +279,6 @@ def plot_results_per_operation(results: list[dict], operation: str, mode: str):
 
     ax.legend()
 
-    # plt.show()  # TODO: comment
     fig_path = Path(__file__).with_stem(f'{mode}_{operation}').with_suffix('.png')
     fig.savefig(fig_path)
 
@@ -315,7 +312,7 @@ def create_csv_table():
         key = (mode, operation, string_set1, string_set2, string)
         table[key][result['class']] = result['time']
 
-    rows = []   # TODO
+    rows = []
     for key, value in table.items():
         mode, operation, string_set1, string_set2, string = key
         row = {
@@ -337,7 +334,6 @@ def create_csv_table():
 
 
 def main():
-    # for mode in ['constant']:
     for mode in ['constant', 'prefix', 'prefix_and_suffix']:
         results_file = get_results_file(mode)
         results = run_experiment(mode)          # TODO: comment to avoid re-running the experiment
@@ -345,6 +341,7 @@ def main():
         results = load_results(results_file)
         for operation in ['creation', 'membership', 'intersection', 'union', 'contained_in']:
             plot_results_per_operation(results, operation, mode)
+    create_csv_table()
 
 
 def get_results_file(mode: str):
@@ -352,6 +349,4 @@ def get_results_file(mode: str):
 
 
 if __name__ == '__main__':
-    # main()
-    create_csv_table()
-
+    main()

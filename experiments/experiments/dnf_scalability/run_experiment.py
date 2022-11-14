@@ -1,7 +1,3 @@
-"""Description:
-# TODO
-"""
-
 import logging
 from csv import DictWriter
 from pathlib import Path
@@ -186,7 +182,6 @@ def save_results_to_csv(results: list[dict], result_csv_file: Path):
         writer.writerows(table_rows)
 
 
-
 def plot_result_for_operation(results: list[dict], operation: str, t: Type):
     results_filtered_on_operation = filter_on_key_value(results, 'operation', operation)
 
@@ -262,7 +257,7 @@ def get_results_file(t: Type):
 
 
 def main():
-    # run_experiment_and_plot(int)
+    run_experiment_and_plot(int)
     run_experiment_and_plot(str)
 
 

@@ -55,9 +55,6 @@ Expectation:
 it less times.
 
 """
-# TODO: rename this file to string only experiment
-# TODO: separate between the mixed and the string only experiments
-
 import logging
 import string
 from pathlib import Path
@@ -313,7 +310,6 @@ def main():
         run_experiment_and_plot(overlapping)
 
 
-# TODO: write code that finds out which contained_in operation takes the longest with Z3.
 def print_worst_contained_in_histogram():
     for overlapping in [True, False]:
         histogram = [0, 0, 0, 0]
@@ -334,6 +330,4 @@ def print_worst_contained_in_histogram():
 
 
 if __name__ == '__main__':
-    # run_experiment_and_plot(overlapping=True)
-    # main()
-    print_worst_contained_in_histogram()
+    main()
