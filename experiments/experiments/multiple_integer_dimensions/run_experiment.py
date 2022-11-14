@@ -1,30 +1,3 @@
-"""Description:
-Question:
-    How n_cubes affects runtime of different operations, when n_dims is fixed,
-    and the cubes are non-overlapping?
-
-Experiment Design:
-    Fix the value of n_dims to one of {5, 10, 15}, and increase n_cubes from ??? to ??? with steps of ???.
-    Then plot 3 graphs, one for each value of n_dims, with the runtime over the n_cubes parameter.
-
-Expectations:
-    - The rate of increase will be linear with Z3ProductSet and with the CanonicalHyperCubeSet.
-    - The rate of increase will be greater for CanonicalHyperCubeSet when the number of dimensions is greater.
-    - With n_dims=5, CanonicalHyperCubeSet will always outperform Z3.
-    - With n_dims=15, at the start CanonicalHyperCubeSet will outperform Z3, but at some point, Z3 will outperform
-    CanonicalHyperCube.
-"""
-# TODO: Analyze.
-# TODO: Write ideas for more experiments.
-# TODO: Maybe use randomly generated (inputs, cubes)?
-# TODO: I don't think that we should have `overall time` since we can just add the two figures.
-# TODO: add another figure with only the Z3ProductSet times, to look at the increase rate more closely.
-# TODO: also consider Z3ProductSetDNF, Try to optimize it. Currently it is much slower than the other two, so I don't
-#   place it in same plot (as it dominates the plot).
-# TODO: analyze what profile of operations is more efficient with z3 and which is more efficient with
-#   CanonicalHyperCubeSet, in terms of different combination of operations.
-#   For example, if we have 1 creation followed by 10 contained_in, which engine is more efficient?
-
 import logging
 from csv import DictWriter
 from pathlib import Path
@@ -442,3 +415,4 @@ def generate_graphs_for_presentation():
 
 if __name__ == '__main__':
     main()
+    generate_graphs_for_presentation()

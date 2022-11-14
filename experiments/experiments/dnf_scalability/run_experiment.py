@@ -222,7 +222,6 @@ def plot_result_for_operation(results: list[dict], operation: str, t: Type):
         ax.set_title(f'#dims = {n_dims}')
         ax.legend()
 
-    # plt.show()  # TODO: comment
     if t == int:
         stem = f'{operation}_int'
     else:
