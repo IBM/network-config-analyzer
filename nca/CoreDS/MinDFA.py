@@ -3,12 +3,11 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from greenery import fsm, parse
+from greenery.rxelems import from_fsm
 from functools import lru_cache
 
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
-from greenery.rxelems import from_fsm
-
 
 class MinDFA:
     """
