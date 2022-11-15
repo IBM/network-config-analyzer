@@ -52,6 +52,8 @@ class NetworkPolicy:
         self.selected_peers = PeerSet()  # The peers affected by this policy
         self.ingress_rules = []
         self.egress_rules = []
+        self.optimized_ingress_props = None  # all properties in hypercube set format
+        self.optimized_egress_props = None  # all properties in hypercube set format
         self.affects_ingress = False  # whether the policy affects the ingress of the selected peers
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
         self.findings = []  # accumulated findings which are relevant only to this policy (emptiness and redundancy)
@@ -118,6 +120,28 @@ class NetworkPolicy:
         :return: None
         """
         self.egress_rules.append(rule)
+
+    def add_optimized_ingress_props(self, props):
+        """
+        Adding properties to the CanonicalHyperCubeSet of optimized ingress properties
+        :param CanonicalHyperCubeSet props: The properties to add
+        :return: None
+        """
+        if self.optimized_ingress_props:
+            self.optimized_ingress_props |= props
+        else:
+            self.optimized_ingress_props = props
+
+    def add_optimized_egress_props(self, props):
+        """
+        Adding properties to the CanonicalHyperCubeSet of optimized egress properties
+        :param CanonicalHyperCubeSet props: The properties to add
+        :return: None
+        """
+        if self.optimized_egress_props:
+            self.optimized_egress_props |= props
+        else:
+            self.optimized_egress_props = props
 
     @staticmethod
     def get_policy_type_from_dict(policy):  # noqa: C901

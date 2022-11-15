@@ -8,6 +8,7 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
@@ -171,10 +172,14 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         default_conns = None
         if self.default_backend_peers:
             if paths_dfa:
-                default_conns = self._make_tcp_like_properties(self.default_backend_ports, self.default_backend_peers,
-                                                               paths_dfa, hosts_dfa)
+                default_conns = \
+                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, self.default_backend_ports,
+                                                               dst_peers=self.default_backend_peers,
+                                                               paths_dfa=paths_dfa, hosts_dfa=hosts_dfa)
             else:
-                default_conns = self._make_tcp_like_properties(self.default_backend_ports, self.default_backend_peers,
+                default_conns = \
+                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, self.default_backend_ports,
+                                                               dst_peers=self.default_backend_peers,
                                                                hosts_dfa=hosts_dfa)
         return default_conns
 
@@ -201,7 +206,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             parsed_paths_with_dfa = self.segregate_longest_paths_and_make_dfa(parsed_paths)
             for (_, paths_dfa, _, peers, ports) in parsed_paths_with_dfa:
                 # every path is converted to allowed connections
-                conns = self._make_tcp_like_properties(ports, peers, paths_dfa, hosts_dfa)
+                conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container, ports, dst_peers=peers,
+                                                                   paths_dfa=paths_dfa, hosts_dfa=hosts_dfa)
                 if not allowed_conns:
                     allowed_conns = conns
                 else:

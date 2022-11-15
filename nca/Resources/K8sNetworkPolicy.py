@@ -62,6 +62,16 @@ class K8sNetworkPolicy(NetworkPolicy):
 
         return PolicyConnections(True, allowed_conns)
 
+    def allowed_connections_optimized(self, is_ingress):
+        """
+        Return the set of connections this policy allows between any two peers
+        (either ingress or egress).
+        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
+        :return: A TcpLikeProperties object containing all allowed connections for relevant peers
+        :rtype: TcpLikeProperties
+        """
+        return self.optimized_ingress_props if is_ingress else self.optimized_egress_props
+
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """
         Makes a copy of 'self' without a given policy rule

@@ -4,12 +4,40 @@
 #
 
 from collections import defaultdict
-from nca.CoreDS.Peer import Peer, IpBlock, ClusterEP, Pod
+from nca.CoreDS.Peer import Peer, IpBlock, PeerSet, ClusterEP, Pod
+from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.ConnectionSet import ConnectionSet
+from nca.CoreDS.ProtocolSet import ProtocolSet
+from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
 
 
-class ConnectivityGraph:
+class ConnectivityGraphPrototype:
+    def __init__(self, output_config):
+        """
+        Create a ConnectivityGraph object
+        :param output_config: OutputConfiguration object
+        """
+        # connections_to_peers holds the connectivity graph
+        self.output_config = output_config
+
+    def _get_peer_name(self, peer):
+        """
+        Get the name of a peer object for connectivity graph + flag indicating if it is ip-block
+        :param Peer peer: the peer object
+        :return: tuple(str, bool)
+        str: the peer name
+        bool: flag to indicate if peer is ip-block (True) or not (False)
+        """
+        if isinstance(peer, IpBlock):
+            return peer.get_ip_range_or_cidr_str(), True
+        if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
+            return peer.workload_name, False
+        return str(peer), False
+
+
+class ConnectivityGraph(ConnectivityGraphPrototype):
     """
     Represents a connectivity digraph, that is a set of labeled edges, where the nodes are peers and
     the labels on the edges are the allowed connections between two peers.
@@ -23,8 +51,8 @@ class ConnectivityGraph:
         :param output_config: OutputConfiguration object
         """
         # connections_to_peers holds the connectivity graph
+        super().__init__(output_config)
         self.connections_to_peers = defaultdict(list)
-        self.output_config = output_config
         if self.output_config.fwRulesOverrideAllowedLabels:
             allowed_labels = set(label for label in self.output_config.fwRulesOverrideAllowedLabels.split(','))
         self.cluster_info = ClusterInfo(all_peers, allowed_labels)
@@ -48,19 +76,41 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def _get_peer_name(self, peer):
+    def add_edges_from_cube_dict(self, peer_container, cube_dict):
         """
-        Get the name of a peer object for connectivity graph + flag indicating if it is ip-block
-        :param Peer peer: the peer object
-        :return: tuple(str, bool)
-        str: the peer name
-        bool: flag to indicate if peer is ip-block (True) or not (False)
+        Add edges to the graph according to the give cube
+        :param peer_container: the peer_container containing all possible peers
+        :param dict cube_dict: the given cube in dictionary format
         """
-        if isinstance(peer, IpBlock):
-            return peer.get_ip_range_or_cidr_str(), True
-        if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
-            return peer.workload_name, False
-        return str(peer), False
+        new_cube_dict = cube_dict.copy()
+        src_peers = new_cube_dict.get('src_peers')
+        if src_peers:
+            new_cube_dict.pop('src_peers')
+        else:
+            src_peers = PeerSet()
+        dst_peers = new_cube_dict.get('dst_peers')
+        if dst_peers:
+            new_cube_dict.pop('dst_peers')
+        else:
+            dst_peers = PeerSet()
+        protocols = new_cube_dict.get('protocols')
+        if protocols:
+            new_cube_dict.pop('protocols')
+
+        if not protocols and not new_cube_dict:
+            conns = ConnectionSet(True)
+        else:
+            conns = ConnectionSet()
+            protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
+            for protocol in protocol_names:
+                if new_cube_dict:
+                    conns.add_connections(protocol, TcpLikeProperties.make_tcp_like_properties_from_dict(peer_container,
+                                                                                                         new_cube_dict))
+                else:
+                    conns.add_connections(protocol, TcpLikeProperties(PortSet(True), PortSet(True)))
+        for src_peer in src_peers:
+            for dst_peer in dst_peers:
+                self.connections_to_peers[conns].append((src_peer, dst_peer))
 
     def get_connectivity_dot_format_str(self):
         """
@@ -70,12 +120,13 @@ class ConnectivityGraph:
         output_result += 'digraph ' + '{\n'
         if self.output_config.queryName and self.output_config.configName:
             output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/' \
-                             f'{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
+                            f'{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
         peer_lines = set()
         for peer in self.cluster_info.all_peers:
             peer_name, is_ip_block = self._get_peer_name(peer)
             peer_color = "red2" if is_ip_block else "blue"
-            peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
+            peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" '
+                           f'fontcolor=\"{peer_color}\"]\n')
 
         edge_lines = set()
         for connections, peer_pairs in self.connections_to_peers.items():
@@ -223,3 +274,97 @@ class ConnectivityGraph:
             if not conn:  # conn is "no connections":
                 return False
         return True
+
+
+class ConnectivityGraphOptimized(ConnectivityGraphPrototype):
+    """
+    Represents an optimized connectivity digraph, that is a set of labeled edges, where the nodes are sets of peers
+    and the labels on the edges are the allowed connections between the two sets of peers.
+    """
+
+    def __init__(self, output_config):
+        """
+        Create a ConnectivityGraph object
+        :param output_config: OutputConfiguration object
+        """
+        super().__init__(output_config)
+        self.edges = []  # the list of tuples(src_peers, dst_peers, connections)
+        self.peer_sets = set()  # the set of all src/dst PeerSets in the graph
+
+    def get_peer_set_names(self, peer_set):
+        """
+        Convert a given peer_set to a string format for the output
+        :param peer_set: the given peer_set
+        :return: the string describing the given peer_set
+        """
+        res_names = ''
+        res_is_only_ip_block = True
+        res_is_only_pods = True
+        for peer in peer_set:
+            peer_name, is_ip_block = self._get_peer_name(peer)
+            res_names += ', ' + peer_name if res_names else peer_name
+            res_is_only_ip_block &= is_ip_block
+            res_is_only_pods &= not is_ip_block
+        return res_names, res_is_only_ip_block, res_is_only_pods
+
+    def add_edge(self, cube_dict):
+        """
+        Adding a labeled edge to the graph
+        :param dict cube_dict: The map from all every dimension to its values
+        :return: None
+        """
+        new_cube_dict = cube_dict.copy()
+        src_peers = new_cube_dict['src_peers'] or PeerSet()
+        dst_peers = new_cube_dict['dst_peers'] or PeerSet()
+        self.peer_sets.add(src_peers)
+        self.peer_sets.add(dst_peers)
+        new_cube_dict.pop('src_peers')
+        new_cube_dict.pop('dst_peers')
+        self.edges.append((src_peers, dst_peers, new_cube_dict))
+
+    def get_connectivity_dot_format_str(self):
+        """
+        :return: a string with content of dot format for connectivity graph
+        """
+        output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
+        output_result += 'digraph ' + '{\n'
+        if self.output_config.queryName and self.output_config.configName:
+            output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/' \
+                            f'{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
+        peer_set_lines = set()
+        for peer_set in self.peer_sets:
+            peer_set_name, is_only_ip_block, is_only_pods = self.get_peer_set_names(peer_set)
+            peer_color = "red2" if is_only_ip_block else "blue" if is_only_pods else "black"
+            peer_set_lines.add(f'\t\"{peer_set_name}\" [label=\"{peer_set_name}\" color=\"{peer_color}\" '
+                               f'fontcolor=\"{peer_color}\"]\n')
+
+        edge_lines = set()
+        for src_peer_set, dst_peer_set, cube_dict in self.edges:
+            if src_peer_set != dst_peer_set and cube_dict:
+                src_peers_names, _, _ = self.get_peer_set_names(src_peer_set)
+                dst_peers_names, _, _ = self.get_peer_set_names(dst_peer_set)
+                line = '\t'
+                line += f'\"{src_peers_names}\"'
+                line += ' -> '
+                line += f'\"{dst_peers_names}\"'
+                conn_str = str(cube_dict).replace("protocols:", "")
+                line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
+                edge_lines.add(line)
+        output_result += ''.join(line for line in sorted(list(peer_set_lines))) + \
+                         ''.join(line for line in sorted(list(edge_lines))) + '}\n\n'
+        return output_result
+
+    def get_connectivity_txt_format_str(self):
+        """
+        :return: a string with content of txt format for connectivity graph
+        """
+        output_result = ''
+        for src_peer_set, dst_peer_set, cube_dict in self.edges:
+            src_peers_names, _, _ = self.get_peer_set_names(src_peer_set)
+            dst_peers_names, _, _ = self.get_peer_set_names(dst_peer_set)
+            output_result += "src_pods: [" + src_peers_names + "] "
+            output_result += "dst_pods: [" + dst_peers_names + "] "
+            conn_str = str(cube_dict).replace("protocols:", "")
+            output_result += "conn: " + conn_str if cube_dict else "All connections"
+            output_result += '\n'
+        return output_result

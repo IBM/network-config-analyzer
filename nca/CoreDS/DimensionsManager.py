@@ -5,6 +5,7 @@
 from enum import Enum
 from .CanonicalIntervalSet import CanonicalIntervalSet
 from .MethodSet import MethodSet
+from .ProtocolSet import ProtocolSet
 from .MinDFA import MinDFA
 
 
@@ -31,12 +32,15 @@ class DimensionsManager:
             dfa_all_words_default = self._get_dfa_from_alphabet_str(self.default_dfa_alphabet_str)
             ports_interval = CanonicalIntervalSet.get_interval_set(1, 65535)
             all_methods_interval = MethodSet(True)
+            all_protocols_interval = ProtocolSet(True)
             all_peers_interval = CanonicalIntervalSet.get_interval_set(0, 10000)  # assuming max possible peer number
             self.dim_dict = dict()
             self.dim_dict["src_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval)
             self.dim_dict["dst_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval)
             self.dim_dict["methods"] = (DimensionsManager.DimensionType.IntervalSet, all_methods_interval)
-            self.dim_dict["peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval)
+            self.dim_dict["protocols"] = (DimensionsManager.DimensionType.IntervalSet, all_protocols_interval)
+            self.dim_dict["src_peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval)
+            self.dim_dict["dst_peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval)
             self.dim_dict["paths"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_default)
             self.dim_dict["hosts"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_default)
 

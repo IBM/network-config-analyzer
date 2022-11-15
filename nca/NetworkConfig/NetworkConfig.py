@@ -246,6 +246,33 @@ class NetworkConfig:
 
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
 
+    def allowed_connections_optimized(self, layer_name=None):
+        """
+        Computes the set of allowed connections between any relevant peers.
+        :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
+        :return: allowed_conns: all allowed connections for relevant peers.
+        :rtype: TcpLikeProperties
+        """
+        if layer_name is not None:
+            if layer_name not in self.policies_container.layers:
+                return self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
+                                                                                                layer_name)
+            return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
+
+        # TODO handle connectivity of hostEndpoints (for calico layer)
+
+        conns_res = None
+        for layer, layer_obj in self.policies_container.layers.items():
+            conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
+
+            # all allowed connections: intersection of all allowed connections from all layers
+            if conns_res and conns_per_layer:
+                conns_res &= conns_per_layer
+            elif not conns_res:
+                conns_res = conns_per_layer
+
+        return conns_res
+
     def append_policy_to_config(self, policy):
         """
         appends a policy to an existing config

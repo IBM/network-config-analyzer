@@ -9,6 +9,7 @@ from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from nca.Resources.K8sNetworkPolicy import K8sNetworkPolicy, K8sPolicyRule
 from .GenericYamlParser import GenericYamlParser
@@ -117,7 +118,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         """
         Parse a LabelSelectorRequirement element
         :param dict requirement: The element to parse
-        :param bool namespace_selector: Whether or not this is in the context of namespaceSelector
+        :param bool namespace_selector: Whether this is in the context of namespaceSelector
         :return: A PeerSet containing the peers that satisfy the requirement
         :rtype: Peer.PeerSet
         """
@@ -151,7 +152,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         """
         Parse a LabelSelector element (can also come from a NamespaceSelector)
         :param dict label_selector: The element to parse
-        :param bool namespace_selector: Whether or not this is a namespaceSelector
+        :param bool namespace_selector: Whether this is a namespaceSelector
         :return: A PeerSet containing all the pods captured by this selection
         :rtype: Peer.PeerSet
         """
@@ -253,8 +254,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         """
         Parse an element of the "ports" phrase of a policy rule
         :param dict port: The element to parse
-        :return: A ConnectionSet representing the allowed connections by this element (protocols X port numbers)
-        :rtype: ConnectionSet
+        :return: A protocol and a port_set represented by this element
+        :rtype: tuple (str, PortSet)
         """
         self.check_fields_validity(port, 'NetworkPolicyPort', {'port': 0, 'protocol': [0, str], 'endPort': [0, int]},
                                    {'protocol': ['TCP', 'UDP', 'SCTP']})
@@ -264,7 +265,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
         if not protocol:
             protocol = 'TCP'
 
-        res = ConnectionSet()
         dest_port_set = PortSet(port_id is None)
         if port_id is not None and end_port_num is not None:
             if isinstance(port_id, str):
@@ -293,16 +293,17 @@ class K8sPolicyYamlParser(GenericYamlParser):
         elif end_port_num:
             self.syntax_error('endPort cannot be defined if the port field is not defined ', port)
 
-        res.add_connections(protocol, TcpLikeProperties(PortSet(True), dest_port_set))  # K8s doesn't reason about src ports
-        return res
+        return protocol, dest_port_set
 
-    def parse_ingress_egress_rule(self, rule, peer_array_key):
+    def parse_ingress_egress_rule(self, rule, peer_array_key, policy_selected_pods):
         """
         Parse a single ingres/egress rule, producing a K8sPolicyRule
         :param dict rule: The rule to parse
         :param str peer_array_key: The key which defined the peer set ('from' for ingress, 'to' for egress)
-        :return: A K8sPolicyRule with the proper PeerSet and ConnectionSet
-        :rtype: K8sPolicyRule
+        :param Peer.PeerSet policy_selected_pods: The set of pods the policy applies to
+        :return: A tuple (K8sPolicyRule, TcpLikeProperties) with the proper PeerSet and attributes, where
+        TcpLikeProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
+        :rtype: tuple(K8sPolicyRule, TcpLikeProperties)
         """
         self.check_fields_validity(rule, 'ingress/egress rule', {peer_array_key: [0, list], 'ports': [0, list]})
         peer_array = rule.get(peer_array_key, [])
@@ -313,18 +314,40 @@ class K8sPolicyYamlParser(GenericYamlParser):
         else:
             res_pods = self.peer_container.get_all_peers_group(True)
 
+        if peer_array_key == 'from':  # ingress
+            src_pods = res_pods
+            dst_pods = policy_selected_pods
+        else:  # egress
+            src_pods = policy_selected_pods
+            dst_pods = res_pods
+        
         ports_array = rule.get('ports', [])
         if ports_array:
-            res_ports = ConnectionSet()
+            res_conns = ConnectionSet()
+            res_opt_props = None  # TcpLikeProperties
             for port in ports_array:
-                res_ports |= self.parse_port(port)
+                protocol, dest_port_set = self.parse_port(port)
+                protocols = ProtocolSet()
+                protocols.add_protocol(protocol)
+                res_conns.add_connections(protocol, TcpLikeProperties(PortSet(True), dest_port_set))  # K8s doesn't reason about src ports
+                dest_num_port_set = PortSet()
+                dest_num_port_set.port_set = dest_port_set.port_set.copy()
+                tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container, dest_num_port_set,
+                                                                       protocols, src_pods, dst_pods)
+                if res_opt_props:
+                    res_opt_props |= tcp_props
+                else:
+                    res_opt_props = tcp_props
+#                self.handle_named_ports(dst_pods, protocol, dest_port_set.named_ports, res_opt_props)
         else:
-            res_ports = ConnectionSet(True)
+            res_conns = ConnectionSet(True)
+            res_opt_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True),
+                                                                       src_peers=src_pods, dst_peers=dst_pods)
 
         if not res_pods:
             self.warning('Rule selects no pods', rule)
 
-        return K8sPolicyRule(res_pods, res_ports)
+        return K8sPolicyRule(res_pods, res_conns), res_opt_props
 
     def verify_named_ports(self, rule, rule_pods, rule_conns):
         """
@@ -358,24 +381,27 @@ class K8sPolicyYamlParser(GenericYamlParser):
         Also, checking validity of named ports w.r.t. the policy's captured pods
         :param dict rule: The dict with the rule fields
         :param Peer.PeerSet policy_selected_pods: The set of pods the policy applies to
-        :return: A K8sPolicyRule with the proper PeerSet and ConnectionSet
-        :rtype: K8sPolicyRule
+        :return: A tuple (K8sPolicyRule, TcpLikeProperties) with the proper PeerSet and attributes, where
+        TcpLikeProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
+        :rtype: tuple(K8sPolicyRule, TcpLikeProperties)
         """
-        res = self.parse_ingress_egress_rule(rule, 'from')
-        self.verify_named_ports(rule, policy_selected_pods, res.port_set)
-        return res
+        res_rule, res_opt_props = self.parse_ingress_egress_rule(rule, 'from', policy_selected_pods)
+        self.verify_named_ports(rule, policy_selected_pods, res_rule.port_set)
+        return res_rule, res_opt_props
 
-    def parse_egress_rule(self, rule):
+    def parse_egress_rule(self, rule, policy_selected_pods):
         """
         Parse a single egress rule, producing a K8sPolicyRule.
         Also, checking validity of named ports w.r.t. the rule's peer set
         :param dict rule: The dict with the rule fields
-        :return: A K8sPolicyRule with the proper PeerSet and ConnectionSet
-        :rtype: K8sPolicyRule
+        :param Peer.PeerSet policy_selected_pods: The set of pods the policy applies to
+        :return: A tuple (K8sPolicyRule, TcpLikeProperties) with the proper PeerSet and attributes, where
+        TcpLikeProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
+        :rtype: tuple(K8sPolicyRule, TcpLikeProperties)
         """
-        res = self.parse_ingress_egress_rule(rule, 'to')
-        self.verify_named_ports(rule, res.peer_set, res.port_set)
-        return res
+        res_rule, res_opt_props = self.parse_ingress_egress_rule(rule, 'to', policy_selected_pods)
+        self.verify_named_ports(rule, res_rule.peer_set, res_rule.port_set)
+        return res_rule, res_opt_props
 
     def parse_policy(self):
         """
@@ -424,12 +450,16 @@ class K8sPolicyYamlParser(GenericYamlParser):
         ingress_rules = policy_spec.get('ingress', [])
         if ingress_rules:
             for ingress_rule in ingress_rules:
-                res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule, res_policy.selected_peers))
+                rule, optimized_props = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
+                res_policy.add_ingress_rule(rule)
+                res_policy.add_optimized_ingress_props(optimized_props)
 
         egress_rules = policy_spec.get('egress', [])
         if egress_rules:
             for egress_rule in egress_rules:
-                res_policy.add_egress_rule(self.parse_egress_rule(egress_rule))
+                rule, optimized_props = self.parse_egress_rule(egress_rule, res_policy.selected_peers)
+                res_policy.add_egress_rule(rule)
+                res_policy.add_optimized_egress_props(optimized_props)
 
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels

@@ -13,7 +13,7 @@ from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
-from nca.FWRules.ConnectivityGraph import ConnectivityGraph
+from nca.FWRules.ConnectivityGraph import ConnectivityGraph, ConnectivityGraphOptimized
 from .NetworkConfig import NetworkConfig
 from .NetworkLayer import NetworkLayerName
 
@@ -667,6 +667,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                             peers.add(peer2)
 
         res = QueryAnswer(True)
+        fw_rules = None
         if self.output_config.outputFormat == 'dot':
             conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
             conn_graph.add_edges(connections)
@@ -676,6 +677,25 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             conn_graph.add_edges(connections)
             fw_rules = conn_graph.get_minimized_firewall_rules()
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
+
+        all_conns_opt = self.config.allowed_connections_optimized()
+        if all_conns_opt:
+            conn_graph2 = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
+            conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
+            for cube in all_conns_opt:
+                conn_graph2.add_edges_from_cube_dict(self.config.peer_container,
+                                                     all_conns_opt.get_cube_dict_with_orig_values(cube))
+                conn_graph_opt.add_edge(all_conns_opt.get_cube_dict(cube))
+            fw_rules2 = conn_graph2.get_minimized_firewall_rules()
+            res_opt = QueryAnswer(True)
+            if self.output_config.outputFormat == 'dot':
+                res_opt.output_explanation = conn_graph_opt.get_connectivity_dot_format_str()
+            else:
+                assert fw_rules == fw_rules2
+                res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()
+                res.output_explanation += "---------------- OPTIMIZED RESULT: -------------\n" +\
+                                          fw_rules2.get_fw_rules_in_required_format() + \
+                                          "\n------------------------------------------------\n\n"  # TEMP for debug
         return res
 
     def compute_query_output(self, query_answer):

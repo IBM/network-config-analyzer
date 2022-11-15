@@ -576,25 +576,28 @@ class PeerSet(set):
                 res.add_interval(CanonicalIntervalSet.Interval(index, index))
         return res
 
-    def get_peer_list_by_indices(self, peer_inteval_set):
+    def get_peer_set_by_indices(self, peer_inteval_set):
         """
         Return peer list from interval set of indices
         :param peer_inteval_set: the interval set of indices into the sorted peer list
         :return: the list of peers referenced by the indices in the interval set
         """
-        assert len(self.sorted_peer_list) == len(self)
-        res = []
+        my_len = len(self)
+        if len(self.sorted_peer_list) != my_len:
+            self.update_sorted_peer_list()
+        peer_list = []
         for interval in peer_inteval_set:
-            for ind in range(interval.start, interval.end + 1):
-                res.append(self.sorted_peer_list[ind])
-        return res
+            for ind in range(min(interval.start, my_len), min(interval.end + 1, my_len)):
+                peer_list.append(self.sorted_peer_list[ind])
+        return PeerSet(set(peer_list))
 
     def get_all_peers_interval(self):
         """
         Returns the interval of all peers
         :return: CanonicalIntervalSet of all peers
         """
-        assert len(self.sorted_peer_list) == len(self)
+        if len(self.sorted_peer_list) != len(self):
+            self.update_sorted_peer_list()
         return CanonicalIntervalSet.get_interval_set(0, len(self.sorted_peer_list) - 1)
 
     def is_whole_range(self, peer_interval_set):

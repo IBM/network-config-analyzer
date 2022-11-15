@@ -6,9 +6,8 @@ import re
 
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
-from nca.CoreDS.Peer import PeerSet, IpBlock
+from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.IngressPolicy import IngressPolicyRule
 from .GenericYamlParser import GenericYamlParser
@@ -53,54 +52,6 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
             regex_value = regex_value.replace("*", allowed_chars + '*')
         return MinDFA.dfa_from_regex(regex_value)
 
-    def _make_tcp_like_properties(self, dest_ports, peers, paths_dfa=None, hosts_dfa=None, methods_dfa=None):
-        """
-        get TcpLikeProperties with TCP allowed connections, corresponding to input properties cube.
-        TcpLikeProperties should not contain named ports: substitute them with corresponding port numbers, per peer
-        :param PortSet dest_ports: ports set for dest_ports dimension (possibly containing named ports)
-        :param PeerSet peers: the set of (target) peers
-        :param MinDFA paths_dfa: MinDFA obj for paths dimension
-        :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
-        :return: TcpLikeProperties with TCP allowed connections, corresponding to input properties cube
-        """
-        assert peers
-        base_peer_set = self.peer_container.peer_set.copy()
-        base_peer_set.add(IpBlock.get_all_ips_block())
-        if not dest_ports.named_ports:
-            peers_interval = base_peer_set.get_peer_interval_of(peers)
-            return TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports,
-                                     methods=methods_dfa if methods_dfa else MethodSet(True),
-                                     paths=paths_dfa, hosts=hosts_dfa, peers=peers_interval,
-                                     base_peer_set=base_peer_set)
-        assert not dest_ports.port_set
-        assert len(dest_ports.named_ports) == 1
-        port = list(dest_ports.named_ports)[0]
-        tcp_properties = None
-        for peer in peers:
-            named_ports = peer.get_named_ports()
-            real_port = named_ports.get(port)
-            if not real_port:
-                self.warning(f'Missing named port {port} in the pod {peer}. Ignoring the pod')
-                continue
-            if real_port[1] != 'TCP':
-                self.warning(f'Illegal protocol {real_port[1]} in the named port {port} ingress target pod {peer}.'
-                             f'Ignoring the pod')
-                continue
-            peer_in_set = PeerSet()
-            peer_in_set.add(peer)
-            ports = PortSet()
-            ports.add_port(real_port[0])
-            props = TcpLikeProperties(source_ports=PortSet(True), dest_ports=ports, methods=MethodSet(True),
-                                      paths=paths_dfa, hosts=hosts_dfa,
-                                      peers=base_peer_set.get_peer_interval_of(peer_in_set),
-                                      base_peer_set=base_peer_set)
-            if tcp_properties:
-                tcp_properties |= props
-            else:
-                tcp_properties = props
-
-        return tcp_properties
-
     def _make_allow_rules(self, allowed_conns):
         """
         Make deny rules from the given connections
@@ -122,7 +73,8 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
             ports = None
             paths = None
             hosts = None
-            peer_set = None
+            src_peer_set = None
+            dst_peer_set = None
             for i, dim in enumerate(tcp_conns.active_dimensions):
                 if dim == "dst_ports":
                     ports = cube[i]
@@ -130,21 +82,24 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
                     paths = cube[i]
                 elif dim == "hosts":
                     hosts = cube[i]
-                elif dim == "peers":
-                    peer_set = PeerSet(set(tcp_conns.base_peer_set.get_peer_list_by_indices(cube[i])))
+                elif dim == "src_peers":
+                    src_peer_set = tcp_conns.base_peer_set.get_peer_set_by_indices(cube[i])
+                elif dim == "dst_peers":
+                    dst_peer_set = tcp_conns.base_peer_set.get_peer_set_by_indices(cube[i])
                 else:
                     assert False
-            if not peer_set:
-                peer_set = self.peer_container.peer_set.copy()
+            assert not src_peer_set
+            if not dst_peer_set:
+                dst_peer_set = self.peer_container.peer_set.copy()
             port_set = PortSet()
             port_set.port_set = ports
             port_set.named_ports = tcp_conns.named_ports
             port_set.excluded_named_ports = tcp_conns.excluded_named_ports
             new_conns = self._get_connection_set_from_properties(port_set, paths_dfa=paths, hosts_dfa=hosts)
-            if peers_to_conns.get(peer_set):
-                peers_to_conns[peer_set] |= new_conns  # optimize conns for the same peers
+            if peers_to_conns.get(dst_peer_set):
+                peers_to_conns[dst_peer_set] |= new_conns  # optimize conns for the same peers
             else:
-                peers_to_conns[peer_set] = new_conns
+                peers_to_conns[dst_peer_set] = new_conns
         for peer_set, conns in peers_to_conns.items():
             res.append(IngressPolicyRule(peer_set, conns))
         return res

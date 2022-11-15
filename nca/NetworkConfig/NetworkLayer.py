@@ -7,6 +7,8 @@ from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, HostEP
+from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.PortSet import PortSet
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
 from nca.Resources.NetworkPolicy import PolicyConnections, NetworkPolicy
 
@@ -93,6 +95,17 @@ class NetworkLayersContainer(dict):
         empty_layer_obj = layer_name.create_network_layer([])
         return empty_layer_obj.allowed_connections(from_peer, to_peer)
 
+    @staticmethod
+    def empty_layer_allowed_connections_optimized(peer_container, layer_name):
+        """
+        Get allowed connections between for all relevant peers for an empty layer (no policies).
+        :param PeerContainer peer_container: holds all the peers
+        :param NetworkLayerName layer_name: The empty layer name
+        :rtype: TcpLikeProperties
+        """
+        empty_layer_obj = layer_name.create_network_layer([])
+        return empty_layer_obj.allowed_connections_optimized(peer_container)
+
 
 class NetworkLayer:
     """
@@ -145,9 +158,30 @@ class NetworkLayer:
 
         return allowed_conns, captured_flag, allowed_captured_conns, denied_conns
 
+    def allowed_connections_optimized(self, peer_container):
+        """
+        Compute per network layer the allowed connections between any relevant peers,
+        considering all layer's policies (and defaults)
+        :param PeerContainer peer_container: the peer container holding the peers
+        :return: all allowed connections
+        :rtype: TcpLikeProperties
+        """
+        ingress_conns = self._allowed_xgress_conns_optimized(True, peer_container)
+        egress_conns = self._allowed_xgress_conns_optimized(False, peer_container)
+        if ingress_conns and egress_conns:
+            return ingress_conns & egress_conns
+        else:
+            return ingress_conns if ingress_conns else egress_conns
+
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         """
         Implemented by derived classes to get allowed and denied ingress/egress connections between from_peer and to_pee
+        """
+        return NotImplemented
+
+    def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
+        """
+        Implemented by derived classes to get ingress/egress connections between any relevant peers
         """
         return NotImplemented
 
@@ -183,6 +217,23 @@ class NetworkLayer:
                 pass_conns |= policy_conns.pass_conns
         return allowed_conns, denied_conns, pass_conns, captured_res
 
+    def collect_policies_conns_optimized(self, is_ingress):
+        """
+        Collect all connections (between all relevant peers), considering all layer's policies that capture the
+        relevant peers.
+        :param bool is_ingress: indicates whether to return ingress connections or egress connections
+        :return: conns
+        :rtype: TcpLikeProperties
+        """
+        conns = None
+        for policy in self.policies_list:
+            policy_conns = policy.allowed_connections_optimized(is_ingress)
+            if policy_conns and conns:
+                conns |= policy_conns
+            elif not conns:
+                conns = policy_conns
+        return conns
+
 
 class K8sCalicoNetworkLayer(NetworkLayer):
 
@@ -204,6 +255,32 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         return PolicyConnections(captured_res, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
+    def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
+        conn = self.collect_policies_conns_optimized(is_ingress)
+        if not conn:
+            return conn
+        # add non-captured connections
+        if is_ingress:
+            captured_dst_peers = conn.project_on_one_dimension('dst_peers')
+            if captured_dst_peers:
+                non_captured_dst_peers = conn.base_peer_set - captured_dst_peers
+                non_captured_conns = \
+                    TcpLikeProperties.make_tcp_like_properties(peer_container, dest_ports=PortSet(True),
+                                                               src_peers=conn.base_peer_set.copy(),
+                                                               dst_peers=non_captured_dst_peers)
+                conn |= non_captured_conns
+        else:
+            captured_src_peers = conn.project_on_one_dimension('src_peers')
+            if captured_src_peers:
+                non_captured_src_peers = conn.base_peer_set - captured_src_peers
+                non_captured_conns = \
+                    TcpLikeProperties.make_tcp_like_properties(peer_container, dest_ports=PortSet(True),
+                                                               src_peers=non_captured_src_peers,
+                                                               dst_peers=conn.base_peer_set.copy())
+                conn |= non_captured_conns
+
+        return conn
+
 
 class IstioNetworkLayer(NetworkLayer):
 
@@ -224,6 +301,9 @@ class IstioNetworkLayer(NetworkLayer):
         return PolicyConnections(captured_res, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
+    def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
+        return self.collect_policies_conns_optimized(is_ingress)
+
 
 class IngressNetworkLayer(NetworkLayer):
 
@@ -237,3 +317,6 @@ class IngressNetworkLayer(NetworkLayer):
                 all_allowed_conns = allowed_conns
         return PolicyConnections(captured=captured_res, allowed_conns=allowed_conns, denied_conns=ConnectionSet(),
                                  all_allowed_conns=all_allowed_conns)
+
+    def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
+        return None

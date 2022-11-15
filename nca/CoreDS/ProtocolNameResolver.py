@@ -57,6 +57,10 @@ class ProtocolNameResolver:
                                      140: 'Shim6', 141: 'WESP', 142: 'ROHC', 143: 'Ethernet'}
 
     @staticmethod
+    def get_all_protocols_list():
+        return list(ProtocolNameResolver._protocol_name_to_number_dict.keys())
+
+    @staticmethod
     def get_protocol_name(protocol_number: int) -> str:
         """
         :param protocol_number: Protocol number
