@@ -2,12 +2,14 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-from greenery.fsm import fsm
-from greenery.lego import parse, from_fsm
+from greenery import fsm, parse
 from functools import lru_cache
 
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
+from greenery.rxelems import from_fsm
+
+
 class MinDFA:
     """
     MinDFA is a wrapper class for greenery.fsm , to support the api required for dimensions in hypercube-set
@@ -59,7 +61,7 @@ class MinDFA:
         complement_dfa: MinDFA of the complement dfa of self, e.g: relevant when doing subtraction from 'all'.
                         for performance improvement (avoid computation of complement if could use this member instead).
         """
-        self.fsm = fsm(initial, finals, alphabet, states, map)
+        self.fsm = fsm.Fsm(initial, finals, alphabet, states, map)
         self.is_all_words = MinDFA.Ternary.UNKNOWN
         self.complement_dfa = None
 
@@ -70,7 +72,7 @@ class MinDFA:
     def dfa_from_fsm(f):
         """
         create MinDFA object from a greenery.fsm object
-        :param  greenery.fsm  f: the input fsm, assuming f was reduced (min fsm)
+        :param  fsm.Fsm  f: the input fsm, assuming f was reduced (min fsm)
         :return: MinDFA object
         """
         return MinDFA(f.alphabet, f.states, f.initial, f.finals, f.map)
