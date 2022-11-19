@@ -48,7 +48,7 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def _get_peer_name(self, peer):
+    def _get_peer_name(self, peer, reduced_output_flag, reduced_peer_container):
         """
         Get the name of a peer object for connectivity graph + flag indicating if it is ip-block
         :param Peer peer: the peer object
@@ -56,13 +56,32 @@ class ConnectivityGraph:
         str: the peer name
         bool: flag to indicate if peer is ip-block (True) or not (False)
         """
+        if reduced_output_flag:
+            # peer name would be "pods_equiv_class_{i}" for a pod, and "ip_block_equiv_class_{i}" for an ip block.
+            if isinstance(peer, IpBlock):
+                # look in reduced_peer_container.ip_blocks_equiv_classes
+                class_index = 0
+                for _, equiv_class in reduced_peer_container.ip_blocks_equiv_classes.items():
+                    if peer in equiv_class:
+                        return f'ip_block_equiv_class_{class_index}', True
+                    class_index +=1
+                return None
+            else:
+                # look in reduced_peer_container.peers_equiv_classes
+                class_index = 0
+                for _, equiv_class in reduced_peer_container.peers_equiv_classes.items():
+                    if peer in equiv_class:
+                        return f'pods_equiv_class_{class_index}', False
+                    class_index += 1
+                return None
+
         if isinstance(peer, IpBlock):
             return peer.get_ip_range_or_cidr_str(), True
         if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
             return peer.workload_name, False
         return str(peer), False
 
-    def get_connectivity_dot_format_str(self):
+    def get_connectivity_dot_format_str(self, reduced_output_flag, reduced_peer_container):
         """
         :return: a string with content of dot format for connectivity graph
         """
@@ -73,7 +92,7 @@ class ConnectivityGraph:
                              f'{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
         peer_lines = set()
         for peer in self.cluster_info.all_peers:
-            peer_name, is_ip_block = self._get_peer_name(peer)
+            peer_name, is_ip_block = self._get_peer_name(peer, reduced_output_flag, reduced_peer_container)
             peer_color = "red2" if is_ip_block else "blue"
             peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
 
@@ -81,8 +100,8 @@ class ConnectivityGraph:
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer and connections:
-                    src_peer_name, _ = self._get_peer_name(src_peer)
-                    dst_peer_name, _ = self._get_peer_name(dst_peer)
+                    src_peer_name, _ = self._get_peer_name(src_peer, reduced_output_flag, reduced_peer_container)
+                    dst_peer_name, _ = self._get_peer_name(dst_peer, reduced_output_flag, reduced_peer_container)
                     line = '\t'
                     line += f'\"{src_peer_name}\"'
                     line += ' -> '

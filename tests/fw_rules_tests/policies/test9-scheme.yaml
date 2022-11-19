@@ -22,3 +22,4 @@ queries:
     fwRulesRunInTestMode: false
     outputFormat: txt
   expectedOutput: expected_output/test9-scheme_output.txt
+

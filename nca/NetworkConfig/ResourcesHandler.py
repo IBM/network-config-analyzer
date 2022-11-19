@@ -9,6 +9,7 @@ from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from .PeerContainer import PeerContainer
+from ..CoreDS.Peer import Pod, PeerSet
 
 
 class ResourceType(Enum):
@@ -68,9 +69,33 @@ class ResourcesHandler:
         if cfg and config_name == 'global':
             config_name = cfg
 
+        peers_equiv_classes = dict()
+        reduced_peer_container_peer_set = PeerSet()
+        for peer in peer_container.peer_set:
+            #if not isinstance(peer, Pod):
+            #    reduced_peer_container_peer_set.add(peer)
+            #    continue
+            peer_key = (frozenset(peer.capturing_policies), frozenset(peer.referring_policies_rules))
+            if peer_key in peers_equiv_classes:
+                peers_equiv_classes[peer_key].add(peer)
+            else:
+                peers_equiv_classes[peer_key] = {peer}
+        for equiv_class, equiv_peers in peers_equiv_classes.items():
+            list_equiv_peers = list(equiv_peers)
+            peer_from_class_0 = list_equiv_peers[0]
+            reduced_peer_container_peer_set.add(peer_from_class_0)
+            if len(list_equiv_peers) > 1:
+                # need 2 different peers from the same equiv class , to add connections between peers of the same class
+                reduced_peer_container_peer_set.add(list_equiv_peers[1])
+        reduced_peer_container = PeerContainer(reduced_peer_container_peer_set, peer_container.namespaces, peer_container.services.values(), peer_container.representative_peers)
+        reduced_peer_container.peers_equiv_classes = peers_equiv_classes
+
+
+
+
         # build and return the networkConfig
         return NetworkConfig(name=config_name, peer_container=peer_container,
-                             policies_container=resources_parser.policies_finder.policies_container)
+                             policies_container=resources_parser.policies_finder.policies_container, reduced_peer_container=reduced_peer_container)
 
     def _set_config_peer_container(self, ns_list, pod_list, resource_list, config_name, save_flag, resources_parser):
         success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)

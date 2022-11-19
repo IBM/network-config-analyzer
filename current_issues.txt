@@ -1,0 +1,74 @@
+
+
+Failed Tests:
+----------------
+
+C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\istio_testcases\example_policies\bookinfo-demo\sidecar_examples\bookinfo-sidecar-tests-scheme.yaml                 (0.42 seconds)
+C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\istio_testcases\example_policies\sidecar_examples_w_onlineboutique\sidecars-syntax-tests-scheme.yaml               (0.31 seconds)
+C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\istio_testcases\example_policies\sidecar_examples_w_onlineboutique\frontend_tests\frontend-sidecar-test-scheme.yaml (0.06 seconds)
+C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\istio_testcases\example_policies\sidecar_examples_w_onlineboutique\sidecar_disables_egress\sidecars-disable-egress-scheme.yaml (0.11 seconds)
+
+
+------------------------------------
+Running testcase k8s_cmdline_tests.yaml, query name: helm_test_one_chart
+Traceback (most recent call last):
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 423, in <module>
+    sys.exit(main())
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 418, in main
+    tests_runner.run_tests()
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 264, in run_tests
+    self.run_tests_spec(test_spec)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 324, in run_tests_spec
+    self.run_test_per_file(file_path)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 385, in run_test_per_file
+    self.create_and_run_test_obj(cli_query, test.get('expected', 0))
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 340, in create_and_run_test_obj
+    numerical_res, new_tests_err = test_obj.run_all_test_flow(self.all_results)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 107, in run_all_test_flow
+    self.run_test()
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 120, in run_test
+    self.nca_res = self.run_nca()  # either run a scheme or a query, with relevant args
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\tests\run_all_tests.py", line 117, in run_nca
+    return nca_main(self.test_queries_obj.args_obj.args)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\nca_cli.py", line 329, in nca_main
+    ret_val = run_args(args)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\nca_cli.py", line 215, in run_args
+    network_config = resources_handler.get_network_config(_make_recursive(np_list), _make_recursive(ns_list),
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\NetworkConfig\ResourcesHandler.py", line 64, in get_network_config
+    self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\NetworkConfig\ResourcesHandler.py", line 101, in _set_config_peer_container
+    success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\NetworkConfig\ResourcesHandler.py", line 197, in parse_lists_for_topology
+    self._parse_resources_path(ns_resource, [ResourceType.Namespaces])
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\NetworkConfig\ResourcesHandler.py", line 271, in _parse_resources_path
+    for yaml_file in yaml_files:
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\FileScanners\DirScanner.py", line 42, in get_yamls
+    yield from self._scan_dir_for_yamls(self.fs_path[:-2], True)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\FileScanners\DirScanner.py", line 50, in _scan_dir_for_yamls
+    file_name, file_content = self.parse_chart(root)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\FileScanners\HelmScanner.py", line 31, in parse_chart
+    resolved_yamls = CmdlineRunner.resolve_helm_chart(chart_dir).decode('UTF-8')
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\Utils\CmdlineRunner.py", line 98, in resolve_helm_chart
+    return CmdlineRunner.run_and_get_output(cmdline_list)
+  File "C:\Users\847978756\npv\npv_new_repo\network-config-analyzer\nca\Utils\CmdlineRunner.py", line 27, in run_and_get_output
+    cmdline_process = subprocess.Popen(cmdline_list, stdout=subprocess.PIPE)
+  File "C:\Users\847978756\AppData\Local\Programs\Python\Python39\lib\subprocess.py", line 951, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Users\847978756\AppData\Local\Programs\Python\Python39\lib\subprocess.py", line 1420, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+
+Process finished with exit code 1
+
+
+
+
+--- a/nca/Parsers/IstioSidecarYamlParser.py
++++ b/nca/Parsers/IstioSidecarYamlParser.py
+@@ -172,7 +172,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
+         # currently, supported fields in spec are workloadSelector and egress
+         allowed_spec_keys = {'workloadSelector': [0, dict], 'ingress': [3, list], 'egress': [0, list],
+                              'outboundTrafficPolicy': [3, str]}
+-        self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
++        #self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
+         res_policy.affects_egress = sidecar_spec.get('egress') is not None

@@ -30,12 +30,17 @@ class PeerContainer:
         self.namespaces = namespaces  # mapping from namespace name to the actual K8sNamespace object
         self.services = {}  # mapping from service name to the actual K8sService object
         self._set_services_and_populate_target_pods(services_list)
+        self.peers_equiv_classes = dict()
+        self.ip_blocks_equiv_classes = dict()
 
     def __eq__(self, other):
         if isinstance(other, PeerContainer):
             return self.peer_set == other.peer_set and self.namespaces == other.namespaces \
                 and self.services == other.services
         return False
+
+
+
 
     def is_comparable_with_other_container(self, other):
         """
@@ -269,7 +274,7 @@ class PeerContainer:
                         res.add(peer)
         return res
 
-    def get_all_peers_group(self, add_external_ips=False, include_globals=True):
+    def get_all_peers_group(self, add_external_ips=False, include_globals=True, exclude_ip_blocks=False):
         """
         Return all peers known in the system
         :param bool add_external_ips: Whether to also add the full range of ips
@@ -279,7 +284,8 @@ class PeerContainer:
         res = PeerSet()
         for peer in self.peer_set:
             if include_globals or not peer.is_global_peer():
-                res.add(peer)
+                if not isinstance(peer, IpBlock) or not exclude_ip_blocks:
+                    res.add(peer)
         if add_external_ips:
             res.add(IpBlock.get_all_ips_block())
         return res

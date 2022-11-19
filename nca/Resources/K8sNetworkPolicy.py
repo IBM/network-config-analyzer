@@ -89,14 +89,32 @@ class K8sNetworkPolicy(NetworkPolicy):
         :rtype: Peer.PeerSet
         """
         res = Peer.PeerSet()
+        res_dict = dict()  # map from IPBlock to its list of rules that refer to it
         for rule in self.egress_rules:
-            for pod in rule.peer_set:
-                if isinstance(pod, Peer.IpBlock):
-                    res |= pod.split()
+            for peer in rule.peer_set:
+                if isinstance(peer, Peer.IpBlock):
+                    new_ip_blocks = peer.split()
+                    for ipb in new_ip_blocks:
+                        if ipb in res_dict:
+                            res_dict[ipb] |= ipb.referring_policies_rules
+                        else:
+                            res_dict[ipb] = ipb.referring_policies_rules.copy()
+                    #res |= peer.split()
         for rule in self.ingress_rules:
-            for pod in rule.peer_set:
-                if isinstance(pod, Peer.IpBlock):
-                    res |= pod.split()
+            for peer in rule.peer_set:
+                if isinstance(peer, Peer.IpBlock):
+                    #res |= peer.split()
+                    new_ip_blocks = peer.split()
+                    for ipb in new_ip_blocks:
+                        if ipb in res_dict:
+                            res_dict[ipb] |= ipb.referring_policies_rules
+                        else:
+                            res_dict[ipb] = ipb.referring_policies_rules.copy()
+
+        for ipb, ref_rules_set in res_dict.items():
+            ip_obj = ipb.copy()
+            ip_obj.referring_policies_rules = ref_rules_set
+            res.add(ip_obj)
 
         return res
 

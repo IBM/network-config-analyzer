@@ -47,7 +47,7 @@ class NetworkConfig:
     The class also contains the core algorithm of computing allowed connections between two endpoints.
     """
 
-    def __init__(self, name, peer_container, policies_container):
+    def __init__(self, name, peer_container, policies_container, reduced_peer_container=None):
         """
         :param str name: A name for this config
         :param PeerContainer peer_container: The set of endpoints and their namespaces
@@ -57,6 +57,7 @@ class NetworkConfig:
         self.policies_container = policies_container
         self.allowed_labels = None
         self.referenced_ip_blocks = None
+        self.reduced_peer_container = reduced_peer_container
 
     def __eq__(self, other):
         if not isinstance(other, NetworkConfig):
@@ -181,8 +182,22 @@ class NetworkConfig:
             return self.referenced_ip_blocks
 
         self.referenced_ip_blocks = Peer.PeerSet()
+        res_dict = dict() # map from IPBlock to its list of rules that refer to it
         for policy in self.policies_container.policies.values():
-            self.referenced_ip_blocks |= policy.referenced_ip_blocks()
+            # TODO handle similar issue per collection of ip blocks in one policy's set of rules (here only handling from different policies)
+            new_ip_blocks = policy.referenced_ip_blocks()
+            for ipb in new_ip_blocks:
+                if ipb in res_dict:
+                    res_dict[ipb] |= ipb.referring_policies_rules
+                else:
+                    res_dict[ipb] = ipb.referring_policies_rules.copy()
+
+            #self.referenced_ip_blocks |= policy.referenced_ip_blocks()
+        for ipb, ref_rules_set in res_dict.items():
+            # TODO: copy?
+            ip_obj = ipb.copy()
+            ip_obj.referring_policies_rules = ref_rules_set
+            self.referenced_ip_blocks.add(ip_obj)
 
         return self.referenced_ip_blocks
 

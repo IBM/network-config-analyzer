@@ -6,7 +6,7 @@
 import re
 from ruamel.yaml import comments
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
-from nca.CoreDS.Peer import PeerSet, IpBlock
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.ICMPDataSet import ICMPDataSet
@@ -422,7 +422,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.syntax_error('invalid protocol name: ' + protocol, rule)
         return ProtocolNameResolver.get_protocol_number(protocol)
 
-    def _parse_xgress_rule(self, rule, is_ingress, policy_selected_eps, is_profile):
+    def _parse_xgress_rule(self, rule, is_ingress, policy_selected_eps, is_profile, policy_name, policy_kind, rule_index):
         """
         Parse a single ingres/egress rule, producing a CalicoPolicyRule
         :param dict rule: The rule element to parse
@@ -490,6 +490,30 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.warning('Rule selects no source endpoints', rule)
         if not dst_res_pods and policy_selected_eps and (not is_ingress or not is_profile):
             self.warning('Rule selects no destination endpoints', rule)
+
+        if str(policy_kind).startswith('PolicyType.CalicoProfile'):
+            return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action)
+
+        if is_ingress:
+            for peer in src_res_pods:
+                #if isinstance(peer, IpBlock):
+                #    print('debug')
+                #if isinstance(peer, Pod):
+                direction = "ingress" if is_ingress else "egress"
+                netpol_str = str(policy_kind) + "/" + policy_name + "/" + direction + "/" + str(rule_index)
+                # add (policy name, policy rule direction, rule index)
+                peer.referring_policies_rules.add(netpol_str)
+                #print(netpol_str)
+        elif not is_ingress:
+            for peer in dst_res_pods:
+                #if isinstance(peer, IpBlock):
+                #    print('debug')
+                #if isinstance(peer, Pod):
+                direction = "ingress" if is_ingress else "egress"
+                netpol_str = str(policy_kind) + "/" + policy_name + "/" + direction + "/" + str(rule_index)
+                # add (policy name, policy rule direction, rule index)
+                peer.referring_policies_rules.add(netpol_str)
+                #print(netpol_str)
 
         return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action)
 
@@ -625,17 +649,22 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         policy_spec = self.policy['spec']
         self._set_affects_ingress_egress(policy_spec, is_profile, is_global_np, res_policy)
         res_policy.selected_peers = self._get_selected_peers(policy_spec, is_profile, res_policy.name)
+        netpol_str = str(res_policy.policy_kind) + "/" + res_policy.full_name()
+        if not netpol_str.startswith('PolicyType.CalicoProfile'):
+            for peer in res_policy.selected_peers:
+                peer.capturing_policies.add(netpol_str)
+                #print(netpol_str)
 
         res_policy.order = policy_spec.get('order')
         if res_policy.order and is_profile:
             self.syntax_error('order is not allowed in the spec of a Profile', policy_spec)
 
-        for ingress_rule in policy_spec.get('ingress', []):
-            rule = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
+        for rule_index, ingress_rule in enumerate(policy_spec.get('ingress', [])):
+            rule = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile, res_policy.full_name(), res_policy.policy_kind, rule_index)
             res_policy.add_ingress_rule(rule)
 
-        for egress_rule in policy_spec.get('egress', []):
-            rule = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
+        for rule_index, egress_rule in enumerate(policy_spec.get('egress', [])):
+            rule = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile, res_policy.full_name(), res_policy.policy_kind, rule_index)
             res_policy.add_egress_rule(rule)
 
         self._apply_extra_labels(policy_spec, is_profile, res_policy.name)

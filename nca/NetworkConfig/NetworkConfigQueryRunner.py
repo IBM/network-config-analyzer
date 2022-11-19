@@ -109,6 +109,7 @@ class NetworkConfigQueryRunner:
         return res, comparing_err, not_executed
 
     def _execute_one_config_query(self, query_type, config):
+        #assert config.reduced_peer_container is not None
         query_to_exec = getattr(NetworkConfigQuery, query_type)(config, self.output_configuration)
         return query_to_exec.compute_query_output(query_to_exec.exec())
 

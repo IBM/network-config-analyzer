@@ -456,7 +456,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
 
     #  A match occurs when at least one source, one operation and all conditions matches the request
     # https://istio.io/latest/docs/reference/config/security/authorization-policy/#Rule
-    def parse_ingress_rule(self, rule):
+    def parse_ingress_rule(self, rule, rule_index, policy_kind, policy_name):
         """
         Parse a single ingress rule, producing a IstioPolicyRule.
         :param dict rule: The dict with the rule fields
@@ -506,6 +506,9 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         if not res_peers:
             self.warning('Rule selects no pods', rule)
 
+        netpol_str = str(policy_kind) + "/" + policy_name + "/" + str(rule_index)
+        for peer in res_peers:
+            peer.referring_policies_rules.add(netpol_str)
         return IstioPolicyRule(res_peers, connections)
 
     @staticmethod
@@ -552,8 +555,11 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         res_policy.affects_egress = False
         pod_selector = policy_spec.get('selector')
         res_policy.selected_peers = self.update_policy_peers(pod_selector, 'matchLabels')
-        for ingress_rule in policy_spec.get('rules', []):
-            res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule))
+        netpol_str = str(res_policy.policy_kind) + "/" + res_policy.full_name()
+        for peer in res_policy.selected_peers:
+            peer.capturing_policies.add(netpol_str)
+        for rule_index, ingress_rule in enumerate(policy_spec.get('rules', [])):
+            res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule,  rule_index, res_policy.policy_kind, res_policy.full_name()))
         if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:
             self.syntax_error("DENY action without rules is meaningless as it will never be triggered")
 

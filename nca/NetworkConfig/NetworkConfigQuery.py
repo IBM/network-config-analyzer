@@ -623,59 +623,239 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 return False
         return True
 
-    def exec(self):
+    def get_peer_equiv_class(self, peer):
+        if not isinstance(peer, IpBlock):
+            peers_equiv_classes = self.config.reduced_peer_container.peers_equiv_classes
+        else:
+            peers_equiv_classes = self.config.reduced_peer_container.ip_blocks_equiv_classes
+        for _, equiv_class in peers_equiv_classes.items():
+            if peer in equiv_class:
+                return equiv_class #- {peer}
+        return None
+
+    def add_connection(self, connections_dict, peers_set, peer1, peer2, conn, with_optimization, optimization_reduced_output):
+        added_connections = 0
+        connections_dict[conn].append((peer1, peer2))
+        added_connections += 1
+        peers_set.add(peer1)
+        peers_set.add(peer2)
+        if peer1 == peer2:
+            return added_connections
+        if with_optimization and not optimization_reduced_output:
+            # add equiv pairs (x,y) for each x ~ peer1 and each y ~ peer2
+            peer1_equiv_set = self.get_peer_equiv_class(peer1)
+            peer2_equiv_set = self.get_peer_equiv_class(peer2)
+            if peer1_equiv_set is None or peer2_equiv_set is None:
+                print('debug')
+            assert peer1_equiv_set is not None
+            assert peer2_equiv_set is not None
+            for x in peer1_equiv_set:
+                for y in peer2_equiv_set:
+                    if x == peer1 and y == peer2:
+                        continue
+                    if not self.is_in_subset(x) and not self.is_in_subset(y):
+                        continue
+                    if x == y:
+                        continue
+                    #if x == y:
+                    #    connections_dict[ConnectionSet(True)].append((x, y))
+                    #else:
+                    connections_dict[conn].append((x, y))
+                    added_connections += 1
+                    peers_set.add(x)
+                    peers_set.add(y)
+        return added_connections
+
+
+    def check_equivalence_for_peer_pairs(self, peers_to_compare_optimized, ref_ip_blocks):
+        orig_peers_to_compare = self.config.peer_container.get_all_peers_group()
+        orig_peers_to_compare |= ref_ip_blocks
+        pairs_orig = set()
+        pairs_optimized = set()
+        for p1 in orig_peers_to_compare:
+            for p2 in orig_peers_to_compare:
+                pairs_orig.add((p1,p2))
+
+
+        for p1 in peers_to_compare_optimized:
+            for p2 in peers_to_compare_optimized:
+                pairs_optimized.add((p1,p2))
+                peer1_equiv_set = self.get_peer_equiv_class(p1)
+                peer2_equiv_set = self.get_peer_equiv_class(p2)
+                for x in peer1_equiv_set:
+                    for y in peer2_equiv_set:
+                        pairs_optimized.add((x, y))
+
+                # for x in peer1_equiv_set:
+                #     pairs_optimized.add((x, p2))
+                # for x in peer2_equiv_set:
+                #     pairs_optimized.add((p1, x))
+        print(f'size of pairs_orig: {len(pairs_orig)}')
+        print(f'size of pairs_optimized: {len(pairs_optimized)}')
+        assert len(pairs_orig) == len(pairs_optimized)
+
+
+
+
+    '''
+    optimization flags:
+        with_optimization : enable/disable the entire optimization
+        optimization_reduced_output: use optimization's reduced output (equiv-class-named-based) or full output (all pods name-based)
+    '''
+
+
+
+    def exec(self, with_optimization=False):
+        with_optimization = True
+        # TODO: handle config created with clone_with_just_one_policy
+        if self.config.reduced_peer_container is None :
+            with_optimization = False
+        optimization_reduced_output = False # use optimization's reduced output (equiv-class-named-based) or full output (all pods name-based)
+        #optimization_reduced_output = True #currently only with dot format
+        if self.output_config.outputFormat != 'dot':
+            optimization_reduced_output = False
+        limit_pairs = 100000000
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
-        peers_to_compare = self.config.peer_container.get_all_peers_group()
+        all_peers = self.config.peer_container.get_all_peers_group(exclude_ip_blocks=True)
+        if not with_optimization:
+            peers_to_compare = self.config.peer_container.get_all_peers_group(exclude_ip_blocks=True)
+        else:
+            peers_to_compare = self.config.reduced_peer_container.get_all_peers_group(exclude_ip_blocks=True)
 
         ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
                                                    IpBlock.get_all_ips_block_peer_set())
+
+        reduced_disjoint_ip_blocks = PeerSet()
+        if with_optimization:
+            ip_blocks_equiv_classes = dict()
+            for ip_block in ref_ip_blocks:
+                peer_key = frozenset(ip_block.referring_policies_rules)
+                if peer_key in ip_blocks_equiv_classes:
+                    ip_blocks_equiv_classes[peer_key].add(ip_block)
+                else:
+                    ip_blocks_equiv_classes[peer_key] = {ip_block}
+            for equiv_class, equiv_peers in ip_blocks_equiv_classes.items():
+                peer_from_class = list(equiv_peers)[0]
+                reduced_disjoint_ip_blocks.add(peer_from_class)
+            self.config.reduced_peer_container.ip_blocks_equiv_classes = ip_blocks_equiv_classes
+
         connections = defaultdict(list)
         peers = PeerSet()
-        peers_to_compare |= ref_ip_blocks
 
-        for peer1 in peers_to_compare:
-            for peer2 in peers_to_compare:
-                if self.is_in_subset(peer1):
-                    peers.add(peer1)
-                elif not self.is_in_subset(peer2):
-                    continue  # skipping pairs if none of them are in the given subset
-                if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
-                    continue  # skipping pairs with ip-blocks for both src and dst
-                if peer1 == peer2:
-                    # cannot restrict pod's connection to itself
-                    connections[ConnectionSet(True)].append((peer1, peer2))
-                else:
-                    conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
-                    if conns:
-                        # TODO: consider separate connectivity maps for config that involves istio -
-                        #  one that handles non-TCP connections, and one for TCP
-                        # TODO: consider avoid "hiding" egress allowed connections, even though they are
-                        #  not covered by authorization policies
-                        if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
-                                self.output_config.connectivityFilterIstioEdges:
-                            should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
-                            if not should_filter:
-                                connections[modified_conns].append((peer1, peer2))
-                                # collect both peers, even if one of them is not in the subset
-                                peers.add(peer1)
-                                peers.add(peer2)
+        all_peers |= ref_ip_blocks
+
+        if not with_optimization:
+            peers_to_compare |= ref_ip_blocks
+        else:
+            peers_to_compare |= reduced_disjoint_ip_blocks  # ref_ip_blocks
+        #captured_pods = self.config.get_captured_pods()
+        print(f'len of peers_to_compare: {len(peers_to_compare)}')
+        print(f'run with limit_pairs: {limit_pairs}')
+
+        #self.check_equivalence_for_peer_pairs(peers_to_compare, ref_ip_blocks)
+
+        count_pairs = 0
+        try:
+            for peer1 in peers_to_compare:
+                # for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:#peers_to_compare:
+                for peer2 in peers_to_compare:
+                    if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
+                        continue  # skipping pairs with ip-blocks for both src and dst
+                    count_pairs += 1
+                    if count_pairs > limit_pairs:
+                        print(f'Warning: exceeded limit for pairs in connectivity-map')
+                        raise ValueError('exceeded limit for pairs in connectivity-map')
+                    if self.is_in_subset(peer1):
+                        if with_optimization and not optimization_reduced_output:
+                            # add peer1 and its equiv class
+                            peer1_class = self.get_peer_equiv_class(peer1)
+                            assert peer1_class is not None
+                            for peer in peer1_class:
+                                if self.is_in_subset(peer):
+                                    peers.add(peer)
                         else:
-                            connections[conns].append((peer1, peer2))
-                            # collect both peers, even if one of them is not in the subset
                             peers.add(peer1)
-                            peers.add(peer2)
+                    elif not self.is_in_subset(peer2):
+                        continue  # skipping pairs if none of them are in the given subset
+
+                    if peer1 == peer2:
+                        # cannot restrict pod's connection to itself
+                        #connections[ConnectionSet(True)].append((peer1, peer2))
+                        self.add_connection(connections, peers, peer1, peer2, ConnectionSet(True), with_optimization, optimization_reduced_output)
+                    else:
+                        conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
+                        if conns:
+                            # TODO: consider separate connectivity maps for config that involves istio -
+                            #  one that handles non-TCP connections, and one for TCP
+                            # TODO: consider avoid "hiding" egress allowed connections, even though they are
+                            #  not covered by authorization policies
+                            if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
+                                    self.output_config.connectivityFilterIstioEdges:
+                                should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
+                                if not should_filter:
+                                    num_added = self.add_connection(connections, peers, peer1, peer2, modified_conns, with_optimization, optimization_reduced_output)
+                                    count_pairs += num_added
+                                    #connections[modified_conns].append((peer1, peer2))
+                                    # collect both peers, even if one of them is not in the subset
+                                    #peers.add(peer1)
+                                    #peers.add(peer2)
+                            else:
+                                num_added = self.add_connection(connections, peers, peer1, peer2, conns, with_optimization, optimization_reduced_output)
+                                count_pairs += num_added
+                                #connections[conns].append((peer1, peer2))
+                                # collect both peers, even if one of them is not in the subset
+                                #peers.add(peer1)
+                                #peers.add(peer2)
+        except ValueError as err:
+            print(err.args)
+            #pass
+            #raise Exception
+        if not optimization_reduced_output:
+            all_conns_list = connections[ConnectionSet(True)]
+            for peer in all_peers:
+                if self.is_in_subset(peer):
+                    all_conns_list.append((peer,peer))
 
         res = QueryAnswer(True)
         if self.output_config.outputFormat == 'dot':
             conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
             conn_graph.add_edges(connections)
-            res.output_explanation = conn_graph.get_connectivity_dot_format_str()
+            res.output_explanation = conn_graph.get_connectivity_dot_format_str(reduced_output_flag=(with_optimization and optimization_reduced_output), reduced_peer_container=self.config.reduced_peer_container)
         else:
-            conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
+            # full blown output requires all_peers, whereas output in terms of equiv classes requires only peers_to_compare
+            conn_graph = ConnectivityGraph(all_peers, self.config.get_allowed_labels(), self.output_config)
             conn_graph.add_edges(connections)
             fw_rules = conn_graph.get_minimized_firewall_rules()
             res.output_explanation = fw_rules.get_fw_rules_in_required_format()
+
+        # print equiv classes info
+        if with_optimization and optimization_reduced_output:
+            print('-------------------------------------------')
+            print('info about equiv classes:')
+            index = 0
+            for class_properties, equiv_class in self.config.reduced_peer_container.peers_equiv_classes.items():
+                class_name = f'pods_equiv_class_{index}'
+                peers_num = len(equiv_class)
+                peers_list = ','.join(str(peer) for peer in equiv_class)
+                print(f'class name: {class_name}')
+                print(f'peers_num: {peers_num}')
+                print(f'peers_list: {peers_list}')
+                print(f'class_properties: {class_properties}')
+                index += 1
+            index = 0
+            for class_properties, equiv_class in self.config.reduced_peer_container.ip_blocks_equiv_classes.items():
+                class_name = f'ip_block_equiv_class_{index}'
+                peers_num = len(equiv_class)
+                peers_list = ','.join(str(peer) for peer in equiv_class)
+                print(f'class name: {class_name}')
+                print(f'peers_num: {peers_num}')
+                print(f'peers_list: {peers_list}')
+                print(f'class_properties: {class_properties}')
+                index += 1
+            print('-------------------------------------------')
+
+
         return res
 
     def compute_query_output(self, query_answer):

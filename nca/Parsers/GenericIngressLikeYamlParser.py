@@ -101,15 +101,15 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
 
         return tcp_properties
 
-    def _make_allow_rules(self, allowed_conns):
+    def _make_allow_rules(self, allowed_conns, policy_kind=None, policy_name=None):
         """
         Make deny rules from the given connections
         :param TcpLikeProperties allowed_conns: the given allowed connections
         :return: the list of deny IngressPolicyRules
         """
-        return self._make_rules_from_conns(allowed_conns)
+        return self._make_rules_from_conns(allowed_conns, policy_kind, policy_name)
 
-    def _make_rules_from_conns(self, tcp_conns):
+    def _make_rules_from_conns(self, tcp_conns, policy_kind, policy_name):
         """
         Make IngressPolicyRules from the given connections
         :param TcpLikeProperties tcp_conns: the given connections
@@ -145,6 +145,8 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
                 peers_to_conns[peer_set] |= new_conns  # optimize conns for the same peers
             else:
                 peers_to_conns[peer_set] = new_conns
+        rule_index = 0
         for peer_set, conns in peers_to_conns.items():
-            res.append(IngressPolicyRule(peer_set, conns))
+            res.append(IngressPolicyRule(peer_set, conns, rule_index, policy_kind, policy_name))
+            rule_index += 1
         return res

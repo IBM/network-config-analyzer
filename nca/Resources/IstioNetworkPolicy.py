@@ -98,10 +98,23 @@ class IstioNetworkPolicy(NetworkPolicy):
         :rtype: Peer.PeerSet
         """
         res = PeerSet()
+        res_dict = dict()  # map from IPBlock to its list of rules that refer to it
         for rule in self.ingress_rules:
             for peer in rule.peer_set:
                 if isinstance(peer, IpBlock):
-                    res |= peer.split()
+                    new_ip_blocks = peer.split()
+                    for ipb in new_ip_blocks:
+                        if ipb in res_dict:
+                            res_dict[ipb] |= ipb.referring_policies_rules
+                        else:
+                            res_dict[ipb] = ipb.referring_policies_rules.copy()
+                    #res |= peer.split()
+
+        for ipb, ref_rules_set in res_dict.items():
+            ip_obj = ipb.copy()
+            ip_obj.referring_policies_rules = ref_rules_set
+            res.add(ip_obj)
+
         return res
 
     def has_empty_rules(self, config_name=''):

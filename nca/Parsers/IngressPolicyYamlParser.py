@@ -178,7 +178,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                                                                hosts_dfa=hosts_dfa)
         return default_conns
 
-    def parse_rule(self, rule):
+    def parse_rule(self, rule, rule_index):
         """
         Parses a single ingress rule, producing a number of IngressPolicyRules (per path).
         :param dict rule: The rule resource
@@ -247,10 +247,14 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
         if not res_policy.selected_peers:
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
+        for peer in res_policy.selected_peers:
+            netpol_str = str(res_policy.policy_kind) + "/" + res_policy.full_name()
+            peer.capturing_policies.add(netpol_str)
+
         allowed_conns = None
         all_hosts_dfa = None
-        for ingress_rule in policy_spec.get('rules', []):
-            conns, hosts_dfa = self.parse_rule(ingress_rule)
+        for rule_index, ingress_rule in enumerate(policy_spec.get('rules', [])):
+            conns, hosts_dfa = self.parse_rule(ingress_rule, rule_index)
             if not allowed_conns:
                 allowed_conns = conns
             else:
@@ -271,6 +275,6 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             allowed_conns = default_conns
         assert allowed_conns
 
-        res_policy.add_rules(self._make_allow_rules(allowed_conns))
+        res_policy.add_rules(self._make_allow_rules(allowed_conns, res_policy.policy_kind,res_policy.full_name() ))
         res_policy.findings = self.warning_msgs
         return res_policy

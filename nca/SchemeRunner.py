@@ -120,6 +120,7 @@ class SchemeRunner(GenericYamlParser):
                                  f'Expected {expected_warnings}, got {warnings_found}\n', config_entry)
                     self.global_res += 1
             self.network_configs[network_config.name] = network_config
+            assert network_config.reduced_peer_container is not None
 
         except SyntaxError as err:
             if expected_error is None:

@@ -12,13 +12,16 @@ class IngressPolicyRule:
     """
     A class representing a single ingress rule in an Ingress object
     """
-    def __init__(self, peer_set, connections):
+    def __init__(self, peer_set, connections, rule_index, policy_kind, policy_name):
         """
         :param Peer.PeerSet peer_set: The set of peers this rule allows connection to
         :param ConnectionSet connections: The set of connections allowed by this rule
         """
         self.peer_set = peer_set
         self.connections = connections
+        netpol_str = str(policy_kind) + "/" + policy_name + "/" + str(rule_index)
+        for peer in peer_set:
+            peer.referring_policies_rules.add(netpol_str)
 
     def __eq__(self, other):
         return self.peer_set == other.peer_set and self.connections == other.connections

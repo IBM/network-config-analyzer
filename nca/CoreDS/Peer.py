@@ -21,6 +21,8 @@ class Peer:
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
         self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
+        self.capturing_policies = set()
+        self.referring_policies_rules = set()
 
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name
@@ -138,6 +140,7 @@ class Pod(ClusterEP):
     This class represents either a K8s Pod resource or a Calico WorkloadEndpoint resource
     """
 
+
     def __init__(self, name, namespace, owner_name='', owner_kind=None, service_account_name=''):
         """
         :param str name: The name of the Pod
@@ -149,6 +152,7 @@ class Pod(ClusterEP):
         self.owner_name = owner_name
         self.service_account_name = service_account_name
         self.full_name_str = self.namespace.name + '/' + self.name
+
 
         if not owner_name:  # no owner
             self.workload_name = f'{namespace.name}/{name}(Pod)'
@@ -353,7 +357,9 @@ class IpBlock(Peer, CanonicalIntervalSet):
         """
         res = PeerSet()
         for ip_range in self:
-            res.add(IpBlock(interval=ip_range))
+            ipb = IpBlock(interval=ip_range)
+            ipb.referring_policies_rules = self.referring_policies_rules
+            res.add(ipb)
         return res
 
     def ip_count(self):
@@ -397,10 +403,13 @@ class IpBlock(Peer, CanonicalIntervalSet):
             if not ip_block.overlaps(interval):
                 continue
             intersection = ip_block & interval
+            intersection.referring_policies_rules = ip_block.referring_policies_rules | interval.referring_policies_rules
             interval -= intersection
             if ip_block != intersection:
                 to_add.append(intersection)
                 non_overlapping_interval_list[idx] -= intersection
+            else:
+                non_overlapping_interval_list[idx].referring_policies_rules |= interval.referring_policies_rules
             if not interval:
                 break
 
