@@ -70,7 +70,13 @@ class K8sNetworkPolicy(NetworkPolicy):
         :return: A TcpLikeProperties object containing all allowed connections for relevant peers
         :rtype: TcpLikeProperties
         """
-        return self.optimized_ingress_props if is_ingress else self.optimized_egress_props
+        if is_ingress:
+            allowed = self.optimized_ingress_props.copy() if self.optimized_ingress_props else None
+            denied = self.optimized_denied_ingress_props.copy() if self.optimized_denied_ingress_props else None
+        else:
+            allowed = self.optimized_egress_props.copy() if self.optimized_egress_props else None
+            denied = self.optimized_denied_egress_props.copy() if self.optimized_denied_egress_props else None
+        return allowed, denied
 
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """

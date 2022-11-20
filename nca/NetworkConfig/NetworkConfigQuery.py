@@ -692,10 +692,10 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 res_opt.output_explanation = conn_graph_opt.get_connectivity_dot_format_str()
             else:
                 assert fw_rules == fw_rules2
-                res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()
-                res.output_explanation += "---------------- OPTIMIZED RESULT: -------------\n" +\
-                                          fw_rules2.get_fw_rules_in_required_format() + \
-                                          "\n------------------------------------------------\n\n"  # TEMP for debug
+                # res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()
+                # res.output_explanation += "---------------- OPTIMIZED RESULT: -------------\n" +\
+                #                           fw_rules2.get_fw_rules_in_required_format() + \
+                #                           "\n------------------------------------------------\n\n"  # TEMP for debug
         return res
 
     def compute_query_output(self, query_answer):

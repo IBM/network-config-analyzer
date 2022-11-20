@@ -446,6 +446,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         pod_selector = policy_spec.get('podSelector')
         res_policy.selected_peers = self.parse_label_selector(pod_selector)
         res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
+        base_peer_set = self.peer_container.peer_set.copy()
+        base_peer_set.add(Peer.IpBlock.get_all_ips_block())
 
         ingress_rules = policy_spec.get('ingress', [])
         if ingress_rules:
@@ -453,6 +455,11 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 rule, optimized_props = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
                 res_policy.add_ingress_rule(rule)
                 res_policy.add_optimized_ingress_props(optimized_props)
+        else:
+            # add  denied connections
+            denied_conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container, dest_ports=PortSet(True),
+                                                                      dst_peers=res_policy.selected_peers)
+            res_policy.add_optimized_ingress_props(denied_conns, False)
 
         egress_rules = policy_spec.get('egress', [])
         if egress_rules:
@@ -460,6 +467,11 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 rule, optimized_props = self.parse_egress_rule(egress_rule, res_policy.selected_peers)
                 res_policy.add_egress_rule(rule)
                 res_policy.add_optimized_egress_props(optimized_props)
+        else:
+            # add only non-captured connections
+            denied_conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container, dest_ports=PortSet(True),
+                                                                      src_peers=res_policy.selected_peers)
+            res_policy.add_optimized_egress_props(denied_conns, False)
 
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels

@@ -263,7 +263,9 @@ class CanonicalHyperCubeSet:
             self._override_by_other(other.copy())
             return self
         other_copy = self._prepare_common_active_dimensions(other)
-        self._and_aux(other_copy)
+        res = self._and_aux(other_copy)
+        self.layers = res.layers
+        self.active_dimensions = res.active_dimensions
         self._reduce_active_dimensions()
         return self
 
@@ -275,6 +277,7 @@ class CanonicalHyperCubeSet:
         :return: self
         """
         assert self.active_dimensions == other.active_dimensions
+        res = self.copy()
         res_layers = dict()
         for self_layer in self.layers:
             for other_layer in other.layers:
@@ -291,9 +294,9 @@ class CanonicalHyperCubeSet:
                 if new_sub_elem:
                     res_layers[common_elem] = new_sub_elem
 
-        self.layers = res_layers
-        self._apply_layer_elements_union()
-        return self
+        res.layers = res_layers
+        res._apply_layer_elements_union()
+        return res
 
     def __or__(self, other):
         res = self.copy()

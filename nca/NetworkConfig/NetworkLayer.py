@@ -166,12 +166,18 @@ class NetworkLayer:
         :return: all allowed connections
         :rtype: TcpLikeProperties
         """
-        ingress_conns = self._allowed_xgress_conns_optimized(True, peer_container)
-        egress_conns = self._allowed_xgress_conns_optimized(False, peer_container)
-        if ingress_conns and egress_conns:
-            return ingress_conns & egress_conns
+        allowed_ingress_conns, denied_ingres_conns = self._allowed_xgress_conns_optimized(True, peer_container)
+        allowed_egress_conns, denied_egress_conns = self._allowed_xgress_conns_optimized(False, peer_container)
+        if allowed_ingress_conns and allowed_egress_conns:
+            res = allowed_ingress_conns & allowed_egress_conns
         else:
-            return ingress_conns if ingress_conns else egress_conns
+            res = allowed_ingress_conns if allowed_ingress_conns else allowed_egress_conns
+        if res:
+            if denied_ingres_conns:
+                res -= denied_ingres_conns
+            if denied_egress_conns:
+                res -= denied_egress_conns
+        return res
 
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         """
@@ -222,18 +228,23 @@ class NetworkLayer:
         Collect all connections (between all relevant peers), considering all layer's policies that capture the
         relevant peers.
         :param bool is_ingress: indicates whether to return ingress connections or egress connections
-        :return: conns
-        :rtype: TcpLikeProperties
+        :return: allowed_conns and denied_conns
+        :rtype: tuple (TcpLikeProperties, TcpLikeProperties)
         """
-        conns = None
+        allowed_conns = None
+        denied_conns = None
         for policy in self.policies_list:
-            policy_conns = policy.allowed_connections_optimized(is_ingress)
-            if policy_conns and conns:
-                conns |= policy_conns
-            elif not conns:
-                conns = policy_conns
-        return conns
+            policy_allowed_conns, policy_denied_conns = policy.allowed_connections_optimized(is_ingress)
+            if policy_allowed_conns and allowed_conns:
+                allowed_conns |= policy_allowed_conns
+            elif not allowed_conns:
+                allowed_conns = policy_allowed_conns
+            if policy_denied_conns and denied_conns:
+                denied_conns |= policy_denied_conns
+            elif not denied_conns:
+                denied_conns = policy_denied_conns
 
+        return allowed_conns, denied_conns
 
 class K8sCalicoNetworkLayer(NetworkLayer):
 
@@ -256,30 +267,44 @@ class K8sCalicoNetworkLayer(NetworkLayer):
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
-        conn = self.collect_policies_conns_optimized(is_ingress)
-        if not conn:
-            return conn
-        # add non-captured connections
+        allowed_conn, denied_conns = self.collect_policies_conns_optimized(is_ingress)
+        if not allowed_conn and not denied_conns:
+            return None, None
+        # Note: The below computation of non-captured conns cannot be done during the parse stage,
+        # since before computing non-captured conns we should collect all policies conns
+        # compute non-captured connections
+        base_peer_set = peer_container.peer_set.copy()
+        base_peer_set.add(IpBlock.get_all_ips_block())
         if is_ingress:
-            captured_dst_peers = conn.project_on_one_dimension('dst_peers')
+            captured_dst_peers1 = allowed_conn.project_on_one_dimension('dst_peers') if allowed_conn else None
+            captured_dst_peers2 = denied_conns.project_on_one_dimension('dst_peers') if denied_conns else None
+            if captured_dst_peers1 and captured_dst_peers2:
+                captured_dst_peers = captured_dst_peers1 | captured_dst_peers2
+            else:
+                captured_dst_peers = captured_dst_peers1 if captured_dst_peers1 else captured_dst_peers2
             if captured_dst_peers:
-                non_captured_dst_peers = conn.base_peer_set - captured_dst_peers
-                non_captured_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(peer_container, dest_ports=PortSet(True),
-                                                               src_peers=conn.base_peer_set.copy(),
-                                                               dst_peers=non_captured_dst_peers)
-                conn |= non_captured_conns
+                non_captured_dst_peers = base_peer_set - captured_dst_peers
+                if non_captured_dst_peers:
+                    non_captured_conns = \
+                        TcpLikeProperties.make_tcp_like_properties(peer_container, dest_ports=PortSet(True),
+                                                                   dst_peers=non_captured_dst_peers)
+                    allowed_conn  = (allowed_conn | non_captured_conns) if allowed_conn else non_captured_conns
         else:
-            captured_src_peers = conn.project_on_one_dimension('src_peers')
+            captured_src_peers1 = allowed_conn.project_on_one_dimension('src_peers') if allowed_conn else None
+            captured_src_peers2 = denied_conns.project_on_one_dimension('src_peers') if denied_conns else None
+            if captured_src_peers1 and captured_src_peers2:
+                captured_src_peers = captured_src_peers1 | captured_src_peers2
+            else:
+                captured_src_peers = captured_src_peers1 if captured_src_peers1 else captured_src_peers2
             if captured_src_peers:
-                non_captured_src_peers = conn.base_peer_set - captured_src_peers
-                non_captured_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(peer_container, dest_ports=PortSet(True),
-                                                               src_peers=non_captured_src_peers,
-                                                               dst_peers=conn.base_peer_set.copy())
-                conn |= non_captured_conns
+                non_captured_src_peers = base_peer_set - captured_src_peers
+                if non_captured_src_peers:
+                    non_captured_conns = \
+                        TcpLikeProperties.make_tcp_like_properties(peer_container, dest_ports=PortSet(True),
+                                                                   src_peers=non_captured_src_peers)
+                    allowed_conn  = (allowed_conn | non_captured_conns) if allowed_conn else non_captured_conns
 
-        return conn
+        return allowed_conn, denied_conns
 
 
 class IstioNetworkLayer(NetworkLayer):
@@ -319,4 +344,4 @@ class IngressNetworkLayer(NetworkLayer):
                                  all_allowed_conns=all_allowed_conns)
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
-        return None
+        return None, None
