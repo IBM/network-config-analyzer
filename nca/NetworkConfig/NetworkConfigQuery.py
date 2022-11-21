@@ -2,13 +2,14 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+from abc import abstractmethod
 import itertools
 import os
 from collections import defaultdict
 from enum import Enum
-
 from nca.Utils.OutputConfiguration import OutputConfiguration
-from nca.Utils.QueryOutputHandler import *
+from nca.Utils.QueryOutputHandler import QueryAnswer, OutputExplanation, PoliciesAndRulesExplanations, \
+    PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation, YamlOutputHandler, TxtOutputHandler
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
@@ -77,7 +78,7 @@ class BaseNetworkQuery:
         """
         query_name = self.output_config.queryName or type(self).__name__
         configs = self.get_configs_names()
-        output_handler = globals()[self.output_config.outputFormat.capitalize()+'OutputHandler'](configs)
+        output_handler = globals()[self.output_config.outputFormat.capitalize() + 'OutputHandler'](configs)
         return output_handler.compute_query_output(query_answer, query_name)
 
     @abstractmethod

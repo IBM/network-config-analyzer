@@ -243,7 +243,7 @@ class YamlOutputHandler(QueryOutputHandler):
         """
         rules = []
         for key, value in policies_to_xgress_rules_dict.items():
-            rules.append({'policy': key.split()[1], prefix+'_rules_indexes': [str(idx) for idx in value]})
+            rules.append({'policy': key.split()[1], prefix + '_rules_indexes': [str(idx) for idx in value]})
         self.explanation_result_1.append({'description': xgress_description, 'pairs': rules})
 
     def _add_pods_list_to_explanation(self, description, pods_list):
@@ -331,8 +331,8 @@ class TxtOutputHandler(QueryOutputHandler):
         """
         self.explanation_result += '\n' + xgress_description + ':\n'
         for key, value in policies_to_xgress_rules_dict.items():
-            self.explanation_result += key + ', ' + prefix + ' rules indexes: ' + \
-                                       ', '.join(str(idx) for idx in value) + '\n'
+            self.explanation_result +=\
+                key + ', ' + prefix + ' rules indexes: ' + ', '.join(str(idx) for idx in value) + '\n'
 
     def _add_pods_list_to_explanation(self, description, pods_list):
         """
