@@ -60,7 +60,7 @@ class BaseNetworkQuery:
         :return: the numerical result of the query,
         the query output in required format if supported (otherwise empty string),
         and bool indicator if the query was not executed
-        :rtype: (int, str, bool)
+        :rtype: [int, str, bool]
         """
         query_answer = self.execute(cmd_line_flag)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
@@ -388,7 +388,7 @@ class SanityQuery(NetworkConfigQuery):
             if not self_policy.selected_peers.issubset(other_policy.selected_peers):
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
-            if ContainmentQuery(config_with_self_policy, config_with_other_policy).exec(True).bool_result:
+            if ContainmentQuery(config_with_self_policy, config_with_other_policy).exec(only_captured=True).bool_result:
                 return other_policy
         return None
 
@@ -592,6 +592,8 @@ class SanityQuery(NetworkConfigQuery):
             output_result = f'NetworkConfig {self.config.name} passed sanity check'
         else:
             output_result = f'NetworkConfig {self.config.name} failed sanity check:'
+
+
         return QueryAnswer(bool_result=(issues_counter == 0), output_result=output_result,
                            output_explanation=OutputExplanation(str_explanation=policies_issue + rules_issues),
                            numerical_result=issues_counter)
