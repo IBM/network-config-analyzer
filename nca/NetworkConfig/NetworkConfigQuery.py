@@ -1213,7 +1213,7 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
     def exec(self, cmd_line_flag):
         query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
-            return query_answer # identical configurations (contained)
+            return query_answer  # identical configurations (contained)
 
         contained_1_in_2 = \
             ContainmentQuery(self.config1, self.config2, self.output_config).exec(cmd_line_flag=cmd_line_flag)
