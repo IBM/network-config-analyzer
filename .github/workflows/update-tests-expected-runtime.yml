@@ -30,19 +30,19 @@ jobs:
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
       - uses: ./.github/actions/setup-nca-env
-      - uses: dawidd6/action-download-artifact@46b4ae883bf0726f5949d025d31cb62c7a5ac70c
+      - uses: dawidd6/action-download-artifact@e6e25ac3a2b93187502a8be1ef9e9603afc34925
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
           name: k8s-log
           path: tests/
-      - uses: dawidd6/action-download-artifact@46b4ae883bf0726f5949d025d31cb62c7a5ac70c
+      - uses: dawidd6/action-download-artifact@e6e25ac3a2b93187502a8be1ef9e9603afc34925
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
           name: calico-log
           path: tests/
-      - uses: dawidd6/action-download-artifact@46b4ae883bf0726f5949d025d31cb62c7a5ac70c
+      - uses: dawidd6/action-download-artifact@e6e25ac3a2b93187502a8be1ef9e9603afc34925
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
