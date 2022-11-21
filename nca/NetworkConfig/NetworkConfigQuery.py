@@ -2,18 +2,20 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-from abc import abstractmethod
 import itertools
 import os
+from abc import abstractmethod
 from collections import defaultdict
 from enum import Enum
-from nca.Utils.OutputConfiguration import OutputConfiguration
-from nca.Utils.QueryOutputHandler import *
+
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
-from nca.FWRules.ConnectivityGraph import ConnectivityGraph
+from nca.Utils.OutputConfiguration import OutputConfiguration
+from nca.Utils.QueryOutputHandler import QueryAnswer, QueryOutputHandler, OutputExplanation, YamlOutputHandler,\
+    TxtOutputHandler, PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation
 from .NetworkConfig import NetworkConfig
 from .NetworkLayer import NetworkLayerName
 
@@ -58,7 +60,7 @@ class BaseNetworkQuery:
         :return: the numerical result of the query,
         the query output in required format if supported (otherwise empty string),
         and bool indicator if the query was not executed
-        :rtype: int, str, bool
+        :rtype: (int, str, bool)
         """
         query_answer = self.execute(cmd_line_flag)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
@@ -85,6 +87,7 @@ class BaseNetworkQuery:
         """
         this method is a wrapper method for calling exec def, since exec does not need
         the cmd_line_flag param for classes derived from NetworkConfigQuery
+        :rtype: QueryAnswer
         """
         raise NotImplementedError
 
