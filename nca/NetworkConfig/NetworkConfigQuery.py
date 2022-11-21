@@ -593,7 +593,6 @@ class SanityQuery(NetworkConfigQuery):
         else:
             output_result = f'NetworkConfig {self.config.name} failed sanity check:'
 
-
         return QueryAnswer(bool_result=(issues_counter == 0), output_result=output_result,
                            output_explanation=OutputExplanation(str_explanation=policies_issue + rules_issues),
                            numerical_result=issues_counter)
