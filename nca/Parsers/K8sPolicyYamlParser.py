@@ -455,7 +455,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 rule, optimized_props = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
                 res_policy.add_ingress_rule(rule)
                 res_policy.add_optimized_ingress_props(optimized_props)
-        else:
+        elif res_policy.affects_ingress:
             # add  denied connections
             denied_conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container, dest_ports=PortSet(True),
                                                                       dst_peers=res_policy.selected_peers)
@@ -467,7 +467,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 rule, optimized_props = self.parse_egress_rule(egress_rule, res_policy.selected_peers)
                 res_policy.add_egress_rule(rule)
                 res_policy.add_optimized_egress_props(optimized_props)
-        else:
+        elif res_policy.affects_egress:
             # add only non-captured connections
             denied_conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container, dest_ports=PortSet(True),
                                                                       src_peers=res_policy.selected_peers)
