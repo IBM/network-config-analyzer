@@ -1,5 +1,6 @@
 query: emptiness_yaml
-config: np1
+configs:
+- np1
 numerical_result: 3
 textual_result: There are empty NetworkPolicies and/or empty ingress/egress rules
   in np1

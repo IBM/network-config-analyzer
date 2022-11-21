@@ -1,12 +1,12 @@
 query: no_strong_equivalence_print_all_peers_pairs_yaml
 configs:
-- nt_notin/kube-system/allow-ingress-app-notin-predefined
-- nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined
+- nt_notin
+- nt_notinwithexists
 numerical_result: 1
 textual_result: NetworkPolicy kube-system/allow-ingress-app-notin-predefined is not
   equivalent in nt_notin and in nt_notinwithexists
 explanation:
-  description: Connections in nt_notin/kube-system/allow-ingress-app-notin-predefined
+- description: Connections allowed in nt_notin/kube-system/allow-ingress-app-notin-predefined
     which are different in nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined
   connections:
   - src: kube-system/calico-node-mgdlr
@@ -168,13 +168,13 @@ explanation:
 ---
 query: no_strong_equivalence_print_all_peers_pairs_yaml
 configs:
-- nt_notin/kube-system/allow-ingress-app-notin-predefined
-- nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined
+- nt_notin
+- nt_notinwithexists
 numerical_result: 1
 textual_result: NetworkPolicy kube-system/allow-ingress-app-notin-predefined is not
   equivalent in nt_notin and in nt_notinwithexists
 explanation:
-  description: Connections in nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined
+- description: Connections allowed in nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined
     which are different in nt_notin/kube-system/allow-ingress-app-notin-predefined
   connections:
   - src: kube-system/calico-node-mgdlr

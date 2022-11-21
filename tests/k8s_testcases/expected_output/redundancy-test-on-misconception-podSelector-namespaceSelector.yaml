@@ -1,5 +1,6 @@
 query: redundancy_test_on_misconception_podSelector-namespaceSelector_yaml
-config: sanity-misconception-podSelector-namespaceSelector
+configs:
+- sanity-misconception-podSelector-namespaceSelector
 numerical_result: 2
 textual_result: Redundancies found in sanity-misconception-podSelector-namespaceSelector
 explanation:
