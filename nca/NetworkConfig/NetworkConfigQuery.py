@@ -55,8 +55,8 @@ class BaseNetworkQuery:
         """
         calls the exec def of the running query, computes its output in the required format and returns query results
         and output
-        :param cmd_line_flag: indicates if the query is running from a cmd-line, affects computing the numerical result
-         of some of TwoNetworkConfigsQuery queries
+        :param cmd_line_flag: indicates if the query is running from a cmd-line, since it affects computing the
+        numerical result of some of TwoNetworkConfigsQuery queries
         :return: the numerical result of the query,
         the query output in required format if supported (otherwise empty string),
         and bool indicator if the query was not executed
@@ -74,7 +74,7 @@ class BaseNetworkQuery:
         :param QueryAnswer query_answer: the query result of running its exec def
         :return: the output in required format
         :rtype: str
-        this def is overriden in classes of queries that computes there output in required format separately
+        this def is overriden in classes of queries that computes their output in required format separately
         without using QueryOutputHandler , i.e. SanityQuery, ConnectivityMapQuery and SemanticDiffQuery
         """
         query_name = self.output_config.queryName or type(self).__name__
