@@ -5,7 +5,7 @@ configs:
 numerical_result: 1
 textual_result: np-empty does not forbid connections specified in np-within-default
 explanation:
-  description: Both np-within-default and np-empty allow the following connection(s)
+- description: Both np-within-default and np-empty allow the following connection(s)
   connections:
   - src: default/cog-agents-d54st
     dst: default/cog-agents-js4qc

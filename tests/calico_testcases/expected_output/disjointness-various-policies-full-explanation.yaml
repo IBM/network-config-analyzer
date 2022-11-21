@@ -1,9 +1,10 @@
 query: disjointness_various_policies_full_explanation_yaml
-config: np_various_policies
+configs:
+- np_various_policies
 numerical_result: 3
 textual_result: There are policies capturing the same pods in np_various_policies
 explanation:
-  description: policies with overlapping captured pods
+- description: policies with overlapping captured pods
   examples:
   - policies:
     - kube-system/testcase1-equiv-networkpolicy

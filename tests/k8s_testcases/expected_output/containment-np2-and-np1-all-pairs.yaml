@@ -5,7 +5,7 @@ configs:
 numerical_result: 0
 textual_result: np1 is not contained in np2
 explanation:
-  description: Connections allowed in np1 which are not a subset of those in np2
+- description: Connections allowed in np1 which are not a subset of those in np2
   connections:
   - src: default/cog-agents-d54st
     dst: kube-system/calico-node-mgdlr
