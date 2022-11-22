@@ -53,9 +53,9 @@ class ClusterInfo:
         self.add_update_pods_labels_map_with_required_conjunction_labels()
 
     def __eq__(self, other):
-        return self.all_peers == other.all_peers and self.allowed_labels == other.allowed_labels and \
-               self.ns_dict == other.ns_dict and self.pods_labels_map == other.pods_labels_map and \
-               self.all_label_values_per_ns == other.all_label_values_per_ns
+        return self.all_peers == other.all_peers and self.allowed_labels == other.allowed_labels \
+               and self.ns_dict == other.ns_dict and self.pods_labels_map == other.pods_labels_map \
+               and self.all_label_values_per_ns == other.all_label_values_per_ns
 
     def add_update_pods_labels_map_with_invalid_val(self, all_pods):
         """
