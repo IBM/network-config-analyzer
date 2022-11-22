@@ -22,6 +22,7 @@ RUN apt-get purge curl -y && apt-get autoremove -y
 COPY setup.cfg pyproject.toml README.md /nca/
 COPY nca/ /nca/nca/
 RUN python -m pip install -U pip wheel setuptools && pip install /nca
+RUN rm -r /nca/build /nca/*.egg-info
 
 USER 9000
 WORKDIR "/nca"
