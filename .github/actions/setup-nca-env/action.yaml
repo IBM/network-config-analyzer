@@ -7,6 +7,6 @@ runs:
     with:
       python-version: 3.8
       architecture: x64
-      cache: pip
+      #      cache: pip
   - run: pip install .
     shell: bash
