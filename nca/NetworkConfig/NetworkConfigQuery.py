@@ -201,8 +201,8 @@ class EmptinessQuery(NetworkConfigQuery):
                                                               policies_to_egress_rules_dict=empty_egress_rules)
         return QueryAnswer(res > 0,
                            'There are empty NetworkPolicies and/or empty ingress/egress rules in ' + self.config.name,
-                           output_explanation=OutputExplanation(explanation_description=' that does not select any pods'
-                                                                , policies_and_rules=full_explanation_lists),
+                           output_explanation=OutputExplanation(explanation_description=' that does not select any pods',
+                                                                policies_and_rules=full_explanation_lists),
                            numerical_result=res)
 
 
