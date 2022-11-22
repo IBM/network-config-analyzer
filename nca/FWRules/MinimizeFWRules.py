@@ -657,7 +657,7 @@ class MinimizeFWRules:
 
     def __eq__(self, other):
         return self.fw_rules_map == other.fw_rules_map and self.cluster_info == other.cluster_info \
-               and self.output_config == other.output_config and self.results_map == other.results_map
+            and self.output_config == other.output_config and self.results_map == other.results_map
 
     def get_fw_rules_in_required_format(self, add_txt_header=True, add_csv_header=True):
         """
