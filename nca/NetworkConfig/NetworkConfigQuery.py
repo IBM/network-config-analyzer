@@ -1225,10 +1225,6 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
                                              'are semantically equivalent.',
                                numerical_result=3 if not cmd_line_flag else 0)
 
-        description_2_not_contained_in_1 = contained_2_in_1.output_result + '\n' + \
-                                                                            contained_2_in_1.explanation_description
-        description_1_not_contained_in_2 = contained_1_in_2.output_result + '\n' + \
-                                                                            contained_1_in_2.explanation_description
         if not contained_1_in_2.bool_result and not contained_2_in_1.bool_result:
             explanation = CombinedExplanation(two_results_combined=[contained_2_in_1.output_explanation,
                                                                     contained_1_in_2.output_explanation],
@@ -1242,14 +1238,15 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
         if contained_1_in_2.bool_result:
             return QueryAnswer(bool_result=False,
                                output_result=f'Network configuration {self.name1} is a proper'
-                                             f' subset of {self.name2}',
-                               explanation_description=description_2_not_contained_in_1,
+                                             f' subset of {self.name2} but ' + contained_2_in_1.output_result,
+                               explanation_description=contained_2_in_1.explanation_description,
                                output_explanation=contained_2_in_1.output_explanation,
                                numerical_result=2 if not cmd_line_flag else 1)
         # (contained_2_in_1)
         return QueryAnswer(bool_result=False,
-                           output_result=f'Network configuration {self.name2} is a proper subset of {self.name1}',
-                           explanation_description=description_1_not_contained_in_2,
+                           output_result=f'Network configuration {self.name2} is a proper '
+                                         f'subset of {self.name1} but ' + contained_1_in_2.output_result,
+                           explanation_description=contained_1_in_2.explanation_description,
                            output_explanation=contained_1_in_2.output_explanation,
                            numerical_result=1)
 
