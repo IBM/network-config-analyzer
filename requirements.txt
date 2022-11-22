@@ -1,5 +1,0 @@
-PyGithub==1.57
-ruamel.yaml==0.17.21
-Flask==2.2.2
-PyYAML==6.0
-greenery==4.0.0
