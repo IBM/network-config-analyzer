@@ -6,9 +6,6 @@
 # Using python:3.8-slim
 FROM python@sha256:726098870bb14355cb12572764a3be191b42f8b15947d97affe3b8ec6a7a446e
 
-COPY requirements.txt /nca/
-RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
-
 RUN apt-get update && apt-get install curl -y && rm -rf /var/lib/apt/lists
 
 RUN curl -L "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" --output /usr/local/bin/kubectl \
@@ -22,9 +19,10 @@ RUN curl -L https://github.com/projectcalico/calicoctl/releases/download/v3.3.1/
 
 RUN apt-get purge curl -y && apt-get autoremove -y
 
-COPY nca/ /nca/
+COPY setup.cfg pyproject.toml README.md /nca/
+COPY nca/ /nca/nca/
+RUN python -m pip install -U pip wheel setuptools && pip install /nca
 
 USER 9000
-
-WORKDIR "/"
+WORKDIR "/nca"
 ENTRYPOINT ["python", "-m", "nca"]
