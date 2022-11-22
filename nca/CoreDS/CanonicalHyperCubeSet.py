@@ -274,7 +274,7 @@ class CanonicalHyperCubeSet:
         Recursive function to compute 'and' between two CanonicalHyperCubeSet objects.
         Assuming that self and other have common active dimensions.
         :type other: CanonicalHyperCubeSet
-        :return: self
+        :return: CanonicalHyperCubeSet representing 'and' between self and the other object
         """
         assert self.active_dimensions == other.active_dimensions
         res = CanonicalHyperCubeSet(self.all_dimensions_list)
@@ -325,7 +325,7 @@ class CanonicalHyperCubeSet:
         Recursive function to compute 'or' between two CanonicalHyperCubeSet objects.
         Assuming that self and other have common active dimensions.
         :type other: CanonicalHyperCubeSet
-        :return: self
+        :return: CanonicalHyperCubeSet representing 'or' between self and the other object
         """
         assert self.active_dimensions == other.active_dimensions
         res = CanonicalHyperCubeSet(self.all_dimensions_list)
@@ -378,7 +378,7 @@ class CanonicalHyperCubeSet:
         Recursive function to compute 'sub' between two CanonicalHyperCubeSet objects.
         Assuming that self and other have common active dimensions.
         :type other: CanonicalHyperCubeSet
-        :return: self
+        :return: CanonicalHyperCubeSet representing 'sub' between self and the other object
         """
         assert self.active_dimensions == other.active_dimensions
         res = CanonicalHyperCubeSet(self.all_dimensions_list)
