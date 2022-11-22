@@ -446,8 +446,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
         pod_selector = policy_spec.get('podSelector')
         res_policy.selected_peers = self.parse_label_selector(pod_selector)
         res_policy.selected_peers &= self.peer_container.get_namespace_pods(self.namespace)
-        base_peer_set = self.peer_container.peer_set.copy()
-        base_peer_set.add(Peer.IpBlock.get_all_ips_block())
 
         ingress_rules = policy_spec.get('ingress', [])
         if ingress_rules:

@@ -286,7 +286,7 @@ class CanonicalHyperCubeSet:
                 if not common_elem:
                     continue
                 if self._is_last_dimension():
-                    res_layers[common_elem] = self.layers[self_layer]
+                    res_layers[common_elem] = self.layers[self_layer].copy()
                     continue
                 # TODO: use type hint to avoid warning on access to a protected member?
                 # self_sub_elem: CanonicalHyperCubeSet = self.layers[self_layer]
@@ -345,10 +345,10 @@ class CanonicalHyperCubeSet:
                 if self._is_last_dimension():
                     res_layers[common_elem] = CanonicalHyperCubeSet.empty_interval
                     continue
-                new_sub_elem = (self.layers[self_layer].copy()).or_aux(other.layers[other_layer])
+                new_sub_elem = self.layers[self_layer].or_aux(other.layers[other_layer])
                 res_layers[common_elem] = new_sub_elem
             if remaining_self_layer:
-                res_layers[remaining_self_layer] = self.layers[self_layer]
+                res_layers[remaining_self_layer] = self.layers[self_layer].copy()
         for layer_elem, remaining_layer_elem in remaining_other_layers.items():
             if remaining_layer_elem:
                 res_layers[remaining_layer_elem] = other.layers[layer_elem].copy()
@@ -395,12 +395,13 @@ class CanonicalHyperCubeSet:
                     # do not add common_elem to self.layers here because result is empty
                     continue
                 # sub-elements subtraction
-                new_sub_elem = (self.layers[self_layer].copy()).sub_aux(other.layers[other_layer])
+                new_sub_elem = self.layers[self_layer].sub_aux(other.layers[other_layer])
                 if bool(new_sub_elem):
                     # add remaining new_sub_elem if not empty, under common
                     res_layers[common_elem] = new_sub_elem
             if remaining_self_layer:
-                res_layers[remaining_self_layer] = self.layers[self_layer]
+
+                res_layers[remaining_self_layer] = self.layers[self_layer].copy()
         res.layers = res_layers
         res._apply_layer_elements_union()
         return res

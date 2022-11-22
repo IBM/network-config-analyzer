@@ -206,8 +206,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
-            assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-                   not other.base_peer_set or self.base_peer_set == other.base_peer_set
+            assert not self.base_peer_set or not other.base_peer_set or self.base_peer_set == other.base_peer_set
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
