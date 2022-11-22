@@ -110,7 +110,7 @@ class ConnectionSet:
         udp_protocol_number = ProtocolNameResolver.get_protocol_number('UDP')
         tcp_protocol = protocols_not_aggregated.get(tcp_protocol_number)
         udp_protocol = protocols_not_aggregated.get(udp_protocol_number)
-        if tcp_protocol and udp_protocol and tcp_protocol.active_dimensions and udp_protocol.active_dimensions and \
+        if tcp_protocol and udp_protocol and tcp_protocol.active_dimensions and \
                 udp_protocol.active_dimensions == tcp_protocol.active_dimensions:
             aggregation_results, protocols_not_aggregated = ConnectionSet._aggregate_pair_protocols(protocols_not_aggregated,
                                                                                                     tcp_protocol_number,
