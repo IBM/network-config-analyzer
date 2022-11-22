@@ -313,7 +313,9 @@ class CanonicalHyperCubeSet:
             self._override_by_other(other.copy())
             return self
         other_copy = self._prepare_common_active_dimensions(other)
-        self.or_aux(other_copy)
+        res = self.or_aux(other_copy)
+        self.layers = res.layers
+        self.active_dimensions = res.active_dimensions
         self._reduce_active_dimensions()
         return self
 
@@ -325,6 +327,7 @@ class CanonicalHyperCubeSet:
         :return: self
         """
         assert self.active_dimensions == other.active_dimensions
+        res = self.copy()
         res_layers = dict()
         remaining_other_layers = dict()  # map from layer_0 elems in orig "other", to remaining parts to be added
         for layer_elem in other.layers:
@@ -347,9 +350,9 @@ class CanonicalHyperCubeSet:
         for layer_elem, remaining_layer_elem in remaining_other_layers.items():
             if remaining_layer_elem:
                 res_layers[remaining_layer_elem] = other.layers[layer_elem].copy()
-        self.layers = res_layers
-        self._apply_layer_elements_union()
-        return self
+        res.layers = res_layers
+        res._apply_layer_elements_union()
+        return res
 
     def __sub__(self, other):
         res = self.copy()
@@ -362,7 +365,9 @@ class CanonicalHyperCubeSet:
         if not other:
             return self
         other_copy = self._prepare_common_active_dimensions(other)
-        self.sub_aux(other_copy)
+        res = self.sub_aux(other_copy)
+        self.layers = res.layers
+        self.active_dimensions = res.active_dimensions
         self._reduce_active_dimensions()
         return self
 
@@ -374,6 +379,7 @@ class CanonicalHyperCubeSet:
         :return: self
         """
         assert self.active_dimensions == other.active_dimensions
+        res = self.copy()
         res_layers = dict()
         for self_layer in self.layers:
             remaining_self_layer = self._copy_layer_elem(self_layer)
@@ -392,9 +398,9 @@ class CanonicalHyperCubeSet:
                     res_layers[common_elem] = new_sub_elem
             if remaining_self_layer:
                 res_layers[remaining_self_layer] = self.layers[self_layer]
-        self.layers = res_layers
-        self._apply_layer_elements_union()
-        return self
+        res.layers = res_layers
+        res._apply_layer_elements_union()
+        return res
 
     def _prepare_common_active_dimensions(self, other):
         """
