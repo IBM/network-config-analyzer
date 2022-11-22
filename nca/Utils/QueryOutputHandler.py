@@ -15,7 +15,6 @@ class QueryAnswer:
     """
     bool_result: bool = False
     output_result: str = ''
-    explanation_description: str = ''
     output_explanation: OutputExplanation = None
     numerical_result: int = 0
     query_not_executed: bool = False
@@ -25,8 +24,10 @@ class QueryAnswer:
 class OutputExplanation:
     """
     A class that unifies the possible types of the QueryAnswer's output_explanation as it may vary according to
-    the pattern of the query's result - an output_explanation may have only one of its fields at a time
+    the pattern of the query's result - an output_explanation may have only one of its fields at a time besides
+    to explanation_description
     """
+    explanation_description: str = ''
     policies_with_intersect_pods: list[tuple] = None  # used in DisjointnessQuery - list of pods intersect between
     # policies
     policies_and_rules: PoliciesAndRulesExplanations = None
@@ -70,7 +71,6 @@ class CombinedExplanation:
     # used in TwoWayContainment, when both configs do not contain each other -
     # the output_explanation is a combination of two explanation of different containment queries
     two_results_combined: list[OutputExplanation] = None
-    second_description: str = ''
 
 
 class QueryOutputHandler:
@@ -84,24 +84,24 @@ class QueryOutputHandler:
         """
         self.configs_names = configs
 
-    def handle_explanation_by_type(self, description, explanation):
+    def handle_explanation_by_type(self, explanation):
         """
         handles writing the output explanation according to its type
-        :param str description: the description of the output_explanation
         :param OutputExplanation explanation: the query's output explanation
         """
         if explanation.policies_with_intersect_pods:
-            self.write_policies_with_intersect_pods_explanation(description, explanation.policies_with_intersect_pods)
+            self.write_policies_with_intersect_pods_explanation(explanation.explanation_description,
+                                                                explanation.policies_with_intersect_pods)
         elif explanation.policies_and_rules:
-            self.write_policies_and_rules_explanations(description, explanation.policies_and_rules)
+            self.write_policies_and_rules_explanations(explanation.explanation_description,
+                                                       explanation.policies_and_rules)
         elif explanation.pods_lists:
-            self.write_pods_list_explanation(description, explanation.pods_lists)
+            self.write_pods_list_explanation(explanation.explanation_description, explanation.pods_lists)
         elif explanation.connections_diff:
-            self.write_conns_diff_explanation(description, explanation.connections_diff)
+            self.write_conns_diff_explanation(explanation.explanation_description, explanation.connections_diff)
         elif explanation.combined_explanation:
-            self.handle_explanation_by_type(description, explanation.combined_explanation.two_results_combined[0])
-            self.handle_explanation_by_type(explanation.combined_explanation.second_description,
-                                            explanation.combined_explanation.two_results_combined[1])
+            self.handle_explanation_by_type(explanation.combined_explanation.two_results_combined[0])
+            self.handle_explanation_by_type(explanation.combined_explanation.two_results_combined[1])
 
     def write_policies_and_rules_explanations(self, description, policies_and_rules_explanation):
         """
@@ -186,20 +186,18 @@ class YamlOutputHandler(QueryOutputHandler):
         yaml_content.update({'numerical_result': int(query_answer.numerical_result)})
         yaml_content.update({'textual_result': query_answer.output_result})
         if query_answer.output_explanation:
-            return self.compute_yaml_explanation(yaml_content, query_answer.explanation_description,
-                                                 query_answer.output_explanation)
+            return self.compute_yaml_explanation(yaml_content, query_answer.output_explanation)
         return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
 
-    def compute_yaml_explanation(self, yaml_content, description, explanation):
+    def compute_yaml_explanation(self, yaml_content, explanation):
         """
         computes the output_explanation of the query answer in Yaml format
         :param dict yaml_content: already generated yaml from fields of the query answer other than output_explanation
-        :param str description: the description of the output explanation from the query_answer
         :param OutputExplanation explanation: the output_explanation of the query answer
         :return: the yaml output of the query with its output explanation
         :rtype: str
         """
-        self.handle_explanation_by_type(description, explanation)
+        self.handle_explanation_by_type(explanation)
         yaml_content_1 = yaml_content
         yaml_content_1.update({'explanation': self.explanation_result_1})
         res1 = yaml.dump(yaml_content_1, None, default_flow_style=False, sort_keys=False)
@@ -294,7 +292,7 @@ class TxtOutputHandler(QueryOutputHandler):
         """
         query_output = query_answer.output_result + '\n'
         if query_answer.output_explanation:
-            self.handle_explanation_by_type(query_answer.explanation_description, query_answer.output_explanation)
+            self.handle_explanation_by_type(query_answer.output_explanation)
             query_output += self.explanation_result + '\n'
         return query_output
 
