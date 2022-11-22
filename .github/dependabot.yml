@@ -8,3 +8,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"  # Check for updates to Python packages every week
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
