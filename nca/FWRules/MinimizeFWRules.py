@@ -655,6 +655,10 @@ class MinimizeFWRules:
         self.output_config = output_config
         self.results_map = results_map
 
+    def __eq__(self, other):
+        return self.fw_rules_map == other.fw_rules_map and self.cluster_info == other.cluster_info and \
+               self.output_config == other.output_config and self.results_map == other.results_map
+
     def get_fw_rules_in_required_format(self, add_txt_header=True, add_csv_header=True):
         """
         :param add_txt_header: bool flag to indicate if header of fw-rules query should be added in txt format

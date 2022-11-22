@@ -335,8 +335,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         res = MethodSet()
         matching_methods = self._parse_istio_regex_from_enumerated_domain(method_str, 'methods')
         for method in matching_methods:
-            index = MethodSet.all_methods_list.index(method)
-            res.add_interval(MethodSet.Interval(index, index))
+            res.add_method(method)
 
         if not res:
             if method_str:

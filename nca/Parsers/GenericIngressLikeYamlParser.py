@@ -131,7 +131,7 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
                 elif dim == "hosts":
                     hosts = cube[i]
                 elif dim == "peers":
-                    peer_set = PeerSet(set(tcp_conns.base_peer_set.get_peer_list_by_indices(cube[i])))
+                    peer_set = tcp_conns.base_peer_set.get_peer_set_by_indices(cube[i])
                 else:
                     assert False
             if not peer_set:
