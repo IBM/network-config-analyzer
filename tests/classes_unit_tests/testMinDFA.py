@@ -1,5 +1,5 @@
 import unittest
-from greenery.fsm import fsm, anything_else
+from greenery import fsm
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MinDFA import MinDFA
 
@@ -25,8 +25,8 @@ class TestMinDFA(unittest.TestCase):
         print(dfa4.get_fsm_str())
         print(repr(dfa4))
         # equiv dfa created directly, with a different set of state numbers
-        equiv_dfa = fsm(
-            alphabet={"e", "g", "t", anything_else},
+        equiv_dfa = fsm.Fsm(
+            alphabet={"e", "g", "t", fsm.ANYTHING_ELSE},
             states={0, 1, 2, 5},
             initial=0,
             finals={5},
@@ -110,8 +110,6 @@ class TestMinDFA(unittest.TestCase):
         self.assertEqual(empty2.complement_dfa, None)
         self.assertTrue(empty2.has_finite_len())
 
-
-
     def test_rep(self):
         input_regex = "abc*".replace('*', alphabet_regex)  # abc[.\w/\-]*
         dfa2 = get_str_dfa(input_regex)  # abc*
@@ -185,8 +183,7 @@ class TestMinDFA(unittest.TestCase):
         l = []
         for i in range(100):
             l.append(dfa1 | x)
-        #print(z)
-        #print(y)
+        # print(z)
+        # print(y)
         print(dfa1.__or__.cache_info())
         self.assertEqual(dfa1.__or__.cache_info().hits > 0, True)
-

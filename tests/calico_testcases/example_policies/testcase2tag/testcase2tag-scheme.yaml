@@ -49,6 +49,16 @@ queries:
       - local_np
       - global_np
     expected: 1
+
+  - name: global_interferes_local_print_all_pairs
+    interferes:
+      - local_np
+      - global_np
+    outputConfiguration:
+      fullExplanation: true
+    expectedOutput: ../../expected_output/global-interferes-local-print-all-pairs.txt
+    expected: 1
+
   - name: local_no_interferes_global
     interferes:
       - global_np

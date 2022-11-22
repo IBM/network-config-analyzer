@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [master]
     types: [closed]
-    paths: ["VERSION.txt"]
+    paths: ["nca/VERSION.txt"]
 
 permissions:
   contents: read
@@ -20,25 +20,25 @@ jobs:
       packages: write
     steps:
       - name: Check out the repo
-        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
       - name: Setup NCA environment
         uses: ./.github/actions/setup-nca-env
 
       - name: Set the version number
         run: |
-          export VERSION=$(cat VERSION.txt)
+          export VERSION=$(cat nca/VERSION.txt)
           echo "version=$VERSION" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
         with:
           context: .
           push: true

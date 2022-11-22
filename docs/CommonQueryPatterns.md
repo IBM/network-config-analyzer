@@ -14,7 +14,8 @@ Patterns describing how to combine specific switches (global: `--<query_name> , 
 `--<query_name> --resource_list <networkPolicies, namespaces and pods paths> --base_resource_list <networkpolicies, namespaces and pods path>` [see example here](../tests/k8s_cmdline_tests.yaml#L293-L302)
 
 ##### Handling missing resources:
-- When running without any switch (i.e. `--<query_name>`), all resources will be loaded from k8s live cluster.
+- When running without any switch (i.e. `--<query_name>`), nca checks if a communication with k8s live cluster is available, if yes - resources will be loaded from k8s live cluster, 
+otherwise, the query runs on empty resources (empty query result)
 
 Running with switches:
 - When running with specific topology switches only (using only `pod_list` and `ns_list`) without providing networkPolicy path, policies will be loaded from k8s live cluster
@@ -47,7 +48,8 @@ Running with switches:
     `resourceList: [list of networkPolicies, namespaces and pods paths]` [see example here ](../tests/k8s_testcases/example_policies/resourcelist-one-path-example/resource-path-scheme.yaml#L3-L7)
 
 ##### Handling missing resources:
-- If global scope does not exist, topology objects will be loaded from k8s live cluster.
+- If global scope does not exist, nca checks if a communication with k8s live cluster is available, if yes - topology resources will be loaded from k8s live cluster, 
+otherwise, an empty peer container is created
 - If `networkPolicyList` is not used and `resourceList` does not refer to any policy, a query reading this considers empty network-policies list.
 - If global pods are missing (i.e. `podList` is not used and `resourceList` does not refer to any pod), global cluster will have 0 endpoints. 
 - If config's pods are missing, global pods will be used
