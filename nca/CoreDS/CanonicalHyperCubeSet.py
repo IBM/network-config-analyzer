@@ -277,7 +277,8 @@ class CanonicalHyperCubeSet:
         :return: self
         """
         assert self.active_dimensions == other.active_dimensions
-        res = self.copy()
+        res = CanonicalHyperCubeSet(self.all_dimensions_list)
+        res.active_dimensions = self.active_dimensions
         res_layers = dict()
         for self_layer in self.layers:
             for other_layer in other.layers:
@@ -327,7 +328,8 @@ class CanonicalHyperCubeSet:
         :return: self
         """
         assert self.active_dimensions == other.active_dimensions
-        res = self.copy()
+        res = CanonicalHyperCubeSet(self.all_dimensions_list)
+        res.active_dimensions = self.active_dimensions
         res_layers = dict()
         remaining_other_layers = dict()  # map from layer_0 elems in orig "other", to remaining parts to be added
         for layer_elem in other.layers:
@@ -379,7 +381,8 @@ class CanonicalHyperCubeSet:
         :return: self
         """
         assert self.active_dimensions == other.active_dimensions
-        res = self.copy()
+        res = CanonicalHyperCubeSet(self.all_dimensions_list)
+        res.active_dimensions = self.active_dimensions
         res_layers = dict()
         for self_layer in self.layers:
             remaining_self_layer = self._copy_layer_elem(self_layer)
