@@ -7,6 +7,8 @@ from abc import abstractmethod
 from dataclasses import dataclass
 import yaml
 
+from nca.CoreDS.ConnectionSet import ConnectionSet
+
 
 @dataclass
 class QueryAnswer:
@@ -21,6 +23,21 @@ class QueryAnswer:
 
 
 @dataclass
+class PoliciesWithCommonPods:
+    """
+    A class for holding information of pairs of policies with common pods
+    """
+    first_policy: str = ''
+    second_policy: str = ''
+    common_pods: str = ''
+
+    def __lt__(self, other):
+        if self.first_policy == other.first_policy:
+            return self.second_policy < other.second_policy
+        return self.first_policy < other.first_policy
+
+
+@dataclass
 class OutputExplanation:
     """
     A class that unifies the possible types of the QueryAnswer's output_explanation as it may vary according to
@@ -28,8 +45,7 @@ class OutputExplanation:
     to explanation_description
     """
     explanation_description: str = ''
-    policies_with_intersect_pods: list[tuple] = None  # used in DisjointnessQuery - list of pods intersect between
-    # policies
+    policies_with_intersect_pods: list[PoliciesWithCommonPods] = None  # used in DisjointnessQuery
     policies_and_rules: PoliciesAndRulesExplanations = None
     pods_lists: PodsListsExplanations = None
     connections_diff: ConnectionsDiffExplanation = None
@@ -42,10 +58,11 @@ class OutputExplanation:
 # fields that may appear together in one output_explanation and additional info for writing the explanation if required
 @dataclass
 class PoliciesAndRulesExplanations:
-    # used in RedundancyQuery and EmptinessQuery: we may have lists of redundant/empty policies, ingress/egress rules
+    # used in RedundancyQuery and EmptinessQuery: we may have lists of redundant/empty policies or
+    # maps of policies to redundant/empty ingress/egress rules indexes
     policies_list: list[str] = None
-    policies_to_ingress_rules_dict: dict = None
-    policies_to_egress_rules_dict: dict = None
+    policies_to_ingress_rules_dict: dict[str, list[int]] = None
+    policies_to_egress_rules_dict: dict[str, list[int]] = None
 
 
 @dataclass
@@ -60,9 +77,25 @@ class PodsListsExplanations:
 
 
 @dataclass
+class PeersAndConnections:
+    """
+    A class for holding info on connections between same peers pairs in two different configs
+    """
+    src_peer: str = ''
+    dst_peer: str = ''
+    conns1: ConnectionSet = None  # connections from src to dst in first config
+    conns2: ConnectionSet = None  # connections from src to dst in second config
+
+    def __lt__(self, other):
+        if self.src_peer == other.src_peer:
+            return self.dst_peer < other.dst_peer
+        return self.src_peer < other.src_peer
+
+
+@dataclass
 class ConnectionsDiffExplanation:
     # used in TwoNetworkConfigs queries that compare connections of pairs of peers in both configs
-    peers_diff_connections_list: list[tuple] = None
+    peers_diff_connections_list: list[PeersAndConnections] = None
     additional_description: str = ''
 
 
@@ -86,7 +119,8 @@ class QueryOutputHandler:
 
     def handle_explanation_by_type(self, explanation):
         """
-        handles writing the output explanation according to its type
+        handles writing the output explanation according to its type - the field that is not None in the explanation
+         other than explanation_description
         :param OutputExplanation explanation: the query's output explanation
         """
         if explanation.policies_with_intersect_pods:
@@ -212,13 +246,13 @@ class YamlOutputHandler(QueryOutputHandler):
         """
         updates the explanation_result with the yaml format of IntersectPodsExplanation and its description
         :param str description: the relevant description of this output explanation
-        :param  list[tuple] policies_intersect_pods_explanation: the policies_with_intersect_pods field of
-        OutputExplanation
+        :param  list[PoliciesWithCommonPods] policies_intersect_pods_explanation: the policies_with_intersect_pods
+         field of OutputExplanation
         """
         result = []
         for item in policies_intersect_pods_explanation:
-            result.append({'policies': [item[0].split(' ')[1], item[1].split(' ')[1]],
-                           'pods': str(item[2]).split(', ')})
+            result.append({'policies': [item.first_policy.split(' ')[1], item.second_policy.split(' ')[1]],
+                           'pods': item.common_pods.split(', ')})
         self.explanation_result_1.append({'description': description, 'examples': result})
 
     def _add_policies_to_explanation(self, policies_description, policies_list):
@@ -264,9 +298,9 @@ class YamlOutputHandler(QueryOutputHandler):
         two_results = conns_diff_explanation.additional_description
         conns2 = []
         for peers_conn in conns_diff_explanation.peers_diff_connections_list:
-            conns1.append({'src': peers_conn[0], 'dst': peers_conn[1], 'conn': str(peers_conn[2])})
+            conns1.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns1)})
             if two_results:
-                conns2.append({'src': peers_conn[0], 'dst': peers_conn[1], 'conn': str(peers_conn[3])})
+                conns2.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns2)})
 
         self.explanation_result_1.append({'description': description, 'connections': conns1})
         if two_results:
@@ -300,14 +334,15 @@ class TxtOutputHandler(QueryOutputHandler):
         """
         updates the explanation_result with the txt format of IntersectPodsExplanation and its description
         :param str description: the relevant description of this output explanation
-        :param  list[tuple] policies_intersect_pods_explanation: the policies_with_intersect_pods field of
-        OutputExplanation
+        :param  list[PoliciesWithCommonPods] policies_intersect_pods_explanation: the policies_with_intersect_pods
+        field of OutputExplanation
         """
         result = []
         delimiter = ' '
         for item in policies_intersect_pods_explanation:
-            result.append(f'{item[0].split(delimiter)[0]}_1: {item[0].split(delimiter)[1]}, '
-                          f'{item[1].split(delimiter)[0]}_2: {item[1].split(delimiter)[1]}, pods: {item[2]}')
+            result.append(f'{item.first_policy.split(delimiter)[0]}_1: {item.first_policy.split(delimiter)[1]}, '
+                          f'{item.second_policy.split(delimiter)[0]}_2: {item.second_policy.split(delimiter)[1]},'
+                          f' pods: {item.common_pods}')
         self.explanation_result += description + ':\n' + '\n'.join(result)
 
     def _add_policies_to_explanation(self, policies_description, policies_list):
@@ -350,9 +385,9 @@ class TxtOutputHandler(QueryOutputHandler):
         conns_diff = conns_diff_explanation.additional_description
         for peers_conn in conns_diff_explanation.peers_diff_connections_list:
             if conns_diff:
-                conns.append(f'src: {peers_conn[0]}, dst: {peers_conn[1]}, description: '
-                             f'{peers_conn[2].print_diff(peers_conn[3], self.configs_names[0], self.configs_names[1])}')
+                conns.append(f'src: {peers_conn.src_peer}, dst: {peers_conn.dst_peer}, description: '
+                             f'{peers_conn.conns1.print_diff(peers_conn.conns2, self.configs_names[0], self.configs_names[1])}')  # noqa: E501
             else:
-                conns.append(f'src: {peers_conn[0]}, dst: {peers_conn[1]}, conn: {peers_conn[2]}')
+                conns.append(f'src: {peers_conn.src_peer}, dst: {peers_conn.dst_peer}, conn: {peers_conn.conns1}')
 
         self.explanation_result += description + ':\n' + '\n'.join(conns) + '\n'

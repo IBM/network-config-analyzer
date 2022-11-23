@@ -15,7 +15,8 @@ from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.Utils.QueryOutputHandler import QueryAnswer, OutputExplanation, YamlOutputHandler, TxtOutputHandler, \
-    PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation
+    PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation,\
+    PoliciesWithCommonPods, PeersAndConnections
 from .NetworkLayer import NetworkLayerName
 
 
@@ -147,9 +148,10 @@ class DisjointnessQuery(NetworkConfigQuery):
                         break
                     intersection = policy1.selected_peers & policy2.selected_peers
                     if intersection:
-                        common_pods = intersection if self.output_config.fullExplanation else intersection.rep()
-                        non_disjoint_explanation_list.append((self.policy_title(policy1), self.policy_title(policy2),
-                                                              common_pods))
+                        common_pods = str(intersection) if self.output_config.fullExplanation else intersection.rep()
+                        non_disjoint_explanation_list.append(PoliciesWithCommonPods(self.policy_title(policy1),
+                                                                                    self.policy_title(policy2),
+                                                                                    common_pods))
 
         if not non_disjoint_explanation_list:
             return QueryAnswer(True, output_result='All policies are disjoint in ' + self.config.name,
@@ -830,7 +832,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2, layer_name)
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2, layer_name)
                 if conns1 != conns2:
-                    different_conns_list.append((str(peer1), str(peer2), conns1, conns2))
+                    different_conns_list.append(PeersAndConnections(str(peer1), str(peer2), conns1, conns2))
                     if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(different_conns_list)
 
@@ -1187,7 +1189,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                 conns1 = conns1_captured if only_captured else conns1_all
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if not conns1.contained_in(conns2):
-                    not_contained_list.append((str(peer1), str(peer2), conns1))
+                    not_contained_list.append(PeersAndConnections(str(peer1), str(peer2), conns1))
                     if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(not_contained_list, cmd_line_flag)
         if not_contained_list:
@@ -1311,7 +1313,8 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                     continue
                 _, captured2_flag, conns2_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if captured2_flag and not conns2_captured.contained_in(conns1_captured):
-                    extended_conns_list.append((str(peer1), str(peer2), conns2_captured, conns1_captured))
+                    extended_conns_list.append(PeersAndConnections(str(peer1), str(peer2), conns2_captured,
+                                                                   conns1_captured))
                     if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(extended_conns_list, cmd_line_flag)
         if extended_conns_list:
@@ -1367,7 +1370,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
-                    intersect_connections_list.append((str(peer1), str(peer2), conns_in_both))
+                    intersect_connections_list.append(PeersAndConnections(str(peer1), str(peer2), conns_in_both))
                     if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(intersect_connections_list)
 
