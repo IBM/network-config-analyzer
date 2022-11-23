@@ -9,7 +9,6 @@ import os
 import sys
 from pathlib import Path
 from nca.Utils.OutputConfiguration import OutputConfiguration
-from nca.NetworkConfig import NetworkConfig
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
 from nca.SchemeRunner import SchemeRunner

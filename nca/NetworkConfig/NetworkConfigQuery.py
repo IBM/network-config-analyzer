@@ -16,7 +16,6 @@ from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.Utils.QueryOutputHandler import QueryAnswer, OutputExplanation, YamlOutputHandler, TxtOutputHandler, \
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation
-from .NetworkConfig import NetworkConfig
 from .NetworkLayer import NetworkLayerName
 
 

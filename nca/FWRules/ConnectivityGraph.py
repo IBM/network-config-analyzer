@@ -4,7 +4,7 @@
 #
 
 from collections import defaultdict
-from nca.CoreDS.Peer import Peer, IpBlock, ClusterEP, Pod
+from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
 from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
 
