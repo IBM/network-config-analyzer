@@ -80,7 +80,7 @@ class BaseNetworkQuery:
         query_name = self.output_config.queryName or type(self).__name__
         configs = self.get_configs_names()
         output_handler = YamlOutputHandler(configs) if self.output_config.outputFormat == 'yaml' \
-            else TxtOutputHandler(configs)
+            else TxtOutputHandler()
         return output_handler.compute_query_output(query_answer, query_name)
 
     @abstractmethod
@@ -847,7 +847,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         explanation_description = f'Connections allowed in {self.name1} which are different in {self.name2}'
         final_explanation = ConnectionsDiffExplanation(peers_diff_connections_list=explanation_list,
                                                        additional_description=f'Connections allowed in {self.name2} '
-                                                                              f'which are different in {self.name1}')
+                                                                              f'which are different in {self.name1}',
+                                                       configs=self.get_configs_names())
         return QueryAnswer(False, output_result,
                            output_explanation=OutputExplanation(explanation_description=explanation_description,
                                                                 connections_diff=final_explanation),
@@ -1327,7 +1328,8 @@ class InterferesQuery(TwoNetworkConfigsQuery):
         interfere_result_msg = self.name1 + ' interferes with ' + self.name2
         explanation_description = f'Allowed connections from {self.name2} which are extended in {self.name1}'
         final_explanation = ConnectionsDiffExplanation(peers_diff_connections_list=explanation_list,
-                                                       additional_description=f'The narrow connections in {self.name2}')
+                                                       additional_description=f'The narrow connections in {self.name2}',
+                                                       configs=self.get_configs_names())
         return QueryAnswer(True, interfere_result_msg,
                            output_explanation=OutputExplanation(explanation_description=explanation_description,
                                                                 connections_diff=final_explanation),
