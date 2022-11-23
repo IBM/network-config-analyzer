@@ -21,7 +21,25 @@ class QueryAnswer:
     numerical_result: int = 0
     query_not_executed: bool = False
 
+@dataclass
+class OutputExplanation:
+    """
+    A class that unifies the possible types of the QueryAnswer's output_explanation as it may vary according to
+    the pattern of the query's result - an output_explanation may have only one of its fields at a time besides
+    to explanation_description
+    """
+    explanation_description: str = ''
+    policies_with_intersect_pods: IntersectPodsExplanation = None
+    policies_and_rules: PoliciesAndRulesExplanations = None
+    pods_lists: PodsListsExplanations = None
+    connections_diff: ConnectionsDiffExplanation = None
+    combined_explanation: CombinedExplanation = None
+    str_explanation: str = None  # for queries that compute separately the output in the required format
+    # (i.e. ConnectivityMapQuery, SanityQuery and SemanticDiffQuery)
 
+
+# following classes describe the more possible OutputExplanation patterns, each class consists of the explanation
+# fields that may appear together in one output_explanation and additional info for writing the explanation if required
 @dataclass
 class PoliciesWithCommonPods:
     """
@@ -38,24 +56,11 @@ class PoliciesWithCommonPods:
 
 
 @dataclass
-class OutputExplanation:
-    """
-    A class that unifies the possible types of the QueryAnswer's output_explanation as it may vary according to
-    the pattern of the query's result - an output_explanation may have only one of its fields at a time besides
-    to explanation_description
-    """
-    explanation_description: str = ''
-    policies_with_intersect_pods: list[PoliciesWithCommonPods] = None  # used in DisjointnessQuery
-    policies_and_rules: PoliciesAndRulesExplanations = None
-    pods_lists: PodsListsExplanations = None
-    connections_diff: ConnectionsDiffExplanation = None
-    combined_explanation: CombinedExplanation = None
-    str_explanation: str = None  # for queries that compute separately the output in the required format
-    # (i.e. ConnectivityMapQuery, SanityQuery and SemanticDiffQuery)
+class IntersectPodsExplanation:
+    # used in DisjointnessQuery
+    policies_pods: list[PoliciesWithCommonPods] = None  # used in DisjointnessQuery
 
 
-# following classes describe the more possible OutputExplanation patterns, each class consists of the explanation
-# fields that may appear together in one output_explanation and additional info for writing the explanation if required
 @dataclass
 class PoliciesAndRulesExplanations:
     # used in RedundancyQuery and EmptinessQuery: we may have lists of redundant/empty policies or
@@ -134,8 +139,8 @@ class QueryOutputHandler:
         elif explanation.connections_diff:
             self.write_conns_diff_explanation(explanation.explanation_description, explanation.connections_diff)
         elif explanation.combined_explanation:
-            self.handle_explanation_by_type(explanation.combined_explanation.two_results_combined[0])
-            self.handle_explanation_by_type(explanation.combined_explanation.two_results_combined[1])
+            for item in explanation.combined_explanation.two_results_combined:
+                self.handle_explanation_by_type(item)
 
     def write_policies_and_rules_explanations(self, description, policies_and_rules_explanation):
         """
@@ -213,44 +218,49 @@ class YamlOutputHandler(QueryOutputHandler):
         :rtype: str
         """
         query_name = query_name
-        yaml_content = {'query': query_name, 'configs': self.configs_names}
+        output_content = {'query': query_name, 'configs': self.configs_names}
         if query_answer.query_not_executed:
-            yaml_content.update({'executed': 0, 'description': query_answer.output_result})
-            return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
-        yaml_content.update({'numerical_result': int(query_answer.numerical_result)})
-        yaml_content.update({'textual_result': query_answer.output_result})
-        if query_answer.output_explanation:
-            return self.compute_yaml_explanation(yaml_content, query_answer.output_explanation)
-        return yaml.dump(yaml_content, None, default_flow_style=False, sort_keys=False) + '---\n'
+            output_content.update({'executed': 0, 'description': query_answer.output_result})
+            return self.dump_content(output_content)
 
-    def compute_yaml_explanation(self, yaml_content, explanation):
+        output_content.update({'numerical_result': int(query_answer.numerical_result)})
+        output_content.update({'textual_result': query_answer.output_result})
+        if query_answer.output_explanation:
+            return self.compute_yaml_explanation(output_content, query_answer.output_explanation)
+        return self.dump_content(output_content)
+
+    def compute_yaml_explanation(self, generated_content, explanation):
         """
         computes the output_explanation of the query answer in Yaml format
-        :param dict yaml_content: already generated yaml from fields of the query answer other than output_explanation
+        :param dict generated_content: already generated yaml from fields of the query answer other than output_explanation
         :param OutputExplanation explanation: the output_explanation of the query answer
         :return: the yaml output of the query with its output explanation
         :rtype: str
         """
         self.handle_explanation_by_type(explanation)
-        yaml_content_1 = yaml_content
-        yaml_content_1.update({'explanation': self.explanation_result_1})
-        res1 = yaml.dump(yaml_content_1, None, default_flow_style=False, sort_keys=False)
+        output_content_1 = generated_content
+        output_content_1.update({'explanation': self.explanation_result_1})
+        res1 = self.dump_content(output_content_1)
         if self.explanation_result_2:  # two parallel yaml objects when connections differ in the configs
-            yaml_content_2 = yaml_content
-            yaml_content_2.update({'explanation': self.explanation_result_2})
-            res2 = yaml.dump(yaml_content_2, None, default_flow_style=False, sort_keys=False)
-            return res1 + '---\n' + res2 + '---\n'
-        return res1 + '---\n'
+            output_content_2 = generated_content
+            output_content_2.update({'explanation': self.explanation_result_2})
+            res2 = self.dump_content(output_content_2)
+            return res1 + res2
+        return res1
+
+    @staticmethod
+    def dump_content(output_content):
+        return yaml.dump(output_content, None, default_flow_style=False, sort_keys=False) + '---\n'
 
     def write_policies_with_intersect_pods_explanation(self, description, policies_intersect_pods_explanation):
         """
         updates the explanation_result with the yaml format of IntersectPodsExplanation and its description
         :param str description: the relevant description of this output explanation
-        :param  list[PoliciesWithCommonPods] policies_intersect_pods_explanation: the policies_with_intersect_pods
+        :param  IntersectPodsExplanation policies_intersect_pods_explanation: the policies_with_intersect_pods
          field of OutputExplanation
         """
         result = []
-        for item in policies_intersect_pods_explanation:
+        for item in policies_intersect_pods_explanation.policies_pods:
             result.append({'policies': [item.first_policy.split(' ')[1], item.second_policy.split(' ')[1]],
                            'pods': item.common_pods.split(', ')})
         self.explanation_result_1.append({'description': description, 'examples': result})
@@ -334,12 +344,12 @@ class TxtOutputHandler(QueryOutputHandler):
         """
         updates the explanation_result with the txt format of IntersectPodsExplanation and its description
         :param str description: the relevant description of this output explanation
-        :param  list[PoliciesWithCommonPods] policies_intersect_pods_explanation: the policies_with_intersect_pods
+        :param  IntersectPodsExplanation policies_intersect_pods_explanation: the policies_with_intersect_pods
         field of OutputExplanation
         """
         result = []
         delimiter = ' '
-        for item in policies_intersect_pods_explanation:
+        for item in policies_intersect_pods_explanation.policies_pods:
             result.append(f'{item.first_policy.split(delimiter)[0]}_1: {item.first_policy.split(delimiter)[1]}, '
                           f'{item.second_policy.split(delimiter)[0]}_2: {item.second_policy.split(delimiter)[1]},'
                           f' pods: {item.common_pods}')

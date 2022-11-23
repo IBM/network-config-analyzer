@@ -16,7 +16,7 @@ from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.Utils.QueryOutputHandler import QueryAnswer, OutputExplanation, YamlOutputHandler, TxtOutputHandler, \
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation,\
-    PoliciesWithCommonPods, PeersAndConnections
+    IntersectPodsExplanation, PoliciesWithCommonPods, PeersAndConnections
 from .NetworkLayer import NetworkLayerName
 
 
@@ -158,7 +158,8 @@ class DisjointnessQuery(NetworkConfigQuery):
                                numerical_result=0)
 
         explanation = OutputExplanation(explanation_description='policies with overlapping captured pods',
-                                        policies_with_intersect_pods=sorted(non_disjoint_explanation_list))
+                                        policies_with_intersect_pods=
+                                        IntersectPodsExplanation(sorted(non_disjoint_explanation_list)))
         return QueryAnswer(False,
                            output_result='There are policies capturing the same pods in ' + self.config.name,
                            output_explanation=explanation,
