@@ -10,7 +10,6 @@ from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
-from nca.NetworkConfig.NetworkConfig import NetworkConfig
 
 
 class SchemeRunner(GenericYamlParser):
