@@ -14,7 +14,6 @@ from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
-from .NetworkConfig import NetworkConfig
 from .NetworkLayer import NetworkLayerName
 
 
