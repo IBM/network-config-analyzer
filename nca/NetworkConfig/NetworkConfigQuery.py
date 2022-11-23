@@ -157,9 +157,9 @@ class DisjointnessQuery(NetworkConfigQuery):
             return QueryAnswer(True, output_result='All policies are disjoint in ' + self.config.name,
                                numerical_result=0)
 
+        final_explanation = IntersectPodsExplanation(sorted(non_disjoint_explanation_list))
         explanation = OutputExplanation(explanation_description='policies with overlapping captured pods',
-                                        policies_with_intersect_pods=
-                                        IntersectPodsExplanation(sorted(non_disjoint_explanation_list)))
+                                        policies_with_intersect_pods=final_explanation)
         return QueryAnswer(False,
                            output_result='There are policies capturing the same pods in ' + self.config.name,
                            output_explanation=explanation,

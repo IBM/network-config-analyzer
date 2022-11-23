@@ -21,6 +21,7 @@ class QueryAnswer:
     numerical_result: int = 0
     query_not_executed: bool = False
 
+
 @dataclass
 class OutputExplanation:
     """
