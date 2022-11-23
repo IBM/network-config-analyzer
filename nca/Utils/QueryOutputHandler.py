@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from __future__ import annotations
-from abc import abstractmethod
 from dataclasses import dataclass
 import yaml
 
@@ -38,6 +37,32 @@ class OutputExplanation:
     str_explanation: str = None  # for queries that compute separately the output in the required format
     # (i.e. ConnectivityMapQuery, SanityQuery and SemanticDiffQuery)
 
+    def get_explanation_in_txt(self):
+        """
+        computes and returns the output explanation is txt format.
+        An OutputExplanation object may have only one field representing the explanation data besides to
+         explanation_description, so the output is computed by calling the get_explanation_in_txt method of this field
+         :return the explanation written with its description in txt format
+         :rtype: str
+        """
+        for val in self.__dict__.values():
+            if not isinstance(val, str) and val is not None:
+                return val.get_explanation_in_txt(self.explanation_description)
+
+    def get_explanation_in_yaml(self):
+        """
+        computes and returns the output explanation is yaml format.
+        An OutputExplanation object may have only one field representing the explanation data besides to
+        explanation_description, so the output is computed by calling the get_explanation_in_txt method of this field
+        :return the explanation written with its description in a list of dict pattern that matches yaml dump later
+        A ConnectionsDiffExplanation may create two parallel results for one explanation, so return value might
+        consist of two explanation results or one with None as second result
+         :rtype: Union[[list[dict], None], [list[dict], list[dict]]
+        """
+        for val in self.__dict__.values():
+            if not isinstance(val, str) and val is not None:
+                return val.get_explanation_in_yaml(self.explanation_description)
+
 
 # following classes describe the more possible OutputExplanation patterns, each class consists of the explanation
 # fields that may appear together in one output_explanation and additional info for writing the explanation if required
@@ -61,6 +86,32 @@ class IntersectPodsExplanation:
     # used in DisjointnessQuery
     policies_pods: list[PoliciesWithCommonPods] = None  # used in DisjointnessQuery
 
+    def get_explanation_in_yaml(self, explanation_description):
+        """
+        returns yaml format of self type of OutputExplanation
+        :param explanation_description: the relevant description of this output explanation
+        :rtype: list[dict], None
+        """
+        examples = []
+        for record in self.policies_pods:
+            examples.append({'policies': [record.first_policy.split(' ')[1], record.second_policy.split(' ')[1]],
+                             'pods': record.common_pods.split(', ')})
+        return [{'description': explanation_description, 'examples': examples}], None
+
+    def get_explanation_in_txt(self, explanation_description):
+        """
+        returns txt format of self type of OutputExplanation
+        :param explanation_description: the relevant description of this output explanation
+        :rtype: str
+        """
+        result = []
+        delimiter = ' '
+        for record in self.policies_pods:
+            result.append(f'{record.first_policy.split(delimiter)[0]}_1: {record.first_policy.split(delimiter)[1]}, '
+                          f'{record.second_policy.split(delimiter)[0]}_2: {record.second_policy.split(delimiter)[1]},'
+                          f' pods: {record.common_pods}')
+        return explanation_description + ':\n' + '\n'.join(result)
+
 
 @dataclass
 class PoliciesAndRulesExplanations:
@@ -69,6 +120,81 @@ class PoliciesAndRulesExplanations:
     policies_list: list[str] = None
     policies_to_ingress_rules_dict: dict[str, list[int]] = None
     policies_to_egress_rules_dict: dict[str, list[int]] = None
+
+    @staticmethod
+    def _get_policies_description(explanation_description):
+        return 'Policies' + explanation_description
+
+    @staticmethod
+    def _get_xgress_description(explanation_description, prefix='Ingress'):
+        return prefix + ' rules' + explanation_description
+
+    @staticmethod
+    def _add_rules_to_yaml_explanation(xgress_description, xgress_rules_dict, prefix='ingress'):
+        """
+        adds yaml format of policies to ingress/egress rules and its description to explanation result
+        :param str xgress_description: the relevant description of this oof the given rules' dict
+        :param str prefix: indicates if rules types are ingress or egress
+        :return the yaml format of the explanation in dict of description and pairs of policy and rules indexes
+        :rtype dict
+        """
+        rules = []
+        for key, value in xgress_rules_dict.items():
+            rules.append({'policy': key.split()[1], prefix + '_rules_indexes': [str(idx) for idx in value]})
+        return {'description': xgress_description, 'pairs': rules}
+
+    def get_explanation_in_yaml(self, explanation_description):
+        """
+        returns yaml format of self type of OutputExplanation
+        :param explanation_description: the relevant description of this output explanation
+        :rtype: list[dict], None
+        """
+        result = []
+        if self.policies_list:
+            result.append({'description': self._get_policies_description(explanation_description),
+                           'policies': [policy.split()[1] for policy in self.policies_list]})
+        if self.policies_to_ingress_rules_dict:
+            ingress_description = self._get_xgress_description(explanation_description)
+            result.append(self._add_rules_to_yaml_explanation(ingress_description, self.policies_to_ingress_rules_dict))
+        if self.policies_to_egress_rules_dict:
+            egress_description = self._get_xgress_description(explanation_description, prefix='Egress')
+            result.append(self._add_rules_to_yaml_explanation(egress_description, self.policies_to_egress_rules_dict,
+                                                              'egress'))
+        return result, None
+
+    @staticmethod
+    def _add_rules_to_txt_explanation(xgress_description, xgress_rules_dict, prefix='ingress'):
+        """
+        adds txt format of policies to ingress/egress rules and its description to the explanation result
+        :param str xgress_description: the relevant description of the given rules' dict
+        :param dict xgress_rules_dict: a dict of policies to matching rules indexes
+        :param str prefix: indicates if rules types are ingress or egress
+        :return the txt format of the explanation
+        :rtype: str
+        """
+        res = '\n' + xgress_description + ':\n'
+        for key, value in xgress_rules_dict.items():
+            res += key + ', ' + prefix + ' rules indexes: ' + ', '.join(str(idx) for idx in value) + '\n'
+        return res
+
+    def get_explanation_in_txt(self, explanation_description):
+        """
+        returns txt format of self type of OutputExplanation
+        :param explanation_description: the relevant description of this output explanation
+        :rtype: str
+        """
+        result = ''
+        if self.policies_list:
+            result += self._get_policies_description(explanation_description) + ':\n' +\
+                      ', '.join(self.policies_list) + '\n'
+        if self.policies_to_ingress_rules_dict:
+            ingress_description = self._get_xgress_description(explanation_description)
+            result += self._add_rules_to_txt_explanation(ingress_description, self.policies_to_ingress_rules_dict)
+        if self.policies_to_egress_rules_dict:
+            egress_description = self._get_xgress_description(explanation_description, prefix='Egress')
+            result += self._add_rules_to_txt_explanation(egress_description, self.policies_to_egress_rules_dict,
+                                                         'egress')
+        return result
 
 
 @dataclass
@@ -80,6 +206,54 @@ class PodsListsExplanations:
     pods_list: list[str] = None
     egress_pods_list: list[str] = None
     add_xgress_suffix: bool = False
+
+    @staticmethod
+    def _get_xgress_description(explanation_description, suffix='ingress'):
+        return explanation_description + suffix
+
+    @staticmethod
+    def _add_pods_list_to_yaml_explanation(description, pods_list):
+        return {'description': description, 'pods': pods_list}
+
+    def get_explanation_in_yaml(self, explanation_description):
+        """
+        returns yaml format of self type of OutputExplanation
+        :param explanation_description: the relevant description of this output explanation
+        :rtype: list[dict], None
+        """
+        if not self.add_xgress_suffix:
+            return list(self._add_pods_list_to_yaml_explanation(explanation_description, self.pods_list))
+        result = []
+        if self.pods_list:
+            result.append(self._add_pods_list_to_yaml_explanation(self._get_xgress_description(explanation_description),
+                                                                  self.pods_list))
+        if self.egress_pods_list:
+            result.append(self._add_pods_list_to_yaml_explanation(self._get_xgress_description(explanation_description,
+                                                                                               'egress'),
+                                                                  self.egress_pods_list))
+        return result, None
+
+    @staticmethod
+    def _add_pods_list_to_txt_explanation(description, pods_list):
+        return '\n' + description + ':\n' + ', '.join(pods_list) + '\n'
+
+    def get_explanation_in_txt(self, explanation_description):
+        """
+        returns txt format of self type of OutputExplanation
+        :param explanation_description: the relevant description of this output explanation
+        :rtype: str
+        """
+        if not self.add_xgress_suffix:
+            return self._add_pods_list_to_txt_explanation(explanation_description, self.pods_list)
+        result = ''
+        if self.pods_list:
+            result += self._add_pods_list_to_txt_explanation(self._get_xgress_description(explanation_description),
+                                                             self.pods_list)
+        if self.egress_pods_list:
+            result += self._add_pods_list_to_txt_explanation(self._get_xgress_description(explanation_description,
+                                                                                          'egress'),
+                                                             self.egress_pods_list)
+        return result
 
 
 @dataclass
@@ -103,6 +277,47 @@ class ConnectionsDiffExplanation:
     # used in TwoNetworkConfigs queries that compare connections of pairs of peers in both configs
     peers_diff_connections_list: list[PeersAndConnections] = None
     additional_description: str = ''
+    configs: list[str] = None  # configs names are relevant only when we have the conns1 and conns2 in
+    # PeersAndConnections items , so we need them when calling ConnectionSet.print_diff in get_explanation_in_txt
+
+    def get_explanation_in_yaml(self, explanation_description):
+        """
+         returns the explanation results in the yaml format of ConnectionsDiffExplanation and its description
+        if the additional description is given, then this explanation may
+         be formatted in two ways, thus two yaml results are produced for the query answer
+        :param str explanation_description: the relevant description of this output explanation
+        :rtype Union[[list[dict], list[dict]],[list[dict], None]]
+        """
+        conns1 = []
+        two_results = self.additional_description
+        conns2 = []
+        result2 = None
+        for peers_conn in self.peers_diff_connections_list:
+            conns1.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns1)})
+            if two_results:
+                conns2.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns2)})
+
+        result1 = [{'description': explanation_description, 'connections': conns1}]
+        if two_results:
+            result2 = [{'description': self.additional_description, 'connections': conns2}]
+        return result1, result2
+
+    def get_explanation_in_txt(self, explanation_description):
+        """
+        returns the explanation result with the txt format of ConnectionsDiffExplanation and its description
+        :param str explanation_description: the relevant description of this output explanation
+        :rtype str
+        """
+        conns = []
+        conns_diff = self.additional_description
+        for peers_conn in self.peers_diff_connections_list:
+            if conns_diff:
+                conns.append(f'src: {peers_conn.src_peer}, dst: {peers_conn.dst_peer}, description: '
+                             f'{peers_conn.conns1.print_diff(peers_conn.conns2, self.configs[0], self.configs[1])}')
+            else:
+                conns.append(f'src: {peers_conn.src_peer}, dst: {peers_conn.dst_peer}, conn: {peers_conn.conns1}')
+
+        return explanation_description + ':\n' + '\n'.join(conns) + '\n'
 
 
 @dataclass
@@ -111,104 +326,29 @@ class CombinedExplanation:
     # the output_explanation is a combination of two explanation of different containment queries
     two_results_combined: list[OutputExplanation] = None
 
+    def get_explanation_in_yaml(self, _):
+        # computes and returns the yaml format of each list in self.two_results_combined
+        # and returns the results joined together
+        result = []
+        for explanation in self.two_results_combined:
+            result += (explanation.get_explanation_in_yaml()[0])
+        return result, None
 
-class QueryOutputHandler:
-    """
-    A class to handle the output of the query and create it in the correct form ,
-    output explanation is handled by it type
-    """
-    def __init__(self, configs):
-        """
-        :param list[str] configs: list of config(s) name(s)
-        """
-        self.configs_names = configs
-
-    def handle_explanation_by_type(self, explanation):
-        """
-        handles writing the output explanation according to its type - the field that is not None in the explanation
-         other than explanation_description
-        :param OutputExplanation explanation: the query's output explanation
-        """
-        if explanation.policies_with_intersect_pods:
-            self.write_policies_with_intersect_pods_explanation(explanation.explanation_description,
-                                                                explanation.policies_with_intersect_pods)
-        elif explanation.policies_and_rules:
-            self.write_policies_and_rules_explanations(explanation.explanation_description,
-                                                       explanation.policies_and_rules)
-        elif explanation.pods_lists:
-            self.write_pods_list_explanation(explanation.explanation_description, explanation.pods_lists)
-        elif explanation.connections_diff:
-            self.write_conns_diff_explanation(explanation.explanation_description, explanation.connections_diff)
-        elif explanation.combined_explanation:
-            for item in explanation.combined_explanation.two_results_combined:
-                self.handle_explanation_by_type(item)
-
-    def write_policies_and_rules_explanations(self, description, policies_and_rules_explanation):
-        """
-        updates the output explanation result of the PoliciesAndRulesExplanations field and its description in
-        the required format
-        :param str description: the relevant description of the output explanation in the query answer
-        :param  PoliciesAndRulesExplanations policies_and_rules_explanation: the policies_and_rules field of
-        OutputExplanation
-        """
-        if policies_and_rules_explanation.policies_list:
-            policies_description = 'Policies' + description
-            self._add_policies_to_explanation(policies_description, policies_and_rules_explanation.policies_list)
-        if policies_and_rules_explanation.policies_to_ingress_rules_dict:
-            ingress_description = 'Ingress rules' + description
-            self._add_rules_to_explanation(ingress_description,
-                                           policies_and_rules_explanation.policies_to_ingress_rules_dict)
-        if policies_and_rules_explanation.policies_to_egress_rules_dict:
-            egress_description = 'Egress rules' + description
-            self._add_rules_to_explanation(egress_description,
-                                           policies_and_rules_explanation.policies_to_egress_rules_dict, 'egress')
-
-    def write_pods_list_explanation(self, description, pods_list_explanation):
-        """
-        updates the output explanation result of PodsListsExplanations and its description in the required format
-        :param str description: the relevant description of the output explanation in the query answer
-        :param  PodsListsExplanations pods_list_explanation: the pods_lists field of
-        OutputExplanation
-        """
-        if not pods_list_explanation.add_xgress_suffix:
-            self._add_pods_list_to_explanation(description, pods_list_explanation.pods_list)
-        else:
-            if pods_list_explanation.pods_list:
-                ingress_description = description + 'ingress'
-                self._add_pods_list_to_explanation(ingress_description, pods_list_explanation.pods_list)
-            if pods_list_explanation.egress_pods_list:
-                egress_description = description + 'egress'
-                self._add_pods_list_to_explanation(egress_description, pods_list_explanation.egress_pods_list)
-
-    @abstractmethod
-    def write_policies_with_intersect_pods_explanation(self, description, explanation):
-        raise NotImplementedError
-
-    @abstractmethod
-    def _add_policies_to_explanation(self, policies_description, policies_list):
-        raise NotImplementedError
-
-    @abstractmethod
-    def _add_rules_to_explanation(self, xgress_description, policies_to_xgress_rules_dict, prefix='ingress'):
-        raise NotImplementedError
-
-    @abstractmethod
-    def _add_pods_list_to_explanation(self, description, pods_list):
-        raise NotImplementedError
-
-    @abstractmethod
-    def write_conns_diff_explanation(self, description, conns_diff_explanation):
-        raise NotImplementedError
+    def get_explanation_in_txt(self, _):
+        # computes and returns the txt format of each list in self.two_results_combined
+        # and returns the results concatenated
+        result = ''
+        for explanation in self.two_results_combined:
+            result += explanation.get_explanation_in_txt()
+        return result
 
 
-class YamlOutputHandler(QueryOutputHandler):
+class YamlOutputHandler:
     """
     A class to form the query output in Yaml format
     """
     def __init__(self, configs):
-        super().__init__(configs)
-        self.explanation_result_1 = []
-        self.explanation_result_2 = []
+        self.configs_names = configs
 
     def compute_query_output(self, query_answer, query_name):
         """
@@ -233,18 +373,19 @@ class YamlOutputHandler(QueryOutputHandler):
     def compute_yaml_explanation(self, generated_content, explanation):
         """
         computes the output_explanation of the query answer in Yaml format
-        :param dict generated_content: already generated yaml from fields of the query answer other than output_explanation
+        :param dict generated_content: already generated yaml from fields of the query answer other than
+        output_explanation
         :param OutputExplanation explanation: the output_explanation of the query answer
         :return: the yaml output of the query with its output explanation
         :rtype: str
         """
-        self.handle_explanation_by_type(explanation)
-        output_content_1 = generated_content
-        output_content_1.update({'explanation': self.explanation_result_1})
+        explanation_result_1,  explanation_result_2 = explanation.get_explanation_in_yaml()
+        output_content_1 = generated_content.copy()
+        output_content_1.update({'explanation': explanation_result_1})
         res1 = self.dump_content(output_content_1)
-        if self.explanation_result_2:  # two parallel yaml objects when connections differ in the configs
-            output_content_2 = generated_content
-            output_content_2.update({'explanation': self.explanation_result_2})
+        if explanation_result_2:  # two parallel yaml objects when connections differ in the configs
+            output_content_2 = generated_content.copy()
+            output_content_2.update({'explanation': explanation_result_2})
             res2 = self.dump_content(output_content_2)
             return res1 + res2
         return res1
@@ -253,152 +394,21 @@ class YamlOutputHandler(QueryOutputHandler):
     def dump_content(output_content):
         return yaml.dump(output_content, None, default_flow_style=False, sort_keys=False) + '---\n'
 
-    def write_policies_with_intersect_pods_explanation(self, description, policies_intersect_pods_explanation):
-        """
-        updates the explanation_result with the yaml format of IntersectPodsExplanation and its description
-        :param str description: the relevant description of this output explanation
-        :param  IntersectPodsExplanation policies_intersect_pods_explanation: the policies_with_intersect_pods
-         field of OutputExplanation
-        """
-        result = []
-        for item in policies_intersect_pods_explanation.policies_pods:
-            result.append({'policies': [item.first_policy.split(' ')[1], item.second_policy.split(' ')[1]],
-                           'pods': item.common_pods.split(', ')})
-        self.explanation_result_1.append({'description': description, 'examples': result})
 
-    def _add_policies_to_explanation(self, policies_description, policies_list):
-        """
-        updates the explanation result with the yaml format of policies list and its description
-        :param str policies_description: the relevant description of this output_explanation field of
-        PoliciesAndRulesExplanations
-        :param list[str] policies_list: policies list
-        """
-        self.explanation_result_1.append({'description': policies_description,
-                                          'policies': [policy.split()[1] for policy in policies_list]})
-
-    def _add_rules_to_explanation(self, xgress_description, policies_to_xgress_rules_dict, prefix='ingress'):
-        """
-        updates the explanation result with the yaml format of policies to ingress/egress rules and its description
-        :param str xgress_description: the relevant description of this output_explanation field of
-        PoliciesAndRulesExplanations
-        :param dict policies_to_xgress_rules_dict: policies to matching rules indexes
-        :param str prefix: indicates if rules types are ingress or egress
-        """
-        rules = []
-        for key, value in policies_to_xgress_rules_dict.items():
-            rules.append({'policy': key.split()[1], prefix + '_rules_indexes': [str(idx) for idx in value]})
-        self.explanation_result_1.append({'description': xgress_description, 'pairs': rules})
-
-    def _add_pods_list_to_explanation(self, description, pods_list):
-        """
-        updates the explanation result with the yaml format of pods lists and its description
-        :param str description: the relevant description of this output_explanation field of PodsListsExplanations
-        :param list[str] pods_list: pods names list
-        """
-        self.explanation_result_1.append({'description': description, 'pods': pods_list})
-
-    def write_conns_diff_explanation(self, description, conns_diff_explanation):
-        """
-        updates the explanation results with the yaml format of ConnectionsDiffExplanation and its description
-        if an additional description is given in the conns_diff_explanation parameter, then this explanation may
-         be formatted in two ways, thus two yaml results are produced for the query answer
-        :param str description: the relevant description of this output explanation
-        :param ConnectionsDiffExplanation conns_diff_explanation: the connections_diff field of OutputExplanation
-        """
-        conns1 = []
-        two_results = conns_diff_explanation.additional_description
-        conns2 = []
-        for peers_conn in conns_diff_explanation.peers_diff_connections_list:
-            conns1.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns1)})
-            if two_results:
-                conns2.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns2)})
-
-        self.explanation_result_1.append({'description': description, 'connections': conns1})
-        if two_results:
-            self.explanation_result_2.append({'description': conns_diff_explanation.additional_description,
-                                              'connections': conns2})
-
-
-class TxtOutputHandler(QueryOutputHandler):
+class TxtOutputHandler:
     """
     A class to form the query output in Txt format
     """
-    def __init__(self, configs):
-        super().__init__(configs)
-        self.explanation_result = ''
 
-    def compute_query_output(self, query_answer, _):
+    @staticmethod
+    def compute_query_output(query_answer):
         """
         computes the query output in Txt format
         :param QueryAnswer query_answer: the query answer - the result of the running query
-        :param Any _ : for compatibility call of this def of QueryOutputHandler
         :return txt format of the query answer
         :rtype: str
         """
         query_output = query_answer.output_result + '\n'
         if query_answer.output_explanation:
-            self.handle_explanation_by_type(query_answer.output_explanation)
-            query_output += self.explanation_result + '\n'
+            query_output += query_answer.output_explanation.get_explanation_in_txt()
         return query_output
-
-    def write_policies_with_intersect_pods_explanation(self, description, policies_intersect_pods_explanation):
-        """
-        updates the explanation_result with the txt format of IntersectPodsExplanation and its description
-        :param str description: the relevant description of this output explanation
-        :param  IntersectPodsExplanation policies_intersect_pods_explanation: the policies_with_intersect_pods
-        field of OutputExplanation
-        """
-        result = []
-        delimiter = ' '
-        for item in policies_intersect_pods_explanation.policies_pods:
-            result.append(f'{item.first_policy.split(delimiter)[0]}_1: {item.first_policy.split(delimiter)[1]}, '
-                          f'{item.second_policy.split(delimiter)[0]}_2: {item.second_policy.split(delimiter)[1]},'
-                          f' pods: {item.common_pods}')
-        self.explanation_result += description + ':\n' + '\n'.join(result)
-
-    def _add_policies_to_explanation(self, policies_description, policies_list):
-        """
-        updates the explanation result with the txt format of policies list and its description
-        :param str policies_description: the relevant description of this output_explanation field of
-        PoliciesAndRulesExplanations
-        :param list[str] policies_list: policies list
-        """
-        self.explanation_result += policies_description + ':\n' + ', '.join(policies_list) + '\n'
-
-    def _add_rules_to_explanation(self, xgress_description, policies_to_xgress_rules_dict, prefix='ingress'):
-        """
-        updates the explanation result with the txt format of policies to ingress/egress rules and its description
-        :param str xgress_description: the relevant description of this output_explanation field of
-        PoliciesAndRulesExplanations
-        :param dict policies_to_xgress_rules_dict: policies to matching rules indexes
-        :param str prefix: indicates if rules types are ingress or egress
-        """
-        self.explanation_result += '\n' + xgress_description + ':\n'
-        for key, value in policies_to_xgress_rules_dict.items():
-            self.explanation_result +=\
-                key + ', ' + prefix + ' rules indexes: ' + ', '.join(str(idx) for idx in value) + '\n'
-
-    def _add_pods_list_to_explanation(self, description, pods_list):
-        """
-        updates the explanation result with the txt format of pods lists and its description
-        :param str description: the relevant description of this output_explanation field of PodsListsExplanations
-        :param list[str] pods_list: pods names list
-        """
-        self.explanation_result += '\n' + description + ':\n' + ', '.join(pods_list) + '\n'
-
-    def write_conns_diff_explanation(self, description, conns_diff_explanation):
-        """
-        updates the explanation result with the txt format of ConnectionsDiffExplanation and its description
-        :param str description: the relevant description of this output explanation
-        :param ConnectionsDiffExplanation conns_diff_explanation: the connections_diff field of OutputExplanation
-        """
-        conns = []
-        conns_diff = conns_diff_explanation.additional_description
-        for peers_conn in conns_diff_explanation.peers_diff_connections_list:
-            if conns_diff:
-                conns.append(f'src: {peers_conn.src_peer}, dst: {peers_conn.dst_peer}, description: '
-                             f'{peers_conn.conns1.print_diff(peers_conn.conns2, self.configs_names[0], self.configs_names[1])}')  # noqa: E501
-            else:
-                conns.append(f'src: {peers_conn.src_peer}, dst: {peers_conn.dst_peer}, conn: {peers_conn.conns1}')
-
-        self.explanation_result += description + ':\n' + '\n'.join(conns) + '\n'

@@ -631,7 +631,6 @@ src: kube-system/vpn-858f6d9777-2bw5m, dst: vendor-system/barbar-app-vsh47, desc
 src: kube-system/vpn-858f6d9777-2bw5m, dst: vendor-system/foofoo-app-r66p2, description: TCP protocol - np-ports-based/testcase18-different-ranges-writing1 allows communication on [dst_ports=600] while np-ports-based/testcase18-different-ranges-writing-slightly-bigger does not
 src: kube-system/vpn-858f6d9777-2bw5m, dst: vendor-system/foofoo-app-zv2ch, description: TCP protocol - np-ports-based/testcase18-different-ranges-writing1 allows communication on [dst_ports=600] while np-ports-based/testcase18-different-ranges-writing-slightly-bigger does not
 
-
 np-ports-based/testcase18-different-ranges-writing-slightly-bigger interferes with np-ports-based/testcase18-different-ranges-writing1
 Allowed connections from np-ports-based/testcase18-different-ranges-writing1 which are extended in np-ports-based/testcase18-different-ranges-writing-slightly-bigger:
 src: kube-system/calico-kube-controllers-7694668c77-t6slc, dst: 0.0.0.0-255.255.255.255, description: np-ports-based/testcase18-different-ranges-writing-slightly-bigger allows communication using protocol UDP while np-ports-based/testcase18-different-ranges-writing1 does not.
