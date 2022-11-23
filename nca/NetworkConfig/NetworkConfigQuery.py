@@ -14,8 +14,8 @@ from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
-from nca.Utils.QueryOutputHandler import QueryAnswer, QueryOutputHandler, OutputExplanation, YamlOutputHandler,\
-    TxtOutputHandler, PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation
+from nca.Utils.QueryOutputHandler import QueryAnswer, OutputExplanation, YamlOutputHandler, TxtOutputHandler, \
+    PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation
 from .NetworkConfig import NetworkConfig
 from .NetworkLayer import NetworkLayerName
 
@@ -79,7 +79,8 @@ class BaseNetworkQuery:
         """
         query_name = self.output_config.queryName or type(self).__name__
         configs = self.get_configs_names()
-        output_handler = globals()[self.output_config.outputFormat.capitalize() + 'OutputHandler'](configs)
+        output_handler = YamlOutputHandler(configs) if self.output_config.outputFormat == 'yaml' \
+            else TxtOutputHandler(configs)
         return output_handler.compute_query_output(query_answer, query_name)
 
     @abstractmethod
