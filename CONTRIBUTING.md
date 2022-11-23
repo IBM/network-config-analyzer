@@ -2,35 +2,27 @@
 Our project welcomes external contributions. If you have an itch, please feel
 free to scratch it.
 
-### This md is under construction. For now, please refer to the information in README.md.
-
-To contribute code or documentation, please submit a **FIXME** [pull request](https://github.com/ibm/repo-template/pulls).
+To contribute code or documentation, please submit a [pull request](https://github.com/IBM/network-config-analyzer/pulls).
 
 A good way to familiarize yourself with the codebase and contribution process is
-to look for and tackle low-hanging fruit in the **FIXME** [issue tracker](https://github.com/ibm/repo-template/issues).
-Before embarking on a more ambitious contribution, please quickly [get in touch](#communication) with us.
-
-**Note: We appreciate your effort, and want to avoid a situation where a contribution
-requires extensive rework (by you or by us), sits in backlog for a long time, or
-cannot be accepted at all!**
+to look for and tackle low-hanging fruit in the [issue tracker](https://github.com/ibm/network-config-analyzer/issues).
 
 ### Proposing new features
 
-If you would like to implement a new feature, please **FIXME** [raise an issue](https://github.com/ibm/repo-template/issues)
+If you would like to implement a new feature, please [raise an issue](https://github.com/ibm/network-config-analyzer/issues)
 before sending a pull request so the feature can be discussed. This is to avoid
 you wasting your valuable time working on a feature that the project developers
 are not interested in accepting into the code base.
 
 ### Fixing bugs
 
-If you would like to fix a bug, please **FIXME** [raise an issue](https://github.com/ibm/repo-template/issues) before sending a
-pull request so it can be tracked.
+If you would like to fix a bug, please [raise an issue](https://github.com/ibm/network-config-analyzer/issues) before sending a
+pull request, so it can be tracked.
 
 ### Merge approval
 
-The project maintainers use LGTM (Looks Good To Me) in comments on the code
-review to indicate acceptance. A change requires LGTMs from two of the
-maintainers of each component affected.
+The project maintainers will review any proposed code in a pull request. A change requires approval from at least one of the
+maintainers.
 
 For a list of the maintainers, see the [MAINTAINERS.md](MAINTAINERS.md) page.
 
@@ -71,16 +63,54 @@ git commit -s
 ```
 
 ## Communication
-**FIXME** Please feel free to connect with us on our [Slack channel](link).
+Please feel free to email each one of the [maintainers](MAINTAINERS.md).
 
 ## Setup
-**FIXME** Please add any special setup instructions for your project to help the developer
-become productive quickly.
+To set up a development environment follow the instructions below.
+### Linux
+```shell
+git clone git@github.com:IBM/network-config-analyzer.git
+cd network-config-analyzer
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+### Windows (using [Git bash](https://git-scm.com/downloads))
+```shell
+git clone git@github.com:IBM/network-config-analyzer.git
+cd network-config-analyzer
+python -m venv venv
+source venv/Scripts/activate
+pip install -r requirements.txt
+```
+
+Verify your setup by running `python -m nca -h`. You should get NCA's usage text.
+
+We recommend using either [PyCharm](https://www.jetbrains.com/pycharm/) or [VSCode](https://code.visualstudio.com/) for writing your Python code.
 
 ## Testing
-**FIXME** Please provide information that helps the developer test any changes they make
-before submitting.
+Please run both unit testing and end-to-end testing, and make sure they pass before opening a pull request.
+
+Running unit testing from the project root directory:
+```shell
+PYTHONPATH=$PWD python tests/run_unittests.py
+```
+
+Running end-to-end tests from the project root directory:
+```shell
+PYTHONPATH=$PWD python tests/run_all_tests.py
+```
 
 ## Coding style guidelines
-**FIXME** Optional, but recommended: please share any specific style guidelines you might
-have for your project.
+We use [flake8](https://flake8.pycqa.org/en/latest/) to loosely enforce style.
+
+Install *flake8* to your virtual environment:
+```shell
+pip install flake8
+```
+
+Run *flake8* from the project root directory to check style:
+```shell
+flake8 nca --max-complexity=15 --max-line-length=127
+```
