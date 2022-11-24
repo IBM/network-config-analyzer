@@ -1298,7 +1298,8 @@ class InterferesQuery(TwoNetworkConfigsQuery):
     def exec(self, cmd_line_flag):
         query_answer = self.is_identical_topologies()
         if query_answer.output_result:
-            query_answer.numerical_result = query_answer.bool_result if not cmd_line_flag else not query_answer.bool_result
+            query_answer.numerical_result = query_answer.bool_result if not cmd_line_flag \
+                else not query_answer.bool_result
             return query_answer
 
         peers_to_compare = self.config2.peer_container.get_all_peers_group()
@@ -1310,13 +1311,13 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                 if peer1 == peer2:
                     continue
 
-                _, captured1_flag, conns1_captured, _ = self.config2.allowed_connections(peer1, peer2)
-                if not captured1_flag:
+                _, captured2_flag, conns2_captured, _ = self.config2.allowed_connections(peer1, peer2)
+                if not captured2_flag:
                     continue
-                _, captured2_flag, conns2_captured, _ = self.config1.allowed_connections(peer1, peer2)
-                if captured2_flag and not conns2_captured.contained_in(conns1_captured):
-                    extended_conns_list.append(PeersAndConnections(str(peer1), str(peer2), conns2_captured,
-                                                                   conns1_captured))
+                _, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
+                if captured1_flag and not conns1_captured.contained_in(conns2_captured):
+                    extended_conns_list.append(PeersAndConnections(str(peer1), str(peer2), conns1_captured,
+                                                                   conns2_captured))
                     if not self.output_config.fullExplanation:
                         return self._query_answer_with_relevant_explanation(extended_conns_list, cmd_line_flag)
         if extended_conns_list:
