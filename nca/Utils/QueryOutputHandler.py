@@ -53,11 +53,12 @@ class OutputExplanation:
         """
         computes and returns the output explanation is yaml format.
         An OutputExplanation object may have only one field representing the explanation data besides to
-        explanation_description, so the output is computed by calling the get_explanation_in_txt method of this field
-        :return the explanation written with its description in a list of dict pattern that matches yaml dump later
-        A ConnectionsDiffExplanation may create two parallel results for one explanation, so return value might
-        consist of two explanation results or one with None as second result
-         :rtype: Union[[list[dict], None], [list[dict], list[dict]]
+        explanation_description, so the output is computed by calling the get_explanation_in_yaml method of this field
+        :return the explanation written with its description in a list of dict objects pattern which matches yaml dump
+        later.
+        A single dict pattern is {'description' : <explanation_description_str> ,
+        <key_name>: <list of examples matching the result> }
+         :rtype: list[dict]
         """
         for val in self.__dict__.values():
             if not isinstance(val, str) and val is not None:
@@ -90,13 +91,13 @@ class IntersectPodsExplanation:
         """
         returns yaml format of self type of OutputExplanation
         :param explanation_description: the relevant description of this output explanation
-        :rtype: list[dict], None
+        :rtype: list[dict]
         """
         examples = []
         for record in self.policies_pods:
             examples.append({'policies': [record.first_policy.split(' ')[1], record.second_policy.split(' ')[1]],
                              'pods': record.common_pods.split(', ')})
-        return [{'description': explanation_description, 'examples': examples}], None
+        return [{'description': explanation_description, 'examples': examples}]
 
     def get_explanation_in_txt(self, explanation_description):
         """
@@ -147,7 +148,7 @@ class PoliciesAndRulesExplanations:
         """
         returns yaml format of self type of OutputExplanation
         :param explanation_description: the relevant description of this output explanation
-        :rtype: list[dict], None
+        :rtype: list[dict]
         """
         result = []
         if self.policies_list:
@@ -160,7 +161,7 @@ class PoliciesAndRulesExplanations:
             egress_description = self._get_xgress_description(explanation_description, prefix='Egress')
             result.append(self._add_rules_to_yaml_explanation(egress_description, self.policies_to_egress_rules_dict,
                                                               'egress'))
-        return result, None
+        return result
 
     @staticmethod
     def _add_rules_to_txt_explanation(xgress_description, xgress_rules_dict, prefix='ingress'):
@@ -219,7 +220,7 @@ class PodsListsExplanations:
         """
         returns yaml format of self type of OutputExplanation
         :param explanation_description: the relevant description of this output explanation
-        :rtype: list[dict], None
+        :rtype: list[dict]
         """
         if not self.add_xgress_suffix:
             return list(self._add_pods_list_to_yaml_explanation(explanation_description, self.pods_list))
@@ -231,7 +232,7 @@ class PodsListsExplanations:
             result.append(self._add_pods_list_to_yaml_explanation(self._get_xgress_description(explanation_description,
                                                                                                'egress'),
                                                                   self.egress_pods_list))
-        return result, None
+        return result
 
     @staticmethod
     def _add_pods_list_to_txt_explanation(description, pods_list):
@@ -283,28 +284,31 @@ class ConnectionsDiffExplanation:
     def get_explanation_in_yaml(self, explanation_description):
         """
          returns the explanation results in the yaml format of ConnectionsDiffExplanation and its description
-        if the additional description is given, then this explanation may
-         be formatted in two ways, thus two yaml results are produced for the query answer
+        if the additional description is given, then this explanation is computed twice for each pair
+        and the explanation list will contain 2 dict objects, one for each computation direction, with the relevant
+        description for each
         :param str explanation_description: the relevant description of this output explanation
-        :rtype Union[[list[dict], list[dict]],[list[dict], None]]
+        :rtype list[dict]
         """
         conns1 = []
         two_results = self.additional_description
         conns2 = []
-        result2 = None
+        result_part_2 = []
         for peers_conn in self.peers_diff_connections_list:
             conns1.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns1)})
             if two_results:
                 conns2.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns2)})
 
-        result1 = [{'description': explanation_description, 'connections': conns1}]
+        result_part_1 = [{'description': explanation_description, 'connections': conns1}]
         if two_results:
-            result2 = [{'description': self.additional_description, 'connections': conns2}]
-        return result1, result2
+            result_part_2 = [{'description': self.additional_description, 'connections': conns2}]
+        return result_part_1 + result_part_2
 
     def get_explanation_in_txt(self, explanation_description):
         """
         returns the explanation result with the txt format of ConnectionsDiffExplanation and its description
+        when having conns1 and conns2 in PeersAndConnections items, the diff between connection of each pair is printed
+        otherwise (having only conns1, connections from first config is printed)
         :param str explanation_description: the relevant description of this output explanation
         :rtype str
         """
@@ -331,8 +335,8 @@ class CombinedExplanation:
         # and returns the results joined together
         result = []
         for explanation in self.two_results_combined:
-            result += (explanation.get_explanation_in_yaml()[0])
-        return result, None
+            result += explanation.get_explanation_in_yaml()
+        return result
 
     def get_explanation_in_txt(self, _):
         # computes and returns the txt format of each list in self.two_results_combined
@@ -347,48 +351,27 @@ class YamlOutputHandler:
     """
     A class to form the query output in Yaml format
     """
-    def __init__(self, configs):
+    def __init__(self, configs, query_name):
         self.configs_names = configs
+        self.query_name = query_name
 
-    def compute_query_output(self, query_answer, query_name):
+    def compute_query_output(self, query_answer):
         """
         computes the query output in Yaml format
         :param QueryAnswer query_answer: the query answer - the result of the running query
-        :param str query_name: name of the running query
         :return yaml format of the query answer
         :rtype: str
         """
-        query_name = query_name
-        output_content = {'query': query_name, 'configs': self.configs_names}
+        output_content = {'query': self.query_name, 'configs': self.configs_names}
         if query_answer.query_not_executed:
             output_content.update({'executed': 0, 'description': query_answer.output_result})
             return self.dump_content(output_content)
-
         output_content.update({'numerical_result': int(query_answer.numerical_result)})
         output_content.update({'textual_result': query_answer.output_result})
         if query_answer.output_explanation:
-            return self.compute_yaml_explanation(output_content, query_answer.output_explanation)
+            explanation_result = query_answer.output_explanation.get_explanation_in_yaml()
+            output_content.update({'explanation': explanation_result})
         return self.dump_content(output_content)
-
-    def compute_yaml_explanation(self, generated_content, explanation):
-        """
-        computes the output_explanation of the query answer in Yaml format
-        :param dict generated_content: already generated yaml from fields of the query answer other than
-        output_explanation
-        :param OutputExplanation explanation: the output_explanation of the query answer
-        :return: the yaml output of the query with its output explanation
-        :rtype: str
-        """
-        explanation_result_1,  explanation_result_2 = explanation.get_explanation_in_yaml()
-        output_content_1 = generated_content.copy()
-        output_content_1.update({'explanation': explanation_result_1})
-        res1 = self.dump_content(output_content_1)
-        if explanation_result_2:  # two parallel yaml objects when connections differ in the configs
-            output_content_2 = generated_content.copy()
-            output_content_2.update({'explanation': explanation_result_2})
-            res2 = self.dump_content(output_content_2)
-            return res1 + res2
-        return res1
 
     @staticmethod
     def dump_content(output_content):
@@ -401,11 +384,10 @@ class TxtOutputHandler:
     """
 
     @staticmethod
-    def compute_query_output(query_answer, _):
+    def compute_query_output(query_answer):
         """
         computes the query output in Txt format
         :param QueryAnswer query_answer: the query answer - the result of the running query
-        :param Any _ : for compatibility call of this def
         :return txt format of the query answer
         :rtype: str
         """

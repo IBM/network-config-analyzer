@@ -79,9 +79,9 @@ class BaseNetworkQuery:
         """
         query_name = self.output_config.queryName or type(self).__name__
         configs = self.get_configs_names()
-        output_handler = YamlOutputHandler(configs) if self.output_config.outputFormat == 'yaml' \
+        output_handler = YamlOutputHandler(configs, query_name) if self.output_config.outputFormat == 'yaml' \
             else TxtOutputHandler()
-        return output_handler.compute_query_output(query_answer, query_name)
+        return output_handler.compute_query_output(query_answer)
 
     @abstractmethod
     def execute(self, cmd_line_flag):

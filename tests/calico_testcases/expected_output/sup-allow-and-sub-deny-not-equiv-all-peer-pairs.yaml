@@ -79,14 +79,6 @@ explanation:
   - src: kube-system/storage-watcher-8494b4b8bb-f8csd
     dst: kube-system/vpn-858f6d9777-2bw5m
     conn: 'Protocol: TCP, '
----
-query: supAllow_and_subDeny_not_equiv_all_peer_pairs_yaml
-configs:
-- np_SupsetAllowFirst
-- np_SubsetDenyFirst
-numerical_result: 1
-textual_result: np_SupsetAllowFirst and np_SubsetDenyFirst are not semantically equivalent.
-explanation:
 - description: Connections allowed in np_SubsetDenyFirst which are different in np_SupsetAllowFirst
   connections:
   - src: kube-system/file-plugin-7bfb8b69bf-p86gk

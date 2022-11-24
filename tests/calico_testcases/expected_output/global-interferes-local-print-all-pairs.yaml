@@ -223,14 +223,6 @@ explanation:
   - src: kube-system/vpn-858f6d9777-2bw5m
     dst: default/cog-local-analyzer-7d77fb55cc-bs8rc
     conn: All connections
----
-query: global_interferes_local_print_all_pairs
-configs:
-- global_np
-- local_np
-numerical_result: 1
-textual_result: global_np interferes with local_np
-explanation:
 - description: The narrow connections in local_np
   connections:
   - src: default/cog-agents-d54st
