@@ -846,9 +846,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         output_result = self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.'
         explanation_description = f'Connections allowed in {self.name1} which are different in {self.name2}'
         final_explanation = ConnectionsDiffExplanation(peers_diff_connections_list=explanation_list,
-                                                       additional_description=f'Connections allowed in {self.name2} '
-                                                                              f'which are different in {self.name1}',
-                                                       configs=self.get_configs_names())
+                                                       configs=self.get_configs_names(), conns_diff=True)
         return QueryAnswer(False, output_result,
                            output_explanation=OutputExplanation(explanation_description=explanation_description,
                                                                 connections_diff=final_explanation),
@@ -1329,8 +1327,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
         interfere_result_msg = self.name1 + ' interferes with ' + self.name2
         explanation_description = f'Allowed connections from {self.name2} which are extended in {self.name1}'
         final_explanation = ConnectionsDiffExplanation(peers_diff_connections_list=explanation_list,
-                                                       additional_description=f'The narrow connections in {self.name2}',
-                                                       configs=self.get_configs_names())
+                                                       configs=self.get_configs_names(), conns_diff=True)
         return QueryAnswer(True, interfere_result_msg,
                            output_explanation=OutputExplanation(explanation_description=explanation_description,
                                                                 connections_diff=final_explanation),

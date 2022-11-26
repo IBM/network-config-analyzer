@@ -277,45 +277,43 @@ class PeersAndConnections:
 class ConnectionsDiffExplanation:
     # used in TwoNetworkConfigs queries that compare connections of pairs of peers in both configs
     peers_diff_connections_list: list[PeersAndConnections] = None
-    additional_description: str = ''
     configs: list[str] = None  # configs names are relevant only when we have the conns1 and conns2 in
     # PeersAndConnections items , so we need them when calling ConnectionSet.print_diff in get_explanation_in_txt
+    conns_diff: bool = False
 
     def get_explanation_in_yaml(self, explanation_description):
         """
          returns the explanation results in the yaml format of ConnectionsDiffExplanation and its description
-        if the additional description is given, then this explanation is computed twice for each pair
-        and the explanation list will contain 2 dict objects, one for each computation direction, with the relevant
-        description for each
+        if self.conns_diff is True, i.e. PeersAndConnections items contain two connections, then for each
+        (src, dst) pair , connections from both configs will be presented to emphasize the differences
         :param str explanation_description: the relevant description of this output explanation
         :rtype list[dict]
         """
-        conns1 = []
-        two_results = self.additional_description
-        conns2 = []
-        result_part_2 = []
+        conns_lists = []
         for peers_conn in self.peers_diff_connections_list:
-            conns1.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns1)})
-            if two_results:
-                conns2.append({'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer, 'conn': str(peers_conn.conns2)})
+            example_dict = {'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer}
+            if self.conns_diff:
+                key_1 = f'conns in {self.configs[0]}'
+                key_2 = f'conns in {self.configs[1]}'
+                example_dict.update({key_1: str(peers_conn.conns1), key_2: str(peers_conn.conns2)})
+            else:
+                example_dict.update({'conn': str(peers_conn.conns1)})
+            conns_lists.append(example_dict)
 
-        result_part_1 = [{'description': explanation_description, 'connections': conns1}]
-        if two_results:
-            result_part_2 = [{'description': self.additional_description, 'connections': conns2}]
-        return result_part_1 + result_part_2
+        return [{'description': explanation_description, 'connections': conns_lists}]
 
     def get_explanation_in_txt(self, explanation_description):
         """
         returns the explanation result with the txt format of ConnectionsDiffExplanation and its description
-        when having conns1 and conns2 in PeersAndConnections items, the diff between connection of each pair is printed
+        when self.conns_diff is True, i.e. having conns1 and conns2 in PeersAndConnections items, the diff between
+        connection of each pair is printed
         otherwise (having only conns1, connections from first config is printed)
         :param str explanation_description: the relevant description of this output explanation
         :rtype str
         """
         conns = []
-        conns_diff = self.additional_description
         for peers_conn in self.peers_diff_connections_list:
-            if conns_diff:
+            if self.conns_diff:
                 conns.append(f'src: {peers_conn.src_peer}, dst: {peers_conn.dst_peer}, description: '
                              f'{peers_conn.conns1.print_diff(peers_conn.conns2, self.configs[0], self.configs[1])}')
             else:
