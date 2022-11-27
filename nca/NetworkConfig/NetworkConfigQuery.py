@@ -14,7 +14,7 @@ from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
-from nca.Utils.QueryOutputHandler import QueryAnswer, OutputExplanation, YamlOutputHandler, TxtOutputHandler, \
+from .QueryOutputHandler import QueryAnswer, OutputExplanation, YamlOutputHandler, TxtOutputHandler, \
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, CombinedExplanation,\
     IntersectPodsExplanation, PoliciesWithCommonPods, PeersAndConnections
 from .NetworkLayer import NetworkLayerName
