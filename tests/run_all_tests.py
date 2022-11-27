@@ -29,7 +29,8 @@ script should be run with one of the following types:
                                     relevant only for connectivityMap/SemanticDiff queries)
     --override_expected_output_files (when expected output is specified, will be updated. 
                                     relevant only for connectivityMap/SemanticDiff queries)
-
+    
+    HELM cli tests should start with "helm_" so they can be skipped when HELM is not installed.
 """
 
 
