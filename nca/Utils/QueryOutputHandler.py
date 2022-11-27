@@ -293,9 +293,7 @@ class ConnectionsDiffExplanation:
         for peers_conn in self.peers_diff_connections_list:
             example_dict = {'src': peers_conn.src_peer, 'dst': peers_conn.dst_peer}
             if self.conns_diff:
-                key_1 = f'conns in {self.configs[0]}'
-                key_2 = f'conns in {self.configs[1]}'
-                example_dict.update({key_1: str(peers_conn.conns1), key_2: str(peers_conn.conns2)})
+                example_dict.update({'conns_config1': str(peers_conn.conns1), 'conns_config2': str(peers_conn.conns2)})
             else:
                 example_dict.update({'conn': str(peers_conn.conns1)})
             conns_lists.append(example_dict)
