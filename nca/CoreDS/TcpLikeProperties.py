@@ -232,8 +232,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
-        if isinstance(other, TcpLikeProperties):
-            self.base_peer_set |= other.base_peer_set
         super().__iand__(other)
         return self
 
@@ -262,8 +260,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
-#        if isinstance(other, TcpLikeProperties):
-#            self.base_peer_set |= other.base_peer_set
         super().__isub__(other)
         return self
 
