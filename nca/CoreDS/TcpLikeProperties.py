@@ -138,7 +138,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             if dim == 'methods':
                 values_list = str(dim_values)
             elif dim == "peers":
-                values_list = self.base_peer_set.get_peer_list_by_indices(dim_values)
+                values_list = self.base_peer_set.get_peer_set_by_indices(dim_values)
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = dim_values.get_interval_set_list_numbers_and_ranges()
                 if is_txt:
@@ -166,7 +166,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
-            assert self.base_peer_set == other.base_peer_set
+            assert not self.base_peer_set or not other.base_peer_set or self.base_peer_set == other.base_peer_set
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
@@ -188,16 +188,20 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return res
 
     def __iand__(self, other):
-        assert not isinstance(other, TcpLikeProperties) or self.base_peer_set == other.base_peer_set
+        assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
+               not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__iand__(other)
         return self
 
     def __ior__(self, other):
-        assert not isinstance(other, TcpLikeProperties) or self.base_peer_set == other.base_peer_set
+        assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
+               not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.excluded_named_ports
         assert not isinstance(other, TcpLikeProperties) or not other.excluded_named_ports
+        if isinstance(other, TcpLikeProperties):
+            self.base_peer_set |= other.base_peer_set
         super().__ior__(other)
         if isinstance(other, TcpLikeProperties):
             res_named_ports = dict({})
@@ -212,7 +216,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return self
 
     def __isub__(self, other):
-        assert not isinstance(other, TcpLikeProperties) or self.base_peer_set == other.base_peer_set
+        assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
+               not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__isub__(other)
@@ -224,7 +229,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
-        assert not isinstance(other, TcpLikeProperties) or self.base_peer_set == other.base_peer_set
+        assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
+               not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not other.has_named_ports()
         return super().contained_in(other)
