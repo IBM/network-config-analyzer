@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.MinDFA import MinDFA
+from nca.CoreDS.MethodSet import MethodSet
 from .K8sService import K8sService
 
 
@@ -93,7 +94,7 @@ class VirtualService:
         def __init__(self):
             self.uri_dfa = None
 #            self.scheme_dfa = None  # not supported yet
-            self.method_dfa = None
+            self.methods = MethodSet()
 #            self.authority_dfa = None  # not supported yet
             self.destinations = []
 
@@ -107,15 +108,15 @@ class VirtualService:
             else:
                 self.uri_dfa = uri_dfa
 
-        def add_method_dfa(self, method_dfa):
+        def add_methods(self, methods):
             """
-            Adds a method_dfa to the http route
-            :param MinDFA method_dfa: the method_dfa to add
+            Adds methods to the http route
+            :param MethodSet methods: the methods to add
             """
-            if self.method_dfa:
-                self.method_dfa |= method_dfa
+            if self.methods:
+                self.methods |= methods
             else:
-                self.method_dfa = method_dfa
+                self.methods = methods.copy()
 
         def add_destination(self, service, port):
             """

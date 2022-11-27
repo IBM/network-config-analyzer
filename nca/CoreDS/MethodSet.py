@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import re
 from .CanonicalIntervalSet import CanonicalIntervalSet
 
 
@@ -19,6 +20,35 @@ class MethodSet(CanonicalIntervalSet):
         super().__init__()
         if all_methods:  # the whole range
             self.add_interval(self._whole_range_interval())
+
+    def add_method(self, method):
+        """
+        Adds a given method to the MethodSet if the method is one of the eligible methods (in all_methods_list);
+        otherwise raises ValueError exception
+        :param str method: the method to add
+        """
+        try:
+            index = self.all_methods_list.index(method)
+        except ValueError:
+            assert False
+        self.add_interval(self.Interval(index, index))
+
+    def add_methods_from_regex(self, methods_regex):
+        """
+        Adds all methods in methods_regex to the MethodSet
+        :param str methods_regex:
+        """
+        for index, method in enumerate(self.all_methods_list):
+            if re.match(methods_regex, method):
+                self.add_interval(self.Interval(index, index))
+
+    def set_methods(self, methods):
+        """
+        Sets all methods from the given parameter
+        :param CanonicalIntervalSet methods: the methods to set
+        """
+        for interval in methods:
+            self.add_interval(interval)
 
     @staticmethod
     def _whole_range_interval():
