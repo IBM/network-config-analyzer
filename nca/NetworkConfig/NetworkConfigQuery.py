@@ -148,9 +148,12 @@ class DisjointnessQuery(NetworkConfigQuery):
                         break
                     intersection = policy1.selected_peers & policy2.selected_peers
                     if intersection:
-                        common_pods = str(intersection) if self.output_config.fullExplanation else intersection.rep()
-                        non_disjoint_explanation_list.append(PoliciesWithCommonPods(self.policy_title(policy1),
-                                                                                    self.policy_title(policy2),
+                        common_pods = sorted([str(e) for e in intersection]) if self.output_config.fullExplanation \
+                            else [intersection.rep()]
+                        non_disjoint_explanation_list.append(PoliciesWithCommonPods(policy1.policy_type_str(),
+                                                                                    policy1.full_name(),
+                                                                                    policy2.policy_type_str(),
+                                                                                    policy2.full_name(),
                                                                                     common_pods))
 
         if not non_disjoint_explanation_list:
@@ -1169,7 +1172,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
         peers_in_config1_not_in_config2 = config1_peers - self.config2.peer_container.get_all_peers_group()
         if peers_in_config1_not_in_config2:
             peers_list = [str(e) for e in peers_in_config1_not_in_config2]
-            final_explanation = PodsListsExplanations(pods_list=peers_list)
+            final_explanation = PodsListsExplanations(pods_list=sorted(peers_list))
             explanation_description = f'Pods in {self.name1} which are not in {self.name2}'
             return QueryAnswer(False, f'{self.name1} is not contained in {self.name2} ',
                                output_explanation=OutputExplanation(explanation_description=explanation_description,

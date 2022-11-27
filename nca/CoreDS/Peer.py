@@ -528,9 +528,6 @@ class PeerSet(set):
         self.update_sorted_peer_list()
         return hash(','.join(str(peer.full_name()) for peer in self.sorted_peer_list))
 
-    def __str__(self):
-        return ', '.join(sorted(list(str(peer) for peer in self)))
-
     def rep(self):
         """
         Returns a representing peer from the set of peers

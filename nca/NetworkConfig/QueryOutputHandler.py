@@ -72,14 +72,18 @@ class PoliciesWithCommonPods:
     """
     A class for holding information of pairs of policies with common pods
     """
-    first_policy: str = ''
-    second_policy: str = ''
-    common_pods: str = ''
+    first_policy_type: str = ''  # the type of the first policy
+    first_policy_name: str = ''  # the name of the first policy
+    second_policy_type: str = ''  # the type of the second policy
+    second_policy_name: str = ''  # the name of the second policy
+    common_pods: list[str] = None
 
     def __lt__(self, other):
-        if self.first_policy == other.first_policy:
-            return self.second_policy < other.second_policy
-        return self.first_policy < other.first_policy
+        if self.first_policy_type == other.first_policy_type:
+            if self.first_policy_name == other.first_policy_name:
+                return self.second_policy_name < other.second_policy_name
+            return self.first_policy_name < other.first_policy_name
+        return self.first_policy_type < other.first_policy_type
 
 
 @dataclass
@@ -95,8 +99,8 @@ class IntersectPodsExplanation:
         """
         examples = []
         for record in self.policies_pods:
-            examples.append({'policies': [record.first_policy.split(' ')[1], record.second_policy.split(' ')[1]],
-                             'pods': record.common_pods.split(', ')})
+            examples.append({'policies': [record.first_policy_name, record.second_policy_name],
+                             'pods': record.common_pods})
         return [{'description': explanation_description, 'examples': examples}]
 
     def get_explanation_in_txt(self, explanation_description):
@@ -106,11 +110,11 @@ class IntersectPodsExplanation:
         :rtype: str
         """
         result = []
-        delimiter = ' '
+        comma = ', '  # used for writing the list of pods joined by comma inline
         for record in self.policies_pods:
-            result.append(f'{record.first_policy.split(delimiter)[0]}_1: {record.first_policy.split(delimiter)[1]}, '
-                          f'{record.second_policy.split(delimiter)[0]}_2: {record.second_policy.split(delimiter)[1]},'
-                          f' pods: {record.common_pods}')
+            result.append(f'{record.first_policy_type}_1: {record.first_policy_name}, '
+                          f'{record.second_policy_type}_2: {record.second_policy_name},'
+                          f' pods: {comma.join(record.common_pods)}')
         return explanation_description + ':\n' + '\n'.join(result)
 
 
@@ -118,7 +122,7 @@ class IntersectPodsExplanation:
 class PoliciesAndRulesExplanations:
     # used in RedundancyQuery and EmptinessQuery: we may have lists of redundant/empty policies or
     # maps of policies to redundant/empty ingress/egress rules indexes
-    policies_list: list[str] = None
+    policies_list: list[str] = None  # policy titles list, i.e. each element's form is: <policy_type> <policy_full_name>
     policies_to_ingress_rules_dict: dict[str, list[int]] = None
     policies_to_egress_rules_dict: dict[str, list[int]] = None
 
