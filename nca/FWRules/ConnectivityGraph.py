@@ -314,12 +314,14 @@ class ConnectivityGraphOptimized(ConnectivityGraphPrototype):
         :return: None
         """
         new_cube_dict = cube_dict.copy()
-        src_peers = new_cube_dict['src_peers'] or PeerSet()
-        dst_peers = new_cube_dict['dst_peers'] or PeerSet()
+        src_peers = new_cube_dict.get('src_peers') or PeerSet()
+        dst_peers = new_cube_dict.get('dst_peers') or PeerSet()
         self.peer_sets.add(src_peers)
         self.peer_sets.add(dst_peers)
-        new_cube_dict.pop('src_peers')
-        new_cube_dict.pop('dst_peers')
+        if src_peers:
+            new_cube_dict.pop('src_peers')
+        if dst_peers:
+            new_cube_dict.pop('dst_peers')
         self.edges.append((src_peers, dst_peers, new_cube_dict))
 
     def get_connectivity_dot_format_str(self):

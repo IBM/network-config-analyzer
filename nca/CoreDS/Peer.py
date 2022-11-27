@@ -448,9 +448,21 @@ class PeerSet(set):
     Note #2: __contains__ is implemented under the assumption that item arg is from disjoint_ip_blocks()
     """
 
+    ipv4_highest_number = int(ip_network('0.0.0.0/0').broadcast_address)
+    ipv6_highest_number = int(ip_network('::/0').broadcast_address)
+    pod_highest_number = 9999  # assuming maximum 10,000 pods
+    gap_width = 5  # the gap is needed to avoid mixed-type intervals union
+    min_ipv4_index = 0
+    max_ipv4_index = min_ipv4_index + ipv4_highest_number
+    min_ipv6_index = max_ipv4_index + gap_width
+    max_ipv6_index = min_ipv6_index + ipv6_highest_number
+    min_pod_index = max_ipv6_index + gap_width
+    max_pod_index = min_pod_index + pod_highest_number
+
     def __init__(self, peer_set=None):
         super().__init__(peer_set or set())
         self.sorted_peer_list = []  # for converting PeerSet to CanonicalIntervalSet
+        self.last_size_when_updated_sorted_peer_list = 0
 
     def __contains__(self, item):
         if isinstance(item, IpBlock):  # a special check here because an IpBlock may be contained in another IpBlock
@@ -477,6 +489,7 @@ class PeerSet(set):
         # res = PeerSet(set(elem.copy() for elem in self))
         res = PeerSet(super().copy())
         res.sorted_peer_list = self.sorted_peer_list
+        res.last_size_when_updated_sorted_peer_list = self.last_size_when_updated_sorted_peer_list
         return res
 
     # TODO: what is expected for ipblock name/namespace result on intersection?
@@ -525,7 +538,7 @@ class PeerSet(set):
         Note: PeerSet is a mutable type. Use with caution!
         :return: hash value for this object.
         """
-        self.update_sorted_peer_list()
+        self.update_sorted_peer_list_if_needed()
         return hash(','.join(str(peer.full_name()) for peer in self.sorted_peer_list))
 
     def rep(self):
@@ -554,12 +567,23 @@ class PeerSet(set):
                 res |= elem
         return res
 
-    def update_sorted_peer_list(self):
+    @staticmethod
+    def get_all_peers_and_ip_blocks_interval():
+        res = CanonicalIntervalSet()
+        res.add_interval(CanonicalIntervalSet.Interval(PeerSet.min_ipv4_index, PeerSet.max_ipv4_index))
+        res.add_interval(CanonicalIntervalSet.Interval(PeerSet.min_ipv6_index, PeerSet.max_ipv6_index))
+        res.add_interval(CanonicalIntervalSet.Interval(PeerSet.min_pod_index, PeerSet.max_pod_index))
+        return res
+
+    def update_sorted_peer_list_if_needed(self):
         """
         create self.sorted_peer_list from non IpBlock pods
         :return: None
         """
-        self.sorted_peer_list = sorted(list(elem for elem in self), key=by_full_name)
+        if self.last_size_when_updated_sorted_peer_list != len(self):
+            self.sorted_peer_list = \
+                sorted(list(elem for elem in self if not isinstance(elem, IpBlock)), key=by_full_name)
+            self.last_size_when_updated_sorted_peer_list = len(self)
 
     def get_peer_interval_of(self, peer_set):
         """
@@ -568,12 +592,24 @@ class PeerSet(set):
         :return: CanonicalIntervalSet for the peer_set
         """
         res = CanonicalIntervalSet()
-        if len(self.sorted_peer_list) != len(self):
-            # should update sorted_peer_list
-            self.update_sorted_peer_list()
+        self.update_sorted_peer_list_if_needed()
         for index, peer in enumerate(self.sorted_peer_list):
             if peer in peer_set:
-                res.add_interval(CanonicalIntervalSet.Interval(index, index))
+                assert not isinstance(peer, IpBlock)
+                res.add_interval(CanonicalIntervalSet.Interval(self.min_pod_index + index,
+                                                               self.min_pod_index + index))
+        # Now pick IpBlocks
+        for ipb in peer_set:
+            if isinstance(ipb, IpBlock):
+                for cidr in ipb:
+                    if isinstance(cidr.start.address, ipaddress.IPv4Address):
+                        res.add_interval(CanonicalIntervalSet.Interval(self.min_ipv4_index + int(cidr.start),
+                                                                       self.min_ipv4_index + int(cidr.end)))
+                    elif isinstance(cidr.start.address, ipaddress.IPv6Address):
+                        res.add_interval(CanonicalIntervalSet.Interval(self.min_ipv6_index + int(cidr.start),
+                                                                       self.min_ipv6_index + int(cidr.end)))
+                    else:
+                        assert False
         return res
 
     def get_peer_set_by_indices(self, peer_inteval_set):
@@ -582,31 +618,29 @@ class PeerSet(set):
         :param peer_inteval_set: the interval set of indices into the sorted peer list
         :return: the list of peers referenced by the indices in the interval set
         """
-        my_len = len(self)
-        if len(self.sorted_peer_list) != my_len:
-            self.update_sorted_peer_list()
+        self.update_sorted_peer_list_if_needed()
         peer_list = []
         for interval in peer_inteval_set:
-            for ind in range(min(interval.start, my_len), min(interval.end + 1, my_len)):
-                peer_list.append(self.sorted_peer_list[ind])
+            if interval.end <= self.max_ipv4_index:
+                # this is IPv4Address
+                start = ipaddress.IPv4Address(interval.start - self.min_ipv4_index)
+                end = ipaddress.IPv4Address(interval.end - self.min_ipv4_index)
+                ipb = IpBlock(interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
+                peer_list.append(ipb)
+            elif interval.end <= self.max_ipv6_index:
+                # this is IPv6Address
+                start = ipaddress.IPv6Address(interval.start - self.min_ipv6_index)
+                end = ipaddress.IPv6Address(interval.end - self.min_ipv6_index)
+                ipb = IpBlock(interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
+                peer_list.append(ipb)
+            else:
+                # this is Pod
+                assert interval.end <= self.max_pod_index
+                curr_pods_max_ind = len(self)-1
+                for ind in range(min(interval.start-self.min_pod_index, curr_pods_max_ind),
+                                 min(interval.end-self.min_pod_index, curr_pods_max_ind) + 1):
+                    peer_list.append(self.sorted_peer_list[ind])
         return PeerSet(set(peer_list))
-
-    def get_all_peers_interval(self):
-        """
-        Returns the interval of all peers
-        :return: CanonicalIntervalSet of all peers
-        """
-        if len(self.sorted_peer_list) != len(self):
-            self.update_sorted_peer_list()
-        return CanonicalIntervalSet.get_interval_set(0, len(self.sorted_peer_list) - 1)
-
-    def is_whole_range(self, peer_interval_set):
-        """
-        Returns True iff the given peer interval set includes all peers
-        :param peer_interval_set: the given peer interval set
-        :return: bool whether the given interval set includes all peers
-        """
-        return peer_interval_set == self.get_all_peers_interval()
 
 
 def by_full_name(elem):

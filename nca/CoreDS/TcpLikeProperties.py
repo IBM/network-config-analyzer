@@ -9,7 +9,7 @@ from .DimensionsManager import DimensionsManager
 from .PortSet import PortSet
 from .MethodSet import MethodSet
 from .ProtocolSet import ProtocolSet
-from .Peer import PeerSet, IpBlock
+from .Peer import PeerSet
 
 
 class TcpLikeProperties(CanonicalHyperCubeSet):
@@ -399,7 +399,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :return: TcpLikeProperties with TCP allowed connections, corresponding to input properties cube
         """
         base_peer_set = peer_container.peer_set.copy()
-        base_peer_set.add(IpBlock.get_all_ips_block())
         if src_peers:
             src_peers_interval = base_peer_set.get_peer_interval_of(src_peers)
         else:
