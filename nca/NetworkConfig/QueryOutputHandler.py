@@ -2,7 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import yaml
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
@@ -19,7 +19,7 @@ class PoliciesWithCommonPods:
     first_policy_name: str = ''  # the name of the first policy
     second_policy_type: str = ''  # the type of the second policy
     second_policy_name: str = ''  # the name of the second policy
-    common_pods: list[str] = None
+    common_pods: list[str] = field(default_factory=list)
 
     def __lt__(self, other):
         if self.first_policy_type == other.first_policy_type:
@@ -32,7 +32,7 @@ class PoliciesWithCommonPods:
 @dataclass
 class IntersectPodsExplanation:
     # used in DisjointnessQuery
-    policies_pods: list[PoliciesWithCommonPods] = None  # used in DisjointnessQuery
+    policies_pods: list[PoliciesWithCommonPods] = field(default_factory=list)  # used in DisjointnessQuery
 
     def get_explanation_in_dict(self, explanation_description):
         """
@@ -65,9 +65,10 @@ class IntersectPodsExplanation:
 class PoliciesAndRulesExplanations:
     # used in RedundancyQuery and EmptinessQuery: we may have lists of redundant/empty policies or
     # maps of policies to redundant/empty ingress/egress rules indexes
-    policies_list: list[str] = None  # policy titles list, i.e. each element's form is: <policy_type> <policy_full_name>
-    policies_to_ingress_rules_dict: dict[str, list[int]] = None
-    policies_to_egress_rules_dict: dict[str, list[int]] = None
+    policies_list: list[str] = field(default_factory=list)  # policy titles list, i.e. each element's form is:
+    # <policy_type> <policy_full_name>
+    policies_to_ingress_rules_dict: dict[str, list[int]] = field(default_factory=dict)
+    policies_to_egress_rules_dict: dict[str, list[int]] = field(default_factory=dict)
 
     @staticmethod
     def _get_policies_description(explanation_description):
@@ -152,8 +153,8 @@ class PodsListsExplanations:
     # 1. used in ContainmentQuery (and queries using it such as TwoWayContainmentQuery and PermitsQuery)
     # when a reason that config is not contained in the other is, pods list that appears only in one
     # 2. used in AllCapturedQuery - lists of pods that are not captured for ingress and/or egress
-    pods_list: list[str] = None
-    egress_pods_list: list[str] = None
+    pods_list: list[str] = field(default_factory=list)
+    egress_pods_list: list[str] = field(default_factory=list)
     add_xgress_suffix: bool = False
 
     @staticmethod
@@ -213,8 +214,8 @@ class PeersAndConnections:
     """
     src_peer: str = ''
     dst_peer: str = ''
-    conns1: ConnectionSet = None  # connections from src to dst in first config
-    conns2: ConnectionSet = None  # connections from src to dst in second config
+    conns1: ConnectionSet = field(default_factory=ConnectionSet)  # connections from src to dst in first config
+    conns2: ConnectionSet = field(default_factory=ConnectionSet)  # connections from src to dst in second config
 
     def __lt__(self, other):
         if self.src_peer == other.src_peer:
@@ -227,8 +228,9 @@ class ConnectionsDiffExplanation:
     # used in following TwoNetworkConfigs queries that compare connections of pairs of peers in both configs:
     # EquivalenceQuery, StrongEquivalenceQuery, ContainmentQuery, TwoWayContainmentQuery, PermitsQuery, InterferesQuery,
     # PairwiseInterferesQuery, and ForbidsQuery
-    peers_diff_connections_list: list[PeersAndConnections] = None
-    configs: list[str] = None  # configs names are relevant only when we have the conns1 and conns2 in
+    peers_diff_connections_list: list[PeersAndConnections] = field(default_factory=list)
+    configs: list[str] = field(default_factory=list)  # configs names are relevant only when we have the
+    # conns1 and conns2 in
     # PeersAndConnections items , so we need them when calling ConnectionSet.print_diff in get_explanation_in_str
     conns_diff: bool = False
 
@@ -322,7 +324,7 @@ class QueryAnswer:
     """
     bool_result: bool = False
     output_result: str = ''
-    output_explanation: list[OutputExplanation] = None
+    output_explanation: list[OutputExplanation] = field(default_factory=list)
     numerical_result: int = 0
     query_not_executed: bool = False
 
