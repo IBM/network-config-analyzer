@@ -19,7 +19,7 @@ class PoliciesWithCommonPods:
     first_policy_name: str = ''  # the name of the first policy
     second_policy_type: str = ''  # the type of the second policy
     second_policy_name: str = ''  # the name of the second policy
-    common_pods: list[str] = field(default_factory=list)
+    common_pods: list = field(default_factory=list)
 
     def __lt__(self, other):
         if self.first_policy_type == other.first_policy_type:
