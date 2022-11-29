@@ -2,7 +2,6 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-from __future__ import annotations
 from dataclasses import dataclass, field
 import yaml
 
@@ -20,7 +19,7 @@ class PoliciesWithCommonPods:
     first_policy_name: str = ''  # the name of the first policy
     second_policy_type: str = ''  # the type of the second policy
     second_policy_name: str = ''  # the name of the second policy
-    common_pods: list[str] = field(default_factory=list)
+    common_pods: list = field(default_factory=list)  # list[str] : list of pods names
 
     def __lt__(self, other):
         if self.first_policy_type == other.first_policy_type:
@@ -33,7 +32,8 @@ class PoliciesWithCommonPods:
 @dataclass
 class IntersectPodsExplanation:
     # used in DisjointnessQuery
-    policies_pods: list[PoliciesWithCommonPods] = field(default_factory=list)  # used in DisjointnessQuery
+    policies_pods: list = field(default_factory=list)  # list of PoliciesWithCommonPods objects
+    # (storing data on pairs of policies with common pods)
 
     def get_explanation_in_dict(self, explanation_description):
         """
@@ -66,10 +66,12 @@ class IntersectPodsExplanation:
 class PoliciesAndRulesExplanations:
     # used in RedundancyQuery and EmptinessQuery: we may have lists of redundant/empty policies or
     # maps of policies to redundant/empty ingress/egress rules indexes
-    policies_list: list[str] = field(default_factory=list)  # policy titles list, i.e. each element's form is:
+    policies_list: list = field(default_factory=list)  # policy titles list, i.e. each element's str form is:
     # <policy_type> <policy_full_name>
-    policies_to_ingress_rules_dict: dict[str, list[int]] = field(default_factory=dict)
-    policies_to_egress_rules_dict: dict[str, list[int]] = field(default_factory=dict)
+    policies_to_ingress_rules_dict: dict = field(default_factory=dict)  # dict[str, list[int]] :
+    # elements pattern: {<policy_tite>, <ingress_rules_indexes>}
+    policies_to_egress_rules_dict: dict = field(default_factory=dict)  # dict[str, list[int]] :
+    # elements pattern: {<policy_tite>, <egress_rules_indexes>}
 
     @staticmethod
     def _get_policies_description(explanation_description):
@@ -80,7 +82,16 @@ class PoliciesAndRulesExplanations:
         return prefix + ' rules' + explanation_description
 
     @staticmethod
-    def _add_rules_to_dict_explanation(xgress_description, xgress_rules_dict, prefix='ingress'):
+    def _get_policy_name_from_title(policy_title):
+        """
+        extracts the policy name from it title
+        :param str policy_title: a policy title in pattern <policy_type> <policy_full_name>
+        :return the <policy_full_name> part from policy_title
+        :rtype: str
+        """
+        return policy_title.split()[1]
+
+    def _add_rules_to_dict_explanation(self, xgress_description, xgress_rules_dict, prefix='ingress'):
         """
         returns dict object of policies to ingress/egress rules and its description
         :param str xgress_description: the relevant description of this oof the given rules' dict
@@ -89,8 +100,9 @@ class PoliciesAndRulesExplanations:
         :rtype dict
         """
         rules = []
-        for key, value in xgress_rules_dict.items():
-            rules.append({'policy': key.split()[1], prefix + '_rules_indexes': [str(idx) for idx in value]})
+        for policy_title, rules_indexes_list in xgress_rules_dict.items():
+            rules.append({'policy': self._get_policy_name_from_title(policy_title),
+                          prefix + '_rules_indexes': [str(idx) for idx in rules_indexes_list]})
         return {'description': xgress_description, 'pairs': rules}
 
     def get_explanation_in_dict(self, explanation_description):
@@ -103,7 +115,7 @@ class PoliciesAndRulesExplanations:
         result = []
         if self.policies_list:
             result.append({'description': self._get_policies_description(explanation_description),
-                           'policies': [policy.split()[1] for policy in self.policies_list]})
+                           'policies': [self._get_policy_name_from_title(policy) for policy in self.policies_list]})
         if self.policies_to_ingress_rules_dict:
             ingress_description = self._get_xgress_description(explanation_description)
             result.append(self._add_rules_to_dict_explanation(ingress_description, self.policies_to_ingress_rules_dict))
@@ -124,8 +136,9 @@ class PoliciesAndRulesExplanations:
         :rtype: str
         """
         res = '\n' + xgress_description + ':\n'
-        for key, value in xgress_rules_dict.items():
-            res += key + ', ' + prefix + ' rules indexes: ' + ', '.join(str(idx) for idx in value) + '\n'
+        for policy_title, rules_indexes_list in xgress_rules_dict.items():
+            res += policy_title + ', ' + prefix + ' rules indexes: ' +\
+                   ', '.join(str(idx) for idx in rules_indexes_list) + '\n'
         return res
 
     def get_explanation_in_str(self, explanation_description):
@@ -154,8 +167,8 @@ class PodsListsExplanations:
     # 1. used in ContainmentQuery (and queries using it such as TwoWayContainmentQuery and PermitsQuery)
     # when a reason that config is not contained in the other is, pods list that appears only in one
     # 2. used in AllCapturedQuery - lists of pods that are not captured for ingress and/or egress
-    pods_list: list[str] = field(default_factory=list)
-    egress_pods_list: list[str] = field(default_factory=list)
+    pods_list: list = field(default_factory=list)  # list[str]: pods names list
+    egress_pods_list: list = field(default_factory=list)  # list[str]: pods names list
     add_xgress_suffix: bool = False
 
     @staticmethod
@@ -229,10 +242,11 @@ class ConnectionsDiffExplanation:
     # used in following TwoNetworkConfigs queries that compare connections of pairs of peers in both configs:
     # EquivalenceQuery, StrongEquivalenceQuery, ContainmentQuery, TwoWayContainmentQuery, PermitsQuery, InterferesQuery,
     # PairwiseInterferesQuery, and ForbidsQuery
-    peers_diff_connections_list: list[PeersAndConnections] = field(default_factory=list)
-    configs: list[str] = field(default_factory=list)  # configs names are relevant only when we have the
-    # conns1 and conns2 in
-    # PeersAndConnections items , so we need them when calling ConnectionSet.print_diff in get_explanation_in_str
+    peers_diff_connections_list: list = field(default_factory=list)  # list of PeersAndConnections objects,
+    # storing info of pairs of peers and their connection in the config/s
+    configs: list = field(default_factory=list)  # list[str]: configs names, relevant only when we have the
+    # conns1 and conns2 in PeersAndConnections items , so we need them when calling ConnectionSet.print_diff
+    # in get_explanation_in_str
     conns_diff: bool = False
 
     def get_explanation_in_dict(self, explanation_description):
@@ -325,7 +339,7 @@ class QueryAnswer:
     """
     bool_result: bool = False
     output_result: str = ''
-    output_explanation: list[OutputExplanation] = field(default_factory=list)
+    output_explanation: list = field(default_factory=list)  # list of OutputExplanation objects
     numerical_result: int = 0
     query_not_executed: bool = False
 
