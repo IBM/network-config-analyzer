@@ -242,7 +242,7 @@ class ConnectionsDiffExplanation:
     # used in following TwoNetworkConfigs queries that compare connections of pairs of peers in both configs:
     # EquivalenceQuery, StrongEquivalenceQuery, ContainmentQuery, TwoWayContainmentQuery, PermitsQuery, InterferesQuery,
     # PairwiseInterferesQuery, and ForbidsQuery
-    peers_diff_connections_list: list = field(default_factory=list)  # list of PeersAndConnections objects,
+    peers_diff_connections_list: list = field(default_factory=list) # list of PeersAndConnections objects,
     # storing info of pairs of peers and their connection in the config/s
     configs: list = field(default_factory=list)  # list[str]: configs names, relevant only when we have the
     # conns1 and conns2 in PeersAndConnections items , so we need them when calling ConnectionSet.print_diff
