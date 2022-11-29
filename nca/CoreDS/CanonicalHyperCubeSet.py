@@ -286,7 +286,7 @@ class CanonicalHyperCubeSet:
                 if not common_elem:
                     continue
                 if self._is_last_dimension():
-                    res_layers[common_elem] = self.layers[self_layer].copy()
+                    res_layers[common_elem] = CanonicalHyperCubeSet.empty_interval
                     continue
                 # TODO: use type hint to avoid warning on access to a protected member?
                 # self_sub_elem: CanonicalHyperCubeSet = self.layers[self_layer]
