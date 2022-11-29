@@ -7,6 +7,7 @@ from functools import reduce
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.Peer import PeerSet
+from nca.CoreDS.MethodSet import MethodSet
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -201,7 +202,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param dict resource: the HttpMatchRequest resource
         :param str attr_name: the name of the StringMatch attribute
         :param str vs_name: the name of the VirtualService containing this HttpMatchRequest
-        :return MinDFA: the StringMatch attribute converted to the MinDFA format
+        :return MinDFA or MethodSet: the StringMatch attribute converted to the MinDFA format
+        or to the MethodSet format (in case of the 'method' attribute)
         """
         res = resource.get(attr_name)
         if not res:
@@ -223,7 +225,12 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         else:
             self.warning(f'illegal attribute {items[0]} in the VirtualService {vs_name}. Ignoring.')
             return None
-        return MinDFA.dfa_from_regex(regex)
+        if attr_name == 'method':
+            methods = MethodSet()
+            methods.add_methods_from_regex(regex)
+            return methods
+        else:
+            return MinDFA.dfa_from_regex(regex)
 
     def parse_http_match_request(self, route, parsed_route, vs):
         """
@@ -245,9 +252,9 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             uri_dfa = self.parse_istio_regex_string(item, 'uri', vs.full_name())
             if uri_dfa:
                 parsed_route.add_uri_dfa(uri_dfa)
-            method_dfa = self.parse_istio_regex_string(item, 'method', vs.full_name())
-            if method_dfa:
-                parsed_route.add_method_dfa(method_dfa)
+            methods = self.parse_istio_regex_string(item, 'method', vs.full_name())
+            if methods:
+                parsed_route.add_methods(methods)
 
     def parse_http_route_destinations(self, route, parsed_route, vs):
         """
@@ -321,7 +328,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         for http_route in vs.http_routes:
             for dest in http_route.destinations:
                 conns = self._make_tcp_like_properties(dest.port, dest.service.target_pods, http_route.uri_dfa,
-                                                       host_dfa, http_route.method_dfa)
+                                                       host_dfa, http_route.methods)
                 if not allowed_conns:
                     allowed_conns = conns
                 else:
