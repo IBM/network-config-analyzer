@@ -690,6 +690,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_opt = QueryAnswer(True)
             if self.output_config.outputFormat == 'dot':
                 res_opt.output_explanation = conn_graph_opt.get_connectivity_dot_format_str()
+                fw_rules = conn_graph.get_minimized_firewall_rules()  # Temp for debugging
+                assert fw_rules == fw_rules2  # Temp for debugging
             else:
                 assert fw_rules == fw_rules2
                 # res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()
