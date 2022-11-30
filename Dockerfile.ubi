@@ -1,0 +1,27 @@
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+
+FROM registry.access.redhat.com/ubi8/python-39@sha256:82f2d23d9f93332c47bc4be0a05e9d0bbc07deed48e72bc14639fbfee8c5f237
+
+USER 0
+
+COPY requirements.txt /nca/
+RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
+
+RUN curl -L "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" --output /usr/local/bin/kubectl \
+    && chmod +x /usr/local/bin/kubectl
+
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh \
+    && ./get_helm.sh
+
+RUN curl -L https://github.com/projectcalico/calicoctl/releases/download/v3.3.1/calicoctl --output /usr/local/bin/calicoctl \
+    && chmod +x /usr/local/bin/calicoctl
+
+COPY nca/ /nca/
+
+USER 9000
+
+WORKDIR "/"
+ENTRYPOINT ["python", "-m", "nca"]

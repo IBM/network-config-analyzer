@@ -44,6 +44,14 @@ jobs:
           push: true
           tags: ghcr.io/ibm/nca:${{ env.version }}
 
+      - name: Build and push ubi-based Docker image
+        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
+        with:
+          context: .
+          file: Dockerfile.ubi
+          push: true
+          tags: ghcr.io/ibm/nca:${{ env.version }}-ubi
+
       - name: Create and push a new git tag
         run: |
           git config user.name ${{ github.actor }}
