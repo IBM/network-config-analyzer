@@ -1,0 +1,178 @@
+query: containment_np2_and_np1_print_all_pairs
+configs:
+- np1
+- np2
+numerical_result: 0
+textual_result: np1 is not contained in np2
+explanation:
+- description: Connections allowed in np1 which are not a subset of those in np2
+  connections:
+  - src: default/cog-agents-d54st
+    dst: kube-system/calico-node-mgdlr
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/calico-node-ns8kw
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/calico-node-ptdgj
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/file-plugin-7bfb8b69bf-p86gk
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/heapster-7df8cb8c66-zxkk2
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/keepalived-watcher-57ghx
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/keepalived-watcher-gzdfm
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/keepalived-watcher-wczq8
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/kube-fluentd-2qw2g
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/kube-fluentd-h6rjg
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/kube-fluentd-qmp4w
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/storage-watcher-8494b4b8bb-f8csd
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/tiller-deploy-5c45c9966b-nqwz6
+    conn: All connections
+  - src: default/cog-agents-d54st
+    dst: kube-system/vpn-858f6d9777-2bw5m
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/calico-node-mgdlr
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/calico-node-ns8kw
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/calico-node-ptdgj
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/file-plugin-7bfb8b69bf-p86gk
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/heapster-7df8cb8c66-zxkk2
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/keepalived-watcher-57ghx
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/keepalived-watcher-gzdfm
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/keepalived-watcher-wczq8
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/kube-fluentd-2qw2g
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/kube-fluentd-h6rjg
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/kube-fluentd-qmp4w
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/storage-watcher-8494b4b8bb-f8csd
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/tiller-deploy-5c45c9966b-nqwz6
+    conn: All connections
+  - src: default/cog-agents-js4qc
+    dst: kube-system/vpn-858f6d9777-2bw5m
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/calico-node-mgdlr
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/calico-node-ns8kw
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/calico-node-ptdgj
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/file-plugin-7bfb8b69bf-p86gk
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/heapster-7df8cb8c66-zxkk2
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/keepalived-watcher-57ghx
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/keepalived-watcher-gzdfm
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/keepalived-watcher-wczq8
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/kube-fluentd-2qw2g
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/kube-fluentd-h6rjg
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/kube-fluentd-qmp4w
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/storage-watcher-8494b4b8bb-f8csd
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/tiller-deploy-5c45c9966b-nqwz6
+    conn: All connections
+  - src: default/cog-agents-qr8gp
+    dst: kube-system/vpn-858f6d9777-2bw5m
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/calico-node-mgdlr
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/calico-node-ns8kw
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/calico-node-ptdgj
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/file-plugin-7bfb8b69bf-p86gk
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/heapster-7df8cb8c66-zxkk2
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/keepalived-watcher-57ghx
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/keepalived-watcher-gzdfm
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/keepalived-watcher-wczq8
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/kube-fluentd-2qw2g
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/kube-fluentd-h6rjg
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/kube-fluentd-qmp4w
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/storage-watcher-8494b4b8bb-f8csd
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/tiller-deploy-5c45c9966b-nqwz6
+    conn: All connections
+  - src: default/cog-local-analyzer-7d77fb55cc-bs8rc
+    dst: kube-system/vpn-858f6d9777-2bw5m
+    conn: All connections
+---

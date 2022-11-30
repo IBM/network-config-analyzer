@@ -1,0 +1,48 @@
+query: disjointness_various_policies_full_explanation_yaml
+configs:
+- np_various_policies
+numerical_result: 3
+textual_result: There are policies capturing the same pods in np_various_policies
+explanation:
+- description: policies with overlapping captured pods
+  examples:
+  - policies:
+    - kube-system/testcase1-equiv-networkpolicy
+    - kube-system/testcase1-nonequiv-networkpolicy
+    pods:
+    - kube-system/calico-node-mgdlr
+    - kube-system/file-plugin-7bfb8b69bf-p86gk
+    - kube-system/keepalived-watcher-57ghx
+    - kube-system/keepalived-watcher-gzdfm
+    - kube-system/keepalived-watcher-wczq8
+    - kube-system/kube-fluentd-h6rjg
+    - kube-system/storage-watcher-8494b4b8bb-f8csd
+    - kube-system/tiller-deploy-5c45c9966b-nqwz6
+    - kube-system/vpn-858f6d9777-2bw5m
+  - policies:
+    - kube-system/testcase1-equiv-networkpolicy
+    - testcase1-global-networkpolicy
+    pods:
+    - kube-system/calico-node-mgdlr
+    - kube-system/file-plugin-7bfb8b69bf-p86gk
+    - kube-system/keepalived-watcher-57ghx
+    - kube-system/keepalived-watcher-gzdfm
+    - kube-system/keepalived-watcher-wczq8
+    - kube-system/kube-fluentd-h6rjg
+    - kube-system/storage-watcher-8494b4b8bb-f8csd
+    - kube-system/tiller-deploy-5c45c9966b-nqwz6
+    - kube-system/vpn-858f6d9777-2bw5m
+  - policies:
+    - kube-system/testcase1-nonequiv-networkpolicy
+    - testcase1-global-networkpolicy
+    pods:
+    - kube-system/calico-node-mgdlr
+    - kube-system/file-plugin-7bfb8b69bf-p86gk
+    - kube-system/keepalived-watcher-57ghx
+    - kube-system/keepalived-watcher-gzdfm
+    - kube-system/keepalived-watcher-wczq8
+    - kube-system/kube-fluentd-h6rjg
+    - kube-system/storage-watcher-8494b4b8bb-f8csd
+    - kube-system/tiller-deploy-5c45c9966b-nqwz6
+    - kube-system/vpn-858f6d9777-2bw5m
+---

@@ -1,0 +1,7 @@
+There are workload resources not captured by any k8s/calico policy in testcase26-config-1-k8s-istio-ingress
+
+workload resources that are not captured by any policy that affects ingress:
+default/details-v1(Deployment-StatefulSet), default/productpage-v1(Deployment-StatefulSet), default/ratings-v1(Deployment-StatefulSet), default/reviews-v1(Deployment-StatefulSet), default/reviews-v2(Deployment-StatefulSet), default/reviews-v3(Deployment-StatefulSet), ingress-nginx/ingress-nginx-controller(Deployment-StatefulSet), istio-system/istio-ingressgateway(Deployment-StatefulSet)
+
+workload resources that are not captured by any policy that affects egress:
+default/details-v1(Deployment-StatefulSet), default/productpage-v1(Deployment-StatefulSet), default/reviews-v1(Deployment-StatefulSet), default/reviews-v2(Deployment-StatefulSet), default/reviews-v3(Deployment-StatefulSet), ingress-nginx/ingress-nginx-controller(Deployment-StatefulSet), istio-system/istio-ingressgateway(Deployment-StatefulSet)

@@ -1,5 +1,9 @@
-Neither network configuration config_a_with_ipBlock and config_a_with_b_ipBlock are contained in the other.
-config_a_with_ipBlock is not contained in config_a_with_b_ipBlock:
+Neither network configuration config_a_with_ipBlock and config_a_with_b_ipBlock are contained in the other
+Connections allowed in config_a_with_b_ipBlock which are not a subset of those in config_a_with_ipBlock:
+src: 10.10.0.0-10.10.255.255, dst: default/pod-1, conn: All connections
+src: default/pod-0, dst: default/pod-1, conn: All connections
+src: default/pod-3, dst: default/pod-1, conn: All connections
+src: default/pod-4, dst: default/pod-1, conn: All connections
 Connections allowed in config_a_with_ipBlock which are not a subset of those in config_a_with_b_ipBlock:
 src: 10.0.0.0-10.9.255.255, dst: default/pod-2, conn: All connections
 src: 10.10.0.0-10.10.255.255, dst: default/pod-2, conn: All connections
@@ -8,10 +12,3 @@ src: 10.12.0.0-10.255.255.255, dst: default/pod-2, conn: All connections
 src: default/pod-0, dst: default/pod-2, conn: All connections
 src: default/pod-3, dst: default/pod-2, conn: All connections
 src: default/pod-4, dst: default/pod-2, conn: All connections
-
-config_a_with_b_ipBlock is not contained in config_a_with_ipBlock:
-Connections allowed in config_a_with_b_ipBlock which are not a subset of those in config_a_with_ipBlock:
-src: 10.10.0.0-10.10.255.255, dst: default/pod-1, conn: All connections
-src: default/pod-0, dst: default/pod-1, conn: All connections
-src: default/pod-3, dst: default/pod-1, conn: All connections
-src: default/pod-4, dst: default/pod-1, conn: All connections
