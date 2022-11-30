@@ -2,14 +2,49 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+from abc import abstractmethod
 from dataclasses import dataclass, field
 import yaml
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
 
 
-# following classes describe the more possible OutputExplanation patterns, each class consists of the explanation
-# fields that may appear together in one output_explanation and additional info for writing the explanation if required
+@dataclass
+class OutputExplanation:
+    """
+    A base class of possible types of the QueryAnswer's output_explanation as it may vary according to
+    the pattern of the query's result.
+    common field is the explanation_description: the relevant description of current output explanation
+    """
+    explanation_description: str = ''
+
+    @abstractmethod
+    def get_explanation_in_str(self):
+        """
+        computes and returns the output explanation is str, so it may be used to write the query answer in txt format
+         :return the explanation written with its description in txt format
+         :rtype: str
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_explanation_in_dict(self):
+        """
+        computes and returns the output explanation arranged in dict/s, so it may be used for writing the query answer
+        in specific formats like json and yaml
+        :return the explanation written with its description in a list of dict objects pattern which matches yaml/json
+        dump later.
+        A single dict pattern is {'description' : <explanation_description_str> ,
+        <key_name>: <list of examples matching the result> }
+         :rtype: list[dict]
+        """
+        raise NotImplementedError
+
+
+# following classes describe possible OutputExplanation patterns (derived from it), each class consists of the
+# explanation fields that may appear together in one output_explanation and additional info for writing
+# the explanation if required
+# PoliciesWithCommonPods and PeersAndConnections classes are helping classes for storing info on some OutputExplanation
 @dataclass
 class PoliciesWithCommonPods:
     """
@@ -30,27 +65,25 @@ class PoliciesWithCommonPods:
 
 
 @dataclass
-class IntersectPodsExplanation:
+class IntersectPodsExplanation(OutputExplanation):
     # used in DisjointnessQuery
     policies_pods: list = field(default_factory=list)  # list of PoliciesWithCommonPods objects
     # (storing data on pairs of policies with common pods)
 
-    def get_explanation_in_dict(self, explanation_description):
+    def get_explanation_in_dict(self):
         """
         returns self type of OutputExplanation written in dict of description and policies_pods examples
-        :param explanation_description: the relevant description of this output explanation
         :rtype: list[dict]
         """
         examples = []
         for record in self.policies_pods:
             examples.append({'policies': [record.first_policy_name, record.second_policy_name],
                              'pods': record.common_pods})
-        return [{'description': explanation_description, 'examples': examples}]
+        return [{'description': self.explanation_description, 'examples': examples}]
 
-    def get_explanation_in_str(self, explanation_description):
+    def get_explanation_in_str(self):
         """
         returns self type of OutputExplanation written as str
-        :param explanation_description: the relevant description of this output explanation
         :rtype: str
         """
         result = []
@@ -59,11 +92,11 @@ class IntersectPodsExplanation:
             result.append(f'{record.first_policy_type}_1: {record.first_policy_name}, '
                           f'{record.second_policy_type}_2: {record.second_policy_name},'
                           f' pods: {comma.join(record.common_pods)}')
-        return explanation_description + ':\n' + '\n'.join(result)
+        return self.explanation_description + ':\n' + '\n'.join(result)
 
 
 @dataclass
-class PoliciesAndRulesExplanations:
+class PoliciesAndRulesExplanations(OutputExplanation):
     # used in RedundancyQuery and EmptinessQuery: we may have lists of redundant/empty policies or
     # maps of policies to redundant/empty ingress/egress rules indexes
     policies_list: list = field(default_factory=list)  # policy titles list, i.e. each element's str form is:
@@ -73,13 +106,11 @@ class PoliciesAndRulesExplanations:
     policies_to_egress_rules_dict: dict = field(default_factory=dict)  # dict[str, list[int]] :
     # elements pattern: {<policy_tite>, <egress_rules_indexes>}
 
-    @staticmethod
-    def _get_policies_description(explanation_description):
-        return 'Policies' + explanation_description
+    def _get_policies_description(self):
+        return 'Policies' + self.explanation_description
 
-    @staticmethod
-    def _get_xgress_description(explanation_description, prefix='Ingress'):
-        return prefix + ' rules' + explanation_description
+    def _get_xgress_description(self, prefix='ingress'):
+        return prefix.capitalize() + ' rules' + self.explanation_description
 
     @staticmethod
     def _get_policy_name_from_title(policy_title):
@@ -91,10 +122,9 @@ class PoliciesAndRulesExplanations:
         """
         return policy_title.split()[1]
 
-    def _add_rules_to_dict_explanation(self, xgress_description, xgress_rules_dict, prefix='ingress'):
+    def _add_rules_to_dict_explanation(self, xgress_rules_dict, prefix='ingress'):
         """
         returns dict object of policies to ingress/egress rules and its description
-        :param str xgress_description: the relevant description of this oof the given rules' dict
         :param str prefix: indicates if rules types are ingress or egress
         :return dict of description and pairs of policy and rules indexes
         :rtype dict
@@ -103,66 +133,56 @@ class PoliciesAndRulesExplanations:
         for policy_title, rules_indexes_list in xgress_rules_dict.items():
             rules.append({'policy': self._get_policy_name_from_title(policy_title),
                           prefix + '_rules_indexes': [str(idx) for idx in rules_indexes_list]})
-        return {'description': xgress_description, 'pairs': rules}
+        return {'description': self._get_xgress_description(prefix), 'pairs': rules}
 
-    def get_explanation_in_dict(self, explanation_description):
+    def get_explanation_in_dict(self):
         """
         returns self type of OutputExplanation arranged in dict/s objects
         a dict for each item in self with its relevant description
-        :param explanation_description: the relevant description of this output explanation
         :rtype: list[dict]
         """
         result = []
         if self.policies_list:
-            result.append({'description': self._get_policies_description(explanation_description),
+            result.append({'description': self._get_policies_description(),
                            'policies': [self._get_policy_name_from_title(policy) for policy in self.policies_list]})
         if self.policies_to_ingress_rules_dict:
-            ingress_description = self._get_xgress_description(explanation_description)
-            result.append(self._add_rules_to_dict_explanation(ingress_description, self.policies_to_ingress_rules_dict))
+            result.append(self._add_rules_to_dict_explanation(self.policies_to_ingress_rules_dict))
         if self.policies_to_egress_rules_dict:
-            egress_description = self._get_xgress_description(explanation_description, prefix='Egress')
-            result.append(self._add_rules_to_dict_explanation(egress_description, self.policies_to_egress_rules_dict,
-                                                              'egress'))
+            result.append(self._add_rules_to_dict_explanation(self.policies_to_egress_rules_dict, 'egress'))
         return result
 
-    @staticmethod
-    def _add_rules_to_str_explanation(xgress_description, xgress_rules_dict, prefix='ingress'):
+    def _add_rules_to_str_explanation(self, xgress_rules_dict, prefix='ingress'):
         """
         return str format of policies to ingress/egress rules and its description
-        :param str xgress_description: the relevant description of the given rules' dict
         :param dict xgress_rules_dict: a dict of policies to matching rules indexes
         :param str prefix: indicates if rules types are ingress or egress
         :return the str form of the explanation dict
         :rtype: str
         """
-        res = '\n' + xgress_description + ':\n'
+        res = '\n' + self._get_xgress_description(prefix) + ':\n'
         for policy_title, rules_indexes_list in xgress_rules_dict.items():
             res += policy_title + ', ' + prefix + ' rules indexes: ' +\
                    ', '.join(str(idx) for idx in rules_indexes_list) + '\n'
         return res
 
-    def get_explanation_in_str(self, explanation_description):
+    def get_explanation_in_str(self):
         """
         returns self type of OutputExplanation written in str form
-        :param explanation_description: the relevant description of this output explanation
         :rtype: str
         """
         result = ''
         if self.policies_list:
-            result += self._get_policies_description(explanation_description) + ':\n' +\
+            result += self._get_policies_description() + ':\n' +\
                       ', '.join(self.policies_list) + '\n'
         if self.policies_to_ingress_rules_dict:
-            ingress_description = self._get_xgress_description(explanation_description)
-            result += self._add_rules_to_str_explanation(ingress_description, self.policies_to_ingress_rules_dict)
+            result += self._add_rules_to_str_explanation(self.policies_to_ingress_rules_dict)
         if self.policies_to_egress_rules_dict:
-            egress_description = self._get_xgress_description(explanation_description, prefix='Egress')
-            result += self._add_rules_to_str_explanation(egress_description, self.policies_to_egress_rules_dict,
-                                                         'egress')
+            result += self._add_rules_to_str_explanation(self.policies_to_egress_rules_dict, 'egress')
         return result
 
 
 @dataclass
-class PodsListsExplanations:
+class PodsListsExplanations(OutputExplanation):
     # 2 use cases:
     # 1. used in ContainmentQuery (and queries using it such as TwoWayContainmentQuery and PermitsQuery)
     # when a reason that config is not contained in the other is, pods list that appears only in one
@@ -171,30 +191,26 @@ class PodsListsExplanations:
     egress_pods_list: list = field(default_factory=list)  # list[str]: pods names list
     add_xgress_suffix: bool = False
 
-    @staticmethod
-    def _get_xgress_description(explanation_description, suffix='ingress'):
-        return explanation_description + suffix
+    def _get_xgress_description(self, suffix='ingress'):
+        return self.explanation_description + suffix
 
     @staticmethod
-    def _add_pods_list_to_dict_explanation(description, pods_list):
-        return {'description': description, 'pods': pods_list}
+    def _add_pods_list_to_dict_explanation(relevant_description, pods_list):
+        return {'description': relevant_description, 'pods': pods_list}
 
-    def get_explanation_in_dict(self, explanation_description):
+    def get_explanation_in_dict(self):
         """
         returns self type of OutputExplanation arranged in dict/s forms
         a dict for each pods_list in self with its relevant description
-        :param explanation_description: the relevant description of this output explanation
         :rtype: list[dict]
         """
         if not self.add_xgress_suffix:
-            return list(self._add_pods_list_to_dict_explanation(explanation_description, self.pods_list))
+            return list(self._add_pods_list_to_dict_explanation(self.explanation_description, self.pods_list))
         result = []
         if self.pods_list:
-            result.append(self._add_pods_list_to_dict_explanation(self._get_xgress_description(explanation_description),
-                                                                  self.pods_list))
+            result.append(self._add_pods_list_to_dict_explanation(self._get_xgress_description(), self.pods_list))
         if self.egress_pods_list:
-            result.append(self._add_pods_list_to_dict_explanation(self._get_xgress_description(explanation_description,
-                                                                                               'egress'),
+            result.append(self._add_pods_list_to_dict_explanation(self._get_xgress_description('egress'),
                                                                   self.egress_pods_list))
         return result
 
@@ -202,21 +218,18 @@ class PodsListsExplanations:
     def _add_pods_list_to_str_explanation(description, pods_list):
         return '\n' + description + ':\n' + ', '.join(pods_list) + '\n'
 
-    def get_explanation_in_str(self, explanation_description):
+    def get_explanation_in_str(self):
         """
         returns self type of OutputExplanation written in str
-        :param explanation_description: the relevant description of this output explanation
         :rtype: str
         """
         if not self.add_xgress_suffix:
-            return self._add_pods_list_to_str_explanation(explanation_description, self.pods_list)
+            return self._add_pods_list_to_str_explanation(self.explanation_description, self.pods_list)
         result = ''
         if self.pods_list:
-            result += self._add_pods_list_to_str_explanation(self._get_xgress_description(explanation_description),
-                                                             self.pods_list)
+            result += self._add_pods_list_to_str_explanation(self._get_xgress_description(), self.pods_list)
         if self.egress_pods_list:
-            result += self._add_pods_list_to_str_explanation(self._get_xgress_description(explanation_description,
-                                                                                          'egress'),
+            result += self._add_pods_list_to_str_explanation(self._get_xgress_description('egress'),
                                                              self.egress_pods_list)
         return result
 
@@ -238,7 +251,7 @@ class PeersAndConnections:
 
 
 @dataclass
-class ConnectionsDiffExplanation:
+class ConnectionsDiffExplanation(OutputExplanation):
     # used in following TwoNetworkConfigs queries that compare connections of pairs of peers in both configs:
     # EquivalenceQuery, StrongEquivalenceQuery, ContainmentQuery, TwoWayContainmentQuery, PermitsQuery, InterferesQuery,
     # PairwiseInterferesQuery, and ForbidsQuery
@@ -249,12 +262,11 @@ class ConnectionsDiffExplanation:
     # in get_explanation_in_str
     conns_diff: bool = False
 
-    def get_explanation_in_dict(self, explanation_description):
+    def get_explanation_in_dict(self):
         """
          returns the explanation results of ConnectionsDiffExplanation and its description arranged in dict.
         if self.conns_diff is True, i.e. PeersAndConnections items contain two connections, then for each
         (src, dst) pair , connections from both configs will be presented to emphasize the differences
-        :param str explanation_description: the relevant description of this output explanation
         :rtype list[dict]
         """
         conns_lists = []
@@ -266,15 +278,14 @@ class ConnectionsDiffExplanation:
                 example_dict.update({'conn': str(peers_conn.conns1)})
             conns_lists.append(example_dict)
 
-        return [{'description': explanation_description, 'connections': conns_lists}]
+        return [{'description': self.explanation_description, 'connections': conns_lists}]
 
-    def get_explanation_in_str(self, explanation_description):
+    def get_explanation_in_str(self):
         """
         returns the explanation result of ConnectionsDiffExplanation and its description in str.
         When self.conns_diff is True, i.e. having conns1 and conns2 in PeersAndConnections items, the diff between
         connection of each pair is printed
         otherwise (having only conns1, connections from first config is printed)
-        :param str explanation_description: the relevant description of this output explanation
         :rtype str
         """
         conns = []
@@ -285,51 +296,21 @@ class ConnectionsDiffExplanation:
             else:
                 conns.append(f'src: {peers_conn.src_peer}, dst: {peers_conn.dst_peer}, conn: {peers_conn.conns1}')
 
-        return explanation_description + ':\n' + '\n'.join(conns) + '\n'
+        return self.explanation_description + ':\n' + '\n'.join(conns) + '\n'
 
 
 @dataclass
-class OutputExplanation:
-    """
-    A class that unifies the possible types of the QueryAnswer's output_explanation as it may vary according to
-    the pattern of the query's result - an output_explanation may have only one of its fields at a time besides
-    to explanation_description
-    """
-    explanation_description: str = ''
-    policies_with_intersect_pods: IntersectPodsExplanation = None
-    policies_and_rules: PoliciesAndRulesExplanations = None
-    pods_lists: PodsListsExplanations = None
-    connections_diff: ConnectionsDiffExplanation = None
-    str_explanation: str = None  # for queries that compute separately the output in the required format
+class StrExplanation(OutputExplanation):
+    # Used in queries that compute separately the output in the required format
     # (i.e. ConnectivityMapQuery, SanityQuery and SemanticDiffQuery)
+    str_explanation: str = None
 
+    # StrExplanation is handled in NetworkConfigQuery by the relevant queries, so the abstract methods are empty here
     def get_explanation_in_str(self):
-        """
-        computes and returns the output explanation is str, so it may be used to write the query answer in txt format.
-        An OutputExplanation object may have only one field representing the explanation data besides to
-         explanation_description, so the output is computed by calling the get_explanation_in_str method of this field
-         :return the explanation written with its description in txt format
-         :rtype: str
-        """
-        for val in self.__dict__.values():
-            if not isinstance(val, str) and val is not None:
-                return val.get_explanation_in_str(self.explanation_description)
+        pass
 
     def get_explanation_in_dict(self):
-        """
-        computes and returns the output explanation arranged in dict/s, so it may be used for writing the query answer
-        in specific formats like json and yaml.
-        Each OutputExplanation object may have only one field representing the explanation data besides to
-        explanation_description, so the output is computed by calling the get_explanation_in_dict method of this field
-        :return the explanation written with its description in a list of dict objects pattern which matches yaml/json
-        dump later.
-        A single dict pattern is {'description' : <explanation_description_str> ,
-        <key_name>: <list of examples matching the result> }
-         :rtype: list[dict]
-        """
-        for val in self.__dict__.values():
-            if not isinstance(val, str) and val is not None:
-                return val.get_explanation_in_dict(self.explanation_description)
+        pass
 
 
 @dataclass
