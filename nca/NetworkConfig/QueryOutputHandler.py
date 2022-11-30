@@ -191,12 +191,11 @@ class PodsListsExplanations(OutputExplanation):
     egress_pods_list: list = field(default_factory=list)  # list[str]: pods names list
     add_xgress_suffix: bool = False
 
-    def _get_xgress_description(self, suffix='ingress'):
+    def _get_list_description(self, suffix):
         return self.explanation_description + suffix
 
-    @staticmethod
-    def _add_pods_list_to_dict_explanation(relevant_description, pods_list):
-        return {'description': relevant_description, 'pods': pods_list}
+    def _add_pods_list_to_dict_explanation(self, pods_list, suffix=''):
+        return {'description': self._get_list_description(suffix), 'pods': pods_list}
 
     def get_explanation_in_dict(self):
         """
@@ -205,18 +204,16 @@ class PodsListsExplanations(OutputExplanation):
         :rtype: list[dict]
         """
         if not self.add_xgress_suffix:
-            return list(self._add_pods_list_to_dict_explanation(self.explanation_description, self.pods_list))
+            return list(self._add_pods_list_to_dict_explanation(self.pods_list))
         result = []
         if self.pods_list:
-            result.append(self._add_pods_list_to_dict_explanation(self._get_xgress_description(), self.pods_list))
+            result.append(self._add_pods_list_to_dict_explanation(self.pods_list, 'ingress'))
         if self.egress_pods_list:
-            result.append(self._add_pods_list_to_dict_explanation(self._get_xgress_description('egress'),
-                                                                  self.egress_pods_list))
+            result.append(self._add_pods_list_to_dict_explanation(self.egress_pods_list, 'egress'))
         return result
 
-    @staticmethod
-    def _add_pods_list_to_str_explanation(description, pods_list):
-        return '\n' + description + ':\n' + ', '.join(pods_list) + '\n'
+    def _add_pods_list_to_str_explanation(self, pods_list, suffix=''):
+        return '\n' + self._get_list_description(suffix) + ':\n' + ', '.join(pods_list) + '\n'
 
     def get_explanation_in_str(self):
         """
@@ -224,13 +221,12 @@ class PodsListsExplanations(OutputExplanation):
         :rtype: str
         """
         if not self.add_xgress_suffix:
-            return self._add_pods_list_to_str_explanation(self.explanation_description, self.pods_list)
+            return self._add_pods_list_to_str_explanation(self.pods_list)
         result = ''
         if self.pods_list:
-            result += self._add_pods_list_to_str_explanation(self._get_xgress_description(), self.pods_list)
+            result += self._add_pods_list_to_str_explanation(self.pods_list, 'ingress')
         if self.egress_pods_list:
-            result += self._add_pods_list_to_str_explanation(self._get_xgress_description('egress'),
-                                                             self.egress_pods_list)
+            result += self._add_pods_list_to_str_explanation(self.egress_pods_list, 'egress')
         return result
 
 
