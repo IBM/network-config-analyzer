@@ -43,19 +43,15 @@ class GenericTreeScanner(abc.ABC):
         extension = os.path.splitext(file_name)[1]
         return extension in {'.yaml', '.yml', '.json'}
 
-    def _yield_yaml_file(self, path, stream, from_repo=False):
+    def _yield_yaml_file(self, path, stream):
         """
         yields the yaml file for its data
         :param str path: the path of the file
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
-        :param bool from_repo: indicates if the given path is from a repository
         """
-        decoded_stream = stream
-        if from_repo:
-            decoded_stream = stream.decoded_content
         yaml = YAML(typ="rt") if self.rt_load else YAML(typ="safe")
         try:
-            yield YamlFile(yaml.load_all(decoded_stream), path)
+            yield YamlFile(yaml.load_all(stream), path)
         except error.MarkedYAMLError as parse_error:
             print(f'{parse_error.problem_mark.name}:{parse_error.problem_mark.line}:{parse_error.problem_mark.column}:',
                   'Parse Error:', parse_error.problem, file=stderr)
