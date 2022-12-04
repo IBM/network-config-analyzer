@@ -16,7 +16,7 @@ from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from .QueryOutputHandler import QueryAnswer, YamlOutputHandler, TxtOutputHandler, PoliciesAndRulesExplanations, \
     PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, PoliciesWithCommonPods, \
-    PeersAndConnections, StrExplanation
+    PeersAndConnections, StrExplanation, JsonOutputHandler
 from .NetworkLayer import NetworkLayerName
 
 
@@ -40,7 +40,7 @@ class BaseNetworkQuery:
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml'}
+        return {'txt', 'yaml', 'json'}
 
     @staticmethod
     def policy_title(policy):
@@ -79,8 +79,12 @@ class BaseNetworkQuery:
         """
         query_name = self.output_config.queryName or type(self).__name__
         configs = self.get_configs_names()
-        output_handler = YamlOutputHandler(configs, query_name) if self.output_config.outputFormat == 'yaml' \
-            else TxtOutputHandler()
+        if self.output_config.outputFormat == 'yaml':
+            output_handler = YamlOutputHandler(configs, query_name)
+        elif self.output_config.outputFormat == 'json':
+            output_handler = JsonOutputHandler(configs, query_name)
+        else:
+            output_handler = TxtOutputHandler()
         return output_handler.compute_query_output(query_answer)
 
     @abstractmethod

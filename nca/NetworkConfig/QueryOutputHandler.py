@@ -2,6 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+import json
 from abc import abstractmethod
 from dataclasses import dataclass, field
 import yaml
@@ -352,6 +353,15 @@ class YamlOutputHandler:
     @staticmethod
     def dump_content(output_content):
         return yaml.dump(output_content, None, default_flow_style=False, sort_keys=False) + '---\n'
+
+
+class JsonOutputHandler(YamlOutputHandler):
+    def __init__(self, configs, query_name):
+        super().__init__(configs, query_name)
+
+    @staticmethod
+    def dump_content(output_content):
+        return json.dumps(output_content, indent=2, sort_keys=False)
 
 
 class TxtOutputHandler:

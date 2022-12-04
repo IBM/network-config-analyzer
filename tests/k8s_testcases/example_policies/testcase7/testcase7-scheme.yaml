@@ -70,6 +70,16 @@ queries:
     expectedOutput: ../../expected_output/containment-np2-and-np1-all-pairs.yaml
     expected: 0
 
+  - name: containment_np2_and_np1_print_all_pairs_json
+    containment:
+      - np2
+      - np1
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: json
+    expectedOutput: ../../expected_output/containment-np2-and-np1-all-pairs.json
+    expected: 0
+
   - name: connectivity_map
     connectivityMap:
       - np1
