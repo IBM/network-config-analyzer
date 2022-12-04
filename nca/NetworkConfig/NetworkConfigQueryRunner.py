@@ -210,13 +210,20 @@ class NetworkConfigQueryRunner:
     def _return_final_query_results(self, res, output, queries_not_executed):
         """
         gets the final query results after running it on all iterations of configs_array
-        computes the final output of the query - if output format is json, dumps the output list into one-top-leveled
-        string
-        returns the results
+        computes the final str output of the query - (other results returned as is)
+        if output format is json, dumps the output list into one-top-leveled string
+        if the list includes only one json object, then it dumps it (output[0]), to avoid unnecessary [] in output
+        :param int res: the numerical result sum of running the query
+        :param Union[list, str] output: the output of running all query iterations
+        :param int queries_not_executed: number of times query was not executed
+        :return the results: numerical result, output - str , num of not executed
         :rtype: int, str, int
         """
         if self.json_flag:
-            output = self._dump_json_output(output)
+            if len(output) == 1:
+                output = self._dump_json_output(output[0])
+            else:
+                output = self._dump_json_output(output)
         return res, output, queries_not_executed
 
     @staticmethod
@@ -246,7 +253,8 @@ class NetworkConfigQueryRunner:
                 if golden_file_line_num != len(actual_output_lines) - 1:
                     # allow a few empty lines in actual results
                     for i in range(golden_file_line_num + 1, len(actual_output_lines)):
-                        if actual_output_lines[i]:
+                        if actual_output_lines[i] and actual_output_lines[i] != '---':
+                            # to avoid failing if the yaml expected output ends with ---
                             print('Error: Expected results have less lines than actual results')
                             print('Comparing Result Failed \n')
                             return 1

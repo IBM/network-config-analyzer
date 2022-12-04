@@ -1,0 +1,106 @@
+[
+  {
+    "query": "test_app_label, config: test1",
+    "rules": [
+      {
+        "src_ip_block": [
+          "0.0.0.0/0"
+        ],
+        "dst_ns": [
+          "default"
+        ],
+        "dst_pods": [
+          "has(app)"
+        ],
+        "connection": [
+          "All connections"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "test_app_label, config: test2",
+    "rules": [
+      {
+        "src_ip_block": [
+          "0.0.0.0/0"
+        ],
+        "dst_ns": [
+          "default"
+        ],
+        "dst_pods": [
+          "app in (A,B)"
+        ],
+        "connection": [
+          "All connections"
+        ]
+      },
+      {
+        "src_ip_block": [
+          "0.0.0.0/0"
+        ],
+        "dst_ns": [
+          "default"
+        ],
+        "dst_pods": [
+          "c"
+        ],
+        "connection": [
+          "All connections"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "test_app_label, config: test3",
+    "rules": [
+      {
+        "src_ip_block": [
+          "0.0.0.0/0"
+        ],
+        "dst_ns": [
+          "default"
+        ],
+        "dst_pods": [
+          "!has(app) or app=dev"
+        ],
+        "connection": [
+          "All connections"
+        ]
+      }
+    ]
+  },
+  {
+    "query": "test_app_label, config: test4",
+    "rules": [
+      {
+        "src_ip_block": [
+          "0.0.0.0/0"
+        ],
+        "dst_ns": [
+          "default"
+        ],
+        "dst_pods": [
+          "app=dev"
+        ],
+        "connection": [
+          "All connections"
+        ]
+      },
+      {
+        "src_ip_block": [
+          "0.0.0.0/0"
+        ],
+        "dst_ns": [
+          "default"
+        ],
+        "dst_pods": [
+          "d"
+        ],
+        "connection": [
+          "All connections"
+        ]
+      }
+    ]
+  }
+]

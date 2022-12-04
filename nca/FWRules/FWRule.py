@@ -145,9 +145,9 @@ class FWRuleElement:
         """
         self.ns_info = ns_info
 
-    def get_elem_yaml_obj(self):
+    def get_elem_list_obj(self):
         """
-        :return: list[string] for the field src_pods or dst_pods in representation for yaml object
+        :return: list[string] for the field src_pods or dst_pods in representation for yaml/json object
         """
         # for an element of type FWRuleElement, the level of granularity is entire ns
         # thus, returning  "*" for representation of all pods in the ns
@@ -234,9 +234,9 @@ class PodElement(FWRuleElement):
         self.element = element
         self.output_as_deployment = output_as_deployment
 
-    def get_elem_yaml_obj(self):
+    def get_elem_list_obj(self):
         """
-        :return: list[string] for the field src_pods or dst_pods in representation for yaml object
+        :return: list[string] for the field src_pods or dst_pods in representation for yaml/json object
         """
         return [str(self._get_pod_name())]
 
@@ -301,9 +301,9 @@ class PodLabelsElement(FWRuleElement):
         super().__init__(ns_info)
         self.element = element
 
-    def get_elem_yaml_obj(self):
+    def get_elem_list_obj(self):
         """
-        :return: list[string] for the field src_pods or dst_pods in representation for yaml object
+        :return: list[string] for the field src_pods or dst_pods in representation for yaml/json object
         """
         return [str(self.element)]
 
@@ -373,7 +373,7 @@ class IPBlockElement(FWRuleElement):
         """
         return ''
 
-    def get_elem_yaml_obj(self):
+    def get_elem_list_obj(self):
         """
         :return: list of strings of ip-blocks represented by this element
         """
@@ -415,7 +415,7 @@ class FWRule:
     """
 
     rule_csv_header = ['query', 'src_ns', 'src_pods', 'dst_ns', 'dst_pods', 'connection']
-    supported_formats = {'txt', 'yaml', 'csv', 'md'}
+    supported_formats = {'txt', 'yaml', 'csv', 'md', 'json'}
 
     def __init__(self, src, dst, conn):
         """
@@ -496,16 +496,16 @@ class FWRule:
             row.append(self.get_rule_component_str(component))
         return row
 
-    def get_rule_yaml_obj(self):
+    def get_rule_dict_obj(self):
         """
-        :return:  a dict with content representing the fw-rule, for output in yaml format
+        :return:  a dict with content representing the fw-rule, for output in yaml/ json format
         """
         src_ns_list = sorted([str(ns) for ns in self.src.ns_info])
         dst_ns_list = sorted([str(ns) for ns in self.dst.ns_info])
-        src_pods_list = self.src.get_elem_yaml_obj() if not isinstance(self.src, IPBlockElement) else None
-        dst_pods_list = self.dst.get_elem_yaml_obj() if not isinstance(self.dst, IPBlockElement) else None
-        src_ip_block_list = sorted(self.src.get_elem_yaml_obj()) if isinstance(self.src, IPBlockElement) else None
-        dst_ip_block_list = sorted(self.dst.get_elem_yaml_obj()) if isinstance(self.dst, IPBlockElement) else None
+        src_pods_list = self.src.get_elem_list_obj() if not isinstance(self.src, IPBlockElement) else None
+        dst_pods_list = self.dst.get_elem_list_obj() if not isinstance(self.dst, IPBlockElement) else None
+        src_ip_block_list = sorted(self.src.get_elem_list_obj()) if isinstance(self.src, IPBlockElement) else None
+        dst_ip_block_list = sorted(self.dst.get_elem_list_obj()) if isinstance(self.dst, IPBlockElement) else None
         conn_list = self.conn.get_simplified_connections_representation(False)
 
         rule_obj = {}
@@ -531,14 +531,14 @@ class FWRule:
     def get_rule_in_req_format(self, req_format):
         """
         get fw-rule representation according to required format :
-        yaml: dict object
+        yaml/ json: dict object
         csv: list of strings
         txt: string
         :param str req_format: a string of the required format, should be in supported_formats
         :return: Union[str,dict,list] the fw-rule representation according to required format
         """
-        if req_format == 'yaml':
-            return self.get_rule_yaml_obj()
+        if req_format in ['yaml', 'json']:
+            return self.get_rule_dict_obj()
         if req_format in ['csv', 'md']:
             return self.get_rule_csv_row()
         if req_format == 'txt':

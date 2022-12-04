@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import itertools
+import json
 import os
 from abc import abstractmethod
 from collections import defaultdict
@@ -617,7 +618,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md', 'dot'}
+        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json'}
 
     def is_in_subset(self, peer):
         """
@@ -864,7 +865,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md'}
+        return {'txt', 'yaml', 'csv', 'md', 'json'}
 
     def get_explanation_from_conn_graph(self, is_added, conn_graph, is_first_connectivity_result):
         """
@@ -885,6 +886,23 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         else:
             explanation = fw_rules_output
         return explanation
+
+    @staticmethod
+    def _append_json_explanation(conn_graph_explanation, explanation):
+        """
+        handles append two json explanation in a correct format
+        :param str conn_graph_explanation : explanation to add
+        :param str explanation: current explanation to be extended
+        :return the new extended explanation in json str format
+        :rtype: str
+        """
+        if conn_graph_explanation == '':
+            return explanation
+        if explanation == '':
+            return conn_graph_explanation
+        else:
+            extended_explanation = [json.loads(explanation), json.loads(conn_graph_explanation)]
+        return json.dumps(extended_explanation, indent=2, sort_keys=False)
 
     def get_results_for_computed_fw_rules(self, keys_list, conn_graph_removed_per_key, conn_graph_added_per_key):
         """
@@ -909,13 +927,21 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 explanation += f'{key}:\n'
 
             if is_added:
-                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns,
-                                                                    res == 0) if add_explanation else ''
+                conn_graph_explanation = self.get_explanation_from_conn_graph(True, conn_graph_added_conns,
+                                                                              res == 0) if add_explanation else ''
+                if self.output_config.outputFormat == 'json':
+                    explanation = self._append_json_explanation(conn_graph_explanation, explanation)
+                else:
+                    explanation += conn_graph_explanation
                 res += 1
 
             if is_removed:
-                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns,
+                conn_graph_explanation = self.get_explanation_from_conn_graph(False, conn_graph_removed_conns,
                                                                     res == 0) if add_explanation else ''
+                if self.output_config.outputFormat == 'json':
+                    explanation = self._append_json_explanation(conn_graph_explanation, explanation)
+                else:
+                    explanation += conn_graph_explanation
                 res += 1
 
         return res, explanation

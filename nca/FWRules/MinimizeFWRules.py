@@ -2,7 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+import json
 import yaml
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP
@@ -686,9 +686,12 @@ class MinimizeFWRules:
                 res = f'final fw rules for query: {query_name}:\n' + res
             return res
 
-        elif req_format == 'yaml':
-            yaml_query_content = [{'query': query_name, 'rules': rules_list}]
-            res = yaml.dump(yaml_query_content, None, default_flow_style=False, sort_keys=False)
+        elif req_format in ['yaml', 'json']:
+            dict_query_content = [{'query': query_name, 'rules': rules_list}]
+            if req_format == 'yaml':
+                res = yaml.dump(dict_query_content, None, default_flow_style=False, sort_keys=False)
+            else:  # json dumps the dict
+                res = json.dumps(dict_query_content[0], indent=2, sort_keys=False)
             return res
 
         elif req_format in ['csv', 'md']:
@@ -714,7 +717,7 @@ class MinimizeFWRules:
         """
         Get a sorted list of rules in required format:
         txt -> list of str objects
-        yaml -> list of dict objects
+        yaml/json -> list of dict objects
         csv/md -> list of list objects
         :param str req_format: the required format, should be in FWRule.supported_formats
         :return: a list of objects representing the fw-rules in the required format

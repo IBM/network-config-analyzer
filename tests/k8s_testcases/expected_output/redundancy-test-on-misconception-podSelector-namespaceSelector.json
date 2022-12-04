@@ -1,24 +1,22 @@
-[
-  {
-    "query": "redundancy_test_on_misconception_podSelector-namespaceSelector_json",
-    "configs": [
-      "sanity-misconception-podSelector-namespaceSelector"
-    ],
-    "numerical_result": 2,
-    "textual_result": "Redundancies found in sanity-misconception-podSelector-namespaceSelector",
-    "explanation": [
-      {
-        "description": "Ingress rules that are redundant in sanity-misconception-podSelector-namespaceSelector",
-        "pairs": [
-          {
-            "policy": "default/wrong-allow-traffic-from-specific-pods-in-external-namespace",
-            "ingress_rules_indexes": [
-              "1",
-              "2"
-            ]
-          }
-        ]
-      }
-    ]
-  }
-]
+{
+  "query": "redundancy_test_on_misconception_podSelector-namespaceSelector_json",
+  "configs": [
+    "sanity-misconception-podSelector-namespaceSelector"
+  ],
+  "numerical_result": 2,
+  "textual_result": "Redundancies found in sanity-misconception-podSelector-namespaceSelector",
+  "explanation": [
+    {
+      "description": "Ingress rules that are redundant in sanity-misconception-podSelector-namespaceSelector",
+      "pairs": [
+        {
+          "policy": "default/wrong-allow-traffic-from-specific-pods-in-external-namespace",
+          "ingress_rules_indexes": [
+            "1",
+            "2"
+          ]
+        }
+      ]
+    }
+  ]
+}
