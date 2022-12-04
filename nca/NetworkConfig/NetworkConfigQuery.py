@@ -937,7 +937,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
             if is_removed:
                 conn_graph_explanation = self.get_explanation_from_conn_graph(False, conn_graph_removed_conns,
-                                                                    res == 0) if add_explanation else ''
+                                                                              res == 0) if add_explanation else ''
                 if self.output_config.outputFormat == 'json':
                     explanation = self._append_json_explanation(conn_graph_explanation, explanation)
                 else:
