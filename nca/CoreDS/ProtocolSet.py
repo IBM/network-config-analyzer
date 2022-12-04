@@ -12,8 +12,9 @@ class ProtocolSet(CanonicalIntervalSet):
     A class for holding a set of HTTP methods
     """
 
-    # According to https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
-    all_protocols_list = ProtocolNameResolver.get_all_protocols_list()
+    #all_protocols_list = ProtocolNameResolver.get_all_protocols_list()
+    min_protocol_num = 0
+    max_protocol_num = 255
 
     def __init__(self, all_protocols=False):
         """
@@ -25,12 +26,25 @@ class ProtocolSet(CanonicalIntervalSet):
 
     def add_protocol(self, protocol):
         """
-        Adds a given protocol to the ProtocolSet if the method is one of the eligible protocols (in all_protocols_list);
-        otherwise raises ValueError exception
-        :param str protocol: the protocol to add
+        Adds a given protocol to the ProtocolSet if the protocol is one of the eligible protocols
+         (i.e., protocol in [min_protocol_num...max_protocol_num]);
+        otherwise raises exception
+        :param int protocol: the protocol to add
         """
-        index = self.all_protocols_list.index(protocol)
-        self.add_interval(self.Interval(index, index))
+        if not ProtocolNameResolver.is_valid_protocol(protocol):
+            raise Exception('Protocol must be in the range 0-255')
+        self.add_interval(self.Interval(protocol, protocol))
+
+    def remove_protocol(self, protocol):
+        """
+        Removes a given protocol from the ProtocolSet if the protocol is one of the eligible protocols
+        (i.e., protocol in [min_protocol_num...max_protocol_num]);
+        otherwise raises exception
+        :param int protocol: the protocol to remove
+        """
+        if not ProtocolNameResolver.is_valid_protocol(protocol):
+            raise Exception('Protocol must be in the range 0-255')
+        self.add_hole(self.Interval(protocol, protocol))
 
     def set_protocols(self, protocols):
         """
@@ -45,7 +59,7 @@ class ProtocolSet(CanonicalIntervalSet):
         """
         :return: the interval representing the whole range (all protocols)
         """
-        return CanonicalIntervalSet.Interval(0, len(ProtocolSet.all_protocols_list) - 1)
+        return CanonicalIntervalSet.Interval(ProtocolSet.min_protocol_num, ProtocolSet.max_protocol_num)
 
     @staticmethod
     def _whole_range_interval_set():
@@ -70,9 +84,10 @@ class ProtocolSet(CanonicalIntervalSet):
         """
         res = []
         for interval in interval_set:
-            assert interval.start >= 0 and interval.end < len(ProtocolSet.all_protocols_list)
+            assert interval.start >= ProtocolSet.min_protocol_num and interval.end <= ProtocolSet.max_protocol_num
             for index in range(interval.start, interval.end + 1):
-                res.append(ProtocolSet.all_protocols_list[index])
+                name = ProtocolNameResolver.get_protocol_name(index)
+                res.append(name if name else str(index))
         return res
 
     @staticmethod
@@ -82,10 +97,8 @@ class ProtocolSet(CanonicalIntervalSet):
         :param CanonicalIntervalSet interval_set: the interval set
         :return: the list of complement protocol names
         """
-        res = ProtocolSet.all_protocols_list.copy()
-        for protocol in ProtocolSet.get_protocol_names_from_interval_set(interval_set):
-            res.remove(protocol)
-        return res
+        res_interval_set = ProtocolSet._whole_range_interval_set() - interval_set
+        return ProtocolSet.get_protocol_names_from_interval_set(res_interval_set)
 
     def __str__(self):
         """

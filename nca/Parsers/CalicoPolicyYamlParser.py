@@ -9,6 +9,7 @@ from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
 from nca.CoreDS.Peer import PeerSet, IpBlock
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ICMPDataSet import ICMPDataSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -411,11 +412,11 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         :return: The protocol number
         :rtype: int
         """
-        if not protocol:
+        if protocol is None:
             return None
         if isinstance(protocol, int):
-            if protocol < 1 or protocol > 255:
-                self.syntax_error('protocol must be a string or an integer in the range 1-255', rule)
+            if not ProtocolNameResolver.is_valid_protocol(protocol):
+                self.syntax_error('protocol must be a string or an integer in the range 0-255', rule)
             return protocol
 
         if protocol not in ['TCP', 'UDP', 'ICMP', 'ICMPv6', 'SCTP', 'UDPLite']:
@@ -429,8 +430,9 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         :param bool is_ingress: Whether this is an ingress rule
         :param PeerSet policy_selected_eps: The endpoints the policy captured
         :param bool is_profile: Whether the parsed policy is a Profile object
-        :return: A CalicoPolicyRule with the proper PeerSets, ConnectionSets and Action
-        :rtype: CalicoPolicyRule
+        :return: A tuple (CalicoPolicyRule, TcpLikeProperties) with the proper PeerSets, ConnectionSets and Action,
+        where TcpLikeProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
+        :rtype: tuple(CalicoPolicyRule, TcpLikeProperties)
         """
         allowed_keys = {'action': 1, 'protocol': 0, 'notProtocol': 0, 'icmp': 0, 'notICMP': 0, 'ipVersion': 0,
                         'source': 0, 'destination': 0, 'http': 2}
@@ -465,7 +467,10 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             src_res_pods &= policy_selected_eps
 
         connections = ConnectionSet()
+        tcp_props = None
         if protocol is not None:
+            protocols = ProtocolSet()
+            protocols.add_protocol(protocol)
             if not_protocol is not None:
                 if protocol == not_protocol:
                     self.warning('Protocol and notProtocol are conflicting, no traffic will be matched', rule)
@@ -474,16 +479,34 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             else:
                 if protocol_supports_ports:
                     connections.add_connections(protocol, TcpLikeProperties(src_res_ports, dst_res_ports))
+                    src_num_port_set = PortSet()
+                    src_num_port_set.port_set = src_res_ports.port_set.copy()
+                    dst_num_port_set = PortSet()
+                    dst_num_port_set.port_set = dst_res_ports.port_set.copy()
+                    tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container, src_num_port_set,
+                                                                           dst_num_port_set, protocols,
+                                                                           src_res_pods, dst_res_pods)
                 elif ConnectionSet.protocol_is_icmp(protocol):
                     connections.add_connections(protocol, self._parse_icmp(rule.get('icmp'), rule.get('notICMP')))
+                    # TODO - update tcp_props
                 else:
                     connections.add_connections(protocol, True)
+                    tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True),
+                                                                           PortSet(True), protocols,
+                                                                           src_res_pods, dst_res_pods)
         elif not_protocol is not None:
             connections.add_all_connections()
             connections.remove_protocol(not_protocol)
+            protocols = ProtocolSet(True)
+            protocols.remove_protocol(not_protocol)
+            tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True),
+                                                                   PortSet(True), protocols,
+                                                                   src_res_pods, dst_res_pods)
         else:
             connections.allow_all = True
-
+            tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True),
+                                                                   PortSet(True), ProtocolSet(True),
+                                                                   src_res_pods, dst_res_pods)
         self._verify_named_ports(rule, dst_res_pods, connections)
 
         if not src_res_pods and policy_selected_eps and (is_ingress or not is_profile):
@@ -491,7 +514,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if not dst_res_pods and policy_selected_eps and (not is_ingress or not is_profile):
             self.warning('Rule selects no destination endpoints', rule)
 
-        return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action)
+        return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action), tcp_props
 
     def _verify_named_ports(self, rule, rule_eps, rule_conns):
         """
@@ -631,12 +654,26 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.syntax_error('order is not allowed in the spec of a Profile', policy_spec)
 
         for ingress_rule in policy_spec.get('ingress', []):
-            rule = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
+            rule, optimized_props = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
             res_policy.add_ingress_rule(rule)
+            if rule.action != CalicoPolicyRule.ActionType.Pass:
+                # handle the order of rules
+                if rule.action == CalicoPolicyRule.ActionType.Allow and res_policy.optimized_denied_ingress_props:
+                    optimized_props -= res_policy.optimized_denied_ingress_props
+                elif rule.action == CalicoPolicyRule.ActionType.Deny and res_policy.optimized_ingress_props:
+                    optimized_props -= res_policy.optimized_ingress_props
+                res_policy.add_optimized_ingress_props(optimized_props, rule.action == CalicoPolicyRule.ActionType.Allow)
 
         for egress_rule in policy_spec.get('egress', []):
-            rule = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
+            rule, optimized_props = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
             res_policy.add_egress_rule(rule)
+            if rule.action != CalicoPolicyRule.ActionType.Pass:
+                # handle the order of rules
+                if rule.action == CalicoPolicyRule.ActionType.Allow and res_policy.optimized_denied_egress_props:
+                    optimized_props -= res_policy.optimized_denied_egress_props
+                elif rule.action == CalicoPolicyRule.ActionType.Deny and res_policy.optimized_egress_props:
+                    optimized_props -= res_policy.optimized_egress_props
+                res_policy.add_optimized_egress_props(optimized_props, rule.action == CalicoPolicyRule.ActionType.Allow)
 
         self._apply_extra_labels(policy_spec, is_profile, res_policy.name)
         res_policy.findings = self.warning_msgs

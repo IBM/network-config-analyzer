@@ -612,15 +612,15 @@ class PeerSet(set):
                         assert False
         return res
 
-    def get_peer_set_by_indices(self, peer_inteval_set):
+    def get_peer_set_by_indices(self, peer_interval_set):
         """
-        Return peer list from interval set of indices
-        :param peer_inteval_set: the interval set of indices into the sorted peer list
-        :return: the list of peers referenced by the indices in the interval set
+        Return peer set from interval set of indices
+        :param peer_interval_set: the interval set of indices into the sorted peer list
+        :return: the PeerSet of peers referenced by the indices in the interval set
         """
         self.update_sorted_peer_list_if_needed()
         peer_list = []
-        for interval in peer_inteval_set:
+        for interval in peer_interval_set:
             if interval.end <= self.max_ipv4_index:
                 # this is IPv4Address
                 start = ipaddress.IPv4Address(interval.start - self.min_ipv4_index)

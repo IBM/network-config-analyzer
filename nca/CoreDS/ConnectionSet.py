@@ -16,10 +16,10 @@ class ConnectionSet:
     _icmp_protocols = {1, 58}
     port_supporting_protocols = {6, 17, 132}
     _max_protocol_num = 255
-    _min_protocol_num = 1
+    _min_protocol_num = 0
 
     def __init__(self, allow_all=False):
-        self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
+        self.allowed_protocols = {}  # a map from protocol number (0-255) to allowed properties (ports, icmp)
         self.allow_all = allow_all  # Shortcut to represent all connections, and then allowed_protocols is to be ignored
 
     def __bool__(self):
@@ -377,20 +377,26 @@ class ConnectionSet:
     @staticmethod
     def protocol_supports_ports(protocol):
         """
-        :param protocol: Protocol number
+        :param protocol: Protocol number or name
         :return: Whether the given protocol has ports
         :rtype: bool
         """
-        return protocol in ConnectionSet.port_supporting_protocols
+        prot = protocol
+        if isinstance(protocol, str):
+            prot = ProtocolNameResolver.get_protocol_number(protocol)
+        return prot in ConnectionSet.port_supporting_protocols
 
     @staticmethod
     def protocol_is_icmp(protocol):
         """
-        :param protocol: Protocol number
+        :param protocol: Protocol number or name
         :return: Whether the protocol is icmp or icmpv6
         :rtype: bool
         """
-        return protocol in ConnectionSet._icmp_protocols
+        prot = protocol
+        if isinstance(protocol, str):
+            prot = ProtocolNameResolver.get_protocol_number(protocol)
+        return prot in ConnectionSet._icmp_protocols
 
     def add_connections(self, protocol, properties=True):
         """
@@ -402,8 +408,8 @@ class ConnectionSet:
         """
         if isinstance(protocol, str):
             protocol = ProtocolNameResolver.get_protocol_number(protocol)
-        if protocol < 1 or protocol > 255:
-            raise Exception('Protocol must be in the range 1-255')
+        if not ProtocolNameResolver.is_valid_protocol(protocol):
+            raise Exception('Protocol must be in the range 0-255')
         if not bool(properties):  # if properties are empty, there is nothing to add
             return
         if protocol in self.allowed_protocols:
@@ -419,8 +425,8 @@ class ConnectionSet:
         """
         if isinstance(protocol, str):
             protocol = ProtocolNameResolver.get_protocol_number(protocol)
-        if protocol < 1 or protocol > 255:
-            raise Exception('Protocol must be in the range 1-255')
+        if not ProtocolNameResolver.is_valid_protocol(protocol):
+            raise Exception('Protocol must be in the range 0-255')
         if protocol not in self.allowed_protocols:
             return
         del self.allowed_protocols[protocol]

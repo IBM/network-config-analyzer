@@ -7,6 +7,7 @@ from functools import reduce
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.Peer import PeerSet
+from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
@@ -329,7 +330,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         for http_route in vs.http_routes:
             for dest in http_route.destinations:
                 conns = \
-                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, dest.port,
+                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True), dest.port,
                                                                dst_peers=dest.service.target_pods,
                                                                paths_dfa=http_route.uri_dfa, hosts_dfa=host_dfa,
                                                                methods=http_route.methods)

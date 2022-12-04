@@ -118,6 +118,23 @@ class CalicoNetworkPolicy(NetworkPolicy):
 
         return PolicyConnections(True, allowed_conns, denied_conns, pass_conns)
 
+    def allowed_connections_optimized(self, is_ingress):
+        """
+        Evaluate the set of connections this policy allows/denies/passes between any two peers
+        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
+        A TcpLikeProperties object containing all allowed connections for relevant peers,
+        TcpLikeProperties object containing all denied connections,
+        and the peer set of captured peers that are not a part of allowed connections.
+        :rtype: tuple (TcpLikeProperties, TcpLikeProperties, PeerSet)
+        """
+        if is_ingress:
+            allowed = self.optimized_ingress_props.copy() if self.optimized_ingress_props else None
+            denied = self.optimized_denied_ingress_props.copy() if self.optimized_denied_ingress_props else None
+        else:
+            allowed = self.optimized_egress_props.copy() if self.optimized_egress_props else None
+            denied = self.optimized_denied_egress_props.copy() if self.optimized_denied_egress_props else None
+        return allowed, denied, Peer.PeerSet()
+
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """
         Makes a copy of 'self' without a given policy rule

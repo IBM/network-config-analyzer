@@ -67,16 +67,21 @@ class K8sNetworkPolicy(NetworkPolicy):
         Return the set of connections this policy allows between any two peers
         (either ingress or egress).
         :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
-        :return: A TcpLikeProperties object containing all allowed connections for relevant peers
-        :rtype: TcpLikeProperties
+        :return: A TcpLikeProperties object containing all allowed connections for relevant peers,
+        None for denied connections (K8s does not have denied),
+        and the peer set of captured peers that are not a part of allowed connections.
+        :rtype: tuple (TcpLikeProperties, TcpLikeProperties, PeerSet)
         """
+        add_to_captured = Peer.PeerSet()
         if is_ingress:
             allowed = self.optimized_ingress_props.copy() if self.optimized_ingress_props else None
-            denied = self.optimized_denied_ingress_props.copy() if self.optimized_denied_ingress_props else None
+            if self.optimized_denied_ingress_props:
+                add_to_captured = self.optimized_denied_ingress_props.project_on_one_dimension('dst_peers')
         else:
             allowed = self.optimized_egress_props.copy() if self.optimized_egress_props else None
-            denied = self.optimized_denied_egress_props.copy() if self.optimized_denied_egress_props else None
-        return allowed, denied
+            if self.optimized_denied_egress_props:
+                add_to_captured = self.optimized_denied_egress_props.project_on_one_dimension('src_peers')
+        return allowed, None, add_to_captured
 
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """

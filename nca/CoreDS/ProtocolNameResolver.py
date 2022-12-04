@@ -57,6 +57,10 @@ class ProtocolNameResolver:
                                      140: 'Shim6', 141: 'WESP', 142: 'ROHC', 143: 'Ethernet'}
 
     @staticmethod
+    def is_valid_protocol(protocol):
+        return protocol >= 0 and protocol <= 255
+
+    @staticmethod
     def get_all_protocols_list():
         return list(ProtocolNameResolver._protocol_name_to_number_dict.keys())
 
@@ -68,8 +72,8 @@ class ProtocolNameResolver:
                  its 'name' for lack of a specific one.
         :rtype: str
         """
-        if protocol_number < 1 or protocol_number > 255:
-            raise Exception('Protocol number must be in the range 1-255')
+        if not ProtocolNameResolver.is_valid_protocol(protocol_number):
+            raise Exception('Protocol number must be in the range 0-255')
 
         return ProtocolNameResolver._protocol_number_to_name_dict.get(protocol_number, str(protocol_number))
 
@@ -84,8 +88,10 @@ class ProtocolNameResolver:
             return protocol_name
 
         protocol_num = ProtocolNameResolver._protocol_name_to_number_dict.get(protocol_name)
-        if not protocol_num:
-            raise Exception('Unknown protocol name: ' + protocol_name)
+        if protocol_num is None:
+            protocol_num = int(protocol_name)
+            if not ProtocolNameResolver.is_valid_protocol(protocol_num):
+                raise Exception('Unknown protocol name: ' + protocol_name)
 
         return protocol_num
 

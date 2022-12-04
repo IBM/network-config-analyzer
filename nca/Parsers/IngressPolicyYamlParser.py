@@ -173,12 +173,14 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         if self.default_backend_peers:
             if paths_dfa:
                 default_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, self.default_backend_ports,
+                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True),
+                                                               self.default_backend_ports,
                                                                dst_peers=self.default_backend_peers,
                                                                paths_dfa=paths_dfa, hosts_dfa=hosts_dfa)
             else:
                 default_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, self.default_backend_ports,
+                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True),
+                                                               self.default_backend_ports,
                                                                dst_peers=self.default_backend_peers,
                                                                hosts_dfa=hosts_dfa)
         return default_conns
@@ -206,7 +208,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             parsed_paths_with_dfa = self.segregate_longest_paths_and_make_dfa(parsed_paths)
             for (_, paths_dfa, _, peers, ports) in parsed_paths_with_dfa:
                 # every path is converted to allowed connections
-                conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container, ports, dst_peers=peers,
+                conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True), ports,
+                                                                   dst_peers=peers,
                                                                    paths_dfa=paths_dfa, hosts_dfa=hosts_dfa)
                 if not allowed_conns:
                     allowed_conns = conns

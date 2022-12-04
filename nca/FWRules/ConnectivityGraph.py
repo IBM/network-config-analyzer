@@ -9,6 +9,7 @@ from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ICMPDataSet import ICMPDataSet
 from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
 
@@ -104,10 +105,17 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
             protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
             for protocol in protocol_names:
                 if new_cube_dict:
+                    # TODO - support ICMP
+                    assert ConnectionSet.protocol_supports_ports(protocol)
                     conns.add_connections(protocol, TcpLikeProperties.make_tcp_like_properties_from_dict(peer_container,
                                                                                                          new_cube_dict))
                 else:
-                    conns.add_connections(protocol, TcpLikeProperties(PortSet(True), PortSet(True)))
+                    if ConnectionSet.protocol_supports_ports(protocol):
+                        conns.add_connections(protocol, TcpLikeProperties(PortSet(True), PortSet(True)))
+                    elif ConnectionSet.protocol_is_icmp(protocol):
+                        conns.add_connections(protocol, ICMPDataSet(add_all=True))
+                    else:
+                        conns.add_connections(protocol, True)
         for src_peer in src_peers:
             for dst_peer in dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))
