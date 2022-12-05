@@ -19,8 +19,6 @@ class NetworkConfigQueryRunner:
         self.query_name = f'{key_name[0].upper()+key_name[1:]}Query'
         self.configs_array = configs_array
         self.output_configuration = output_configuration
-        # an indicator if the required outputFormat is json, since it requires a special handling
-        self.json_flag = self.output_configuration.outputFormat == 'json'
         self.network_configs = network_configs
         self.expected_output_file = expected_output
 
@@ -179,7 +177,7 @@ class NetworkConfigQueryRunner:
         """
         # json results will be appended in a list, and finally be dumped into string to
         # ensure all results are written under one top level object to get a fixed json output format
-        output = [] if self.json_flag else ''
+        output = [] if self.output_configuration.outputFormat == 'json' else ''
         return 0, output, 0
 
     def _update_query_results_after_one_iteration(self, result, iter_res, output, iter_output, num_not_exec, iter_not_exec):
@@ -200,7 +198,7 @@ class NetworkConfigQueryRunner:
         rtype: int , Union[list, str], int
         """
         result += iter_res
-        if self.json_flag:
+        if self.output_configuration.outputFormat == 'json':
             output.append(json.loads(iter_output))
         else:
             output += iter_output + '\n'
@@ -219,7 +217,7 @@ class NetworkConfigQueryRunner:
         :return the results: numerical result, output - str , num of not executed
         :rtype: int, str, int
         """
-        if self.json_flag:
+        if self.output_configuration.outputFormat == 'json':
             if len(output) == 1:
                 output = self._dump_json_output(output[0])
             else:
