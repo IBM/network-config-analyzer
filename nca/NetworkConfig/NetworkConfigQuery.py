@@ -890,7 +890,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
     @staticmethod
     def _append_json_explanation(conn_graph_explanation, explanation):
         """
-        handles append two json explanation in a correct format
+        handles append two json explanation in a correct json format, i.e. unify strings in one top-level object
         :param str conn_graph_explanation : explanation to add
         :param str explanation: current explanation to be extended
         :return the new extended explanation in json str format
