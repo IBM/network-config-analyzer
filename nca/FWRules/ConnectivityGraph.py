@@ -88,12 +88,12 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
         if src_peers:
             new_cube_dict.pop('src_peers')
         else:
-            src_peers = PeerSet()
+            src_peers = peer_container.get_all_peers_group(True)
         dst_peers = new_cube_dict.get('dst_peers')
         if dst_peers:
             new_cube_dict.pop('dst_peers')
         else:
-            dst_peers = PeerSet()
+            dst_peers = peer_container.get_all_peers_group(True)
         protocols = new_cube_dict.get('protocols')
         if protocols:
             new_cube_dict.pop('protocols')

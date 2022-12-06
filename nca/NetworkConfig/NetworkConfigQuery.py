@@ -687,13 +687,14 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                      all_conns_opt.get_cube_dict_with_orig_values(cube))
                 conn_graph_opt.add_edge(all_conns_opt.get_cube_dict(cube))
             fw_rules2 = conn_graph2.get_minimized_firewall_rules()
+            fw_rules2.unite_fw_rules_with_same_peers()
             res_opt = QueryAnswer(True)
             if self.output_config.outputFormat == 'dot':
                 res_opt.output_explanation = conn_graph_opt.get_connectivity_dot_format_str()
                 fw_rules = conn_graph.get_minimized_firewall_rules()  # Temp for debugging
-                assert fw_rules == fw_rules2  # Temp for debugging
+                assert fw_rules.fw_rules_map == fw_rules2.fw_rules_map  # Temp for debugging
             else:
-                assert fw_rules == fw_rules2
+                assert fw_rules.fw_rules_map == fw_rules2.fw_rules_map
                 # res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()
                 # res.output_explanation += "---------------- OPTIMIZED RESULT: -------------\n" +\
                 #                           fw_rules2.get_fw_rules_in_required_format() + \
