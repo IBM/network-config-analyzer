@@ -3,11 +3,15 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-FROM registry.access.redhat.com/ubi8/python-39@sha256:82f2d23d9f93332c47bc4be0a05e9d0bbc07deed48e72bc14639fbfee8c5f237
+FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:6910799b75ad41f00891978575a0d955be2f800c51b955af73926e7ab59a41c3
 
 USER 0
 
-RUN yum -y upgrade
+RUN INSTALL_PKGS="python39 python39-devel python39-pip openssl tar gzip" && \
+    microdnf --nodocs -y upgrade && \
+    microdnf -y --setopt=tsflags=nodocs --setopt=install_weak_deps=0 install $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    microdnf -y clean all --enablerepo='*'
 
 COPY requirements.txt /nca/
 RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
