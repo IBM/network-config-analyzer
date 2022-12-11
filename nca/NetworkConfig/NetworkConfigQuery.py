@@ -11,6 +11,8 @@ from enum import Enum
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph, ConnectivityGraphOptimized
@@ -616,6 +618,20 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         return False
 
+    def compute_subset(self, peers):
+        """
+        Compures all peers that are in the defined subset out of the given peer set
+        :param PeerSet peers: the given peer set
+        :return: peers in the defined subset
+        """
+        if not self.output_config.subset:
+            return peers
+        res = PeerSet()
+        for peer in peers:
+            if self.is_in_subset(peer):
+                res.add(peer)
+        return res
+
     @staticmethod
     def are_labels_all_included(target_labels, pool_labels):
         for key, val in target_labels.items():
@@ -680,8 +696,21 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         all_conns_opt = self.config.allowed_connections_optimized()
         if all_conns_opt:
+            subset_peers = self.compute_subset(peers_to_compare)
+            src_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
+                                                                                   PortSet(True), PortSet(True),
+                                                                                   src_peers=subset_peers)
+            dst_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
+                                                                                   PortSet(True), PortSet(True),
+                                                                                   dst_peers=subset_peers)
+            all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
             conn_graph2 = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
             conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
+            # Add connections from peer to itself
+            auto_conns = defaultdict(list)
+            for peer in subset_peers:
+                auto_conns[ConnectionSet(True)].append((peer, peer))
+            conn_graph2.add_edges(auto_conns)
             for cube in all_conns_opt:
                 conn_graph2.add_edges_from_cube_dict(self.config.peer_container,
                                                      all_conns_opt.get_cube_dict_with_orig_values(cube))
@@ -691,8 +720,12 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_opt = QueryAnswer(True)
             if self.output_config.outputFormat == 'dot':
                 res_opt.output_explanation = conn_graph_opt.get_connectivity_dot_format_str()
-                fw_rules = conn_graph.get_minimized_firewall_rules()  # Temp for debugging
-                assert fw_rules.fw_rules_map == fw_rules2.fw_rules_map  # Temp for debugging
+                # Tanya: temp for debugging
+                orig_conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
+                orig_conn_graph.add_edges(connections)
+                orig_fw_rules = orig_conn_graph.get_minimized_firewall_rules()
+                assert orig_fw_rules.fw_rules_map == fw_rules2.fw_rules_map
+                # Tanya: end temp for debugging
             else:
                 assert fw_rules.fw_rules_map == fw_rules2.fw_rules_map
                 # res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()

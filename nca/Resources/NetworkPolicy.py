@@ -130,6 +130,8 @@ class NetworkPolicy:
         :param Bool is_allow: whether these are an allow or deny properties
         :return: None
         """
+        if not props:
+            return
         if is_allow:
             self.optimized_ingress_props = \
                 (self.optimized_ingress_props | props) if self.optimized_ingress_props else props
@@ -144,6 +146,8 @@ class NetworkPolicy:
         :param Bool is_allow: whether these are an allow or deny properties
         :return: None
         """
+        if not props:
+            return
         if is_allow:
             self.optimized_egress_props = \
                 (self.optimized_egress_props | props) if self.optimized_egress_props else props

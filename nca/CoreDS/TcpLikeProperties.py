@@ -301,20 +301,21 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         my_excluded_named_ports = self.excluded_named_ports
         self.excluded_named_ports = {}
 
+        active_dims = ["src_ports", "dst_ports"]
         for port in my_named_ports:
             real_port = named_ports.get(port)
             if real_port and real_port[1] == protocol:
                 real_port_number = real_port[0]
                 rectangle = [my_named_ports[port],
                              CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
-                self.add_cube(rectangle)
+                self.add_cube(rectangle, active_dims)
         for port in my_excluded_named_ports:
             real_port = named_ports.get(port)
             if real_port and real_port[1] == protocol:
                 real_port_number = real_port[0]
                 rectangle = [my_excluded_named_ports[port],
                              CanonicalIntervalSet.get_interval_set(real_port_number, real_port_number)]
-                self.add_hole(rectangle)
+                self.add_hole(rectangle, active_dims)
 
     def copy(self):
         res = TcpLikeProperties()
@@ -370,7 +371,16 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :return: the projection on the given dimension, having that dimension type (either IntervalSet or DFA)
         """
         if dim_name not in self.active_dimensions:
-            return None
+            if dim_name == "src_peers" or dim_name == "dst_peers":
+                return PeerSet()
+            elif dim_name == "src_ports" or dim_name == "dst_ports":
+                return PortSet()
+            elif dim_name == "protocols":
+                return ProtocolSet()
+            elif dim_name == "methods":
+                return MethodSet()
+            else:
+                return None
         res = None
         for cube in self:
             cube_dict = self.get_cube_dict_with_orig_values(cube)

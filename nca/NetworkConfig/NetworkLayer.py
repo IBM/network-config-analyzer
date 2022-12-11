@@ -233,7 +233,7 @@ class NetworkLayer:
         """
         allowed_conns = None
         denied_conns = None
-        add_to_captured = None
+        add_to_captured = PeerSet()
         for policy in self.policies_list:
             policy_allowed_conns, policy_denied_conns, policy_add_to_captured = \
                 policy.allowed_connections_optimized(is_ingress)
@@ -275,7 +275,7 @@ class K8sCalicoNetworkLayer(NetworkLayer):
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
         allowed_conn, denied_conns, add_to_captured = self.collect_policies_conns_optimized(is_ingress)
-        if not allowed_conn and not denied_conns:
+        if not allowed_conn and not denied_conns and not add_to_captured:
             return None, None
         # Note: The below computation of non-captured conns cannot be done during the parse stage,
         # since before computing non-captured conns we should collect all policies conns

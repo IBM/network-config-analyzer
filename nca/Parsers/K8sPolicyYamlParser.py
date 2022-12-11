@@ -320,34 +320,36 @@ class K8sPolicyYamlParser(GenericYamlParser):
         else:  # egress
             src_pods = policy_selected_pods
             dst_pods = res_pods
-        
+
+        res_opt_props = None  # TcpLikeProperties
         ports_array = rule.get('ports', [])
         if ports_array:
             res_conns = ConnectionSet()
-            res_opt_props = None  # TcpLikeProperties
             for port in ports_array:
                 protocol, dest_port_set = self.parse_port(port)
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
-                protocols = ProtocolSet()
-                protocols.add_protocol(protocol)
-                res_conns.add_connections(protocol, TcpLikeProperties(PortSet(True), dest_port_set))  # K8s doesn't reason about src ports
-                dest_num_port_set = PortSet()
-                dest_num_port_set.port_set = dest_port_set.port_set.copy()
-                tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                       PortSet(True), dest_num_port_set,
-                                                                       protocols, src_pods, dst_pods)
-                if res_opt_props:
-                    res_opt_props |= tcp_props
-                else:
-                    res_opt_props = tcp_props
-#                self.handle_named_ports(dst_pods, protocol, dest_port_set.named_ports, res_opt_props)
+                res_conns.add_connections(protocol, TcpLikeProperties(PortSet(True),
+                                                                      dest_port_set))  # K8s doesn't reason about src ports
+                if src_pods and dst_pods:
+                    protocols = ProtocolSet()
+                    protocols.add_protocol(protocol)
+
+                    dest_num_port_set = PortSet()
+                    dest_num_port_set.port_set = dest_port_set.port_set.copy()
+                    tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
+                                                                           PortSet(True), dest_num_port_set,
+                                                                           protocols, src_pods, dst_pods)
+                    if res_opt_props:
+                        res_opt_props |= tcp_props
+                    else:
+                        res_opt_props = tcp_props
         else:
             res_conns = ConnectionSet(True)
-            res_opt_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                       PortSet(True), PortSet(True),
-                                                                       src_peers=src_pods, dst_peers=dst_pods)
-
+            if src_pods and dst_pods:
+                res_opt_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
+                                                                           PortSet(True), PortSet(True),
+                                                                           src_peers=src_pods, dst_peers=dst_pods)
         if not res_pods:
             self.warning('Rule selects no pods', rule)
 
