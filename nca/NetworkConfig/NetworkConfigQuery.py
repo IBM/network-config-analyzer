@@ -10,7 +10,7 @@ from enum import Enum
 
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, HostEP
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
@@ -706,10 +706,11 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
             conn_graph2 = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
             conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
-            # Add connections from peer to itself
+            # Add connections from peer to itself (except for HEPs)
             auto_conns = defaultdict(list)
             for peer in subset_peers:
-                auto_conns[ConnectionSet(True)].append((peer, peer))
+                if not isinstance(peer, HostEP):
+                    auto_conns[ConnectionSet(True)].append((peer, peer))
             conn_graph2.add_edges(auto_conns)
             for cube in all_conns_opt:
                 conn_graph2.add_edges_from_cube_dict(self.config.peer_container,

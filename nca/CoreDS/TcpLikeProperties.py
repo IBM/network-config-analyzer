@@ -38,7 +38,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     (2) calico: +ve and -ve named ports, no src named ports, and no use of operators between these objects.
     """
 
-    dimensions_list = ["src_peers", "dst_peers", "protocols", "src_ports", "dst_ports", "methods", "paths", "hosts", ]
+    dimensions_list = ["src_peers", "dst_peers", "protocols", "src_ports", "dst_ports", "methods", "paths", "hosts"]
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
     def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), protocols=ProtocolSet(True),

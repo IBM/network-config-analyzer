@@ -275,35 +275,34 @@ class K8sCalicoNetworkLayer(NetworkLayer):
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
         allowed_conn, denied_conns, add_to_captured = self.collect_policies_conns_optimized(is_ingress)
-        if not allowed_conn and not denied_conns and not add_to_captured:
-            return None, None
         # Note: The below computation of non-captured conns cannot be done during the parse stage,
         # since before computing non-captured conns we should collect all policies conns
         # compute non-captured connections
         base_peer_set = peer_container.peer_set.copy()
         base_peer_set.add(IpBlock.get_all_ips_block())
+        base_peer_set_no_hep = PeerSet(set([peer for peer in base_peer_set if not isinstance(peer, HostEP)]))
         if is_ingress:
             captured_dst_peers1 = allowed_conn.project_on_one_dimension('dst_peers') if allowed_conn else PeerSet()
             captured_dst_peers2 = denied_conns.project_on_one_dimension('dst_peers') if denied_conns else PeerSet()
             captured_dst_peers = captured_dst_peers1 | captured_dst_peers2 | add_to_captured
-            if captured_dst_peers:
-                non_captured_dst_peers = base_peer_set - captured_dst_peers
-                if non_captured_dst_peers:
-                    non_captured_conns = \
-                        TcpLikeProperties.make_tcp_like_properties(peer_container, PortSet(True), PortSet(True),
-                                                                   dst_peers=non_captured_dst_peers)
-                    allowed_conn = (allowed_conn | non_captured_conns) if allowed_conn else non_captured_conns
+            non_captured_dst_peers = base_peer_set_no_hep - captured_dst_peers
+            if non_captured_dst_peers:
+                non_captured_conns = \
+                    TcpLikeProperties.make_tcp_like_properties(peer_container, PortSet(True), PortSet(True),
+                                                               src_peers=base_peer_set,
+                                                               dst_peers=non_captured_dst_peers)
+                allowed_conn = (allowed_conn | non_captured_conns) if allowed_conn else non_captured_conns
         else:
             captured_src_peers1 = allowed_conn.project_on_one_dimension('src_peers') if allowed_conn else PeerSet()
             captured_src_peers2 = denied_conns.project_on_one_dimension('src_peers') if denied_conns else PeerSet()
             captured_src_peers = captured_src_peers1 | captured_src_peers2 | add_to_captured
-            if captured_src_peers:
-                non_captured_src_peers = base_peer_set - captured_src_peers
-                if non_captured_src_peers:
-                    non_captured_conns = \
-                        TcpLikeProperties.make_tcp_like_properties(peer_container, PortSet(True), PortSet(True),
-                                                                   src_peers=non_captured_src_peers)
-                    allowed_conn = (allowed_conn | non_captured_conns) if allowed_conn else non_captured_conns
+            non_captured_src_peers = base_peer_set_no_hep - captured_src_peers
+            if non_captured_src_peers:
+                non_captured_conns = \
+                    TcpLikeProperties.make_tcp_like_properties(peer_container, PortSet(True), PortSet(True),
+                                                               src_peers=non_captured_src_peers,
+                                                               dst_peers=base_peer_set)
+                allowed_conn = (allowed_conn | non_captured_conns) if allowed_conn else non_captured_conns
 
         return allowed_conn, denied_conns
 
