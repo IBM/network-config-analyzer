@@ -2,13 +2,59 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+
 import json
+from dataclasses import dataclass, field
 import yaml
 
 from nca.Utils.OutputFilesFlags import OutputFilesFlags
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .NetworkConfig import NetworkConfig
 from . import NetworkConfigQuery
+
+
+@dataclass
+class QueryResult:
+    """
+    A class for storing the intermediate results of running iterations of a query
+    """
+    numerical_result: int = 0
+    query_iterations_output: list = field(default_factory=list)
+    num_not_executed: int = 0
+
+    def update(self, iteration_results):
+        """
+        gets the query result from an iteration on the configs_array, and updates self variables as following:
+        1- adds the iteration numerical result to the existing numerical result
+        2. append the iteration output to the existing one (query_iterations_output)
+        3. adds the iteration not_executed value to the existing number of not executed queries (num_not_executed)
+        :param tuple(int, Union[str, dict], int) iteration_results: a tuple of last iteration result of the query
+        (numerical_result, output, query_not_executed)
+        """
+        self.numerical_result += iteration_results[0]
+        self.query_iterations_output.append(iteration_results[1])
+        self.num_not_executed += iteration_results[2]
+
+    def compute_final_results(self, output_format):
+        """
+        extracts the final query results from self variables
+        from self.query_iterations_output computes the final str output of the query,
+        other results returned as is from query_result.
+        :param str output_format: the output format to form the final output
+        if output format is json, dumps the output list into one-top-leveled string
+        if output format is yaml, dumps the output list into str of a list of yaml objects
+        otherwise, writes the output list items split by \n
+        :return the results: numerical result, output - str , num of not executed
+        :rtype: int, str, int
+        """
+        if output_format == 'json':
+            output = json.dumps(self.query_iterations_output, sort_keys=False, indent=2)
+        elif output_format == 'yaml':
+            output = yaml.dump(self.query_iterations_output, None, default_flow_style=False,
+                               sort_keys=False)
+        else:
+            output = '\n'.join(self.query_iterations_output)
+        return self.numerical_result, output, self.num_not_executed
 
 
 class NetworkConfigQueryRunner:
@@ -120,106 +166,38 @@ class NetworkConfigQueryRunner:
         return query_to_exec.execute_and_compute_output_in_required_format(cmd_line_flag)
 
     def _run_query_for_each_config(self):
-        res, output, queries_not_executed = self._init_query_results_values()
+        query_result = QueryResult()
         for config in self.configs_array:
-            query_res, query_output, query_not_executed =\
-                self._execute_one_config_query(self.query_name, self._get_config(config))
-            res, output, queries_not_executed = \
-                self._update_query_results_after_one_iteration(res, query_res, output, query_output,
-                                                               queries_not_executed, query_not_executed)
-        return self._return_final_query_results(res, output, queries_not_executed)
+            query_result.update(self._execute_one_config_query(self.query_name, self._get_config(config)))
+        return query_result.compute_final_results(self.output_configuration.outputFormat)
 
     def _run_query_on_configs_vs_base_config(self, cmd_line_flag):
-        res, output, queries_not_executed = self._init_query_results_values()
+        query_result = QueryResult()
         base_config = self._get_config(self.configs_array[0])
         for config in self.configs_array[1:]:
-            query_res, query_output, query_not_executed = self._execute_pair_configs_query(
-                self.query_name, self._get_config(config), base_config, cmd_line_flag)
-            res, output, queries_not_executed = \
-                self._update_query_results_after_one_iteration(res, query_res, output, query_output,
-                                                               queries_not_executed, query_not_executed)
-        return self._return_final_query_results(res, output, queries_not_executed)
+            query_result.update(self._execute_pair_configs_query(
+                self.query_name, self._get_config(config), base_config, cmd_line_flag))
+        return query_result.compute_final_results(self.output_configuration.outputFormat)
 
     def _run_query_on_config_vs_followed_configs(self, cmd_line_flag):
-        res, output, queries_not_executed = self._init_query_results_values()
+        query_result = QueryResult()
         for ind1 in range(len(self.configs_array) - 1):
             config1 = self.configs_array[ind1]
             for ind2 in range(ind1 + 1, len(self.configs_array)):
-                query_res, query_output, query_not_executed = self._execute_pair_configs_query(
+                query_result.update(self._execute_pair_configs_query(
                     self.query_name, self._get_config(config1), self._get_config(self.configs_array[ind2]),
-                    cmd_line_flag)
-                res, output, queries_not_executed = \
-                    self._update_query_results_after_one_iteration(res, query_res, output, query_output,
-                                                                   queries_not_executed, query_not_executed)
-        return self._return_final_query_results(res, output, queries_not_executed)
+                    cmd_line_flag))
+        return query_result.compute_final_results(self.output_configuration.outputFormat)
 
     def _run_query_on_all_pairs(self):
-        res, output, queries_not_executed = self._init_query_results_values()
+        query_result = QueryResult()
         for config1 in self.configs_array:
             for config2 in self.configs_array:
                 if config1 != config2:
-                    query_res, query_output, query_not_executed = self._execute_pair_configs_query(
-                        self.query_name, self._get_config(config1), self._get_config(config2))
-                    res, output, queries_not_executed = \
-                        self._update_query_results_after_one_iteration(res, query_res, output, query_output,
-                                                                       queries_not_executed, query_not_executed)
+                    query_result.update(self._execute_pair_configs_query(self.query_name, self._get_config(config1),
+                                                                         self._get_config(config2)))
 
-        return self._return_final_query_results(res, output, queries_not_executed)
-
-    # following 3 def-s are for avoiding code repetition in previous 4 def-s
-    @staticmethod
-    def _init_query_results_values():
-        """
-        initializes the query variable results as following
-        res : 0 (the numerical result)
-        output : will be initialized to an empty list to be dumped into str later
-        queries not executed : 0 (the number of not executed queries)
-        rtype: int , list, int
-        """
-        return 0, [], 0
-
-    @staticmethod
-    def _update_query_results_after_one_iteration(result, iter_res, output, iter_output, num_not_exec, iter_not_exec):
-        """
-        gets the query result from one iteration on the configs_array, and updates and returns the general
-        results variables as following:
-        1- adds the iteration numerical result to the existing numerical result
-        2. append the iteration output to the existing one
-        3. adds the iter_not_exec to the existing number of not executed queries
-        :param int result: the numerical result from running previous iterations
-        :param int iter_res: the numerical result from running this iteration
-        :param list output: the output from previous iterations
-        :param Union[str, dict] iter_output: the query output from last iteration
-        a dict in case of yaml, json output format , otherwise str
-        :param int num_not_exec: the number of not executed queries from previous iterations
-        :param int iter_not_exec: the query_not_executed result from last iteration (0/1)
-        rtype: int , list, int
-        """
-        result += iter_res
-        output.append(iter_output)
-        num_not_exec += iter_not_exec
-        return result, output, num_not_exec
-
-    def _return_final_query_results(self, res, output, queries_not_executed):
-        """
-        gets the final query results after running it on all iterations of configs_array
-        computes the final str output of the query - (other results returned as is)
-        if output format is json, dumps the output list into one-top-leveled string
-        if output format is yaml, dumps the output list into str of list of yaml objects
-        otherwise, writes the output list items split by \n
-        :param int res: the numerical result sum of running the query
-        :param list output: the output of running all query iterations
-        :param int queries_not_executed: number of times query was not executed
-        :return the results: numerical result, output - str , num of not executed
-        :rtype: int, str, int
-        """
-        if self.output_configuration.outputFormat == 'json':
-            output = json.dumps(output, sort_keys=False, indent=2)
-        elif self.output_configuration.outputFormat == 'yaml':
-            output = yaml.dump(output, None, default_flow_style=False, sort_keys=False)
-        else:
-            output = '\n'.join(output)
-        return res, output, queries_not_executed
+        return query_result.compute_final_results(self.output_configuration.outputFormat)
 
     def _compare_actual_vs_expected_output(self, query_output):
         print('Comparing actual query output to expected-results file {0}'.format(self.expected_output_file))
