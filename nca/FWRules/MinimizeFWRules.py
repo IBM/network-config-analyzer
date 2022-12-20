@@ -658,7 +658,7 @@ class MinimizeFWRules:
         """
         :param add_txt_header: bool flag to indicate if header of fw-rules query should be added in txt format
         :param add_csv_header: bool flag to indicate if header csv should be added in csv format
-        :return: a string representing the computed minimized fw-rules (in a supported format txt/yaml/csv)
+        :return: a string or dict representing the computed minimized fw-rules (in a supported format txt/yaml/csv)
         """
         query_name = self.output_config.queryName
         if self.output_config.configName:
@@ -667,9 +667,9 @@ class MinimizeFWRules:
         if output_format not in FWRule.supported_formats:
             print(f'error: unexpected outputFormat in output configuration value [should be txt/yaml/csv],  '
                   f'value is: {output_format}')
-        return self._get_fw_rules_content_str(query_name, output_format, add_txt_header, add_csv_header)
+        return self.get_fw_rules_content(query_name, output_format, add_txt_header, add_csv_header)
 
-    def _get_fw_rules_content_str(self, query_name, req_format, add_txt_header, add_csv_header):
+    def get_fw_rules_content(self, query_name, req_format, add_txt_header, add_csv_header):
         """
         :param query_name: a string of the query name
         :param req_format: a string of the required format, should be in FWRule.supported_formats
