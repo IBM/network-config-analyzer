@@ -1,7 +1,6 @@
-query: permits_default_impl_kube-system_spec_yaml
-configs:
-- np-within-kube-system
-- np-within-default
-numerical_result: 0
-textual_result: np-within-default permits all connections specified in np-within-kube-system
----
+- query: permits_default_impl_kube-system_spec_yaml
+  configs:
+  - np-within-kube-system
+  - np-within-default
+  numerical_result: 0
+  textual_result: np-within-default permits all connections specified in np-within-kube-system

@@ -1,23 +1,26 @@
-- query: 'connectivity_map_by_pods_yaml, config: np25'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - my-test-deployment-C-1
-    dst_ns:
-    - default
-    dst_pods:
-    - app=B
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
-    - my-test-deployment-C-2
-    dst_ns:
-    - default
-    dst_pods:
-    - app=B
-    connection:
-    - All connections
-
+- query: connectivity_map_by_pods_yaml
+  configs:
+  - np25
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - default
+      src_pods:
+      - my-test-deployment-C-1
+      dst_ns:
+      - default
+      dst_pods:
+      - app=B
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - my-test-deployment-C-2
+      dst_ns:
+      - default
+      dst_pods:
+      - app=B
+      connection:
+      - All connections

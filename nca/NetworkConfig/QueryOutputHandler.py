@@ -2,10 +2,8 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-import json
 from abc import abstractmethod
 from dataclasses import dataclass, field
-import yaml
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
 
@@ -297,17 +295,17 @@ class ConnectionsDiffExplanation(OutputExplanation):
 
 
 @dataclass
-class StrExplanation(OutputExplanation):
-    # Used in queries that compute separately the output in the required format
-    # (i.e. ConnectivityMapQuery, SanityQuery and SemanticDiffQuery)
+class ComputedExplanation(OutputExplanation):
+    # Used in queries that computes the output in the required form while execution, so we need to add it as is
+    # Used in ConnectivityMapQuery, SanityQuery and SemanticDiffQuery
     str_explanation: str = None
+    dict_explanation: dict = field(default_factory=dict)  # dict of description and rules list {str:list}
 
-    # StrExplanation is handled in NetworkConfigQuery by the relevant queries, so the abstract methods are empty here
     def get_explanation_in_str(self):
-        pass
+        return self.str_explanation
 
     def get_explanation_in_dict(self):
-        pass
+        return [self.dict_explanation]
 
 
 @dataclass
@@ -322,9 +320,9 @@ class QueryAnswer:
     query_not_executed: bool = False
 
 
-class YamlOutputHandler:
+class DictOutputHandler:
     """
-    A class to form the query output in Yaml format
+    A class to form the query output in a dict to be dumped into a data serialization language format e.g. yaml / json
     """
     def __init__(self, configs, query_name):
         self.configs_names = configs
@@ -332,52 +330,44 @@ class YamlOutputHandler:
 
     def compute_query_output(self, query_answer):
         """
-        computes the query output in Yaml format
+        arranges the query output in dict to be dumped later in the relevant output format (json/yaml)
         :param QueryAnswer query_answer: the query answer - the result of the running query
-        :return yaml format of the query answer
-        :rtype: str
+        :return  query results in dict
+        :rtype: dict
         """
         output_content = {'query': self.query_name, 'configs': self.configs_names}
         if query_answer.query_not_executed:
             output_content.update({'executed': 0, 'description': query_answer.output_result})
-            return self.dump_content(output_content)
+            return output_content
         output_content.update({'numerical_result': int(query_answer.numerical_result)})
-        output_content.update({'textual_result': query_answer.output_result})
+        if query_answer.output_result:
+            output_content.update({'textual_result': query_answer.output_result})
         explanation_result = []
         if query_answer.output_explanation:
             for explanation in query_answer.output_explanation:
                 explanation_result += explanation.get_explanation_in_dict()
             output_content.update({'explanation': explanation_result})
-        return self.dump_content(output_content)
-
-    @staticmethod
-    def dump_content(output_content):
-        return yaml.dump(output_content, None, default_flow_style=False, sort_keys=False) + '---\n'
+        return output_content
 
 
-class JsonOutputHandler(YamlOutputHandler):
-    def __init__(self, configs, query_name):
-        super().__init__(configs, query_name)
-
-    @staticmethod
-    def dump_content(output_content):
-        return json.dumps(output_content, indent=2, sort_keys=False)
-
-
-class TxtOutputHandler:
+class StringOutputHandler:
     """
-    A class to form the query output in Txt format
+    A class to form the query output in txt , csv, md or dot format (from a string explanation)
     """
+    def __init__(self, is_txt_format):
+        # the query_answer.output_result message is added to the query output only if required format is txt
+        self.add_output_result = is_txt_format
 
-    @staticmethod
-    def compute_query_output(query_answer):
+    def compute_query_output(self, query_answer):
         """
-        computes the query output in Txt format
+        computes the query output in string form
         :param QueryAnswer query_answer: the query answer - the result of the running query
-        :return txt format of the query answer
+        :return string format of the query answer
         :rtype: str
         """
-        query_output = query_answer.output_result + '\n'
+        query_output = ''
+        if self.add_output_result and query_answer.output_result:
+            query_output += query_answer.output_result + '\n'
         if query_answer.output_explanation:
             for explanation in query_answer.output_explanation:
                 query_output += explanation.get_explanation_in_str()

@@ -1,40 +1,44 @@
-- query: 'semantic_diff, config1: new2, config2: old2, key: Added connections between
-    persistent peers'
-  rules:
-  - src_ns:
-    - demo
-    src_pods:
-    - bank-ui
-    dst_ns:
-    - demo
-    dst_pods:
-    - account-command
-    connection:
-    - Protocol: TCP
-      Ports:
-      - 8080
-    - Protocol: UDP
-      Ports:
-      - 9090
-    - Protocol: SCTP
-      Ports:
-      - 7070
-- query: 'semantic_diff, config1: new2, config2: old2, key: Removed connections between
-    persistent peers'
-  rules:
-  - src_ns:
-    - demo
-    src_pods:
-    - bank-ui
-    dst_ns:
-    - demo
-    dst_pods:
-    - account-command
-    connection:
-    - Protocol: TCP
-      Ports:
-      - 8082
-    - Protocol: UDP
-      Ports:
-      - 9091
-
+- query: semantic_diff_old2_new2_yaml
+  configs:
+  - new2
+  - old2
+  numerical_result: 2
+  textual_result: new2 and old2 are not semantically equivalent.
+  explanation:
+  - description: Added connections between persistent peers
+    rules:
+    - src_ns:
+      - demo
+      src_pods:
+      - bank-ui
+      dst_ns:
+      - demo
+      dst_pods:
+      - account-command
+      connection:
+      - Protocol: TCP
+        Ports:
+        - 8080
+      - Protocol: UDP
+        Ports:
+        - 9090
+      - Protocol: SCTP
+        Ports:
+        - 7070
+  - description: Removed connections between persistent peers
+    rules:
+    - src_ns:
+      - demo
+      src_pods:
+      - bank-ui
+      dst_ns:
+      - demo
+      dst_pods:
+      - account-command
+      connection:
+      - Protocol: TCP
+        Ports:
+        - 8082
+      - Protocol: UDP
+        Ports:
+        - 9091

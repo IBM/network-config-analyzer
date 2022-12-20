@@ -1,209 +1,168 @@
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-- equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
-  and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-- equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
-  and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-- equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
-  and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-- equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
-  and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-  and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-- equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
-  and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-  are semantically equivalent.
----
-
-query: equiv_all_range1_yaml
-configs:
-- equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-- equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-numerical_result: 0
-textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
-  and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
-  are semantically equivalent.
----
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range 
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets 
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range 
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range 
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range 
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-simple-all-range
+  - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-simple-all-range 
+    and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets 
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+  - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets
+    and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+  - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-notNets
+    and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+  - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partition2-nets-notNets
+    and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+    and equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+  - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-with-nets
+    and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+    are semantically equivalent.
+- query: equiv_all_range1_yaml
+  configs:
+  - equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+  - equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+  numerical_result: 0
+  textual_result: equiv-ranges-writing-games/kube-system/testcase16-nets-all-range-partitioned-4-net-notNets
+    and equiv-ranges-writing-games/kube-system/testcase16-all-range-with-nets-notNets-single-ips
+    are semantically equivalent.

@@ -2,8 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-import json
-import yaml
+
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP
 from .FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
@@ -676,7 +675,9 @@ class MinimizeFWRules:
         :param req_format: a string of the required format, should be in FWRule.supported_formats
         :param add_txt_header:  bool flag to indicate if header of fw-rules query should be added in txt format
         :param add_csv_header: bool flag to indicate if header csv should be added in csv format
-        :return: a string of the query name + fw-rules in the required format
+        :return: a dict of the fw-rules if the required format is json or yaml, else
+        a string of the query name + fw-rules in the required format
+        :rtype: Union[str, dict]
         """
         rules_list = self._get_all_rules_list_in_req_format(req_format)
 
@@ -687,12 +688,7 @@ class MinimizeFWRules:
             return res
 
         elif req_format in ['yaml', 'json']:
-            dict_query_content = [{'query': query_name, 'rules': rules_list}]
-            if req_format == 'yaml':
-                res = yaml.dump(dict_query_content, None, default_flow_style=False, sort_keys=False)
-            else:  # json dumps the dict
-                res = json.dumps(dict_query_content[0], indent=2, sort_keys=False)
-            return res
+            return {'rules': rules_list}
 
         elif req_format in ['csv', 'md']:
             is_csv = req_format == 'csv'

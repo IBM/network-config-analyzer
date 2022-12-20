@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import json
+import yaml
 
 from nca.Utils.OutputFilesFlags import OutputFilesFlags
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -166,42 +167,36 @@ class NetworkConfigQueryRunner:
         return self._return_final_query_results(res, output, queries_not_executed)
 
     # following 3 def-s are for avoiding code repetition in previous 4 def-s
-    def _init_query_results_values(self):
+    @staticmethod
+    def _init_query_results_values():
         """
         initializes the query variable results as following
         res : 0 (the numerical result)
-        output : will be initialized to an empty list if the output format is json, otherwise, empty str
-        (the formatted explanation result of the query)
+        output : will be initialized to an empty list to be dumped into str later
         queries not executed : 0 (the number of not executed queries)
-        rtype: int , Union[list, str], int
+        rtype: int , list, int
         """
-        # json results will be appended in a list, and finally be dumped into string to
-        # ensure all results are written under one top level object to get a fixed json output format
-        output = [] if self.output_configuration.outputFormat == 'json' else ''
-        return 0, output, 0
+        return 0, [], 0
 
-    def _update_query_results_after_one_iteration(self, result, iter_res, output, iter_output, num_not_exec, iter_not_exec):
+    @staticmethod
+    def _update_query_results_after_one_iteration(result, iter_res, output, iter_output, num_not_exec, iter_not_exec):
         """
-        gets the query result from one iteration on the configs_array, and updates the general results variables
-        with them as following:
+        gets the query result from one iteration on the configs_array, and updates and returns the general
+        results variables as following:
         1- adds the iteration numerical result to the existing numerical result
-        2. append the output to the existing one as following, if output format is json, it loads the str and appends
-        the result to the existing list (to form a json output with one top level object at last),
-        otherwise, appends to existing str
+        2. append the iteration output to the existing one
         3. adds the iter_not_exec to the existing number of not executed queries
         :param int result: the numerical result from running previous iterations
         :param int iter_res: the numerical result from running this iteration
-        :param Union[list, str] output: the output from previous iterations
-        :param str iter_output: the query output from last iteration
+        :param list output: the output from previous iterations
+        :param Union[str, dict] iter_output: the query output from last iteration
+        a dict in case of yaml, json output format , otherwise str
         :param int num_not_exec: the number of not executed queries from previous iterations
         :param int iter_not_exec: the query_not_executed result from last iteration (0/1)
-        rtype: int , Union[list, str], int
+        rtype: int , list, int
         """
         result += iter_res
-        if self.output_configuration.outputFormat == 'json':
-            output.append(json.loads(iter_output))
-        else:
-            output += iter_output + '\n'
+        output.append(iter_output)
         num_not_exec += iter_not_exec
         return result, output, num_not_exec
 
@@ -210,23 +205,21 @@ class NetworkConfigQueryRunner:
         gets the final query results after running it on all iterations of configs_array
         computes the final str output of the query - (other results returned as is)
         if output format is json, dumps the output list into one-top-leveled string
-        if the list includes only one json object, then it dumps it (output[0]), to avoid unnecessary [] in output
+        if output format is yaml, dumps the output list into str of list of yaml objects
+        otherwise, writes the output list items split by \n
         :param int res: the numerical result sum of running the query
-        :param Union[list, str] output: the output of running all query iterations
+        :param list output: the output of running all query iterations
         :param int queries_not_executed: number of times query was not executed
         :return the results: numerical result, output - str , num of not executed
         :rtype: int, str, int
         """
         if self.output_configuration.outputFormat == 'json':
-            if len(output) == 1:
-                output = self._dump_json_output(output[0])
-            else:
-                output = self._dump_json_output(output)
+            output = json.dumps(output, sort_keys=False, indent=2)
+        elif self.output_configuration.outputFormat == 'yaml':
+            output = yaml.dump(output, None, default_flow_style=False, sort_keys=False)
+        else:
+            output = '\n'.join(output)
         return res, output, queries_not_executed
-
-    @staticmethod
-    def _dump_json_output(output):
-        return json.dumps(output, sort_keys=False, indent=2)
 
     def _compare_actual_vs_expected_output(self, query_output):
         print('Comparing actual query output to expected-results file {0}'.format(self.expected_output_file))
@@ -251,8 +244,7 @@ class NetworkConfigQueryRunner:
                 if golden_file_line_num != len(actual_output_lines) - 1:
                     # allow a few empty lines in actual results
                     for i in range(golden_file_line_num + 1, len(actual_output_lines)):
-                        if actual_output_lines[i] and actual_output_lines[i] != '---':
-                            # to avoid failing if the yaml expected output ends with ---
+                        if actual_output_lines[i]:
                             print('Error: Expected results have less lines than actual results')
                             print('Comparing Result Failed \n')
                             return 1

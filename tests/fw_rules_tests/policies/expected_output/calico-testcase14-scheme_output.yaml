@@ -1,15 +1,18 @@
-- query: 'match-icmp-also-within-default-test-yaml, config: match-icmp-also-within-default'
-  rules:
-  - src_ns:
-    - kube-system
-    src_pods:
-    - app=keepalived-watcher
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - app=keepalived-watcher
-    connection:
-    - Protocol: ICMP
-      Type/Code:
-      - 100/230
-
+- query: match-icmp-also-within-default-test-yaml
+  configs:
+  - match-icmp-also-within-default
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - kube-system
+      src_pods:
+      - app=keepalived-watcher
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - app=keepalived-watcher
+      connection:
+      - Protocol: ICMP
+        Type/Code:
+        - 100/230

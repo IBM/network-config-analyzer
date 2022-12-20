@@ -1,67 +1,70 @@
-- query: 'connectivity_map, config: np11'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - ibm-system-new
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ip_block:
-    - ::/0
-    dst_ns:
-    - ibm-system-new
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
-    - app=skydive and tier=analyzer
-    dst_ns:
-    - default
-    dst_pods:
-    - app=skydive and tier=agent
-    connection:
-    - All connections
-  - src_ns:
-    - ibm-system-new
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - ibm-system-new
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - ::/0
-    connection:
-    - All connections
-  - src_ns:
-    - ibm-system-new
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
-    src_pods:
-    - '*'
-    dst_ns:
-    - ibm-system-new
-    - kube-system-new
-    - kube-system-new-dummy-to-ignore
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-
+- query: connectivity_map
+  configs:
+  - np11
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - ibm-system-new
+      - kube-system-new
+      - kube-system-new-dummy-to-ignore
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - ibm-system-new
+      - kube-system-new
+      - kube-system-new-dummy-to-ignore
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - app=skydive and tier=analyzer
+      dst_ns:
+      - default
+      dst_pods:
+      - app=skydive and tier=agent
+      connection:
+      - All connections
+    - src_ns:
+      - ibm-system-new
+      - kube-system-new
+      - kube-system-new-dummy-to-ignore
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - ibm-system-new
+      - kube-system-new
+      - kube-system-new-dummy-to-ignore
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+    - src_ns:
+      - ibm-system-new
+      - kube-system-new
+      - kube-system-new-dummy-to-ignore
+      src_pods:
+      - '*'
+      dst_ns:
+      - ibm-system-new
+      - kube-system-new
+      - kube-system-new-dummy-to-ignore
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
