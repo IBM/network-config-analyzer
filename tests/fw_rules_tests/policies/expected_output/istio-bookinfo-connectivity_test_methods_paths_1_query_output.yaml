@@ -1,60 +1,63 @@
-- query: 'connectivity-istio-test-methods-paths-1, config: istio-test-methods-paths-1'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - app=productpage
-    dst_ns:
-    - default
-    dst_pods:
-    - app=details
-    connection:
-    - Protocol: TCP
-      properties:
-      - dst_ports:
-        - 80
-        methods: GET
-        paths: /good_path1, /good_path2, /some/path2
-        hosts: all but disallowed-host.com
-      - dst_ports:
-        - 80
-        methods: GET
-        paths: all but /bad/path1, /bad/path3, /good_path1, /good_path2, /some/path2
-        hosts: allowed-host.com
-      - dst_ports:
-        - 80
-        methods: PUT
-        paths: /good_path1, /good_path2, /some/path2
-        hosts: all but disallowed-host.com
-      - dst_ports:
-        - 80
-        methods: all but GET, PUT
-        paths: all but /bad/path1, /bad/path3, /some/path2
-        hosts: allowed-host.com
-      - dst_ports:
-        - 90
-        methods: GET, PUT
-        paths: /good_path1, /good_path2, /some/path2
-        hosts: all but disallowed-host.com
-      - dst_ports:
-        - 100
-        methods: all but PUT
-        paths: /some/path3
-      - dst_ports:
-        - 100
-        methods: all but PUT
-        paths: all but /bad/path1, /bad/path3, /some/path2, /some/path3
-        hosts: allowed-host.com
-      - dst_ports:
-        - 100
-        methods: PUT
-        paths: /some/path3
-      - dst_ports:
-        - 1-79
-        - 81-89
-        - 91-99
-        - 101-65535
-        methods: all but PUT
-        paths: all but /bad/path1, /bad/path3, /some/path2
-        hosts: allowed-host.com
-
+- query: connectivity-istio-test-methods-paths-1
+  configs:
+  - istio-test-methods-paths-1
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - default
+      src_pods:
+      - app=productpage
+      dst_ns:
+      - default
+      dst_pods:
+      - app=details
+      connection:
+      - Protocol: TCP
+        properties:
+        - dst_ports:
+          - 80
+          methods: GET
+          paths: /good_path1, /good_path2, /some/path2
+          hosts: all but disallowed-host.com
+        - dst_ports:
+          - 80
+          methods: GET
+          paths: all but /bad/path1, /bad/path3, /good_path1, /good_path2, /some/path2
+          hosts: allowed-host.com
+        - dst_ports:
+          - 80
+          methods: PUT
+          paths: /good_path1, /good_path2, /some/path2
+          hosts: all but disallowed-host.com
+        - dst_ports:
+          - 80
+          methods: all but GET, PUT
+          paths: all but /bad/path1, /bad/path3, /some/path2
+          hosts: allowed-host.com
+        - dst_ports:
+          - 90
+          methods: GET, PUT
+          paths: /good_path1, /good_path2, /some/path2
+          hosts: all but disallowed-host.com
+        - dst_ports:
+          - 100
+          methods: all but PUT
+          paths: /some/path3
+        - dst_ports:
+          - 100
+          methods: all but PUT
+          paths: all but /bad/path1, /bad/path3, /some/path2, /some/path3
+          hosts: allowed-host.com
+        - dst_ports:
+          - 100
+          methods: PUT
+          paths: /some/path3
+        - dst_ports:
+          - 1-79
+          - 81-89
+          - 91-99
+          - 101-65535
+          methods: all but PUT
+          paths: all but /bad/path1, /bad/path3, /some/path2
+          hosts: allowed-host.com

@@ -1,119 +1,121 @@
-- query: 'semantic_diff, config1: old1, config2: config_a, key: Lost connections between
-    removed peers'
-  rules:
-  - src_ns:
-    - default
-    - kube-system
-    - vendor-system
-    src_pods:
-    - '*'
-    dst_ns:
-    - default
-    - kube-system
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-- query: 'semantic_diff, config1: old1, config2: config_a, key: Lost connections between
-    removed peers and ipBlocks'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    - kube-system
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ip_block:
-    - ::/0
-    dst_ns:
-    - default
-    - kube-system
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - kube-system
-    - vendor-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - kube-system
-    - vendor-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - ::/0
-    connection:
-    - All connections
-- query: 'semantic_diff, config1: old1, config2: config_a, key: New connections between
-    added peers'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ns:
-    - default
-    dst_pods:
-    - app!=app-1
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
-    - app in (app-1,app-2)
-    dst_ns:
-    - default
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-- query: 'semantic_diff, config1: old1, config2: config_a, key: New connections between
-    added peers and ipBlocks'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - app!=app-1
-    connection:
-    - All connections
-  - src_ip_block:
-    - ::/0
-    dst_ns:
-    - default
-    dst_pods:
-    - app!=app-1
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - ::/0
-    connection:
-    - All connections
-
+- query: semantic_diff_disjoint_old1_config_a
+  configs:
+  - old1
+  - config_a
+  numerical_result: 4
+  textual_result: old1 and config_a are not semantically equivalent.
+  explanation:
+  - description: Lost connections between removed peers
+    rules:
+    - src_ns:
+      - default
+      - kube-system
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      - kube-system
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+  - description: Lost connections between removed peers and ipBlocks
+    rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      - kube-system
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - default
+      - kube-system
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - kube-system
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - kube-system
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+  - description: New connections between added peers
+    rules:
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - app!=app-1
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - app in (app-1,app-2)
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+  - description: New connections between added peers and ipBlocks
+    rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - app!=app-1
+      connection:
+      - All connections
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - default
+      dst_pods:
+      - app!=app-1
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections

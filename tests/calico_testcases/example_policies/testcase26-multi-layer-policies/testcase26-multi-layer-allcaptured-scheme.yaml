@@ -66,6 +66,14 @@ queries:
     expectedOutput: ../../expected_output/multi-layer-all-captured-1.yaml
     expected: 15 # result of non-captured pods in layer k8s-calico
 
+  - name: allcaptured-1-json
+    allCaptured:
+      - testcase26-config-1-k8s-istio-ingress
+    outputConfiguration:
+      outputFormat: json
+    expectedOutput: ../../expected_output/multi-layer-all-captured-1.json
+    expected: 15 # result of non-captured pods in layer k8s-calico
+
   - name: allcaptured-2
     allCaptured:
       - testcase26-config-1-k8s-istio-ingress-default-deny

@@ -1,75 +1,82 @@
-- query: Added connections between persistent peers
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - All but:
+- query: SemanticDiffQuery
+  configs:
+  - testcase7-networkpolicy2.yaml
+  - testcase7-networkpolicy1.yaml
+  numerical_result: 1
+  textual_result: testcase7-networkpolicy2.yaml and testcase7-networkpolicy1.yaml
+    are not semantically equivalent.
+  explanation:
+  - description: Added connections between persistent peers
+    rules:
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - All but:
+        - Protocol: TCP
+          Ports:
+          - 53
+        - Protocol: UDP
+          Ports:
+          - 53
+  - description: Removed connections between persistent peers
+    rules:
+    - src_ns:
+      - kube-system
+      - kube-system-dummy-to-ignore
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
       - Protocol: TCP
         Ports:
         - 53
       - Protocol: UDP
         Ports:
         - 53
-- query: Removed connections between persistent peers
-  rules:
-  - src_ns:
-    - kube-system
-    - kube-system-dummy-to-ignore
-    src_pods:
-    - '*'
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - Protocol: TCP
-      Ports:
-      - 53
-    - Protocol: UDP
-      Ports:
-      - 53
-  - src_ns:
-    - vendor-system
-    src_pods:
-    - '*'
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-- query: Removed connections between persistent peers and ipBlocks
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - Protocol: TCP
-      Ports:
-      - 53
-    - Protocol: UDP
-      Ports:
-      - 53
-  - src_ip_block:
-    - ::/0
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - Protocol: TCP
-      Ports:
-      - 53
-    - Protocol: UDP
-      Ports:
-      - 53
-
+    - src_ns:
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+  - description: Removed connections between persistent peers and ipBlocks
+    rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - Protocol: TCP
+        Ports:
+        - 53
+      - Protocol: UDP
+        Ports:
+        - 53
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - Protocol: TCP
+        Ports:
+        - 53
+      - Protocol: UDP
+        Ports:
+        - 53

@@ -1,13 +1,17 @@
-- query: 'connectivity_map_yaml, config: np_FirstDenySubset'
-  rules:
-  - src_ns:
-    - kube-system
-    src_pods:
-    - app in (helm,keepalived-watcher,vpn)
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - tier=frontend
-    connection:
-    - Protocol: TCP
+- query: connectivity_map_yaml
+  configs:
+  - np_FirstDenySubset
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - kube-system
+      src_pods:
+      - app in (helm,keepalived-watcher,vpn)
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - tier=frontend
+      connection:
+      - Protocol: TCP
 

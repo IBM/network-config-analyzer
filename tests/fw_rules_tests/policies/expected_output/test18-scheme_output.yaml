@@ -1,61 +1,64 @@
-- query: 'connectivity_map, config: np18'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - kube-system-new
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ip_block:
-    - ::/0
-    dst_ns:
-    - kube-system-new
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system-new
-    src_pods:
-    - '!has(tier) or tier=not_frontend_for_demo'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system-new
-    src_pods:
-    - '!has(tier) or tier=not_frontend_for_demo'
-    dst_ip_block:
-    - ::/0
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system-new
-    src_pods:
-    - '!has(tier) or tier=not_frontend_for_demo'
-    dst_ns:
-    - kube-system-new
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system-new
-    src_pods:
-    - tier=frontend
-    dst_ip_block:
-    - 49.50.0.0/32
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system-new
-    src_pods:
-    - tier=frontend
-    dst_ip_block:
-    - 49.50.0.2/32
-    connection:
-    - All connections
-
+- query: connectivity_map
+  configs:
+  - np18
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system-new
+      src_pods:
+      - '!has(tier) or tier=not_frontend_for_demo'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system-new
+      src_pods:
+      - '!has(tier) or tier=not_frontend_for_demo'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system-new
+      src_pods:
+      - '!has(tier) or tier=not_frontend_for_demo'
+      dst_ns:
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system-new
+      src_pods:
+      - tier=frontend
+      dst_ip_block:
+      - 49.50.0.0/32
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system-new
+      src_pods:
+      - tier=frontend
+      dst_ip_block:
+      - 49.50.0.2/32
+      connection:
+      - All connections

@@ -1,3 +1,7 @@
-- query: 'istio-allow-nothing-3, config: istio-allow-nothing-3'
-  rules: []
+- query: istio-allow-nothing-3
+  configs:
+  - istio-allow-nothing-3
+  numerical_result: 0
+  explanation:
+  - rules: []
 

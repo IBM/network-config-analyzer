@@ -1,60 +1,63 @@
-- query: 'connectivity_map, config: np3'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ns:
-    - kube-system-new
-    dst_pods:
-    - '*'
-    connection:
-    - Protocol: TCP
-      Ports:
-      - 85-90
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ip_block:
-    - ::/0
-    dst_ns:
-    - default
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - kube-system-new
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - kube-system-new
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - ::/0
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - kube-system-new
-    src_pods:
-    - '*'
-    dst_ns:
-    - default
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-
+- query: connectivity_map
+  configs:
+  - np3
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - Protocol: TCP
+        Ports:
+        - 85-90
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - kube-system-new
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - kube-system-new
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - kube-system-new
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All connections

@@ -69,6 +69,16 @@ queries:
     expectedOutput: ../../expected_output/global-interferes-local-print-all-pairs.yaml
     expected: 1
 
+  - name: global_interferes_local_print_all_pairs_json
+    interferes:
+      - local_np
+      - global_np
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: json
+    expectedOutput: ../../expected_output/global-interferes-local-print-all-pairs.json
+    expected: 1
+
 
   - name: local_no_interferes_global
     interferes:

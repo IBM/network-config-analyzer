@@ -1,13 +1,16 @@
-- query: 'connectivity_map, config: np22'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - test!=C
-    dst_ns:
-    - default
-    dst_pods:
-    - app=skydive
-    connection:
-    - All connections
-
+- query: connectivity_map
+  configs:
+  - np22
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - default
+      src_pods:
+      - test!=C
+      dst_ns:
+      - default
+      dst_pods:
+      - app=skydive
+      connection:
+      - All connections

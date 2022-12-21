@@ -1,67 +1,70 @@
-- query: 'connectivity_map_1, config: ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2-equiv'
-  rules:
-  - src_ns:
-    - kube-system
-    src_pods:
-    - '*'
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - has_named_port=dns-local
-    connection:
-    - Protocol: UDP
-      properties:
-      - src_ports:
-        - 80-100
-        dst_ports:
-        - 1-10052
-        - 10054-65535
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ip_block:
-    - ::/0
-    dst_ns:
-    - default
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - vendor-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - vendor-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - ::/0
-    connection:
-    - All connections
-  - src_ns:
-    - default
-    - vendor-system
-    src_pods:
-    - '*'
-    dst_ns:
-    - default
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-
+- query: connectivity_map_1
+  configs:
+  - ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2-equiv
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - kube-system
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - has_named_port=dns-local
+      connection:
+      - Protocol: UDP
+        properties:
+        - src_ports:
+          - 80-100
+          dst_ports:
+          - 1-10052
+          - 10054-65535
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - default
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections

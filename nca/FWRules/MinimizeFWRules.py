@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-import yaml
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP
 from .FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
@@ -659,7 +658,7 @@ class MinimizeFWRules:
         """
         :param add_txt_header: bool flag to indicate if header of fw-rules query should be added in txt format
         :param add_csv_header: bool flag to indicate if header csv should be added in csv format
-        :return: a string representing the computed minimized fw-rules (in a supported format txt/yaml/csv)
+        :return: a string or dict representing the computed minimized fw-rules (in a supported format txt/yaml/csv)
         """
         query_name = self.output_config.queryName
         if self.output_config.configName:
@@ -668,15 +667,17 @@ class MinimizeFWRules:
         if output_format not in FWRule.supported_formats:
             print(f'error: unexpected outputFormat in output configuration value [should be txt/yaml/csv],  '
                   f'value is: {output_format}')
-        return self._get_fw_rules_content_str(query_name, output_format, add_txt_header, add_csv_header)
+        return self.get_fw_rules_content(query_name, output_format, add_txt_header, add_csv_header)
 
-    def _get_fw_rules_content_str(self, query_name, req_format, add_txt_header, add_csv_header):
+    def get_fw_rules_content(self, query_name, req_format, add_txt_header, add_csv_header):
         """
         :param query_name: a string of the query name
         :param req_format: a string of the required format, should be in FWRule.supported_formats
         :param add_txt_header:  bool flag to indicate if header of fw-rules query should be added in txt format
         :param add_csv_header: bool flag to indicate if header csv should be added in csv format
-        :return: a string of the query name + fw-rules in the required format
+        :return: a dict of the fw-rules if the required format is json or yaml, else
+        a string of the query name + fw-rules in the required format
+        :rtype: Union[str, dict]
         """
         rules_list = self._get_all_rules_list_in_req_format(req_format)
 
@@ -686,10 +687,8 @@ class MinimizeFWRules:
                 res = f'final fw rules for query: {query_name}:\n' + res
             return res
 
-        elif req_format == 'yaml':
-            yaml_query_content = [{'query': query_name, 'rules': rules_list}]
-            res = yaml.dump(yaml_query_content, None, default_flow_style=False, sort_keys=False)
-            return res
+        elif req_format in ['yaml', 'json']:
+            return {'rules': rules_list}
 
         elif req_format in ['csv', 'md']:
             is_csv = req_format == 'csv'
@@ -714,7 +713,7 @@ class MinimizeFWRules:
         """
         Get a sorted list of rules in required format:
         txt -> list of str objects
-        yaml -> list of dict objects
+        yaml/json -> list of dict objects
         csv/md -> list of list objects
         :param str req_format: the required format, should be in FWRule.supported_formats
         :return: a list of objects representing the fw-rules in the required format

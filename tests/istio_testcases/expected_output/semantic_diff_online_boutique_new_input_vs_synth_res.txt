@@ -1,6 +1,6 @@
 new_online_boutique and new_online_boutique_synthesis_res are not semantically equivalent.
-Changed connections between persistent peers:
-Added connections (based on topology from config: new_online_boutique_synthesis_res) :
+
+Added connections between persistent peers (based on topology from config: new_online_boutique_synthesis_res) :
 src_ns: [default] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 1-8079,8081-65535
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP {'dst_ports': '7070', 'methods': 'POST', 'paths': 'all but /hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'},{'dst_ports': '7070', 'methods': 'all but POST'}
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP {'dst_ports': '7000', 'methods': 'POST', 'paths': 'all but /hipstershop.CurrencyService/Convert, /hipstershop.CurrencyService/GetSupportedCurrencies'},{'dst_ports': '7000', 'methods': 'all but POST'}
@@ -13,18 +13,15 @@ src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutserv
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP {'dst_ports': '8080', 'methods': 'POST', 'paths': 'all but /hipstershop.RecommendationService/ListRecommendations'},{'dst_ports': '8080', 'methods': 'all but POST'}
 src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'all but GET, POST'}
 
-Removed connections (based on topology from config: new_online_boutique) :
+Removed connections between persistent peers (based on topology from config: new_online_boutique) :
 src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
 src_ns: [asm-ingress] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'GET, POST'}
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP {'dst_ports': '1-7069,7071-65535', 'methods': 'POST', 'paths': '/hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'}
 
-Changed connections between persistent peers and ipBlocks:
-Added connections (based on topology from config: new_online_boutique_synthesis_res) :
+Added connections between persistent peers and ipBlocks (based on topology from config: new_online_boutique_synthesis_res) :
 src: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 1-8079,8081-65535
 src: ::/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 1-8079,8081-65535
 
-Removed connections (based on topology from config: new_online_boutique) :
+Removed connections between persistent peers and ipBlocks (based on topology from config: new_online_boutique) :
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
 src: ::/0 dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
-
-

@@ -14,9 +14,9 @@ from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
-from .QueryOutputHandler import QueryAnswer, YamlOutputHandler, TxtOutputHandler, PoliciesAndRulesExplanations, \
-    PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, PoliciesWithCommonPods, \
-    PeersAndConnections, StrExplanation
+from .QueryOutputHandler import QueryAnswer, DictOutputHandler,  StringOutputHandler, \
+    PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, \
+    PoliciesWithCommonPods, PeersAndConnections, ComputedExplanation
 from .NetworkLayer import NetworkLayerName
 
 
@@ -40,7 +40,7 @@ class BaseNetworkQuery:
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml'}
+        return {'txt', 'yaml', 'json'}
 
     @staticmethod
     def policy_title(policy):
@@ -53,14 +53,14 @@ class BaseNetworkQuery:
 
     def execute_and_compute_output_in_required_format(self, cmd_line_flag=False):
         """
-        calls the exec def of the running query, computes its output in the required format and returns query results
+        calls the exec def of the running query, computes its output to fit the required format and returns query results
         and output
         :param cmd_line_flag: indicates if the query is running from a cmd-line, since it affects computing the
         numerical result of some of TwoNetworkConfigsQuery queries
         :return: the numerical result of the query,
-        the query output in required format if supported (otherwise empty string),
+        the query output in form to be written in required format if supported (otherwise empty string),
         and bool indicator if the query was not executed
-        :rtype: [int, str, bool]
+        :rtype: int, Union[dict, str], bool
         """
         query_answer = self.execute(cmd_line_flag)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
@@ -70,18 +70,17 @@ class BaseNetworkQuery:
 
     def _handle_output(self, query_answer):
         """
-        handles returning the output of the running query in required format
+        handles returning the output of the running query in a form that matches writing required format
+        Using the relevant OutputHandler class
         :param QueryAnswer query_answer: the query result of running its exec def
         :return: the output in required format
-        :rtype: str
-        this def is overriden in classes of queries that computes their output in required format separately
-        without using QueryOutputHandler , i.e. SanityQuery, ConnectivityMapQuery and SemanticDiffQuery
+        :rtype: Union[str, dict] - dict when required format is json/ yaml, otherwise str
         """
         query_name = self.output_config.queryName or type(self).__name__
         configs = self.get_configs_names()
-        output_handler = YamlOutputHandler(configs, query_name) if self.output_config.outputFormat == 'yaml' \
-            else TxtOutputHandler()
-        return output_handler.compute_query_output(query_answer)
+        if self.output_config.outputFormat in ['yaml', 'json']:
+            return DictOutputHandler(configs, query_name).compute_query_output(query_answer)
+        return StringOutputHandler(self.output_config.outputFormat == 'txt').compute_query_output(query_answer)
 
     @abstractmethod
     def execute(self, cmd_line_flag):
@@ -595,15 +594,8 @@ class SanityQuery(NetworkConfigQuery):
             output_result = f'NetworkConfig {self.config.name} failed sanity check:'
 
         return QueryAnswer(bool_result=(issues_counter == 0), output_result=output_result,
-                           output_explanation=[StrExplanation(str_explanation=policies_issue + rules_issues)],
+                           output_explanation=[ComputedExplanation(str_explanation=policies_issue + rules_issues)],
                            numerical_result=issues_counter)
-
-    def _handle_output(self, query_answer):
-        query_output = query_answer.output_result
-        if query_answer.output_explanation:
-            assert len(query_answer.output_explanation) == 1
-            query_output += query_answer.output_explanation[0].str_explanation
-        return query_output
 
 
 class ConnectivityMapQuery(NetworkConfigQuery):
@@ -613,7 +605,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md', 'dot'}
+        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json'}
 
     def is_in_subset(self, peer):
         """
@@ -710,17 +702,17 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         if self.output_config.outputFormat == 'dot':
             conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
             conn_graph.add_edges(connections)
-            res.output_explanation = [StrExplanation(str_explanation=conn_graph.get_connectivity_dot_format_str())]
+            res.output_explanation = [ComputedExplanation(str_explanation=conn_graph.get_connectivity_dot_format_str())]
         else:
             conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
             conn_graph.add_edges(connections)
             fw_rules = conn_graph.get_minimized_firewall_rules()
-            res.output_explanation = [StrExplanation(str_explanation=fw_rules.get_fw_rules_in_required_format())]
+            formatted_rules = fw_rules.get_fw_rules_in_required_format()
+            if self.output_config.outputFormat in ['json', 'yaml']:
+                res.output_explanation = [ComputedExplanation(dict_explanation=formatted_rules)]
+            else:
+                res.output_explanation = [ComputedExplanation(str_explanation=formatted_rules)]
         return res
-
-    def _handle_output(self, query_answer):
-        assert len(query_answer.output_explanation) == 1
-        return query_answer.output_explanation[0].str_explanation
 
     @staticmethod
     def filter_istio_edge(peer2, conns):
@@ -768,7 +760,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                                       'topologies and thus are not comparable.', query_not_executed=True)
         if check_same_policies and self.config1.policies_container.policies == self.config2.policies_container.policies:
             return QueryAnswer(True, f'{self.name1} and {self.name2} have the same network '
-                                     'topology and the same set of policies.\n')
+                                     'topology and the same set of policies.')
         return QueryAnswer(True)
 
     def disjoint_referenced_ip_blocks(self):
@@ -860,27 +852,62 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md'}
+        return {'txt', 'yaml', 'csv', 'md', 'json'}
 
-    def get_explanation_from_conn_graph(self, is_added, conn_graph, is_first_connectivity_result):
+    @staticmethod
+    def _get_updated_key(key, is_added):
         """
-        :param is_added: a bool flag indicating if connections are added or removed
+        updates given key if needed, by replacing Changed with Added/ Removed based on the is_added flag value
+        :param str key: a key string describing connectivity changes
+        :param bool is_added: a bool flag indicating if connections are added or removed
+        :return updated key
+        :rtype: str
+        """
+        return key.replace("Changed", "Added") if is_added else key.replace("Changed", "Removed")
+
+    @staticmethod
+    def get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result):
+        """
         :param conn_graph:  a ConnectivityGraph with added/removed connections
         :param is_first_connectivity_result: bool flag indicating if this is the first connectivity fw-rules computation
                for the current semantic-diff query
-        :return: explanation (str) with fw-rules summarizing added/removed connections
+        :return: fw-rules summarizing added/removed connections
+        :rtype: Union[str, dict] - dict if required format is yaml/json , str otherwise
         """
-        topology_config_name = self.name2 if is_added else self.name1
-        line_header_txt = 'Added' if is_added else 'Removed'
         fw_rules = conn_graph.get_minimized_firewall_rules()
         # for csv format, adding the csv header only for the first connectivity fw-rules computation
         fw_rules_output = fw_rules.get_fw_rules_in_required_format(False, is_first_connectivity_result)
-        if self.output_config.outputFormat == 'txt':
-            explanation = f'{line_header_txt} connections (based on topology from config: {topology_config_name}) :\n' \
-                          f'{fw_rules_output}\n'
+        return fw_rules_output
+
+    def compute_explanation_for_key(self, key, is_added, conn_graph, is_first_connectivity_result):
+        """
+        computes the explanation for given key and conn_graph with description and fw-rules results
+        prepares the description and explanation
+        description text is written for txt, yaml and json formats
+        other formats description already included in the conn_graph data
+        :param str key: the key describing the changes
+        :param bool is_added: a bool flag indicating if connections are added or removed
+        :param ConnectivityGraph conn_graph: a ConnectivityGraph with added/removed connections
+        :param bool is_first_connectivity_result: flag indicating if this is the first connectivity fw-rules computation
+               for the current semantic-diff query
+        :return the computedExplanation of the current key and conn_graph considering the outputFormat
+        :rtype: ComputedExplanation
+        """
+        updated_key = self._get_updated_key(key, is_added)
+        topology_config_name = self.name2 if is_added else self.name1
+        conn_graph_explanation = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
+
+        if self.output_config.outputFormat in ['json', 'yaml']:
+            explanation_dict = {'description': updated_key}
+            explanation_dict.update(conn_graph_explanation)
+            key_explanation = ComputedExplanation(dict_explanation=explanation_dict)
         else:
-            explanation = fw_rules_output
-        return explanation
+            str_explanation = f'\n{updated_key} (based on topology from config: {topology_config_name}) :\n' \
+                if self.output_config.outputFormat == 'txt' else ''
+            str_explanation += conn_graph_explanation
+            key_explanation = ComputedExplanation(str_explanation=str_explanation)
+
+        return key_explanation
 
     def get_results_for_computed_fw_rules(self, keys_list, conn_graph_removed_per_key, conn_graph_added_per_key):
         """
@@ -890,9 +917,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         :param conn_graph_added_per_key: map from key to ConnectivityGraph of added connections
         :return:
         res (int): number of categories with diffs
-        explanation (str): a diff message
+        explanation (list): list of ComputedExplanation, the diffs' explanations, one for each category
+        :rtype: int, list[ComputedExplanation]
         """
-        explanation = ''
+        explanation = []
         add_explanation = self.output_config.outputFormat in SemanticDiffQuery.get_supported_output_formats()
         res = 0
         for key in keys_list:
@@ -900,18 +928,14 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             conn_graph_removed_conns = conn_graph_removed_per_key[key]
             is_added = conn_graph_added_conns is not None and conn_graph_added_conns.conn_graph_has_fw_rules()
             is_removed = conn_graph_removed_conns is not None and conn_graph_removed_conns.conn_graph_has_fw_rules()
-
-            if (is_added or is_removed) and self.output_config.outputFormat == 'txt':
-                explanation += f'{key}:\n'
-
             if is_added:
-                explanation += self.get_explanation_from_conn_graph(True, conn_graph_added_conns,
-                                                                    res == 0) if add_explanation else ''
+                if add_explanation:
+                    explanation.append(self.compute_explanation_for_key(key, True, conn_graph_added_conns, res == 0))
                 res += 1
 
             if is_removed:
-                explanation += self.get_explanation_from_conn_graph(False, conn_graph_removed_conns,
-                                                                    res == 0) if add_explanation else ''
+                if add_explanation:
+                    explanation.append(self.compute_explanation_for_key(key, False, conn_graph_removed_conns, res == 0))
                 res += 1
 
         return res, explanation
@@ -928,7 +952,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         new_peers = self.config2.peer_container.get_all_peers_group()
         allowed_labels = (self.config1.get_allowed_labels()).union(self.config2.get_allowed_labels())
         topology_peers = new_peers | ip_blocks if is_added else old_peers | ip_blocks
-        updated_key = key.replace("Changed", "Added") if is_added else key.replace("Changed", "Removed")
+        # following query_name update is for adding query line descriptions for csv and md formats
+        updated_key = self._get_updated_key(key, is_added)
         if self.output_config.queryName:
             query_name = f'semantic_diff, config1: {self.config1.name}, config2: {self.config2.name}, key: {updated_key}'
         else:
@@ -939,28 +964,28 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     def compute_diff(self):  # noqa: C901
         """
-       Compute changed connections as following:
+        Compute changed connections as following:
 
-       1.1. lost connections between removed peers
-       1.2. lost connections between removed peers and ipBlocks
+        1.1. lost connections between removed peers
+        1.2. lost connections between removed peers and ipBlocks
 
-       2.1. lost connections between removed peers and intersected peers
+        2.1. lost connections between removed peers and intersected peers
 
-       3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
-       3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
+        3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
+        3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
 
-       4.1. new connections between intersected peers and added peers
+        4.1. new connections between intersected peers and added peers
 
-       5.1. new connections between added peers
-       5.2. new connections between added peers and ipBlocks
+        5.1. new connections between added peers
+        5.2. new connections between added peers and ipBlocks
 
-       Some sections might be empty and can be dropped.
+        Some sections might be empty and can be dropped.
 
-       :return:
+        :return:
         res (int): number of categories with diffs
-        explanation (str): a diff message
-
-       """
+        explanation (list): list of diff explanations - one for each category
+        :rtype: int, list[ComputedExplanation]
+        """
         old_peers = self.config1.peer_container.get_all_peers_group()
         new_peers = self.config2.peer_container.get_all_peers_group()
         intersected_peers = old_peers & new_peers
@@ -1094,23 +1119,14 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         res, explanation = self.compute_diff()
         if res > 0:
             return QueryAnswer(bool_result=False,
-                               output_result=f'{self.name1} and {self.name2} are not semantically equivalent.\n',
-                               output_explanation=[StrExplanation(str_explanation=explanation)],
+                               output_result=f'{self.name1} and {self.name2} are not semantically equivalent.',
+                               output_explanation=explanation,
                                numerical_result=res if not cmd_line_flag else 1)
 
         return QueryAnswer(bool_result=True,
-                           output_result=f'{self.name1} and {self.name2} are semantically equivalent.\n',
-                           output_explanation=[StrExplanation(str_explanation=explanation)],
+                           output_result=f'{self.name1} and {self.name2} are semantically equivalent.',
+                           output_explanation=explanation,
                            numerical_result=res)
-
-    def _handle_output(self, query_answer):
-        query_output = ''
-        if self.output_config.outputFormat == 'txt':
-            query_output += query_answer.output_result
-        if query_answer.output_explanation:
-            assert len(query_answer.output_explanation) == 1
-            query_output += query_answer.output_explanation[0].str_explanation
-        return query_output
 
 
 class StrongEquivalenceQuery(TwoNetworkConfigsQuery):

@@ -1,34 +1,37 @@
-- query: 'istio-deny-all-yaml, config: istio-deny-all'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - kube-system
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - Protocol: TCP
-  - src_ip_block:
-    - ::/0
-    dst_ns:
-    - kube-system
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - Protocol: TCP
-  - src_ns:
-    - default
-    - kube-system
-    - vendor-system
-    src_pods:
-    - '*'
-    dst_ns:
-    - kube-system
-    - vendor-system
-    dst_pods:
-    - '*'
-    connection:
-    - Protocol: TCP
-
+- query: istio-deny-all-yaml
+  configs:
+  - istio-deny-all
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - kube-system
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - Protocol: TCP
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - kube-system
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - Protocol: TCP
+    - src_ns:
+      - default
+      - kube-system
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ns:
+      - kube-system
+      - vendor-system
+      dst_pods:
+      - '*'
+      connection:
+      - Protocol: TCP

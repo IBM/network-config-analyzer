@@ -1,9 +1,7 @@
 new1 and old1 are not semantically equivalent.
-Changed connections between persistent peers:
-Added connections (based on topology from config: old1) :
+
+Added connections between persistent peers (based on topology from config: old1) :
 src_ns: [demo] src_pods: [bank-ui] dst_ns: [demo] dst_pods: [account-command] conn: All but TCP+UDP 8080,TCP 9090
 
-Removed connections (based on topology from config: new1) :
+Removed connections between persistent peers (based on topology from config: new1) :
 src_ns: [demo] src_pods: [account-query] dst_ns: [demo] dst_pods: [bank-ui] conn: All but TCP 8080
-
-
