@@ -51,6 +51,21 @@ networkConfigList:
     expectedWarnings: 0
 
 queries:
+  - name: connectivity_map
+    connectivityMap:
+      - icmp-no-type
+      - match-icmp-only-between-namespaces
+      - np_kube-system-non-matching-icmps
+      - match-icmp-also-within-default
+      - default-open-but-vacuous
+      - match-not-icmp
+      - match-icmp-within-kube-system
+      - no-match-notICMP
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+
   - name: policies_not_empty
     emptiness:
       - match-icmp-only-between-namespaces

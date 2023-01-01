@@ -698,10 +698,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         if all_conns_opt:
             subset_peers = self.compute_subset(peers_to_compare)
             src_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
-                                                                                   PortSet(True), PortSet(True),
                                                                                    src_peers=subset_peers)
             dst_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
-                                                                                   PortSet(True), PortSet(True),
                                                                                    dst_peers=subset_peers)
             all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
             conn_graph2 = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
@@ -709,31 +707,33 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # Add connections from peer to itself (except for HEPs)
             auto_conns = defaultdict(list)
             for peer in subset_peers:
-                if not isinstance(peer, HostEP):
+                if not isinstance(peer, HostEP) and not isinstance(peer, IpBlock):
                     auto_conns[ConnectionSet(True)].append((peer, peer))
             conn_graph2.add_edges(auto_conns)
             for cube in all_conns_opt:
                 conn_graph2.add_edges_from_cube_dict(self.config.peer_container,
                                                      all_conns_opt.get_cube_dict_with_orig_values(cube))
                 conn_graph_opt.add_edge(all_conns_opt.get_cube_dict(cube))
-            fw_rules2 = conn_graph2.get_minimized_firewall_rules()
-            fw_rules2.unite_fw_rules_with_same_peers()
             res_opt = QueryAnswer(True)
             if self.output_config.outputFormat == 'dot':
                 res_opt.output_explanation = conn_graph_opt.get_connectivity_dot_format_str()
                 # Tanya: temp for debugging
                 orig_conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
                 orig_conn_graph.add_edges(connections)
-                orig_fw_rules = orig_conn_graph.get_minimized_firewall_rules()
-                assert orig_fw_rules.fw_rules_map == fw_rules2.fw_rules_map
+                self.compare_conn_graphs(orig_conn_graph, conn_graph2)
                 # Tanya: end temp for debugging
             else:
-                assert fw_rules.fw_rules_map == fw_rules2.fw_rules_map
+                self.compare_conn_graphs(conn_graph, conn_graph2)
                 # res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()
                 # res.output_explanation += "---------------- OPTIMIZED RESULT: -------------\n" +\
                 #                           fw_rules2.get_fw_rules_in_required_format() + \
                 #                           "\n------------------------------------------------\n\n"  # TEMP for debug
         return res
+
+    def compare_conn_graphs(self, conn_graph1, conn_graph2):
+        tcp_props1 = conn_graph1.convert_to_tcp_like_properties(self.config.peer_container)
+        tcp_props2 = conn_graph2.convert_to_tcp_like_properties(self.config.peer_container)
+        assert tcp_props1 == tcp_props2
 
     def compute_query_output(self, query_answer):
         return self.get_query_output(query_answer, only_explanation=query_answer.bool_result)

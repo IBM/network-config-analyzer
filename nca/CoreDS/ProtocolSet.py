@@ -9,10 +9,8 @@ from .ProtocolNameResolver import ProtocolNameResolver
 
 class ProtocolSet(CanonicalIntervalSet):
     """
-    A class for holding a set of HTTP methods
+    A class for holding a set of protocols
     """
-
-    #all_protocols_list = ProtocolNameResolver.get_all_protocols_list()
     min_protocol_num = 0
     max_protocol_num = 255
 
@@ -24,27 +22,42 @@ class ProtocolSet(CanonicalIntervalSet):
         if all_protocols:  # the whole range
             self.add_interval(self._whole_range_interval())
 
+    def __contains__(self, protocol):
+        if isinstance(protocol, str):
+            protocol_num = ProtocolNameResolver.get_protocol_number(protocol)
+        else:
+            protocol_num = protocol
+        return super().__contains__(protocol_num)
+
     def add_protocol(self, protocol):
         """
         Adds a given protocol to the ProtocolSet if the protocol is one of the eligible protocols
          (i.e., protocol in [min_protocol_num...max_protocol_num]);
         otherwise raises exception
-        :param int protocol: the protocol to add
+        :param Union[int, str] protocol: the protocol to add
         """
-        if not ProtocolNameResolver.is_valid_protocol(protocol):
+        if isinstance(protocol, str):
+            protocol_num = ProtocolNameResolver.get_protocol_number(protocol)
+        else:
+            protocol_num = protocol
+        if not ProtocolNameResolver.is_valid_protocol(protocol_num):
             raise Exception('Protocol must be in the range 0-255')
-        self.add_interval(self.Interval(protocol, protocol))
+        self.add_interval(self.Interval(protocol_num, protocol_num))
 
     def remove_protocol(self, protocol):
         """
         Removes a given protocol from the ProtocolSet if the protocol is one of the eligible protocols
         (i.e., protocol in [min_protocol_num...max_protocol_num]);
         otherwise raises exception
-        :param int protocol: the protocol to remove
+        :param Union[int,str] protocol: the protocol to remove
         """
-        if not ProtocolNameResolver.is_valid_protocol(protocol):
+        if isinstance(protocol, str):
+            protocol_num = ProtocolNameResolver.get_protocol_number(protocol)
+        else:
+            protocol_num = protocol
+        if not ProtocolNameResolver.is_valid_protocol(protocol_num):
             raise Exception('Protocol must be in the range 0-255')
-        self.add_hole(self.Interval(protocol, protocol))
+        self.add_hole(self.Interval(protocol_num, protocol_num))
 
     def set_protocols(self, protocols):
         """

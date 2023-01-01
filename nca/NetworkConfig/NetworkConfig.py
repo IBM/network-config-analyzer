@@ -6,6 +6,7 @@
 from dataclasses import dataclass, field
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
+from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 
@@ -259,17 +260,11 @@ class NetworkConfig:
                                                                                                 layer_name)
             return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
 
-        # TODO handle connectivity of hostEndpoints (for calico layer)
-
-        conns_res = None
+        conns_res = TcpLikeProperties.make_all_properties()  # all connections
         for layer, layer_obj in self.policies_container.layers.items():
             conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
-
             # all allowed connections: intersection of all allowed connections from all layers
-            if conns_res and conns_per_layer:
-                conns_res &= conns_per_layer
-            elif not conns_res:
-                conns_res = conns_per_layer
+            conns_res &= conns_per_layer
 
         return conns_res
 

@@ -82,3 +82,6 @@ class PortSet:
 
     def is_all(self):
         return self.port_set == PortSet.all_ports_interval
+
+    def is_empty(self):
+        return not self.port_set and not self.named_ports

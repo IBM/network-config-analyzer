@@ -38,11 +38,14 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     (2) calico: +ve and -ve named ports, no src named ports, and no use of operators between these objects.
     """
 
-    dimensions_list = ["src_peers", "dst_peers", "protocols", "src_ports", "dst_ports", "methods", "paths", "hosts"]
+    dimensions_list = ["src_peers", "dst_peers", "protocols", "src_ports", "dst_ports", "methods", "paths", "hosts",
+                       "icmp_type", "icmp_code"]
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
-    def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), protocols=ProtocolSet(True),
-                 methods=MethodSet(True), paths=None, hosts=None, base_peer_set=None, src_peers=None, dst_peers=None):
+    def __init__(self, source_ports=PortSet(True), dest_ports=PortSet(True), protocols=ProtocolSet(True),
+                 methods=MethodSet(True), paths=None, hosts=None, icmp_type=None, icmp_code=None,
+                 base_peer_set=None, src_peers=None, dst_peers=None,
+                 create_empty=False):
         """
         This will create all cubes made of the input arguments ranges/regex values.
         :param PortSet source_ports: The set of source ports (as a set of intervals/ranges)
@@ -51,6 +54,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :param MethodSet methods: the set of http request methods
         :param MinDFA paths: The dfa of http request paths
         :param MinDFA hosts: The dfa of http request hosts
+        :param CanonicalIntervalSet icmp_type: ICMP-specific parameter (type dimension)
+        :param CanonicalIntervalSet icmp_code: ICMP-specific parameter (code dimension)
         :param PeerSet base_peer_set: the base peer set which is referenced by the indices in 'peers'
         :param CanonicalIntervalSet src_peers: the set of source peers
         :param CanonicalIntervalSet dst_peers: the set of target peers
@@ -60,7 +65,9 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        self.base_peer_set = base_peer_set if base_peer_set else PeerSet()
+        self.base_peer_set = base_peer_set.copy() if base_peer_set else PeerSet()
+        if create_empty:
+            return
 
         # create the cube from input arguments
         cube = []
@@ -90,6 +97,12 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if hosts is not None:
             cube.append(hosts)
             active_dims.append("hosts")
+        if icmp_type:
+            cube.append(icmp_type)
+            active_dims.append("icmp_type")
+        if icmp_code:
+            cube.append(icmp_code)
+            active_dims.append("icmp_code")
 
         if not active_dims:
             self.set_all()
@@ -207,7 +220,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
-            assert not self.base_peer_set or not other.base_peer_set or self.base_peer_set == other.base_peer_set
+            # assert not self.base_peer_set or not other.base_peer_set or self.base_peer_set == other.base_peer_set
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
@@ -229,22 +242,23 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return res
 
     def __iand__(self, other):
-        assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-               not other.base_peer_set or self.base_peer_set == other.base_peer_set
+        # assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
+        #        not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__iand__(other)
+        if isinstance(other, TcpLikeProperties):
+            self.base_peer_set |= other.base_peer_set
         return self
 
     def __ior__(self, other):
-        assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-               not other.base_peer_set or self.base_peer_set == other.base_peer_set
+        # assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
+        #        not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.excluded_named_ports
         assert not isinstance(other, TcpLikeProperties) or not other.excluded_named_ports
-        if isinstance(other, TcpLikeProperties):
-            self.base_peer_set |= other.base_peer_set
         super().__ior__(other)
         if isinstance(other, TcpLikeProperties):
+            self.base_peer_set |= other.base_peer_set
             res_named_ports = dict({})
             for port_name in self.named_ports:
                 res_named_ports[port_name] = self.named_ports[port_name]
@@ -257,11 +271,13 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return self
 
     def __isub__(self, other):
-        assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-               not other.base_peer_set or self.base_peer_set == other.base_peer_set
+        # assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
+        #        not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__isub__(other)
+        if isinstance(other, TcpLikeProperties):
+            self.base_peer_set |= other.base_peer_set
         return self
 
     def contained_in(self, other):
@@ -270,8 +286,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
-        assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-               not other.base_peer_set or self.base_peer_set == other.base_peer_set
+        # assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
+        #        not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not other.has_named_ports()
         return super().contained_in(other)
@@ -356,7 +372,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         res_list = []
         for i, dim_name in enumerate(self.active_dimensions):
             if dim_name == 'protocols':
-                dim_item = ProtocolSet.all_protocols_list[item[i]]
+                dim_item = ProtocolNameResolver.get_protocol_name(item[i])
             elif dim_name == 'methods':
                 dim_item = MethodSet.all_methods_list[item[i]]
             else:
@@ -390,8 +406,10 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return res
 
     @staticmethod
-    def make_tcp_like_properties(peer_container, src_ports, dst_ports, protocols=None, src_peers=None, dst_peers=None,
-                                 paths_dfa=None, hosts_dfa=None, methods=None):
+    def make_tcp_like_properties(peer_container, src_ports=PortSet(True), dst_ports=PortSet(True),
+                                 protocols=ProtocolSet(True), src_peers=None, dst_peers=None,
+                                 paths_dfa=None, hosts_dfa=None, methods=MethodSet(True),
+                                 icmp_type=None, icmp_code=None, exclude_same_src_dst_peers=True):
         """
         get TcpLikeProperties with TCP allowed connections, corresponding to input properties cube.
         TcpLikeProperties should not contain named ports: substitute them with corresponding port numbers, per peer
@@ -404,22 +422,40 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :param MinDFA paths_dfa: MinDFA obj for paths dimension
         :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
         :param MethodSet methods: CanonicalIntervalSet obj for methods dimension
+        :param CanonicalIntervalSet icmp_type: ICMP-specific parameter (type dimension)
+        :param CanonicalIntervalSet icmp_code: ICMP-specific parameter (code dimension)
         :return: TcpLikeProperties with TCP allowed connections, corresponding to input properties cube
         """
-        base_peer_set = peer_container.peer_set.copy()
+        base_peer_set = peer_container.peer_set
         if src_peers:
+            base_peer_set |= src_peers
             src_peers_interval = base_peer_set.get_peer_interval_of(src_peers)
         else:
             src_peers_interval = None
         if dst_peers:
+            base_peer_set |= dst_peers
             dst_peers_interval = base_peer_set.get_peer_interval_of(dst_peers)
         else:
             dst_peers_interval = None
-        if not src_ports.named_ports and not dst_ports.named_ports:
-            return TcpLikeProperties(source_ports=src_ports, dest_ports=dst_ports,
-                                     protocols=protocols, methods=methods,
-                                     paths=paths_dfa, hosts=hosts_dfa, src_peers=src_peers_interval,
-                                     dst_peers=dst_peers_interval, base_peer_set=base_peer_set)
+        exclude_props = TcpLikeProperties.make_empty_properties(peer_container)
+        if exclude_same_src_dst_peers and src_peers and dst_peers:
+            same_src_dst_peers = src_peers & dst_peers
+            for peer in same_src_dst_peers:
+                ps = PeerSet()
+                ps.add(peer)
+                peer_interval = base_peer_set.get_peer_interval_of(ps)
+                exclude_props |= TcpLikeProperties(src_peers=peer_interval,
+                                                   dst_peers=peer_interval,
+                                                   base_peer_set=base_peer_set)
+        if (not src_ports.named_ports or not src_peers) and (not dst_ports.named_ports or not dst_peers):
+            # Should not resolve named ports
+            res = TcpLikeProperties(source_ports=src_ports, dest_ports=dst_ports,
+                                    protocols=protocols, methods=methods, paths=paths_dfa, hosts=hosts_dfa,
+                                    icmp_type=icmp_type, icmp_code=icmp_code,
+                                    src_peers=src_peers_interval, dst_peers=dst_peers_interval,
+                                    base_peer_set=base_peer_set)
+            return res - exclude_props if exclude_props else res
+        # Resolving named ports
         tcp_properties = None
         if src_ports.named_ports and dst_ports.named_ports:
             assert src_peers
@@ -463,6 +499,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                     props = TcpLikeProperties(source_ports=real_src_ports, dest_ports=real_dst_ports,
                                               protocols=protocols if protocols else tcp_protocol, methods=methods,
                                               paths=paths_dfa, hosts=hosts_dfa,
+                                              icmp_type=icmp_type, icmp_code=icmp_code,
                                               src_peers=base_peer_set.get_peer_interval_of(src_peer_in_set),
                                               dst_peers=base_peer_set.get_peer_interval_of(dst_peer_in_set),
                                               base_peer_set=base_peer_set)
@@ -503,19 +540,22 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                     props = TcpLikeProperties(source_ports=ports, dest_ports=dst_ports,
                                               protocols=protocols if protocols else tcp_protocol, methods=methods,
                                               paths=paths_dfa, hosts=hosts_dfa,
+                                              icmp_type=icmp_type, icmp_code=icmp_code,
                                               src_peers=base_peer_set.get_peer_interval_of(peer_in_set),
                                               dst_peers=dst_peers_interval, base_peer_set=base_peer_set)
                 else:
                     props = TcpLikeProperties(source_ports=src_ports, dest_ports=ports,
                                               protocols=protocols if protocols else tcp_protocol, methods=methods,
-                                              paths=paths_dfa, hosts=hosts_dfa, src_peers=src_peers_interval,
+                                              paths=paths_dfa, hosts=hosts_dfa,
+                                              icmp_type=icmp_type, icmp_code=icmp_code,
+                                              src_peers=src_peers_interval,
                                               dst_peers=base_peer_set.get_peer_interval_of(peer_in_set),
                                               base_peer_set=base_peer_set)
                 if tcp_properties:
                     tcp_properties |= props
                 else:
                     tcp_properties = props
-        return tcp_properties
+        return tcp_properties - exclude_props
 
     @staticmethod
     def make_tcp_like_properties_from_dict(peer_container, cube_dict):
@@ -534,6 +574,54 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         paths_dfa = cube_dict_copy.pop("paths", None)
         hosts_dfa = cube_dict_copy.pop("hosts", None)
         methods = cube_dict_copy.pop("methods", None)
+        icmp_type = cube_dict_copy.pop("icmp_type", None)
+        icmp_code = cube_dict_copy.pop("icmp_code", None)
         assert not cube_dict_copy
-        return TcpLikeProperties.make_tcp_like_properties(peer_container, src_ports, dst_ports, protocols,
-                                                          src_peers, dst_peers, paths_dfa, hosts_dfa, methods)
+        return TcpLikeProperties.make_tcp_like_properties(peer_container, src_ports=src_ports, dst_ports=dst_ports,
+                                                          protocols=protocols, src_peers=src_peers, dst_peers=dst_peers,
+                                                          paths_dfa=paths_dfa, hosts_dfa=hosts_dfa, methods=methods,
+                                                          icmp_type=icmp_type, icmp_code=icmp_code)
+
+    @staticmethod
+    def make_empty_properties(peer_container=None):
+        return TcpLikeProperties(base_peer_set=peer_container.peer_set if peer_container else None, create_empty=True)
+
+    @staticmethod
+    def make_all_properties(peer_container=None):
+        return TcpLikeProperties(base_peer_set=peer_container.peer_set if peer_container else None)
+
+    ####################################### ICMP-related functions #######################################
+
+    @staticmethod
+    def make_icmp_properties(peer_container, protocol="", src_peers=None, dst_peers=None,
+                             icmp_type=None, icmp_code=None):
+        if protocol:
+            icmp_protocol_set = ProtocolSet()
+            icmp_protocol_set.add_protocol(ProtocolNameResolver.get_protocol_number(protocol))
+        else:
+            icmp_protocol_set = ProtocolSet(True)
+        icmp_type_interval = None
+        icmp_code_interval = None
+        if icmp_type:
+            icmp_type_interval = CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type)
+            if icmp_code:
+                icmp_code_interval = CanonicalIntervalSet.get_interval_set(icmp_code, icmp_code)
+        return TcpLikeProperties.make_tcp_like_properties(peer_container=peer_container, protocols=icmp_protocol_set,
+                                                          src_peers=src_peers, dst_peers=dst_peers,
+                                                          icmp_type=icmp_type_interval, icmp_code=icmp_code_interval)
+
+    @staticmethod
+    def make_all_but_given_icmp_properties(peer_container, protocol="", src_peers=None, dst_peers=None,
+                                           icmp_type=None, icmp_code=None):
+        if protocol:
+            icmp_protocol_set = ProtocolSet()
+            icmp_protocol_set.add_protocol(ProtocolNameResolver.get_protocol_number(protocol))
+        else:
+            icmp_protocol_set = ProtocolSet(True)
+        all_icmp_props = TcpLikeProperties.make_tcp_like_properties(peer_container=peer_container,
+                                                                    protocols=icmp_protocol_set,
+                                                                    src_peers=src_peers, dst_peers=dst_peers)
+        given_icmp_props = TcpLikeProperties.make_icmp_properties(peer_container, protocol=protocol,
+                                                                  src_peers=src_peers, dst_peers=dst_peers,
+                                                                  icmp_type=icmp_type, icmp_code=icmp_code,)
+        return all_icmp_props-given_icmp_props

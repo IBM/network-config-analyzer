@@ -321,7 +321,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             src_pods = policy_selected_pods
             dst_pods = res_pods
 
-        res_opt_props = None  # TcpLikeProperties
+        res_opt_props = TcpLikeProperties.make_empty_properties(self.peer_container)  # TcpLikeProperties
         ports_array = rule.get('ports', [])
         if ports_array:
             res_conns = ConnectionSet()
@@ -329,8 +329,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 protocol, dest_port_set = self.parse_port(port)
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
-                res_conns.add_connections(protocol, TcpLikeProperties(PortSet(True),
-                                                                      dest_port_set))  # K8s doesn't reason about src ports
+                res_conns.add_connections(protocol, TcpLikeProperties.make_tcp_like_properties(
+                    self.peer_container, dst_ports=dest_port_set))  # K8s doesn't reason about src ports
                 if src_pods and dst_pods:
                     protocols = ProtocolSet()
                     protocols.add_protocol(protocol)
@@ -338,17 +338,14 @@ class K8sPolicyYamlParser(GenericYamlParser):
                     dest_num_port_set = PortSet()
                     dest_num_port_set.port_set = dest_port_set.port_set.copy()
                     tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                           PortSet(True), dest_num_port_set,
-                                                                           protocols, src_pods, dst_pods)
-                    if res_opt_props:
-                        res_opt_props |= tcp_props
-                    else:
-                        res_opt_props = tcp_props
+                                                                           dst_ports=dest_num_port_set,
+                                                                           protocols=protocols,
+                                                                           src_peers=src_pods, dst_peers=dst_pods)
+                    res_opt_props |= tcp_props
         else:
             res_conns = ConnectionSet(True)
             if src_pods and dst_pods:
                 res_opt_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                           PortSet(True), PortSet(True),
                                                                            src_peers=src_pods, dst_peers=dst_pods)
         if not res_pods:
             self.warning('Rule selects no pods', rule)
@@ -459,12 +456,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 rule, optimized_props = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
                 res_policy.add_ingress_rule(rule)
                 res_policy.add_optimized_ingress_props(optimized_props)
-        elif res_policy.affects_ingress:
-            # add  denied connections
-            denied_conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                      PortSet(True), PortSet(True),
-                                                                      dst_peers=res_policy.selected_peers)
-            res_policy.add_optimized_ingress_props(denied_conns, False)
 
         egress_rules = policy_spec.get('egress', [])
         if egress_rules:
@@ -472,12 +463,6 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 rule, optimized_props = self.parse_egress_rule(egress_rule, res_policy.selected_peers)
                 res_policy.add_egress_rule(rule)
                 res_policy.add_optimized_egress_props(optimized_props)
-        elif res_policy.affects_egress:
-            # add only non-captured connections
-            denied_conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                      PortSet(True), PortSet(True),
-                                                                      src_peers=res_policy.selected_peers)
-            res_policy.add_optimized_egress_props(denied_conns, False)
 
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels

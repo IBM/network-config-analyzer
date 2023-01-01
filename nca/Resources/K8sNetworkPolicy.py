@@ -4,6 +4,7 @@
 #
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS import Peer
+from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
 
 
@@ -72,16 +73,13 @@ class K8sNetworkPolicy(NetworkPolicy):
         and the peer set of captured peers that are not a part of allowed connections.
         :rtype: tuple (TcpLikeProperties, TcpLikeProperties, PeerSet)
         """
-        add_to_captured = Peer.PeerSet()
         if is_ingress:
-            allowed = self.optimized_ingress_props.copy() if self.optimized_ingress_props else None
-            if self.optimized_denied_ingress_props:
-                add_to_captured = self.optimized_denied_ingress_props.project_on_one_dimension('dst_peers')
+            allowed = self.optimized_ingress_props.copy()
+            captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
         else:
-            allowed = self.optimized_egress_props.copy() if self.optimized_egress_props else None
-            if self.optimized_denied_egress_props:
-                add_to_captured = self.optimized_denied_egress_props.project_on_one_dimension('src_peers')
-        return allowed, None, add_to_captured
+            allowed = self.optimized_egress_props.copy()
+            captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
+        return allowed, TcpLikeProperties.make_empty_properties(), captured
 
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """

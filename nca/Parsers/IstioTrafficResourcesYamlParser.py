@@ -330,7 +330,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         for http_route in vs.http_routes:
             for dest in http_route.destinations:
                 conns = \
-                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, PortSet(True), dest.port,
+                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, dst_ports=dest.port,
                                                                dst_peers=dest.service.target_pods,
                                                                paths_dfa=http_route.uri_dfa, hosts_dfa=host_dfa,
                                                                methods=http_route.methods)

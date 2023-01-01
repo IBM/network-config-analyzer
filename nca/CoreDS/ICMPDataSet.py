@@ -56,6 +56,23 @@ class ICMPDataSet(CanonicalHyperCubeSet):
             cubes_list.append(cube_str)
         return res_obj
 
+    def get_cube_dict_with_orig_values(self, cube):
+        """
+        represent the properties cube as dict object, where the values are the original values
+        with which the cube was built (i.e., icmp_type and icmp_code)
+        :param list cube: the values of the input cube
+        :return: the cube properties in dict representation
+        :rtype: dict
+        """
+        cube_dict = {}
+        for i, dim in enumerate(self.active_dimensions):
+            dim_values = cube[i]
+            dim_domain = DimensionsManager().get_dimension_domain_by_name(dim)
+            if dim_domain == dim_values:
+                continue  # skip dimensions with all values allowed in a cube
+            cube_dict[dim] = dim_values
+        return cube_dict
+
     def copy(self):
         new_copy = copy.copy(self)
         return new_copy

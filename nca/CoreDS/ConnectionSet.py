@@ -438,7 +438,7 @@ class ConnectionSet:
         :return: None
         """
         if self.protocol_supports_ports(protocol):
-            self.allowed_protocols[protocol] = TcpLikeProperties(PortSet(True), PortSet(True))
+            self.allowed_protocols[protocol] = TcpLikeProperties.make_all_properties()
         elif self.protocol_is_icmp(protocol):
             self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
         else:
@@ -547,7 +547,7 @@ class ConnectionSet:
     @staticmethod
     def get_all_tcp_connections():
         tcp_conns = ConnectionSet()
-        tcp_conns.add_connections('TCP', TcpLikeProperties(PortSet(True), PortSet(True)))
+        tcp_conns.add_connections('TCP', TcpLikeProperties.make_all_properties())
         return tcp_conns
 
     @staticmethod

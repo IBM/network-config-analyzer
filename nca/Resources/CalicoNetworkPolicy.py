@@ -128,12 +128,14 @@ class CalicoNetworkPolicy(NetworkPolicy):
         :rtype: tuple (TcpLikeProperties, TcpLikeProperties, PeerSet)
         """
         if is_ingress:
-            allowed = self.optimized_ingress_props.copy() if self.optimized_ingress_props else None
-            denied = self.optimized_denied_ingress_props.copy() if self.optimized_denied_ingress_props else None
+            allowed = self.optimized_ingress_props.copy()
+            denied = self.optimized_denied_ingress_props.copy()
+            captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
         else:
-            allowed = self.optimized_egress_props.copy() if self.optimized_egress_props else None
-            denied = self.optimized_denied_egress_props.copy() if self.optimized_denied_egress_props else None
-        return allowed, denied, Peer.PeerSet()
+            allowed = self.optimized_egress_props.copy()
+            denied = self.optimized_denied_egress_props.copy()
+            captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
+        return allowed, denied, captured
 
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """
