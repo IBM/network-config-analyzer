@@ -7,6 +7,7 @@ import argparse
 import time
 import os
 import sys
+import traceback
 from pathlib import Path
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
@@ -307,6 +308,7 @@ def nca_main(argv=None):
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
     parser.add_argument('--version', '-v', action='store_true', help='Print version and exit')
+    parser.add_argument('--debug', '-d', action='store_true', help='Print debug information')
     parser.add_argument('--output_endpoints', choices=['pods', 'deployments'],
                         help='Choose endpoints type in output (pods/deployments)', default='deployments')
 
@@ -324,11 +326,17 @@ def nca_main(argv=None):
     if args.daemon:
         return RestServer(args.ns_list, args.pod_list, args.resource_list).run()
 
-    if args.period <= 0:
-        ret_val = run_args(args)
-        return 0 if args.return_0 else ret_val
+    try:
+        if args.period <= 0:
+            ret_val = run_args(args)
+            return 0 if args.return_0 else ret_val
 
-    _do_every(args.period * 60, run_args, args)
+        _do_every(args.period * 60, run_args, args)
+    except Exception as e:
+        print('Error: {}'.format(e))
+        if args.debug:
+            print(traceback.format_exc())
+        return 0 if args.return_0 else 1
     return 0
 
 
