@@ -3,7 +3,7 @@ description: 'Checks out NCA, then installs the required dependencies'
 runs:
   using: "composite"
   steps:
-  - uses: actions/setup-python@v2.3.1
+  - uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912  # v4.4.0
     with:
       python-version: 3.8
       architecture: x64
