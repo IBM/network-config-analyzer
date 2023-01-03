@@ -18,7 +18,7 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    def __init__(self, scheme_file_name, output_format=None, output_path=None):
+    def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
@@ -27,6 +27,7 @@ class SchemeRunner(GenericYamlParser):
             self.output_config_from_cli_args['outputFormat'] = output_format
         if output_path is not None:
             self.output_config_from_cli_args['outputPath'] = output_path
+        self.optimized_run=optimized_run
 
         with open(scheme_file_name) as scheme_file:
             yaml = YAML()
@@ -73,7 +74,7 @@ class SchemeRunner(GenericYamlParser):
             input_file_list.append(resource_path)
         return input_file_list
 
-    def _add_config(self, config_entry, resources_handler):
+    def _add_config(self, config_entry, resources_handler, optimized_run):
         """
         Produces a NetworkConfig object for a given entry in the scheme file.
         Increases self.global_res if the number of warnings/error in the config does not match the expected number.
@@ -101,7 +102,7 @@ class SchemeRunner(GenericYamlParser):
         expected_error = config_entry.get('expectedError')
         try:
             network_config = resources_handler.get_network_config(np_list, ns_list, pod_list, resource_list,
-                                                                  config_name)
+                                                                  config_name, optimized_run=optimized_run)
             if not network_config:
                 self.warning(f'networkPolicyList {network_config.name} contains no networkPolicies',
                              np_list)
@@ -140,13 +141,20 @@ class SchemeRunner(GenericYamlParser):
         global_ns_list = self._handle_resources_list(self.scheme.get('namespaceList', None))
         global_resource_list = self._handle_resources_list(self.scheme.get('resourceList', None))
         resources_handler = ResourcesHandler()
-        resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list)
+        resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
+                                                    self.optimized_run)
 
         # specified configs (non-global)
+        start = time.time()
         for config_entry in self.scheme.get('networkConfigList', []):
-            self._add_config(config_entry, resources_handler)
+            self._add_config(config_entry, resources_handler, self.optimized_run)
+        end_parse = time.time()
 
         self.run_queries(self.scheme.get('queries', []))
+        end_queries = time.time()
+        print(f'Parsing time: {(end_parse - start):6.2f} seconds')
+        print(f'Queries time: {(end_queries - end_parse):6.2f} seconds')
+        print(f'Total time: {(end_queries - start):6.2f} seconds')
         return self.global_res
 
     def get_query_output_config_obj(self, query):

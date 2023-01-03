@@ -649,52 +649,54 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         connections = defaultdict(list)
         peers = PeerSet()
         peers_to_compare |= ref_ip_blocks
-
-        for peer1 in peers_to_compare:
-            for peer2 in peers_to_compare:
-                if self.is_in_subset(peer1):
-                    peers.add(peer1)
-                elif not self.is_in_subset(peer2):
-                    continue  # skipping pairs if none of them are in the given subset
-                if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
-                    continue  # skipping pairs with ip-blocks for both src and dst
-                if peer1 == peer2:
-                    # cannot restrict pod's connection to itself
-                    connections[ConnectionSet(True)].append((peer1, peer2))
-                else:
-                    conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
-                    if conns:
-                        # TODO: consider separate connectivity maps for config that involves istio -
-                        #  one that handles non-TCP connections, and one for TCP
-                        # TODO: consider avoid "hiding" egress allowed connections, even though they are
-                        #  not covered by authorization policies
-                        if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
-                                self.output_config.connectivityFilterIstioEdges:
-                            should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
-                            if not should_filter:
-                                connections[modified_conns].append((peer1, peer2))
+        res = QueryAnswer(True)
+        conn_graph = None
+        if self.config.optimized_run != 'true':
+            for peer1 in peers_to_compare:
+                for peer2 in peers_to_compare:
+                    if self.is_in_subset(peer1):
+                        peers.add(peer1)
+                    elif not self.is_in_subset(peer2):
+                        continue  # skipping pairs if none of them are in the given subset
+                    if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
+                        continue  # skipping pairs with ip-blocks for both src and dst
+                    if peer1 == peer2:
+                        # cannot restrict pod's connection to itself
+                        connections[ConnectionSet(True)].append((peer1, peer2))
+                    else:
+                        conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
+                        if conns:
+                            # TODO: consider separate connectivity maps for config that involves istio -
+                            #  one that handles non-TCP connections, and one for TCP
+                            # TODO: consider avoid "hiding" egress allowed connections, even though they are
+                            #  not covered by authorization policies
+                            if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
+                                    self.output_config.connectivityFilterIstioEdges:
+                                should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
+                                if not should_filter:
+                                    connections[modified_conns].append((peer1, peer2))
+                                    # collect both peers, even if one of them is not in the subset
+                                    peers.add(peer1)
+                                    peers.add(peer2)
+                            else:
+                                connections[conns].append((peer1, peer2))
                                 # collect both peers, even if one of them is not in the subset
                                 peers.add(peer1)
                                 peers.add(peer2)
-                        else:
-                            connections[conns].append((peer1, peer2))
-                            # collect both peers, even if one of them is not in the subset
-                            peers.add(peer1)
-                            peers.add(peer2)
 
-        res = QueryAnswer(True)
-        fw_rules = None
-        if self.output_config.outputFormat == 'dot':
-            conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-            conn_graph.add_edges(connections)
-            res.output_explanation = conn_graph.get_connectivity_dot_format_str()
-        else:
-            conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
-            conn_graph.add_edges(connections)
-            fw_rules = conn_graph.get_minimized_firewall_rules()
-            res.output_explanation = fw_rules.get_fw_rules_in_required_format()
+            if self.output_config.outputFormat == 'dot':
+                conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
+                conn_graph.add_edges(connections)
+                res.output_explanation = conn_graph.get_connectivity_dot_format_str()
+            else:
+                conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
+                conn_graph.add_edges(connections)
+                fw_rules = conn_graph.get_minimized_firewall_rules()
+                res.output_explanation = fw_rules.get_fw_rules_in_required_format()
 
-        all_conns_opt = self.config.allowed_connections_optimized()
+        all_conns_opt = TcpLikeProperties.make_empty_properties()
+        if self.config.optimized_run != 'false':
+            all_conns_opt = self.config.allowed_connections_optimized()
         if all_conns_opt:
             subset_peers = self.compute_subset(peers_to_compare)
             src_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
@@ -703,7 +705,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                                                    dst_peers=subset_peers)
             all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
             conn_graph2 = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
-            conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
+            #conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
             # Add connections from peer to itself (except for HEPs)
             auto_conns = defaultdict(list)
             for peer in subset_peers:
@@ -713,17 +715,18 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             for cube in all_conns_opt:
                 conn_graph2.add_edges_from_cube_dict(self.config.peer_container,
                                                      all_conns_opt.get_cube_dict_with_orig_values(cube))
-                conn_graph_opt.add_edge(all_conns_opt.get_cube_dict(cube))
-            res_opt = QueryAnswer(True)
+                #conn_graph_opt.add_edge(all_conns_opt.get_cube_dict(cube))
             if self.output_config.outputFormat == 'dot':
-                res_opt.output_explanation = conn_graph_opt.get_connectivity_dot_format_str()
-                # Tanya: temp for debugging
-                orig_conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
-                orig_conn_graph.add_edges(connections)
-                self.compare_conn_graphs(orig_conn_graph, conn_graph2)
-                # Tanya: end temp for debugging
+                res.output_explanation = conn_graph2.get_connectivity_dot_format_str()
+                if self.config.optimized_run == 'debug':
+                    orig_conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
+                    orig_conn_graph.add_edges(connections)
+                    self.compare_conn_graphs(orig_conn_graph, conn_graph2)
             else:
-                self.compare_conn_graphs(conn_graph, conn_graph2)
+                fw_rules2 = conn_graph2.get_minimized_firewall_rules()
+                res.output_explanation = fw_rules2.get_fw_rules_in_required_format()
+                if self.config.optimized_run == 'debug':
+                    self.compare_conn_graphs(conn_graph, conn_graph2)
                 # res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()
                 # res.output_explanation += "---------------- OPTIMIZED RESULT: -------------\n" +\
                 #                           fw_rules2.get_fw_rules_in_required_format() + \

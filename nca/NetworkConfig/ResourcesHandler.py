@@ -29,7 +29,7 @@ class ResourcesHandler:
         self.global_pods_finder = None
         self.global_ns_finder = None
 
-    def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list):
+    def set_global_peer_container(self, global_ns_list, global_pod_list, global_resource_list, optimized_run='false'):
         """
         builds the global peer container based on global input resources,
         it also saves the global pods and namespaces finder, to use in case specific configs missing one of them.
@@ -39,11 +39,12 @@ class ResourcesHandler:
         :param Union[list[str], None] global_resource_list: list of global entries of namespaces/pods to handle
         in case specific list is None
         """
-        global_resources_parser = ResourcesParser()
+        global_resources_parser = ResourcesParser(optimized_run)
         self._set_config_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                         'global', True, global_resources_parser)
 
-    def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False):
+    def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False,
+                           optimized_run='false'):
         """
         First tries to build a peer_container using the input resources (NetworkConfigs's resources)
         If fails, it uses the global peer container.
@@ -58,7 +59,7 @@ class ResourcesHandler:
          will save the peer container as global to use it for base config's peer resources in case are missing
         :rtype NetworkConfig
         """
-        resources_parser = ResourcesParser()
+        resources_parser = ResourcesParser(optimized_run)
         # build peer container
         peer_container = \
             self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
@@ -71,7 +72,8 @@ class ResourcesHandler:
 
         # build and return the networkConfig
         return NetworkConfig(name=config_name, peer_container=peer_container,
-                             policies_container=resources_parser.policies_finder.policies_container)
+                             policies_container=resources_parser.policies_finder.policies_container,
+                             optimized_run=optimized_run)
 
     def _set_config_peer_container(self, ns_list, pod_list, resource_list, config_name, save_flag, resources_parser):
         success, res_type = resources_parser.parse_lists_for_topology(ns_list, pod_list, resource_list)
@@ -123,8 +125,8 @@ class ResourcesParser:
     """
     This class parses the input resources for topology (pods, namespaces, services) and policies.
     """
-    def __init__(self):
-        self.policies_finder = PoliciesFinder()
+    def __init__(self, optimized_run='false'):
+        self.policies_finder = PoliciesFinder(optimized_run)
         self.pods_finder = PodsFinder()
         self.ns_finder = NamespacesFinder()
         self.services_finder = ServicesFinder()

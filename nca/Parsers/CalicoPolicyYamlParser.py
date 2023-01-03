@@ -22,7 +22,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
     A parser for Calico NetworkPolicy/GlobalNetworkPolicy/Profile objects
     """
 
-    def __init__(self, policy, peer_container, policy_file_name=''):
+    def __init__(self, policy, peer_container, policy_file_name='', optimized_run='false'):
         """
         :param dict policy: The policy object as provided by the yaml parser
         :param PeerContainer peer_container: The policy will be evaluated against this set of peers
@@ -34,6 +34,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self.namespace = None
         # collecting labels used in calico network policy for fw-rules computation
         self.referenced_labels = set()
+        self.optimized_run = optimized_run
 
     def _parse_selector_expr(self, expr, origin_map, namespace, is_namespace_selector):
         """
@@ -393,25 +394,21 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         #res = ICMPDataSet(icmp_data is None and not_icmp_data is None)
         res = TcpLikeProperties.make_icmp_properties(self.peer_container)
-        if src_pods and dst_pods:
+        opt_props = TcpLikeProperties.make_empty_properties(self.peer_container)
+        if self.optimized_run != 'false' and src_pods and dst_pods:
             opt_props = TcpLikeProperties.make_icmp_properties(self.peer_container, protocol=protocol,
                                                                src_peers=src_pods, dst_peers=dst_pods)
-        else:
-            opt_props = TcpLikeProperties.make_empty_properties(self.peer_container)
         if icmp_data is not None:
             #res.add_to_set(icmp_type, icmp_code)
             res = TcpLikeProperties.make_icmp_properties(self.peer_container, icmp_type=icmp_type, icmp_code=icmp_code)
-            if src_pods and dst_pods:
+            if self.optimized_run != 'false' and src_pods and dst_pods:
                 opt_props = TcpLikeProperties.make_icmp_properties(self.peer_container, protocol=protocol,
                                                                    src_peers=src_pods, dst_peers=dst_pods,
                                                                    icmp_type=icmp_type, icmp_code=icmp_code)
-            else:
-                opt_props = TcpLikeProperties.make_empty_properties(self.peer_container)
             if not_icmp_data is not None:
                 if icmp_type == not_icmp_type and icmp_code == not_icmp_code:
                     #res = ICMPDataSet()
                     res = TcpLikeProperties.make_empty_properties(self.peer_container)
-                    opt_props = TcpLikeProperties.make_empty_properties(self.peer_container)
                     self.warning('icmp and notICMP are conflicting - no traffic will be matched', not_icmp_data)
                 elif icmp_type == not_icmp_type and icmp_code is None:
                     #tmp = ICMPDataSet()  # this is the only case where it makes sense to combine icmp and notICMP
@@ -419,11 +416,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                     tmp = TcpLikeProperties.make_icmp_properties(self.peer_container, icmp_type=not_icmp_type,
                                                                  icmp_code=not_icmp_code)
                     res -= tmp
-                    tmp_opt_props = TcpLikeProperties.make_icmp_properties(self.peer_container, protocol=protocol,
-                                                                           src_peers=src_pods, dst_peers=dst_pods,
-                                                                           icmp_type=not_icmp_type,
-                                                                           icmp_code=not_icmp_code)
-                    opt_props -= tmp_opt_props
+                    if self.optimized_run != 'false':
+                        tmp_opt_props = TcpLikeProperties.make_icmp_properties(self.peer_container, protocol=protocol,
+                                                                               src_peers=src_pods, dst_peers=dst_pods,
+                                                                               icmp_type=not_icmp_type,
+                                                                               icmp_code=not_icmp_code)
+                        opt_props -= tmp_opt_props
                 else:
                     self.warning('notICMP has no effect', not_icmp_data)
         elif not_icmp_data is not None:
@@ -431,13 +429,11 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             res = TcpLikeProperties.make_all_but_given_icmp_properties(self.peer_container,
                                                                        icmp_type=not_icmp_type,
                                                                        icmp_code=not_icmp_code)
-            if src_pods and dst_pods:
+            if self.optimized_run != 'false' and src_pods and dst_pods:
                 opt_props = TcpLikeProperties.make_all_but_given_icmp_properties(self.peer_container, protocol=protocol,
                                                                                  src_peers=src_pods, dst_peers=dst_pods,
                                                                                  icmp_type=not_icmp_type,
                                                                                  icmp_code=not_icmp_code)
-            else:
-                opt_props = TcpLikeProperties.make_empty_properties(self.peer_container)
 
         return res, opt_props
 
@@ -517,7 +513,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 if protocol_supports_ports:
                     connections.add_connections(protocol, TcpLikeProperties.make_tcp_like_properties(
                         self.peer_container, src_ports=src_res_ports, dst_ports=dst_res_ports))
-                    if src_res_pods and dst_res_pods:
+                    if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                         src_num_port_set = PortSet()
                         src_num_port_set.port_set = src_res_ports.port_set.copy()
                         dst_num_port_set = PortSet()
@@ -534,21 +530,21 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                     connections.add_connections(protocol, icmp_props)
                 else:
                     connections.add_connections(protocol, True)
-                    if src_res_pods and dst_res_pods:
+                    if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                         tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container, protocols=protocols,
                                                                                src_peers=src_res_pods,
                                                                                dst_peers=dst_res_pods)
         elif not_protocol is not None:
             connections.add_all_connections()
             connections.remove_protocol(not_protocol)
-            if src_res_pods and dst_res_pods:
+            if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                 protocols = ProtocolSet(True)
                 protocols.remove_protocol(not_protocol)
                 tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container, protocols=protocols,
                                                                        src_peers=src_res_pods, dst_peers=dst_res_pods)
         else:
             connections.allow_all = True
-            if src_res_pods and dst_res_pods:
+            if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                 tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
                                                                        src_peers=src_res_pods, dst_peers=dst_res_pods)
         self._verify_named_ports(rule, dst_res_pods, connections)
@@ -700,7 +696,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         for ingress_rule in policy_spec.get('ingress', []):
             rule, optimized_props = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
             res_policy.add_ingress_rule(rule)
-            if rule.action != CalicoPolicyRule.ActionType.Pass:
+            if self.optimized_run != 'false' and rule.action != CalicoPolicyRule.ActionType.Pass:
                 # handle the order of rules
                 if rule.action == CalicoPolicyRule.ActionType.Allow and res_policy.optimized_denied_ingress_props:
                     optimized_props -= res_policy.optimized_denied_ingress_props
@@ -711,7 +707,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         for egress_rule in policy_spec.get('egress', []):
             rule, optimized_props = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
             res_policy.add_egress_rule(rule)
-            if rule.action != CalicoPolicyRule.ActionType.Pass:
+            if self.optimized_run != 'false' and rule.action != CalicoPolicyRule.ActionType.Pass:
                 # handle the order of rules
                 if rule.action == CalicoPolicyRule.ActionType.Allow and res_policy.optimized_denied_egress_props:
                     optimized_props -= res_policy.optimized_denied_egress_props

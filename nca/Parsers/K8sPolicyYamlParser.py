@@ -20,7 +20,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
     A parser for k8s NetworkPolicy objects
     """
 
-    def __init__(self, policy, peer_container, policy_file_name=''):
+    def __init__(self, policy, peer_container, policy_file_name='', optimized_run='false'):
         """
         :param dict policy: The policy object as provided by the yaml parser
         :param PeerContainer peer_container: The policy will be evaluated against this set of peers
@@ -31,6 +31,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.peer_container = peer_container
         self.namespace = None
         self.referenced_labels = set()
+        self.optimized_run = optimized_run
 
     def check_dns_subdomain_name(self, value, key_container):
         """
@@ -331,10 +332,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
                 res_conns.add_connections(protocol, TcpLikeProperties.make_tcp_like_properties(
                     self.peer_container, dst_ports=dest_port_set))  # K8s doesn't reason about src ports
-                if src_pods and dst_pods:
+                if self.optimized_run != 'false' and src_pods and dst_pods:
                     protocols = ProtocolSet()
                     protocols.add_protocol(protocol)
-
                     dest_num_port_set = PortSet()
                     dest_num_port_set.port_set = dest_port_set.port_set.copy()
                     tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
@@ -344,7 +344,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                     res_opt_props |= tcp_props
         else:
             res_conns = ConnectionSet(True)
-            if src_pods and dst_pods:
+            if self.optimized_run != 'false' and src_pods and dst_pods:
                 res_opt_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
                                                                            src_peers=src_pods, dst_peers=dst_pods)
         if not res_pods:

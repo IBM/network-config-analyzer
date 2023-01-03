@@ -48,7 +48,7 @@ class NetworkConfig:
     The class also contains the core algorithm of computing allowed connections between two endpoints.
     """
 
-    def __init__(self, name, peer_container, policies_container):
+    def __init__(self, name, peer_container, policies_container, optimized_run='false'):
         """
         :param str name: A name for this config
         :param PeerContainer peer_container: The set of endpoints and their namespaces
@@ -56,6 +56,7 @@ class NetworkConfig:
         self.name = name
         self.peer_container = peer_container
         self.policies_container = policies_container
+        self.optimized_run = optimized_run
         self.allowed_labels = None
         self.referenced_ip_blocks = None
 
@@ -105,7 +106,8 @@ class NetworkConfig:
         :rtype: NetworkConfig
         """
         policies_container = PoliciesContainer()
-        res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container)
+        res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container,
+                            optimized_run=self.optimized_run)
         return res
 
     def clone_without_policy(self, policy_to_exclude):
