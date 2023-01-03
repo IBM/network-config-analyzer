@@ -3,11 +3,15 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"  # Check for updates to GitHub Actions every week
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions"
+    schedule:
+      interval: "weekly"
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "weekly"  # Check for updates to Python packages every week
+      interval: "weekly"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
