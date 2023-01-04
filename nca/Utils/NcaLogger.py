@@ -55,4 +55,5 @@ class NcaLogger(metaclass=Singleton):
         :param a file-like-object file: output stream
         """
         if not self.is_mute():
-            print(msg, file)
+            # print(msg, file)
+            print(msg)
