@@ -25,6 +25,9 @@ class PoliciesFinder:
         self.policies_container = PoliciesContainer()
         self._parse_queue = deque()
         self.peer_container = None
+        self.found_gw_policy = False
+        self.found_ingress_control_policy = False
+        self.missing_pods_with_labels = {}
 
     def set_peer_container(self, peer_container):
         """
@@ -70,6 +73,7 @@ class PoliciesFinder:
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
+                self.missing_pods_with_labels |= parsed_element.missing_pods_with_labels
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
@@ -79,10 +83,12 @@ class PoliciesFinder:
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
+                self.found_ingress_control_policy |= parsed_element.found_ingress_controller_policy
             elif policy_type == NetworkPolicy.PolicyType.Gateway:
                 if not istio_traffic_parser:
                     istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)
                 istio_traffic_parser.parse_gateway(policy, file_name)
+                self.found_gw_policy |= istio_traffic_parser.found_gw_policy
             elif policy_type == NetworkPolicy.PolicyType.VirtualService:
                 if not istio_traffic_parser:
                     istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)

@@ -99,20 +99,23 @@ class PeerContainer:
             if namespace is not None and peer.namespace != namespace:
                 continue
             if action == GenericYamlParser.FilterActionType.In:
-                if peer.labels.get(key) in values or peer.extra_labels.get(key) in values:
+                if (peer.labels.get(key) and peer.labels.get(key) in values) or \
+                        (peer.extra_labels.get(key) and peer.extra_labels.get(key) in values):
                     res.add(peer)
             elif action == GenericYamlParser.FilterActionType.NotIn:
-                if peer.labels.get(key) not in values and peer.extra_labels.get(key) not in values:
+                if peer.labels.get(key) and peer.labels.get(key) not in values and \
+                        peer.extra_labels.get(key) and peer.extra_labels.get(key) not in values:
                     res.add(peer)
             elif action == GenericYamlParser.FilterActionType.Contain:
                 if values[0] in peer.labels.get(key, '') or values[0] in peer.extra_labels.get(key, ''):
                     res.add(peer)
             elif action == GenericYamlParser.FilterActionType.StartWith:
-                if peer.labels.get(key, '').startswith(values[0]) or peer.extra_labels.get(key, '').startswith(
-                        values[0]):
+                if (peer.labels.get(key, '') and peer.labels.get(key, '').startswith(values[0])) or \
+                        (peer.extra_labels.get(key, '') and peer.extra_labels.get(key, '').startswith(values[0])):
                     res.add(peer)
             elif action == GenericYamlParser.FilterActionType.EndWith:
-                if peer.labels.get(key, '').endswith(values[0]) or peer.extra_labels.get(key, '').endswith(values[0]):
+                if (peer.labels.get(key, '') and peer.labels.get(key, '').endswith(values[0])) or \
+                        (peer.extra_labels.get(key, '') and peer.extra_labels.get(key, '').endswith(values[0])):
                     res.add(peer)
         return res
 

@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import copy
+import os
+import sys
 from enum import Enum
 from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
 from nca.Utils.CmdlineRunner import CmdlineRunner
@@ -10,6 +12,7 @@ from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from .PeerContainer import PeerContainer
+from nca.Utils.NcaLogger import NcaLogger
 
 
 class ResourceType(Enum):
@@ -19,11 +22,21 @@ class ResourceType(Enum):
     Policies = 3
 
 
+class LiveSimPaths:
+    """
+    Hold the location of the LiveSim yaml files
+    """
+    DnsCfgPath = 'NetworkConfig/LiveSim/dns_pods.yaml'
+    IngressControllerCfgPath = 'NetworkConfig/LiveSim/ingress_controller.yaml'
+    IstioGwCfgPath = 'NetworkConfig/LiveSim/istio_gateway.yaml'
+
+
 class ResourcesHandler:
     """
     This class is responsible to build the network config based on input resources from nca cmd line/ scheme runner.
     In case of scheme file with global resources, it is responsible to build and handle it too
     """
+
     def __init__(self):
         self.global_peer_container = None
         self.global_pods_finder = None
@@ -43,6 +56,39 @@ class ResourcesHandler:
         self._set_config_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                         'global', True, global_resources_parser)
 
+    def analyze_livesim(self, peer_container, policy_finder):
+        """
+        Analyze the pre-parsing of the topology and finds what needs
+        to be added.
+        :param PeerContainer peer_container: Contains the peers found in pre-parsing
+        :param PolicyFinder policy_finder: Contains the policies found in pre-parsing
+        :return: [strings]: configuration_addons: the paths of the yamls to be added.
+        """
+        configuration_addons = []
+        nca_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+        # find kube-dns reference
+        if policy_finder.missing_pods_with_labels.get('name') == 'kube-system':
+            configuration_addons.append(os.path.join(nca_path, LiveSimPaths.DnsCfgPath))
+
+        # find ingress controller pods
+        if policy_finder.found_ingress_control_policy:
+            ingress_controller_found = False
+            ingress_controllers = ['ingress-nginx', 'ingress-gce', 'app-ingress']
+            for name in ingress_controllers:
+                if peer_container.get_pods_with_service_name_containing_given_string(name):
+                    ingress_controller_found = True
+                    break
+            if not ingress_controller_found:
+                configuration_addons.append(os.path.join(nca_path, LiveSimPaths.IngressControllerCfgPath))
+
+        # find Istio ingress gateway
+        if policy_finder.found_gw_policy:
+            if not peer_container.get_peers_with_label('app', 'istio-ingressgateway') and \
+                    not peer_container.get_peers_with_label('istio', 'ingressgateway'):
+                configuration_addons.append(os.path.join(nca_path, LiveSimPaths.IstioGwCfgPath))
+
+        return configuration_addons
+
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False):
         """
         First tries to build a peer_container using the input resources (NetworkConfigs's resources)
@@ -58,6 +104,7 @@ class ResourcesHandler:
          will save the peer container as global to use it for base config's peer resources in case are missing
         :rtype NetworkConfig
         """
+        NcaLogger().mute()
         resources_parser = ResourcesParser()
         # build peer container
         peer_container = \
@@ -65,6 +112,29 @@ class ResourcesHandler:
 
         # parse for policies
         cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
+
+        NcaLogger().unmute()
+        # check if LiveSim can add anything.
+        livesim_addons = self.analyze_livesim(peer_container, resources_parser.policies_finder)
+        if livesim_addons:
+            if not ns_list:
+                ns_list = livesim_addons
+            else:
+                ns_list += livesim_addons
+
+            if not pod_list:
+                pod_list = livesim_addons
+            else:
+                pod_list += livesim_addons
+
+            resources_parser = ResourcesParser()
+
+            # build peer container
+            peer_container = \
+                self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
+
+            # parse for policies
+            cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
 
         if cfg and config_name == 'global':
             config_name = cfg
@@ -123,6 +193,7 @@ class ResourcesParser:
     """
     This class parses the input resources for topology (pods, namespaces, services) and policies.
     """
+
     def __init__(self):
         self.policies_finder = PoliciesFinder()
         self.pods_finder = PodsFinder()
@@ -318,8 +389,8 @@ class ResourcesParser:
             self.policies_finder.load_istio_policies_from_k8s_cluster()
 
     def build_peer_container(self, config_name='global'):
-        print(f'{config_name}: cluster has {len(self.pods_finder.peer_set)} unique endpoints, '
-              f'{len(self.ns_finder.namespaces)} namespaces')
+        NcaLogger().log_message(f'{config_name}: cluster has {len(self.pods_finder.peer_set)} unique endpoints, '
+                                f'{len(self.ns_finder.namespaces)} namespaces')
 
         return PeerContainer(self.pods_finder.peer_set, self.ns_finder.namespaces, self.services_finder.services_list,
                              self.pods_finder.representative_peers)

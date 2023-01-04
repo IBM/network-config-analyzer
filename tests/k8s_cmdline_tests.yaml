@@ -404,3 +404,21 @@
     --pod_list helm_tests/helm_test6/
     --expected_output expected_cmdline_output_files/helm_test_resolved_yaml_next_to_multi_charts.txt
   expected: 0
+
+- name: livesim_test_all_dot
+  args: >
+    --connectivity livesim_test/
+    --ns_list livesim_test/
+    --pod_list livesim_test/
+    --output_format dot/
+    --expected_output expected_cmdline_output_files/livesim_test_all_dot.txt
+  expected: 0
+
+- name: livesim_test_all_txt
+  args: >
+    --connectivity livesim_test/
+    --ns_list livesim_test/
+    --pod_list livesim_test/
+    --output_format txt/
+    --expected_output expected_cmdline_output_files/livesim_test_all_txt.txt
+  expected: 0
