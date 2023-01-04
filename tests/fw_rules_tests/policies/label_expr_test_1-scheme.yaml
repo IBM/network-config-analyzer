@@ -64,6 +64,18 @@ queries:
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesOverrideAllowedLabels: app
+    outputFormat: json
+  expectedOutput: expected_output/label_expr_test_1-test_app_label_query_output.json
+- name: test_app_label
+  connectivityMap:
+  - test1
+  - test2
+  - test3
+  - test4
+  expected: 0
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    fwRulesOverrideAllowedLabels: app
   expectedOutput: expected_output/label_expr_test_1-test_app_label_query_output.txt
 - name: test_tier_and_app_label
   connectivityMap:

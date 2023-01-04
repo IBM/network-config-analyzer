@@ -1,0 +1,4 @@
+Redundancies found in sanity-misconception-podSelector-namespaceSelector
+
+Ingress rules that are redundant in sanity-misconception-podSelector-namespaceSelector:
+NetworkPolicy default/wrong-allow-traffic-from-specific-pods-in-external-namespace, ingress rules indexes: 1, 2

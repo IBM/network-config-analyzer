@@ -1,66 +1,84 @@
-- query: 'test_tier_and_app_label, config: test5'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - app=G and tier=W
-    connection:
-    - All connections
-
-- query: 'test_tier_and_app_label, config: test6'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - has(app) and has(tier)
-    connection:
-    - All connections
-
-- query: 'test_tier_and_app_label, config: test7'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - '!has(app) and !has(tier)'
-    connection:
-    - All connections
-
-- query: 'test_tier_and_app_label, config: test8'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - '!has(tier) and app=B'
-    connection:
-    - All connections
-
-- query: 'test_tier_and_app_label, config: test9'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - '!has(tier) and {!has(app) or app=B}'
-    connection:
-    - All connections
-
-- query: 'test_tier_and_app_label, config: test10'
-  rules:
-  - src_ip_block:
-    - 0.0.0.0/0
-    dst_ns:
-    - default
-    dst_pods:
-    - (has(app) and app!=B) and tier in (W,X)
-    connection:
-    - All connections
-
+- query: test_tier_and_app_label
+  configs:
+  - test5
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - app=G and tier=W
+      connection:
+      - All connections
+- query: test_tier_and_app_label
+  configs:
+  - test6
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - has(app) and has(tier)
+      connection:
+      - All connections
+- query: test_tier_and_app_label
+  configs:
+  - test7
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '!has(app) and !has(tier)'
+      connection:
+      - All connections
+- query: test_tier_and_app_label
+  configs:
+  - test8
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '!has(tier) and app=B'
+      connection:
+      - All connections
+- query: test_tier_and_app_label
+  configs:
+  - test9
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '!has(tier) and {!has(app) or app=B}'
+      connection:
+      - All connections
+- query: test_tier_and_app_label
+  configs:
+  - test10
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - (has(app) and app!=B) and tier in (W,X)
+      connection:
+      - All connections

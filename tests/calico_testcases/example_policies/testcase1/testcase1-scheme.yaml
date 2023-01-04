@@ -87,6 +87,25 @@ queries:
   - name: vacuous_policy_new
     vacuity:
       - np_globalAllowAll
+    expectedOutput: ../../expected_output/vacuous-policy-new.txt
+    expected: 1
+
+  - name: vacuous_policy_new
+    vacuity:
+      - np_globalAllowAll
+    outputConfiguration:
+      fullExplanation: True
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/vacuous-policy-new.yaml
+    expected: 1
+
+  - name: vacuous_policy_new_json
+    vacuity:
+      - np_globalAllowAll
+    outputConfiguration:
+      fullExplanation: True
+      outputFormat: json
+    expectedOutput: ../../expected_output/vacuous-policy-new.json
     expected: 1
 
   - name: non_vacous_policies
@@ -171,6 +190,32 @@ queries:
   - name: disjointness_various_policies
     disjointness:
       - np_various_policies
+    expected: 3
+
+  - name: disjointness_various_policies_full_explanation
+    disjointness:
+      - np_various_policies
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../expected_output/disjointness-various-policies-full-explanation.txt
+    expected: 3
+
+  - name: disjointness_various_policies_full_explanation_yaml
+    disjointness:
+      - np_various_policies
+    outputConfiguration:
+      fullExplanation: True
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/disjointness-various-policies-full-explanation.yaml
+    expected: 3
+
+  - name: disjointness_various_policies_full_explanation_json
+    disjointness:
+      - np_various_policies
+    outputConfiguration:
+      fullExplanation: True
+      outputFormat: json
+    expectedOutput: ../../expected_output/disjointness-various-policies-full-explanation.json
     expected: 3
 
   - name: disjointness_holds

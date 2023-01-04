@@ -41,4 +41,21 @@ queries:
   - name: redundancy_test_on_misconception_podSelector-namespaceSelector
     redundancy:
       - sanity-misconception-podSelector-namespaceSelector
+    expectedOutput: ../../../expected_output/redundancy-test-on-misconception-podSelector-namespaceSelector.txt
+    expected: 2
+
+  - name: redundancy_test_on_misconception_podSelector-namespaceSelector_yaml
+    redundancy:
+      - sanity-misconception-podSelector-namespaceSelector
+    outputConfiguration:
+      outputFormat: yaml
+    expectedOutput: ../../../expected_output/redundancy-test-on-misconception-podSelector-namespaceSelector.yaml
+    expected: 2
+
+  - name: redundancy_test_on_misconception_podSelector-namespaceSelector_json
+    redundancy:
+      - sanity-misconception-podSelector-namespaceSelector
+    outputConfiguration:
+      outputFormat: json
+    expectedOutput: ../../../expected_output/redundancy-test-on-misconception-podSelector-namespaceSelector.json
     expected: 2

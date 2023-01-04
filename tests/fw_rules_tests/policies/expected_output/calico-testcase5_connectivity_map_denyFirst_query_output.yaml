@@ -1,40 +1,43 @@
-- query: 'connectivity_map_yaml, config: np_denyFirst'
-  rules:
-  - src_ns:
-    - kube-system
-    src_pods:
-    - tier=frontend
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - All but:
-      - Protocol: TCP
-  - src_ns:
-    - kube-system
-    src_pods:
-    - (has(app) and app not in (kube-fluentd,public-cre08b89c167414305a1afb205d0bd346f-alb1))
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - ::/0
-    connection:
-    - All connections
-
+- query: connectivity_map_yaml
+  configs:
+  - np_denyFirst
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - kube-system
+      src_pods:
+      - tier=frontend
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - All but:
+        - Protocol: TCP
+    - src_ns:
+      - kube-system
+      src_pods:
+      - (has(app) and app not in (kube-fluentd,public-cre08b89c167414305a1afb205d0bd346f-alb1))
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections

@@ -159,6 +159,16 @@ queries:
     outputPath: null
   expectedOutput: expected_output/semantic_diff_old2_new2_query_output.yaml
 
+- name: semantic_diff_old2_new2_json
+  semanticDiff:
+  - new2
+  - old2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: json
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old2_new2_query_output.json
+
 - name: semantic_diff_old3_new3
   semanticDiff:
   - new3

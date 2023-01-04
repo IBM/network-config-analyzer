@@ -1,18 +1,21 @@
-- query: 'connectivity-istio-test-operation-allow-1, config: istio-test-operation-allow-1'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - app=productpage
-    dst_ns:
-    - default
-    dst_pods:
-    - app=details
-    connection:
-    - Protocol: TCP
-      properties:
-      - methods: GET
-        paths: /info[\--9A-Z_a-z]*
-      - methods: POST
-        paths: /data
-
+- query: connectivity-istio-test-operation-allow-1
+  configs:
+  - istio-test-operation-allow-1
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - default
+      src_pods:
+      - app=productpage
+      dst_ns:
+      - default
+      dst_pods:
+      - app=details
+      connection:
+      - Protocol: TCP
+        properties:
+        - methods: GET
+          paths: /info[\--9A-Z_a-z]*
+        - methods: POST
+          paths: /data

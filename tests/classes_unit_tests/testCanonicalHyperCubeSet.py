@@ -8,12 +8,18 @@ dimensions = ["src_ports", "ports", "methods_dfa", "paths"]
 dimensions2 = ["ports", "src_ports", "methods_dfa", "paths"]
 dimensions3 = ["src_ports", "ports", "methods_dfa", "paths", "hosts"]
 dimensions4 = ["x", "y", "z"]
+dimensions5 = ["src_peers", "dst_peers", "protocols", "ports"]
+
 dim_manager = DimensionsManager()
 dim_manager.set_domain("methods_dfa", DimensionsManager.DimensionType.DFA)
 dim_manager.set_domain("ports", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
 dim_manager.set_domain("x", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
 dim_manager.set_domain("y", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
 dim_manager.set_domain("z", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
+
+dim_manager.set_domain("src_peers", DimensionsManager.DimensionType.IntervalSet, (0, 10000))
+dim_manager.set_domain("dst_peers", DimensionsManager.DimensionType.IntervalSet, (0, 10000))
+dim_manager.set_domain("protocols", DimensionsManager.DimensionType.IntervalSet, (0, 139))
 
 
 def get_str_dfa(s):
@@ -1251,6 +1257,154 @@ class TestCanonicalHyperCubeSetMethods(unittest.TestCase):
         self.assertEqual(a - a, empty)
         self.assertEqual(b - c, a)
         self.assertEqual(b - a, c)
+
+    def test_complex_intersection(self):
+        """
+         cubes in x:
+         [0-15, 6, 6, 8080]
+         [0-15, 0-5,7-15, 0-139, 1-65535]
+         [16-10000, 0-5,7-15, 0-139, 1-65535]
+
+         cubes in y:
+         [6, 1, 6, 9555]
+         [6, 2, 6, 7070]
+         [6, 3, 6, 5050]
+         [6, 4, 6, 7000]
+         [6, 9, 6, 3550]
+         [6, 10, 6, 8080]
+         [6, 12, 6, 50051]
+         [6, 13-14, 17, 53]
+         [0-5,7-15, 0-10000, 0-139, 1-65535]
+
+         cubes in res = x & Y:
+        [6, 1, 6, 9555]
+        [6, 2, 6, 7070]
+        [6, 3, 6, 5050]
+        [6, 4, 6, 7000]
+        [6, 9, 6, 3550]
+        [6, 10, 6, 8080]
+        [6, 12, 6, 50051]
+        [6, 13-14, 17, 53]
+        [0-5,7-15, 6, 6, 8080]
+        [0-5,7-15, 0-5,7-15, 0-139, 1-65535]
+        """
+        x = CanonicalHyperCubeSet(dimensions5)
+        x.add_cube([CanonicalIntervalSet.get_interval_set(0, 15),
+                   CanonicalIntervalSet.get_interval_set(6, 6),
+                   CanonicalIntervalSet.get_interval_set(6, 6),
+                   CanonicalIntervalSet.get_interval_set(8080, 8080)])
+
+        x.add_cube([CanonicalIntervalSet.get_interval_set(0, 15),
+                    CanonicalIntervalSet.get_interval_set(0, 5) | CanonicalIntervalSet.get_interval_set(7, 15),
+                    CanonicalIntervalSet.get_interval_set(0, 139),
+                    CanonicalIntervalSet.get_interval_set(1, 65535)])
+
+        x.add_cube([CanonicalIntervalSet.get_interval_set(16, 10000),
+                    CanonicalIntervalSet.get_interval_set(0, 5) | CanonicalIntervalSet.get_interval_set(7, 15),
+                    CanonicalIntervalSet.get_interval_set(0, 139),
+                    CanonicalIntervalSet.get_interval_set(1, 65535)])
+
+        y = CanonicalHyperCubeSet(dimensions5)
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(1, 1),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(9555, 9555)])
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(2, 2),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(7070, 7070)])
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(3, 3),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(5050, 5050)])
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(4, 4),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(7000, 7000)])
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(9, 9),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(3550, 3550)])
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(10, 10),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(8080, 8080)])
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(12, 12),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(50051, 50051)])
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(13, 14),
+                    CanonicalIntervalSet.get_interval_set(17, 17),
+                    CanonicalIntervalSet.get_interval_set(53, 53)])
+
+        y.add_cube([CanonicalIntervalSet.get_interval_set(0, 5) | CanonicalIntervalSet.get_interval_set(7, 15),
+                    CanonicalIntervalSet.get_interval_set(0, 10000),
+                    CanonicalIntervalSet.get_interval_set(0, 139),
+                    CanonicalIntervalSet.get_interval_set(1, 65535)])
+
+        z = CanonicalHyperCubeSet(dimensions5)
+        z.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(1, 1),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(9555, 9555)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(2, 2),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(7070, 7070)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(3, 3),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(5050, 5050)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(4, 4),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(7000, 7000)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(9, 9),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(3550, 3550)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(10, 10),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(8080, 8080)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(12, 12),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(50051, 50051)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(13, 14),
+                    CanonicalIntervalSet.get_interval_set(17, 17),
+                    CanonicalIntervalSet.get_interval_set(53, 53)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(0, 5) | CanonicalIntervalSet.get_interval_set(7, 15),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(6, 6),
+                    CanonicalIntervalSet.get_interval_set(8080, 8080)])
+
+        z.add_cube([CanonicalIntervalSet.get_interval_set(0, 5) | CanonicalIntervalSet.get_interval_set(7, 15),
+                    CanonicalIntervalSet.get_interval_set(0, 5) | CanonicalIntervalSet.get_interval_set(7, 15),
+                    CanonicalIntervalSet.get_interval_set(0, 139),
+                    CanonicalIntervalSet.get_interval_set(1, 65535)])
+
+        res = x & y
+        self.assertEqual(z, res)
+
 
 
 class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):

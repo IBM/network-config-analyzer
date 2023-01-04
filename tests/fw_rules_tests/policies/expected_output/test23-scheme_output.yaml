@@ -1,25 +1,28 @@
-- query: 'connectivity_map, config: np23'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ns:
-    - default
-    dst_pods:
-    - app=skydive
-    connection:
-    - Protocol: UDP
-      Ports:
-      - 53
-  - src_ns:
-    - default
-    src_pods:
-    - test=C
-    dst_ns:
-    - default
-    dst_pods:
-    - app=skydive
-    connection:
-    - All connections
-
+- query: connectivity_map
+  configs:
+  - np23
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - app=skydive
+      connection:
+      - Protocol: UDP
+        Ports:
+        - 53
+    - src_ns:
+      - default
+      src_pods:
+      - test=C
+      dst_ns:
+      - default
+      dst_pods:
+      - app=skydive
+      connection:
+      - All connections

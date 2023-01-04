@@ -1,1 +1,6 @@
-
+- query: semantic_diff_identical
+  configs:
+  - no_policy
+  - policy
+  numerical_result: 0
+  textual_result: no_policy and policy are semantically equivalent.

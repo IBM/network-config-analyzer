@@ -54,6 +54,26 @@ queries:
     expectedOutput: ../../expected_output/forbids-empty-impl-default-spec-all-examples.txt
     expected: 1
 
+  - name: forbids_empty_impl_default_spec_all_examples_yaml
+    forbids:
+      - np-empty
+      - np-within-default
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/forbids-empty-impl-default-spec-all-examples.yaml
+    expected: 1
+
+  - name: forbids_empty_impl_default_spec_all_examples_json
+    forbids:
+      - np-empty
+      - np-within-default
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: json
+    expectedOutput: ../../expected_output/forbids-empty-impl-default-spec-all-examples.json
+    expected: 1
+
   - name: permits_default_impl_empty_spec
     permits:
       - np-within-default
@@ -101,6 +121,26 @@ queries:
     expectedOutput: ../../expected_output/permits-partly-default-impl-default-spec-print-all-pairs.txt
     expected: 1
 
+  - name: permits_partly_default_impl_default_spec_print_all_pairs_yaml
+    permits:
+      - np-partly-within-default
+      - np-within-default
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/permits-partly-default-impl-default-spec-print-all-pairs.yaml
+    expected: 1
+
+  - name: permits_partly_default_impl_default_spec_print_all_pairs_json
+    permits:
+      - np-partly-within-default
+      - np-within-default
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: json
+    expectedOutput: ../../expected_output/permits-partly-default-impl-default-spec-print-all-pairs.json
+    expected: 1
+
 ## all combinations of within-default and within-kube-system
 
   - name: forbids_default_impl_kube-system_spec
@@ -115,10 +155,34 @@ queries:
       - np-within-default
     expected: 1
 
-  - name: permits_default_impl_kube-system_spec
+  - name: permits_default_impl_kube-system_spec_txt
     permits:
       - np-within-default
       - np-within-kube-system
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: txt
+    expectedOutput: ../../expected_output/permits-default-impl-kube-system-spec.txt
+    expected: 0
+
+  - name: permits_default_impl_kube-system_spec_yaml
+    permits:
+      - np-within-default
+      - np-within-kube-system
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: yaml
+    expectedOutput: ../../expected_output/permits-default-impl-kube-system-spec.yaml
+    expected: 0
+
+  - name: permits_default_impl_kube-system_spec_json
+    permits:
+      - np-within-default
+      - np-within-kube-system
+    outputConfiguration:
+      fullExplanation: true
+      outputFormat: json
+    expectedOutput: ../../expected_output/permits-default-impl-kube-system-spec.json
     expected: 0
 
   - name: permits_kube-system_impl_default-spec

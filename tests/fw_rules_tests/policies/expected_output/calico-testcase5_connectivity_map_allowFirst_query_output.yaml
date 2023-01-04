@@ -1,29 +1,32 @@
-- query: 'connectivity_map_yaml, config: np_allowFirst'
-  rules:
-  - src_ns:
-    - kube-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - 0.0.0.0/0
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
-    - '*'
-    dst_ip_block:
-    - ::/0
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system
-    src_pods:
-    - tier=frontend
-    dst_ns:
-    - kube-system
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-
+- query: connectivity_map_yaml
+  configs:
+  - np_allowFirst
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - kube-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system
+      src_pods:
+      - tier=frontend
+      dst_ns:
+      - kube-system
+      dst_pods:
+      - '*'
+      connection:
+      - All connections

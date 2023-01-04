@@ -7,6 +7,7 @@ import time
 import yaml
 import csv
 from ruamel.yaml import YAML
+import shutil
 
 from nca.nca_cli import nca_main
 from nca.Utils.CmdlineRunner import CmdlineRunner
@@ -28,7 +29,8 @@ script should be run with one of the following types:
                                     relevant only for connectivityMap/SemanticDiff queries)
     --override_expected_output_files (when expected output is specified, will be updated. 
                                     relevant only for connectivityMap/SemanticDiff queries)
-
+    
+    HELM cli tests should start with "helm_" so they can be skipped when HELM is not installed.
 """
 
 
@@ -215,6 +217,7 @@ class TestsRunner:
         self.test_files_spec = None
         self.check_run_time = check_run_time
         self.category = category
+        self.helm_path = shutil.which('helm')
 
     @staticmethod
     def k8s_apply_resources(yaml_file):
@@ -379,6 +382,10 @@ class TestsRunner:
                 code = YAML().load_all(doc)
                 for test in next(iter(code)):
                     query_name = test.get('name', '')
+                    # Skip HELM tests if HELM is not installed.
+                    if query_name.startswith('helm_') and not self.helm_path:
+                        print(f'Skipping {query_name} - HELM is not installed')
+                        continue
                     cli_test_name = f'{os.path.basename(test_file)}, query name: {query_name}'
                     cli_query = CliQuery(test, self.test_files_spec.root, cli_test_name)
                     if self.category == '' or cli_test_name.startswith(self.category):
