@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-system
+  labels:
+    name: kube-system
+---
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: core-dns
+  namespace: kube-system
+  labels:
+    app: core-dns
+spec:
+  containers:
+    - name: nginx
+      image: kube-dns
+---

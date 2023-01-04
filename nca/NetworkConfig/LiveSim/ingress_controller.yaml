@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+spec:
+  selector:
+    app: ingress-nginx
+  ports:
+  - port: 5678
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ingress-controller
+  labels:
+    app: ingress-nginx
+spec:
+  containers:
+  - name: ingress-nginx
+    image: ingress-nginx:1.2.3
+---
