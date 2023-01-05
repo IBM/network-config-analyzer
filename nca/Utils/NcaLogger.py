@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-import sys
-
 
 class Singleton(type):
     """
@@ -49,7 +47,7 @@ class NcaLogger(metaclass=Singleton):
         """
         return self._is_mute
 
-    def log_message(self, msg, file=sys.stdout):
+    def log_message(self, msg, file=None):
         """
         Log a message
         :param sting msg: message to log
@@ -58,8 +56,7 @@ class NcaLogger(metaclass=Singleton):
         if self.is_mute():
             self._collected_messages.append(msg)
         else:
-            # print(msg, file)
-            print(msg)
+            print(msg, file)
 
     def flush_messages(self, silent=False):
         """
