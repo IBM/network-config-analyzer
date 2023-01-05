@@ -83,8 +83,8 @@ class ResourcesHandler:
 
         # find Istio ingress gateway
         if policy_finder.found_gw_policy:
-            if not peer_container.get_peers_with_label('app', 'istio-ingressgateway') and \
-                    not peer_container.get_peers_with_label('istio', 'ingressgateway'):
+            if not peer_container.get_peers_with_label('app', ['istio-ingressgateway']) and \
+                    not peer_container.get_peers_with_label('istio', ['ingressgateway']):
                 configuration_addons.append(os.path.join(nca_path, LiveSimPaths.IstioGwCfgPath))
 
         return configuration_addons
