@@ -66,6 +66,6 @@ class NcaLogger(metaclass=Singleton):
         Flush all collected messages and print them (or not)
         :param bool silent: if silent is True don't print out the messages
         """
-        if not silent:
-            print(self._collected_messages)
+        if not silent and len(self._collected_messages) > 0:
+            print(*self._collected_messages, sep="\n")
         self._collected_messages.clear()
