@@ -6,6 +6,8 @@ import copy
 import os
 import sys
 from enum import Enum
+from sys import stderr
+from ruamel.yaml import error
 from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from .NetworkConfig import NetworkConfig
@@ -317,16 +319,22 @@ class ResourcesParser:
                 if not yaml_files:
                     continue
                 for yaml_file in yaml_files:
-                    for res_code in yaml_file.data:
-                        if ResourceType.Namespaces in resource_flags:
-                            self.ns_finder.parse_yaml_code_for_ns(res_code)
-                        if ResourceType.Pods in resource_flags:
-                            self.pods_finder.namespaces_finder = self.ns_finder
-                            self.pods_finder.add_eps_from_yaml(res_code)
-                            self.services_finder.namespaces_finder = self.ns_finder
-                            self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
-                        if ResourceType.Policies in resource_flags:
-                            self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
+                    try:
+                        for res_code in yaml_file.data:
+                            if ResourceType.Namespaces in resource_flags:
+                                self.ns_finder.parse_yaml_code_for_ns(res_code)
+                            if ResourceType.Pods in resource_flags:
+                                self.pods_finder.namespaces_finder = self.ns_finder
+                                self.pods_finder.add_eps_from_yaml(res_code)
+                                self.services_finder.namespaces_finder = self.ns_finder
+                                self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
+                            if ResourceType.Policies in resource_flags:
+                                self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
+
+                    except error.MarkedYAMLError as prs_err:
+                        print(
+                            f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
+                            'Parse Error:', prs_err.problem, file=stderr)
 
         self.policies_finder.parse_policies_in_parse_queue()
 

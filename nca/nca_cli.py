@@ -8,6 +8,7 @@ import time
 import os
 import sys
 import traceback
+from sys import stderr
 from pathlib import Path
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
@@ -333,9 +334,9 @@ def nca_main(argv=None):
 
         _do_every(args.period * 60, run_args, args)
     except Exception as e:
-        print(f'Error: {e}')
+        print(f'Error: {e}', file=stderr)
         if args.debug:
-            print(traceback.format_exc())
+            print(traceback.format_exc(), file=stderr)
         return 0 if args.return_0 else 1
     return 0
 
