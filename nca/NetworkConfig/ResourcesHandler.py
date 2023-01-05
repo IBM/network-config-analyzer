@@ -4,6 +4,7 @@
 #
 import copy
 from enum import Enum
+from sys import stderr
 from ruamel.yaml import error
 from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
 from nca.Utils.CmdlineRunner import CmdlineRunner
@@ -260,7 +261,7 @@ class ResourcesParser:
                     except error.MarkedYAMLError as prs_err:
                         print(
                             f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
-                            'Parse Error:', prs_err.problem)
+                            'Parse Error:', prs_err.problem, file=stderr)
 
         self.policies_finder.parse_policies_in_parse_queue()
 
