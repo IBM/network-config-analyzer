@@ -28,6 +28,7 @@ class NcaLogger(metaclass=Singleton):
 
     def __init__(self):
         self._is_mute = False
+        self._collected_messages = []
 
     def mute(self):
         """
@@ -54,6 +55,17 @@ class NcaLogger(metaclass=Singleton):
         :param sting msg: message to log
         :param a file-like-object file: output stream
         """
-        if not self.is_mute():
+        if self.is_mute():
+            self._collected_messages.append(msg)
+        else:
             # print(msg, file)
             print(msg)
+
+    def flush_messages(self, silent=False):
+        """
+        Flush all collected messages and print them (or not)
+        :param bool silent: if silent is True don't print out the messages
+        """
+        if not silent:
+            print(self._collected_messages)
+        self._collected_messages.clear()

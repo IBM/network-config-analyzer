@@ -117,15 +117,15 @@ class ResourcesHandler:
         # check if LiveSim can add anything.
         livesim_addons = self.analyze_livesim(peer_container, resources_parser.policies_finder)
         if livesim_addons:
-            if not ns_list:
-                ns_list = livesim_addons
-            else:
+            NcaLogger().flush_messages(silent=True)
+            if ns_list:
                 ns_list += livesim_addons
 
-            if not pod_list:
-                pod_list = livesim_addons
-            else:
+            if pod_list:
                 pod_list += livesim_addons
+
+            if resource_list:
+                resource_list += livesim_addons
 
             resources_parser = ResourcesParser()
 
@@ -135,6 +135,8 @@ class ResourcesHandler:
 
             # parse for policies
             cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
+        else:
+            NcaLogger().flush_messages()
 
         if cfg and config_name == 'global':
             config_name = cfg
