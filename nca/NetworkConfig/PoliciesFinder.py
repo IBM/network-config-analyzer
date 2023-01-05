@@ -73,7 +73,7 @@ class PoliciesFinder:
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
-                self.missing_pods_with_labels |= parsed_element.missing_pods_with_labels
+                self.missing_pods_with_labels.update(parsed_element.missing_pods_with_labels)
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
