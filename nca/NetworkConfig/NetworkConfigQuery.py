@@ -10,8 +10,7 @@ from enum import Enum
 
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, HostEP
-from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
@@ -705,7 +704,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                                                    dst_peers=subset_peers)
             all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
             conn_graph2 = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
-            #conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
+            # conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
             # Add connections from peer to itself (except for HEPs)
             auto_conns = defaultdict(list)
             for peer in subset_peers:
@@ -715,7 +714,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             for cube in all_conns_opt:
                 conn_graph2.add_edges_from_cube_dict(self.config.peer_container,
                                                      all_conns_opt.get_cube_dict_with_orig_values(cube))
-                #conn_graph_opt.add_edge(all_conns_opt.get_cube_dict(cube))
+                # conn_graph_opt.add_edge(all_conns_opt.get_cube_dict(cube))
             if self.output_config.outputFormat == 'dot':
                 res.output_explanation = conn_graph2.get_connectivity_dot_format_str()
                 if self.config.optimized_run == 'debug':
