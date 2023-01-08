@@ -170,7 +170,11 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
                     protocols = ProtocolSet()
                     protocols.add_protocol(prot[0])
                     if isinstance(prot[1], bool):
-                        res |= TcpLikeProperties.make_tcp_like_properties(peer_container, protocols=protocols)
+                        for peer_pair in item[1]:
+                            res |= TcpLikeProperties.make_tcp_like_properties(peer_container, protocols=protocols,
+                                                                              src_peers=PeerSet({peer_pair[0]}),
+                                                                              dst_peers=PeerSet({peer_pair[1]}),
+                                                                              exclude_same_src_dst_peers=False)
                         continue
                     for cube in prot[1]:
                         cube_dict = prot[1].get_cube_dict_with_orig_values(cube)
