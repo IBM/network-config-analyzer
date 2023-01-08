@@ -65,7 +65,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        self.base_peer_set = base_peer_set.copy() if base_peer_set else PeerSet()
+        self.base_peer_set = base_peer_set if base_peer_set else PeerSet()
         if create_empty:
             return
 
@@ -426,7 +426,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :param CanonicalIntervalSet icmp_code: ICMP-specific parameter (code dimension)
         :return: TcpLikeProperties with TCP allowed connections, corresponding to input properties cube
         """
-        base_peer_set = peer_container.peer_set
+        base_peer_set = peer_container.peer_set.copy()
         if src_peers:
             base_peer_set |= src_peers
             src_peers_interval = base_peer_set.get_peer_interval_of(src_peers)
@@ -585,11 +585,11 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     @staticmethod
     def make_empty_properties(peer_container=None):
-        return TcpLikeProperties(base_peer_set=peer_container.peer_set if peer_container else None, create_empty=True)
+        return TcpLikeProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None, create_empty=True)
 
     @staticmethod
     def make_all_properties(peer_container=None):
-        return TcpLikeProperties(base_peer_set=peer_container.peer_set if peer_container else None)
+        return TcpLikeProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None)
 
     ####################################### ICMP-related functions #######################################
 

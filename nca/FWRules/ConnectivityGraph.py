@@ -170,6 +170,7 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
                     protocols = ProtocolSet()
                     protocols.add_protocol(prot[0])
                     if isinstance(prot[1], bool):
+#                        res |= TcpLikeProperties.make_tcp_like_properties(peer_container, protocols=protocols)  # wrong
                         for peer_pair in item[1]:
                             res |= TcpLikeProperties.make_tcp_like_properties(peer_container, protocols=protocols,
                                                                               src_peers=PeerSet({peer_pair[0]}),

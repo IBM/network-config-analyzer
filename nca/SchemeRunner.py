@@ -149,7 +149,7 @@ class SchemeRunner(GenericYamlParser):
         for config_entry in self.scheme.get('networkConfigList', []):
             self._add_config(config_entry, resources_handler, self.optimized_run)
         end_parse = time.time()
-
+        print(f'Finished parsing in {(end_parse - start):6.2f} seconds')
         self.run_queries(self.scheme.get('queries', []))
         end_queries = time.time()
         print(f'Parsing time: {(end_parse - start):6.2f} seconds')

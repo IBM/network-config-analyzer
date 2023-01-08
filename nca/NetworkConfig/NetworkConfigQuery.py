@@ -4,6 +4,7 @@
 #
 import itertools
 import os
+import time
 from dataclasses import dataclass
 from collections import defaultdict
 from enum import Enum
@@ -651,7 +652,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         res = QueryAnswer(True)
         conn_graph = None
         if self.config.optimized_run != 'true':
-            for peer1 in peers_to_compare:
+            peers1_start = time.time()
+            for peer1_cnt, peer1 in enumerate(peers_to_compare):
                 for peer2 in peers_to_compare:
                     if self.is_in_subset(peer1):
                         peers.add(peer1)
@@ -682,7 +684,10 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                 # collect both peers, even if one of them is not in the subset
                                 peers.add(peer1)
                                 peers.add(peer2)
-
+                #peers2_end = time.time()
+                #print(f'Original loop: {peer1_cnt+1} / {len(peers_to_compare)} peers, time: {(peers2_end - peers1_start):6.2f} seconds')
+            peers1_end = time.time()
+            print(f'Original loop: time: {(peers1_end - peers1_start):6.2f} seconds')
             if self.output_config.outputFormat == 'dot':
                 conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
                 conn_graph.add_edges(connections)
@@ -694,6 +699,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 res.output_explanation = fw_rules.get_fw_rules_in_required_format()
 
         all_conns_opt = TcpLikeProperties.make_empty_properties()
+        opt_start = time.time()
         if self.config.optimized_run != 'false':
             all_conns_opt = self.config.allowed_connections_optimized()
         if all_conns_opt:
@@ -705,12 +711,13 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
             conn_graph2 = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
             # conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
-            # Add connections from peer to itself (except for HEPs)
-            auto_conns = defaultdict(list)
+            # Add connections from peer to itself (except for IPs)
             for peer in subset_peers:
                 if not isinstance(peer, IpBlock):
-                    auto_conns[ConnectionSet(True)].append((peer, peer))
-            conn_graph2.add_edges(auto_conns)
+                    all_conns_opt |= TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
+                                                                                src_peers=PeerSet({peer}),
+                                                                                dst_peers=PeerSet({peer}),
+                                                                                exclude_same_src_dst_peers=False)
             for cube in all_conns_opt:
                 conn_graph2.add_edges_from_cube_dict(self.config.peer_container,
                                                      all_conns_opt.get_cube_dict_with_orig_values(cube))
@@ -720,24 +727,28 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 if self.config.optimized_run == 'debug':
                     orig_conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
                     orig_conn_graph.add_edges(connections)
-                    self.compare_conn_graphs(orig_conn_graph, conn_graph2)
+                    opt_end = time.time()
+                    print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
+                    self.compare_orig_to_opt_conn(orig_conn_graph, all_conns_opt)
             else:
                 fw_rules2 = conn_graph2.get_minimized_firewall_rules()
                 res.output_explanation = fw_rules2.get_fw_rules_in_required_format()
+                opt_end = time.time()
+                print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
                 if self.config.optimized_run == 'debug':
-                    self.compare_conn_graphs(conn_graph, conn_graph2)
+                    self.compare_orig_to_opt_conn(conn_graph, all_conns_opt)
                 # res_opt.output_explanation = conn_graph_opt.get_connectivity_txt_format_str()
                 # res.output_explanation += "---------------- OPTIMIZED RESULT: -------------\n" +\
                 #                           fw_rules2.get_fw_rules_in_required_format() + \
                 #                           "\n------------------------------------------------\n\n"  # TEMP for debug
         return res
 
-    def compare_conn_graphs(self, conn_graph1, conn_graph2):
-        tcp_props1 = conn_graph1.convert_to_tcp_like_properties(self.config.peer_container)
-        tcp_props2 = conn_graph2.convert_to_tcp_like_properties(self.config.peer_container)
-        assert tcp_props1.contained_in(tcp_props2) and tcp_props2.contained_in(tcp_props1)  # workaround for ==
+    def compare_orig_to_opt_conn(self, orig_conn_graph, opt_props):
+        print("Converting orig_conn_graph to tcp_like_properties...")
+        orig_tcp_props = orig_conn_graph.convert_to_tcp_like_properties(self.config.peer_container)
+        assert orig_tcp_props.contained_in(opt_props) and opt_props.contained_in(orig_tcp_props)  # workaround for ==
         # The following assert exposes the bug in HC set
-        assert not tcp_props1.contained_in(tcp_props2) or not tcp_props2.contained_in(tcp_props1) or tcp_props1 == tcp_props2
+        assert not orig_tcp_props.contained_in(opt_props) or not opt_props.contained_in(orig_tcp_props) or orig_tcp_props == opt_props
 
     def compute_query_output(self, query_answer):
         return self.get_query_output(query_answer, only_explanation=query_answer.bool_result)
