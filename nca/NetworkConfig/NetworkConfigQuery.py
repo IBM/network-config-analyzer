@@ -62,6 +62,9 @@ class BaseNetworkQuery:
         and bool indicator if the query was not executed
         :rtype: int, Union[dict, str], bool
         """
+        for config in self.get_configs():
+            if not config.peer_container.get_num_peers():
+                raise Exception(f'Network configuration {config.name} does not have any peers. Can not run Query')
         query_answer = self.execute(cmd_line_flag)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
             return query_answer.numerical_result, '', query_answer.query_not_executed
@@ -95,6 +98,10 @@ class BaseNetworkQuery:
     def get_configs_names(self):
         raise NotImplementedError
 
+    @abstractmethod
+    def get_configs(self):
+        raise NotImplementedError
+
 
 class NetworkConfigQuery(BaseNetworkQuery):
     """
@@ -114,6 +121,13 @@ class NetworkConfigQuery(BaseNetworkQuery):
         :rtype: list[str]
         """
         return [self.config.name]
+
+    def get_configs(self):
+        """
+        returns the config
+        :rtype: list[NetworksConfig]
+        """
+        return [self.config]
 
     @staticmethod
     def get_query_type():
@@ -749,6 +763,13 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :rtype: list[str]
         """
         return [self.name1, self.name2]
+
+    def get_configs(self):
+        """
+        returns list of the query's configs
+        :rtype: list[NetworksConfig]
+        """
+        return [self.config1, self.config2]
 
     @staticmethod
     def get_query_type():
