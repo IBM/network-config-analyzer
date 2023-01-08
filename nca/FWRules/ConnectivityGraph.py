@@ -163,7 +163,8 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
                 for peer_pair in item[1]:
                     res |= TcpLikeProperties.make_tcp_like_properties(peer_container,
                                                                       src_peers=PeerSet({peer_pair[0]}),
-                                                                      dst_peers=PeerSet({peer_pair[1]}))
+                                                                      dst_peers=PeerSet({peer_pair[1]}),
+                                                                      exclude_same_src_dst_peers=False)
             else:
                 for prot in item[0].allowed_protocols.items():
                     protocols = ProtocolSet()

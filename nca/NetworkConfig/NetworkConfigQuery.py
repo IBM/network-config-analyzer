@@ -709,7 +709,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # Add connections from peer to itself (except for HEPs)
             auto_conns = defaultdict(list)
             for peer in subset_peers:
-                if not isinstance(peer, HostEP) and not isinstance(peer, IpBlock):
+                if not isinstance(peer, IpBlock):
                     auto_conns[ConnectionSet(True)].append((peer, peer))
             conn_graph2.add_edges(auto_conns)
             for cube in all_conns_opt:
@@ -736,7 +736,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def compare_conn_graphs(self, conn_graph1, conn_graph2):
         tcp_props1 = conn_graph1.convert_to_tcp_like_properties(self.config.peer_container)
         tcp_props2 = conn_graph2.convert_to_tcp_like_properties(self.config.peer_container)
-        assert tcp_props1 == tcp_props2
+        assert tcp_props1.contained_in(tcp_props2) and tcp_props2.contained_in(tcp_props1)  # workaround for ==
+        # The following assert exposes the bug in HC set
+        assert not tcp_props1.contained_in(tcp_props2) or not tcp_props2.contained_in(tcp_props1) or tcp_props1 == tcp_props2
 
     def compute_query_output(self, query_answer):
         return self.get_query_output(query_answer, only_explanation=query_answer.bool_result)

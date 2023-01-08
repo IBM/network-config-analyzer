@@ -580,7 +580,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return TcpLikeProperties.make_tcp_like_properties(peer_container, src_ports=src_ports, dst_ports=dst_ports,
                                                           protocols=protocols, src_peers=src_peers, dst_peers=dst_peers,
                                                           paths_dfa=paths_dfa, hosts_dfa=hosts_dfa, methods=methods,
-                                                          icmp_type=icmp_type, icmp_code=icmp_code)
+                                                          icmp_type=icmp_type, icmp_code=icmp_code,
+                                                          exclude_same_src_dst_peers=False)
 
     @staticmethod
     def make_empty_properties(peer_container=None):
