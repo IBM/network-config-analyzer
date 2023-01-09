@@ -4,7 +4,6 @@
 #
 import copy
 import os
-import sys
 from enum import Enum
 from sys import stderr
 from ruamel.yaml import error
