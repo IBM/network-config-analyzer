@@ -25,7 +25,7 @@ class PoliciesFinder:
         self.policies_container = PoliciesContainer()
         self._parse_queue = deque()
         self.peer_container = None
-        self.found_gw_policy = False
+        self.missing_gw_peers = False
         self.found_ingress_control_policy = False
         self.missing_pods_with_labels = {}
 
@@ -88,7 +88,7 @@ class PoliciesFinder:
                 if not istio_traffic_parser:
                     istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)
                 istio_traffic_parser.parse_gateway(policy, file_name)
-                self.found_gw_policy |= istio_traffic_parser.found_gw_policy
+                self.missing_gw_peers |= istio_traffic_parser.missing_gw_peers
             elif policy_type == NetworkPolicy.PolicyType.VirtualService:
                 if not istio_traffic_parser:
                     istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)

@@ -28,9 +28,9 @@ class LiveSimPaths:
     """
     Hold the location of the LiveSim yaml files
     """
-    DnsCfgPath = 'NetworkConfig/LiveSim/dns_pods.yaml'
-    IngressControllerCfgPath = 'NetworkConfig/LiveSim/ingress_controller.yaml'
-    IstioGwCfgPath = 'NetworkConfig/LiveSim/istio_gateway.yaml'
+    DnsCfgPath = 'LiveSim/dns_pods.yaml'
+    IngressControllerCfgPath = 'LiveSim/ingress_controller.yaml'
+    IstioGwCfgPath = 'LiveSim/istio_gateway.yaml'
 
 
 class ResourcesHandler:
@@ -67,10 +67,10 @@ class ResourcesHandler:
         :return: [strings]: configuration_addons: the paths of the yamls to be added.
         """
         configuration_addons = []
-        nca_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+        path = os.path.dirname(__file__)
         # find kube-dns reference
         if policy_finder.missing_pods_with_labels.get('name') == 'kube-system':
-            configuration_addons.append(os.path.join(nca_path, LiveSimPaths.DnsCfgPath))
+            configuration_addons.append(os.path.join(path, LiveSimPaths.DnsCfgPath))
 
         # find ingress controller pods
         if policy_finder.found_ingress_control_policy:
@@ -81,13 +81,11 @@ class ResourcesHandler:
                     ingress_controller_found = True
                     break
             if not ingress_controller_found:
-                configuration_addons.append(os.path.join(nca_path, LiveSimPaths.IngressControllerCfgPath))
+                configuration_addons.append(os.path.join(path, LiveSimPaths.IngressControllerCfgPath))
 
         # find Istio ingress gateway
-        if policy_finder.found_gw_policy:
-            if not peer_container.get_peers_with_label('app', ['istio-ingressgateway']) and \
-                    not peer_container.get_peers_with_label('istio', ['ingressgateway']):
-                configuration_addons.append(os.path.join(nca_path, LiveSimPaths.IstioGwCfgPath))
+        if policy_finder.missing_gw_peers:
+            configuration_addons.append(os.path.join(path, LiveSimPaths.IstioGwCfgPath))
 
         return configuration_addons
 

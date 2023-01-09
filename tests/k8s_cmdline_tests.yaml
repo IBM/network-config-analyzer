@@ -362,8 +362,8 @@
     --connectivity livesim_tests/
     --ns_list livesim_tests/
     --pod_list livesim_tests/
-    --output_format dot/
-    --expected_output expected_cmdline_output_files/livesim_test_all_dot.txt
+    --output_format dot
+    --expected_output expected_cmdline_output_files/livesim_test_all_dot.dot
   expected: 0
 
 - name: livesim_test_all_txt
@@ -371,7 +371,7 @@
     --connectivity livesim_tests/
     --ns_list livesim_tests/
     --pod_list livesim_tests/
-    --output_format txt/
+    --output_format txt
     --expected_output expected_cmdline_output_files/livesim_test_all_txt.txt
   expected: 0
 

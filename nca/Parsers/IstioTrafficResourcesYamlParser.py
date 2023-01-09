@@ -28,7 +28,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         self.namespace = None
         self.gateways = {}  # a map from a name to a Gateway
         self.virtual_services = {}  # a map from a name to a VirtualService
-        self.found_gw_policy = False
+        self.missing_gw_peers = False
 
     def add_gateway(self, gateway):
         """
@@ -58,7 +58,6 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                                                                    'networking.istio.io/v1beta1'], 'istio', True)
         if gtw_name is None:
             return None  # not an Istio Gateway
-        self.found_gw_policy = True
         gtw_namespace = self.peer_container.get_namespace(gtw_ns)
         gateway = Gateway(gtw_name, gtw_namespace)
 
@@ -71,6 +70,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             peers &= self.peer_container.get_peers_with_label(key, [val])
         if not peers:
             self.warning(f'selector {selector} does not reference any pods in Gateway {gtw_name}. Ignoring the gateway')
+            self.missing_gw_peers = True
             return
 
         gateway.peers = peers
