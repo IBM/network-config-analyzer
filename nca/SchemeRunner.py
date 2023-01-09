@@ -200,8 +200,10 @@ class SchemeRunner(GenericYamlParser):
                     self.global_res += 1
             expected_not_executed = query.get('expectedNotExecuted', 0)
             if not_executed != expected_not_executed:
-                self.warning(f'{query_name} was not executed {not_executed} times. '
-                             f'Although, expected to not be executed {expected_not_executed} times')
+                msg = f'{query_name} was not executed {not_executed} times.'
+                if 'expectedNotExecuted' in query:
+                    msg = msg + f' Although, expected to not be executed {expected_not_executed} times'
+                self.warning(msg)
                 self.global_res += 1
             if comparing_err != 0:
                 self.warning(f'Unexpected output comparing result for query {query_name} ')

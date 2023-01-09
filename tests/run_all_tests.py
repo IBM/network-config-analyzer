@@ -323,9 +323,6 @@ class TestsRunner:
                     continue
                 if self.test_files_spec.type == 'scheme' and not fnmatch(file, '*-scheme.yaml'):
                     continue
-                # todo: remove the followin if after fixing issue 396
-                if file == 'scan-dir-test-scheme.yaml':
-                    continue
                 file_path = os.path.join(os.path.abspath(root), file)
                 self.run_test_per_file(file_path)
 
