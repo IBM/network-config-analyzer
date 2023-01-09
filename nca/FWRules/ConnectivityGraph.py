@@ -74,7 +74,10 @@ class ConnectivityGraph:
         peer_lines = set()
         for peer in self.cluster_info.all_peers:
             peer_name, is_ip_block = self._get_peer_name(peer)
-            peer_color = "red2" if is_ip_block else "blue"
+            if peer_name.endswith('livesim(Deployment)') or peer_name.endswith('livesim(Pod)'):
+                peer_color = "coral4"
+            else:
+                peer_color = "red2" if is_ip_block else "blue"
             peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
 
         edge_lines = set()
