@@ -64,7 +64,7 @@ class BaseNetworkQuery:
         """
         for config in self.get_configs():
             if not config.peer_container.get_num_peers():
-                raise Exception(f'Network configuration {config.name} does not have any peers. Can not run Query')
+                return 1, f'Error: Network configuration {config.name} does not have any peers. Can not run Query', True
         query_answer = self.execute(cmd_line_flag)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
             return query_answer.numerical_result, '', query_answer.query_not_executed
