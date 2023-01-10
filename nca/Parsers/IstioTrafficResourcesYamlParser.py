@@ -65,12 +65,21 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         self.check_fields_validity(gtw_spec, f'the spec of Gateway {gateway.full_name()}',
                                    {'selector': [1, dict], 'servers': [1, list]})
         selector = gtw_spec['selector']
+        # check if istio gateway peers are present
+        istio_gw_labels = {'istio': 'ingressgateway', 'app': 'istio-ingressgateway'}
+        for key, val in istio_gw_labels.items():
+            if selector.get(key) == val:
+                if self.peer_container.get_peers_with_label(key, [val]):
+                    self.missing_istio_gw_peers = False
+                    break
+                else:
+                    self.missing_istio_gw_peers = True
+
         peers = self.peer_container.get_all_peers_group()
         for key, val in selector.items():
             peers &= self.peer_container.get_peers_with_label(key, [val])
         if not peers:
             self.warning(f'selector {selector} does not reference any pods in Gateway {gtw_name}. Ignoring the gateway')
-            self.missing_istio_gw_peers = True
             return
 
         gateway.peers = peers
