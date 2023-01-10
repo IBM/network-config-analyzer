@@ -20,13 +20,13 @@ class DirScanner(GenericTreeScanner, HelmScanner):
         HelmScanner.__init__(self)
         self.fs_path = fs_path
 
-    def check_and_yield_file(self, file_path):
+    def _check_and_yield_file(self, file_path):
         """
         checks if the given file is yaml file and yield its components
         :param str file_path: path of file to check and yield
         """
         if GenericTreeScanner.is_yaml_file(file_path):
-            file_stream = open(file_path)
+            file_stream = open(file_path, encoding='utf8')
             yield from self._yield_yaml_file(file_path, file_stream)
             file_stream.close()
 
@@ -35,7 +35,7 @@ class DirScanner(GenericTreeScanner, HelmScanner):
         Call this function to get a generator for all yaml files
         """
         if os.path.isfile(self.fs_path):
-            yield from self.check_and_yield_file(self.fs_path)
+            yield from self._check_and_yield_file(self.fs_path)
             return
 
         if self.fs_path.endswith('**'):
@@ -46,18 +46,21 @@ class DirScanner(GenericTreeScanner, HelmScanner):
     def _scan_dir_for_yamls(self, dir_path, recursive):
         for root, sub_dirs, files in os.walk(dir_path):
             for file in files:
-                if self.is_helm_chart(file):
-                    file_name, file_content = self.parse_chart(root)
-                    file_stream = io.StringIO(file_content)
-                    yield from self._yield_yaml_file(file_name, file_stream)
-                    file_stream.close()
-                else:
-                    full_path = os.path.abspath(os.path.join(root, file))
-                    # skip if file was resolved by HELM or Helm template
-                    if self.is_yaml_file(full_path) and not self.is_resolved_template(full_path):
-                        if self.is_template(full_path):
-                            print('Warning: Skipping templated yaml file:', full_path, file=stderr)
-                        else:
-                            yield from self.check_and_yield_file(os.path.join(root, file))
+                try:
+                    if self.is_helm_chart(file):
+                        file_name, file_content = self.parse_chart(root)
+                        file_stream = io.StringIO(file_content)
+                        yield from self._yield_yaml_file(file_name, file_stream)
+                        file_stream.close()
+                    else:
+                        full_path = os.path.abspath(os.path.join(root, file))
+                        # skip if file was resolved by HELM or Helm template
+                        if self.is_yaml_file(full_path) and not self.is_resolved_template(full_path):
+                            if self.is_template(full_path):
+                                print('Warning: Skipping templated yaml file:', full_path, file=stderr)
+                            else:
+                                yield from self._check_and_yield_file(os.path.join(root, file))
+                except UnicodeDecodeError as decode_err:
+                    print(f'Parse Error: While scanning {dir_path}, failed to decode {file}. error:\n{decode_err.reason}')
             if not recursive:
                 break
