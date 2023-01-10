@@ -59,7 +59,7 @@ class HelmScanner:
         """
         if not file:
             return False
-        with open(file, "r") as f:
+        with open(file, "r", encoding='utf8') as f:
             return '{{' in f.read()
 
     @staticmethod

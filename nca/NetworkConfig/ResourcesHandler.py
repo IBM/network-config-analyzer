@@ -262,6 +262,8 @@ class ResourcesParser:
                         print(
                             f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
                             'Parse Error:', prs_err.problem, file=stderr)
+                    except UnicodeDecodeError as decode_err:
+                        print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}')
 
         self.policies_finder.parse_policies_in_parse_queue()
 
