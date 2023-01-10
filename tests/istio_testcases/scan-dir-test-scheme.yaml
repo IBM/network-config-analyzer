@@ -11,3 +11,4 @@ queries:
   - name: test-query
     connectivityMap:
       - test
+    expectedNotExecuted: 1
