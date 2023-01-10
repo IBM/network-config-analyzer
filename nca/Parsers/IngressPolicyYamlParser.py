@@ -29,7 +29,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.namespace = None
         self.default_backend_peers = PeerSet()
         self.default_backend_ports = PortSet()
-        self.found_ingress_controller_policy = False
+        self.missing_k8s_ingress_peers = False
 
     def validate_path_value(self, path_value, path):
         if path_value[0] != '/':
@@ -232,7 +232,6 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         if policy_name is None:
             return None  # Not an Ingress object
 
-        self.found_ingress_controller_policy = True
         self.namespace = self.peer_container.get_namespace(policy_ns)
         res_policy = IngressPolicy(policy_name + '/allow', self.namespace, IngressPolicy.ActionType.Allow)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
@@ -244,10 +243,14 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
                                                                                     True)
-        # TODO extend to other ingress controllers
-        res_policy.selected_peers = \
-            self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
+        ingress_controllers = ['ingress-nginx', 'ingress-gce', 'app-ingress']
+        for name in ingress_controllers:
+            res_policy.selected_peers = \
+                self.peer_container.get_pods_with_service_name_containing_given_string(name)
+            if res_policy.selected_peers:
+                break
         if not res_policy.selected_peers:
+            self.missing_k8s_ingress_peers = True
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
         allowed_conns = None
         all_hosts_dfa = None

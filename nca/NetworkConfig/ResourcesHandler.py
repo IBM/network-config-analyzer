@@ -68,25 +68,42 @@ class ResourcesHandler:
         configuration_addons = []
         path = os.path.dirname(__file__)
         # find kube-dns reference
-        if policy_finder.missing_pods_with_labels.get('name') == 'kube-system':
+        if 'kube-system' in policy_finder.missing_pods_with_labels.values() or \
+                policy_finder.missing_pods_with_labels.get('k8s-app') == 'kube-dns':
             configuration_addons.append(os.path.join(path, LiveSimPaths.DnsCfgPath))
 
         # find ingress controller pods
-        if policy_finder.found_ingress_control_policy:
-            ingress_controller_found = False
-            ingress_controllers = ['ingress-nginx', 'ingress-gce', 'app-ingress']
-            for name in ingress_controllers:
-                if peer_container.get_pods_with_service_name_containing_given_string(name):
-                    ingress_controller_found = True
-                    break
-            if not ingress_controller_found:
-                configuration_addons.append(os.path.join(path, LiveSimPaths.IngressControllerCfgPath))
+        if policy_finder.missing_k8s_ingress_peers:
+            configuration_addons.append(os.path.join(path, LiveSimPaths.IngressControllerCfgPath))
 
         # find Istio ingress gateway
-        if policy_finder.missing_gw_peers:
+        if policy_finder.missing_istio_gw_peers:
             configuration_addons.append(os.path.join(path, LiveSimPaths.IstioGwCfgPath))
 
         return configuration_addons
+
+    def parse_elements(self, ns_list, pod_list, resource_list, config_name, save_flag, np_list):
+        """
+        Parse the elements and build peer container.
+        :param Union[list[str], None] ns_list: namespaces entries
+        :param Union[list[str], None] pod_list: pods and services entries
+        :param Union[list[str], None] resource_list: entries to read pods/namespaces/policies from
+        if the specific list is None
+        :param str config_name: name of the config
+        :param bool save_flag: used in cmdline queries with two configs, if save flag is True
+         will save the peer container as global to use it for base config's peer resources in case are missing
+        :param Union[list[str], None] np_list: networkPolicies entries
+        :return:  PeerContainer, ResourcesParser, str
+        """
+        resources_parser = ResourcesParser()
+        # build peer container
+        peer_container = \
+            self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
+
+        # parse for policies
+        cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
+
+        return peer_container, resources_parser, cfg
 
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False):
         """
@@ -104,14 +121,13 @@ class ResourcesHandler:
         :rtype NetworkConfig
         """
         NcaLogger().mute()
-        resources_parser = ResourcesParser()
-        # build peer container
-        peer_container = \
-            self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
-
-        # parse for policies
-        cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
-
+        peer_container, resources_parser, cfg = self.parse_elements(ns_list,
+                                                                    pod_list,
+                                                                    resource_list,
+                                                                    config_name,
+                                                                    save_flag,
+                                                                    np_list
+                                                                    )
         NcaLogger().unmute()
         # check if LiveSim can add anything.
         livesim_addons = self.analyze_livesim(peer_container, resources_parser.policies_finder)
@@ -126,14 +142,13 @@ class ResourcesHandler:
             if resource_list:
                 resource_list += livesim_addons
 
-            resources_parser = ResourcesParser()
-
-            # build peer container
-            peer_container = \
-                self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
-
-            # parse for policies
-            cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
+            peer_container, resources_parser, cfg = self.parse_elements(ns_list,
+                                                                        pod_list,
+                                                                        resource_list,
+                                                                        config_name,
+                                                                        save_flag,
+                                                                        np_list
+                                                                        )
         else:
             NcaLogger().flush_messages()
 

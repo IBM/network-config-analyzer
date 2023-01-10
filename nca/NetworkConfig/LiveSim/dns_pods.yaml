@@ -4,14 +4,16 @@ metadata:
   name: kube-system
   labels:
     name: kube-system
+    kubernetes.io/metadata.name: kube-system
+    projectcalico.org/namespace: kube-system
 ---
 apiVersion: apps/v1
 kind: Pod
 metadata:
-  name: core-dns-livesim
+  name: kube-dns-livesim
   namespace: kube-system
   labels:
-    app: core-dns
+    k8s-app: kube-dns
 spec:
   containers:
     - name: nginx
