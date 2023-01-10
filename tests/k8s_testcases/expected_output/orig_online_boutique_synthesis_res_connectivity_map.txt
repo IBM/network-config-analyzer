@@ -1,6 +1,9 @@
 final fw rules for query: orig_online_boutique_synthesis_res_connectivity_map, config: orig_online_boutique_synthesis_res:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
 src: ::/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src: ::/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [kube-system] dst_pods: [*] conn: UDP 53
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [shippingservice] conn: TCP 50051
@@ -12,4 +15,7 @@ src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] c
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP 5050
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP 8080
 src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
-
+src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst: ::/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
