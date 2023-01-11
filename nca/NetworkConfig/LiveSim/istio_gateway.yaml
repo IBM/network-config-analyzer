@@ -1,21 +1,12 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
   name: istio-ingressgateway-livesim
+  labels:
+    app: istio-ingressgateway
+    istio: ingressgateway
 spec:
-  selector:
-    matchLabels:
-      app: istio-ingressgateway
-      istio: ingressgateway
-  template:
-    metadata:
-      annotations:
-        inject.istio.io/templates: gateway
-      labels:
-        app: istio-ingressgateway
-        istio: ingressgateway
-    spec:
-      containers:
-      - name: istio-proxy
-        image: auto
+  containers:
+  - name: istio-proxy
+    image: auto
 ---

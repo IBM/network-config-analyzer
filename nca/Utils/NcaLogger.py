@@ -56,7 +56,7 @@ class NcaLogger(metaclass=Singleton):
         if self.is_mute():
             self._collected_messages.append(msg)
         else:
-            print(msg, file)
+            print(msg, file=file)
 
     def flush_messages(self, silent=False):
         """
