@@ -57,11 +57,11 @@ class ResourcesHandler:
         self._set_config_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                         'global', True, global_resources_parser)
 
-    def analyze_livesim(self, peer_container, policy_finder):
+    @staticmethod
+    def analyze_livesim(policy_finder):
         """
         Analyze the pre-parsing of the topology and finds what needs
         to be added.
-        :param PeerContainer peer_container: Contains the peers found in pre-parsing
         :param PolicyFinder policy_finder: Contains the policies found in pre-parsing
         :return: [strings]: configuration_addons: the paths of the yamls to be added.
         """
@@ -71,14 +71,17 @@ class ResourcesHandler:
         if 'kube-system' in policy_finder.missing_pods_with_labels.values() or \
                 policy_finder.missing_pods_with_labels.get('k8s-app') == 'kube-dns':
             configuration_addons.append(os.path.join(path, LiveSimPaths.DnsCfgPath))
+            NcaLogger().log_message('Found missing elements - adding complimentary kube-dns elements', level='I')
 
         # find ingress controller pods
         if policy_finder.missing_k8s_ingress_peers:
             configuration_addons.append(os.path.join(path, LiveSimPaths.IngressControllerCfgPath))
+            NcaLogger().log_message('Found missing elements - adding complimentary ingress controller elements', level='I')
 
         # find Istio ingress gateway
         if policy_finder.missing_istio_gw_peers:
             configuration_addons.append(os.path.join(path, LiveSimPaths.IstioGwCfgPath))
+            NcaLogger().log_message('Found missing elements - adding complimentary Istio ingress gateway elements', level='I')
 
         return configuration_addons
 
@@ -130,7 +133,7 @@ class ResourcesHandler:
                                                                     )
         NcaLogger().unmute()
         # check if LiveSim can add anything.
-        livesim_addons = self.analyze_livesim(peer_container, resources_parser.policies_finder)
+        livesim_addons = self.analyze_livesim(resources_parser.policies_finder)
         if livesim_addons:
             NcaLogger().flush_messages(silent=True)
             if ns_list:

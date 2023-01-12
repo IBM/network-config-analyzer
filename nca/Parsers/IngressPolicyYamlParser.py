@@ -243,7 +243,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
                                                                                     True)
-        ingress_controllers = ['ingress-nginx', 'ingress-gce', 'app-ingress']
+        # TODO extend to other ingress controllers
+        ingress_controllers = ['ingress-nginx']
         for name in ingress_controllers:
             res_policy.selected_peers = \
                 self.peer_container.get_pods_with_service_name_containing_given_string(name)

@@ -2,7 +2,7 @@
 # Copyright 2022 - IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+import sys
 
 class Singleton(type):
     """
@@ -47,12 +47,20 @@ class NcaLogger(metaclass=Singleton):
         """
         return self._is_mute
 
-    def log_message(self, msg, file=None):
+    def log_message(self, msg, file=None, level=None):
         """
         Log a message
         :param sting msg: message to log
         :param a file-like-object file: output stream
+        :param str level: the level of the message: (I)nfo, (W)arning
         """
+        if level == 'I':
+            msg = f'Info: {msg}'
+        elif level == 'W':
+            msg = f'Warning: {msg}'
+            if not file:
+                file = sys.stderr
+
         if self.is_mute():
             self._collected_messages.append(msg)
         else:
