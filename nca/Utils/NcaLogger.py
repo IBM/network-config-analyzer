@@ -4,6 +4,7 @@
 #
 import sys
 
+
 class Singleton(type):
     """
     A metaclass implementing singleton for NcaLogger
