@@ -134,11 +134,9 @@ class NetworkPolicy:
         if not props:
             return
         if is_allow:
-            self.optimized_ingress_props = \
-                (self.optimized_ingress_props | props) if self.optimized_ingress_props else props
+            self.optimized_ingress_props |= props
         else:
-            self.optimized_denied_ingress_props = \
-                (self.optimized_denied_ingress_props | props) if self.optimized_denied_ingress_props else props
+            self.optimized_denied_ingress_props |= props
 
     def add_optimized_egress_props(self, props, is_allow=True):
         """
@@ -150,11 +148,9 @@ class NetworkPolicy:
         if not props:
             return
         if is_allow:
-            self.optimized_egress_props = \
-                (self.optimized_egress_props | props) if self.optimized_egress_props else props
+            self.optimized_egress_props |= props
         else:
-            self.optimized_denied_egress_props = \
-                (self.optimized_denied_egress_props | props) if self.optimized_denied_egress_props else props
+            self.optimized_denied_egress_props |= props
 
     @staticmethod
     def get_policy_type_from_dict(policy):  # noqa: C901

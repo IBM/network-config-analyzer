@@ -363,4 +363,22 @@ class IngressNetworkLayer(NetworkLayer):
                                  all_allowed_conns=all_allowed_conns)
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
-        return TcpLikeProperties.make_empty_properties(), TcpLikeProperties.make_empty_properties()
+        allowed_conn, denied_conns, captured = self.collect_policies_conns_optimized(is_ingress)
+        base_peer_set = peer_container.peer_set.copy()
+        base_peer_set.add(IpBlock.get_all_ips_block())
+        if is_ingress:
+            non_captured_conns = \
+                TcpLikeProperties.make_tcp_like_properties(peer_container,
+                                                           src_peers=base_peer_set, dst_peers=base_peer_set,
+                                                           exclude_same_src_dst_peers=False)
+            allowed_conn |= non_captured_conns
+        else:
+            non_captured_peers = base_peer_set - captured
+            if non_captured_peers:
+                non_captured_conns = \
+                    TcpLikeProperties.make_tcp_like_properties(peer_container,
+                                                               src_peers=non_captured_peers, dst_peers=base_peer_set,
+                                                               exclude_same_src_dst_peers=False)
+                allowed_conn |= non_captured_conns
+        return allowed_conn, denied_conns
+

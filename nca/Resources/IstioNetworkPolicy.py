@@ -98,7 +98,7 @@ class IstioNetworkPolicy(NetworkPolicy):
         :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
         :return: A TcpLikeProperties object containing all allowed connections for relevant peers,
         TcpLikeProperties object containing all denied connections,
-        and the peer set of captured peers that are not a part of allowed connections.
+        and the peer set of captured peers by this policy.
         :rtype: tuple (TcpLikeProperties, TcpLikeProperties, PeerSet)
         """
         if is_ingress:

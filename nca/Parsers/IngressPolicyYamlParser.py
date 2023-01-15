@@ -9,6 +9,7 @@ from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
@@ -169,7 +170,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         :param MinDFA paths_dfa: the paths for the default connections
         :return: TcpLikeProperties containing default connections or None (when no default backend exists)
         """
-        default_conns = None
+        default_conns = TcpLikeProperties.make_empty_properties(self.peer_container)
         if self.default_backend_peers:
             if paths_dfa:
                 default_conns = \
@@ -224,10 +225,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             default_conns = self._make_default_connections(hosts_dfa, paths_remainder_dfa)
         else:  # no paths --> everything for this host goes to the default backend or is denied
             default_conns = self._make_default_connections(hosts_dfa)
-        if allowed_conns and default_conns:
-            allowed_conns |= default_conns
-        elif default_conns:
-            allowed_conns = default_conns
+        allowed_conns |= default_conns
         return allowed_conns, hosts_dfa
 
     def parse_policy(self):
@@ -256,14 +254,11 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
         if not res_policy.selected_peers:
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
-        allowed_conns = None
+        allowed_conns = TcpLikeProperties.make_empty_properties(self.peer_container)
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):
             conns, hosts_dfa = self.parse_rule(ingress_rule)
-            if not allowed_conns:
-                allowed_conns = conns
-            else:
-                allowed_conns |= conns
+            allowed_conns |= conns
             if hosts_dfa:
                 if not all_hosts_dfa:
                     all_hosts_dfa = hosts_dfa
@@ -274,12 +269,15 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         # every host not captured by the ingress rules goes to the default backend
         hosts_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('hosts') - all_hosts_dfa
         default_conns = self._make_default_connections(hosts_remainder_dfa)
-        if allowed_conns and default_conns:
-            allowed_conns |= default_conns
-        elif default_conns:
-            allowed_conns = default_conns
+        allowed_conns |= default_conns
         assert allowed_conns
 
         res_policy.add_rules(self._make_allow_rules(allowed_conns))
+        protocols = ProtocolSet()
+        protocols.add_protocol('TCP')
+        allowed_conns &= TcpLikeProperties.make_tcp_like_properties(self.peer_container,
+                                                                    src_peers=res_policy.selected_peers,
+                                                                    protocols=protocols)
+        res_policy.add_optimized_egress_props(allowed_conns)
         res_policy.findings = self.warning_msgs
         return res_policy
