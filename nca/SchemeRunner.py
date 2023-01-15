@@ -10,7 +10,6 @@ from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
-from nca.NetworkConfig.NetworkConfig import NetworkConfig
 
 
 class SchemeRunner(GenericYamlParser):
@@ -207,12 +206,13 @@ class SchemeRunner(GenericYamlParser):
                 if res != expected:
                     self.warning(f'Unexpected result for query {query_name}: Expected {expected}, got {res}\n', query)
                     self.global_res += 1
-            if 'expectedNotExecuted' in query:
-                expected_not_executed = query['expectedNotExecuted']
-                if not_executed != expected_not_executed:
-                    self.warning(f'{query_name} was not executed {not_executed} times. '
-                                 f'Although, expected to not be executed {expected_not_executed} times')
-                    self.global_res += 1
+            expected_not_executed = query.get('expectedNotExecuted', 0)
+            if not_executed != expected_not_executed:
+                msg = f'{query_name} was not executed {not_executed} times.'
+                if 'expectedNotExecuted' in query:
+                    msg = msg + f' Although, expected to not be executed {expected_not_executed} times'
+                self.warning(msg)
+                self.global_res += 1
             if comparing_err != 0:
                 self.warning(f'Unexpected output comparing result for query {query_name} ')
                 self.global_res += 1

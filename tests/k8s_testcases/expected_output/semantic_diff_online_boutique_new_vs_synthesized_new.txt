@@ -1,13 +1,10 @@
 new_online_boutique and new_online_synthesis_res are not semantically equivalent.
-Changed connections between persistent peers:
-Removed connections (based on topology from config: new_online_boutique) :
+
+Removed connections between persistent peers (based on topology from config: new_online_boutique) :
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
 
-Changed connections between persistent peers and ipBlocks:
-Removed connections (based on topology from config: new_online_boutique) :
+Removed connections between persistent peers and ipBlocks (based on topology from config: new_online_boutique) :
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
 src: ::/0 dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
 src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [*] dst: ::/0 conn: All connections
-
-

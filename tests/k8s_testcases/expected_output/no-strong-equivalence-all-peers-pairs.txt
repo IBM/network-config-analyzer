@@ -1,5 +1,5 @@
 NetworkPolicy kube-system/allow-ingress-app-notin-predefined is not equivalent in nt_notin and in nt_notinwithexists
-Connections allowed in nt_notin/kube-system/allow-ingress-app-notin-predefined and nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined are different as following:
+Connections allowed in nt_notin/kube-system/allow-ingress-app-notin-predefined which are different in nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined:
 src: kube-system/calico-node-mgdlr, dst: kube-system/calico-node-ns8kw, description: nt_notin/kube-system/allow-ingress-app-notin-predefined allows all connections while nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined does not.
 src: kube-system/calico-node-mgdlr, dst: kube-system/calico-node-ptdgj, description: nt_notin/kube-system/allow-ingress-app-notin-predefined allows all connections while nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined does not.
 src: kube-system/calico-node-mgdlr, dst: kube-system/file-plugin-7bfb8b69bf-p86gk, description: nt_notin/kube-system/allow-ingress-app-notin-predefined allows all connections while nt_notinwithexists/kube-system/allow-ingress-app-notin-predefined does not.

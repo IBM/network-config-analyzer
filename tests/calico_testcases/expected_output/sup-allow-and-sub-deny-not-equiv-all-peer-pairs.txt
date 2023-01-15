@@ -1,5 +1,5 @@
 np_SupsetAllowFirst and np_SubsetDenyFirst are not semantically equivalent.
-Connections allowed in np_SupsetAllowFirst and np_SubsetDenyFirst are different as following:
+Connections allowed in np_SupsetAllowFirst which are different in np_SubsetDenyFirst:
 src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/calico-node-mgdlr, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
 src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/keepalived-watcher-57ghx, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.
 src: kube-system/file-plugin-7bfb8b69bf-p86gk, dst: kube-system/keepalived-watcher-gzdfm, description: np_SupsetAllowFirst allows communication using protocol TCP while np_SubsetDenyFirst does not.

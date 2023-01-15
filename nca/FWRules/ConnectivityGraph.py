@@ -5,11 +5,9 @@
 
 from collections import defaultdict
 from nca.CoreDS.Peer import Peer, IpBlock, PeerSet, ClusterEP, Pod
-from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
-from nca.CoreDS.ICMPDataSet import ICMPDataSet
 from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
 

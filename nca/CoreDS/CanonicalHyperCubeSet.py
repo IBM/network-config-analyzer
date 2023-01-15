@@ -274,7 +274,7 @@ class CanonicalHyperCubeSet:
         Recursive function to compute 'and' between two CanonicalHyperCubeSet objects.
         Assuming that self and other have common active dimensions.
         :type other: CanonicalHyperCubeSet
-        :return: self
+        :return: CanonicalHyperCubeSet representing 'and' between self and the other object
         """
         assert self.active_dimensions == other.active_dimensions
         res = CanonicalHyperCubeSet(self.all_dimensions_list)
@@ -286,7 +286,7 @@ class CanonicalHyperCubeSet:
                 if not common_elem:
                     continue
                 if self._is_last_dimension():
-                    res_layers[common_elem] = self.layers[self_layer].copy()
+                    res_layers[common_elem] = CanonicalHyperCubeSet.empty_interval
                     continue
                 # TODO: use type hint to avoid warning on access to a protected member?
                 # self_sub_elem: CanonicalHyperCubeSet = self.layers[self_layer]
@@ -325,7 +325,7 @@ class CanonicalHyperCubeSet:
         Recursive function to compute 'or' between two CanonicalHyperCubeSet objects.
         Assuming that self and other have common active dimensions.
         :type other: CanonicalHyperCubeSet
-        :return: self
+        :return: CanonicalHyperCubeSet representing 'or' between self and the other object
         """
         assert self.active_dimensions == other.active_dimensions
         res = CanonicalHyperCubeSet(self.all_dimensions_list)
@@ -378,7 +378,7 @@ class CanonicalHyperCubeSet:
         Recursive function to compute 'sub' between two CanonicalHyperCubeSet objects.
         Assuming that self and other have common active dimensions.
         :type other: CanonicalHyperCubeSet
-        :return: self
+        :return: CanonicalHyperCubeSet representing 'sub' between self and the other object
         """
         assert self.active_dimensions == other.active_dimensions
         res = CanonicalHyperCubeSet(self.all_dimensions_list)
@@ -400,7 +400,6 @@ class CanonicalHyperCubeSet:
                     # add remaining new_sub_elem if not empty, under common
                     res_layers[common_elem] = new_sub_elem
             if remaining_self_layer:
-
                 res_layers[remaining_self_layer] = self.layers[self_layer].copy()
         res.layers = res_layers
         res._apply_layer_elements_union()

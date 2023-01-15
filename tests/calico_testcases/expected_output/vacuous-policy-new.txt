@@ -1,0 +1,1 @@
+Network configuration np_globalAllowAll is vacuous - it allows all default connections

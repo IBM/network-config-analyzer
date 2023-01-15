@@ -1,6 +1,6 @@
 testcase26-config-1-calico-ingress and allow-all-config are not semantically equivalent.
-Changed connections between persistent peers:
-Added connections (based on topology from config: allow-all-config) :
+
+Added connections between persistent peers (based on topology from config: allow-all-config) :
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: All but TCP,UDP
 src_ns: [default] src_pods: [app in (details,reviews)] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: All connections
 src_ns: [ingress-nginx,istio-system] src_pods: [*] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: All connections
@@ -8,11 +8,8 @@ src_ns: [ingress-nginx,istio-system] src_pods: [*] dst_ns: [istio-system] dst_po
 src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All but TCP {'dst_ports': '9080', 'paths': '/details(/[\\--9A-Z_a-z]*)?'}
 src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [app in (ratings,reviews)] conn: All connections
 
-Changed connections between persistent peers and ipBlocks:
-Added connections (based on topology from config: allow-all-config) :
+Added connections between persistent peers and ipBlocks (based on topology from config: allow-all-config) :
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: All connections
 src: ::/0 dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: All connections
 src_ns: [ingress-nginx] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [ingress-nginx] src_pods: [*] dst: ::/0 conn: All connections
-
-

@@ -1,25 +1,28 @@
-- query: 'connectivity_map, config: np20'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - '*'
-    dst_ns:
-    - ibm-system-new
-    - kube-system-new
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-  - src_ns:
-    - kube-system-new-dummy-to-ignore
-    src_pods:
-    - '*'
-    dst_ns:
-    - dlaas
-    - ibm-system-new
-    dst_pods:
-    - '*'
-    connection:
-    - All connections
-
+- query: connectivity_map
+  configs:
+  - np20
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - ibm-system-new
+      - kube-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - kube-system-new-dummy-to-ignore
+      src_pods:
+      - '*'
+      dst_ns:
+      - dlaas
+      - ibm-system-new
+      dst_pods:
+      - '*'
+      connection:
+      - All connections

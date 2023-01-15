@@ -1,15 +1,14 @@
 np1 and np4 are not semantically equivalent.
-Changed connections between persistent peers:
-Added connections (based on topology from config: np4) :
+
+Added connections between persistent peers (based on topology from config: np4) :
 src_ns: [default,kube-system-dummy-to-ignore,vendor-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All connections
 src_ns: [kube-system] src_pods: [!has(tier) or tier=not_frontend_for_demo] dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All connections
 
-Removed connections (based on topology from config: np1) :
+Removed connections between persistent peers (based on topology from config: np1) :
 src_ns: [kube-system] src_pods: [tier=frontend] dst_ns: [default,kube-system-dummy-to-ignore,vendor-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [tier=frontend] dst_ns: [kube-system] dst_pods: [!has(tier) or tier=not_frontend_for_demo] conn: All connections
 
-Changed connections between persistent peers and ipBlocks:
-Added connections (based on topology from config: np4) :
+Added connections between persistent peers and ipBlocks (based on topology from config: np4) :
 src: 0.0.0.0-9.255.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All but UDP 53
 src: 10.0.0.0/8 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All connections
 src: 11.0.0.0-172.20.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All but UDP 53
@@ -19,7 +18,7 @@ src: 172.30.0.0/16 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All con
 src: 172.31.0.0-255.255.255.255 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All but UDP 53
 src: ::/0 dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All connections
 
-Removed connections (based on topology from config: np1) :
+Removed connections between persistent peers and ipBlocks (based on topology from config: np1) :
 src_ns: [kube-system] src_pods: [tier=frontend] dst: 0.0.0.0-49.49.255.255 conn: All connections
 src_ns: [kube-system] src_pods: [tier=frontend] dst: 49.50.0.1/32 conn: All connections
 src_ns: [kube-system] src_pods: [tier=frontend] dst: 49.50.0.11/32 conn: All connections
@@ -31,5 +30,3 @@ src_ns: [kube-system] src_pods: [tier=frontend] dst: 49.50.0.5/32 conn: All conn
 src_ns: [kube-system] src_pods: [tier=frontend] dst: 49.50.0.7/32 conn: All connections
 src_ns: [kube-system] src_pods: [tier=frontend] dst: 49.50.0.9/32 conn: All connections
 src_ns: [kube-system] src_pods: [tier=frontend] dst: ::/0 conn: All connections
-
-

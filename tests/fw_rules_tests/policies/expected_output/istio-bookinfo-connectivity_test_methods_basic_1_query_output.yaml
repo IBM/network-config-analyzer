@@ -1,27 +1,30 @@
-- query: 'connectivity-istio-test-methods-basic-1, config: istio-test-methods-basic-1'
-  rules:
-  - src_ns:
-    - default
-    src_pods:
-    - app=productpage
-    dst_ns:
-    - default
-    dst_pods:
-    - app=reviews
-    connection:
-    - Protocol: TCP
-  - src_ns:
-    - default
-    src_pods:
-    - app=productpage
-    dst_ns:
-    - default
-    dst_pods:
-    - app=details
-    connection:
-    - Protocol: TCP
-      properties:
-      - dst_ports:
-        - 80
-        methods: GET
-
+- query: connectivity-istio-test-methods-basic-1
+  configs:
+  - istio-test-methods-basic-1
+  numerical_result: 0
+  explanation:
+  - rules:
+    - src_ns:
+      - default
+      src_pods:
+      - app=productpage
+      dst_ns:
+      - default
+      dst_pods:
+      - app=reviews
+      connection:
+      - Protocol: TCP
+    - src_ns:
+      - default
+      src_pods:
+      - app=productpage
+      dst_ns:
+      - default
+      dst_pods:
+      - app=details
+      connection:
+      - Protocol: TCP
+        properties:
+        - dst_ports:
+          - 80
+          methods: GET

@@ -1,0 +1,9 @@
+There are empty NetworkPolicies and/or empty ingress/egress rules in np1
+Policies that does not select any pods:
+NetworkPolicy kube-system/enable-ingress-with-typo-in-isolatedpods
+
+Ingress rules that does not select any pods:
+NetworkPolicy kube-system/enable-ingress-with-typo-in-ingress-rule-podselector, ingress rules indexes: 1
+
+Egress rules that does not select any pods:
+NetworkPolicy kube-system/enable-egress-with-typo-in-egress-rule-podselector, egress rules indexes: 1

@@ -1,4 +1,4 @@
-np-partly-within-default does not permit connections specified in np-within-default:
+np-partly-within-default does not permit connections specified in np-within-default
 Connections allowed in np-within-default which are not a subset of those in np-partly-within-default:
 src: default/cog-agents-d54st, dst: default/cog-agents-qr8gp, conn: All connections
 src: default/cog-agents-d54st, dst: default/cog-local-analyzer-7d77fb55cc-bs8rc, conn: All connections
