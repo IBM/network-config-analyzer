@@ -7,8 +7,8 @@ from functools import reduce
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.Peer import PeerSet
-from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.MethodSet import MethodSet
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
 from nca.Resources.IngressPolicy import IngressPolicy
@@ -326,7 +326,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param MinDFA host_dfa: the hosts attribute
         :return: TcpLikeProperties with TCP allowed connections
         """
-        allowed_conns = None
+        allowed_conns = TcpLikeProperties.make_empty_properties(self.peer_container)
         for http_route in vs.http_routes:
             for dest in http_route.destinations:
                 conns = \
@@ -334,10 +334,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                                                                dst_peers=dest.service.target_pods,
                                                                paths_dfa=http_route.uri_dfa, hosts_dfa=host_dfa,
                                                                methods=http_route.methods)
-                if not allowed_conns:
-                    allowed_conns = conns
-                else:
-                    allowed_conns |= conns
+                allowed_conns |= conns
         return allowed_conns
 
     def create_istio_traffic_policies(self):
@@ -388,6 +385,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 allowed_conns = self.make_allowed_connections(vs, host_dfa)
                 if allowed_conns:
                     res_policy.add_rules(self._make_allow_rules(allowed_conns))
+                    protocols = ProtocolSet()
+                    protocols.add_protocol('TCP')
+                    allowed_conns &= TcpLikeProperties.make_tcp_like_properties(self.peer_container, protocols=protocols,
+                                                                                src_peers=res_policy.selected_peers)
+                    res_policy.add_optimized_egress_props(allowed_conns)
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)
             if not vs_policies:

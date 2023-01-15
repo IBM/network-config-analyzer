@@ -275,9 +275,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         res_policy.add_rules(self._make_allow_rules(allowed_conns))
         protocols = ProtocolSet()
         protocols.add_protocol('TCP')
-        allowed_conns &= TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                    src_peers=res_policy.selected_peers,
-                                                                    protocols=protocols)
+        allowed_conns &= TcpLikeProperties.make_tcp_like_properties(self.peer_container, protocols=protocols,
+                                                                    src_peers=res_policy.selected_peers)
         res_policy.add_optimized_egress_props(allowed_conns)
         res_policy.findings = self.warning_msgs
         return res_policy
