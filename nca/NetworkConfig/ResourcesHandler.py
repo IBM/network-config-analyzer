@@ -71,17 +71,17 @@ class ResourcesHandler:
         if 'kube-system' in policy_finder.missing_pods_with_labels.values() or \
                 policy_finder.missing_pods_with_labels.get('k8s-app') == 'kube-dns':
             configuration_addons.append(os.path.join(path, LiveSimPaths.DnsCfgPath))
-            NcaLogger().log_message('Found missing elements - adding complimentary kube-dns elements', level='I')
+            NcaLogger().log_message('Found missing elements - adding complementary kube-dns elements', level='I')
 
         # find ingress controller pods
         if policy_finder.missing_k8s_ingress_peers:
             configuration_addons.append(os.path.join(path, LiveSimPaths.IngressControllerCfgPath))
-            NcaLogger().log_message('Found missing elements - adding complimentary ingress controller elements', level='I')
+            NcaLogger().log_message('Found missing elements - adding complementary ingress controller elements', level='I')
 
         # find Istio ingress gateway
         if policy_finder.missing_istio_gw_peers:
             configuration_addons.append(os.path.join(path, LiveSimPaths.IstioGwCfgPath))
-            NcaLogger().log_message('Found missing elements - adding complimentary Istio ingress gateway elements', level='I')
+            NcaLogger().log_message('Found missing elements - adding complementary Istio ingress gateway elements', level='I')
 
         return configuration_addons
 
