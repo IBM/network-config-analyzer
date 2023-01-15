@@ -642,16 +642,16 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def exec(self):
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
-        peers_to_compare = self.config.peer_container.get_all_peers_group()
-
-        ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
-                                                   IpBlock.get_all_ips_block_peer_set())
         connections = defaultdict(list)
-        peers = PeerSet()
-        peers_to_compare |= ref_ip_blocks
         res = QueryAnswer(True)
         conn_graph = None
         if self.config.optimized_run != 'true':
+            peers_to_compare = self.config.peer_container.get_all_peers_group()
+
+            ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
+                                                       IpBlock.get_all_ips_block_peer_set())
+            peers_to_compare |= ref_ip_blocks
+            peers = PeerSet()
             peers1_start = time.time()
             for peer1_cnt, peer1 in enumerate(peers_to_compare):
                 for peer2 in peers_to_compare:
@@ -701,15 +701,18 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         all_conns_opt = TcpLikeProperties.make_empty_properties()
         opt_start = time.time()
         if self.config.optimized_run != 'false':
-            all_conns_opt = self.config.allowed_connections_optimized()
+            all_conns_opt = self.config.allowed_connections_optimized(self.output_config.connectivityFilterIstioEdges)
         if all_conns_opt:
-            subset_peers = self.compute_subset(peers_to_compare)
+            opt_peers_to_compare = self.config.peer_container.get_all_peers_group()
+            # add all relevant IpBlocks, used in connections
+            opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') \
+                                    | all_conns_opt.project_on_one_dimension('dst_peers')
+            subset_peers = self.compute_subset(opt_peers_to_compare)
             src_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
                                                                                    src_peers=subset_peers)
             dst_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
                                                                                    dst_peers=subset_peers)
             all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
-            conn_graph2 = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
             # conn_graph_opt = ConnectivityGraphOptimized(self.output_config)
             # Add connections from peer to itself (except for IPs)
             for peer in subset_peers:
@@ -718,6 +721,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                                                 src_peers=PeerSet({peer}),
                                                                                 dst_peers=PeerSet({peer}),
                                                                                 exclude_same_src_dst_peers=False)
+            conn_graph2 = ConnectivityGraph(opt_peers_to_compare, self.config.get_allowed_labels(), self.output_config)
             for cube in all_conns_opt:
                 conn_graph2.add_edges_from_cube_dict(self.config.peer_container,
                                                      all_conns_opt.get_cube_dict_with_orig_values(cube))
@@ -725,7 +729,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             if self.output_config.outputFormat == 'dot':
                 res.output_explanation = conn_graph2.get_connectivity_dot_format_str()
                 if self.config.optimized_run == 'debug':
-                    orig_conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
+                    orig_conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
                     orig_conn_graph.add_edges(connections)
                     opt_end = time.time()
                     print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')

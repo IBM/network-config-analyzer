@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 
@@ -249,7 +250,7 @@ class NetworkConfig:
 
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
 
-    def allowed_connections_optimized(self, layer_name=None):
+    def allowed_connections_optimized(self, connectivityFilterIstioEdges, layer_name=None):
         """
         Computes the set of allowed connections between any relevant peers.
         :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
@@ -258,15 +259,28 @@ class NetworkConfig:
         """
         if layer_name is not None:
             if layer_name not in self.policies_container.layers:
-                return self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
-                                                                                                layer_name)
-            return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
+                conns_res = self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
+                                                                                                     layer_name)
+            else:
+                conns_res = self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
+        else:
+            conns_res = TcpLikeProperties.make_all_properties()  # all connections
+            for layer, layer_obj in self.policies_container.layers.items():
+                conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
+                # all allowed connections: intersection of all allowed connections from all layers
+                conns_res &= conns_per_layer
 
-        conns_res = TcpLikeProperties.make_all_properties()  # all connections
-        for layer, layer_obj in self.policies_container.layers.items():
-            conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
-            # all allowed connections: intersection of all allowed connections from all layers
-            conns_res &= conns_per_layer
+        if self.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) \
+                and connectivityFilterIstioEdges:
+            protocols = ProtocolSet()
+            protocols.add_protocol('TCP')
+            dst_peers_no_ip = conns_res.project_on_one_dimension('dst_peers') if conns_res else Peer.PeerSet()
+            dst_peers_no_ip -= Peer.IpBlock.get_all_ips_block_peer_set()
+            if dst_peers_no_ip:
+                conns_res &= TcpLikeProperties.make_tcp_like_properties(self.peer_container, dst_peers=dst_peers_no_ip,
+                                                                        protocols=protocols)
+            else:
+                conns_res = TcpLikeProperties.make_empty_properties(self.peer_container)
 
         return conns_res
 

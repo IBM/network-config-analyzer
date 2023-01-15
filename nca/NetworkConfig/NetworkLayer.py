@@ -282,6 +282,7 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         base_peer_set.add(IpBlock.get_all_ips_block())
         base_peer_set_no_hep = PeerSet(set([peer for peer in base_peer_set if not isinstance(peer, HostEP)]))
         if is_ingress:
+            # TODO - probably captured_dst_peers1 and captured_dst_peers2 calculation is redundant (all included in add_to_captured)
             captured_dst_peers1 = allowed_conn.project_on_one_dimension('dst_peers') if allowed_conn else PeerSet()
             captured_dst_peers2 = denied_conns.project_on_one_dimension('dst_peers') if denied_conns else PeerSet()
             captured_dst_peers = captured_dst_peers1 | captured_dst_peers2 | add_to_captured
@@ -292,7 +293,7 @@ class K8sCalicoNetworkLayer(NetworkLayer):
                                                                src_peers=base_peer_set,
                                                                dst_peers=non_captured_dst_peers,
                                                                exclude_same_src_dst_peers=False)
-                allowed_conn = (allowed_conn | non_captured_conns) if allowed_conn else non_captured_conns
+                allowed_conn |= non_captured_conns
         else:
             captured_src_peers1 = allowed_conn.project_on_one_dimension('src_peers') if allowed_conn else PeerSet()
             captured_src_peers2 = denied_conns.project_on_one_dimension('src_peers') if denied_conns else PeerSet()
@@ -304,7 +305,7 @@ class K8sCalicoNetworkLayer(NetworkLayer):
                                                                src_peers=non_captured_src_peers,
                                                                dst_peers=base_peer_set,
                                                                exclude_same_src_dst_peers=False)
-                allowed_conn = (allowed_conn | non_captured_conns) if allowed_conn else non_captured_conns
+                allowed_conn |= non_captured_conns
 
         return allowed_conn, denied_conns
 
@@ -329,8 +330,24 @@ class IstioNetworkLayer(NetworkLayer):
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
-        return self.collect_policies_conns_optimized(is_ingress)
-
+        allowed_conn, denied_conns, captured = self.collect_policies_conns_optimized(is_ingress)
+        base_peer_set = peer_container.peer_set.copy()
+        base_peer_set.add(IpBlock.get_all_ips_block())
+        if is_ingress:
+            non_captured_peers = base_peer_set - captured
+            if non_captured_peers:
+                non_captured_conns = \
+                    TcpLikeProperties.make_tcp_like_properties(peer_container,
+                                                               src_peers=base_peer_set, dst_peers=non_captured_peers,
+                                                               exclude_same_src_dst_peers=False)
+                allowed_conn |= non_captured_conns
+        else:
+            non_captured_conns = \
+                TcpLikeProperties.make_tcp_like_properties(peer_container,
+                                                           src_peers=base_peer_set, dst_peers=base_peer_set,
+                                                           exclude_same_src_dst_peers=False)
+            allowed_conn |= non_captured_conns
+        return allowed_conn, denied_conns
 
 class IngressNetworkLayer(NetworkLayer):
 

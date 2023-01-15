@@ -92,6 +92,27 @@ class IstioNetworkPolicy(NetworkPolicy):
 
         return PolicyConnections(True, allowed_conns, denied_conns)
 
+    def allowed_connections_optimized(self, is_ingress):
+        """
+        Evaluate the set of connections this policy allows/denied/passed between any two peers
+        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
+        :return: A TcpLikeProperties object containing all allowed connections for relevant peers,
+        TcpLikeProperties object containing all denied connections,
+        and the peer set of captured peers that are not a part of allowed connections.
+        :rtype: tuple (TcpLikeProperties, TcpLikeProperties, PeerSet)
+        """
+        if is_ingress:
+            allowed = self.optimized_ingress_props.copy()
+            denied = self.optimized_denied_ingress_props.copy()
+            captured = self.selected_peers if \
+                (self.affects_ingress and self.action == IstioNetworkPolicy.ActionType.Allow) else PeerSet()
+        else:
+            allowed = self.optimized_egress_props.copy()
+            denied = self.optimized_denied_egress_props.copy()
+            captured = self.selected_peers if \
+                (self.affects_egress and self.action == IstioNetworkPolicy.ActionType.Allow) else PeerSet()
+        return allowed, denied, captured
+
     def referenced_ip_blocks(self):
         """
         :return: A set of all ipblocks referenced in one of the policy rules (one Peer object per one ip range)

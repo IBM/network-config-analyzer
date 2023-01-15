@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from .CanonicalIntervalSet import CanonicalIntervalSet
-from .PortSet import PortSet
 from .TcpLikeProperties import TcpLikeProperties
 from .ICMPDataSet import ICMPDataSet
 from .ProtocolNameResolver import ProtocolNameResolver
+from .ProtocolSet import ProtocolSet
 
 
 class ConnectionSet:
@@ -543,6 +543,18 @@ class ConnectionSet:
                     ProtocolNameResolver.get_protocol_name(protocol) + ' while ' + self_name + ' does not.'
 
         return 'No diff.'
+
+    def convert_to_tcp_like_properties(self, peer_container):
+        if self.allow_all:
+            return TcpLikeProperties.make_all_properties(peer_container)
+
+        res = TcpLikeProperties.make_empty_properties(peer_container)
+        for protocol, properties in self.allowed_protocols.items():
+            protocols = ProtocolSet()
+            protocols.add_protocol(protocol)
+            this_prop = TcpLikeProperties.make_tcp_like_properties(peer_container, protocols=protocols)
+            res |= (this_prop & properties)
+        return res
 
     @staticmethod
     def get_all_tcp_connections():
