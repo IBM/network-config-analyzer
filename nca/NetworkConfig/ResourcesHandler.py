@@ -67,11 +67,14 @@ class ResourcesHandler:
         """
         configuration_addons = []
         path = os.path.dirname(__file__)
+
         # find kube-dns reference
-        if 'kube-system' in policy_finder.missing_pods_with_labels.values() or \
-                policy_finder.missing_pods_with_labels.get('k8s-app') == 'kube-dns':
-            configuration_addons.append(os.path.join(path, LiveSimPaths.DnsCfgPath))
-            NcaLogger().log_message('Found missing elements - adding complementary kube-dns elements', level='I')
+        labels_found = ResourcesParser.parse_livesim_yamls(os.path.join(path, LiveSimPaths.DnsCfgPath))
+        for key, value in policy_finder.missing_dns_pods_with_labels.items():
+            if (key, value) in labels_found.items():
+                configuration_addons.append(os.path.join(path, LiveSimPaths.DnsCfgPath))
+                NcaLogger().log_message('Found missing elements - adding complementary kube-dns elements', level='I')
+                break
 
         # find ingress controller pods
         if policy_finder.missing_k8s_ingress_peers:
@@ -79,9 +82,13 @@ class ResourcesHandler:
             NcaLogger().log_message('Found missing elements - adding complementary ingress controller elements', level='I')
 
         # find Istio ingress gateway
-        if policy_finder.missing_istio_gw_peers:
-            configuration_addons.append(os.path.join(path, LiveSimPaths.IstioGwCfgPath))
-            NcaLogger().log_message('Found missing elements - adding complementary Istio ingress gateway elements', level='I')
+        labels_found = ResourcesParser.parse_livesim_yamls(os.path.join(path, LiveSimPaths.IstioGwCfgPath))
+        for key, value in policy_finder.missing_istio_gw_pods_with_labels.items():
+            if (key, value) in labels_found.items():
+                configuration_addons.append(os.path.join(path, LiveSimPaths.IstioGwCfgPath))
+                NcaLogger().log_message('Found missing elements - adding complementary Istio ingress gateway elements',
+                                        level='I')
+                break
 
         return configuration_addons
 
@@ -309,6 +316,35 @@ class ResourcesParser:
             self.try_to_load_topology_from_live_cluster([ResourceType.Policies])
 
         return config_name
+
+    @staticmethod
+    def parse_livesim_yamls(path):
+        resource_scanner = TreeScannerFactory.get_scanner(path)
+        yaml_files = resource_scanner.get_yamls()
+
+        pods_finder = PodsFinder()
+        ns_finder = NamespacesFinder()
+        labels_found = {}
+
+        for yaml_file in yaml_files:
+            try:
+                for res_code in yaml_file.data:
+                    ns_finder.parse_yaml_code_for_ns(res_code)
+                    pods_finder.namespaces_finder = ns_finder
+                    pods_finder.add_eps_from_yaml(res_code)
+
+            except error.MarkedYAMLError as prs_err:
+                print(
+                    f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
+                    'Parse Error:', prs_err.problem, file=stderr)
+            except UnicodeDecodeError as decode_err:
+                print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}')
+
+        for item in ns_finder.namespaces.values():
+            labels_found.update(item.labels)
+        for item in pods_finder.peer_set:
+            labels_found.update(item.labels)
+        return labels_found
 
     def _parse_resources_path(self, resource_list, resource_flags):
         """

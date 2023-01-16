@@ -25,9 +25,9 @@ class PoliciesFinder:
         self.policies_container = PoliciesContainer()
         self._parse_queue = deque()
         self.peer_container = None
-        self.missing_istio_gw_peers = False
+        self.missing_istio_gw_pods_with_labels = {}
         self.missing_k8s_ingress_peers = False
-        self.missing_pods_with_labels = {}
+        self.missing_dns_pods_with_labels = {}
 
     def set_peer_container(self, peer_container):
         """
@@ -73,7 +73,7 @@ class PoliciesFinder:
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
-                self.missing_pods_with_labels.update(parsed_element.missing_pods_with_labels)
+                self.missing_dns_pods_with_labels.update(parsed_element.missing_dns_pods_with_labels)
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
@@ -88,7 +88,7 @@ class PoliciesFinder:
                 if not istio_traffic_parser:
                     istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)
                 istio_traffic_parser.parse_gateway(policy, file_name)
-                self.missing_istio_gw_peers |= istio_traffic_parser.missing_istio_gw_peers
+                self.missing_istio_gw_pods_with_labels.update(istio_traffic_parser.missing_istio_gw_pods_with_labels)
             elif policy_type == NetworkPolicy.PolicyType.VirtualService:
                 if not istio_traffic_parser:
                     istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)

@@ -244,12 +244,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
                                                                                     True)
         # TODO extend to other ingress controllers
-        ingress_controllers = ['ingress-nginx']
-        for name in ingress_controllers:
-            res_policy.selected_peers = \
-                self.peer_container.get_pods_with_service_name_containing_given_string(name)
-            if res_policy.selected_peers:
-                break
+        res_policy.selected_peers = \
+            self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
         if not res_policy.selected_peers:
             self.missing_k8s_ingress_peers = True
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")

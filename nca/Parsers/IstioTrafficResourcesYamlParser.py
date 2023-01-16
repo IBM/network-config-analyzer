@@ -28,7 +28,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         self.namespace = None
         self.gateways = {}  # a map from a name to a Gateway
         self.virtual_services = {}  # a map from a name to a VirtualService
-        self.missing_istio_gw_peers = None
+        self.missing_istio_gw_pods_with_labels = {}
 
     def add_gateway(self, gateway):
         """
@@ -65,26 +65,16 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         self.check_fields_validity(gtw_spec, f'the spec of Gateway {gateway.full_name()}',
                                    {'selector': [1, dict], 'servers': [1, list]})
         selector = gtw_spec['selector']
-        # check if istio gateway peers are present
-        istio_gw_labels = {'istio': 'ingressgateway', 'app': 'istio-ingressgateway'}
-        for key, val in istio_gw_labels.items():
-            if selector.get(key) == val:
-                if self.peer_container.get_peers_with_label(key, [val]):
-                    self.missing_istio_gw_peers = False
-                    break
-                else:
-                    self.missing_istio_gw_peers = True
-
         peers = self.peer_container.get_all_peers_group()
         for key, val in selector.items():
-            peers &= self.peer_container.get_peers_with_label(key, [val])
+            selector_peers = self.peer_container.get_peers_with_label(key, [val])
+            if not selector_peers:
+                self.missing_istio_gw_pods_with_labels[key] = val
+            else:
+                peers &= selector_peers
         if not peers:
             self.warning(f'selector {selector} does not reference any pods in Gateway {gtw_name}. Ignoring the gateway')
-            if not self.missing_istio_gw_peers:
-                self.missing_istio_gw_peers = True
             return
-        else:
-            self.missing_istio_gw_peers = False
 
         gateway.peers = peers
         self.parse_gateway_servers(gtw_name, gtw_spec, gateway)
