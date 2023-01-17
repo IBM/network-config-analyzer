@@ -63,8 +63,8 @@ otherwise, an empty peer container is created
 At those case, nca will add complimentary configurations to make the topology and the connectivity whole. 
 - fine-tune of the configurations can be made in dedicated yaml files.
 
-| Missing Element        | Element name when added to the topology  | Configuration yaml file location                  |
-|------------------------|------------------------------------------|---------------------------------------------------|
-| kube-dns               | kube-dns-livesim                         | nca.NetworkConfig.LiveSim.dns_pods.yaml           |
-| ingress controller     | ingress-controller-livesim               | nca.NetworkConfig.LiveSim.ingress_controller.yaml |
-| Istio ingress gateway  | istio-ingressgateway-livesim             | nca.NetworkConfig.LiveSim.istio_gateway.yaml      |
+| Missing Element        | Element name when added to the topology  | Configuration yaml file location             |
+|------------------------|------------------------------------------|----------------------------------------------|
+| kube-dns               | kube-dns-livesim                         | nca.NetworkConfig.LiveSim.dns_pods           |
+| ingress controller     | ingress-controller-livesim               | nca.NetworkConfig.LiveSim.ingress_controller |
+| Istio ingress gateway  | istio-ingressgateway-livesim             | nca.NetworkConfig.LiveSim.istio_gateway      |
