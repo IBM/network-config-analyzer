@@ -8,6 +8,7 @@ istio_testcases/example_policies/bookinfo-demo/bookinfo-test-equiv-scheme.yaml,0
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-principals-scheme.yaml,0.23
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-request-attrs-scheme.yaml,7.54
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-sidecar-tests-scheme.yaml,1.01
+istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-test-sidecar-connectivity-scheme.yaml,0.19
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/global-sidecar-permits-test-scheme.yaml,0.06
 istio_testcases/example_policies/bookinfo-from-live-cluster/connectivity-map-by-deployments-scheme.yaml,0.34
 istio_testcases/example_policies/complex-ingress-test/complex-istio-ingress-test-scheme.yaml,1.58
