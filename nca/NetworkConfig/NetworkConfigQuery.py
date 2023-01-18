@@ -881,7 +881,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :rtype: NetworkConfig
         """
         if NetworkLayerName.Ingress not in config.policies_container.layers or not config.policies_container.layers[
-            NetworkLayerName.Ingress].policies_list:
+                NetworkLayerName.Ingress].policies_list:
             return config  # no ingress policies in this config
         config_without_ingress = config.clone_without_policies(config.name)
         for policy in config.policies_container.policies.values():

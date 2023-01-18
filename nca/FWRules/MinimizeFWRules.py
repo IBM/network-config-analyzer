@@ -658,6 +658,8 @@ class MinimizeFWRules:
         """
         :param add_txt_header: bool flag to indicate if header of fw-rules query should be added in txt format
         :param add_csv_header: bool flag to indicate if header csv should be added in csv format
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
         :return: a string or dict representing the computed minimized fw-rules (in a supported format txt/yaml/csv)
         :rtype: Union[str, dict]
         """
@@ -676,6 +678,8 @@ class MinimizeFWRules:
         :param req_format: a string of the required format, should be in FWRule.supported_formats
         :param add_txt_header:  bool flag to indicate if header of fw-rules query should be added in txt format
         :param add_csv_header: bool flag to indicate if header csv should be added in csv format
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
         :return: a dict of the fw-rules if the required format is json or yaml, else
         a string of the query name + fw-rules in the required format
         :rtype: Union[str, dict]
