@@ -1,7 +1,16 @@
-final fw rules for query: frontend_sidecar_connectivity_map, config: frontend_sidecar:
+For connections of type TCP, final fw rules for query: frontend_sidecar_connectivity_map, config: frontend_sidecar:
 src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: TCP
 src: ::/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: TCP
+src_ns: [asm-ingress] src_pods: [*] dst: 0.0.0.0/0 conn: TCP
+src_ns: [asm-ingress] src_pods: [*] dst: ::/0 conn: TCP
 src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress,default] dst_pods: [*] conn: TCP
-src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app not in (emailservice,frontend,loadgenerator,paymentservice)] conn: TCP
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app not in (emailservice,loadgenerator,paymentservice)] conn: TCP
+src_ns: [default] src_pods: [app!=frontend] dst: 0.0.0.0/0 conn: TCP
+src_ns: [default] src_pods: [app!=frontend] dst: ::/0 conn: TCP
 src_ns: [default] src_pods: [app!=frontend] dst_ns: [asm-ingress,default] dst_pods: [*] conn: TCP
+For connections of type non-TCP, final fw rules for query: frontend_sidecar_connectivity_map, config: frontend_sidecar:
+src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All but TCP
+src: ::/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All but TCP
+src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All but TCP
+src_ns: [asm-ingress,default] src_pods: [*] dst: ::/0 conn: All but TCP
+src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [asm-ingress,default] dst_pods: [*] conn: All but TCP

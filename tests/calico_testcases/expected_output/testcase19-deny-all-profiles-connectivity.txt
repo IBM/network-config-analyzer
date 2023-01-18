@@ -7,4 +7,3 @@ src_ns: [cnc-pdf-tool] src_pods: [*] dst_ns: [cnc-pdf-tool] dst_pods: [*] conn: 
 src_ns: [ctighs-va] src_pods: [*] dst_ns: [ctighs-va] dst_pods: [*] conn: All connections
 src_ns: [ctighs] src_pods: [*] dst_ns: [ctighs] dst_pods: [*] conn: All connections
 src_ns: [operia-benchmark] src_pods: [*] dst_ns: [operia-benchmark] dst_pods: [*] conn: All connections
-

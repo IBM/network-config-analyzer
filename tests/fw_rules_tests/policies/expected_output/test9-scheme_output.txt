@@ -10,4 +10,3 @@ src_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pod
 src_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default] dst_pods: [app=skydive and tier=analyzer] conn: All connections
 src_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
-

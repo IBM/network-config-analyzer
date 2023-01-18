@@ -14,4 +14,3 @@
 ||[default]|[frontend]|[default]|[recommendationservice]|TCP 8080|
 ||[default]|[loadgenerator]|[default]|[frontend]|TCP 8080|
 ||[default]|[frontend]|[default]|[adservice]|TCP 9555|
-

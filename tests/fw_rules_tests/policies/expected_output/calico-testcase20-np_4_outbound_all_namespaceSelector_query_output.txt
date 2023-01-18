@@ -12,4 +12,3 @@ src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [None] dst_pods: [vendor.role=worker_public] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
-

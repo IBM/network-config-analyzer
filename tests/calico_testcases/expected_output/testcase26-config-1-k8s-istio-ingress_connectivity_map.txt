@@ -1,24 +1,30 @@
-final fw rules for query: connectivity-2, config: testcase26-config-1-k8s-istio-ingress:
-src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All but TCP
-src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app!=productpage] conn: All connections
-src: 0.0.0.0/0 dst_ns: [ingress-nginx,istio-system] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [default] dst_pods: [*] conn: All but TCP
-src: ::/0 dst_ns: [default] dst_pods: [app!=productpage] conn: All connections
-src: ::/0 dst_ns: [ingress-nginx,istio-system] dst_pods: [*] conn: All connections
-src_ns: [default,istio-system] src_pods: [*] dst_ns: [default] dst_pods: [ratings-v1-b6994bb9] conn: All connections
-src_ns: [default] src_pods: [app in (details,reviews)] dst_ns: [default] dst_pods: [*] conn: All but TCP
-src_ns: [default] src_pods: [app in (details,reviews)] dst_ns: [default] dst_pods: [app=reviews] conn: All connections
-src_ns: [default] src_pods: [app!=ratings] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [app!=ratings] dst: ::/0 conn: All connections
-src_ns: [default] src_pods: [app!=ratings] dst_ns: [ingress-nginx,istio-system] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [app=reviews] dst_ns: [default] dst_pods: [details-v1-79f774bdb9] conn: All connections
-src_ns: [default] src_pods: [productpage-v1-6b746f74dc] dst_ns: [default] dst_pods: [*] conn: All connections
-src_ns: [default] src_pods: [ratings-v1-b6994bb9] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: All but TCP {'methods': 'all but GET'}
-src_ns: [ingress-nginx,istio-system] src_pods: [*] dst_ns: [ingress-nginx] dst_pods: [*] conn: All connections
+For connections of type TCP, final fw rules for query: connectivity-2, config: testcase26-config-1-k8s-istio-ingress:
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app!=productpage] conn: TCP
+src: 0.0.0.0/0 dst_ns: [ingress-nginx,istio-system] dst_pods: [*] conn: TCP
+src: ::/0 dst_ns: [default] dst_pods: [app!=productpage] conn: TCP
+src: ::/0 dst_ns: [ingress-nginx,istio-system] dst_pods: [*] conn: TCP
+src_ns: [default,istio-system] src_pods: [*] dst_ns: [default] dst_pods: [ratings-v1-b6994bb9] conn: TCP
+src_ns: [default] src_pods: [app in (details,reviews)] dst_ns: [default] dst_pods: [app=reviews] conn: TCP
+src_ns: [default] src_pods: [app!=ratings] dst: 0.0.0.0/0 conn: TCP
+src_ns: [default] src_pods: [app!=ratings] dst: ::/0 conn: TCP
+src_ns: [default] src_pods: [app!=ratings] dst_ns: [ingress-nginx,istio-system] dst_pods: [*] conn: TCP
+src_ns: [default] src_pods: [app=reviews] dst_ns: [default] dst_pods: [details-v1-79f774bdb9] conn: TCP
+src_ns: [default] src_pods: [productpage-v1-6b746f74dc] dst_ns: [default] dst_pods: [*] conn: TCP
+src_ns: [default] src_pods: [ratings-v1-b6994bb9] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: TCP {'methods': 'GET'}
+src_ns: [ingress-nginx,istio-system] src_pods: [*] dst_ns: [ingress-nginx] dst_pods: [*] conn: TCP
 src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [details-v1-79f774bdb9] conn: TCP {'dst_ports': '9080', 'paths': '/details(/[\\--9A-Z_a-z]*)?'}
-src_ns: [istio-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [istio-system] src_pods: [*] dst: ::/0 conn: All connections
-src_ns: [istio-system] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All but TCP
-src_ns: [istio-system] src_pods: [*] dst_ns: [default] dst_pods: [app in (details,reviews)] conn: All connections
-src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
-
+src_ns: [istio-system] src_pods: [*] dst: 0.0.0.0/0 conn: TCP
+src_ns: [istio-system] src_pods: [*] dst: ::/0 conn: TCP
+src_ns: [istio-system] src_pods: [*] dst_ns: [default] dst_pods: [app in (details,reviews)] conn: TCP
+src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: TCP
+For connections of type non-TCP, final fw rules for query: connectivity-2, config: testcase26-config-1-k8s-istio-ingress:
+src: 0.0.0.0/0 dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All but TCP
+src: ::/0 dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All but TCP
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app in (productpage,ratings)] conn: All but TCP
+src_ns: [default] src_pods: [app!=ratings] dst: 0.0.0.0/0 conn: All but TCP
+src_ns: [default] src_pods: [app!=ratings] dst: ::/0 conn: All but TCP
+src_ns: [default] src_pods: [app!=ratings] dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All but TCP
+src_ns: [ingress-nginx,istio-system] src_pods: [*] dst_ns: [ingress-nginx] dst_pods: [*] conn: All but TCP
+src_ns: [istio-system] src_pods: [*] dst: 0.0.0.0/0 conn: All but TCP
+src_ns: [istio-system] src_pods: [*] dst: ::/0 conn: All but TCP
+src_ns: [istio-system] src_pods: [*] dst_ns: [default,istio-system] dst_pods: [*] conn: All but TCP

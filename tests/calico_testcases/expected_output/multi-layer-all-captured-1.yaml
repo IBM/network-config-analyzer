@@ -5,7 +5,7 @@
   textual_result: There are workload resources not captured by any k8s/calico policy
     in testcase26-config-1-k8s-istio-ingress
   explanation:
-  - description: workload resources that are not captured by any policy that affects 
+  - description: workload resources that are not captured by any policy that affects
       ingress
     pods:
     - default/details-v1(Deployment-StatefulSet)
@@ -16,7 +16,7 @@
     - default/reviews-v3(Deployment-StatefulSet)
     - ingress-nginx/ingress-nginx-controller(Deployment-StatefulSet)
     - istio-system/istio-ingressgateway(Deployment-StatefulSet)
-  - description: workload resources that are not captured by any policy that affects 
+  - description: workload resources that are not captured by any policy that affects
       egress
     pods:
     - default/details-v1(Deployment-StatefulSet)

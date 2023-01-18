@@ -1,4 +1,4 @@
-final fw rules for query: connectivity-map-default-sidecar-1, config: bookinfo-default-sidecar-1:
+For connections of type TCP, final fw rules for query: connectivity-map-default-sidecar-1, config: bookinfo-default-sidecar-1:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: TCP
 src: ::/0 dst_ns: [default] dst_pods: [*] conn: TCP
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [details-v1] conn: TCP
@@ -7,3 +7,9 @@ src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [reviews-v1] conn: T
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [reviews-v2] conn: TCP
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [reviews-v3] conn: TCP
 src_ns: [default] src_pods: [productpage-v1] dst_ns: [default] dst_pods: [*] conn: TCP
+For connections of type non-TCP, final fw rules for query: connectivity-map-default-sidecar-1, config: bookinfo-default-sidecar-1:
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All but TCP
+src: ::/0 dst_ns: [default] dst_pods: [*] conn: All but TCP
+src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All but TCP
+src_ns: [default] src_pods: [*] dst: ::/0 conn: All but TCP
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All but TCP

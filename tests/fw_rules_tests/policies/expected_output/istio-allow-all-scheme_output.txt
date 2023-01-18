@@ -1,5 +1,12 @@
-final fw rules for query: istio-allow-all, config: istio-allow-all:
+For connections of type TCP, final fw rules for query: istio-allow-all, config: istio-allow-all:
 src: 0.0.0.0/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP
 src: ::/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: TCP
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: ::/0 conn: TCP
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP
-
+For connections of type non-TCP, final fw rules for query: istio-allow-all, config: istio-allow-all:
+src: 0.0.0.0/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All but TCP
+src: ::/0 dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All but TCP
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: All but TCP
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: ::/0 conn: All but TCP
+src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All but TCP
