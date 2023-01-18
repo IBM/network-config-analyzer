@@ -6,6 +6,7 @@ metadata:
     app: istio-ingressgateway
     istio: ingressgateway
 spec:
+  serviceAccountName: istio-ingressgateway
   containers:
   - name: istio-proxy
     image: auto

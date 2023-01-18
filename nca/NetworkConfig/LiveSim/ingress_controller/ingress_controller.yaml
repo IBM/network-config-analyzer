@@ -1,7 +1,15 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingress-controller-ns
+  labels:
+    name: ingress-controller-ns
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: ingress-nginx
+  namespace: ingress-controller-ns
 spec:
   selector:
     app: ingress-nginx
@@ -12,6 +20,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: ingress-controller-livesim
+  namespace: ingress-controller-ns
   labels:
     app: ingress-nginx
 spec:
