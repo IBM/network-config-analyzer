@@ -14,7 +14,7 @@ class IstioSidecarRule:
     A class representing a single egress rule (IstioEgressListener) in an Istio Sidecar object
     """
 
-    def __init__(self, peer_set, peers_for_ns_compare):
+    def __init__(self, peer_set=None, peers_for_ns_compare=None, allow_all=False):
         """
         Init the Egress rule of an Istio Sidecar
         :param Peer.PeerSet peer_set: The set of mesh internal peers this rule allows connection to
@@ -25,6 +25,8 @@ class IstioSidecarRule:
         self.special_egress_peer_set = peers_for_ns_compare  # set of peers captured by a global sidecar with hosts of
         # './<any>' form - then peers in this set will be in allowed connections
         # only if are in the same namespace of the source peer captured by the sidecar
+        self.allow_all = allow_all  # will be true if sidecar's outboundMode is allow_any and hosts in this rule
+        # are of the form */*  - in this case the above peer sets will be empty
 
 
 class IstioSidecar(NetworkPolicy):
@@ -60,8 +62,8 @@ class IstioSidecar(NetworkPolicy):
         conns = ConnectionSet(True)
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
-            if to_peer in rule.egress_peer_set or \
-                    (to_peer in rule.special_egress_peer_set and from_peer.namespace == to_peer.namespace):
+            if rule.allow_all or to_peer in rule.egress_peer_set or \
+                    (to_peer in rule.special_egress_peer_set and self.check_peers_in_same_namespace(from_peer, to_peer)):
                 return PolicyConnections(True, allowed_conns=conns)
 
         # egress from from_peer to to_peer is not allowed : if to_peer not been captured in the rules' egress_peer_set,
@@ -79,7 +81,7 @@ class IstioSidecar(NetworkPolicy):
         empty_egress_rules = set()
         full_name = self.full_name(config_name)
         for rule_index, egress_rule in enumerate(self.egress_rules, start=1):
-            if not egress_rule.egress_peer_set:
+            if not egress_rule.allow_all and not egress_rule.egress_peer_set:
                 emptiness = f'Rule no. {rule_index} in Sidecar {full_name} does not select any pods/services'
                 emptiness_explanation.append(emptiness)
                 empty_egress_rules.add(rule_index)
@@ -135,3 +137,12 @@ class IstioSidecar(NetworkPolicy):
                         self == self.namespace.prior_default_sidecar:
                     return True
         return False
+
+    @staticmethod
+    def check_peers_in_same_namespace(from_peer, to_peer):
+        # a captured from_peer is always internal
+        from_ns = from_peer.namespace
+        if to_peer.namespace:
+            return from_ns == to_peer.namespace
+        # else to_peer is a DNSEntry
+        return '*' in to_peer.namespaces or from_ns in to_peer.namespaces

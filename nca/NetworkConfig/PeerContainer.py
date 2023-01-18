@@ -4,9 +4,9 @@
 #
 
 from sys import stderr
-from nca.CoreDS.Peer import PeerSet, Pod, IpBlock
+from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, DNSEntry
 from nca.Resources.K8sNamespace import K8sNamespace
-from nca.Resources.K8sService import K8sService
+from nca.Resources.ServiceResource import ServiceResource, K8sService
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 
 
@@ -204,6 +204,13 @@ class PeerContainer:
                 res |= service.target_pods
         return res
 
+    def get_dns_entry_pods_matching_host_dfa(self, host_dfa):
+        res = PeerSet()
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry) and peer.host_mindfa.__contains__(host_dfa):
+                res.add(peer)
+        return res
+
     def get_pods_with_service_name_containing_given_string(self, name_substring):
         """
         Returns all pods that belong to services whose name contains the given substring
@@ -234,7 +241,7 @@ class PeerContainer:
         """
         res = PeerSet()
         for service in self.services.values():
-            if service.namespace == namespace:
+            if service.is_service_exported_to_namespace(namespace):
                 res |= service.target_pods
         return res
 
@@ -303,44 +310,45 @@ class PeerContainer:
         Returns a service with a given name and a given namespace
         :param name: the service name
         :param ns: the service namespace
-        :return: The K8sService object
+        :return: The ServiceResource object
         """
-        full_name = K8sService.service_full_name(name, ns)
+        full_name = ServiceResource.service_full_name(name, ns)
         return self.services.get(full_name)
 
     def _set_services_and_populate_target_pods(self, service_list):
         """
-        Populates services from the given service list,
-        and for every service computes and populates its target pods
-        :param list[k8sService] service_list: list of service in K8sService format
+        Populates self.services from the given service list,
+        and for every k8s service computes and populates its target pods
+        :param list service_list: list of services parsed from input resources
         :return: None
         """
         for srv in service_list:
-            # populate target ports
-            if srv.selector:
-                srv.target_pods = self.peer_set
-            for key, val in srv.selector.items():
-                srv.namespace = self.get_namespace(srv.namespace_name)
-                srv.target_pods &= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
-                                                             srv.namespace)
-            # remove target_pods that don't contain named ports referenced by target_ports
-            for port in srv.ports.values():
-                if not isinstance(port.target_port, str):
-                    continue
-                # check if all pods include this named port, and remove those that don't
-                pods_to_remove = PeerSet()
-                for pod in srv.target_pods:
-                    pod_named_port = pod.named_ports.get(port.target_port)
-                    if not pod_named_port:
-                        print(f'Warning: The named port {port.target_port} referenced in Service {srv.name}'
-                              f' is not defined in the pod {pod}. Ignoring the pod')
-                        pods_to_remove.add(pod)
-                    elif pod_named_port[1] != port.protocol:
-                        print(f'Warning: The protocol {port.protocol} in the named port {port.target_port} '
-                              f'referenced in Service {srv.name} does not match the protocol {pod_named_port[1]} '
-                              f'defined in the pod {pod}. Ignoring the pod')
-                        pods_to_remove.add(pod)
-                srv.target_pods -= pods_to_remove
-            if not srv.target_pods:
-                print(f'Warning: The service {srv.name} does not reference any pod')
-            self.services[srv.full_name()] = srv
+            # for k8s services only
+            if isinstance(srv, K8sService):
+                # populate target ports
+                if srv.selector:
+                    srv.target_pods = self.peer_set
+                for key, val in srv.selector.items():
+                    srv.target_pods &= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
+                                                                 srv.namespace)
+                # remove target_pods that don't contain named ports referenced by target_ports
+                for port in srv.ports.values():
+                    if not isinstance(port.target_port, str):
+                        continue
+                    # check if all pods include this named port, and remove those that don't
+                    pods_to_remove = PeerSet()
+                    for pod in srv.target_pods:
+                        pod_named_port = pod.named_ports.get(port.target_port)
+                        if not pod_named_port:
+                            print(f'Warning: The named port {port.target_port} referenced in Service {srv.name}'
+                                  f' is not defined in the pod {pod}. Ignoring the pod')
+                            pods_to_remove.add(pod)
+                        elif pod_named_port[1] != port.protocol:
+                            print(f'Warning: The protocol {port.protocol} in the named port {port.target_port} '
+                                  f'referenced in Service {srv.name} does not match the protocol {pod_named_port[1]} '
+                                  f'defined in the pod {pod}. Ignoring the pod')
+                            pods_to_remove.add(pod)
+                    srv.target_pods -= pods_to_remove
+                if not srv.target_pods:
+                    print(f'Warning: The service {srv.name} does not reference any pod')
+            self.services[srv.full_name()] = srv  # applied to all services in the service_list

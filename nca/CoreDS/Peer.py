@@ -20,7 +20,6 @@ class Peer:
         self.namespace = namespace
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
-        self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name
@@ -66,6 +65,7 @@ class ClusterEP(Peer):
         super().__init__(name, namespace)
         self.named_ports = {}  # A map from port name to the port number and its protocol
         self.profiles = []  # The set of attached profiles (Calico only)
+        self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
@@ -438,6 +438,25 @@ class IpBlock(Peer, CanonicalIntervalSet):
             res.add(IpBlock.get_all_ips_block())
 
         return res
+
+
+class DNSEntry(Peer):
+
+    def __init__(self, host_mindfa=None, name=None, namespace=None):
+        Peer.__init__(self, name, namespace)
+        self.host_mindfa = host_mindfa
+        self.namespaces = []  # list of namespaces the peer is exported to,
+        # if the peer appears in multiple service-entries, this list should include all namespaces that these
+        # service-entries are exported to
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def update_namespaces(self, namespaces):
+        self.namespaces.extend(namespaces)
 
 
 class PeerSet(set):

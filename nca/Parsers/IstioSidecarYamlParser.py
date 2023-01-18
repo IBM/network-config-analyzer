@@ -73,37 +73,47 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             if not ((dns_name.startswith('*.') and dns_name.count('*') == 1) or dns_name == '*'):
                 self.syntax_error(f'Illegal host value pattern: "{dns_name}"', self)
             if dns_name.startswith('*.'):
-                alphabet_str = dns_name.split('*')[1]
+                alphabet_str = dns_name.split('*.')[1]
 
-        # currently dnsName pattern supported is of "internal" services only (i.e. k8s service)
-        # the dnsName in this case form looks like <service_name>.<domain>.svc.cluster.local
-        # also FQDN is of the format [hostname].[domain].[tld]
+        # the dnsName in the internal case form looks like <service_name>.<domain>.svc.cluster.local
+        # also FQDN for external hosts is of the format [hostname].[domain].[tld]
         if alphabet_str:
             fqdn_regex = "^((?!-)[A-Za-z0-9-]+(?<!-).)+[A-Za-z0-9.]+"
             if alphabet_str.count('.') == 0 or not re.fullmatch(fqdn_regex, alphabet_str):
                 self.syntax_error(f'Illegal host value pattern: "{dns_name}", '
                                   f'dnsName must be specified using FQDN format', self)
 
-    def _get_peers_from_host_dns_name(self, dns_name):
+    def _get_peers_from_host_dns_name(self, dns_name, host_peers):
         """
         Return the workload instances of the service in the given dns_name
         :param str dns_name: the service given in the host
         :rtype: PeerSet
         """
-        # supported dns_name format is fqdn with internal k8s services pattern
-        # <service_name>.<domain>.svc.cluster.local
+        # supported dns_name format is fqdn with:
+        # 1. internal k8s services pattern <service_name>.<domain>.svc.cluster.local,
         # the only relevant part of it is <service_name>
-        service_name = dns_name.split('.')[0]
-        return self.peer_container.get_target_pods_with_service_name(service_name)
+        # 2. external dns name (<>.<>.<>)
+        if dns_name == '*':  # * means all services in namespace, all already in host_peers
+            return host_peers
+        if 'cluster' in dns_name:  # internal service case
+            if dns_name.startswith('*.'):  # all services in namespace, already in host_peers
+                return host_peers
+            service_name = dns_name.split('.')[0]
+            return host_peers & self.peer_container.get_target_pods_with_service_name(service_name)
+        else:  # dns entry case
+            return host_peers & self.peer_container.get_dns_entry_pods_matching_host_dfa(dns_name)
+        # TODO: check and test in live cluster if there are other cases of dns_name patterns to cover
 
-    def _parse_egress_rule(self, egress_rule):
+    def _parse_egress_rule(self, egress_rule, allow_any):
         """
         Parse a single egress rule, producing a IstioSidecarRule
         :param dict egress_rule: The dict with the egress rule (IstioEgressListener) fields
+        :param bool allow_any: an indicator if the sidecar allows forwarding connections to any service, i.e.
+        to services that are not declared to the registry at all too
         :return: A IstioSidecarRule with the proper PeerSet
         :rtype: IstioSidecarRule
         """
-        # currently only hosts is considered in the rule parsing, other fields are not supported
+        # currently only hosts is considered in the rule parsing, other fields are ignored
         allowed_keys = {'port': [3, dict], 'bind': [3, str], 'captureMode': [3, str], 'hosts': [1, list]}
         self.check_fields_validity(egress_rule, 'Istio Egress Listener', allowed_keys)
 
@@ -115,11 +125,13 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         for host in hosts:
             # Services in the specified namespace matching dnsName will be exposed.
             namespace, dns_name = self._validate_and_partition_host_format(host)
+            # special case of allow_any with all services (not only the services in our peer container)
+            if allow_any and namespace == '*' and dns_name == '*':
+                return IstioSidecarRule(allow_all=True)
             host_peers, special_case_host = self._get_peers_from_host_namespace(namespace)
             self._validate_dns_name_pattern(dns_name)
             if host_peers:  # if there are services in the specified namespace
-                if '*' not in dns_name:  # * means all services in namespace, all already in host_peers
-                    host_peers &= self._get_peers_from_host_dns_name(dns_name)
+                host_peers = self._get_peers_from_host_dns_name(dns_name, host_peers)
             if special_case_host:
                 special_res_peers |= host_peers
             else:
@@ -152,6 +164,15 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
                 continue
             peer.prior_sidecar = curr_sidecar
 
+    def _parse_outbound_traffic_policy(self, outbound_traffic_policy):
+        # by default, istio configures the envoy proxy to passthrough requests for unknown services
+        mode = 'ALLOW_ANY'
+        if outbound_traffic_policy:
+            self.check_fields_validity(outbound_traffic_policy, 'OutboundTrafficPolicy', {'mode': [0, str]},
+                                       {'mode': ['ALLOW_ANY', 'REGISTRY_ONLY']})
+            mode = outbound_traffic_policy.get('mode', 'ALLOW_ANY')
+        return mode == 'ALLOW_ANY'
+
     def parse_policy(self):
         """
         Parses the input object to create a IstioSidecar object
@@ -171,7 +192,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress
         allowed_spec_keys = {'workloadSelector': [0, dict], 'ingress': [3, list], 'egress': [0, list],
-                             'outboundTrafficPolicy': [3, str]}
+                             'outboundTrafficPolicy': [0, str]}
         self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
 
@@ -181,6 +202,8 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             self.syntax_error('Global Sidecar configuration should not have any workloadSelector.')
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
 
+        allow_any_flag = self._parse_outbound_traffic_policy(sidecar_spec.get('OutboundTrafficPolicy'))
+
         # istio ref declares both following statements:
         # 1.sidecar with workloadSelector takes precedence on a default sidecar. Handled in the following called method
         self._check_and_save_sidecar_if_top_priority(res_policy)
@@ -188,7 +211,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         # from the namespace-wide or the global default Sidecar. However, istio does not merge User-defined sidecars.
         # (See Clarification: https://discuss.istio.io/t/istio-sidecar-doc-description-vs-live-cluster-behavior/13849)
         for egress_rule in sidecar_spec.get('egress') or []:
-            res_policy.add_egress_rule(self._parse_egress_rule(egress_rule))
+            res_policy.add_egress_rule(self._parse_egress_rule(egress_rule, allow_any_flag))
 
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels

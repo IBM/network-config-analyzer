@@ -2,12 +2,38 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+from abc import abstractmethod
 from enum import Enum
 from nca.CoreDS.Peer import PeerSet
 
 
-class K8sService:
+class ServiceResource:
+    def __init__(self, name, namespace_name):
+        self.name = name
+        self.namespace_name = namespace_name
+        # The following self.namespace is a K8sNamespace (to be retrieved from namespace_name by the ServicesFinder)
+        self.namespace = None
+        self.target_pods = PeerSet()
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def service_full_name(name, ns):
+        return ns.name + '/' + name
+
+    def full_name(self):
+        return self.service_full_name(self.name, self.namespace)
+
+    @abstractmethod
+    def is_service_exported_to_namespace(self, namespace):
+        raise NotImplementedError
+
+
+class K8sService(ServiceResource):
     """
     Represents a K8s Service, storing its parameters
     """
@@ -33,33 +59,15 @@ class K8sService:
         :param str name: a service name
         :param str namespace_name: a namespce name
         """
-        self.name = name
-        self.namespace_name = namespace_name
-        # The following self.namespace is a K8sNamespace
-        # (to be retrieved from namespace_name by PeerContainer._set_services_and_populate_target_pods)
-        self.namespace = None
+        super().__init__(name, namespace_name)
         self.type = self.ServiceType.ClusterIP
         self.selector = {}
         self.ports = {}  # a map from service port name to ServicePort object
-        self.target_pods = PeerSet()
 
     def __eq__(self, other):
         if isinstance(other, K8sService):
             return self.name == other.name and self.namespace == other.namespace
         return False
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __str__(self):
-        return self.name
-
-    @staticmethod
-    def service_full_name(name, ns):
-        return ns.name + '/' + name
-
-    def full_name(self):
-        return self.service_full_name(self.name, self.namespace)
 
     def set_type(self, service_type):
         """
@@ -100,3 +108,31 @@ class K8sService:
             return False
         self.ports[service_port.name] = service_port
         return True
+
+    def is_service_exported_to_namespace(self, namespace):
+        return self.namespace == namespace
+
+
+class IstioServiceEntry(ServiceResource):
+
+    def __init__(self, name, namespace_name):
+        super().__init__(name, namespace_name)
+        self.exported_to_all_namespaces = True
+        self.exported_to_namespaces = []  # list of namespaces names that the service entry is exported to, to be filled
+        # only if exported_to_all_namespaces is False
+
+    def update_namespaces_fields(self, ns_list=None, all_flag=False):
+        self.exported_to_all_namespaces = all_flag
+        self.exported_to_namespaces = ns_list if not all_flag else []
+
+    def add_host(self, dns_entry):
+        if dns_entry:
+            self.target_pods.add(dns_entry)
+
+    def is_service_exported_to_namespace(self, namespace):
+        return self.exported_to_all_namespaces or namespace in self.exported_to_namespaces
+
+    def update_hosts_namespaces(self):
+        namespaces = '*' if self.exported_to_all_namespaces else self.exported_to_namespaces
+        for host in self.target_pods:
+            host.update_namespaces(namespaces)
