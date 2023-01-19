@@ -4,26 +4,6 @@
   numerical_result: 0
   explanation:
   - TCP_rules:
-    - src_ns:
-      - default
-      - kube-system
-      - vendor-system
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - 0.0.0.0/0
-      connection:
-      - Protocol: TCP
-    - src_ns:
-      - default
-      - kube-system
-      - vendor-system
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
-      connection:
-      - Protocol: TCP
     - src_ip_block:
       - 1.2.3.0/24
       dst_ns:
@@ -73,6 +53,26 @@
         Ports:
         - 30
         - 50
+    - src_ns:
+      - default
+      - kube-system
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      - kube-system
+      - vendor-system
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
     non-TCP_rules:
     - src_ip_block:
       - 0.0.0.0/0
@@ -83,8 +83,7 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ip_block:
       - ::/0
       dst_ns:
@@ -94,8 +93,7 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       - kube-system
@@ -105,8 +103,7 @@
       dst_ip_block:
       - 0.0.0.0/0
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       - kube-system
@@ -116,8 +113,7 @@
       dst_ip_block:
       - ::/0
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       - kube-system
@@ -131,5 +127,4 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections

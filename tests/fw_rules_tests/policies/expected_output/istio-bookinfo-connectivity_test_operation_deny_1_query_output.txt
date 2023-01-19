@@ -1,16 +1,17 @@
 For connections of type TCP, final fw rules for query: connectivity-istio-test-operation-deny-1, config: istio-test-operation-deny-1:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'}
-src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app!=details] conn: TCP
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app!=details] conn: All connections
 src: ::/0 dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'}
-src: ::/0 dst_ns: [default] dst_pods: [app!=details] conn: TCP
-src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: TCP
-src_ns: [default] src_pods: [*] dst: ::/0 conn: TCP
+src: ::/0 dst_ns: [default] dst_pods: [app!=details] conn: All connections
+src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: TCP {'methods': 'all but GET'}
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app!=details] conn: TCP
-src_ns: [default] src_pods: [app=details] dst_ns: [default] dst_pods: [*] conn: TCP
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app!=details] conn: All connections
+src_ns: [default] src_pods: [app=details] dst_ns: [default] dst_pods: [*] conn: All connections
+
 For connections of type non-TCP, final fw rules for query: connectivity-istio-test-operation-deny-1, config: istio-test-operation-deny-1:
-src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All but TCP
-src: ::/0 dst_ns: [default] dst_pods: [*] conn: All but TCP
-src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All but TCP
-src_ns: [default] src_pods: [*] dst: ::/0 conn: All but TCP
-src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All but TCP
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections
+src: ::/0 dst_ns: [default] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [*] dst: ::/0 conn: All connections
+src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All connections

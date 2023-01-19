@@ -7,32 +7,6 @@
     - src_ns:
       - default
       src_pods:
-      - '*'
-      dst_ip_block:
-      - 0.0.0.0/0
-      connection:
-      - Protocol: TCP
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
-      connection:
-      - Protocol: TCP
-    - src_ns:
-      - default
-      src_pods:
-      - app=productpage
-      dst_ns:
-      - default
-      dst_pods:
-      - app=reviews
-      connection:
-      - Protocol: TCP
-    - src_ns:
-      - default
-      src_pods:
       - app=productpage
       dst_ns:
       - default
@@ -44,6 +18,32 @@
         - dst_ports:
           - 80
           methods: GET
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - app=productpage
+      dst_ns:
+      - default
+      dst_pods:
+      - app=reviews
+      connection:
+      - All connections
     non-TCP_rules:
     - src_ip_block:
       - 0.0.0.0/0
@@ -52,8 +52,7 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ip_block:
       - ::/0
       dst_ns:
@@ -61,8 +60,7 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       src_pods:
@@ -70,8 +68,7 @@
       dst_ip_block:
       - 0.0.0.0/0
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       src_pods:
@@ -79,8 +76,7 @@
       dst_ip_block:
       - ::/0
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       src_pods:
@@ -90,5 +86,4 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections

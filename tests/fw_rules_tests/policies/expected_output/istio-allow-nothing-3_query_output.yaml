@@ -13,7 +13,7 @@
       dst_ip_block:
       - 0.0.0.0/0
       connection:
-      - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       - kube-system
@@ -23,7 +23,7 @@
       dst_ip_block:
       - ::/0
       connection:
-      - Protocol: TCP
+      - All connections
     non-TCP_rules:
     - src_ip_block:
       - 0.0.0.0/0
@@ -34,8 +34,7 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ip_block:
       - ::/0
       dst_ns:
@@ -45,8 +44,7 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       - kube-system
@@ -56,8 +54,7 @@
       dst_ip_block:
       - 0.0.0.0/0
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       - kube-system
@@ -67,8 +64,7 @@
       dst_ip_block:
       - ::/0
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections
     - src_ns:
       - default
       - kube-system
@@ -82,5 +78,4 @@
       dst_pods:
       - '*'
       connection:
-      - All but:
-        - Protocol: TCP
+      - All connections

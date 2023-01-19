@@ -1,12 +1,12 @@
 For connections of type TCP, final fw rules for query: new_online_boutique_connectivity_map, config: new_online_boutique:
 src: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 8080
-src: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
 src: ::/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 8080
-src: ::/0 dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
-src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: TCP
-src_ns: [asm-ingress,default] src_pods: [*] dst: ::/0 conn: TCP
-src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
-src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: TCP
+src: ::/0 dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
+src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [asm-ingress,default] src_pods: [*] dst: ::/0 conn: All connections
+src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
+src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
 src_ns: [asm-ingress] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'GET, POST'}
 src_ns: [default] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 8080
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP {'methods': 'POST', 'paths': '/hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'}
@@ -19,9 +19,10 @@ src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] c
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP {'dst_ports': '5050', 'methods': 'POST', 'paths': '/hipstershop.CheckoutService/PlaceOrder'}
 src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP {'dst_ports': '8080', 'methods': 'POST', 'paths': '/hipstershop.RecommendationService/ListRecommendations'}
 src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'GET, POST'}
+
 For connections of type non-TCP, final fw rules for query: new_online_boutique_connectivity_map, config: new_online_boutique:
-src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All but TCP
-src: ::/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All but TCP
-src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All but TCP
-src_ns: [asm-ingress,default] src_pods: [*] dst: ::/0 conn: All but TCP
-src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [asm-ingress,default] dst_pods: [*] conn: All but TCP
+src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
+src: ::/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
+src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [asm-ingress,default] src_pods: [*] dst: ::/0 conn: All connections
+src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections

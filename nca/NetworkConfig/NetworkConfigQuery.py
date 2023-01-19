@@ -709,10 +709,10 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             output_res = self.get_connectivity_output_full(connections, peers, peers_to_compare)
 
         res = QueryAnswer(True)
-        res.output_explanation = [
-            ComputedExplanation(dict_explanation=output_res)] if self.output_config.outputFormat in ['json',
-                                                                                                     'yaml'] else \
-            [ComputedExplanation(str_explanation=output_res)]
+        if self.output_config.outputFormat in ['json', 'yaml']:
+            res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
+        else:
+            res.output_explanation =[ComputedExplanation(str_explanation=output_res)]
         return res
 
     def get_connectivity_output_full(self, connections, peers, peers_to_compare):
@@ -727,7 +727,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             dot_full = self.dot_format_from_connections_dict(connections, peers)
             return dot_full
         # handle formats other than dot
-        formatted_rules = self.fw_ruls_from_connections_dict(connections, peers_to_compare)
+        formatted_rules = self.fw_rules_from_connections_dict(connections, peers_to_compare)
         return formatted_rules
 
     def get_connectivity_output_split_by_tcp(self, connections, peers, peers_to_compare):
@@ -748,17 +748,20 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_str = dot_tcp + dot_non_tcp
             return res_str
         # handle formats other than dot
-        formatted_rules_tcp = self.fw_ruls_from_connections_dict(connections_tcp, peers_to_compare,
-                                                                 connectivity_tcp_str)
-        formatted_rules_non_tcp = self.fw_ruls_from_connections_dict(connections_non_tcp, peers_to_compare,
-                                                                     connectivity_non_tcp_str)
+        formatted_rules_tcp = self.fw_rules_from_connections_dict(connections_tcp, peers_to_compare,
+                                                                  connectivity_tcp_str)
+        formatted_rules_non_tcp = self.fw_rules_from_connections_dict(connections_non_tcp, peers_to_compare,
+                                                                      connectivity_non_tcp_str)
         if self.output_config.outputFormat in ['json', 'yaml']:
             # get a dict object containing the two maps on different keys (TCP_rules and non-TCP_rules)
             rules = formatted_rules_tcp
             rules.update(formatted_rules_non_tcp)
             return rules
         # remaining formats: txt / csv / md : concatenate the two strings of the conn-maps
-        res_str = formatted_rules_tcp + formatted_rules_non_tcp
+        if self.output_config.outputFormat == 'txt':
+            res_str = f'{formatted_rules_tcp}\n{formatted_rules_non_tcp}'
+        else:
+            res_str = formatted_rules_tcp + formatted_rules_non_tcp
         return res_str
 
     def dot_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
@@ -774,7 +777,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         conn_graph.add_edges(connections)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
-    def fw_ruls_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
+    def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
         """
         :param dict connections: the connections' dict (map from connection-set to peer pairs)
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
@@ -816,6 +819,11 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         tcp_conns = conns - ConnectionSet.get_non_tcp_connections()
         non_tcp_conns = conns - tcp_conns
+        if non_tcp_conns == ConnectionSet.get_non_tcp_connections():
+            non_tcp_conns = ConnectionSet(True)  # all connections in terms of non-TCP
+        if tcp_conns == ConnectionSet.get_all_tcp_connections():
+            tcp_conns = ConnectionSet(True)  # all connections in terms of TCP
+
         return tcp_conns, non_tcp_conns
 
 
