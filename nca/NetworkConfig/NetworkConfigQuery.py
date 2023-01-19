@@ -727,8 +727,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             dot_full = self.dot_format_from_connections_dict(connections, peers)
             return dot_full
         # handle formats other than dot
-        formatted_rules_tcp = self.fw_ruls_from_connections_dict(connections, peers_to_compare)
-        return formatted_rules_tcp
+        formatted_rules = self.fw_ruls_from_connections_dict(connections, peers_to_compare)
+        return formatted_rules
 
     def get_connectivity_output_split_by_tcp(self, connections, peers, peers_to_compare):
         """
@@ -740,15 +740,14 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
+        connections_tcp, connections_non_tcp = self.convert_connections_to_split_by_tcp(connections)
         if self.output_config.outputFormat == 'dot':
-            connections_tcp, connections_non_tcp = self.convert_connections_to_split_by_tcp(connections)
             dot_tcp = self.dot_format_from_connections_dict(connections_tcp, peers, connectivity_tcp_str)
             dot_non_tcp = self.dot_format_from_connections_dict(connections_non_tcp, peers, connectivity_non_tcp_str)
             # concatenate the two graphs into one dot file
             res_str = dot_tcp + dot_non_tcp
             return res_str
         # handle formats other than dot
-        connections_tcp, connections_non_tcp = self.convert_connections_to_split_by_tcp(connections)
         formatted_rules_tcp = self.fw_ruls_from_connections_dict(connections_tcp, peers_to_compare,
                                                                  connectivity_tcp_str)
         formatted_rules_non_tcp = self.fw_ruls_from_connections_dict(connections_non_tcp, peers_to_compare,
