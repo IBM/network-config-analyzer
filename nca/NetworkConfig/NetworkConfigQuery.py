@@ -712,7 +712,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         if self.output_config.outputFormat in ['json', 'yaml']:
             res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
         else:
-            res.output_explanation =[ComputedExplanation(str_explanation=output_res)]
+            res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
         return res
 
     def get_connectivity_output_full(self, connections, peers, peers_to_compare):
