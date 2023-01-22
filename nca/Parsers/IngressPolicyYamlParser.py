@@ -82,9 +82,9 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             warning_msg = f'The service referenced by the ingress {"default" if is_default else ""} ' \
                           f'backend does not exist. '
             if is_default:
-                warning_msg += f'The default backend will be ignored'
+                warning_msg += 'The default backend will be ignored'
             else:
-                warning_msg += f'The rule path containing this backend service will be ignored'
+                warning_msg += 'The rule path containing this backend service will be ignored'
             self.warning(warning_msg, service)
             return None, None, False
 
@@ -261,7 +261,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.check_fields_validity(policy_spec, 'Ingress spec', allowed_spec_keys)
 
         self.default_backend_peers, self.default_backend_ports, _ = self.parse_backend(policy_spec.get('defaultBackend'),
-                                                                                    True)
+                                                                                       True)
         # TODO extend to other ingress controllers
         res_policy.selected_peers = \
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
