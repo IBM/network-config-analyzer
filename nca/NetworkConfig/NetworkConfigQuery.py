@@ -1488,7 +1488,7 @@ class AllCapturedQuery(NetworkConfigQuery):
                  2- the number of uncaptured pods on the layer
         :rtype: (PodsListsExplanations, int)
         """
-        if layer_name not in self.config.policies_container.layers.keys():
+        if layer_name not in self.config.policies_container.layers:
             return None, 0  # not relevant to compute for non-existed layer
         if ingress_only:
             print(f'Warning: AllCaptured query is not considering uncaptured pods in {layer_name.name} egress direction')
