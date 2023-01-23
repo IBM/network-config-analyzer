@@ -1,8 +1,6 @@
 For connections of type TCP, final fw rules for query: new_online_boutique_synth_res_connectivity_map_with_baseline_rule, config: new_online_boutique_synthesis_res_with_baseline_restrict_access_to_payment_service:
 src: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
 src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [asm-ingress,default] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
@@ -16,7 +14,5 @@ src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [fronten
 
 For connections of type non-TCP, final fw rules for query: new_online_boutique_synth_res_connectivity_map_with_baseline_rule, config: new_online_boutique_synthesis_res_with_baseline_restrict_access_to_payment_service:
 src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
 src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [asm-ingress,default] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
