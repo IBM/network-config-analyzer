@@ -77,4 +77,3 @@ src_ns: [kube-system] src_pods: [public-cre08b89c167414305a1afb205d0bd346f-alb1-
 src_ns: [kube-system] src_pods: [storage-watcher-8494b4b8bb] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
 src_ns: [kube-system] src_pods: [tiller-deploy-5c45c9966b] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
 src_ns: [kube-system] src_pods: [vpn-858f6d9777] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: TCP 101-104
-
