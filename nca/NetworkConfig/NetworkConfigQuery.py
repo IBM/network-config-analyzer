@@ -1538,7 +1538,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
 class AllCapturedQuery(NetworkConfigQuery):
     """
     Check that all pods are captured
-    Applies only for k8s/calico policies
+    Applies for k8s/calico/istio policies (checks only ingress direction for istio)
     """
 
     def _get_pod_name(self, pod):
@@ -1548,44 +1548,81 @@ class AllCapturedQuery(NetworkConfigQuery):
         """
         return pod.workload_name if self.output_config.outputEndpoints == 'deployments' else str(pod)
 
-    def _get_uncaptured_resources_explanation(self, uncaptured_pods):
+    def _get_uncaptured_xgress_pods(self, layer_name, is_ingress=True):
         """
-        get numerical result + set of names of ingress/egress uncaptured pods
-        :param PeerSet uncaptured_pods: the set of uncaptured
-        :return: (int,set[str]): (the number of uncaptured resources , uncaptured pods names)
+        returns the uncaptured ingress/egress pods set and its length for the given layer
+        :param NetworkLayerName layer_name: the layer to check uncaptured pods in
+        :param bool is_ingress: indicates if to check pods affected by ingress/egress
+        :return: - number of uncaptured pod
+                 - set of the uncaptured pods
+        :rtype: (int,set[str])
         """
-        if not uncaptured_pods:
-            return 0, ''
-        uncaptured_resources = set(self._get_pod_name(pod) for pod in uncaptured_pods)  # no duplicate resources in set
+        existing_pods = self.config.peer_container.get_all_peers_group()
+        uncaptured_xgress_pods = existing_pods - self.config.get_affected_pods(is_ingress, layer_name)
+        if not uncaptured_xgress_pods:
+            return 0, set()
+        uncaptured_resources = set(self._get_pod_name(pod) for pod in uncaptured_xgress_pods)  # no duplicate resources in set
         return len(uncaptured_resources), uncaptured_resources
+
+    def _compute_uncaptured_pods_by_layer(self, layer_name, ingress_only=False):
+        """
+        computes and returns the result of allcaptured query on the given layer if it includes policies
+        :param NetworkLayerName layer_name: the layer to check uncaptured pods in
+        :param bool ingress_only: a flag to indicate if to check captured pods only for ingress affected policies
+        :return: 1- if there are uncaptured pods then return an explanation containing them, else None
+                 2- the number of uncaptured pods on the layer
+        :rtype: (PodsListsExplanations, int)
+        """
+        if layer_name not in self.config.policies_container.layers:
+            return None, 0  # not relevant to compute for non-existed layer
+        if ingress_only:
+            print(f'Warning: AllCaptured query is not considering uncaptured pods in {layer_name.name} egress direction')
+
+        res_ingress, uncaptured_ingress_pods_set = self._get_uncaptured_xgress_pods(layer_name, is_ingress=True)
+        res_egress = 0
+        uncaptured_egress_pods_set = set()
+        if not ingress_only:
+            res_egress, uncaptured_egress_pods_set = self._get_uncaptured_xgress_pods(layer_name, is_ingress=False)
+
+        layer_res = res_ingress + res_egress
+        if layer_res == 0:  # no uncaptured pods in this layer, no explanation would be written
+            return None, 0
+
+        explanation_str = f'workload resources that are not captured by any {layer_name.name} policy that affects '
+        layer_explanation = PodsListsExplanations(explanation_description=explanation_str,
+                                                  pods_list=list(sorted(uncaptured_ingress_pods_set)),
+                                                  egress_pods_list=list(sorted(uncaptured_egress_pods_set)),
+                                                  add_xgress_suffix=True)
+        return layer_explanation, layer_res
 
     def exec(self):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         existing_pods = self.config.peer_container.get_all_peers_group()
         if not self.config:
             return QueryAnswer(bool_result=False,
-                               output_result='Flat network in ' + self.config.name,
+                               output_result=f'There are no network policies in {self.config.name}. '
+                                             f'All workload resources are non captured',
                                numerical_result=len(existing_pods))
 
-        if NetworkLayerName.K8s_Calico not in self.config.policies_container.layers:
+        if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
             return QueryAnswer(bool_result=False,
-                               output_result='AllCapturedQuery applies only for k8s/calico network policies',
+                               output_result='AllCapturedQuery cannot be applied using Ingress resources only',
                                query_not_executed=True)
 
-        uncaptured_ingress_pods = existing_pods - self.config.get_affected_pods(True, NetworkLayerName.K8s_Calico)
-        uncaptured_egress_pods = existing_pods - self.config.get_affected_pods(False, NetworkLayerName.K8s_Calico)
-        if not uncaptured_ingress_pods and not uncaptured_egress_pods:
-            output_str = f'All pods are captured by at least one policy of k8s/calico in {self.config.name}'
+        k8s_calico_pods_list_explanation, k8s_calico_res = self._compute_uncaptured_pods_by_layer(NetworkLayerName.K8s_Calico)
+        istio_pods_list_explanation, istio_res = self._compute_uncaptured_pods_by_layer(NetworkLayerName.Istio, True)
+
+        if k8s_calico_res == 0 and istio_res == 0:
+            output_str = f'All pods are captured by at least one policy in {self.config.name}'
             return QueryAnswer(bool_result=True, output_result=output_str, numerical_result=0)
 
-        res_ingress, uncaptured_ingress_pods_set = self._get_uncaptured_resources_explanation(uncaptured_ingress_pods)
-        res_egress, uncaptured_egress_pods_set = self._get_uncaptured_resources_explanation(uncaptured_egress_pods)
-        res = res_ingress + res_egress
-        output_str = f'There are workload resources not captured by any k8s/calico policy in {self.config.name}'
-        explanation_str = 'workload resources that are not captured by any policy that affects '
-        final_explanation = PodsListsExplanations(explanation_description=explanation_str,
-                                                  pods_list=list(sorted(uncaptured_ingress_pods_set)),
-                                                  egress_pods_list=list(sorted(uncaptured_egress_pods_set)),
-                                                  add_xgress_suffix=True)
-        return QueryAnswer(bool_result=False, output_result=output_str, output_explanation=[final_explanation],
+        final_explanation = []
+        if k8s_calico_pods_list_explanation:
+            final_explanation.append(k8s_calico_pods_list_explanation)
+        if istio_pods_list_explanation:
+            final_explanation.append(istio_pods_list_explanation)
+
+        output_str = f'There are workload resources not captured by any policy in {self.config.name}'
+        res = k8s_calico_res + istio_res
+        return QueryAnswer(bool_result=False, output_result=output_str, output_explanation=final_explanation,
                            numerical_result=res)

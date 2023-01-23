@@ -44,29 +44,29 @@ Possible entries (sources) in the list under `networkPolicyList` or `resourceLis
 ###  <a name="queryobject"></a>Query object
 Each query object instructs the tool to run a specific check on one or more sets of policies.
 
-| Field | Description | Value |
-|-------|-------------|-------|
-|name   |Query name|string|
-|emptiness|Checks all NetworkConfigs for empty selectors/rules|list of [config set](#configsets) names|
-|redundancy|Checks each set of NetworkConfigs for redundant policies and for redundant rules within each policy|list of [config set](#configsets) names|
-|equivalence|Checks semantic equivalence between each pair of NetworkConfigs sets|list of [config set](#configsets) names|
-|strongEquivalence|Like equivalence, but comparisons are policy-wise|list of [config set](#configsets) names|
-|semanticDiff|Checks semantic diff between each pair of NetworkConfigs sets|list of [config set](#configsets) names|
-|forbids|Checks whether the first set denies all connections **explicitly** allowed by the other sets|list of [config set](#configsets) names|
-|permits|Checks whether the first set allows all connections **explicitly** allowed by the other sets|list of [config set](#configsets) names|
-|interferes|Checks whether any set interferes with the first set|list of [config set](#configsets) names|
-|pairwiseInterferes|Checks whether any two sets in the list interfere each other|list of [config set](#configsets) names|
-|containment|Checks whether any set is semantically contained in the first set (does not allow additional connections)|list of [config set](#configsets) names|
-|twoWayContainment|Checks what are the relations - equivalence, contains, contained, disjoint, neither - between the first set and each of the other sets|list of [config set](#configsets) names|
-|disjointness|Reports pairs of policies with overlapping sets of captured pods|list of [config set](#configsets) names|
-|vacuity|Checks whether the set of policies changes cluster default behavior|list of [config set](#configsets) names|
-|sanity|Checks all NetworkConfigs for sanity check - includes emptiness, vacuity and redundancies|list of [config set](#configsets) names|
-|allCaptured|Checks that all pods are captured by at least one NetworkPolicy|list of [config set](#configsets) names|
-|connectivityMap|Reports a summary of the allowed connections in the cluster|list of [config set](#configsets) names| 
-|expected|The expected sum of returned results by all sub-queries in this query (a warning is issued on mismatch)|integer|
-|expectedOutput|The file path of the expected output of this query (for connectivityMap or semanticDiff queries) |string|
-|expectedNotExecuted|The number of input configs/config pairs that the query is not expected to be run on. Reasons for not executing the configs are listed [here](CmdLineQueriesResults.md#a-query-will-not-be-executed-when) |integer|
-|outputConfiguration| A dict object with the required output configuration|[outputConfig](#outputconfig) object|
+| Field | Description                                                                                                                                                                                               | Value |
+|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------|
+|name   | Query name                                                                                                                                                                                                |string|
+|emptiness| Checks all NetworkConfigs for empty selectors/rules                                                                                                                                                       |list of [config set](#configsets) names|
+|redundancy| Checks each set of NetworkConfigs for redundant policies and for redundant rules within each policy                                                                                                       |list of [config set](#configsets) names|
+|equivalence| Checks semantic equivalence between each pair of NetworkConfigs sets                                                                                                                                      |list of [config set](#configsets) names|
+|strongEquivalence| Like equivalence, but comparisons are policy-wise                                                                                                                                                         |list of [config set](#configsets) names|
+|semanticDiff| Checks semantic diff between each pair of NetworkConfigs sets                                                                                                                                             |list of [config set](#configsets) names|
+|forbids| Checks whether the first set denies all connections **explicitly** allowed by the other sets                                                                                                              |list of [config set](#configsets) names|
+|permits| Checks whether the first set allows all connections **explicitly** allowed by the other sets                                                                                                              |list of [config set](#configsets) names|
+|interferes| Checks whether any set interferes with the first set                                                                                                                                                      |list of [config set](#configsets) names|
+|pairwiseInterferes| Checks whether any two sets in the list interfere each other                                                                                                                                              |list of [config set](#configsets) names|
+|containment| Checks whether any set is semantically contained in the first set (does not allow additional connections)                                                                                                 |list of [config set](#configsets) names|
+|twoWayContainment| Checks what are the relations - equivalence, contains, contained, disjoint, neither - between the first set and each of the other sets                                                                    |list of [config set](#configsets) names|
+|disjointness| Reports pairs of policies with overlapping sets of captured pods                                                                                                                                          |list of [config set](#configsets) names|
+|vacuity| Checks whether the set of policies changes cluster default behavior                                                                                                                                       |list of [config set](#configsets) names|
+|sanity| Checks all NetworkConfigs for sanity check - includes emptiness, vacuity and redundancies                                                                                                                 |list of [config set](#configsets) names|
+|allCaptured| Checks that all pods are captured by at least one NetworkPolicy in each existing k8s/calico/istio network layer                                                                                           |list of [config set](#configsets) names|
+|connectivityMap| Reports a summary of the allowed connections in the cluster                                                                                                                                               |list of [config set](#configsets) names| 
+|expected| The expected sum of returned results by all sub-queries in this query (a warning is issued on mismatch)                                                                                                   |integer|
+|expectedOutput| The file path of the expected output of this query (for connectivityMap or semanticDiff queries)                                                                                                          |string|
+|expectedNotExecuted| The number of input configs/config pairs that the query is not expected to be run on. Reasons for not executing the configs are listed [here](CmdLineQueriesResults.md#a-query-will-not-be-executed-when) |integer|
+|outputConfiguration| A dict object with the required output configuration                                                                                                                                                      |[outputConfig](#outputconfig) object|
 
 #### <a name="configsets"></a>Config sets
 Each entry in the list of config sets should be either

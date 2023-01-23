@@ -275,7 +275,9 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                                        {'host': [1, str], 'subset': [3, str], 'port': 0})
             service = self.parse_service(dest, vs)
             if not service:
-                self.syntax_error(f'missing service referenced in {dest} in the VirtualService {vs.full_name()}', route)
+                self.warning(f'The service referenced in http destination {dest} in the VirtualService {vs.full_name()}'
+                             f' does not exist. This HTTPRouteDestination will be ignored', route)
+                continue
             target_port = None
             port = dest.get('port')
             if port:
