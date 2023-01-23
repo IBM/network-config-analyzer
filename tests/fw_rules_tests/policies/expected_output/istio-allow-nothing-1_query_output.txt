@@ -1,5 +1,4 @@
 final fw rules for query: istio-allow-nothing-1, config: istio-allow-nothing-1:
 src: 0.0.0.0/0 dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP
-src: ::/0 dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [kube-system,vendor-system] dst_pods: [*] conn: TCP
 

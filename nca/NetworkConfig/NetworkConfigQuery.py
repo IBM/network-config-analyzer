@@ -676,8 +676,10 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             self.config.name
         peers_to_compare = self.config.peer_container.get_all_peers_group()
 
-        ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
-                                                   IpBlock.get_all_ips_block_peer_set())
+        ref_ip_blocks = \
+            IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
+                                       IpBlock.get_all_ips_block_peer_set(self.output_config.connectivityExcludeIpv6Edges),
+                                       self.output_config.connectivityExcludeIpv6Edges)
         connections = defaultdict(list)
         peers = PeerSet()
         peers_to_compare |= ref_ip_blocks

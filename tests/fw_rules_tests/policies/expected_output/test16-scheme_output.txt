@@ -5,10 +5,7 @@ src: 0.0.0.0/0 dst_ns: [kube-system-new] dst_pods: [!has(tier) or tier=not_front
 src: 11.0.0.0-172.20.255.255 dst_ns: [kube-system-new] dst_pods: [tier=frontend] conn: UDP 53
 src: 172.22.0.0-172.29.255.255 dst_ns: [kube-system-new] dst_pods: [tier=frontend] conn: UDP 53
 src: 172.31.0.0-255.255.255.255 dst_ns: [kube-system-new] dst_pods: [tier=frontend] conn: UDP 53
-src: ::/0 dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [kube-system-new] dst_pods: [!has(tier) or tier=not_frontend_for_demo] conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
 src_ns: [default,ibm-system-new,kube-system-new,kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [!has(tier) or tier=not_frontend_for_demo] conn: All connections
 

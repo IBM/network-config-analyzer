@@ -2,7 +2,6 @@
 digraph {
 	HEADER [shape="box" label=< <B>connectivity-bookinfo-demo-by-deployments/bookinfo-demo</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
-	"::/0" [label="::/0" color="red2" fontcolor="red2"]
 	"default/details-v1(Deployment-StatefulSet)" [label="default/details-v1(Deployment-StatefulSet)" color="blue" fontcolor="blue"]
 	"default/productpage-v1(Deployment-StatefulSet)" [label="default/productpage-v1(Deployment-StatefulSet)" color="blue" fontcolor="blue"]
 	"default/ratings-v1(Deployment-StatefulSet)" [label="default/ratings-v1(Deployment-StatefulSet)" color="blue" fontcolor="blue"]
@@ -11,7 +10,6 @@ digraph {
 	"default/reviews-v3(Deployment-StatefulSet)" [label="default/reviews-v3(Deployment-StatefulSet)" color="blue" fontcolor="blue"]
 	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" [label="istio-system/istio-ingressgateway(Deployment-StatefulSet)" color="blue" fontcolor="blue"]
 	"0.0.0.0/0" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
-	"::/0" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
 	"default/details-v1(Deployment-StatefulSet)" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)" [label=" TCP, " color="gold2" fontcolor="darkgreen"]
 	"default/productpage-v1(Deployment-StatefulSet)" -> "default/details-v1(Deployment-StatefulSet)" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]
 	"default/productpage-v1(Deployment-StatefulSet)" -> "default/reviews-v1(Deployment-StatefulSet)" [label=" TCP, {'methods': 'GET'}" color="gold2" fontcolor="darkgreen"]

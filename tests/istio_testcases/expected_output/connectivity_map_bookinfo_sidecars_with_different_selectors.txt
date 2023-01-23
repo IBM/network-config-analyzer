@@ -1,6 +1,5 @@
 final fw rules for query: connectivity-map-bookinfo-sidecars-with-different-selectors, config: sidecars-with-different-selectors:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: TCP
-src: ::/0 dst_ns: [default] dst_pods: [*] conn: TCP
 src_ns: [default] src_pods: [app in (details,ratings)] dst_ns: [default] dst_pods: [*] conn: TCP
 src_ns: [default] src_pods: [app=reviews] dst_ns: [default] dst_pods: [ratings-v1] conn: TCP
 src_ns: [default] src_pods: [productpage-v1] dst_ns: [default] dst_pods: [app in (details,reviews)] conn: TCP

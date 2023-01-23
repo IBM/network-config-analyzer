@@ -1,6 +1,5 @@
 final fw rules for query: frontend_w_no_egress_connectivity_map, config: sidecar_disable_egress:
 src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: TCP
-src: ::/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: TCP
 src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress,default] dst_pods: [*] conn: TCP
 src_ns: [asm-ingress] src_pods: [*] dst_ns: [asm-ingress] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [app!=frontend] dst_ns: [asm-ingress,default] dst_pods: [*] conn: TCP
