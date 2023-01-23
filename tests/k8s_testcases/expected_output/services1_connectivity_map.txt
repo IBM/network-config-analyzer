@@ -27,4 +27,3 @@ src: ::/0 dst_ns: [default,kube-system] dst_pods: [*] conn: All connections
 src_ns: [default,kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default,kube-system] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [default,kube-system] src_pods: [*] dst_ns: [default,kube-system] dst_pods: [*] conn: All connections
-

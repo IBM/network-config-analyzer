@@ -62,15 +62,20 @@ class ConnectivityGraph:
             return peer.workload_name, False
         return str(peer), False
 
-    def get_connectivity_dot_format_str(self):
+    def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :rtype str
         :return: a string with content of dot format for connectivity graph
         """
-        output_result = f'// The Connectivity Graph of {self.output_config.configName}\n'
+        header_suffix = '' if connectivity_restriction is None else f', for {connectivity_restriction} connections'
+        output_result = f'// The Connectivity Graph of {self.output_config.configName}{header_suffix}\n'
         output_result += 'digraph ' + '{\n'
         if self.output_config.queryName and self.output_config.configName:
-            output_result += f'\tHEADER [shape="box" label=< <B>{self.output_config.queryName}/' \
-                             f'{self.output_config.configName}</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
+            header_label_str = f'{self.output_config.queryName}/{self.output_config.configName}{header_suffix}'
+            output_result += f'\tHEADER [shape="box" label=< <B>{header_label_str}' \
+                             f'</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
         peer_lines = set()
         for peer in self.cluster_info.all_peers:
             peer_name, is_ip_block = self._get_peer_name(peer)
@@ -90,7 +95,7 @@ class ConnectivityGraph:
                     line += f'\"{src_peer_name}\"'
                     line += ' -> '
                     line += f'\"{dst_peer_name}\"'
-                    conn_str = str(connections).replace("Protocol:", "")
+                    conn_str = connections.get_simplified_connections_representation(True).replace("Protocol:", "")
                     line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
                     edge_lines.add(line)
         output_result += ''.join(line for line in sorted(list(peer_lines))) + \
