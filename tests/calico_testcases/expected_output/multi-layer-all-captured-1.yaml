@@ -4,13 +4,8 @@
   numerical_result: 22
   textual_result: There are workload resources not captured by any policy in testcase26-config-1-k8s-istio-ingress
   explanation:
-<<<<<<< HEAD
-  - description: workload resources that are not captured by any policy that affects
-      ingress
-=======
   - description: workload resources that are not captured by any K8s_Calico policy
       that affects ingress
->>>>>>> master
     pods:
     - default/details-v1(Deployment-StatefulSet)
     - default/productpage-v1(Deployment-StatefulSet)
@@ -20,13 +15,8 @@
     - default/reviews-v3(Deployment-StatefulSet)
     - ingress-nginx/ingress-nginx-controller(Deployment-StatefulSet)
     - istio-system/istio-ingressgateway(Deployment-StatefulSet)
-<<<<<<< HEAD
-  - description: workload resources that are not captured by any policy that affects
-      egress
-=======
   - description: workload resources that are not captured by any K8s_Calico policy
       that affects egress
->>>>>>> master
     pods:
     - default/details-v1(Deployment-StatefulSet)
     - default/productpage-v1(Deployment-StatefulSet)
@@ -35,8 +25,6 @@
     - default/reviews-v3(Deployment-StatefulSet)
     - ingress-nginx/ingress-nginx-controller(Deployment-StatefulSet)
     - istio-system/istio-ingressgateway(Deployment-StatefulSet)
-<<<<<<< HEAD
-=======
   - description: workload resources that are not captured by any Istio policy that
       affects ingress
     pods:
@@ -47,4 +35,3 @@
     - default/reviews-v3(Deployment-StatefulSet)
     - ingress-nginx/ingress-nginx-controller(Deployment-StatefulSet)
     - istio-system/istio-ingressgateway(Deployment-StatefulSet)
->>>>>>> master
