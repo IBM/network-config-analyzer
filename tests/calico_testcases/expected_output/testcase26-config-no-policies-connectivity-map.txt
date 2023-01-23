@@ -4,4 +4,3 @@ src: ::/0 dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All c
 src_ns: [default,ingress-nginx,istio-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default,ingress-nginx,istio-system] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [default,ingress-nginx,istio-system] src_pods: [*] dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All connections
-

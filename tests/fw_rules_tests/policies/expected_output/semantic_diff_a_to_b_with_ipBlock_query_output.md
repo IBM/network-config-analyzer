@@ -38,4 +38,3 @@
 |||::/0|[default]|[app in (app-5,app-6)]|All connections|
 ||[default]|[app in (app-5,app-6)]||0.0.0.0/0|All connections|
 ||[default]|[app in (app-5,app-6)]||::/0|All connections|
-

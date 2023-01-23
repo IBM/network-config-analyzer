@@ -165,14 +165,14 @@ digraph {
 	"example/deploy-iiii(Deployment)" -> "example/deploy-ingress-nginx(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
 	"example/deploy-iiii(Deployment)" -> "example/deploy-jjjj(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
 	"example/deploy-iiii(Deployment)" -> "example/istio-ingressgateway(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-aaaa(Deployment)" [label=" TCP, {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'aaaa.y.z'}" color="gold2" fontcolor="darkgreen"]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-bbbb(Deployment)" [label=" TCP, {'dst_ports': '3456', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'bbbb.y.z'}" color="gold2" fontcolor="darkgreen"]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-cccc(Deployment)" [label=" TCP, {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'cccc.y.z'}" color="gold2" fontcolor="darkgreen"]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-dddd(Deployment)" [label=" TCP, {'dst_ports': '3200', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'dddd.y.z'}" color="gold2" fontcolor="darkgreen"]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-ffff(Deployment)" [label=" TCP, {'dst_ports': '3500', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'ffff.y.z'}" color="gold2" fontcolor="darkgreen"]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-gggg(Deployment)" [label=" TCP, {'dst_ports': '4000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'gggg.y.z'}" color="gold2" fontcolor="darkgreen"]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-iiii(Deployment)" [label=" TCP, {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'iiii.y.z'}" color="gold2" fontcolor="darkgreen"]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-jjjj(Deployment)" [label=" TCP, {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'jjjj.y.z'}" color="gold2" fontcolor="darkgreen"]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-aaaa(Deployment)" [label="TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'aaaa.y.z'}" color="gold2" fontcolor="darkgreen"]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-bbbb(Deployment)" [label="TCP {'dst_ports': '3456', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'bbbb.y.z'}" color="gold2" fontcolor="darkgreen"]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-cccc(Deployment)" [label="TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'cccc.y.z'}" color="gold2" fontcolor="darkgreen"]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-dddd(Deployment)" [label="TCP {'dst_ports': '3200', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'dddd.y.z'}" color="gold2" fontcolor="darkgreen"]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-ffff(Deployment)" [label="TCP {'dst_ports': '3500', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'ffff.y.z'}" color="gold2" fontcolor="darkgreen"]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-gggg(Deployment)" [label="TCP {'dst_ports': '4000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'gggg.y.z'}" color="gold2" fontcolor="darkgreen"]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-iiii(Deployment)" [label="TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'iiii.y.z'}" color="gold2" fontcolor="darkgreen"]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-jjjj(Deployment)" [label="TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'jjjj.y.z'}" color="gold2" fontcolor="darkgreen"]
 	"example/deploy-jjjj(Deployment)" -> "0.0.0.0/0" [label="All connections" color="gold2" fontcolor="darkgreen"]
 	"example/deploy-jjjj(Deployment)" -> "::/0" [label="All connections" color="gold2" fontcolor="darkgreen"]
 	"example/deploy-jjjj(Deployment)" -> "example/deploy-aaaa(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
@@ -201,5 +201,4 @@ digraph {
 	"example/istio-ingressgateway(Deployment)" -> "example/deploy-ingress-nginx(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
 	"example/istio-ingressgateway(Deployment)" -> "example/deploy-jjjj(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
 }
-
 
