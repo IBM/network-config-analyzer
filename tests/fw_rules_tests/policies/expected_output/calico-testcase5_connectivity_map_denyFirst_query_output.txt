@@ -3,4 +3,3 @@ src_ns: [kube-system] src_pods: [(has(app) and app not in (kube-fluentd,public-c
 src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [tier=frontend] dst_ns: [kube-system] dst_pods: [*] conn: All but TCP
-

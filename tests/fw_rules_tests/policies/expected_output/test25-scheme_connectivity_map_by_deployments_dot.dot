@@ -9,4 +9,3 @@ digraph {
 	"default/my-test-deployment-C(Deployment)" -> "default/my-test-deployment-B(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
 }
 
-

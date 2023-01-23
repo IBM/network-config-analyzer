@@ -16,4 +16,3 @@ digraph {
 	"default/my-test-deployment-C-2" -> "default/my-test-deployment-B-2" [label="All connections" color="gold2" fontcolor="darkgreen"]
 }
 
-

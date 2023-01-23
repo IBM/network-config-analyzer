@@ -32,4 +32,3 @@
 |||::/0|[default]|[app in (app-3,app-4)]|All connections|
 ||[default]|[app in (app-3,app-4)]||0.0.0.0/0|All connections|
 ||[default]|[app in (app-3,app-4)]||::/0|All connections|
-

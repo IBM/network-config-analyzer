@@ -5,4 +5,3 @@ src_ns: [default,kube-system,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: A
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
 src_ns: [default,kube-system,vendor-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [!has(tier)] conn: All connections
 src_ns: [kube-system] src_pods: [app=kube-fluentd] dst_ns: [kube-system] dst_pods: [*] conn: TCP
-

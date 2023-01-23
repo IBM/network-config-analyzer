@@ -2,4 +2,3 @@ final fw rules for query: subset_deployment_in_subset_endpoints_deployments_txt,
 src_ns: [ns1] src_pods: [dep=A] dst_ns: [default] dst_pods: [dep=E] conn: All connections
 src_ns: [ns1] src_pods: [dep=B] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
 src_ns: [ns2] src_pods: [dep=C] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
-

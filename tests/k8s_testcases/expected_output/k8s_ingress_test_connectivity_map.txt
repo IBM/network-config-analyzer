@@ -4,4 +4,3 @@ src_ns: [default,ingress-nginx,istio-system] src_pods: [*] dst_ns: [ingress-ngin
 src_ns: [default,istio-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default,istio-system] src_pods: [*] dst_ns: [default,istio-system] dst_pods: [*] conn: All connections
 src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [details-v1-79f774bdb9] conn: TCP {'dst_ports': '9080', 'paths': '/details(/[\\--9A-Z_a-z]*)?', 'hosts': 'demo.localdev.me'}
-

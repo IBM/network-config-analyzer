@@ -25,4 +25,3 @@ digraph {
 	"ns2/deployment-C-2" -> "ns1/deployment-A-2" [label="All connections" color="gold2" fontcolor="darkgreen"]
 }
 
-

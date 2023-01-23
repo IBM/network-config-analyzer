@@ -698,51 +698,135 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 else:
                     conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
                     if conns:
-                        # TODO: consider separate connectivity maps for config that involves istio -
-                        #  one that handles non-TCP connections, and one for TCP
-                        # TODO: consider avoid "hiding" egress allowed connections, even though they are
-                        #  not covered by authorization policies
-                        if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
-                                self.output_config.connectivityFilterIstioEdges:
-                            should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
-                            if not should_filter:
-                                connections[modified_conns].append((peer1, peer2))
-                                # collect both peers, even if one of them is not in the subset
-                                peers.add(peer1)
-                                peers.add(peer2)
-                        else:
-                            connections[conns].append((peer1, peer2))
-                            # collect both peers, even if one of them is not in the subset
-                            peers.add(peer1)
-                            peers.add(peer2)
+                        connections[conns].append((peer1, peer2))
+                        # collect both peers, even if one of them is not in the subset
+                        peers.add(peer1)
+                        peers.add(peer2)
+
+        # if Istio is a layer in the network config - produce 2 maps, for TCP and for non-TCP
+        # because Istio policies can only capture TCP connectivity
+        if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
+            output_res = self.get_connectivity_output_split_by_tcp(connections, peers, peers_to_compare)
+        else:
+            output_res = self.get_connectivity_output_full(connections, peers, peers_to_compare)
 
         res = QueryAnswer(True)
-        if self.output_config.outputFormat == 'dot':
-            conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-            conn_graph.add_edges(connections)
-            res.output_explanation = [ComputedExplanation(str_explanation=conn_graph.get_connectivity_dot_format_str())]
+        if self.output_config.outputFormat in ['json', 'yaml']:
+            res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
         else:
-            conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
-            conn_graph.add_edges(connections)
-            fw_rules = conn_graph.get_minimized_firewall_rules()
-            formatted_rules = fw_rules.get_fw_rules_in_required_format()
-            if self.output_config.outputFormat in ['json', 'yaml']:
-                res.output_explanation = [ComputedExplanation(dict_explanation=formatted_rules)]
-            else:
-                res.output_explanation = [ComputedExplanation(str_explanation=formatted_rules)]
+            res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
         return res
 
+    def get_connectivity_output_full(self, connections, peers, peers_to_compare):
+        """
+        get the connectivity map output considering all connections in the output
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers: the peers to consider for dot output
+        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
+        :rtype Union[str,dict]
+        """
+        if self.output_config.outputFormat == 'dot':
+            dot_full = self.dot_format_from_connections_dict(connections, peers)
+            return dot_full
+        # handle formats other than dot
+        formatted_rules = self.fw_rules_from_connections_dict(connections, peers_to_compare)
+        return formatted_rules
+
+    def get_connectivity_output_split_by_tcp(self, connections, peers, peers_to_compare):
+        """
+        get the connectivity map output as two parts: TCP and non-TCP
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers: the peers to consider for dot output
+        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
+        :rtype Union[str,dict]
+        """
+        connectivity_tcp_str = 'TCP'
+        connectivity_non_tcp_str = 'non-TCP'
+        connections_tcp, connections_non_tcp = self.convert_connections_to_split_by_tcp(connections)
+        if self.output_config.outputFormat == 'dot':
+            dot_tcp = self.dot_format_from_connections_dict(connections_tcp, peers, connectivity_tcp_str)
+            dot_non_tcp = self.dot_format_from_connections_dict(connections_non_tcp, peers, connectivity_non_tcp_str)
+            # concatenate the two graphs into one dot file
+            res_str = dot_tcp + dot_non_tcp
+            return res_str
+        # handle formats other than dot
+        formatted_rules_tcp = self.fw_rules_from_connections_dict(connections_tcp, peers_to_compare,
+                                                                  connectivity_tcp_str)
+        formatted_rules_non_tcp = self.fw_rules_from_connections_dict(connections_non_tcp, peers_to_compare,
+                                                                      connectivity_non_tcp_str)
+        if self.output_config.outputFormat in ['json', 'yaml']:
+            # get a dict object containing the two maps on different keys (TCP_rules and non-TCP_rules)
+            rules = formatted_rules_tcp
+            rules.update(formatted_rules_non_tcp)
+            return rules
+        # remaining formats: txt / csv / md : concatenate the two strings of the conn-maps
+        if self.output_config.outputFormat == 'txt':
+            res_str = f'{formatted_rules_tcp}\n{formatted_rules_non_tcp}'
+        else:
+            res_str = formatted_rules_tcp + formatted_rules_non_tcp
+        return res_str
+
+    def dot_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
+        """
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers: the peers to consider for dot output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :rtype str
+        :return the connectivity map in dot-format, considering connectivity_restriction if required
+        """
+        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
+        conn_graph.add_edges(connections)
+        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
+
+    def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
+        """
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :return the connectivity map in fw-rules, considering connectivity_restriction if required
+        :rtype: Union[str, dict]
+        """
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
+        conn_graph.add_edges(connections)
+        fw_rules = conn_graph.get_minimized_firewall_rules()
+        formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
+        return formatted_rules
+
+    def convert_connections_to_split_by_tcp(self, connections):
+        """
+        given the connections' dict , convert it to two connection maps, one for TCP only, and the other
+        for non-TCP only.
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :return: a tuple of the two connection maps : first for TCP, second for non-TCP
+        :rtype: tuple(dict, dict)
+        """
+        connections_tcp = defaultdict(list)
+        connections_non_tcp = defaultdict(list)
+        for conn, peers_list in connections.items():
+            tcp_conns, non_tcp_conns = self.split_to_tcp_and_non_tcp_conns(conn)
+            connections_tcp[tcp_conns] += peers_list
+            connections_non_tcp[non_tcp_conns] += peers_list
+
+        return connections_tcp, connections_non_tcp
+
     @staticmethod
-    def filter_istio_edge(peer2, conns):
-        # currently only supporting authorization policies, that do not capture egress rules
-        if isinstance(peer2, IpBlock):
-            return True, None
-        # remove allowed connections for non TCP protocols
-        # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/
-        # Non-TCP based protocols, such as UDP, are not proxied. These protocols will continue to function as normal,
-        # without any interception by the Istio proxy
-        conns_new = conns - ConnectionSet.get_non_tcp_connections()
-        return False, conns_new
+    def split_to_tcp_and_non_tcp_conns(conns):
+        """
+        split a ConnectionSet object to two objects: one within TCP only, the other within non-TCP protocols
+        :param ConnectionSet conns: a  ConnectionSet object
+        :return: a tuple of the two ConnectionSet objects: first for TCP, second for non-TCP
+        :rtype: tuple(ConnectionSet, ConnectionSet)
+        """
+        tcp_conns = conns - ConnectionSet.get_non_tcp_connections()
+        non_tcp_conns = conns - tcp_conns
+        if non_tcp_conns == ConnectionSet.get_non_tcp_connections():
+            non_tcp_conns = ConnectionSet(True)  # all connections in terms of non-TCP
+        if tcp_conns == ConnectionSet.get_all_tcp_connections():
+            tcp_conns = ConnectionSet(True)  # all connections in terms of TCP
+
+        return tcp_conns, non_tcp_conns
 
 
 class TwoNetworkConfigsQuery(BaseNetworkQuery):
@@ -855,7 +939,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         if different_conns_list:
             return self._query_answer_with_relevant_explanation(sorted(different_conns_list))
 
-        return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.', numerical_result=0)
+        return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
+                           numerical_result=0)
 
     def _query_answer_with_relevant_explanation(self, explanation_list):
         output_result = self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.'

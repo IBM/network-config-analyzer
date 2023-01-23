@@ -47,4 +47,3 @@ digraph {
 	"ns3/Pod8" -> "default/Pod4" [label="All connections" color="gold2" fontcolor="darkgreen"]
 }
 
-
