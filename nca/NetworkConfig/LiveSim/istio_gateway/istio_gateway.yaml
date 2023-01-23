@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: istio-ingressgateway-livesim
+  namespace: istio-ingressgateway-ns
   labels:
     app: istio-ingressgateway
     istio: ingressgateway
