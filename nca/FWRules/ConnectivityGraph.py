@@ -62,6 +62,35 @@ class ConnectivityGraph:
             return peer.workload_name, False
         return str(peer), False
 
+    @staticmethod
+    def _is_peer_livesim(peer):
+        """
+        check if peer name indicates that this is a peer related to "livesim": resources added
+        during parsing, since they are required for the analysis but were missing from the input config
+
+        current convention is that such peers suffix is "-livesim"
+
+        :param Peer peer: the peer object
+        :rtype bool
+        """
+        livesim_peer_name_suffix = "-livesim"
+        return peer.full_name().endswith(livesim_peer_name_suffix)
+
+    @staticmethod
+    def _get_peer_color(is_livesim, is_ip_block):
+        """
+        determine peer color for connectivity graph
+        :param is_livesim: is peer added from "livesim" (missing resource at input config)
+        :param is_ip_block:  is peer of type ip-block
+        :return: str of the peer color in the dot format
+        :rtype str
+        """
+        if is_livesim:
+            return "coral4"
+        elif is_ip_block:
+            return "red2"
+        return "blue"
+
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
@@ -79,10 +108,7 @@ class ConnectivityGraph:
         peer_lines = set()
         for peer in self.cluster_info.all_peers:
             peer_name, is_ip_block = self._get_peer_name(peer)
-            if peer_name.endswith('livesim(Deployment)') or peer_name.endswith('livesim(Pod)'):
-                peer_color = "coral4"
-            else:
-                peer_color = "red2" if is_ip_block else "blue"
+            peer_color = self._get_peer_color(self._is_peer_livesim(peer), is_ip_block)
             peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
 
         edge_lines = set()
