@@ -2,11 +2,15 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+
+from collections import defaultdict
 from .CanonicalIntervalSet import CanonicalIntervalSet
 from .TcpLikeProperties import TcpLikeProperties
 from .ICMPDataSet import ICMPDataSet
 from .ProtocolNameResolver import ProtocolNameResolver
 from .ProtocolSet import ProtocolSet
+from .Peer import PeerSet, IpBlock
+from nca.FWRules import FWRule
 
 
 class ConnectionSet:
@@ -568,3 +572,92 @@ class ConnectionSet:
         res.add_all_connections([ProtocolNameResolver.get_protocol_number('TCP')])
         return res
         # return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()
+
+    # TODO - after moving to the optimized HC set implementation,
+    #  get rid of ConnectionSet and move the code below to TcpLikeProperties.py
+    @staticmethod
+    def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container):
+        fw_rules_map = defaultdict(list)
+        for cube in tcp_props:
+            cube_dict = tcp_props.get_cube_dict_with_orig_values(cube)
+            new_cube_dict = cube_dict.copy()
+            src_peers = new_cube_dict.get('src_peers')
+            if src_peers:
+                new_cube_dict.pop('src_peers')
+            else:
+                src_peers = peer_container.get_all_peers_group(True)
+            dst_peers = new_cube_dict.get('dst_peers')
+            if dst_peers:
+                new_cube_dict.pop('dst_peers')
+            else:
+                dst_peers = peer_container.get_all_peers_group(True)
+            protocols = new_cube_dict.get('protocols')
+            if protocols:
+                new_cube_dict.pop('protocols')
+            if not protocols and not new_cube_dict:
+                conns = ConnectionSet(True)
+            else:
+                conns = ConnectionSet()
+                protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
+                for protocol in protocol_names:
+                    if new_cube_dict:
+                        conns.add_connections(protocol, TcpLikeProperties.make_tcp_like_properties_from_dict(peer_container,
+                                                                                                             new_cube_dict))
+                    else:
+                        if ConnectionSet.protocol_supports_ports(protocol):
+                            conns.add_connections(protocol, TcpLikeProperties.make_all_properties(peer_container))
+                        elif ConnectionSet.protocol_is_icmp(protocol):
+                            conns.add_connections(protocol, TcpLikeProperties.make_all_properties(peer_container))
+                        else:
+                            conns.add_connections(protocol, True)
+            # create FWRules for src_peers and dst_peers
+            fw_rules_map[conns] += ConnectionSet.create_fw_rules_list_from_conns(conns, src_peers, dst_peers,
+                                                                                 cluster_info)
+        return fw_rules_map
+
+    @staticmethod
+    def create_fw_rules_list_from_conns(conns, src_peers, dst_peers, cluster_info):
+        src_fw_elements = ConnectionSet.split_peer_set_to_fw_rule_elements(src_peers, cluster_info)
+        dst_fw_elements = ConnectionSet.split_peer_set_to_fw_rule_elements(dst_peers, cluster_info)
+        fw_rules_list = []
+        for src_elem in src_fw_elements:
+            for dst_elem in dst_fw_elements:
+                fw_rules_list.append(FWRule.FWRule(src_elem, dst_elem, conns))
+        return fw_rules_list
+
+    @staticmethod
+    def split_peer_set_to_fw_rule_elements(peer_set, cluster_info):
+        res = []
+        peer_set_copy = peer_set.copy()
+        ns_set = set()
+        # first, split by namespaces
+        while peer_set_copy:
+            peer = list(peer_set_copy)[0]
+            if isinstance(peer, IpBlock):
+                res.append(FWRule.IPBlockElement(peer))
+                peer_set_copy.remove(peer)
+                continue
+            ns_peers = PeerSet(cluster_info.ns_dict[peer.namespace])
+            if ns_peers.issubset(peer_set_copy):
+                ns_set.add(peer.namespace)
+            else:
+                # TODO try to split the element below by labels
+                res.append(FWRule.PeerSetElement(ns_peers & peer_set_copy))
+            peer_set_copy -= ns_peers
+        if ns_set:
+            res.append(FWRule.FWRuleElement(ns_set))
+
+        return res
+
+    @staticmethod
+    def fw_rules_to_tcp_properties(fw_rules, peer_container):
+        res = TcpLikeProperties.make_empty_properties(peer_container)
+        for fw_rules_list in fw_rules.fw_rules_map.values():
+            for fw_rule in fw_rules_list:
+                conn_props = fw_rule.conn.convert_to_tcp_like_properties(peer_container)
+                src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
+                dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
+                rule_props = TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=src_peers,
+                                                                        dst_peers=dst_peers) & conn_props
+                res |= rule_props
+        return res

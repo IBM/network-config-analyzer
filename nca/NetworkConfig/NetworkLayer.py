@@ -8,7 +8,6 @@ from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
-from nca.CoreDS.PortSet import PortSet
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
 from nca.Resources.NetworkPolicy import PolicyConnections, NetworkPolicy
 
@@ -174,8 +173,7 @@ class NetworkLayer:
         # exclude IpBlock->IpBlock connections
         all_ips_peer_set = PeerSet({IpBlock.get_all_ips_block()})
         excluded_conns = TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=all_ips_peer_set,
-                                                                    dst_peers=all_ips_peer_set,
-                                                                    exclude_same_src_dst_peers=False)
+                                                                    dst_peers=all_ips_peer_set)
         res -= excluded_conns
         return res
 
@@ -291,8 +289,7 @@ class K8sCalicoNetworkLayer(NetworkLayer):
                 non_captured_conns = \
                     TcpLikeProperties.make_tcp_like_properties(peer_container,
                                                                src_peers=base_peer_set,
-                                                               dst_peers=non_captured_dst_peers,
-                                                               exclude_same_src_dst_peers=False)
+                                                               dst_peers=non_captured_dst_peers)
                 allowed_conn |= non_captured_conns
         else:
             captured_src_peers1 = allowed_conn.project_on_one_dimension('src_peers') if allowed_conn else PeerSet()
@@ -303,8 +300,7 @@ class K8sCalicoNetworkLayer(NetworkLayer):
                 non_captured_conns = \
                     TcpLikeProperties.make_tcp_like_properties(peer_container,
                                                                src_peers=non_captured_src_peers,
-                                                               dst_peers=base_peer_set,
-                                                               exclude_same_src_dst_peers=False)
+                                                               dst_peers=base_peer_set)
                 allowed_conn |= non_captured_conns
 
         return allowed_conn, denied_conns
@@ -338,16 +334,15 @@ class IstioNetworkLayer(NetworkLayer):
             if non_captured_peers:
                 non_captured_conns = \
                     TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                               src_peers=base_peer_set, dst_peers=non_captured_peers,
-                                                               exclude_same_src_dst_peers=False)
+                                                               src_peers=base_peer_set, dst_peers=non_captured_peers)
                 allowed_conn |= non_captured_conns
         else:
             non_captured_conns = \
                 TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                           src_peers=base_peer_set, dst_peers=base_peer_set,
-                                                           exclude_same_src_dst_peers=False)
+                                                           src_peers=base_peer_set, dst_peers=base_peer_set)
             allowed_conn |= non_captured_conns
         return allowed_conn, denied_conns
+
 
 class IngressNetworkLayer(NetworkLayer):
 
@@ -369,16 +364,13 @@ class IngressNetworkLayer(NetworkLayer):
         if is_ingress:
             non_captured_conns = \
                 TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                           src_peers=base_peer_set, dst_peers=base_peer_set,
-                                                           exclude_same_src_dst_peers=False)
+                                                           src_peers=base_peer_set, dst_peers=base_peer_set)
             allowed_conn |= non_captured_conns
         else:
             non_captured_peers = base_peer_set - captured
             if non_captured_peers:
                 non_captured_conns = \
                     TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                               src_peers=non_captured_peers, dst_peers=base_peer_set,
-                                                               exclude_same_src_dst_peers=False)
+                                                               src_peers=non_captured_peers, dst_peers=base_peer_set)
                 allowed_conn |= non_captured_conns
         return allowed_conn, denied_conns
-

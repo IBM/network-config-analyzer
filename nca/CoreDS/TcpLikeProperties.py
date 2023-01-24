@@ -406,10 +406,17 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return res
 
     @staticmethod
+    def cube_dict_to_str(cube_dict):
+        res = ""
+        for item in cube_dict.items():
+            res += str(item[0]) + " : " + str(item[1])
+        return res
+
+    @staticmethod
     def make_tcp_like_properties(peer_container, src_ports=PortSet(True), dst_ports=PortSet(True),
                                  protocols=ProtocolSet(True), src_peers=None, dst_peers=None,
                                  paths_dfa=None, hosts_dfa=None, methods=MethodSet(True),
-                                 icmp_type=None, icmp_code=None, exclude_same_src_dst_peers=True):
+                                 icmp_type=None, icmp_code=None):
         """
         get TcpLikeProperties with TCP allowed connections, corresponding to input properties cube.
         TcpLikeProperties should not contain named ports: substitute them with corresponding port numbers, per peer
@@ -437,16 +444,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             dst_peers_interval = base_peer_set.get_peer_interval_of(dst_peers)
         else:
             dst_peers_interval = None
-        exclude_props = TcpLikeProperties.make_empty_properties(peer_container)
-        if exclude_same_src_dst_peers and src_peers and dst_peers:
-            same_src_dst_peers = src_peers & dst_peers
-            for peer in same_src_dst_peers:
-                ps = PeerSet()
-                ps.add(peer)
-                peer_interval = base_peer_set.get_peer_interval_of(ps)
-                exclude_props |= TcpLikeProperties(src_peers=peer_interval,
-                                                   dst_peers=peer_interval,
-                                                   base_peer_set=base_peer_set)
         if (not src_ports.named_ports or not src_peers) and (not dst_ports.named_ports or not dst_peers):
             # Should not resolve named ports
             res = TcpLikeProperties(source_ports=src_ports, dest_ports=dst_ports,
@@ -454,7 +451,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                                     icmp_type=icmp_type, icmp_code=icmp_code,
                                     src_peers=src_peers_interval, dst_peers=dst_peers_interval,
                                     base_peer_set=base_peer_set)
-            return res - exclude_props if exclude_props else res
+            return res
         # Resolving named ports
         tcp_properties = None
         if src_ports.named_ports and dst_ports.named_ports:
@@ -555,7 +552,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                     tcp_properties |= props
                 else:
                     tcp_properties = props
-        return tcp_properties - exclude_props
+        return tcp_properties
 
     @staticmethod
     def make_tcp_like_properties_from_dict(peer_container, cube_dict):
@@ -580,8 +577,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return TcpLikeProperties.make_tcp_like_properties(peer_container, src_ports=src_ports, dst_ports=dst_ports,
                                                           protocols=protocols, src_peers=src_peers, dst_peers=dst_peers,
                                                           paths_dfa=paths_dfa, hosts_dfa=hosts_dfa, methods=methods,
-                                                          icmp_type=icmp_type, icmp_code=icmp_code,
-                                                          exclude_same_src_dst_peers=False)
+                                                          icmp_type=icmp_type, icmp_code=icmp_code)
 
     @staticmethod
     def make_empty_properties(peer_container=None):
