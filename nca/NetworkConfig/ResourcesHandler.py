@@ -25,11 +25,13 @@ class ResourceType(Enum):
 
 class LiveSimPaths:
     """
-    Hold the location of the LiveSim yaml files
+    Hold the location of the LiveSim yaml files.
+    Contains potential common resources that may be missing from the input config.
+    While parsing a config, attempt to resolve relevant missing resources from these yaml files.
     """
-    DnsCfgPath = 'LiveSim/dns/'
-    IngressControllerCfgPath = 'LiveSim/ingress_controller/'
-    IstioGwCfgPath = 'LiveSim/istio_gateway/'
+    DnsCfgPath = 'LiveSim/dns/'  # kube-dns pod
+    IngressControllerCfgPath = 'LiveSim/ingress_controller/'  # ingress controller pod
+    IstioGwCfgPath = 'LiveSim/istio_gateway/'  # istio gateway pod
 
 
 class ResourcesHandler:
@@ -58,14 +60,21 @@ class ResourcesHandler:
                                         'global', True, global_resources_parser)
 
     @staticmethod
+    def livesim_information_message(elements_type):
+        message = f'Found missing elements - adding complementary {elements_type} elements'
+        NcaLogger().log_message(message, level='I')
+
+    @staticmethod
     def analyze_livesim(policy_finder):
         """
-        Analyze the pre-parsing of the topology and finds what needs
-        to be added.
-        :param PolicyFinder policy_finder: Contains the policies found in pre-parsing
-        :return: [strings]: configuration_addons: the paths of the yamls to be added.
+        Analyze the parsing of the input config resources, and finds if some livesim resources
+        may need to be added, to resolve issues of common resources missing from the config.
+
+        :param PolicyFinder policy_finder: Contains the policies found in pre-parsing, and relevant info
+        about missing resources
+        :return: list[str] configuration_addons: the paths of the relevant livesim yamls to be added.
         """
-        configuration_addons = []
+        livesim_configuration_addons = []
         current_path = os.path.dirname(__file__)
 
         # find kube-dns reference
@@ -73,24 +82,23 @@ class ResourcesHandler:
         for key in policy_finder.missing_dns_pods_with_labels.keys():
             for yaml_path, labels in labels_found.items():
                 if policy_finder.missing_dns_pods_with_labels.get(key) == labels.get(key):
-                    configuration_addons.append(yaml_path)
-                    NcaLogger().log_message('Found missing elements - adding complementary kube-dns elements', level='I')
+                    livesim_configuration_addons.append(yaml_path)
+                    ResourcesHandler.livesim_information_message('kube-dns')
 
         # find ingress controller pods
         if policy_finder.missing_k8s_ingress_peers:
-            configuration_addons.append(os.path.join(current_path, LiveSimPaths.IngressControllerCfgPath))
-            NcaLogger().log_message('Found missing elements - adding complementary ingress controller elements', level='I')
+            livesim_configuration_addons.append(os.path.join(current_path, LiveSimPaths.IngressControllerCfgPath))
+            ResourcesHandler.livesim_information_message('ingress-controller')
 
         # find Istio ingress gateway
         labels_found = ResourcesParser.parse_livesim_yamls(os.path.join(current_path, LiveSimPaths.IstioGwCfgPath))
         for key in policy_finder.missing_istio_gw_pods_with_labels.keys():
             for yaml_path, labels in labels_found.items():
                 if policy_finder.missing_istio_gw_pods_with_labels.get(key) == labels.get(key):
-                    configuration_addons.append(yaml_path)
-                    NcaLogger().log_message('Found missing elements - adding complementary Istio ingress gateway elements',
-                                            level='I')
+                    livesim_configuration_addons.append(yaml_path)
+                    ResourcesHandler.livesim_information_message('Istio-ingress-gateway')
 
-        return configuration_addons
+        return livesim_configuration_addons
 
     def parse_elements(self, ns_list, pod_list, resource_list, config_name, save_flag, np_list):
         """
@@ -152,6 +160,7 @@ class ResourcesHandler:
             if resource_list:
                 resource_list += livesim_addons
 
+            # second attempt of parsing: input config + added livesim resources
             peer_container, resources_parser, cfg = self.parse_elements(ns_list,
                                                                         pod_list,
                                                                         resource_list,
@@ -160,6 +169,7 @@ class ResourcesHandler:
                                                                         np_list
                                                                         )
         else:
+            # no relevant livesim resources to add
             NcaLogger().flush_messages()
 
         if cfg and config_name == 'global':
@@ -319,6 +329,12 @@ class ResourcesParser:
 
     @staticmethod
     def parse_livesim_yamls(path):
+        """
+        get livesim resources relevant info of labels
+        :param str path: a path to a livesim yaml file
+        :return: a map from yaml path to a dict of labels (key-value map) in those resources
+        :rtype: dict
+        """
         resource_scanner = TreeScannerFactory.get_scanner(path)
         yaml_files = resource_scanner.get_yamls()
 

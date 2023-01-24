@@ -19,7 +19,22 @@ class Singleton(type):
 
 class NcaLogger(metaclass=Singleton):
     """
-    The logger.
+    NcaLogger is used to control warning messages issued by GenericYamlParser.
+    Any warning message is sent to NcaLogger().log_message()
+
+    The logger has 2 modes: muted / unmuted
+    If muted -- it collects the warning messages instead of printing them to output.
+    If unmuted -- the warning messages are printed directly to output without being collected.
+    The function flush_messages() allows to print the collected messages and clear them.
+
+
+    It is used for a 2-phase parsing of network config:
+    First phase is done on mute mode.
+
+    If "livesim" has potential to resolve some missing resources, a second parsing phase is called
+    on unmute mode, for a combination of original resources + relevant livesim resources.
+
+    Otherwise (no second parsing phase), the warning messages are flushed and printed to output.
 
     TODO: It is currently used mainly for muting printouts
           We may want to extend its functionality and use all printouts with it.

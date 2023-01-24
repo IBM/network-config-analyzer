@@ -28,6 +28,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         self.namespace = None
         self.gateways = {}  # a map from a name to a Gateway
         self.virtual_services = {}  # a map from a name to a VirtualService
+        # missing_istio_gw_pods_with_labels is map from key to value of labels
+        # of gateway resource that has no matching pods
         self.missing_istio_gw_pods_with_labels = {}
 
     def add_gateway(self, gateway):

@@ -29,6 +29,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.namespace = None
         self.default_backend_peers = PeerSet()
         self.default_backend_ports = PortSet()
+        # missing_k8s_ingress_peers is True if config has no identified ingress controller pod
         self.missing_k8s_ingress_peers = False
 
     def validate_path_value(self, path_value, path):
