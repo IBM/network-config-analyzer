@@ -399,16 +399,17 @@ class PeerSetElement(FWRuleElement):
         """
         :return: string of the represented element
         """
-        return f'pods: {self.get_pod_str()}'
+        return f'ns: {self.get_ns_str()}, pods: {self.get_pod_str()}'
 
     def get_elem_str(self, is_src):
         """
         :param is_src: bool flag to indicate if element is src (True) or dst (False)
         :return: string of the represented element with src or dst description of fields
         """
+        ns_prefix = 'src_ns: ' if is_src else 'dst_ns: '
         pods_prefix = ' src_pods: ' if is_src else ' dst_pods: '
         suffix = ' ' if is_src else ''
-        return pods_prefix + self.get_pod_str() + suffix
+        return ns_prefix + self.get_ns_str() + pods_prefix + self.get_pod_str() + suffix
 
     def __hash__(self):
         return hash(str(self))
