@@ -32,11 +32,11 @@ class DotGraph:
         self.name = name
         self.edges = []
         self.all_nodes = {}
-        self.labels = []
+        self.labels = set()
         self.labels_dict = {}
-        self.node_styles = {'ip_block': 'shape=plaintext style=filled fontcolor=red2',
-                            'pod': 'shape=plaintext style=filled fontcolor=blue',
-                            'clq': 'shape=egg fontcolor = purple color=purple width=0.5 height=0.1 label=\"\"',
+        self.node_styles = {'ip_block': 'shape=box fontcolor=red2',
+                            'pod': 'shape=box fontcolor=blue',
+                            'clq': 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0',
                             }
 
     def add_node(self, subgraph, name, node_type, label):
@@ -47,13 +47,14 @@ class DotGraph:
         param node_type: node type
         param label: node label
         """
+        label = [l.strip() for l in label] 
         if subgraph not in self.subgraphs.keys():
             self.subgraphs[subgraph] = self.Subgraph(subgraph)
         node = self.Node(name, node_type, label)
         self.subgraphs[subgraph].nodes.append(node)
         self.all_nodes[name] = node
         if node_type == 'clq':
-            self.labels.append(label[0])
+            self.labels.add(label[0])
 
     def add_edge(self, src_name, dst_name, label, is_dir):
         """
@@ -63,10 +64,11 @@ class DotGraph:
         param label: edge label
         is_dir: is directed edge
         """
+        label = label.strip()
         src_node = self.all_nodes[src_name]
         dst_node = self.all_nodes[dst_name]
         self.edges.append(self.Edge(src_node, dst_node, label, is_dir))
-        self.labels.append(label)
+        self.labels.add(label)
 
     def to_str(self):
         """
@@ -80,9 +82,8 @@ class DotGraph:
         output_result += ' labelloc = "t"\n'
         output_result += ' fontsize=30 \n'
         output_result += ' fontcolor=webmaroon\n'
-        # self.labels_dict = {l:l for l in self.labels}
-        self._set_labels_dict()
-        output_result += self._labels_dict_to_str()
+        if self._set_labels_dict:
+            output_result += self._labels_dict_to_str()
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
         output_result += ''.join([self._edge_to_str(edge) for edge in self.edges])
         output_result += '}\n'
@@ -93,12 +94,12 @@ class DotGraph:
         creates a string for the label dict in a dot file format
         return str: the string
         """
-        dict_table = 'label=<<table align="left" border="0" cellspacing="0">'
-        dict_table += '<tr><td><b>communication shortcuts:</b></td> </tr>'
-        for label, key in self.labels_dict.items():
-            dict_table += f'<tr><td><b>{key}</b></td> <td><b>{label}</b></td> </tr>'
-        dict_table += '</table>>'
-        return f'dict_box [{dict_table} shape=box]\n'
+        if not self.labels_dict:
+            return ''
+        items_to_present = [(label, short) for label, short in self.labels_dict.items() if label != short]
+        dict_table = '\l'.join([f'{short:<15}{label}' for label, short in items_to_present])
+        dict_table = f'label=\"Connectivity legend\l{dict_table}\l\"'
+        return f' dict_box [{dict_table} shape=box]\n'
 
     def _subgraph_to_str(self, subgraph):
         """
@@ -109,9 +110,9 @@ class DotGraph:
         if subgraph.name:
             nc_diag_name = str(subgraph.name).replace('-', '_')
             output_result += f'subgraph cluster_{nc_diag_name}_namespace'+'{\n'
-            output_result += f'label=<<b>{subgraph.name}</b>>\n'
+            output_result += f'label=\"{subgraph.name}\"\n'
             output_result += ' fontsize=20 \n'
-            output_result += ' fontcolor=green \n'
+            output_result += ' fontcolor=blue \n'
         nodes_lines = set()
         for node in subgraph.nodes:
             nodes_lines.add(self._node_to_str(node))
@@ -129,7 +130,7 @@ class DotGraph:
             table = '<<table border="0" cellspacing="0">'
             for line in node.label:
                 if line:
-                    table += f'<tr><td><b>{line}</b></td></tr>'
+                    table += f'<tr><td>{line}</td></tr>'
             table += '</table>>'
             label = f'label={table}'
             return f'\t\"{node.name}\" [{label} {self.node_styles[node.node_type]}]\n'
@@ -142,9 +143,9 @@ class DotGraph:
         return str: the string
         """
         is_clq_edge = 'clq' in [edge.src.node_type, edge.dst.node_type]
-        edge_color = 'purple' if is_clq_edge else 'gold2' if edge.is_dir else 'red2'
-        src_type = 'normal' if is_clq_edge and edge.src.node_type != 'clq' else 'none'
-        dst_type = 'normal' if edge.dst.node_type != 'clq' else 'none'
+        edge_color = 'indigo' if is_clq_edge else 'darkorange4'
+        src_type = 'normal' if not is_clq_edge and not edge.is_dir else 'none'
+        dst_type = 'normal' if not is_clq_edge else 'none'
         label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge else ''
 
         line = f'\"{edge.src.name}\" -> \"{edge.dst.name}\"'
@@ -156,10 +157,32 @@ class DotGraph:
         creates a dict of label -> to label_short
         in the dot graph we uses the label_short to label edges, so graph gets smaller.
         """
+        if not self.labels:
+            return False
+        if len(max(self.labels, key=len)) <= 11:
+            self.labels_dict = {l:l for l in self.labels}
+            return False
+        self.labels = list(self.labels)
+        self.labels.sort(reverse=True)
+
+        labels_tokens = {}
         for label in self.labels:
-            self.labels_dict[label] = re.findall(r"[\w']+", label)[0][0:3]
-        for short in set(self.labels_dict.values()):
-            labels_short = [label for label in self.labels_dict.keys() if self.labels_dict[label] == short]
-            if len(labels_short) > 1:
-                for label in labels_short:
-                    self.labels_dict[label] = f'{short}_{labels_short.index(label)}'
+            # todo - we might need a better approach splitting the labels to tokens
+            # we should revisit this code after reformatting connections labels
+            labels_tokens[label] = re.findall(r"[\w']+", label)
+        first_tokens = set([t[0] for t in labels_tokens.values()])
+        for first_token in first_tokens:
+            token_labels = [label for label in labels_tokens.keys() if labels_tokens[label][0] == first_token]
+            if len(token_labels) == 1:
+                self.labels_dict[token_labels[0]] = first_token
+            else:
+                one_token_labels = [label for label in token_labels if labels_tokens[label] == [first_token]]
+                if len(one_token_labels) == 1:
+                    self.labels_dict[one_token_labels[0]] = first_token
+                    token_labels.remove(one_token_labels[0])
+
+                for label in token_labels:
+                    self.labels_dict[label] = f'{first_token}_{token_labels.index(label)}'
+                    # todo - maybe put another token instead of the index
+                    # we should revisit this code after reformatting connections labels
+        return True
