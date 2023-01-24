@@ -75,7 +75,7 @@ queries:
       outputFormat: txt
       fwRulesRunInTestMode: false
       fwRulesGroupByLabelSinglePod: true
-      excludeIpv6Addresses: false
+      excludeIPv6Addresses: false
     expectedOutput: ../../expected_output/testcase15_with_ingress_connectivity_map.txt
 
   - name: no_empty_policies

@@ -678,8 +678,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         ref_ip_blocks = \
             IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
-                                       IpBlock.get_all_ips_block_peer_set(self.output_config.excludeIpv6Addresses),
-                                       self.output_config.excludeIpv6Addresses)
+                                       IpBlock.get_all_ips_block_peer_set(self.output_config.excludeIPv6Addresses),
+                                       self.output_config.excludeIPv6Addresses)
         connections = defaultdict(list)
         peers = PeerSet()
         peers_to_compare |= ref_ip_blocks
@@ -1103,11 +1103,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         added_peers = new_peers - intersected_peers
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
         old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(),
-                                                   IpBlock.get_all_ips_block_peer_set(self.output_config.excludeIpv6Addresses),
-                                                   self.output_config.excludeIpv6Addresses)
+                                                   IpBlock.get_all_ips_block_peer_set(self.output_config.excludeIPv6Addresses),
+                                                   self.output_config.excludeIPv6Addresses)
         new_ip_blocks = IpBlock.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(),
-                                                   IpBlock.get_all_ips_block_peer_set(self.output_config.excludeIpv6Addresses),
-                                                   self.output_config.excludeIpv6Addresses)
+                                                   IpBlock.get_all_ips_block_peer_set(self.output_config.excludeIPv6Addresses),
+                                                   self.output_config.excludeIPv6Addresses)
 
         conn_graph_removed_per_key = dict()
         conn_graph_added_per_key = dict()
