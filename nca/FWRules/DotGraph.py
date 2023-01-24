@@ -82,7 +82,7 @@ class DotGraph:
         output_result += ' labelloc = "t"\n'
         output_result += ' fontsize=30 \n'
         output_result += ' fontcolor=webmaroon\n'
-        if self._set_labels_dict:
+        if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
         output_result += ''.join([self._edge_to_str(edge) for edge in self.edges])
