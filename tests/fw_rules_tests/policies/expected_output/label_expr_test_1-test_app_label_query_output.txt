@@ -11,4 +11,3 @@ src: 0.0.0.0/0 dst_ns: [default] dst_pods: [!has(app) or app=dev] conn: All conn
 final fw rules for query: test_app_label, config: test4:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [app=dev] conn: All connections
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [d] conn: All connections
-

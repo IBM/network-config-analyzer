@@ -42,12 +42,18 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         Parses ingress backend and returns the set of pods and ports referenced by it.
         :param dict backend: the backend resource
         :param bool is_default: whether this is the default backend
-        :return: a tuple PeerSet and PortSet: the sets of pods and ports referenced by the backend,
-        or None and all ports when the default backend is None,
-        or None and None when the non-default backend is None.
+        :return: a tuple PeerSet and PortSet and a bool flag, as following:
+        the sets of pods and ports referenced by the backend and True,
+        or None and all ports and True when the default backend is None ,
+        or None and None and True when the non-default backend is None,
+        or None and None and False when the backend is not None but backend service does not exist (for default and
+        non-default backends)
+        - for non-default backend when the flag is False then the backend service does not exist, and the path
+        containing this backend should be ignored (i.e. don't override its peers and ports from the default_backend)
+        :rtype: (PeerSet, PortSet, bool)
         """
         if backend is None:
-            return (None, PortSet(True)) if is_default else (None, None)
+            return (None, PortSet(True), True) if is_default else (None, None, True)
         allowed_elements = {'resource': [0, dict], 'service': [0, dict]}
         self.check_fields_validity(backend, 'backend', allowed_elements)
         resource = backend.get('resource')
@@ -57,7 +63,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                               f'in the ingress {"default" if is_default else ""} backend', backend)
         if resource:
             self.warning('Resource is not yet supported in an ingress backend. Ignoring', backend)
-            return (None, PortSet(True)) if is_default else (None, None)
+            return (None, PortSet(True), True) if is_default else (None, None, True)
         allowed_service_elements = {'name': [1, str], 'port': [1, dict]}
         self.check_fields_validity(service, 'backend service', allowed_service_elements)
         service_name = service.get('name')
@@ -73,31 +79,41 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             self.validate_value_in_domain(port_number, 'dst_ports', backend, 'Port number')
         srv = self.peer_container.get_service_by_name_and_ns(service_name, self.namespace)
         if not srv:
-            self.syntax_error(f'Missing service referenced by the ingress {"default" if is_default else ""} backend',
-                              service)
+            warning_msg = f'The service referenced by the ingress {"default" if is_default else ""} ' \
+                          f'backend does not exist. '
+            if is_default:
+                warning_msg += 'The default backend will be ignored'
+            else:
+                warning_msg += 'The rule path containing this backend service will be ignored'
+            self.warning(warning_msg, service)
+            return None, None, False
+
         service_port = srv.get_port_by_name(port_name) if port_name else srv.get_port_by_number(port_number)
         if not service_port:
             self.syntax_error(f'Missing port {port_name if port_name else port_number} in the service', service)
 
         rule_ports = PortSet()
         rule_ports.add_port(service_port.target_port)  # may be either a number or a named port
-        return srv.target_pods, rule_ports
+        return srv.target_pods, rule_ports, True
 
     def parse_ingress_path(self, path):
         """
         Parses ingress path resource.
         The assumption is that the default backend has been already parsed
         :param dict path: the path resource
-        :return: a tuple (path_string, path_type, peers, ports)
+        :return: a tuple (path_string, path_type, peers, ports) or None if the path to be ignored
         """
         self.check_fields_validity(path, 'ingress rule path',
                                    {'backend': [1, dict], 'path': [0, str], 'pathType': [1, str]},
                                    {'pathType': ['ImplementationSpecific', 'Exact', 'Prefix']})
 
         backend = path.get('backend')
-        peers, ports = self.parse_backend(backend)
+        peers, ports, override_default = self.parse_backend(backend)
         if not peers:
-            peers, ports = self.default_backend_peers, self.default_backend_ports
+            if override_default:
+                peers, ports = self.default_backend_peers, self.default_backend_ports
+            else:  # backend service does not exist , ignoring this path
+                return None
         path_string = path.get('path')
         path_type = path.get('pathType')
         # from https://docs.nginx.com/nginx-ingress-controller/configuration/ingress-resources/basic-configuration/
@@ -193,26 +209,30 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         hosts_dfa = self.parse_regex_host_value(rule.get("host"), rule)
         paths_array = self.get_key_array_and_validate_not_empty(rule.get('http'), 'paths')
         allowed_conns = None
+        default_conns = None
         if paths_array is not None:
             all_paths_dfa = None
             parsed_paths = []
             for path in paths_array:
-                parsed_paths.append(self.parse_ingress_path(path))
-            parsed_paths_with_dfa = self.segregate_longest_paths_and_make_dfa(parsed_paths)
-            for (_, paths_dfa, _, peers, ports) in parsed_paths_with_dfa:
-                # every path is converted to allowed connections
-                conns = self._make_tcp_like_properties(ports, peers, paths_dfa, hosts_dfa)
-                if not allowed_conns:
-                    allowed_conns = conns
-                else:
-                    allowed_conns |= conns
-                if not all_paths_dfa:
-                    all_paths_dfa = paths_dfa
-                else:
-                    all_paths_dfa = all_paths_dfa | paths_dfa  # pick all captured paths
-            # for this host, every path not captured by the above paths goes to the default backend or is denied
-            paths_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('paths') - all_paths_dfa
-            default_conns = self._make_default_connections(hosts_dfa, paths_remainder_dfa)
+                path_resources = self.parse_ingress_path(path)
+                if path_resources is not None:
+                    parsed_paths.append(path_resources)
+            if parsed_paths:
+                parsed_paths_with_dfa = self.segregate_longest_paths_and_make_dfa(parsed_paths)
+                for (_, paths_dfa, _, peers, ports) in parsed_paths_with_dfa:
+                    # every path is converted to allowed connections
+                    conns = self._make_tcp_like_properties(ports, peers, paths_dfa, hosts_dfa)
+                    if not allowed_conns:
+                        allowed_conns = conns
+                    else:
+                        allowed_conns |= conns
+                    if not all_paths_dfa:
+                        all_paths_dfa = paths_dfa
+                    else:
+                        all_paths_dfa = all_paths_dfa | paths_dfa  # pick all captured paths
+                # for this host, every path not captured by the above paths goes to the default backend or is denied
+                paths_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('paths') - all_paths_dfa
+                default_conns = self._make_default_connections(hosts_dfa, paths_remainder_dfa)
         else:  # no paths --> everything for this host goes to the default backend or is denied
             default_conns = self._make_default_connections(hosts_dfa)
         if allowed_conns and default_conns:
@@ -240,8 +260,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                              'rules': [0, list], 'tls': [0, list]}
         self.check_fields_validity(policy_spec, 'Ingress spec', allowed_spec_keys)
 
-        self.default_backend_peers, self.default_backend_ports = self.parse_backend(policy_spec.get('defaultBackend'),
-                                                                                    True)
+        self.default_backend_peers, self.default_backend_ports, _ = self.parse_backend(policy_spec.get('defaultBackend'),
+                                                                                       True)
         # TODO extend to other ingress controllers
         res_policy.selected_peers = \
             self.peer_container.get_pods_with_service_name_containing_given_string('ingress-nginx')
@@ -251,10 +271,11 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):
             conns, hosts_dfa = self.parse_rule(ingress_rule)
-            if not allowed_conns:
-                allowed_conns = conns
-            else:
-                allowed_conns |= conns
+            if conns:
+                if not allowed_conns:
+                    allowed_conns = conns
+                else:
+                    allowed_conns |= conns
             if hosts_dfa:
                 if not all_hosts_dfa:
                     all_hosts_dfa = hosts_dfa
@@ -269,8 +290,10 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             allowed_conns |= default_conns
         elif default_conns:
             allowed_conns = default_conns
-        assert allowed_conns
 
-        res_policy.add_rules(self._make_allow_rules(allowed_conns))
+        # allowed_conns = none means that services referenced by this Ingress policy are not found,
+        # then no connections rules to add (Ingress policy has no effect)
+        if allowed_conns:
+            res_policy.add_rules(self._make_allow_rules(allowed_conns))
         res_policy.findings = self.warning_msgs
         return res_policy

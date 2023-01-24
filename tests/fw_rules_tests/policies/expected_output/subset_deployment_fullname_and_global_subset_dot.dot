@@ -15,4 +15,3 @@ digraph {
 	"ns1/deployment-A-2" -> "default/deployment-E-2" [label="All connections" color="gold2" fontcolor="darkgreen"]
 }
 
-

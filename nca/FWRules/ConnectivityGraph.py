@@ -1,3 +1,8 @@
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
+
 import os
 import itertools
 import re
@@ -139,10 +144,15 @@ class ConnectivityGraph:
 
         return directed_edges, not_directed_edges, cliques_nodes
 
-    def get_connectivity_dot_format_str(self):
+    def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :rtype str
         :return: a string with content of dot format for connectivity graph
         """
+        header_suffix = '' if connectivity_restriction is None else f', for {connectivity_restriction} connections'
+
         if self.output_config.queryName and self.output_config.configName:
             name = f'{self.output_config.queryName}/{self.output_config.configName}'
         else:
@@ -162,7 +172,7 @@ class ConnectivityGraph:
             directed_edges = set()
             # todo - is there a better way to get edge details?
             # we should revisit this code after reformatting connections labels
-            conn_str = str(connections).replace("Protocol:", "").replace('All connections', 'All')
+            conn_str = connections.get_simplified_connections_representation(True).replace("Protocol:", "").replace('All connections', 'All')
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer and connections:
                     src_peer_name, _, src_nc = self._get_peer_details(src_peer)

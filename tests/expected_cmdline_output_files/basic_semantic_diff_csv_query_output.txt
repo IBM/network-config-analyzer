@@ -7,4 +7,3 @@
 "Removed connections between persistent peers and ipBlocks","","","","","",
 "","","0.0.0.0/0","[kube-system]","[*]","TCP+UDP 53",
 "","","::/0","[kube-system]","[*]","TCP+UDP 53",
-

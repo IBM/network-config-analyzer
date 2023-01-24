@@ -3,7 +3,7 @@
   - istio-test-methods-paths-1
   numerical_result: 0
   explanation:
-  - rules:
+  - TCP_rules:
     - src_ns:
       - default
       src_pods:
@@ -61,3 +61,62 @@
           methods: all but PUT
           paths: all but /bad/path1, /bad/path3, /some/path2
           hosts: allowed-host.com
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+    non-TCP_rules:
+    - src_ip_block:
+      - 0.0.0.0/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ip_block:
+      - ::/0
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - 0.0.0.0/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ip_block:
+      - ::/0
+      connection:
+      - All connections
+    - src_ns:
+      - default
+      src_pods:
+      - '*'
+      dst_ns:
+      - default
+      dst_pods:
+      - '*'
+      connection:
+      - All connections

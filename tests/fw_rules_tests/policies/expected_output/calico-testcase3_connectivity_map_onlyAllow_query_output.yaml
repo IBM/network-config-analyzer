@@ -14,4 +14,3 @@
       - tier=frontend
       connection:
       - Protocol: TCP
-
