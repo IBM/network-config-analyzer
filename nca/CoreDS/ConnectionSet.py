@@ -557,7 +557,11 @@ class ConnectionSet:
             protocols = ProtocolSet()
             protocols.add_protocol(protocol)
             this_prop = TcpLikeProperties.make_tcp_like_properties(peer_container, protocols=protocols)
-            res |= (this_prop & properties)
+            if bool(properties):
+                if properties:
+                    res |= this_prop
+            else:
+                res |= (this_prop & properties)
         return res
 
     @staticmethod
