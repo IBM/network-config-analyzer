@@ -1,10 +1,25 @@
-namespaceList: ./
-podList: ./
+resourceList:
+  - resources/
 
 networkConfigList:
   - name: complex-k8s-ingress-test
+    namespaceList:
+      - ./added_resources/
+      - ./resources
+    podList:
+      - ./added_resources/
+      - ./resources
     networkPolicyList:
-      - ingress.yaml
+      - ./resources/ingress.yaml
+    expectedWarnings: 0
+
+  - name: complex-k8s-ingress-test-missing-resources
+    namespaceList:
+      - ./resources
+    podList:
+      - ./resources
+    networkPolicyList:
+      - ./resources/ingress.yaml
     expectedWarnings: 0
 
 
@@ -14,6 +29,14 @@ queries:
       - complex-k8s-ingress-test
     outputConfiguration:
       outputFormat: dot
-      outputPath: complex-k8s-ingress-test-connectivity-map.dot
       fwRulesRunInTestMode: false
     expectedOutput: ../../expected_output/complex-k8s-ingress-test-connectivity-map.dot
+
+  # test with livesim
+  - name: connectivity-2
+    connectivityMap:
+      - complex-k8s-ingress-test-missing-resources
+    outputConfiguration:
+      outputFormat: dot
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/complex-k8s-ingress-test-connectivity-map-with-missing-resources.dot

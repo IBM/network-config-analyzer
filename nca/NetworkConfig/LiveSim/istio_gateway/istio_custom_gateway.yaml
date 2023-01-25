@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: custom-ingressgateway-livesim
+  namespace: custom-gateways
+  labels:
+    istio: custom-ingressgateway
+spec:
+  serviceAccountName: custom-ingressgateway-livesim
+  containers:
+  - name: istio-proxy
+    image: auto
+---

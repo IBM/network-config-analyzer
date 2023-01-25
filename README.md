@@ -100,6 +100,11 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 
 For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md#cmdline-queries)
 
+##### Simulating live cluster missing resources:
+- There are several key elements that may be assumed to exist in the live cluster and be missing form the topology configurations in the repo.
+In those case, nca will add complementary configurations to make the topology and the connectivity whole. 
+- Fine-tuning instructions can be found [here](docs/SimulatingLiveClusterMissingResources.md)
+
 #### Exit Code Meaning:
 The exit value of running a command-line without a scheme is the combination of three factors:
 1. The result of running the query (0/1) as specified [here](docs/CmdLineQueriesResults.md)

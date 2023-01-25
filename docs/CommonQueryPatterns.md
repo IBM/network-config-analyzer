@@ -58,4 +58,3 @@ otherwise, an empty peer container is created
   - otherwise, global namespaces will be used if existed else cluster has empty namespaces container
 - If any specific key is specified it will override the relevant contents in resourceList
 
-
