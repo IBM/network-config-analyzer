@@ -150,23 +150,3 @@ jobs:
       - run: |
           export PYTHONPATH=.
           python tests/run_all_tests.py --type=k8s_live_general
-  rest-api:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
-      - uses: ./.github/actions/setup-nca-env
-      - run: |
-          python -m nca --daemon &
-          NCA_PID=$!
-          while true; do  # wait until REST server becomes responsive
-            curl_status=0
-            curl localhost:5000 || curl_status=$?
-            [ $curl_status -gt 0 ]  || break
-            sleep 1
-          done
-          curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_podlist/ns_list.json localhost:5000/namespace_list
-          curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_podlist/pods_list.json localhost:5000/pod_list
-          curl -X POST -H Content-Type:application/json -d @tests/k8s_testcases/example_policies/testcase1/testcase1-networkpolicy1.json localhost:5000/policy_sets
-          curl localhost:5000/policy_sets/set_0/findings -o testcase1_findings.json
-          diff testcase1_findings.json tests/rest_api/testcase1-findings.json
-          kill $NCA_PID

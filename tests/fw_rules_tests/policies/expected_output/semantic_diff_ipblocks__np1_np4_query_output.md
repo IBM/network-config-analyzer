@@ -27,4 +27,3 @@
 ||[kube-system]|[tier=frontend]||49.50.0.7/32|All connections|
 ||[kube-system]|[tier=frontend]||49.50.0.9/32|All connections|
 ||[kube-system]|[tier=frontend]||::/0|All connections|
-

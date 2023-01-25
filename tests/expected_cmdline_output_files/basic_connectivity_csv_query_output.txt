@@ -5,4 +5,3 @@
 "","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","","0.0.0.0/0","All connections",
 "","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","","::/0","All connections",
 "","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","All connections",
-

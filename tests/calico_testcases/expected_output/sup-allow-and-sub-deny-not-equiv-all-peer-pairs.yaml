@@ -3,7 +3,7 @@
   - np_SupsetAllowFirst
   - np_SubsetDenyFirst
   numerical_result: 1
-  textual_result: np_SupsetAllowFirst and np_SubsetDenyFirst are not semantically 
+  textual_result: np_SupsetAllowFirst and np_SubsetDenyFirst are not semantically
     equivalent.
   explanation:
   - description: Connections allowed in np_SupsetAllowFirst which are different in

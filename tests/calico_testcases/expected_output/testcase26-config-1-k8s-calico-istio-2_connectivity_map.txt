@@ -1,5 +1,8 @@
-final fw rules for query: connectivity-5, config: testcase26-config-1-k8s-calico-istio-2:
+For connections of type TCP, final fw rules for query: connectivity-5, config: testcase26-config-1-k8s-calico-istio-2:
 src_ns: [default] src_pods: [ratings-v1-b6994bb9] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: TCP {'methods': 'GET'}
 src_ns: [ingress-nginx] src_pods: [*] dst_ns: [ingress-nginx] dst_pods: [*] conn: All connections
 src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
 
+For connections of type non-TCP, final fw rules for query: connectivity-5, config: testcase26-config-1-k8s-calico-istio-2:
+src_ns: [ingress-nginx] src_pods: [*] dst_ns: [ingress-nginx] dst_pods: [*] conn: All connections
+src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections

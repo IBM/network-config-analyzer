@@ -6,4 +6,3 @@ src_ns: [ns1] src_pods: [dep=A] dst_ns: [default] dst_pods: [dep=E] conn: All co
 src_ns: [ns1] src_pods: [dep=B] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
 src_ns: [ns2] src_pods: [dep=C] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
 src_ns: [ns3] src_pods: [*] dst_ns: [default] dst_pods: [Pod4] conn: All connections
-

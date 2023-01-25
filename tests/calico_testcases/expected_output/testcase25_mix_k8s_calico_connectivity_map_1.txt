@@ -8,4 +8,3 @@ src_ns: [kube-system] src_pods: [!has(app) or (has(app) and app!=kube-fluentd)] 
 src_ns: [kube-system] src_pods: [!has(app) or (has(app) and app!=kube-fluentd)] dst: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [!has(app) or (has(app) and app!=kube-fluentd)] dst_ns: [default,kube-system,vendor-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [tier=frontend] conn: All connections
-
