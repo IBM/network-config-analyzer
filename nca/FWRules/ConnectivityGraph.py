@@ -19,7 +19,6 @@ class ConnectivityGraph:
     Represents a connectivity digraph, that is a set of labeled edges, where the nodes are peers and
     the labels on the edges are the allowed connections between two peers.
     """
-    i = 0
 
     def __init__(self, all_peers, allowed_labels, output_config):
         """
@@ -151,12 +150,9 @@ class ConnectivityGraph:
         :rtype str
         :return: a string with content of dot format for connectivity graph
         """
-        header_suffix = '' if connectivity_restriction is None else f', for {connectivity_restriction} connections'
-
-        if self.output_config.queryName and self.output_config.configName:
-            name = f'{self.output_config.queryName}/{self.output_config.configName}'
-        else:
-            name = f'{self.output_config.configName}'
+        restriction_title = f', for {connectivity_restriction} connections' if connectivity_restriction else ''
+        query_title = f'{self.output_config.queryName}/' if self.output_config.queryName else ''
+        name = f'{query_title}{self.output_config.configName}{restriction_title}'
 
         dot_graph = DotGraph(name)
         for peer in self.cluster_info.all_peers:
@@ -188,14 +184,6 @@ class ConnectivityGraph:
             for edge in not_directed_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=False)
         output_result = dot_graph.to_str()
-
-        ##############################
-        e_name = f'gr{ConnectivityGraph.i}{self.output_config.configName}'
-        e_name = e_name.replace('/', '_').replace('\\', '/')
-        with open(os.path.join('graphs', f'{e_name}_znew.dot'), 'w') as f:
-            f.write(output_result)
-        ConnectivityGraph.i += 1
-        ##############################
 
         return output_result
 
