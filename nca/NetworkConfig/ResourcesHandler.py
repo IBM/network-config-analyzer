@@ -64,7 +64,6 @@ class ResourcesHandler:
         message = f'Found missing elements - adding complementary {elements_type} elements'
         NcaLogger().log_message(message, level='I')
 
-
     @staticmethod
     def get_full_livesim_resource_path(livesim_resource_path):
         current_path = os.path.dirname(__file__)
