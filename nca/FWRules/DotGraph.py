@@ -9,6 +9,7 @@ class DotGraph:
     """
     represents a dot graph
     """
+
     class Subgraph:
         def __init__(self, name):
             self.name = name
@@ -34,10 +35,10 @@ class DotGraph:
         self.all_nodes = {}
         self.labels = set()
         self.labels_dict = {}
-        self.node_styles = {'ip_block': 'shape=box fontcolor=red2',
-                            'pod': 'shape=box fontcolor=blue',
-                            'clq': 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0',
-                            }
+        self.node_styles = \
+            {'ip_block': 'shape=box fontcolor=red2',
+             'pod': 'shape=box fontcolor=blue',
+             'clq': 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0'}
 
     def add_node(self, subgraph, name, node_type, label):
         """
@@ -47,7 +48,7 @@ class DotGraph:
         param node_type: node type
         param label: node label
         """
-        label = [l.strip() for l in label] 
+        label = [tok.strip() for tok in label if tok != '']
         if subgraph not in self.subgraphs.keys():
             self.subgraphs[subgraph] = self.Subgraph(subgraph)
         node = self.Node(name, node_type, label)
@@ -78,10 +79,10 @@ class DotGraph:
         output_result = f'// The Connectivity Graph of {self.name}\n'
         output_result += 'digraph ' + '{\n'
 
-        output_result += f'label=\"Connectivity Graph of {self.name}\"'
-        output_result += ' labelloc = "t"\n'
-        output_result += ' fontsize=30 \n'
-        output_result += ' fontcolor=webmaroon\n'
+        output_result += f'\tlabel=\"Connectivity Graph of {self.name}\"'
+        output_result += '\tlabelloc = "t"\n'
+        output_result += '\tfontsize=30 \n'
+        output_result += '\tfontcolor=webmaroon\n'
         if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
@@ -97,9 +98,9 @@ class DotGraph:
         if not self.labels_dict:
             return ''
         items_to_present = [(label, short) for label, short in self.labels_dict.items() if label != short]
-        dict_table = '\l'.join([f'{short:<15}{label}' for label, short in items_to_present])
-        dict_table = f'label=\"Connectivity legend\l{dict_table}\l\"'
-        return f' dict_box [{dict_table} shape=box]\n'
+        dict_table = '\\l'.join([f'{short:<15}{label}' for label, short in items_to_present])
+        dict_table = f'label=\"Connectivity legend\\l{dict_table}\\l\"'
+        return f'\tdict_box [{dict_table} shape=box]\n'
 
     def _subgraph_to_str(self, subgraph):
         """
@@ -109,10 +110,10 @@ class DotGraph:
         output_result = ''
         if subgraph.name:
             nc_diag_name = str(subgraph.name).replace('-', '_')
-            output_result += f'subgraph cluster_{nc_diag_name}_namespace'+'{\n'
-            output_result += f'label=\"{subgraph.name}\"\n'
-            output_result += ' fontsize=20 \n'
-            output_result += ' fontcolor=blue \n'
+            output_result += f'subgraph cluster_{nc_diag_name}_namespace' + '{\n'
+            output_result += f'\tlabel=\"{subgraph.name}\"\n'
+            output_result += '\tfontsize=20 \n'
+            output_result += '\tfontcolor=blue \n'
         nodes_lines = set()
         for node in subgraph.nodes:
             nodes_lines.add(self._node_to_str(node))
@@ -135,7 +136,7 @@ class DotGraph:
             label = f'label={table}'
             return f'\t\"{node.name}\" [{label} {self.node_styles[node.node_type]}]\n'
         else:
-            return f'\"{node.name}\" [{self.node_styles[node.node_type]}  xlabel=\"{self.labels_dict[node.label[0]]}\"]\n'
+            return f'\t\"{node.name}\" [{self.node_styles[node.node_type]}  xlabel=\"{self.labels_dict[node.label[0]]}\"]\n'
 
     def _edge_to_str(self, edge):
         """
@@ -148,7 +149,7 @@ class DotGraph:
         dst_type = 'normal' if not is_clq_edge else 'none'
         label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge else ''
 
-        line = f'\"{edge.src.name}\" -> \"{edge.dst.name}\"'
+        line = f'\t\"{edge.src.name}\" -> \"{edge.dst.name}\"'
         line += f'[{label} color={edge_color} fontcolor=darkgreen dir=both arrowhead={dst_type} arrowtail={src_type}]\n'
         return line
 
@@ -160,7 +161,7 @@ class DotGraph:
         if not self.labels:
             return False
         if len(max(self.labels, key=len)) <= 11:
-            self.labels_dict = {l:l for l in self.labels}
+            self.labels_dict = {label: label for label in self.labels}
             return False
         self.labels = list(self.labels)
         self.labels.sort(reverse=True)

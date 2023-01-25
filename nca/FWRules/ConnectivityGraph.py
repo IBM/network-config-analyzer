@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-import os
 import itertools
 import re
 from collections import defaultdict
@@ -168,7 +167,8 @@ class ConnectivityGraph:
             directed_edges = set()
             # todo - is there a better way to get edge details?
             # we should revisit this code after reformatting connections labels
-            conn_str = connections.get_simplified_connections_representation(True).replace("Protocol:", "").replace('All connections', 'All')
+            conn_str = connections.get_simplified_connections_representation(True)
+            conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer and connections:
                     src_peer_name, _, src_nc = self._get_peer_details(src_peer)
