@@ -1,33 +1,59 @@
-// The Connectivity Graph of np25
+// The Connectivity Graph of subset_no_subset_endpoints_deployments_dot/np25
 digraph {
-	HEADER [shape="box" label=< <B>subset_no_subset_endpoints_deployments_dot/np25</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
-	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
-	"::/0" [label="::/0" color="red2" fontcolor="red2"]
-	"default/Pod1(Pod)" [label="default/Pod1(Pod)" color="blue" fontcolor="blue"]
-	"default/Pod4(Pod)" [label="default/Pod4(Pod)" color="blue" fontcolor="blue"]
-	"default/Pod5(Pod)" [label="default/Pod5(Pod)" color="blue" fontcolor="blue"]
-	"default/deployment-E(Deployment)" [label="default/deployment-E(Deployment)" color="blue" fontcolor="blue"]
-	"default/deployment-Eb(Deployment)" [label="default/deployment-Eb(Deployment)" color="blue" fontcolor="blue"]
-	"ns1/Pod2(Pod)" [label="ns1/Pod2(Pod)" color="blue" fontcolor="blue"]
-	"ns1/deployment-A(Deployment)" [label="ns1/deployment-A(Deployment)" color="blue" fontcolor="blue"]
-	"ns1/deployment-B(Deployment)" [label="ns1/deployment-B(Deployment)" color="blue" fontcolor="blue"]
-	"ns2/Pod3(Pod)" [label="ns2/Pod3(Pod)" color="blue" fontcolor="blue"]
-	"ns2/Pod6(Pod)" [label="ns2/Pod6(Pod)" color="blue" fontcolor="blue"]
-	"ns2/deployment-C(Deployment)" [label="ns2/deployment-C(Deployment)" color="blue" fontcolor="blue"]
-	"ns2/deployment-D(Deployment)" [label="ns2/deployment-D(Deployment)" color="blue" fontcolor="blue"]
-	"ns2/deployment-F(Deployment)" [label="ns2/deployment-F(Deployment)" color="blue" fontcolor="blue"]
-	"ns3/Pod7(Pod)" [label="ns3/Pod7(Pod)" color="blue" fontcolor="blue"]
-	"ns3/Pod8(Pod)" [label="ns3/Pod8(Pod)" color="blue" fontcolor="blue"]
-	"default/Pod1(Pod)" -> "ns2/Pod3(Pod)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"default/Pod1(Pod)" -> "ns3/Pod7(Pod)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"default/Pod1(Pod)" -> "ns3/Pod8(Pod)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"default/Pod4(Pod)" -> "ns1/Pod2(Pod)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"default/Pod4(Pod)" -> "ns2/deployment-D(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"ns1/Pod2(Pod)" -> "default/Pod1(Pod)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"ns1/deployment-A(Deployment)" -> "default/deployment-E(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"ns1/deployment-B(Deployment)" -> "ns1/deployment-A(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"ns2/deployment-C(Deployment)" -> "ns1/deployment-A(Deployment)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"ns3/Pod7(Pod)" -> "default/Pod4(Pod)" [label="All connections" color="gold2" fontcolor="darkgreen"]
-	"ns3/Pod8(Pod)" -> "default/Pod4(Pod)" [label="All connections" color="gold2" fontcolor="darkgreen"]
+	label="Connectivity Graph of subset_no_subset_endpoints_deployments_dot/np25"	labelloc = "t"
+	fontsize=30
+	fontcolor=webmaroon
+subgraph cluster_default_namespace{
+	label="default"
+	fontsize=20
+	fontcolor=blue
+	"default/Pod1(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod1</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"default/Pod4(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod4</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"default/Pod5(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod5</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"default/deployment-E(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-E</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
+	"default/deployment-Eb(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-Eb</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
 }
-
+subgraph cluster_external_namespace{
+	label="external"
+	fontsize=20
+	fontcolor=blue
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
+	"::/0" [label=<<table border="0" cellspacing="0"><tr><td>::/0</td></tr></table>> shape=box fontcolor=red2]
+}
+subgraph cluster_ns1_namespace{
+	label="ns1"
+	fontsize=20
+	fontcolor=blue
+	"ns1/Pod2(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod2</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"ns1/deployment-A(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-A</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
+	"ns1/deployment-B(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-B</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
+}
+subgraph cluster_ns2_namespace{
+	label="ns2"
+	fontsize=20
+	fontcolor=blue
+	"ns2/Pod3(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod3</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"ns2/Pod6(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod6</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"ns2/deployment-C(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-C</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
+	"ns2/deployment-D(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-D</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
+	"ns2/deployment-F(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
+}
+subgraph cluster_ns3_namespace{
+	label="ns3"
+	fontsize=20
+	fontcolor=blue
+	"ns3/Pod7(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod7</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"ns3/Pod8(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod8</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+}
+	"default/Pod1(Pod)" -> "ns2/Pod3(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/Pod1(Pod)" -> "ns3/Pod7(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/Pod1(Pod)" -> "ns3/Pod8(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/Pod4(Pod)" -> "ns1/Pod2(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/Pod4(Pod)" -> "ns2/deployment-D(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ns1/Pod2(Pod)" -> "default/Pod1(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ns1/deployment-A(Deployment)" -> "default/deployment-E(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ns1/deployment-B(Deployment)" -> "ns1/deployment-A(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ns2/deployment-C(Deployment)" -> "ns1/deployment-A(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ns3/Pod7(Pod)" -> "default/Pod4(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ns3/Pod8(Pod)" -> "default/Pod4(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+}
