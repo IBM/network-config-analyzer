@@ -81,12 +81,13 @@ class DotGraph:
 
         output_result += f'\tlabel=\"Connectivity Graph of {self.name}\"'
         output_result += '\tlabelloc = "t"\n'
-        output_result += '\tfontsize=30 \n'
+        output_result += '\tfontsize=30\n'
         output_result += '\tfontcolor=webmaroon\n'
         if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
+        self.subgraphs = dict(sorted(self.subgraphs.items()))
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
-        output_result += ''.join([self._edge_to_str(edge) for edge in self.edges])
+        output_result += ''.join(sorted([self._edge_to_str(edge) for edge in self.edges]))
         output_result += '}\n'
         return output_result
 
@@ -112,8 +113,8 @@ class DotGraph:
             nc_diag_name = str(subgraph.name).replace('-', '_')
             output_result += f'subgraph cluster_{nc_diag_name}_namespace' + '{\n'
             output_result += f'\tlabel=\"{subgraph.name}\"\n'
-            output_result += '\tfontsize=20 \n'
-            output_result += '\tfontcolor=blue \n'
+            output_result += '\tfontsize=20\n'
+            output_result += '\tfontcolor=blue\n'
         nodes_lines = set()
         for node in subgraph.nodes:
             nodes_lines.add(self._node_to_str(node))

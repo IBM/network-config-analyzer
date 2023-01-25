@@ -102,13 +102,14 @@ class ConnectivityGraph:
         # find cliques in the graph:
         graph = networkx.Graph()
         graph.add_edges_from(not_directed_edges)
-        cliques = list(networkx.clique.find_cliques(graph))
+        cliques = networkx.clique.find_cliques(graph)
 
         cliques_nodes = []
+        cliques = sorted([sorted(clique) for clique in cliques])
         for clique in cliques:
             if len(clique) < MIN_CLIQUE_SIZE:
                 continue
-            clq_namespaces = set([peer[1] for peer in clique])
+            clq_namespaces = sorted(set([peer[1] for peer in clique]))
             # the list of new nodes of the clique:
             clique_namespaces_nodes = []
             for namespace_name in clq_namespaces:
@@ -158,7 +159,6 @@ class ConnectivityGraph:
             peer_name, is_ip_block, nc_name = self._get_peer_details(peer)
             text = [peer_name]
             if not is_ip_block:
-                # todo - is there a better way to get peer details?
                 text = [text for text in re.split('[/()]+', peer_name) if text != nc_name]
             node_type = 'ip_block' if is_ip_block else 'pod'
             dot_graph.add_node(nc_name, peer_name, node_type, text)
@@ -183,9 +183,7 @@ class ConnectivityGraph:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=True)
             for edge in not_directed_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=False)
-        output_result = dot_graph.to_str()
-
-        return output_result
+        return dot_graph.to_str()
 
     def get_minimized_firewall_rules(self):
         """
