@@ -82,8 +82,6 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
   A valid token to access a GHE repository
 - `--period <minutes>`\
   Run NCA with given arguments every specified number of minutes
-- `--daemon`\
-  Run NCA as a daemon. Send and receive data using a REST API.
 - `--output_format <format>`\
   Output format specification (txt/yaml/csv/md/dot).\
   *default:* txt\
