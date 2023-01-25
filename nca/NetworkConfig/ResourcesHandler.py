@@ -64,6 +64,32 @@ class ResourcesHandler:
         message = f'Found missing elements - adding complementary {elements_type} elements'
         NcaLogger().log_message(message, level='I')
 
+
+    @staticmethod
+    def get_full_livesim_resource_path(livesim_resource_path):
+        current_path = os.path.dirname(__file__)
+        return os.path.join(current_path, livesim_resource_path)
+
+    @staticmethod
+    def get_relevant_livesim_resources_paths_by_labels_matching(livesim_resource_path, missing_resource_labels_dict):
+        """
+        check by labels matching if one of the livesim resources has matching labels for a resource referenced by one
+        of the parsed policies. If yes, return its path to be added to the configuration, to enable the analysis.
+        :param str livesim_resource_path: a path to the relevant livesim dir to check for resources
+        :param dict missing_resource_labels_dict: the labels from parsed policy in the config for
+                                                  which a matching peer was missing
+        :return: list of paths for relevant livesim resources to add
+        :rtype list[str]
+        """
+        res = []
+        resource_full_path = ResourcesHandler.get_full_livesim_resource_path(livesim_resource_path)
+        livesim_resource_labels = ResourcesParser.parse_livesim_yamls(resource_full_path)
+        for key in missing_resource_labels_dict.keys():
+            for yaml_path, labels in livesim_resource_labels.items():
+                if missing_resource_labels_dict.get(key) == labels.get(key):
+                    res.append(yaml_path)
+        return res
+
     @staticmethod
     def analyze_livesim(policy_finder):
         """
@@ -75,28 +101,26 @@ class ResourcesHandler:
         :return: list[str] configuration_addons: the paths of the relevant livesim yamls to be added.
         """
         livesim_configuration_addons = []
-        current_path = os.path.dirname(__file__)
 
         # find kube-dns reference
-        labels_found = ResourcesParser.parse_livesim_yamls(os.path.join(current_path, LiveSimPaths.DnsCfgPath))
-        for key in policy_finder.missing_dns_pods_with_labels.keys():
-            for yaml_path, labels in labels_found.items():
-                if policy_finder.missing_dns_pods_with_labels.get(key) == labels.get(key):
-                    livesim_configuration_addons.append(yaml_path)
-                    ResourcesHandler.livesim_information_message('kube-dns')
+        dns_added_resources = ResourcesHandler.get_relevant_livesim_resources_paths_by_labels_matching(
+            LiveSimPaths.DnsCfgPath, policy_finder.missing_dns_pods_with_labels)
+        if dns_added_resources:
+            livesim_configuration_addons += dns_added_resources
+            ResourcesHandler.livesim_information_message('kube-dns')
 
         # find ingress controller pods
         if policy_finder.missing_k8s_ingress_peers:
-            livesim_configuration_addons.append(os.path.join(current_path, LiveSimPaths.IngressControllerCfgPath))
+            resource_full_path = ResourcesHandler.get_full_livesim_resource_path(LiveSimPaths.IngressControllerCfgPath)
+            livesim_configuration_addons.append(resource_full_path)
             ResourcesHandler.livesim_information_message('ingress-controller')
 
         # find Istio ingress gateway
-        labels_found = ResourcesParser.parse_livesim_yamls(os.path.join(current_path, LiveSimPaths.IstioGwCfgPath))
-        for key in policy_finder.missing_istio_gw_pods_with_labels.keys():
-            for yaml_path, labels in labels_found.items():
-                if policy_finder.missing_istio_gw_pods_with_labels.get(key) == labels.get(key):
-                    livesim_configuration_addons.append(yaml_path)
-                    ResourcesHandler.livesim_information_message('Istio-ingress-gateway')
+        istio_gateway_added_resources = ResourcesHandler.get_relevant_livesim_resources_paths_by_labels_matching(
+            LiveSimPaths.IstioGwCfgPath, policy_finder.missing_istio_gw_pods_with_labels)
+        if istio_gateway_added_resources:
+            livesim_configuration_addons += istio_gateway_added_resources
+            ResourcesHandler.livesim_information_message('Istio-ingress-gateway')
 
         return livesim_configuration_addons
 
