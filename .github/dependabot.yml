@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"
-    directory: "/.github/actions"
+    directory: ".github/actions/setup-nca-env"
     schedule:
       interval: "weekly"
   - package-ecosystem: "pip"
