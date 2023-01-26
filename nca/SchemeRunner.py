@@ -5,7 +5,7 @@
 
 import time
 from os import path
-from ruamel.yaml import YAML
+from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
@@ -27,11 +27,12 @@ class SchemeRunner(GenericYamlParser):
         if output_path is not None:
             self.output_config_from_cli_args['outputPath'] = output_path
 
-        with open(scheme_file_name) as scheme_file:
-            yaml = YAML()
-            self.scheme = yaml.load(scheme_file)
-            if not isinstance(self.scheme, dict):
-                self.syntax_error("The scheme's top-level object must be a map")
+        scanner = TreeScannerFactory.get_scanner(scheme_file_name)
+        for yaml_docs in scanner.get_yamls():
+            for yaml_content in yaml_docs.data:
+                self.scheme = yaml_content
+                if not isinstance(self.scheme, dict):
+                    self.syntax_error("The scheme's top-level object must be a map")
 
     def _get_input_file(self, given_path, out_flag=False):
         """

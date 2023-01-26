@@ -15,8 +15,7 @@ class DirScanner(GenericTreeScanner, HelmScanner):
        A class for reading yaml files from a file system path
     """
 
-    def __init__(self, fs_path, rt_load=False):
-        GenericTreeScanner.__init__(self, rt_load)
+    def __init__(self, fs_path):
         HelmScanner.__init__(self)
         self.fs_path = fs_path
 

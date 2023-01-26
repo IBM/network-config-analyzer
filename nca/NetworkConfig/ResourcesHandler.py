@@ -6,7 +6,7 @@ import copy
 import os
 from enum import Enum
 from sys import stderr
-from ruamel.yaml import error
+import yaml
 from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from .NetworkConfig import NetworkConfig
@@ -377,7 +377,7 @@ class ResourcesParser:
                     labels_found.update(item.labels)
                 results.update({yaml_file.path: labels_found})
 
-            except error.MarkedYAMLError as prs_err:
+            except yaml.MarkedYAMLError as prs_err:
                 print(
                     f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
                     'Parse Error:', prs_err.problem, file=stderr)
@@ -402,8 +402,7 @@ class ResourcesParser:
             elif resource_item == 'istio':
                 self._handle_istio_inputs(resource_flags)
             else:
-                rt_load = True if ResourceType.Policies in resource_flags else False
-                resource_scanner = TreeScannerFactory.get_scanner(resource_item, rt_load=rt_load)
+                resource_scanner = TreeScannerFactory.get_scanner(resource_item)
                 if resource_scanner is None:
                     continue
                 yaml_files = resource_scanner.get_yamls()
@@ -422,7 +421,7 @@ class ResourcesParser:
                             if ResourceType.Policies in resource_flags:
                                 self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
 
-                    except error.MarkedYAMLError as prs_err:
+                    except yaml.MarkedYAMLError as prs_err:
                         print(
                             f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
                             'Parse Error:', prs_err.problem, file=stderr)

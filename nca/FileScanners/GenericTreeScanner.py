@@ -5,9 +5,9 @@
 
 import os
 import abc
-from dataclasses import dataclass
-from ruamel.yaml import YAML, error
 from sys import stderr
+from dataclasses import dataclass
+import yaml
 
 
 @dataclass
@@ -19,16 +19,59 @@ class YamlFile:
     path: str
 
 
+class ObjectWithLocation:
+    line_number = 0
+    column_number = 0
+
+
+class YamlDict(dict, ObjectWithLocation):
+    pass
+
+
+class YamlList(list, ObjectWithLocation):
+    pass
+
+
+def to_yaml_objects(yaml_node):
+    if isinstance(yaml_node, yaml.SequenceNode):
+        res = YamlList()
+        res.line_number = yaml_node.start_mark.line
+        res.column_number = yaml_node.start_mark.column
+        for obj in yaml_node.value:
+            res.append(to_yaml_objects(obj))
+        return res
+    if isinstance(yaml_node, yaml.MappingNode):
+        res = YamlDict()
+        res.line_number = yaml_node.start_mark.line
+        res.column_number = yaml_node.start_mark.column
+        for obj in yaml_node.value:
+            res[obj[0].value] = to_yaml_objects(obj[1])
+        return res
+
+    try:
+        int_val = int(yaml_node.value)
+        return int_val
+    except ValueError:
+        pass
+
+    if yaml_node.style is None and yaml_node.value in ['', 'null']:
+        return None
+
+    return yaml_node.value
+
+
+def convert_documents(documents):
+    res = []
+    for document in documents:
+        yaml_object_doc = to_yaml_objects(document)
+        res.append(yaml_object_doc)
+    return res
+
+
 class GenericTreeScanner(abc.ABC):
     """
     A base class for reading yaml files
     """
-    def __init__(self, rt_load=False):
-        """
-        :param bool rt_load: if True, load yaml with RoundTripLoader
-        """
-        self.rt_load = rt_load
-
     @abc.abstractmethod
     def get_yamls(self):
         pass
@@ -49,14 +92,14 @@ class GenericTreeScanner(abc.ABC):
         :param str path: the path of the file
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
         """
-        yaml = YAML(typ="rt") if self.rt_load else YAML(typ="safe")
+        documents = yaml.compose_all(stream, Loader=yaml.SafeLoader)
         try:
-            yield YamlFile(yaml.load_all(stream), path)
-        except error.MarkedYAMLError as parse_error:
+            yield YamlFile(convert_documents(documents), path)
+        except yaml.MarkedYAMLError as parse_error:
             print(f'{parse_error.problem_mark.name}:{parse_error.problem_mark.line}:{parse_error.problem_mark.column}:',
                   'Parse Error:', parse_error.problem, file=stderr)
             return
-        except error.YAMLError:
+        except yaml.YAMLError:
             print('Bad yaml file:', path, file=stderr)
             return
 
@@ -68,15 +111,14 @@ from .DirScanner import DirScanner  # noqa: E402
 class TreeScannerFactory:
 
     @staticmethod
-    def get_scanner(entry, rt_load=False):
+    def get_scanner(entry):
         """
         factory method to determine what scanner to build
         :param str entry: the entry (path/url) to be scanned
-        :param bool rt_load: if True, load yaml with RoundTripLoader
         """
         if entry.startswith(('https://github', GitScanner.raw_github_content_prefix)):
-            return GitScanner(entry, rt_load)
+            return GitScanner(entry)
         elif os.path.isfile(entry) or os.path.isdir(entry) or (entry.endswith('**') and os.path.isdir(entry[:-2])):
-            return DirScanner(entry, rt_load)
+            return DirScanner(entry)
         else:
             return None

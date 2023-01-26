@@ -4,7 +4,6 @@
 #
 
 import re
-from ruamel.yaml import comments
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
 from nca.CoreDS.Peer import PeerSet, IpBlock
 from nca.CoreDS.PortSet import PortSet
@@ -258,20 +257,6 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 res_port_set.add_port(port)
         return res_port_set
 
-    @staticmethod
-    def _get_value_as_str(dict_to_use, key):
-        """
-        Safely getting string values that contain '!'.
-        Calico uses '!' as negation operator in selectors, while YAML uses it to declare tags
-        :param dict dict_to_use: The dictionary to retrieve the value from
-        :param str key: The key for which the value should be retrieved
-        :return: The proper string value
-        """
-        val = dict_to_use.get(key)
-        if isinstance(val, comments.TaggedScalar):  # negation operator '!' is used to declare tags in YAML
-            val = val.tag.value
-        return val
-
     def _get_rule_peers(self, entity_rule):
         """
         Parse the peer-specifying parts of the source/destination parts of a rule
@@ -291,9 +276,9 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         for cidr in not_nets:
             rule_ips -= IpBlock(cidr)
 
-        ns_selector = self._get_value_as_str(entity_rule, 'namespaceSelector')
-        pod_selector = self._get_value_as_str(entity_rule, 'selector')
-        not_pod_selector = self._get_value_as_str(entity_rule, 'notSelector')
+        ns_selector = entity_rule.get('namespaceSelector')
+        pod_selector = entity_rule.get('selector')
+        not_pod_selector = entity_rule.get('notSelector')
         if ns_selector:
             rule_peers = self._parse_label_selector(ns_selector, entity_rule, namespace_selector=True)
         elif pod_selector:

@@ -128,7 +128,7 @@ class ClusterEP(Peer):
 
         labels = sorted(self.labels.items())
         for label in labels:
-            ret += ',(' + label[0] + ',' + label[1] + ')'
+            ret += ',(' + label[0] + ',' + str(label[1]) + ')'
 
         return ret
 

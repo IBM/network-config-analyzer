@@ -4,9 +4,8 @@ import sys
 import os
 from fnmatch import fnmatch
 import time
-import yaml
 import csv
-from ruamel.yaml import YAML
+import yaml
 import shutil
 
 from nca.nca_cli import nca_main
@@ -379,7 +378,7 @@ class TestsRunner:
 
         elif self.test_files_spec.type == 'cmdline':
             with open(test_file) as doc:
-                code = YAML().load_all(doc)
+                code = yaml.load_all(doc, Loader=yaml.SafeLoader)
                 for test in next(iter(code)):
                     query_name = test.get('name', '')
                     # Skip HELM tests if HELM is not installed.
