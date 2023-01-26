@@ -9,6 +9,7 @@ Utility class to control HELM
 
 import os
 import re
+import shutil
 from nca.Utils.CmdlineRunner import CmdlineRunner
 
 
@@ -19,6 +20,7 @@ class HelmScanner:
 
     def __init__(self):
         self.template_files = []
+        self.helm_path = shutil.which('helm')
 
     def parse_chart(self, chart_dir):
         """
