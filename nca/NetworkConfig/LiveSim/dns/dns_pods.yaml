@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-system
+  labels:
+    name: kube-system
+    kubernetes.io/metadata.name: kube-system
+---
+apiVersion: apps/v1
+kind: Pod
+metadata:
+  name: kube-dns-livesim
+  namespace: kube-system
+  labels:
+    k8s-app: kube-dns
+    projectcalico.org/namespace: kube-system
+spec:
+  containers:
+    - name: nginx
+      image: kube-dns
+---

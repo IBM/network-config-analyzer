@@ -1,130 +1,132 @@
 test,run_time(seconds)
-"k8s_cmdline_tests.yaml, query name: all_subset_mix",0.22
-"k8s_cmdline_tests.yaml, query name: basic_connectivity",0.06
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_csv",0.06
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_dot",0.07
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_md",0.06
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_txt",0.06
-"k8s_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.06
-"k8s_cmdline_tests.yaml, query name: basic_equiv",0.44
-"k8s_cmdline_tests.yaml, query name: basic_equiv_all_with_resource_list_except_base_np",0.62
-"k8s_cmdline_tests.yaml, query name: basic_equiv_all_with_resources_list",0.84
-"k8s_cmdline_tests.yaml, query name: basic_equiv_base_resource_list_specify_topology",0.45
-"k8s_cmdline_tests.yaml, query name: basic_equiv_networkpolicies_and_topology_with_resource_list",0.63
-"k8s_cmdline_tests.yaml, query name: basic_equiv_topology_with_resource_list",0.43
+"k8s_cmdline_tests.yaml, query name: all_subset_mix",0.27
+"k8s_cmdline_tests.yaml, query name: basic_connectivity",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_csv",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_dot",0.06
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_md",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_txt",0.07
+"k8s_cmdline_tests.yaml, query name: basic_connectivity_yaml",0.07
+"k8s_cmdline_tests.yaml, query name: basic_equiv",0.13
+"k8s_cmdline_tests.yaml, query name: basic_equiv_all_with_resource_list_except_base_np",0.35
+"k8s_cmdline_tests.yaml, query name: basic_equiv_all_with_resources_list",0.58
+"k8s_cmdline_tests.yaml, query name: basic_equiv_base_resource_list_specify_topology",0.16
+"k8s_cmdline_tests.yaml, query name: basic_equiv_networkpolicies_and_topology_with_resource_list",0.35
+"k8s_cmdline_tests.yaml, query name: basic_equiv_topology_with_resource_list",0.13
 "k8s_cmdline_tests.yaml, query name: basic_forbids",0.04
-"k8s_cmdline_tests.yaml, query name: basic_interferes",0.23
+"k8s_cmdline_tests.yaml, query name: basic_interferes",0.03
 "k8s_cmdline_tests.yaml, query name: basic_permits",0.04
-"k8s_cmdline_tests.yaml, query name: basic_sanity",0.03
+"k8s_cmdline_tests.yaml, query name: basic_sanity",0.04
 "k8s_cmdline_tests.yaml, query name: basic_sanity_ignore_resource_list_all",0.03
 "k8s_cmdline_tests.yaml, query name: basic_sanity_ignore_resource_list_np",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_list_pods",0.03
+"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_list_pods",0.04
 "k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_ns",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_pods_ns",0.04
-"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resourcelist_pods",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_list_only",0.22
+"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resource_pods_ns",0.03
+"k8s_cmdline_tests.yaml, query name: basic_sanity_ignored_resourcelist_pods",0.04
+"k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_list_only",0.25
 "k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_np",0.03
 "k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_ns",0.03
-"k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_pods",0.03
+"k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_pods",0.04
 "k8s_cmdline_tests.yaml, query name: basic_sanity_used_resource_pods_ns",0.03
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.29
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.29
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.29
-"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.29
-"k8s_cmdline_tests.yaml, query name: basic_subset_deployment",0.21
-"k8s_cmdline_tests.yaml, query name: basic_subset_label",0.21
-"k8s_cmdline_tests.yaml, query name: basic_subset_namespace",0.21
-"k8s_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.04
-"k8s_cmdline_tests.yaml, query name: git_resources",11.46
-"k8s_cmdline_tests.yaml, query name: helm_test_multi_chart",2.31
-"k8s_cmdline_tests.yaml, query name: helm_test_one_chart",0.84
-"k8s_cmdline_tests.yaml, query name: helm_test_resolved_yaml_in_template_dir",1.08
-"k8s_cmdline_tests.yaml, query name: helm_test_resolved_yaml_inside_chart",1.05
-"k8s_cmdline_tests.yaml, query name: helm_test_resolved_yaml_next_to_chart",1.06
-"k8s_cmdline_tests.yaml, query name: helm_test_resolved_yaml_next_to_multi_charts",2.60
-"k8s_cmdline_tests.yaml, query name: return_0",0.03
-"k8s_cmdline_tests.yaml, query name: subset_label",0.21
-"k8s_cmdline_tests.yaml, query name: subset_label2",0.20
-"k8s_cmdline_tests.yaml, query name: two_way_containment_policies",0.07
-fw_rules_tests/policies/cyclonus-simple-example-scheme.yaml,0.06
-fw_rules_tests/policies/label_expr_test_1-scheme.yaml,0.29
-fw_rules_tests/policies/poc1-scheme.yaml,0.40
-fw_rules_tests/policies/poc2-scheme.yaml,0.30
-fw_rules_tests/policies/poc3-scheme.yaml,0.30
-fw_rules_tests/policies/poc4-scheme.yaml,0.57
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff",0.34
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_csv",0.34
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_md",0.34
+"k8s_cmdline_tests.yaml, query name: basic_semantic_diff_yaml",0.35
+"k8s_cmdline_tests.yaml, query name: basic_subset_deployment",0.24
+"k8s_cmdline_tests.yaml, query name: basic_subset_label",0.25
+"k8s_cmdline_tests.yaml, query name: basic_subset_namespace",0.25
+"k8s_cmdline_tests.yaml, query name: different_topologies_semantic_diff",0.05
+"k8s_cmdline_tests.yaml, query name: git_resources",7.96
+"k8s_cmdline_tests.yaml, query name: helm_test_multi_chart",2.67
+"k8s_cmdline_tests.yaml, query name: helm_test_one_chart",1.12
+"k8s_cmdline_tests.yaml, query name: helm_test_resolved_yaml_in_template_dir",1.25
+"k8s_cmdline_tests.yaml, query name: helm_test_resolved_yaml_inside_chart",1.21
+"k8s_cmdline_tests.yaml, query name: helm_test_resolved_yaml_next_to_chart",1.25
+"k8s_cmdline_tests.yaml, query name: helm_test_resolved_yaml_next_to_multi_charts",3.06
+"k8s_cmdline_tests.yaml, query name: livesim_test_all_dot",1.01
+"k8s_cmdline_tests.yaml, query name: livesim_test_all_txt",0.23
+"k8s_cmdline_tests.yaml, query name: return_0",0.05
+"k8s_cmdline_tests.yaml, query name: subset_label",0.24
+"k8s_cmdline_tests.yaml, query name: subset_label2",0.22
+"k8s_cmdline_tests.yaml, query name: two_way_containment_policies",0.08
+fw_rules_tests/policies/cyclonus-simple-example-scheme.yaml,0.08
+fw_rules_tests/policies/label_expr_test_1-scheme.yaml,0.38
+fw_rules_tests/policies/poc1-scheme.yaml,0.64
+fw_rules_tests/policies/poc2-scheme.yaml,0.34
+fw_rules_tests/policies/poc3-scheme.yaml,0.35
+fw_rules_tests/policies/poc4-scheme.yaml,0.66
 fw_rules_tests/policies/port_aggregation-scheme.yaml,0.13
-fw_rules_tests/policies/semantic_diff_computeDiff-scheme.yaml,0.23
-fw_rules_tests/policies/semantic_diff_namedPorts-scheme.yaml,0.93
-fw_rules_tests/policies/semantic_diff_poc-scheme.yaml,0.76
-fw_rules_tests/policies/semantic_diff_withIpBlock-scheme.yaml,2.33
-fw_rules_tests/policies/semantic_diff_with_different_topologies-scheme.yaml,1.19
-fw_rules_tests/policies/subset-deployment-scheme.yaml,1.37
+fw_rules_tests/policies/semantic_diff_computeDiff-scheme.yaml,0.29
+fw_rules_tests/policies/semantic_diff_namedPorts-scheme.yaml,1.10
+fw_rules_tests/policies/semantic_diff_poc-scheme.yaml,0.88
+fw_rules_tests/policies/semantic_diff_withIpBlock-scheme.yaml,2.68
+fw_rules_tests/policies/semantic_diff_with_different_topologies-scheme.yaml,1.35
+fw_rules_tests/policies/subset-deployment-scheme.yaml,1.57
 fw_rules_tests/policies/test1-scheme.yaml,0.18
-fw_rules_tests/policies/test10-scheme.yaml,0.26
-fw_rules_tests/policies/test11-scheme.yaml,0.18
-fw_rules_tests/policies/test12-scheme.yaml,0.22
-fw_rules_tests/policies/test13-scheme.yaml,0.16
+fw_rules_tests/policies/test10-scheme.yaml,0.30
+fw_rules_tests/policies/test11-scheme.yaml,0.22
+fw_rules_tests/policies/test12-scheme.yaml,0.26
+fw_rules_tests/policies/test13-scheme.yaml,0.18
 fw_rules_tests/policies/test14-scheme.yaml,0.18
-fw_rules_tests/policies/test15-scheme.yaml,0.19
-fw_rules_tests/policies/test16-scheme.yaml,0.35
-fw_rules_tests/policies/test18-scheme.yaml,0.24
-fw_rules_tests/policies/test19-scheme.yaml,0.10
-fw_rules_tests/policies/test2-scheme.yaml,0.09
-fw_rules_tests/policies/test20-scheme.yaml,0.10
-fw_rules_tests/policies/test21-scheme.yaml,0.10
-fw_rules_tests/policies/test22-scheme.yaml,0.04
-fw_rules_tests/policies/test23-scheme.yaml,0.07
-fw_rules_tests/policies/test24-scheme.yaml,0.08
-fw_rules_tests/policies/test25-scheme.yaml,0.09
-fw_rules_tests/policies/test3-scheme.yaml,0.05
-fw_rules_tests/policies/test4-scheme.yaml,0.32
-fw_rules_tests/policies/test6-scheme.yaml,0.20
-fw_rules_tests/policies/test7-scheme.yaml,0.19
-fw_rules_tests/policies/test8-scheme.yaml,0.18
-fw_rules_tests/policies/test9-scheme.yaml,0.28
-k8s_testcases/all_resources_in_same_dir/all-resources-in-one-dir-scheme.yaml,0.24
-k8s_testcases/example_policies/all-captured-tests/captured-tests-scheme.yaml,0.07
-k8s_testcases/example_policies/andOrCombinations/andOrCombinations-scheme.yaml,0.75
-k8s_testcases/example_policies/demo/interferes/interferes-scheme.yaml,0.47
-k8s_testcases/example_policies/demo/regression/regression-scheme.yaml,0.38
-k8s_testcases/example_policies/demo/sanity/sanity-scheme.yaml,0.19
-k8s_testcases/example_policies/demo_short/demo1-scheme.yaml,0.20
-k8s_testcases/example_policies/demo_short/demo1-topology-resourcelist-scheme.yaml,0.20
-k8s_testcases/example_policies/demo_short/demo2-pods-resourcelist-scheme.yaml,0.11
-k8s_testcases/example_policies/demo_short/demo2-scheme.yaml,0.11
-k8s_testcases/example_policies/demo_short/demo3-ns-resourcelist-scheme.yaml,0.05
-k8s_testcases/example_policies/demo_short/demo3-scheme.yaml,0.05
-k8s_testcases/example_policies/emptinessTests/emptinessTests-scheme.yaml,0.56
-k8s_testcases/example_policies/k8s-ingress-test/k8s-ingress-test-scheme.yaml,0.36
-k8s_testcases/example_policies/namedPorts/namedPorts-scheme.yaml,0.19
-k8s_testcases/example_policies/network-policy-checks/network-policy-check-scheme.yaml,0.15
-k8s_testcases/example_policies/online_boutique/connectivity-scheme.yaml,1.13
-k8s_testcases/example_policies/resourcelist-one-path-example/resource-path-scheme.yaml,0.06
-k8s_testcases/example_policies/services1/services1-scheme.yaml,0.57
-k8s_testcases/example_policies/testcase1/testcase1-scheme.yaml,0.59
-k8s_testcases/example_policies/testcase10-json-version/testcase10-json-version-scheme.yaml,1.74
-k8s_testcases/example_policies/testcase10-nameSpace-podSelector/testcase10-all-resources-in-one-key-scheme.yaml,1.76
-k8s_testcases/example_policies/testcase10-nameSpace-podSelector/testcase10-scheme.yaml,1.72
-k8s_testcases/example_policies/testcase11-forbids-permits/testcase11-scheme.yaml,0.46
-k8s_testcases/example_policies/testcase1_tag/testcase1tag-scheme.yaml,0.29
-k8s_testcases/example_policies/testcase2/testcase2-scheme.yaml,0.60
-k8s_testcases/example_policies/testcase3/testcase3-scheme.yaml,1.67
-k8s_testcases/example_policies/testcase4/testcase4-scheme.yaml,0.17
-k8s_testcases/example_policies/testcase5/testcase5-scheme.yaml,0.44
-k8s_testcases/example_policies/testcase6/testcase6-scheme.yaml,0.21
-k8s_testcases/example_policies/testcase7/testcase7-scheme.yaml,2.25
-k8s_testcases/example_policies/testcase8/testcase8-scheme.yaml,0.07
-k8s_testcases/example_policies/testcase9-sanity/testcase9-sanity-scheme.yaml,0.90
-k8s_testcases/example_policies/tests-different-topologies/containment-permits-different-topologies-scheme.yaml,0.26
-k8s_testcases/example_policies/tests-different-topologies/namedPorts-scheme.yaml,0.22
-k8s_testcases/example_policies/tests-different-topologies/semanticDiff-IpBlocks-different-topologies-scheme.yaml,38.82
-k8s_testcases/example_policies/tests-different-topologies/semanticDiff-different-topologies-scheme.yaml,0.35
-k8s_testcases/example_policies/tests-different-topologies/semanticDiff-multiple-resources-scheme.yaml,0.08
-k8s_testcases/example_policies/tests-different-topologies/semanticDiff-same-topologies-scheme.yaml,0.12
-k8s_testcases/example_policies/typoNotInTests/typoNotInTests-scheme.yaml,2.28
-k8s_testcases/example_policies/withEndPort/withEndPort-scheme.yaml,1.38
-k8s_testcases/example_policies/withIpBlock/withIpBlock-scheme.yaml,5.72
-k8s_testcases/example_policies/withIpBlock2/withIpBlock2-scheme.yaml,9.42
-k8s_testcases/example_policies/workload-resources-test/file-system-resource-test-scheme.yaml,0.06
-k8s_testcases/example_policies/workload-resources-test/git-resource-test-scheme.yaml,8.88
-k8s_testcases/network-policy-checks-bad-path/network-policy-check-bad-path-scheme.yaml,0.70
+fw_rules_tests/policies/test15-scheme.yaml,0.21
+fw_rules_tests/policies/test16-scheme.yaml,0.39
+fw_rules_tests/policies/test18-scheme.yaml,0.28
+fw_rules_tests/policies/test19-scheme.yaml,0.12
+fw_rules_tests/policies/test2-scheme.yaml,0.10
+fw_rules_tests/policies/test20-scheme.yaml,0.12
+fw_rules_tests/policies/test21-scheme.yaml,0.11
+fw_rules_tests/policies/test22-scheme.yaml,0.05
+fw_rules_tests/policies/test23-scheme.yaml,0.08
+fw_rules_tests/policies/test24-scheme.yaml,0.09
+fw_rules_tests/policies/test25-scheme.yaml,0.10
+fw_rules_tests/policies/test3-scheme.yaml,0.06
+fw_rules_tests/policies/test4-scheme.yaml,0.40
+fw_rules_tests/policies/test6-scheme.yaml,0.22
+fw_rules_tests/policies/test7-scheme.yaml,0.28
+fw_rules_tests/policies/test8-scheme.yaml,0.21
+fw_rules_tests/policies/test9-scheme.yaml,0.32
+k8s_testcases/all_resources_in_same_dir/all-resources-in-one-dir-scheme.yaml,0.30
+k8s_testcases/example_policies/all-captured-tests/captured-tests-scheme.yaml,0.08
+k8s_testcases/example_policies/andOrCombinations/andOrCombinations-scheme.yaml,0.21
+k8s_testcases/example_policies/demo/interferes/interferes-scheme.yaml,0.18
+k8s_testcases/example_policies/demo/regression/regression-scheme.yaml,0.26
+k8s_testcases/example_policies/demo/sanity/sanity-scheme.yaml,0.18
+k8s_testcases/example_policies/demo_short/demo1-scheme.yaml,0.08
+k8s_testcases/example_policies/demo_short/demo1-topology-resourcelist-scheme.yaml,0.08
+k8s_testcases/example_policies/demo_short/demo2-pods-resourcelist-scheme.yaml,0.07
+k8s_testcases/example_policies/demo_short/demo2-scheme.yaml,0.06
+k8s_testcases/example_policies/demo_short/demo3-ns-resourcelist-scheme.yaml,0.04
+k8s_testcases/example_policies/demo_short/demo3-scheme.yaml,0.04
+k8s_testcases/example_policies/emptinessTests/emptinessTests-scheme.yaml,0.36
+k8s_testcases/example_policies/k8s-ingress-test/k8s-ingress-test-scheme.yaml,0.72
+k8s_testcases/example_policies/namedPorts/namedPorts-scheme.yaml,0.09
+k8s_testcases/example_policies/network-policy-checks/network-policy-check-scheme.yaml,0.17
+k8s_testcases/example_policies/online_boutique/connectivity-scheme.yaml,1.68
+k8s_testcases/example_policies/resourcelist-one-path-example/resource-path-scheme.yaml,0.07
+k8s_testcases/example_policies/services1/services1-scheme.yaml,0.42
+k8s_testcases/example_policies/testcase1/testcase1-scheme.yaml,0.46
+k8s_testcases/example_policies/testcase10-json-version/testcase10-json-version-scheme.yaml,1.19
+k8s_testcases/example_policies/testcase10-nameSpace-podSelector/testcase10-all-resources-in-one-key-scheme.yaml,1.80
+k8s_testcases/example_policies/testcase10-nameSpace-podSelector/testcase10-scheme.yaml,1.20
+k8s_testcases/example_policies/testcase11-forbids-permits/testcase11-scheme.yaml,0.44
+k8s_testcases/example_policies/testcase1_tag/testcase1tag-scheme.yaml,0.23
+k8s_testcases/example_policies/testcase2/testcase2-scheme.yaml,0.47
+k8s_testcases/example_policies/testcase3/testcase3-scheme.yaml,0.75
+k8s_testcases/example_policies/testcase4/testcase4-scheme.yaml,0.15
+k8s_testcases/example_policies/testcase5/testcase5-scheme.yaml,0.18
+k8s_testcases/example_policies/testcase6/testcase6-scheme.yaml,0.08
+k8s_testcases/example_policies/testcase7/testcase7-scheme.yaml,1.42
+k8s_testcases/example_policies/testcase8/testcase8-scheme.yaml,0.06
+k8s_testcases/example_policies/testcase9-sanity/testcase9-sanity-scheme.yaml,0.50
+k8s_testcases/example_policies/tests-different-topologies/containment-permits-different-topologies-scheme.yaml,0.29
+k8s_testcases/example_policies/tests-different-topologies/namedPorts-scheme.yaml,0.27
+k8s_testcases/example_policies/tests-different-topologies/semanticDiff-IpBlocks-different-topologies-scheme.yaml,43.84
+k8s_testcases/example_policies/tests-different-topologies/semanticDiff-different-topologies-scheme.yaml,0.42
+k8s_testcases/example_policies/tests-different-topologies/semanticDiff-multiple-resources-scheme.yaml,0.11
+k8s_testcases/example_policies/tests-different-topologies/semanticDiff-same-topologies-scheme.yaml,0.15
+k8s_testcases/example_policies/typoNotInTests/typoNotInTests-scheme.yaml,1.55
+k8s_testcases/example_policies/withEndPort/withEndPort-scheme.yaml,1.31
+k8s_testcases/example_policies/withIpBlock/withIpBlock-scheme.yaml,1.38
+k8s_testcases/example_policies/withIpBlock2/withIpBlock2-scheme.yaml,5.51
+k8s_testcases/example_policies/workload-resources-test/file-system-resource-test-scheme.yaml,0.07
+k8s_testcases/example_policies/workload-resources-test/git-resource-test-scheme.yaml,7.66
+k8s_testcases/network-policy-checks-bad-path/network-policy-check-bad-path-scheme.yaml,0.80

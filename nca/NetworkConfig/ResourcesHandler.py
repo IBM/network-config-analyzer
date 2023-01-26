@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import copy
+import os
 from enum import Enum
 from sys import stderr
 from ruamel.yaml import error
@@ -12,6 +13,7 @@ from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from .PeerContainer import PeerContainer
+from nca.Utils.NcaLogger import NcaLogger
 
 
 class ResourceType(Enum):
@@ -21,11 +23,23 @@ class ResourceType(Enum):
     Policies = 3
 
 
+class LiveSimPaths:
+    """
+    Hold the location of the LiveSim yaml files.
+    Contains potential common resources that may be missing from the input config.
+    While parsing a config, attempt to resolve relevant missing resources from these yaml files.
+    """
+    DnsCfgPath = 'LiveSim/dns/'  # kube-dns pod
+    IngressControllerCfgPath = 'LiveSim/ingress_controller/'  # ingress controller pod
+    IstioGwCfgPath = 'LiveSim/istio_gateway/'  # istio gateway pod
+
+
 class ResourcesHandler:
     """
     This class is responsible to build the network config based on input resources from nca cmd line/ scheme runner.
     In case of scheme file with global resources, it is responsible to build and handle it too
     """
+
     def __init__(self):
         self.global_peer_container = None
         self.global_pods_finder = None
@@ -45,6 +59,93 @@ class ResourcesHandler:
         self._set_config_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                         'global', True, global_resources_parser)
 
+    @staticmethod
+    def livesim_information_message(elements_type):
+        message = f'Found missing elements - adding complementary {elements_type} elements'
+        NcaLogger().log_message(message, level='I')
+
+    @staticmethod
+    def get_full_livesim_resource_path(livesim_resource_path):
+        current_path = os.path.dirname(__file__)
+        return os.path.join(current_path, livesim_resource_path)
+
+    @staticmethod
+    def get_relevant_livesim_resources_paths_by_labels_matching(livesim_resource_path, missing_resource_labels_dict):
+        """
+        check by labels matching if one of the livesim resources has matching labels for a resource referenced by one
+        of the parsed policies. If yes, return its path to be added to the configuration, to enable the analysis.
+        :param str livesim_resource_path: a path to the relevant livesim dir to check for resources
+        :param dict missing_resource_labels_dict: the labels from parsed policy in the config for
+                                                  which a matching peer was missing
+        :return: list of paths for relevant livesim resources to add
+        :rtype list[str]
+        """
+        res = []
+        resource_full_path = ResourcesHandler.get_full_livesim_resource_path(livesim_resource_path)
+        livesim_resource_labels = ResourcesParser.parse_livesim_yamls(resource_full_path)
+        for key in missing_resource_labels_dict.keys():
+            for yaml_path, labels in livesim_resource_labels.items():
+                if missing_resource_labels_dict.get(key) == labels.get(key):
+                    res.append(yaml_path)
+        return res
+
+    @staticmethod
+    def analyze_livesim(policy_finder):
+        """
+        Analyze the parsing of the input config resources, and finds if some livesim resources
+        may need to be added, to resolve issues of common resources missing from the config.
+
+        :param PolicyFinder policy_finder: Contains the policies found in pre-parsing, and relevant info
+        about missing resources
+        :return: list[str] configuration_addons: the paths of the relevant livesim yamls to be added.
+        """
+        livesim_configuration_addons = []
+
+        # find kube-dns reference
+        dns_added_resources = ResourcesHandler.get_relevant_livesim_resources_paths_by_labels_matching(
+            LiveSimPaths.DnsCfgPath, policy_finder.missing_dns_pods_with_labels)
+        if dns_added_resources:
+            livesim_configuration_addons += dns_added_resources
+            ResourcesHandler.livesim_information_message('kube-dns')
+
+        # find ingress controller pods
+        if policy_finder.missing_k8s_ingress_peers:
+            resource_full_path = ResourcesHandler.get_full_livesim_resource_path(LiveSimPaths.IngressControllerCfgPath)
+            livesim_configuration_addons.append(resource_full_path)
+            ResourcesHandler.livesim_information_message('ingress-controller')
+
+        # find Istio ingress gateway
+        istio_gateway_added_resources = ResourcesHandler.get_relevant_livesim_resources_paths_by_labels_matching(
+            LiveSimPaths.IstioGwCfgPath, policy_finder.missing_istio_gw_pods_with_labels)
+        if istio_gateway_added_resources:
+            livesim_configuration_addons += istio_gateway_added_resources
+            ResourcesHandler.livesim_information_message('Istio-ingress-gateway')
+
+        return livesim_configuration_addons
+
+    def parse_elements(self, ns_list, pod_list, resource_list, config_name, save_flag, np_list):
+        """
+        Parse the elements and build peer container.
+        :param Union[list[str], None] ns_list: namespaces entries
+        :param Union[list[str], None] pod_list: pods and services entries
+        :param Union[list[str], None] resource_list: entries to read pods/namespaces/policies from
+        if the specific list is None
+        :param str config_name: name of the config
+        :param bool save_flag: used in cmdline queries with two configs, if save flag is True
+         will save the peer container as global to use it for base config's peer resources in case are missing
+        :param Union[list[str], None] np_list: networkPolicies entries
+        :return:  PeerContainer, ResourcesParser, str
+        """
+        resources_parser = ResourcesParser()
+        # build peer container
+        peer_container = \
+            self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
+
+        # parse for policies
+        cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
+
+        return peer_container, resources_parser, cfg
+
     def get_network_config(self, np_list, ns_list, pod_list, resource_list, config_name='global', save_flag=False):
         """
         First tries to build a peer_container using the input resources (NetworkConfigs's resources)
@@ -60,13 +161,39 @@ class ResourcesHandler:
          will save the peer container as global to use it for base config's peer resources in case are missing
         :rtype NetworkConfig
         """
-        resources_parser = ResourcesParser()
-        # build peer container
-        peer_container = \
-            self._set_config_peer_container(ns_list, pod_list, resource_list, config_name, save_flag, resources_parser)
+        NcaLogger().mute()
+        peer_container, resources_parser, cfg = self.parse_elements(ns_list,
+                                                                    pod_list,
+                                                                    resource_list,
+                                                                    config_name,
+                                                                    save_flag,
+                                                                    np_list
+                                                                    )
+        NcaLogger().unmute()
+        # check if LiveSim can add anything.
+        livesim_addons = self.analyze_livesim(resources_parser.policies_finder)
+        if livesim_addons:
+            NcaLogger().flush_messages(silent=True)
+            if ns_list:
+                ns_list += livesim_addons
 
-        # parse for policies
-        cfg = resources_parser.parse_lists_for_policies(np_list, resource_list, peer_container)
+            if pod_list:
+                pod_list += livesim_addons
+
+            if resource_list:
+                resource_list += livesim_addons
+
+            # second attempt of parsing: input config + added livesim resources
+            peer_container, resources_parser, cfg = self.parse_elements(ns_list,
+                                                                        pod_list,
+                                                                        resource_list,
+                                                                        config_name,
+                                                                        save_flag,
+                                                                        np_list
+                                                                        )
+        else:
+            # no relevant livesim resources to add
+            NcaLogger().flush_messages()
 
         if cfg and config_name == 'global':
             config_name = cfg
@@ -125,6 +252,7 @@ class ResourcesParser:
     """
     This class parses the input resources for topology (pods, namespaces, services) and policies.
     """
+
     def __init__(self):
         self.policies_finder = PoliciesFinder()
         self.pods_finder = PodsFinder()
@@ -221,6 +349,42 @@ class ResourcesParser:
             self.try_to_load_topology_from_live_cluster([ResourceType.Policies])
 
         return config_name
+
+    @staticmethod
+    def parse_livesim_yamls(path):
+        """
+        get livesim resources relevant info of labels
+        :param str path: a path to a livesim yaml file
+        :return: a map from yaml path to a dict of labels (key-value map) in those resources
+        :rtype: dict
+        """
+        resource_scanner = TreeScannerFactory.get_scanner(path)
+        yaml_files = resource_scanner.get_yamls()
+
+        results = {}
+        for yaml_file in yaml_files:
+            pods_finder = PodsFinder()
+            ns_finder = NamespacesFinder()
+            labels_found = {}
+            try:
+                for res_code in yaml_file.data:
+                    ns_finder.parse_yaml_code_for_ns(res_code)
+                    pods_finder.namespaces_finder = ns_finder
+                    pods_finder.add_eps_from_yaml(res_code)
+                for item in ns_finder.namespaces.values():
+                    labels_found.update(item.labels)
+                for item in pods_finder.peer_set:
+                    labels_found.update(item.labels)
+                results.update({yaml_file.path: labels_found})
+
+            except error.MarkedYAMLError as prs_err:
+                print(
+                    f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
+                    'Parse Error:', prs_err.problem, file=stderr)
+            except UnicodeDecodeError as decode_err:
+                print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}')
+
+        return results
 
     def _parse_resources_path(self, resource_list, resource_flags):
         """
@@ -328,8 +492,8 @@ class ResourcesParser:
             self.policies_finder.load_istio_policies_from_k8s_cluster()
 
     def build_peer_container(self, config_name='global'):
-        print(f'{config_name}: cluster has {len(self.pods_finder.peer_set)} unique endpoints, '
-              f'{len(self.ns_finder.namespaces)} namespaces')
+        NcaLogger().log_message(f'{config_name}: cluster has {len(self.pods_finder.peer_set)} unique endpoints, '
+                                f'{len(self.ns_finder.namespaces)} namespaces')
 
         return PeerContainer(self.pods_finder.peer_set, self.ns_finder.namespaces, self.services_finder.services_list,
                              self.pods_finder.representative_peers)
