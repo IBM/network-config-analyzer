@@ -330,7 +330,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
     def get_all_ips_block(exclude_ipv6=False):
         """
         :return: The full range of ipv4 and ipv6 addresses if exclude_ipv6 is False
-        :param bool exclude_ipv6: indicates if to exclude the Ipv6 addresses
+        :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses
         :rtype: IpBlock
         """
         res = IpBlock('0.0.0.0/0')
@@ -342,7 +342,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
     def get_all_ips_block_peer_set(exclude_ipv6=False):
         """
         :return: The full range of ipv4 and ipv6 addresses (ipv6 if exclude_ipv6 is False)
-        :param bool exclude_ipv6: indicates if to exclude the Ipv6 addresses
+        :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses
         :rtype: PeerSet
         """
         res = PeerSet()
@@ -420,7 +420,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
         3. is maximal (extending the range to either side will violate either 1 or 2)
         :param ip_blocks1: A set of ip blocks
         :param ip_blocks2: A set of ip blocks
-        :param bool exclude_ipv6: indicates if to exclude the Ipv6 addresses in case the result is all_ips_block
+        :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses in case the result is all_ips_block
         :return: A set of ip ranges as specified above
         :rtype: PeerSet
         """
@@ -442,6 +442,20 @@ class IpBlock(Peer, CanonicalIntervalSet):
             res.add(IpBlock.get_all_ips_block(exclude_ipv6))
 
         return res
+
+    def is_ipv4_block(self):
+        """
+        checks whether self IpBlock includes only IPv4 addresses
+        :return: true if self includes only IPv4 addresses
+        :rtype: bool
+        """
+        cnt = 0
+        for interval in self.interval_set:
+            ip_address = interval.start
+            if isinstance(ip_address, IPNetworkAddress) and isinstance(ip_address.address, ipaddress.IPv4Address) or \
+                    isinstance(ip_address, ipaddress.IPv4Address):
+                cnt += 1
+        return cnt == len(self.interval_set)
 
 
 class PeerSet(set):

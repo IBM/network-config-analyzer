@@ -1,7 +1,5 @@
 "query","src_ns","src_pods","dst_ns","dst_pods","connection",
 ", config: testcase8-networkpolicy1.yaml","","","","","",
 "","","0.0.0.0/0","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","All connections",
-"","","::/0","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","All connections",
 "","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","","0.0.0.0/0","All connections",
-"","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","","::/0","All connections",
 "","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","[default,kube-system,kube-system-dummy-to-ignore,vendor-system]","[*]","All connections",

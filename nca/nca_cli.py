@@ -151,7 +151,7 @@ def run_args(args):
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
                                          'subset': {},
-                                         'excludeIPv6Addresses': not args.print_ipv6})
+                                         'excludeIPv6Range': not args.print_ipv6})
     expected_output = None
     # default values are for sanity query
     # np_list will be taken as args.<query_name> if it is not equal to the args parser's const value i.e ['']

@@ -12,4 +12,3 @@ src_ns: [onlineboutique] src_pods: [loadgenerator] dst_ns: [onlineboutique] dst_
 
 For connections of type non-TCP, final fw rules for query: connectivity-map-of-onlineboutique, config: onlineboutique-resources:
 src_ns: [onlineboutique] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [onlineboutique] src_pods: [*] dst: ::/0 conn: All connections

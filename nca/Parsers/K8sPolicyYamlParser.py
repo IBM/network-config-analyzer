@@ -216,6 +216,10 @@ class K8sPolicyYamlParser(GenericYamlParser):
             self.syntax_error(str(e.args), block)
         except TypeError as e:
             self.syntax_error(str(e.args), block)
+
+        if not self.has_ipv6_addresses:  # if already true, means a previous peer already had ipv6
+            # and then policy has ipv6 no need for more checks
+            self.check_and_update_has_ipv6_addresses(res)
         return res
 
     def parse_peer(self, peer):
@@ -437,4 +441,5 @@ class K8sPolicyYamlParser(GenericYamlParser):
 
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels
+        res_policy.has_ipv6_addresses = self.has_ipv6_addresses
         return res_policy
