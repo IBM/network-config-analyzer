@@ -188,7 +188,7 @@ class NetworkConfig:
 
     def get_referenced_ip_blocks(self, exclude_non_ref_ipv6=False):
         """
-        :param bool exclude_ipv6: indicates if to exclude non-referenced ipv_6 addresses from the result
+        :param bool exclude_non_ref_ipv6: indicates if to exclude non-referenced ipv_6 addresses from the result
         :return: All ip ranges, referenced in any of the policies' rules
         :rtype: Peer.PeerSet
         """
