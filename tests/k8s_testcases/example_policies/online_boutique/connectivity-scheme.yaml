@@ -18,14 +18,14 @@ networkConfigList:
     namespaceList: ./new_online_boutique_manifests/
     networkPolicyList:
       - ./synthesis_res_new_online_boutique.yaml
-    expectedWarnings: 8 # warnings about podSelector that selects no pods ( k8s-app: kube-dns )
+    expectedWarnings: 0
 
   - name: orig_online_boutique_synthesis_res
     podList: ./orig_online_boutique_manifests/
     namespaceList: ./orig_online_boutique_manifests/
     networkPolicyList:
       - ./synthesis_res_online_boutique.yaml
-    expectedWarnings: 10 # warnings about podSelector that selects no pods ( k8s-app: kube-dns )
+    expectedWarnings: 0
 
 
 

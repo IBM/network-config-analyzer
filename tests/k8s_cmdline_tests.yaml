@@ -357,6 +357,24 @@
     --base_resource_list k8s_testcases/example_podlist/pods_list.json
   expected: 1
 
+- name: livesim_test_all_dot
+  args: >
+    --connectivity livesim_tests/
+    --ns_list livesim_tests/
+    --pod_list livesim_tests/
+    --output_format dot
+    --expected_output expected_cmdline_output_files/livesim_test_all_dot.dot
+  expected: 0
+
+- name: livesim_test_all_txt
+  args: >
+    --connectivity livesim_tests/
+    --ns_list livesim_tests/
+    --pod_list livesim_tests/
+    --output_format txt
+    --expected_output expected_cmdline_output_files/livesim_test_all_txt.txt
+  expected: 0
+
 - name: helm_test_one_chart
   args: >
     --connectivity helm_tests/helm_test1/

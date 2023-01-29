@@ -1,0 +1,261 @@
+#
+# prepare topology
+#
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+  labels:
+    ns: def
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns1
+  labels:
+    ns: ns1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-A
+  labels:
+    dep: A
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      dep: A
+  template:
+    metadata:
+      labels:
+        dep: A
+    spec:
+      containers:
+        - name: my-test-app
+          image: nginx
+          ports:
+            - containerPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-B
+  labels:
+    dep: B
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      dep: B
+  template:
+    metadata:
+      labels:
+        dep: B
+        app: appA
+        release: v22b
+    spec:
+      containers:
+        - name: my-test-nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dep-a
+spec:
+  podSelector:
+    matchLabels:
+      dep: A
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              dep: B
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              dep: B
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dep-b
+spec:
+  podSelector:
+    matchLabels:
+      dep: B
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              dep: A
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              dep: A
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: default
+spec:
+  podSelector:
+    matchLabels: {}
+  policyTypes:
+  - Egress
+---
+#
+# Kube DNS case
+#
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-access
+spec:
+  podSelector:
+    matchLabels: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
+---
+#
+# Ingress controller case
+#
+kind: Pod
+apiVersion: v1
+metadata:
+  name: foo-app
+  labels:
+    app: foo-app
+spec:
+  containers:
+  - name: foo-app
+    image: balblabla:1.2.3
+    args:
+    - "-text=foo"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: foo-service
+spec:
+  selector:
+    app: foo-app
+  ports:
+  - port: 5678
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: "/foo"
+        backend:
+          service:
+            name: foo-service
+            port:
+              number: 5678
+---
+#
+# Istio Gateway case
+#
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: istio-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "httpbin.example.com"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: virtual-service
+  namespace: default
+spec:
+  hosts:
+  - "httpbin.example.com"
+  gateways:
+  - default/istio-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /status
+    - uri:
+        prefix: /delay
+    route:
+    - destination:
+        port:
+          number: 8000
+        host: httpbin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: httpbin
+  labels:
+    app: httpbin
+    service: httpbin
+spec:
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 80
+  selector:
+    app: httpbin
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpbin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: httpbin
+        version: v1
+    spec:
+      serviceAccountName: httpbin
+      containers:
+      - image: docker.io/kennethreitz/httpbin
+        imagePullPolicy: IfNotPresent
+        name: httpbin
+        ports:
+        - containerPort: 80
+---

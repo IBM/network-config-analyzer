@@ -13,6 +13,7 @@ from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
+from nca.Utils.NcaLogger import NcaLogger
 
 
 class GenericYamlParser:
@@ -66,7 +67,7 @@ class GenericYamlParser:
         if isinstance(obj, comments.CommentedBase):
             print_msg = f'{self.yaml_file_name}:{obj.lc.line}:{obj.lc.col}: {print_msg}'
 
-        print(print_msg, file=stderr)
+        NcaLogger().log_message(print_msg, file=stderr)
         self.warning_msgs.append(msg)
 
     def check_metadata_validity(self, policy_metadata):
