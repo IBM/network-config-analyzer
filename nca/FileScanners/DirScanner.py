@@ -50,7 +50,7 @@ class DirScanner(GenericTreeScanner, HelmScanner):
                 try:
                     if self.is_helm_chart(file):
                         if not self.helm_path:
-                            NcaLogger().log_message(msg=f'HELM is not installed - Skipping {root+file}', level='W')
+                            print(f'HELM is not installed - Skipping {os.path.abspath(os.path.join(root, file))}', file=stderr)
                             continue
                         file_name, file_content = self.parse_chart(root)
                         file_stream = io.StringIO(file_content)
