@@ -250,4 +250,6 @@ class GenericYamlParser:
         """
         for peer in peers:
             if isinstance(peer, IpBlock):
-                self.has_ipv6_addresses = not peer.is_ipv4_block()
+                if not peer.is_ipv4_block():
+                    self.has_ipv6_addresses = True
+                    return  # if at least one peer is ipv6 block , this policy has_ipv6, no need to continue
