@@ -82,8 +82,6 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
   A valid token to access a GHE repository
 - `--period <minutes>`\
   Run NCA with given arguments every specified number of minutes
-- `--daemon`\
-  Run NCA as a daemon. Send and receive data using a REST API.
 - `--output_format <format>`\
   Output format specification (txt/yaml/csv/md/dot).\
   *default:* txt\
@@ -101,6 +99,11 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
   *default:* deployments
 
 For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md#cmdline-queries)
+
+##### Simulating live cluster missing resources:
+- There are several key elements that may be assumed to exist in the live cluster and be missing form the topology configurations in the repo.
+In those case, nca will add complementary configurations to make the topology and the connectivity whole. 
+- Fine-tuning instructions can be found [here](docs/SimulatingLiveClusterMissingResources.md)
 
 #### Exit Code Meaning:
 The exit value of running a command-line without a scheme is the combination of three factors:

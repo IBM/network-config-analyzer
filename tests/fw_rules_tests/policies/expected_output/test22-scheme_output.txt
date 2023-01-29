@@ -1,3 +1,2 @@
 final fw rules for query: connectivity_map, config: np22:
 src_ns: [default] src_pods: [test!=C] dst_ns: [default] dst_pods: [app=skydive] conn: All connections
-

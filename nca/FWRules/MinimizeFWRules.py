@@ -685,11 +685,14 @@ class MinimizeFWRules:
             for conn in conns_to_remove:
                 new_fw_rules_map.pop(conn)
 
-    def get_fw_rules_in_required_format(self, add_txt_header=True, add_csv_header=True):
+    def get_fw_rules_in_required_format(self, add_txt_header=True, add_csv_header=True, connectivity_restriction=None):
         """
         :param add_txt_header: bool flag to indicate if header of fw-rules query should be added in txt format
         :param add_csv_header: bool flag to indicate if header csv should be added in csv format
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
         :return: a string or dict representing the computed minimized fw-rules (in a supported format txt/yaml/csv)
+        :rtype: Union[str, dict]
         """
         query_name = self.output_config.queryName
         if self.output_config.configName:
@@ -698,33 +701,39 @@ class MinimizeFWRules:
         if output_format not in FWRule.supported_formats:
             print(f'error: unexpected outputFormat in output configuration value [should be txt/yaml/csv],  '
                   f'value is: {output_format}')
-        return self.get_fw_rules_content(query_name, output_format, add_txt_header, add_csv_header)
+        return self.get_fw_rules_content(query_name, output_format, add_txt_header, add_csv_header, connectivity_restriction)
 
-    def get_fw_rules_content(self, query_name, req_format, add_txt_header, add_csv_header):
+    def get_fw_rules_content(self, query_name, req_format, add_txt_header, add_csv_header, connectivity_restriction):
         """
         :param query_name: a string of the query name
         :param req_format: a string of the required format, should be in FWRule.supported_formats
         :param add_txt_header:  bool flag to indicate if header of fw-rules query should be added in txt format
         :param add_csv_header: bool flag to indicate if header csv should be added in csv format
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
         :return: a dict of the fw-rules if the required format is json or yaml, else
         a string of the query name + fw-rules in the required format
         :rtype: Union[str, dict]
         """
         rules_list = self._get_all_rules_list_in_req_format(req_format)
+        key_prefix = '' if connectivity_restriction is None else f'{connectivity_restriction}_'
+        header_prefix = ''
+        if connectivity_restriction is not None:
+            header_prefix = f'For connections of type {connectivity_restriction}, '
 
         if req_format == 'txt':
             res = ''.join(line for line in sorted(rules_list))
             if add_txt_header:
-                res = f'final fw rules for query: {query_name}:\n' + res
+                res = f'{header_prefix}final fw rules for query: {query_name}:\n' + res
             return res
 
         elif req_format in ['yaml', 'json']:
-            return {'rules': rules_list}
+            return {f'{key_prefix}rules': rules_list}
 
         elif req_format in ['csv', 'md']:
             is_csv = req_format == 'csv'
             res = ''
-            header_lines = [[query_name] + [''] * (len(FWRule.rule_csv_header) - 1)]
+            header_lines = [[header_prefix + query_name] + [''] * (len(FWRule.rule_csv_header) - 1)]
             if add_csv_header:
                 if is_csv:
                     header_lines = [FWRule.rule_csv_header] + header_lines

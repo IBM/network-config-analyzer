@@ -1,0 +1,50 @@
+namespaceList: ./
+podList: ./
+
+networkConfigList:
+  - name: complex-istio-and-k8s-ingress-test
+    namespaceList:
+      - ./added_resources/
+      - ./resources
+    podList:
+      - ./added_resources/
+      - ./resources
+    networkPolicyList:
+      - ./resources/istio-ingress-gateway.yaml
+      - ./resources/istio-ingress-virtualservice.yaml
+      - ./resources/ingress.yaml
+      - ./resources/ingress_cluster.yaml
+    expectedWarnings: 0
+
+  - name: complex-istio-and-k8s-ingress-test-missing-resources
+    namespaceList:
+      - ./resources
+    podList:
+      - ./resources
+    networkPolicyList:
+      - ./resources/istio-ingress-gateway.yaml
+      - ./resources/istio-ingress-virtualservice.yaml
+      - ./resources/ingress.yaml
+      - ./resources/ingress_cluster.yaml
+    expectedWarnings: 0
+
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - complex-istio-and-k8s-ingress-test
+    outputConfiguration:
+      outputFormat: dot
+      #outputPath: complex-istio-and-k8s-ingress-test-connectivity-map.dot
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/complex-istio-and-k8s-ingress-test-connectivity-map.dot
+
+  - name: connectivity-2
+    connectivityMap:
+      - complex-istio-and-k8s-ingress-test-missing-resources
+    outputConfiguration:
+      outputFormat: dot
+      #outputPath: complex-istio-and-k8s-ingress-test-connectivity-map-missing-resources.dot
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/complex-istio-and-k8s-ingress-test-connectivity-map-missing-resources.dot

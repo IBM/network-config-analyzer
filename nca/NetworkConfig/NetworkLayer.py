@@ -82,6 +82,14 @@ class NetworkLayersContainer(dict):
         """
         return len(self) == 1 and list(self.keys())[0] == layer_name
 
+    def does_contain_layer(self, layer_name):
+        """
+        Checks if the given layer is in the map.
+        :param NetworkLayerName layer_name: the layer to check
+        :return: True if the layer is in the map
+        """
+        return layer_name in self
+
     @staticmethod
     def empty_layer_allowed_connections(layer_name, from_peer, to_peer):
         """

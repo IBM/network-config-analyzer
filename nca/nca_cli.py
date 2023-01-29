@@ -14,7 +14,6 @@ from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
 from nca.SchemeRunner import SchemeRunner
-from nca.RESTServer import RestServer
 
 
 def _valid_path(path_location, allow_ghe=False, allowed_platforms=None):
@@ -276,7 +275,6 @@ def nca_main(argv=None):
                                      action='append',
                                      help='Network policies (policy name/file/dir/GHE url/cluster-type) '
                                           'specifying permitted connections')
-    manual_or_automatic.add_argument('--daemon', action='store_true', help='Run NCA as a daemon with REST API')
     parser.add_argument('--base_np_list', '-b', type=_network_policies_valid_path, action='append',
                         help='Filesystem or GHE location of base network policies '
                              'for equiv/interferes/forbids/permits/semantic_diff check (default: k8s cluster)')
@@ -327,9 +325,6 @@ def nca_main(argv=None):
 
     if args.ghe_token:
         os.environ['GHE_TOKEN'] = args.ghe_token
-
-    if args.daemon:
-        return RestServer(args.ns_list, args.pod_list, args.resource_list).run()
 
     try:
         if args.period <= 0:

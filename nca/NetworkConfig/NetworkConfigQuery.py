@@ -11,6 +11,7 @@ from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from .NetworkConfig import NetworkConfig
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
@@ -19,7 +20,7 @@ from nca.FWRules.ClusterInfo import ClusterInfo
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
-from .QueryOutputHandler import QueryAnswer, DictOutputHandler,  StringOutputHandler, \
+from .QueryOutputHandler import QueryAnswer, DictOutputHandler, StringOutputHandler, \
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, \
     PoliciesWithCommonPods, PeersAndConnections, ComputedExplanation
 from .NetworkLayer import NetworkLayerName
@@ -695,6 +696,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             self.config.name
         connections = defaultdict(list)
         res = QueryAnswer(True)
+        fw_rules = None
+        fw_rules_tcp = None
+        fw_rules_non_tcp = None
         if self.config.optimized_run != 'true':
             peers_to_compare = self.config.peer_container.get_all_peers_group()
 
@@ -717,38 +721,22 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     else:
                         conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
                         if conns:
-                            # TODO: consider separate connectivity maps for config that involves istio -
-                            #  one that handles non-TCP connections, and one for TCP
-                            # TODO: consider avoid "hiding" egress allowed connections, even though they are
-                            #  not covered by authorization policies
-                            if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) and \
-                                    self.output_config.connectivityFilterIstioEdges:
-                                should_filter, modified_conns = self.filter_istio_edge(peer2, conns)
-                                if not should_filter:
-                                    connections[modified_conns].append((peer1, peer2))
-                                    # collect both peers, even if one of them is not in the subset
-                                    peers.add(peer1)
-                                    peers.add(peer2)
-                            else:
-                                connections[conns].append((peer1, peer2))
-                                # collect both peers, even if one of them is not in the subset
-                                peers.add(peer1)
-                                peers.add(peer2)
+                            connections[conns].append((peer1, peer2))
+                            # collect both peers, even if one of them is not in the subset
+                            peers.add(peer1)
+                            peers.add(peer2)
+            # if Istio is a layer in the network config - produce 2 maps, for TCP and for non-TCP
+            # because Istio policies can only capture TCP connectivity
+            if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
+                output_res, fw_rules_tcp, fw_rules_non_tcp = self.get_connectivity_output_split_by_tcp(connections, peers, peers_to_compare)
+            else:
+                output_res, fw_rules = self.get_connectivity_output_full(connections, peers, peers_to_compare)
             peers1_end = time.time()
             print(f'Original loop: time: {(peers1_end - peers1_start):6.2f} seconds')
-            if self.output_config.outputFormat == 'dot':
-                conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-                conn_graph.add_edges(connections)
-                res.output_explanation = [ComputedExplanation(str_explanation=conn_graph.get_connectivity_dot_format_str())]
+            if self.output_config.outputFormat in ['json', 'yaml']:
+                res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
             else:
-                conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
-                conn_graph.add_edges(connections)
-                fw_rules = conn_graph.get_minimized_firewall_rules()
-                formatted_rules = fw_rules.get_fw_rules_in_required_format()
-                if self.output_config.outputFormat in ['json', 'yaml']:
-                    res.output_explanation = [ComputedExplanation(dict_explanation=formatted_rules)]
-                else:
-                    res.output_explanation = [ComputedExplanation(str_explanation=formatted_rules)]
+                res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
 
         all_conns_opt = TcpLikeProperties.make_empty_properties()
         opt_start = time.time()
@@ -765,35 +753,26 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             dst_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
                                                                                    dst_peers=subset_peers)
             all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
-
-            if self.output_config.outputFormat == 'dot':
-                conn_graph2 = ConnectivityGraph(opt_peers_to_compare, self.config.get_allowed_labels(),
-                                                self.output_config)
-                for cube in all_conns_opt:
-                    conn_graph2.add_edges_from_cube_dict(self.config.peer_container,
-                                                         all_conns_opt.get_cube_dict_with_orig_values(cube))
-                res.output_explanation = [
-                    ComputedExplanation(str_explanation=conn_graph2.get_connectivity_dot_format_str())]
-                if self.config.optimized_run == 'debug':
-                    orig_conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-                    orig_conn_graph.add_edges(connections)
-                    opt_end = time.time()
-                    print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
-                    self.compare_orig_to_opt_conn(orig_conn_graph, all_conns_opt)
-            else:
-                cluster_info = ClusterInfo(opt_peers_to_compare, self.config.get_allowed_labels())
-                fw_rules2_map = ConnectionSet.tcp_properties_to_fw_rules(all_conns_opt, cluster_info,
-                                                                         self.config.peer_container)
-                fw_rules2 = MinimizeFWRules(fw_rules2_map, cluster_info, self.output_config, {})
-                formatted_rules2 = fw_rules2.get_fw_rules_in_required_format()
-                if self.output_config.outputFormat in ['json', 'yaml']:
-                    res.output_explanation = [ComputedExplanation(dict_explanation=formatted_rules2)]
-                else:
-                    res.output_explanation = [ComputedExplanation(str_explanation=formatted_rules2)]
+            if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
+                output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare)
                 opt_end = time.time()
                 print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
                 if self.config.optimized_run == 'debug':
-                    self.compare_fw_rules(fw_rules, fw_rules2)
+                    if fw_rules_tcp and opt_fw_rules_tcp:
+                        self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp)
+                    if fw_rules_non_tcp and opt_fw_rules_non_tcp:
+                        self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp)
+            else:
+                output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare)
+                opt_end = time.time()
+                print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
+                if self.config.optimized_run == 'debug' and fw_rules and opt_fw_rules:
+                    self.compare_fw_rules(fw_rules, opt_fw_rules)
+
+            if self.output_config.outputFormat in ['json', 'yaml']:
+                res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
+            else:
+                res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
         return res
 
     def compare_orig_to_opt_conn(self, orig_conn_graph, opt_props):
@@ -816,17 +795,205 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 print("Error: original and optimized fw-rules are different")
                 assert False
 
+    def get_connectivity_output_full(self, connections, peers, peers_to_compare):
+        """
+        get the connectivity map output considering all connections in the output
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers: the peers to consider for dot output
+        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
+        :rtype Union[str,dict]
+        """
+        if self.output_config.outputFormat == 'dot':
+            dot_full, conn_graph = self.dot_format_from_connections_dict(connections, peers)
+            return dot_full, None
+        # handle formats other than dot
+        formatted_rules, fw_rules = self.fw_rules_from_connections_dict(connections, peers_to_compare)
+        return formatted_rules, fw_rules
+
+    def get_props_output_full(self, props, peers_to_compare):
+        """
+        get the connectivity map output considering all connections in the output
+        :param TcpLikeProperties props: properties describing allowed connections
+        :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
+        :rtype Union[str,dict]
+        """
+        if self.output_config.outputFormat == 'dot':
+            dot_full = self.dot_format_from_props(props, peers_to_compare)
+            return dot_full, None
+        # handle formats other than dot
+        formatted_rules, fw_rules = self.fw_rules_from_props(props, peers_to_compare)
+        return formatted_rules, fw_rules
+
+    def get_connectivity_output_split_by_tcp(self, connections, peers, peers_to_compare):
+        """
+        get the connectivity map output as two parts: TCP and non-TCP
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers: the peers to consider for dot output
+        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
+        :rtype Union[str,dict]
+        """
+        connectivity_tcp_str = 'TCP'
+        connectivity_non_tcp_str = 'non-TCP'
+        connections_tcp, connections_non_tcp = self.convert_connections_to_split_by_tcp(connections)
+        if self.output_config.outputFormat == 'dot':
+            dot_tcp = self.dot_format_from_connections_dict(connections_tcp, peers, connectivity_tcp_str)
+            dot_non_tcp = self.dot_format_from_connections_dict(connections_non_tcp, peers, connectivity_non_tcp_str)
+            # concatenate the two graphs into one dot file
+            res_str = dot_tcp + dot_non_tcp
+            return res_str, None, None
+        # handle formats other than dot
+        formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_connections_dict(connections_tcp, peers_to_compare,
+                                                                  connectivity_tcp_str)
+        formatted_rules_non_tcp, fw_rules_non_tcp = self.fw_rules_from_connections_dict(connections_non_tcp, peers_to_compare,
+                                                                      connectivity_non_tcp_str)
+        if self.output_config.outputFormat in ['json', 'yaml']:
+            # get a dict object containing the two maps on different keys (TCP_rules and non-TCP_rules)
+            rules = formatted_rules_tcp
+            rules.update(formatted_rules_non_tcp)
+            return rules, fw_rules_tcp, fw_rules_non_tcp
+        # remaining formats: txt / csv / md : concatenate the two strings of the conn-maps
+        if self.output_config.outputFormat == 'txt':
+            res_str = f'{formatted_rules_tcp}\n{formatted_rules_non_tcp}'
+        else:
+            res_str = formatted_rules_tcp + formatted_rules_non_tcp
+        return res_str, fw_rules_tcp, fw_rules_non_tcp
+
+    def get_props_output_split_by_tcp(self, props, peers_to_compare):
+        """
+        get the connectivity map output as two parts: TCP and non-TCP
+        :param TcpLikeProperties props: properties describing allowed connections
+        :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
+        :rtype Union[str,dict]
+        """
+        connectivity_tcp_str = 'TCP'
+        connectivity_non_tcp_str = 'non-TCP'
+        props_tcp, props_non_tcp = self.convert_props_to_split_by_tcp(props)
+        if self.output_config.outputFormat == 'dot':
+            dot_tcp = self.dot_format_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
+            dot_non_tcp = self.dot_format_from_props(props_non_tcp, peers_to_compare, connectivity_non_tcp_str)
+            # concatenate the two graphs into one dot file
+            res_str = dot_tcp + dot_non_tcp
+            return res_str, None, None
+        # handle formats other than dot
+        formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
+        formatted_rules_non_tcp, fw_rules_non_tcp = self.fw_rules_from_props(props_non_tcp, peers_to_compare, connectivity_non_tcp_str)
+        if self.output_config.outputFormat in ['json', 'yaml']:
+            # get a dict object containing the two maps on different keys (TCP_rules and non-TCP_rules)
+            rules = formatted_rules_tcp
+            rules.update(formatted_rules_non_tcp)
+            return rules, fw_rules_tcp, fw_rules_non_tcp
+        # remaining formats: txt / csv / md : concatenate the two strings of the conn-maps
+        if self.output_config.outputFormat == 'txt':
+            res_str = f'{formatted_rules_tcp}\n{formatted_rules_non_tcp}'
+        else:
+            res_str = formatted_rules_tcp + formatted_rules_non_tcp
+        return res_str, fw_rules_tcp, fw_rules_non_tcp
+
+    def dot_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
+        """
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers: the peers to consider for dot output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :rtype str
+        :return the connectivity map in dot-format, considering connectivity_restriction if required
+        """
+        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
+        conn_graph.add_edges(connections)
+        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction), conn_graph
+
+    def dot_format_from_props(self, props, peers, connectivity_restriction=None):
+        """
+        :param TcpLikeProperties props: properties describing allowed connections
+        :param PeerSet peers: the peers to consider for dot output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :rtype str
+        :return the connectivity map in dot-format, considering connectivity_restriction if required
+        """
+        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
+        for cube in props:
+            conn_graph.add_edges_from_cube_dict(self.config.peer_container,
+                                                 props.get_cube_dict_with_orig_values(cube))
+        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
+
+    def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
+        """
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :return the connectivity map in fw-rules, considering connectivity_restriction if required
+        :rtype: Union[str, dict]
+        """
+        conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
+        conn_graph.add_edges(connections)
+        fw_rules = conn_graph.get_minimized_firewall_rules()
+        formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
+        return formatted_rules, fw_rules
+
+    def fw_rules_from_props(self, props, peers_to_compare, connectivity_restriction=None):
+        """
+        :param TcpLikeProperties props: properties describing allowed connections
+        :param PeerSet peers_to_compare: the peers to consider for fw-rules output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :return the connectivity map in fw-rules, considering connectivity_restriction if required
+        :rtype: Union[str, dict]
+        """
+        cluster_info = ClusterInfo(peers_to_compare, self.config.get_allowed_labels())
+        fw_rules_map = ConnectionSet.tcp_properties_to_fw_rules(props, cluster_info, self.config.peer_container)
+        fw_rules = MinimizeFWRules(fw_rules_map, cluster_info, self.output_config, {})
+        formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
+        return formatted_rules, fw_rules
+
+    def convert_connections_to_split_by_tcp(self, connections):
+        """
+        given the connections' dict , convert it to two connection maps, one for TCP only, and the other
+        for non-TCP only.
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :return: a tuple of the two connection maps : first for TCP, second for non-TCP
+        :rtype: tuple(dict, dict)
+        """
+        connections_tcp = defaultdict(list)
+        connections_non_tcp = defaultdict(list)
+        for conn, peers_list in connections.items():
+            tcp_conns, non_tcp_conns = self.split_to_tcp_and_non_tcp_conns(conn)
+            connections_tcp[tcp_conns] += peers_list
+            connections_non_tcp[non_tcp_conns] += peers_list
+
+        return connections_tcp, connections_non_tcp
+
     @staticmethod
-    def filter_istio_edge(peer2, conns):
-        # currently only supporting authorization policies, that do not capture egress rules
-        if isinstance(peer2, IpBlock):
-            return True, None
-        # remove allowed connections for non TCP protocols
-        # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/
-        # Non-TCP based protocols, such as UDP, are not proxied. These protocols will continue to function as normal,
-        # without any interception by the Istio proxy
-        conns_new = conns - ConnectionSet.get_non_tcp_connections()
-        return False, conns_new
+    def split_to_tcp_and_non_tcp_conns(conns):
+        """
+        split a ConnectionSet object to two objects: one within TCP only, the other within non-TCP protocols
+        :param ConnectionSet conns: a  ConnectionSet object
+        :return: a tuple of the two ConnectionSet objects: first for TCP, second for non-TCP
+        :rtype: tuple(ConnectionSet, ConnectionSet)
+        """
+        tcp_conns = conns - ConnectionSet.get_non_tcp_connections()
+        non_tcp_conns = conns - tcp_conns
+        if non_tcp_conns == ConnectionSet.get_non_tcp_connections():
+            non_tcp_conns = ConnectionSet(True)  # all connections in terms of non-TCP
+        if tcp_conns == ConnectionSet.get_all_tcp_connections():
+            tcp_conns = ConnectionSet(True)  # all connections in terms of TCP
+
+        return tcp_conns, non_tcp_conns
+
+    def convert_props_to_split_by_tcp(self, props):
+        """
+        given the TcpLikeProperties properties set, convert it to two properties sets, one for TCP only, and the other
+        for non-TCP only.
+        :param TcpLikeProperties props: properties describing allowed connections
+        :return: a tuple of the two properties sets: first for TCP, second for non-TCP
+        :rtype: tuple(TcpLikeProperties, TcpLikeProperties)
+        """
+        tcp_protocol = ProtocolSet()
+        tcp_protocol.add_protocol('TCP')
+        tcp_props = props & TcpLikeProperties.make_tcp_like_properties(self.config.peer_container, protocols=tcp_protocol)
+        non_tcp_props = props - tcp_props
+        return tcp_props, non_tcp_props
 
 
 class TwoNetworkConfigsQuery(BaseNetworkQuery):
@@ -939,7 +1106,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         if different_conns_list:
             return self._query_answer_with_relevant_explanation(sorted(different_conns_list))
 
-        return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.', numerical_result=0)
+        return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
+                           numerical_result=0)
 
     def _query_answer_with_relevant_explanation(self, explanation_list):
         output_result = self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.'
@@ -1539,7 +1707,7 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
 class AllCapturedQuery(NetworkConfigQuery):
     """
     Check that all pods are captured
-    Applies only for k8s/calico policies
+    Applies for k8s/calico/istio policies (checks only ingress direction for istio)
     """
 
     def _get_pod_name(self, pod):
@@ -1549,44 +1717,81 @@ class AllCapturedQuery(NetworkConfigQuery):
         """
         return pod.workload_name if self.output_config.outputEndpoints == 'deployments' else str(pod)
 
-    def _get_uncaptured_resources_explanation(self, uncaptured_pods):
+    def _get_uncaptured_xgress_pods(self, layer_name, is_ingress=True):
         """
-        get numerical result + set of names of ingress/egress uncaptured pods
-        :param PeerSet uncaptured_pods: the set of uncaptured
-        :return: (int,set[str]): (the number of uncaptured resources , uncaptured pods names)
+        returns the uncaptured ingress/egress pods set and its length for the given layer
+        :param NetworkLayerName layer_name: the layer to check uncaptured pods in
+        :param bool is_ingress: indicates if to check pods affected by ingress/egress
+        :return: - number of uncaptured pod
+                 - set of the uncaptured pods
+        :rtype: (int,set[str])
         """
-        if not uncaptured_pods:
-            return 0, ''
-        uncaptured_resources = set(self._get_pod_name(pod) for pod in uncaptured_pods)  # no duplicate resources in set
+        existing_pods = self.config.peer_container.get_all_peers_group()
+        uncaptured_xgress_pods = existing_pods - self.config.get_affected_pods(is_ingress, layer_name)
+        if not uncaptured_xgress_pods:
+            return 0, set()
+        uncaptured_resources = set(self._get_pod_name(pod) for pod in uncaptured_xgress_pods)  # no duplicate resources in set
         return len(uncaptured_resources), uncaptured_resources
+
+    def _compute_uncaptured_pods_by_layer(self, layer_name, ingress_only=False):
+        """
+        computes and returns the result of allcaptured query on the given layer if it includes policies
+        :param NetworkLayerName layer_name: the layer to check uncaptured pods in
+        :param bool ingress_only: a flag to indicate if to check captured pods only for ingress affected policies
+        :return: 1- if there are uncaptured pods then return an explanation containing them, else None
+                 2- the number of uncaptured pods on the layer
+        :rtype: (PodsListsExplanations, int)
+        """
+        if layer_name not in self.config.policies_container.layers:
+            return None, 0  # not relevant to compute for non-existed layer
+        if ingress_only:
+            print(f'Warning: AllCaptured query is not considering uncaptured pods in {layer_name.name} egress direction')
+
+        res_ingress, uncaptured_ingress_pods_set = self._get_uncaptured_xgress_pods(layer_name, is_ingress=True)
+        res_egress = 0
+        uncaptured_egress_pods_set = set()
+        if not ingress_only:
+            res_egress, uncaptured_egress_pods_set = self._get_uncaptured_xgress_pods(layer_name, is_ingress=False)
+
+        layer_res = res_ingress + res_egress
+        if layer_res == 0:  # no uncaptured pods in this layer, no explanation would be written
+            return None, 0
+
+        explanation_str = f'workload resources that are not captured by any {layer_name.name} policy that affects '
+        layer_explanation = PodsListsExplanations(explanation_description=explanation_str,
+                                                  pods_list=list(sorted(uncaptured_ingress_pods_set)),
+                                                  egress_pods_list=list(sorted(uncaptured_egress_pods_set)),
+                                                  add_xgress_suffix=True)
+        return layer_explanation, layer_res
 
     def exec(self):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         existing_pods = self.config.peer_container.get_all_peers_group()
         if not self.config:
             return QueryAnswer(bool_result=False,
-                               output_result='Flat network in ' + self.config.name,
+                               output_result=f'There are no network policies in {self.config.name}. '
+                                             f'All workload resources are non captured',
                                numerical_result=len(existing_pods))
 
-        if NetworkLayerName.K8s_Calico not in self.config.policies_container.layers:
+        if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
             return QueryAnswer(bool_result=False,
-                               output_result='AllCapturedQuery applies only for k8s/calico network policies',
+                               output_result='AllCapturedQuery cannot be applied using Ingress resources only',
                                query_not_executed=True)
 
-        uncaptured_ingress_pods = existing_pods - self.config.get_affected_pods(True, NetworkLayerName.K8s_Calico)
-        uncaptured_egress_pods = existing_pods - self.config.get_affected_pods(False, NetworkLayerName.K8s_Calico)
-        if not uncaptured_ingress_pods and not uncaptured_egress_pods:
-            output_str = f'All pods are captured by at least one policy of k8s/calico in {self.config.name}'
+        k8s_calico_pods_list_explanation, k8s_calico_res = self._compute_uncaptured_pods_by_layer(NetworkLayerName.K8s_Calico)
+        istio_pods_list_explanation, istio_res = self._compute_uncaptured_pods_by_layer(NetworkLayerName.Istio, True)
+
+        if k8s_calico_res == 0 and istio_res == 0:
+            output_str = f'All pods are captured by at least one policy in {self.config.name}'
             return QueryAnswer(bool_result=True, output_result=output_str, numerical_result=0)
 
-        res_ingress, uncaptured_ingress_pods_set = self._get_uncaptured_resources_explanation(uncaptured_ingress_pods)
-        res_egress, uncaptured_egress_pods_set = self._get_uncaptured_resources_explanation(uncaptured_egress_pods)
-        res = res_ingress + res_egress
-        output_str = f'There are workload resources not captured by any k8s/calico policy in {self.config.name}'
-        explanation_str = 'workload resources that are not captured by any policy that affects '
-        final_explanation = PodsListsExplanations(explanation_description=explanation_str,
-                                                  pods_list=list(sorted(uncaptured_ingress_pods_set)),
-                                                  egress_pods_list=list(sorted(uncaptured_egress_pods_set)),
-                                                  add_xgress_suffix=True)
-        return QueryAnswer(bool_result=False, output_result=output_str, output_explanation=[final_explanation],
+        final_explanation = []
+        if k8s_calico_pods_list_explanation:
+            final_explanation.append(k8s_calico_pods_list_explanation)
+        if istio_pods_list_explanation:
+            final_explanation.append(istio_pods_list_explanation)
+
+        output_str = f'There are workload resources not captured by any policy in {self.config.name}'
+        res = k8s_calico_res + istio_res
+        return QueryAnswer(bool_result=False, output_result=output_str, output_explanation=final_explanation,
                            numerical_result=res)

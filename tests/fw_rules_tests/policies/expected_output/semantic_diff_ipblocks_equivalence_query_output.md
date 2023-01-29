@@ -24,4 +24,3 @@
 |||172.22.0.0-172.29.255.255|[kube-system]|[tier=frontend]|UDP 53|
 |||172.31.0.0-255.255.255.255|[kube-system]|[tier=frontend]|UDP 53|
 
-

@@ -29,4 +29,3 @@
 |||::/0|[default]|[app!=frontend]|All connections|
 ||[default]|[*]||0.0.0.0/0|All connections|
 ||[default]|[*]||::/0|All connections|
-

@@ -3,10 +3,29 @@ podList: ./
 
 networkConfigList:
   - name: complex-istio-ingress-test
+    namespaceList:
+      - ./added_resources/
+      - ./resources
+    podList:
+      - ./added_resources/
+      - ./resources
     networkPolicyList:
-      - istio-ingress-gateway.yaml
-      - istio-ingress-virtualservice.yaml
+      - ./resources/istio-ingress-gateway.yaml
+      - ./resources/istio-ingress-virtualservice.yaml
     expectedWarnings: 0
+
+  - name: complex-istio-ingress-test-missing-resources
+    namespaceList:
+      - ./resources
+    podList:
+      - ./resources
+    networkPolicyList:
+      - ./resources/istio-ingress-gateway.yaml
+      - ./resources/istio-ingress-virtualservice.yaml
+    expectedWarnings: 0
+
+
+
 
 
 queries:
@@ -15,6 +34,15 @@ queries:
       - complex-istio-ingress-test
     outputConfiguration:
       outputFormat: dot
-      outputPath: complex-istio-ingress-test-connectivity-map.dot
+      #outputPath: complex-istio-ingress-test-connectivity-map.dot
       fwRulesRunInTestMode: false
     expectedOutput: ../../expected_output/complex-istio-ingress-test-connectivity-map.dot
+
+  - name: connectivity-2
+    connectivityMap:
+      - complex-istio-ingress-test-missing-resources
+    outputConfiguration:
+      outputFormat: dot
+      #outputPath: complex-istio-ingress-test-connectivity-map-missing-resources.dot
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/complex-istio-ingress-test-connectivity-map-missing-resources.dot
