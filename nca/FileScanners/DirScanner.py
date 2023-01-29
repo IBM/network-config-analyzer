@@ -8,7 +8,6 @@ import io
 from sys import stderr
 from .GenericTreeScanner import GenericTreeScanner
 from .HelmScanner import HelmScanner
-from nca.Utils.NcaLogger import NcaLogger
 
 
 class DirScanner(GenericTreeScanner, HelmScanner):
