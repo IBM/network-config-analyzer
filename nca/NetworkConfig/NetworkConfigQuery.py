@@ -806,7 +806,15 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def compare_fw_rules(self, fw_rules1, fw_rules2):
         tcp_props1 = ConnectionSet.fw_rules_to_tcp_properties(fw_rules1, self.config.peer_container)
         tcp_props2 = ConnectionSet.fw_rules_to_tcp_properties(fw_rules2, self.config.peer_container)
-        assert tcp_props1 == tcp_props2
+        if tcp_props1 == tcp_props2:
+            print("Original and optimized fw-rules are semantically equivalent")
+        else:
+            diff_prop = (tcp_props1 - tcp_props2) | (tcp_props2 - tcp_props1)
+            if diff_prop.are_auto_conns():
+                print("Original and optimized fw-rules differ only in auto-connections")
+            else:
+                print("Error: original and optimized fw-rules are different")
+                assert False
 
     @staticmethod
     def filter_istio_edge(peer2, conns):

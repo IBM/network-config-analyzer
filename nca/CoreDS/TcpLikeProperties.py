@@ -587,6 +587,15 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     def make_all_properties(peer_container=None):
         return TcpLikeProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None)
 
+    def are_auto_conns(self):
+        if self.active_dimensions != ['src_peers', 'dst_peers']:
+            return False
+        for cube in self:
+            if cube[0] != cube[1] or not cube[0].is_single_value():
+                return False
+        return True
+
+
     ####################################### ICMP-related functions #######################################
 
     @staticmethod
