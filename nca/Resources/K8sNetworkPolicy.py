@@ -92,13 +92,13 @@ class K8sNetworkPolicy(NetworkPolicy):
         """
         res = Peer.PeerSet()
         for rule in self.egress_rules:
-            for pod in rule.peer_set:
-                if isinstance(pod, Peer.IpBlock) and self._include_ip_block(pod, exclude_ipv6):
-                    res |= pod.split()
+            for peer in rule.peer_set:
+                if isinstance(peer, Peer.IpBlock) and self._include_ip_block(peer, exclude_ipv6):
+                    res |= peer.split()
         for rule in self.ingress_rules:
-            for pod in rule.peer_set:
-                if isinstance(pod, Peer.IpBlock) and self._include_ip_block(pod, exclude_ipv6):
-                    res |= pod.split()
+            for peer in rule.peer_set:
+                if isinstance(peer, Peer.IpBlock) and self._include_ip_block(peer, exclude_ipv6):
+                    res |= peer.split()
 
         return res
 
