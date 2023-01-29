@@ -1,1 +1,0 @@
-{"name":"set_0","policies":{"default/allow-agent-to-analyzer-via-ingress":["NetworkPolicy default/allow-agent-to-analyzer-via-ingress is redundant: it is contained in NetworkPolicy default/allow-egress-deny-ingress-within-namespace\n"],"default/allow-egress-deny-ingress-within-namespace":[]}}

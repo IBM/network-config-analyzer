@@ -143,6 +143,20 @@ class ConnectivityGraph:
 
         return directed_edges, not_directed_edges, cliques_nodes
 
+    @staticmethod
+    def _is_peer_livesim(peer):
+        """
+        check if peer name indicates that this is a peer related to "livesim": resources added
+        during parsing, since they are required for the analysis but were missing from the input config
+
+        current convention is that such peers suffix is "-livesim"
+
+        :param Peer peer: the peer object
+        :rtype bool
+        """
+        livesim_peer_name_suffix = "-livesim"
+        return peer.full_name().endswith(livesim_peer_name_suffix)
+
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
@@ -160,7 +174,7 @@ class ConnectivityGraph:
             text = [peer_name]
             if not is_ip_block:
                 text = [text for text in re.split('[/()]+', peer_name) if text != nc_name]
-            node_type = 'ip_block' if is_ip_block else 'pod'
+            node_type = 'ip_block' if is_ip_block else 'livesim' if self._is_peer_livesim(peer) else 'pod'
             dot_graph.add_node(nc_name, peer_name, node_type, text)
 
         for connections, peer_pairs in self.connections_to_peers.items():
