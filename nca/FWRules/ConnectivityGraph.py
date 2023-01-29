@@ -54,21 +54,23 @@ class ConnectivityGraph:
 
     def _get_peer_details(self, peer):
         """
-        Get the name of a peer object for connectivity graph, flag indicating if it is ip-block and the namespace
+        Get the name of a peer object for connectivity graph, the type and the namespace
         :param Peer peer: the peer object
-        :return: tuple(str, bool, str )
+        :return: tuple(str, str, str )
         str: the peer name
-        bool: flag to indicate if peer is ip-block (True) or not (False)
+        str: the peer type ip_block, livesim, or pod
         str: namespace name
         """
         nc_name = peer.namespace.name if peer.namespace else 'external'
         if isinstance(peer, IpBlock):
-            return peer.get_ip_range_or_cidr_str(), True, nc_name
+            return peer.get_ip_range_or_cidr_str(), 'ip_block', nc_name
+        is_livesim = peer.full_name().endswith('-livesim')
+        peer_type = 'livesim' if is_livesim else 'pod'
         if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
             name = peer.workload_name
         else:
             name = str(peer)
-        return name, False, nc_name
+        return name, peer_type, nc_name
 
     def _creates_cliqued_graph(self, directed_edges):
         """
@@ -92,7 +94,7 @@ class ConnectivityGraph:
 
         """
 
-        MIN_CLIQUE_SIZE = 4
+        min_qlicue_size = 4
 
         # replacing directed edges with not directed edges:
         not_directed_edges = set([edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges])
@@ -107,7 +109,7 @@ class ConnectivityGraph:
         cliques_nodes = []
         cliques = sorted([sorted(clique) for clique in cliques])
         for clique in cliques:
-            if len(clique) < MIN_CLIQUE_SIZE:
+            if len(clique) < min_qlicue_size:
                 continue
             clq_namespaces = sorted(set([peer[1] for peer in clique]))
             # the list of new nodes of the clique:
@@ -143,20 +145,6 @@ class ConnectivityGraph:
 
         return directed_edges, not_directed_edges, cliques_nodes
 
-    @staticmethod
-    def _is_peer_livesim(peer):
-        """
-        check if peer name indicates that this is a peer related to "livesim": resources added
-        during parsing, since they are required for the analysis but were missing from the input config
-
-        current convention is that such peers suffix is "-livesim"
-
-        :param Peer peer: the peer object
-        :rtype bool
-        """
-        livesim_peer_name_suffix = "-livesim"
-        return peer.full_name().endswith(livesim_peer_name_suffix)
-
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
@@ -170,11 +158,10 @@ class ConnectivityGraph:
 
         dot_graph = DotGraph(name)
         for peer in self.cluster_info.all_peers:
-            peer_name, is_ip_block, nc_name = self._get_peer_details(peer)
+            peer_name, node_type, nc_name = self._get_peer_details(peer)
             text = [peer_name]
-            if not is_ip_block:
+            if node_type != 'ip_block':
                 text = [text for text in re.split('[/()]+', peer_name) if text != nc_name]
-            node_type = 'ip_block' if is_ip_block else 'livesim' if self._is_peer_livesim(peer) else 'pod'
             dot_graph.add_node(nc_name, peer_name, node_type, text)
 
         for connections, peer_pairs in self.connections_to_peers.items():

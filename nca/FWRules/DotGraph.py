@@ -38,6 +38,7 @@ class DotGraph:
         self.node_styles = \
             {'ip_block': 'shape=box fontcolor=red2',
              'pod': 'shape=box fontcolor=blue',
+             'livesim': 'shape=box fontcolor=fuchsia',
              'clq': 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0'}
 
     def add_node(self, subgraph, name, node_type, label):
@@ -98,7 +99,7 @@ class DotGraph:
         """
         if not self.labels_dict:
             return ''
-        items_to_present = [(label, short) for label, short in self.labels_dict.items() if label != short]
+        items_to_present = [(label, short) for label, short in sorted(self.labels_dict.items()) if label != short]
         dict_table = '\\l'.join([f'{short:<15}{label}' for label, short in items_to_present])
         dict_table = f'label=\"Connectivity legend\\l{dict_table}\\l\"'
         return f'\tdict_box [{dict_table} shape=box]\n'

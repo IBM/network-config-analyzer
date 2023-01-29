@@ -3,7 +3,7 @@ digraph {
 	label="Connectivity Graph of connectivity/complex-k8s-ingress-test"	labelloc = "t"
 	fontsize=30
 	fontcolor=webmaroon
-	dict_box [label="Connectivity legend\lTCP_0          TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'jjjj.y.z'}\lTCP_1          TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'cccc.y.z'}\lTCP_2          TCP {'dst_ports': '4000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'gggg.y.z'}\lTCP_3          TCP {'dst_ports': '3500', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'ffff.y.z'}\lTCP_4          TCP {'dst_ports': '3456', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'bbbb.y.z'}\lTCP_5          TCP {'dst_ports': '3200', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'dddd.y.z'}\lTCP_6          TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'iiii.y.z'}\lTCP_7          TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'aaaa.y.z'}\l" shape=box]
+	dict_box [label="Connectivity legend\lTCP_7          TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'aaaa.y.z'}\lTCP_6          TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'iiii.y.z'}\lTCP_5          TCP {'dst_ports': '3200', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'dddd.y.z'}\lTCP_4          TCP {'dst_ports': '3456', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'bbbb.y.z'}\lTCP_3          TCP {'dst_ports': '3500', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'ffff.y.z'}\lTCP_2          TCP {'dst_ports': '4000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'gggg.y.z'}\lTCP_1          TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'cccc.y.z'}\lTCP_0          TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'jjjj.y.z'}\l" shape=box]
 subgraph cluster_example_namespace{
 	label="example"
 	fontsize=20
