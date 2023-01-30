@@ -101,6 +101,9 @@ class ResourcesHandler:
         """
         livesim_configuration_addons = []
 
+        # stop collecting messages when pre-processing and analyzing livesim yaml files.
+        NcaLogger().dont_collect_msgs()
+
         # find kube-dns reference
         dns_added_resources = ResourcesHandler.get_relevant_livesim_resources_paths_by_labels_matching(
             LiveSimPaths.DnsCfgPath, policy_finder.missing_dns_pods_with_labels)
@@ -121,6 +124,7 @@ class ResourcesHandler:
             livesim_configuration_addons += istio_gateway_added_resources
             ResourcesHandler.livesim_information_message('Istio-ingress-gateway')
 
+        NcaLogger().collect_msgs()
         return livesim_configuration_addons
 
     def parse_elements(self, ns_list, pod_list, resource_list, config_name, save_flag, np_list):
@@ -169,9 +173,9 @@ class ResourcesHandler:
                                                                     save_flag,
                                                                     np_list
                                                                     )
-        NcaLogger().unmute()
         # check if LiveSim can add anything.
         livesim_addons = self.analyze_livesim(resources_parser.policies_finder)
+        NcaLogger().unmute()
         if livesim_addons:
             NcaLogger().flush_messages(silent=True)
             if ns_list:

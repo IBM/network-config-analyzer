@@ -9,6 +9,7 @@ from nca.Utils.CmdlineRunner import CmdlineRunner
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, HostEP
 from nca.Resources.K8sNamespace import K8sNamespace
 from nca.Parsers.K8sServiceYamlParser import K8sServiceYamlParser
+from nca.Utils.NcaLogger import NcaLogger
 
 
 class PodsFinder:
@@ -301,7 +302,7 @@ class NamespacesFinder:
         :rtype: K8sNamespace
         """
         if ns_name not in self.namespaces:
-            print('Namespace', ns_name, 'is missing from the peer container', file=stderr)
+            NcaLogger().log_message(msg=f'Namespace {ns_name} is missing from the peer container', file=stderr)
             namespace = K8sNamespace(ns_name)
             self.namespaces[ns_name] = namespace
         return self.namespaces[ns_name]

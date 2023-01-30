@@ -48,6 +48,9 @@ class DirScanner(GenericTreeScanner, HelmScanner):
             for file in files:
                 try:
                     if self.is_helm_chart(file):
+                        if not self.helm_path:
+                            print(f'HELM is not installed - Skipping {os.path.abspath(os.path.join(root, file))}', file=stderr)
+                            continue
                         file_name, file_content = self.parse_chart(root)
                         file_stream = io.StringIO(file_content)
                         yield from self._yield_yaml_file(file_name, file_stream)
