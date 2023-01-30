@@ -402,7 +402,8 @@ class ResourcesParser:
             elif resource_item == 'istio':
                 self._handle_istio_inputs(resource_flags)
             else:
-                resource_scanner = TreeScannerFactory.get_scanner(resource_item)
+                fast_load = ResourceType.Policies not in resource_flags
+                resource_scanner = TreeScannerFactory.get_scanner(resource_item, fast_load=fast_load)
                 if resource_scanner is None:
                     continue
                 yaml_files = resource_scanner.get_yamls()

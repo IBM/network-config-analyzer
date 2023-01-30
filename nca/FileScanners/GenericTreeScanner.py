@@ -72,6 +72,12 @@ class GenericTreeScanner(abc.ABC):
     """
     A base class for reading yaml files
     """
+    def __init__(self, fast_load=False):
+        """
+        :param bool fast_load: if True, load yaml faster, without saving objects location in file
+        """
+        self.fast_load = fast_load
+
     @abc.abstractmethod
     def get_yamls(self):
         pass
@@ -92,9 +98,12 @@ class GenericTreeScanner(abc.ABC):
         :param str path: the path of the file
         :param stream: an IO-Text stream or Union of the file contents, depends on the scanner's type
         """
-        documents = yaml.compose_all(stream, Loader=yaml.SafeLoader)
         try:
-            yield YamlFile(convert_documents(documents), path)
+            if self.fast_load:
+                documents = yaml.load_all(stream, Loader=yaml.SafeLoader)
+            else:
+                documents = convert_documents(yaml.compose_all(stream, Loader=yaml.SafeLoader))
+            yield YamlFile(documents, path)
         except yaml.MarkedYAMLError as parse_error:
             print(f'{parse_error.problem_mark.name}:{parse_error.problem_mark.line}:{parse_error.problem_mark.column}:',
                   'Parse Error:', parse_error.problem, file=stderr)
@@ -111,14 +120,15 @@ from .DirScanner import DirScanner  # noqa: E402
 class TreeScannerFactory:
 
     @staticmethod
-    def get_scanner(entry):
+    def get_scanner(entry, fast_load=False):
         """
         factory method to determine what scanner to build
         :param str entry: the entry (path/url) to be scanned
+        :param bool fast_load: if True, load yaml faster, without saving objects location in file
         """
         if entry.startswith(('https://github', GitScanner.raw_github_content_prefix)):
-            return GitScanner(entry)
+            return GitScanner(entry, fast_load)
         elif os.path.isfile(entry) or os.path.isdir(entry) or (entry.endswith('**') and os.path.isdir(entry[:-2])):
-            return DirScanner(entry)
+            return DirScanner(entry, fast_load)
         else:
             return None
