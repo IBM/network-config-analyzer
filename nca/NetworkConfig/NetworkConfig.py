@@ -181,11 +181,13 @@ class NetworkConfig:
         :param bool exclude_ipv6: indicates if to exclude ipv_6 non-referenced addresses
         :rtype bool
         """
-        if exclude_ipv6:
-            for policy in self.policies_container.policies.values():
-                if policy.has_ipv6_addresses:  # if at least one policy has referenced ipv6 addresses, ipv6 will be included
-                    return False
-        return exclude_ipv6  # getting here means all policies didn't reference ipv6, excluding depends on the given flag
+        if not exclude_ipv6:
+            return False
+
+        for policy in self.policies_container.policies.values():
+            if policy.has_ipv6_addresses:  # if at least one policy has referenced ipv6 addresses, ipv6 will be included
+                return False
+        return True  # getting here means all policies didn't reference ipv6, it is safe to exclude ipv6 addresses
 
     def get_referenced_ip_blocks(self, exclude_non_ref_ipv6=False):
         """
