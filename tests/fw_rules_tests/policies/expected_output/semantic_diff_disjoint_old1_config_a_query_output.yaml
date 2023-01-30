@@ -33,16 +33,6 @@
       - '*'
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      - kube-system
-      - vendor-system
-      dst_pods:
-      - '*'
-      connection:
-      - All connections
     - src_ns:
       - default
       - kube-system
@@ -51,16 +41,6 @@
       - '*'
       dst_ip_block:
       - 0.0.0.0/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      - kube-system
-      - vendor-system
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections
   - description: New connections between added peers
@@ -95,27 +75,11 @@
       - app!=app-1
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - app!=app-1
-      connection:
-      - All connections
     - src_ns:
       - default
       src_pods:
       - '*'
       dst_ip_block:
       - 0.0.0.0/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections

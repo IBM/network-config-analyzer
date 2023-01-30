@@ -15,14 +15,6 @@
     - src_ns:
       - kube-system
       src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
-      connection:
-      - All connections
-    - src_ns:
-      - kube-system
-      src_pods:
       - tier=frontend
       dst_ns:
       - kube-system

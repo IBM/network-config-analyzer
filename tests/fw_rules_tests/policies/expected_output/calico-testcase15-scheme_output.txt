@@ -1,7 +1,5 @@
 final fw rules for query: connectivity_map_1, config: ports-rectangles/kube-system/testcase15-named-ports-rectangles-base-2-equiv:
 src: 0.0.0.0/0 dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
 src_ns: [default,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default,vendor-system] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [default,vendor-system] src_pods: [*] dst_ns: [default,vendor-system] dst_pods: [*] conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [has_named_port=dns-local] conn: UDP {'src_ports': '80-100', 'dst_ports': '1-10052,10054-65535'}

@@ -268,26 +268,7 @@
           Ports:
           - 8080
     - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - All but:
-        - Protocol: TCP
-          Ports:
-          - 8080
-    - src_ip_block:
       - 0.0.0.0/0
-      dst_ns:
-      - default
-      dst_pods:
-      - app!=frontend
-      connection:
-      - All connections
-    - src_ip_block:
-      - ::/0
       dst_ns:
       - default
       dst_pods:
@@ -300,13 +281,5 @@
       - '*'
       dst_ip_block:
       - 0.0.0.0/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections

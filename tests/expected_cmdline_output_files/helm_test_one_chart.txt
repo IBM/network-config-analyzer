@@ -1,7 +1,4 @@
 final fw rules for query: , config: **:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: TCP 6379,9121
-src: ::/0 dst_ns: [default] dst_pods: [*] conn: TCP 6379,9121
 src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: UDP 53
-src_ns: [default] src_pods: [*] dst: ::/0 conn: UDP 53
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: TCP 6379
-

@@ -2,7 +2,6 @@
 digraph {
 	HEADER [shape="box" label=< <B>subset_no_subset_endpoints_deployments_dot/np25</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
 	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
-	"::/0" [label="::/0" color="red2" fontcolor="red2"]
 	"default/Pod1(Pod)" [label="default/Pod1(Pod)" color="blue" fontcolor="blue"]
 	"default/Pod4(Pod)" [label="default/Pod4(Pod)" color="blue" fontcolor="blue"]
 	"default/Pod5(Pod)" [label="default/Pod5(Pod)" color="blue" fontcolor="blue"]
