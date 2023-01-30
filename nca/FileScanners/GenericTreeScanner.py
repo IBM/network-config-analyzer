@@ -42,18 +42,20 @@ def to_yaml_objects(yaml_node):
         return res
     if isinstance(yaml_node, yaml.MappingNode):
         res = YamlDict()
-        res.line_number = yaml_node.start_mark.line
-        res.column_number = yaml_node.start_mark.column
+        res.line_number = yaml_node.start_mark.line + 1
+        res.column_number = yaml_node.start_mark.column + 1
         for obj in yaml_node.value:
             res[obj[0].value] = to_yaml_objects(obj[1])
         return res
 
+    # Node is a ScalarNode. First check if it can be interpreted as an int (e.g., port number)
     try:
         int_val = int(yaml_node.value)
         return int_val
     except ValueError:
         pass
 
+    # now check if it's the null value
     if yaml_node.style is None and yaml_node.value in ['', 'null']:
         return None
 
@@ -61,11 +63,7 @@ def to_yaml_objects(yaml_node):
 
 
 def convert_documents(documents):
-    res = []
-    for document in documents:
-        yaml_object_doc = to_yaml_objects(document)
-        res.append(yaml_object_doc)
-    return res
+    return [to_yaml_objects(document) for document in documents]
 
 
 class GenericTreeScanner(abc.ABC):
