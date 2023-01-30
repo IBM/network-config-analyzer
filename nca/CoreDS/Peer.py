@@ -327,23 +327,26 @@ class IpBlock(Peer, CanonicalIntervalSet):
         return self.get_cidr_list_str()
 
     @staticmethod
-    def get_all_ips_block():
+    def get_all_ips_block(exclude_ipv6=False):
         """
-        :return: The full range of ipv4 and ipv6 addresses
+        :return: The full range of ipv4 and ipv6 addresses if exclude_ipv6 is False
+        :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses
         :rtype: IpBlock
         """
         res = IpBlock('0.0.0.0/0')
-        res.add_cidr('::/0')
+        if not exclude_ipv6:
+            res.add_cidr('::/0')
         return res
 
     @staticmethod
-    def get_all_ips_block_peer_set():
+    def get_all_ips_block_peer_set(exclude_ipv6=False):
         """
-        :return: The full range of ipv4 and ipv6 addresses
+        :return: The full range of ipv4 and ipv6 addresses (ipv6 if exclude_ipv6 is False)
+        :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses
         :rtype: PeerSet
         """
         res = PeerSet()
-        res.add(IpBlock.get_all_ips_block())
+        res.add(IpBlock.get_all_ips_block(exclude_ipv6))
         return res
 
     def split(self):
@@ -408,7 +411,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
         non_overlapping_interval_list += to_add
 
     @staticmethod
-    def disjoint_ip_blocks(ip_blocks1, ip_blocks2):
+    def disjoint_ip_blocks(ip_blocks1, ip_blocks2, exclude_ipv6=False):
         """
         Takes all (atomic) ip-ranges in both ip-blocks and returns a new set of ip-ranges where
         each ip-range is:
@@ -417,6 +420,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
         3. is maximal (extending the range to either side will violate either 1 or 2)
         :param ip_blocks1: A set of ip blocks
         :param ip_blocks2: A set of ip blocks
+        :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses in case the result is all_ips_block
         :return: A set of ip ranges as specified above
         :rtype: PeerSet
         """
@@ -435,9 +439,23 @@ class IpBlock(Peer, CanonicalIntervalSet):
             res.add(ip_block)
 
         if not res:
-            res.add(IpBlock.get_all_ips_block())
+            res.add(IpBlock.get_all_ips_block(exclude_ipv6))
 
         return res
+
+    def is_ipv4_block(self):
+        """
+        checks whether self IpBlock includes only IPv4 addresses
+        :return: true if self includes only IPv4 addresses
+        :rtype: bool
+        """
+        cnt = 0
+        for interval in self.interval_set:
+            ip_address = interval.start
+            if isinstance(ip_address, IPNetworkAddress) and isinstance(ip_address.address, ipaddress.IPv4Address) or \
+                    isinstance(ip_address, ipaddress.IPv4Address):
+                cnt += 1
+        return cnt == len(self.interval_set)
 
 
 class DNSEntry(Peer):

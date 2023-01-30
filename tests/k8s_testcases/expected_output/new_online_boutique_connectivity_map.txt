@@ -1,8 +1,6 @@
 final fw rules for query: new_online_boutique_connectivity_map, config: new_online_boutique:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
-src: ::/0 dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
 src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [loadgenerator] conn: All connections
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000

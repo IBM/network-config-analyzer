@@ -1,4 +1,3 @@
 final fw rules for query: connectivity_map, config: np_allowFirst:
 src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [kube-system] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [kube-system] src_pods: [tier=frontend] dst_ns: [kube-system] dst_pods: [*] conn: All connections

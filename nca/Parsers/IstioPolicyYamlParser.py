@@ -157,8 +157,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             res -= self._parse_ns_str(ns)
         return res
 
-    @staticmethod
-    def parse_ip_block(ips_list, not_ips_list):
+    def parse_ip_block(self, ips_list, not_ips_list):
         """
         parse ipBlocks elements (within a source component of  a rule)
         :param list[str] ips_list: list of ip-block addresses (either ip address or ip-block cidr)
@@ -166,14 +165,18 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         :return: A PeerSet containing the relevant IpBlocks
         :rtype: Peer.PeerSet
         """
-        ips_list = ['0.0.0.0/0', '::/0'] if ips_list is None else ips_list  # If not set, any IP is allowed
+        ips_list = IpBlock.get_all_ips_block() if ips_list is None else ips_list  # If not set, any IP is allowed
         not_ips_list = [] if not_ips_list is None else not_ips_list
         res_ip_block = IpBlock()
         for cidr in ips_list:
             res_ip_block |= IpBlock(cidr)
         for cidr in not_ips_list:
             res_ip_block -= IpBlock(cidr)
-        return res_ip_block.split()
+        res_peer_set = res_ip_block.split()
+        if not self.has_ipv6_addresses:  # if already true, means a previous rule already had ipv6
+            # and then policy has ipv6 no need for more checks
+            self.check_and_update_has_ipv6_addresses(res_peer_set)
+        return res_peer_set
 
     def parse_key_values(self, key, values, not_values):
         """
@@ -558,5 +561,5 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
 
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels
-
+        res_policy.has_ipv6_addresses = self.has_ipv6_addresses
         return res_policy

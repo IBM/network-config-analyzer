@@ -1,8 +1,0 @@
-// The Connectivity Graph of np25
-digraph {
-	HEADER [shape="box" label=< <B>subset_deployment_connection_not_in_subset_dot/np25</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
-	"default/my-test-deployment-A-1" [label="default/my-test-deployment-A-1" color="blue" fontcolor="blue"]
-	"default/my-test-deployment-A-2" [label="default/my-test-deployment-A-2" color="blue" fontcolor="blue"]
-}
-
-

@@ -150,7 +150,8 @@ def run_args(args):
                                          'outputPath': args.file_out or None,
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
-                                         'subset': {}})
+                                         'subset': {},
+                                         'excludeIPv6Range': not args.print_ipv6})
     expected_output = None
     # default values are for sanity query
     # np_list will be taken as args.<query_name> if it is not equal to the args parser's const value i.e ['']
@@ -310,6 +311,9 @@ def nca_main(argv=None):
     parser.add_argument('--debug', '-d', action='store_true', help='Print debug information')
     parser.add_argument('--output_endpoints', choices=['pods', 'deployments'],
                         help='Choose endpoints type in output (pods/deployments)', default='deployments')
+    parser.add_argument('--print_ipv6', action='store_true', help='Display IPv6 addresses connections too. '
+                                                                  'If the policy reference IPv6 addresses, '
+                                                                  'their connections will be printed anyway')
 
     args = parser.parse_args(argv)
 
