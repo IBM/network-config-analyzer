@@ -28,9 +28,9 @@ class SchemeRunner(GenericYamlParser):
             self.output_config_from_cli_args['outputPath'] = output_path
 
         scanner = TreeScannerFactory.get_scanner(scheme_file_name)
-        for yaml_docs in scanner.get_yamls():
-            for yaml_content in yaml_docs.data:
-                self.scheme = yaml_content
+        for yaml_file in scanner.get_yamls():
+            for yaml_doc in yaml_file.data:
+                self.scheme = yaml_doc
                 if not isinstance(self.scheme, dict):
                     self.syntax_error("The scheme's top-level object must be a map")
 
