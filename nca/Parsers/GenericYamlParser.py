@@ -10,6 +10,7 @@ from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.Peer import IpBlock
 from nca.Utils.NcaLogger import NcaLogger
 from nca.FileScanners.GenericTreeScanner import ObjectWithLocation
 
@@ -35,6 +36,7 @@ class GenericYamlParser:
         """
         self.yaml_file_name = yaml_file_name
         self.warning_msgs = []  # Collect all warning messages during parsing here
+        self.has_ipv6_addresses = False
 
     def set_file_name(self, yaml_file_name):
         """
@@ -239,3 +241,15 @@ class GenericYamlParser:
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
         return res
+
+    def check_and_update_has_ipv6_addresses(self, peers):
+        """
+        checks if the peer list has ipv6 addresses
+        updates self.has_ipv6_addresses=true if at least on peer is an IPblock with IPv6 addresses
+        :param PeerSet peers: list of peers
+        """
+        for peer in peers:
+            if isinstance(peer, IpBlock):
+                if not peer.is_ipv4_block():
+                    self.has_ipv6_addresses = True
+                    return  # if at least one peer is ipv6 block , this policy has_ipv6, no need to continue

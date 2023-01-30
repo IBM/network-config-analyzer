@@ -172,17 +172,36 @@ class NetworkConfig:
 
         return affected_pods
 
-    def get_referenced_ip_blocks(self):
+    def _check_for_excluding_ipv6_addresses(self, exclude_ipv6):
         """
+        checks and returns if to exclude non-referenced IPv6 addresses from the config
+        Excluding the IPv6 addresses will be enabled if the exclude_ipv6 param is True and
+        IPv6 addresses in all the policies of the config (if existed) were added automatically by the parser
+        and not referenced by user
+        :param bool exclude_ipv6: indicates if to exclude ipv_6 non-referenced addresses
+        :rtype bool
+        """
+        if not exclude_ipv6:
+            return False
+
+        for policy in self.policies_container.policies.values():
+            if policy.has_ipv6_addresses:  # if at least one policy has referenced ipv6 addresses, ipv6 will be included
+                return False
+        return True  # getting here means all policies didn't reference ipv6, it is safe to exclude ipv6 addresses
+
+    def get_referenced_ip_blocks(self, exclude_non_ref_ipv6=False):
+        """
+        :param bool exclude_non_ref_ipv6: indicates if to exclude non-referenced ipv_6 addresses from the result
         :return: All ip ranges, referenced in any of the policies' rules
         :rtype: Peer.PeerSet
         """
         if self.referenced_ip_blocks is not None:
             return self.referenced_ip_blocks
 
+        exclude_non_ref_ipv6_from_policies = self._check_for_excluding_ipv6_addresses(exclude_non_ref_ipv6)
         self.referenced_ip_blocks = Peer.PeerSet()
         for policy in self.policies_container.policies.values():
-            self.referenced_ip_blocks |= policy.referenced_ip_blocks()
+            self.referenced_ip_blocks |= policy.referenced_ip_blocks(exclude_non_ref_ipv6_from_policies)
 
         return self.referenced_ip_blocks
 

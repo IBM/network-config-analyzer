@@ -143,14 +143,6 @@
       - tier=frontend
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - kube-system
-      dst_pods:
-      - tier=frontend
-      connection:
-      - All connections
   - description: Removed connections between persistent peers and ipBlocks
     rules:
     - src_ns:
@@ -260,13 +252,5 @@
       - tier=frontend
       dst_ip_block:
       - 49.50.0.9/32
-      connection:
-      - All connections
-    - src_ns:
-      - kube-system
-      src_pods:
-      - tier=frontend
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections

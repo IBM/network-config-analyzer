@@ -38,28 +38,12 @@
       - app in (app-3,app-4)
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - app in (app-3,app-4)
-      connection:
-      - All connections
     - src_ns:
       - default
       src_pods:
       - app in (app-3,app-4)
       dst_ip_block:
       - 0.0.0.0/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
-      - app in (app-3,app-4)
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections
   - description: Lost connections between removed peers and persistent peers
@@ -140,14 +124,6 @@
       - app=app-1
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - app=app-1
-      connection:
-      - All connections
   - description: Removed connections between persistent peers and ipBlocks
     rules:
     - src_ip_block:
@@ -208,14 +184,6 @@
       - app=app-2
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - app=app-2
-      connection:
-      - All connections
   - description: New connections between persistent peers and added peers
     rules:
     - src_ns:
@@ -270,27 +238,11 @@
       - app in (app-5,app-6)
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - app in (app-5,app-6)
-      connection:
-      - All connections
     - src_ns:
       - default
       src_pods:
       - app in (app-5,app-6)
       dst_ip_block:
       - 0.0.0.0/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
-      - app in (app-5,app-6)
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections

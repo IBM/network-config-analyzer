@@ -1,6 +1,0 @@
-final fw rules for query: subset_labels5_txt, config: np25:
-src_ns: [default] src_pods: [Pod1] dst_ns: [ns3] dst_pods: [Pod8] conn: All connections
-src_ns: [ns1] src_pods: [dep=A] dst_ns: [default] dst_pods: [dep=E] conn: All connections
-src_ns: [ns1] src_pods: [dep=B] dst_ns: [ns1] dst_pods: [dep=A] conn: All connections
-src_ns: [ns3] src_pods: [Pod8] dst_ns: [default] dst_pods: [Pod4] conn: All connections
-
