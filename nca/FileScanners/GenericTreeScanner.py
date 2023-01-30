@@ -55,9 +55,15 @@ def to_yaml_objects(yaml_node):
     except ValueError:
         pass
 
-    # now check if it's the null value
-    if yaml_node.style is None and yaml_node.value in ['', 'null']:
-        return None
+    if yaml_node.style is None:
+        # Now check if it is Boolean
+        if yaml_node.value == 'true':
+            return True
+        if yaml_node.value == 'false':
+            return False
+        # check if it's the null value
+        if yaml_node.value in ['', 'null']:
+            return None
 
     return yaml_node.value
 
