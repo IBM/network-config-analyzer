@@ -83,20 +83,22 @@ class K8sNetworkPolicy(NetworkPolicy):
                 res.add_ingress_rule(rule)
         return res
 
-    def referenced_ip_blocks(self):
+    def referenced_ip_blocks(self, exclude_ipv6=False):
         """
+        :param bool exclude_ipv6: indicates if to exclude the automatically added IPv6 addresses in the referenced ip_blocks.
+        IPv6 addresses that are referenced in the policy by the user will always be included
         :return: A set of all ipblocks referenced in one of the policy rules (one Peer object per one ip range)
         :rtype: Peer.PeerSet
         """
         res = Peer.PeerSet()
         for rule in self.egress_rules:
-            for pod in rule.peer_set:
-                if isinstance(pod, Peer.IpBlock):
-                    res |= pod.split()
+            for peer in rule.peer_set:
+                if isinstance(peer, Peer.IpBlock) and self._include_ip_block(peer, exclude_ipv6):
+                    res |= peer.split()
         for rule in self.ingress_rules:
-            for pod in rule.peer_set:
-                if isinstance(pod, Peer.IpBlock):
-                    res |= pod.split()
+            for peer in rule.peer_set:
+                if isinstance(peer, Peer.IpBlock) and self._include_ip_block(peer, exclude_ipv6):
+                    res |= peer.split()
 
         return res
 

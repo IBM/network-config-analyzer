@@ -301,6 +301,9 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         elif nets or not_nets:
             rule_peers = PeerSet()
             rule_peers.add(rule_ips)
+            if not self.has_ipv6_addresses:  # if already true, means a previous rule already had ipv6
+                # and then policy has ipv6 no need for more checks
+                self.check_and_update_has_ipv6_addresses(rule_peers)
         else:
             rule_peers = self.peer_container.get_all_peers_group(True)
 
@@ -641,4 +644,5 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         self._apply_extra_labels(policy_spec, is_profile, res_policy.name)
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels
+        res_policy.has_ipv6_addresses = self.has_ipv6_addresses
         return res_policy

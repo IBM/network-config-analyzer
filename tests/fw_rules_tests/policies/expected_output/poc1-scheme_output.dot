@@ -1,48 +1,35 @@
-// The Connectivity Graph of connectivity_map_dot/poc1
+// The Connectivity Graph of poc1
 digraph {
-	label="Connectivity Graph of connectivity_map_dot/poc1"	labelloc = "t"
-	fontsize=30
-	fontcolor=webmaroon
-subgraph cluster_default_namespace{
-	label="default"
-	fontsize=20
-	fontcolor=blue
-	"default/adservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>adservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/cartservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>cartservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/checkoutservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>checkoutservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/currencyservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>currencyservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/emailservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>emailservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/frontend(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>frontend</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/loadgenerator(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>loadgenerator</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/paymentservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>paymentservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/productcatalogservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>productcatalogservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/recommendationservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>recommendationservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/redis-cart(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>redis-cart</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-	"default/shippingservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>shippingservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
+	HEADER [shape="box" label=< <B>connectivity_map_dot/poc1</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];
+	"0.0.0.0/0" [label="0.0.0.0/0" color="red2" fontcolor="red2"]
+	"default/adservice(Deployment)" [label="default/adservice(Deployment)" color="blue" fontcolor="blue"]
+	"default/cartservice(Deployment)" [label="default/cartservice(Deployment)" color="blue" fontcolor="blue"]
+	"default/checkoutservice(Deployment)" [label="default/checkoutservice(Deployment)" color="blue" fontcolor="blue"]
+	"default/currencyservice(Deployment)" [label="default/currencyservice(Deployment)" color="blue" fontcolor="blue"]
+	"default/emailservice(Deployment)" [label="default/emailservice(Deployment)" color="blue" fontcolor="blue"]
+	"default/frontend(Deployment)" [label="default/frontend(Deployment)" color="blue" fontcolor="blue"]
+	"default/loadgenerator(Deployment)" [label="default/loadgenerator(Deployment)" color="blue" fontcolor="blue"]
+	"default/paymentservice(Deployment)" [label="default/paymentservice(Deployment)" color="blue" fontcolor="blue"]
+	"default/productcatalogservice(Deployment)" [label="default/productcatalogservice(Deployment)" color="blue" fontcolor="blue"]
+	"default/recommendationservice(Deployment)" [label="default/recommendationservice(Deployment)" color="blue" fontcolor="blue"]
+	"default/redis-cart(Deployment)" [label="default/redis-cart(Deployment)" color="blue" fontcolor="blue"]
+	"default/shippingservice(Deployment)" [label="default/shippingservice(Deployment)" color="blue" fontcolor="blue"]
+	"0.0.0.0/0" -> "default/frontend(Deployment)" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"default/cartservice(Deployment)" -> "default/redis-cart(Deployment)" [label="TCP 6379" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice(Deployment)" -> "default/cartservice(Deployment)" [label="TCP 7070" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice(Deployment)" -> "default/currencyservice(Deployment)" [label="TCP 7000" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice(Deployment)" -> "default/emailservice(Deployment)" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice(Deployment)" -> "default/paymentservice(Deployment)" [label="TCP 50051" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice(Deployment)" -> "default/productcatalogservice(Deployment)" [label="TCP 3550" color="gold2" fontcolor="darkgreen"]
+	"default/checkoutservice(Deployment)" -> "default/shippingservice(Deployment)" [label="TCP 50051" color="gold2" fontcolor="darkgreen"]
+	"default/frontend(Deployment)" -> "default/adservice(Deployment)" [label="TCP 9555" color="gold2" fontcolor="darkgreen"]
+	"default/frontend(Deployment)" -> "default/cartservice(Deployment)" [label="TCP 7070" color="gold2" fontcolor="darkgreen"]
+	"default/frontend(Deployment)" -> "default/checkoutservice(Deployment)" [label="TCP 5050" color="gold2" fontcolor="darkgreen"]
+	"default/frontend(Deployment)" -> "default/currencyservice(Deployment)" [label="TCP 7000" color="gold2" fontcolor="darkgreen"]
+	"default/frontend(Deployment)" -> "default/productcatalogservice(Deployment)" [label="TCP 3550" color="gold2" fontcolor="darkgreen"]
+	"default/frontend(Deployment)" -> "default/recommendationservice(Deployment)" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"default/frontend(Deployment)" -> "default/shippingservice(Deployment)" [label="TCP 50051" color="gold2" fontcolor="darkgreen"]
+	"default/loadgenerator(Deployment)" -> "default/frontend(Deployment)" [label="TCP 8080" color="gold2" fontcolor="darkgreen"]
+	"default/recommendationservice(Deployment)" -> "default/productcatalogservice(Deployment)" [label="TCP 3550" color="gold2" fontcolor="darkgreen"]
 }
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
-	"::/0" [label=<<table border="0" cellspacing="0"><tr><td>::/0</td></tr></table>> shape=box fontcolor=red2]
-}
-	"0.0.0.0/0" -> "default/frontend(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"::/0" -> "default/frontend(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/cartservice(Deployment)" -> "default/redis-cart(Deployment)"[label="TCP 6379" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/cartservice(Deployment)"[label="TCP 7070" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/currencyservice(Deployment)"[label="TCP 7000" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/emailservice(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/paymentservice(Deployment)"[label="TCP 50051" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP 3550" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/shippingservice(Deployment)"[label="TCP 50051" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/adservice(Deployment)"[label="TCP 9555" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/cartservice(Deployment)"[label="TCP 7070" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/checkoutservice(Deployment)"[label="TCP 5050" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/currencyservice(Deployment)"[label="TCP 7000" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP 3550" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/recommendationservice(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/shippingservice(Deployment)"[label="TCP 50051" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/loadgenerator(Deployment)" -> "default/frontend(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/recommendationservice(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP 3550" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-}
+

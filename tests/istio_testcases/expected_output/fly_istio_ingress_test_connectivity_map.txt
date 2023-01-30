@@ -1,12 +1,9 @@
 final fw rules for query: connectivity, config: fly-istio-ingress-test:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [default] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [fly-api] conn: TCP {'dst_ports': '8761', 'paths': '/flights[\\--9A-Z_a-z]*', 'hosts': '\\w*'}
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [hora-api] conn: TCP {'dst_ports': '8762', 'paths': '/horas[\\--9A-Z_a-z]*', 'hosts': '\\w*'}
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [istio-ingressgateway] conn: All connections
 src_ns: [default] src_pods: [fly-api] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [fly-api] dst: ::/0 conn: All connections
 src_ns: [default] src_pods: [fly-api] dst_ns: [default] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [hora-api] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default] src_pods: [hora-api] dst: ::/0 conn: All connections
 src_ns: [default] src_pods: [hora-api] dst_ns: [default] dst_pods: [*] conn: All connections

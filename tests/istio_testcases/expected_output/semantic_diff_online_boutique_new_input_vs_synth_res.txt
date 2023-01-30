@@ -20,8 +20,6 @@ src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default
 
 Added connections between persistent peers and ipBlocks (based on topology from config: new_online_boutique_synthesis_res) :
 src: 0.0.0.0/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 1-8079,8081-65535
-src: ::/0 dst_ns: [asm-ingress] dst_pods: [*] conn: TCP 1-8079,8081-65535
 
 Removed connections between persistent peers and ipBlocks (based on topology from config: new_online_boutique) :
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [loadgenerator] conn: TCP
-src: ::/0 dst_ns: [default] dst_pods: [loadgenerator] conn: TCP

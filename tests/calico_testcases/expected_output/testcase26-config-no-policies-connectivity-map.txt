@@ -1,6 +1,4 @@
 final fw rules for query: connectivity-1, config: testcase26-config-no-policies:
 src: 0.0.0.0/0 dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All connections
-src: ::/0 dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All connections
 src_ns: [default,ingress-nginx,istio-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [default,ingress-nginx,istio-system] src_pods: [*] dst: ::/0 conn: All connections
 src_ns: [default,ingress-nginx,istio-system] src_pods: [*] dst_ns: [default,ingress-nginx,istio-system] dst_pods: [*] conn: All connections

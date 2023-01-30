@@ -97,6 +97,9 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--output_endpoints`\
   Choose endpoints type in output (pods/deployments).\
   *default:* deployments
+  - `--print_ipv6`\
+  include IPv6 range in the query results even when the policies of the config do not contain any IPv6 addresses.
+  
 
 For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md#cmdline-queries)
 

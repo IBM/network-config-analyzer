@@ -29,14 +29,6 @@
     - src_ns:
       - default
       src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
       - app=productpage
       dst_ns:
       - default
@@ -53,28 +45,12 @@
       - '*'
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - All connections
     - src_ns:
       - default
       src_pods:
       - '*'
       dst_ip_block:
       - 0.0.0.0/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections
     - src_ns:

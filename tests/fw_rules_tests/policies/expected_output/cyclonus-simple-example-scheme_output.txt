@@ -1,7 +1,5 @@
 final fw rules for query: connectivity_map, config: cyclonus-simple-example:
 src: 0.0.0.0/0 dst_ns: [y] dst_pods: [b] conn: All connections
 src: 0.0.0.0/24 dst_ns: [y] dst_pods: [c] conn: All connections
-src: ::/0 dst_ns: [y] dst_pods: [b] conn: All connections
 src_ns: [y] src_pods: [a] dst_ns: [y] dst_pods: [b] conn: All connections
 src_ns: [y] src_pods: [pod!=c] dst: 0.0.0.0/0 conn: All connections
-src_ns: [y] src_pods: [pod!=c] dst: ::/0 conn: All connections

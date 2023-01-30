@@ -9,4 +9,3 @@ src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn:
 
 Removed connections between persistent peers and ipBlocks (based on topology from config: orig_online_boutique_synthesis_res) :
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
-src: ::/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
