@@ -109,7 +109,7 @@ class GenericTreeScanner(abc.ABC):
                 documents = convert_documents(yaml.compose_all(stream, Loader=yaml.SafeLoader))
             yield YamlFile(documents, path)
         except yaml.MarkedYAMLError as parse_error:
-            print(f'{parse_error.problem_mark.name}:{parse_error.problem_mark.line}:{parse_error.problem_mark.column}:',
+            print(f'{parse_error.problem_mark.name}:{parse_error.problem_mark.line+1}:{parse_error.problem_mark.column+1}:',
                   'Parse Error:', parse_error.problem, file=stderr)
             return
         except yaml.YAMLError:

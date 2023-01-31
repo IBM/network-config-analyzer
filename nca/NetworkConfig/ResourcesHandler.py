@@ -370,23 +370,15 @@ class ResourcesParser:
             pods_finder = PodsFinder()
             ns_finder = NamespacesFinder()
             labels_found = {}
-            try:
-                for res_code in yaml_file.data:
-                    ns_finder.parse_yaml_code_for_ns(res_code)
-                    pods_finder.namespaces_finder = ns_finder
-                    pods_finder.add_eps_from_yaml(res_code)
-                for item in ns_finder.namespaces.values():
-                    labels_found.update(item.labels)
-                for item in pods_finder.peer_set:
-                    labels_found.update(item.labels)
-                results.update({yaml_file.path: labels_found})
-
-            except yaml.MarkedYAMLError as prs_err:
-                print(
-                    f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
-                    'Parse Error:', prs_err.problem, file=stderr)
-            except UnicodeDecodeError as decode_err:
-                print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}')
+            for res_code in yaml_file.data:
+                ns_finder.parse_yaml_code_for_ns(res_code)
+                pods_finder.namespaces_finder = ns_finder
+                pods_finder.add_eps_from_yaml(res_code)
+            for item in ns_finder.namespaces.values():
+                labels_found.update(item.labels)
+            for item in pods_finder.peer_set:
+                labels_found.update(item.labels)
+            results.update({yaml_file.path: labels_found})
 
         return results
 
