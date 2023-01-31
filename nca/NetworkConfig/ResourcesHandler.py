@@ -5,14 +5,13 @@
 import copy
 import os
 from enum import Enum
-from sys import stderr
 from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
 from nca.Utils.CmdlineRunner import CmdlineRunner
+from nca.Utils.NcaLogger import NcaLogger
 from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from .PeerContainer import PeerContainer
-from nca.Utils.NcaLogger import NcaLogger
 
 
 class ResourceType(Enum):
@@ -405,20 +404,16 @@ class ResourcesParser:
                 if not yaml_files:
                     continue
                 for yaml_file in yaml_files:
-                    try:
-                        for res_code in yaml_file.data:
-                            if ResourceType.Namespaces in resource_flags:
-                                self.ns_finder.parse_yaml_code_for_ns(res_code)
-                            if ResourceType.Pods in resource_flags:
-                                self.pods_finder.namespaces_finder = self.ns_finder
-                                self.pods_finder.add_eps_from_yaml(res_code)
-                                self.services_finder.namespaces_finder = self.ns_finder
-                                self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
-                            if ResourceType.Policies in resource_flags:
-                                self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
-
-                    except UnicodeDecodeError as decode_err:
-                        print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}', file=stderr)
+                    for res_code in yaml_file.data:
+                        if ResourceType.Namespaces in resource_flags:
+                            self.ns_finder.parse_yaml_code_for_ns(res_code)
+                        if ResourceType.Pods in resource_flags:
+                            self.pods_finder.namespaces_finder = self.ns_finder
+                            self.pods_finder.add_eps_from_yaml(res_code)
+                            self.services_finder.namespaces_finder = self.ns_finder
+                            self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
+                        if ResourceType.Policies in resource_flags:
+                            self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
 
         self.policies_finder.parse_policies_in_parse_queue()
 
