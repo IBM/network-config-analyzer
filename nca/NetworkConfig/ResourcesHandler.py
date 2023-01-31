@@ -6,7 +6,6 @@ import copy
 import os
 from enum import Enum
 from sys import stderr
-import yaml
 from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from .NetworkConfig import NetworkConfig
@@ -418,12 +417,8 @@ class ResourcesParser:
                             if ResourceType.Policies in resource_flags:
                                 self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
 
-                    except yaml.MarkedYAMLError as prs_err:
-                        print(
-                            f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
-                            'Parse Error:', prs_err.problem, file=stderr)
                     except UnicodeDecodeError as decode_err:
-                        print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}')
+                        print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}', file=stderr)
 
         self.policies_finder.parse_policies_in_parse_queue()
 
