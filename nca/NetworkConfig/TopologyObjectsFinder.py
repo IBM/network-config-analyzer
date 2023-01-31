@@ -5,11 +5,10 @@
 
 from sys import stderr
 import yaml
-
-from nca.Parsers.IstioServiceEntryYamlParser import IstioServiceEntryYamlParser
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, HostEP
 from nca.Resources.K8sNamespace import K8sNamespace
+from nca.Parsers.IstioServiceEntryYamlParser import IstioServiceEntryYamlParser
 from nca.Parsers.K8sServiceYamlParser import K8sServiceYamlParser
 from nca.Utils.NcaLogger import NcaLogger
 
@@ -326,7 +325,7 @@ class ServicesFinder:
     def load_services_from_live_cluster(self):
         """
         Loads and parses service resources from live cluster
-        :return: The list of parsed services in K8sService format
+        :return: The list of parsed service resources in the relevant K8sService or ServiceEntry format
         """
         for resource_name in ['service', 'serviceentry']:
             yaml_file = CmdlineRunner.get_k8s_resources(resource_name)
