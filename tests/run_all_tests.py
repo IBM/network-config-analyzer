@@ -378,7 +378,7 @@ class TestsRunner:
 
         elif self.test_files_spec.type == 'cmdline':
             with open(test_file) as doc:
-                code = yaml.load_all(doc, Loader=yaml.SafeLoader)
+                code = yaml.load_all(doc, Loader=yaml.CSafeLoader)
                 for test in next(iter(code)):
                     query_name = test.get('name', '')
                     # Skip HELM tests if HELM is not installed.

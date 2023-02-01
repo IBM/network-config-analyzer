@@ -122,7 +122,7 @@ class PoliciesFinder:
             self.parse_yaml_code_for_policy(policy, file_name)
 
     def _add_policies(self, doc, file_name):
-        code = yaml.load_all(doc, Loader=yaml.SafeLoader)
+        code = yaml.load_all(doc, Loader=yaml.CSafeLoader)
         for policy_list in code:
             if isinstance(policy_list, dict):
                 self._add_policies_to_parse_queue(policy_list.get('items', []), file_name)
