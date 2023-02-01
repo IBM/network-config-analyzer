@@ -55,7 +55,7 @@ def to_yaml_objects(yaml_node):
     except ValueError:
         pass
 
-    if yaml_node.style is None:
+    if not yaml_node.style:
         # Now check if it is Boolean
         if yaml_node.value == 'true':
             return True
