@@ -2,4 +2,3 @@ ghapi==1.0.3
 ruamel.yaml==0.17.21
 PyYAML==6.0
 greenery==4.0.0
-graphviz=0.20.1
