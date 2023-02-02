@@ -48,14 +48,15 @@ class OutputConfiguration(dict):
         if path is not None:
             # print output to a file
             if self.outputFormat == 'jpg':
+                tmp_dot_file = f'{path}.nca_tmp.dot'
                 try:
-                    tmp_dot_file = f'{path}.nca_tmp.dot'
                     with open(tmp_dot_file, "w") as f:
                         f.write(output)
                     CmdlineRunner.run_and_get_output(['dot', tmp_dot_file, '-Tjpg', f'-o{path}'])
-                    os.remove(tmp_dot_file)
                 except Exception as e:
                     print(f'Failed to create a jpg file: {path}\n{e}')
+                if os.path.isfile(tmp_dot_file):
+                    os.remove(tmp_dot_file)
             else:
                 try:
                     with open(path, "a") as f:
