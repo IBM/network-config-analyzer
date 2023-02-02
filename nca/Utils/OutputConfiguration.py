@@ -5,6 +5,7 @@
 
 import json
 import os
+import graphviz
 from urllib import request
 
 
@@ -46,12 +47,18 @@ class OutputConfiguration(dict):
         path = self.outputPath
         if path is not None:
             # print output to a file
-            try:
-                with open(path, "a") as f:
-                    f.write(output)
-                print(f'wrote query output to: {path}')
-            except FileNotFoundError:
-                print(f"FileNotFoundError: configured outputPath is: {path}")
+            if self.outputFormat == 'jpg':
+                try:
+                    graphviz.Source(output).render(filename=path, format='jpg', cleanup=True)
+                except Exception as e:
+                    print(f'Failed to create a jpg file: {path}\n{e}')
+            else:
+                try:
+                    with open(path, "a") as f:
+                        f.write(output)
+                    print(f'wrote query output to: {path}')
+                except FileNotFoundError:
+                    print(f'FileNotFoundError: configured outputPath is: {path}')
         elif self.prURL is not None:
             self.write_git_comment(output)
         else:
