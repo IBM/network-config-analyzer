@@ -6,6 +6,7 @@
 import json
 import os
 from urllib import request
+from nca.Utils.CmdlineRunner import CmdlineRunner
 
 
 class OutputConfiguration(dict):
@@ -46,12 +47,23 @@ class OutputConfiguration(dict):
         path = self.outputPath
         if path is not None:
             # print output to a file
-            try:
-                with open(path, "a") as f:
-                    f.write(output)
-                print(f'wrote query output to: {path}')
-            except FileNotFoundError:
-                print(f"FileNotFoundError: configured outputPath is: {path}")
+            if self.outputFormat == 'jpg':
+                tmp_dot_file = f'{path}.nca_tmp.dot'
+                try:
+                    with open(tmp_dot_file, "w") as f:
+                        f.write(output)
+                    CmdlineRunner.run_and_get_output(['dot', tmp_dot_file, '-Tjpg', f'-o{path}'])
+                except Exception as e:
+                    print(f'Failed to create a jpg file: {path}\n{e}')
+                if os.path.isfile(tmp_dot_file):
+                    os.remove(tmp_dot_file)
+            else:
+                try:
+                    with open(path, "a") as f:
+                        f.write(output)
+                    print(f'wrote query output to: {path}')
+                except FileNotFoundError:
+                    print(f'FileNotFoundError: configured outputPath is: {path}')
         elif self.prURL is not None:
             self.write_git_comment(output)
         else:

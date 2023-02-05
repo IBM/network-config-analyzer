@@ -621,7 +621,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json'}
+        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json', 'jpg'}
 
     def is_in_subset(self, peer):
         """
@@ -725,7 +725,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
         :rtype Union[str,dict]
         """
-        if self.output_config.outputFormat == 'dot':
+        if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_full = self.dot_format_from_connections_dict(connections, peers)
             return dot_full
         # handle formats other than dot
@@ -743,7 +743,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
         connections_tcp, connections_non_tcp = self.convert_connections_to_split_by_tcp(connections)
-        if self.output_config.outputFormat == 'dot':
+        if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_tcp = self.dot_format_from_connections_dict(connections_tcp, peers, connectivity_tcp_str)
             dot_non_tcp = self.dot_format_from_connections_dict(connections_non_tcp, peers, connectivity_non_tcp_str)
             # concatenate the two graphs into one dot file
