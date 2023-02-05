@@ -19,6 +19,7 @@ class IstioSidecarRule:
         Init the Egress rule of an Istio Sidecar
         :param Peer.PeerSet peer_set: The set of mesh internal peers this rule allows connection to
         :param Peer.PeerSet peers_for_ns_compare: The set of peers captured by a global sidecar with hosts
+        :param bool allow_all: indicates if this sidecar rule allows all egress from sidecar's peers
         having namespace equal to '.'
         """
         self.egress_peer_set = peer_set
@@ -140,9 +141,9 @@ class IstioSidecar(NetworkPolicy):
 
     @staticmethod
     def check_peers_in_same_namespace(from_peer, to_peer):
-        # a captured from_peer is always internal
+        # a captured from_peer is always internal (having a specified namespace)
         from_ns = from_peer.namespace
         if to_peer.namespace:
             return from_ns == to_peer.namespace
-        # else to_peer is a DNSEntry
+        # else to_peer is a DNSEntry: it is exported to from_peer if it is exported to its namespace or to all namespaces
         return '*' in to_peer.namespaces or from_ns in to_peer.namespaces

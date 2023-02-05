@@ -8,6 +8,9 @@ from nca.CoreDS.Peer import PeerSet
 
 
 class ServiceResource:
+    """
+    A class that represents service resources
+    """
     def __init__(self, name, namespace_name):
         self.name = name
         self.namespace_name = namespace_name
@@ -114,7 +117,9 @@ class K8sService(ServiceResource):
 
 
 class IstioServiceEntry(ServiceResource):
-
+    """
+    Represents an Istio ServiceEntry object
+    """
     def __init__(self, name, namespace_name):
         super().__init__(name, namespace_name)
         self.exported_to_all_namespaces = True
