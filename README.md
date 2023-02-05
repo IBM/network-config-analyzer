@@ -83,7 +83,8 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--period <minutes>`\
   Run NCA with given arguments every specified number of minutes
 - `--output_format <format>`\
-  Output format specification (txt/yaml/csv/md/dot).\
+  Output format specification (txt/yaml/csv/md/dot/jpg).\
+  For jpg format, Graphviz executables must be installed and on user systems' PATH.\
   *default:* txt\
   *shorthand:* `-o`
 - `--file_out <file name>`\
