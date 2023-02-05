@@ -79,7 +79,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if dst_peers is not None:
             cube.append(dst_peers)
             active_dims.append("dst_peers")
-        if protocols and not protocols.is_whole_range():
+        if protocols is not None and not protocols.is_whole_range():
             cube.append(protocols)
             active_dims.append("protocols")
         if not source_ports.is_all():
@@ -88,7 +88,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         if not dest_ports.is_all():
             cube.append(dest_ports.port_set)
             active_dims.append("dst_ports")
-        if methods and not methods.is_whole_range():
+        if methods is not None and not methods.is_whole_range():
             cube.append(methods)
             active_dims.append("methods")
         if paths is not None:
