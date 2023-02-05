@@ -557,7 +557,7 @@ class ConnectionSet:
             protocols = ProtocolSet()
             protocols.add_protocol(protocol)
             this_prop = TcpLikeProperties.make_tcp_like_properties(peer_container, protocols=protocols)
-            if bool(properties):
+            if isinstance(properties, bool):
                 if properties:
                     res |= this_prop
             else:
@@ -580,7 +580,14 @@ class ConnectionSet:
     # TODO - after moving to the optimized HC set implementation,
     #  get rid of ConnectionSet and move the code below to TcpLikeProperties.py
     @staticmethod
-    def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container):
+    def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container, connectivity_restriction):
+        ignore_protocols = ProtocolSet()
+        if connectivity_restriction:
+            if connectivity_restriction == 'TCP':
+                ignore_protocols.add_protocol('TCP')
+            else:  #connectivity_restriction == 'non-TCP'
+                ignore_protocols = ProtocolSet.get_non_tcp_protocols()
+
         fw_rules_map = defaultdict(list)
         for cube in tcp_props:
             cube_dict = tcp_props.get_cube_dict_with_orig_values(cube)
@@ -598,7 +605,7 @@ class ConnectionSet:
             protocols = new_cube_dict.get('protocols')
             if protocols:
                 new_cube_dict.pop('protocols')
-            if not protocols and not new_cube_dict:
+            if not new_cube_dict and (not protocols or protocols == ignore_protocols):
                 conns = ConnectionSet(True)
             else:
                 conns = ConnectionSet()

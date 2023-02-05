@@ -104,13 +104,11 @@ class IstioNetworkPolicy(NetworkPolicy):
         if is_ingress:
             allowed = self.optimized_ingress_props.copy()
             denied = self.optimized_denied_ingress_props.copy()
-            captured = self.selected_peers if \
-                (self.affects_ingress and self.action == IstioNetworkPolicy.ActionType.Allow) else PeerSet()
+            captured = self.selected_peers
         else:
             allowed = self.optimized_egress_props.copy()
             denied = self.optimized_denied_egress_props.copy()
-            captured = self.selected_peers if \
-                (self.affects_egress and self.action == IstioNetworkPolicy.ActionType.Allow) else PeerSet()
+            captured = PeerSet()
         return allowed, denied, captured
 
     def referenced_ip_blocks(self):

@@ -277,9 +277,12 @@ class PeerContainer:
         :return PeerSet: The required set of peers
         """
         res = PeerSet()
-        for peer in self.peer_set:
-            if include_globals or not peer.is_global_peer():
-                res.add(peer)
+        if include_globals:
+            res = self.peer_set.copy()
+        else:
+            for peer in self.peer_set:
+                if not peer.is_global_peer():
+                    res.add(peer)
         if add_external_ips:
             res.add(IpBlock.get_all_ips_block())
         return res

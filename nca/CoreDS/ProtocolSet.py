@@ -22,6 +22,12 @@ class ProtocolSet(CanonicalIntervalSet):
         if all_protocols:  # the whole range
             self.add_interval(self._whole_range_interval())
 
+    @staticmethod
+    def get_non_tcp_protocols():
+        res = ProtocolSet(True)
+        res.remove_protocol('TCP')
+        return res
+
     def __contains__(self, protocol):
         if isinstance(protocol, str):
             protocol_num = ProtocolNameResolver.get_protocol_number(protocol)

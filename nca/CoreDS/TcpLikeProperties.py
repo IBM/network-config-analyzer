@@ -588,10 +588,18 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return TcpLikeProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None)
 
     def are_auto_conns(self):
-        if self.active_dimensions != ['src_peers', 'dst_peers']:
+        if not {'src_peers', 'dst_peers'}.issubset(set(self.active_dimensions)):
             return False
+        src_peers_index = None
+        dst_peers_index = None
+        for i, dim in enumerate(self.active_dimensions):
+            if dim == "src_peers":
+                src_peers_index = i
+            elif dim == "dst_peers":
+                dst_peers_index = i
+
         for cube in self:
-            if cube[0] != cube[1] or not cube[0].is_single_value():
+            if cube[src_peers_index] != cube[dst_peers_index] or not cube[src_peers_index].is_single_value():
                 return False
         return True
 

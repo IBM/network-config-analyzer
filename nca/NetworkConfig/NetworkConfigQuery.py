@@ -758,9 +758,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 opt_end = time.time()
                 print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
                 if self.config.optimized_run == 'debug':
-                    if fw_rules_tcp and opt_fw_rules_tcp:
+                    if fw_rules_tcp.fw_rules_map and opt_fw_rules_tcp.fw_rules_map:
                         self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp)
-                    if fw_rules_non_tcp and opt_fw_rules_non_tcp:
+                    if fw_rules_non_tcp.fw_rules_map and opt_fw_rules_non_tcp.fw_rules_map:
                         self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp)
             else:
                 output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare)
@@ -942,7 +942,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :rtype: Union[str, dict]
         """
         cluster_info = ClusterInfo(peers_to_compare, self.config.get_allowed_labels())
-        fw_rules_map = ConnectionSet.tcp_properties_to_fw_rules(props, cluster_info, self.config.peer_container)
+        fw_rules_map = ConnectionSet.tcp_properties_to_fw_rules(props, cluster_info, self.config.peer_container,
+                                                                connectivity_restriction)
         fw_rules = MinimizeFWRules(fw_rules_map, cluster_info, self.output_config, {})
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules, fw_rules

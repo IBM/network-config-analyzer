@@ -270,18 +270,6 @@ class NetworkConfig:
                 # all allowed connections: intersection of all allowed connections from all layers
                 conns_res &= conns_per_layer
 
-        if self.policies_container.layers.does_contain_single_layer(NetworkLayerName.Istio) \
-                and connectivityFilterIstioEdges:
-            protocols = ProtocolSet()
-            protocols.add_protocol('TCP')
-            dst_peers_no_ip = conns_res.project_on_one_dimension('dst_peers') if conns_res else Peer.PeerSet()
-            dst_peers_no_ip -= Peer.IpBlock.get_all_ips_block_peer_set()
-            if dst_peers_no_ip:
-                conns_res &= TcpLikeProperties.make_tcp_like_properties(self.peer_container, dst_peers=dst_peers_no_ip,
-                                                                        protocols=protocols)
-            else:
-                conns_res = TcpLikeProperties.make_empty_properties(self.peer_container)
-
         return conns_res
 
     def append_policy_to_config(self, policy):
