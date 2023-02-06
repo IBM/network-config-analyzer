@@ -48,18 +48,27 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def _get_peer_name(self, peer):
+    def _get_peer_name(self, peer, format_requirement=False):
         """
         Get the name of a peer object for connectivity graph + flag indicating if it is ip-block
         :param Peer peer: the peer object
+        :param bool format_requirement: indicates if to make special changes in str result according to format requirements
+        some changes are required for txt_no_fw_rules format: - to print ip_range only for an ipblock
+        - replace () with [] for deployment workload_names
+        - if the peer has a replicaSet owner, type its full name with [ReplicaSet] regardless its suffix
         :return: tuple(str, bool)
         str: the peer name
         bool: flag to indicate if peer is ip-block (True) or not (False)
         """
         if isinstance(peer, IpBlock):
-            return peer.get_ip_range_or_cidr_str(), True
+            return peer.get_ip_range_or_cidr_str(format_requirement), True
         if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
-            return peer.workload_name, False
+            peer_name = peer.replicaset_name if format_requirement and peer.replicaset_name else peer.workload_name
+            if format_requirement:
+                to_replace = {'(': '[', ')': ']'}
+                for ch in to_replace:
+                    peer_name = peer_name.replace(ch, to_replace[ch])
+            return peer_name, False
         return str(peer), False
 
     @staticmethod
@@ -90,6 +99,41 @@ class ConnectivityGraph:
         elif is_ip_block:
             return "red2"
         return "blue"
+
+    def _has_different_replicas(self, src_peer_name):
+        """
+        returns if the given peer name is attached to more than one pod (has pod replicas or copies)
+        :param str src_peer_name: the peer name to be checked
+        :rtype: bool
+        """
+        cnt = 0
+        for peer in self.cluster_info.all_peers:
+            peer_name, _ = self._get_peer_name(peer, True)
+            cnt += peer_name == src_peer_name
+            if cnt > 1:
+                return True
+        return False
+
+    def get_connections_without_fw_rules_txt_format(self):
+        """
+        :rtype: str
+        :return: a string of the original peers connectivity graph content (without adding fw-rules or livesim peers)
+        """
+        lines = set()
+        for connections, peer_pairs in self.connections_to_peers.items():
+            for src_peer, dst_peer in peer_pairs:
+                if self._is_peer_livesim(src_peer) or self._is_peer_livesim(dst_peer):
+                    continue  # livesim peers to be excluded
+                src_peer_name, _ = self._get_peer_name(src_peer, True)
+                if src_peer == dst_peer and self._has_different_replicas(src_peer_name):
+                    continue  # if a peer has different replicas or copies, a connection from it to itself will be added
+                    # only if there are connections between the replicas too (not only from a single pod to itself)
+                dst_peer_name, _ = self._get_peer_name(dst_peer, True)
+                conn_str = connections.get_simplified_connections_representation(True)
+                conn_str = conn_str.title() if not conn_str.isupper() else conn_str
+                lines.add(f'{src_peer_name} => {dst_peer_name} : {conn_str}')
+
+        return '\n'.join(line for line in sorted(list(lines)))
 
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """

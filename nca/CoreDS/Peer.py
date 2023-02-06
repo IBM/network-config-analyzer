@@ -149,10 +149,11 @@ class Pod(ClusterEP):
         self.owner_name = owner_name
         self.service_account_name = service_account_name
         self.full_name_str = self.namespace.name + '/' + self.name
-
+        self.replicaset_name = None
         if not owner_name:  # no owner
             self.workload_name = f'{namespace.name}/{name}(Pod)'
         elif owner_kind == 'ReplicaSet':
+            self.replicaset_name = f'{namespace.name}/{owner_name}(ReplicaSet)'
             # if owner name ends with hex-suffix, assume the pod is generated indirectly
             # by Deployment or StatefulSet; and remove the hex-suffix from workload name
             suffix = owner_name[owner_name.rfind('-') + 1:]
@@ -315,14 +316,15 @@ class IpBlock(Peer, CanonicalIntervalSet):
         cidr_list = self.get_cidr_list()
         return ','.join(str(cidr) for cidr in cidr_list)
 
-    def get_ip_range_or_cidr_str(self):
+    def get_ip_range_or_cidr_str(self, range_only=False):
         """
         Get str for self with shorter notation - either as ip range or as cidr
+        :param bool range_only: indicates if to return the self str as ip range only
         :rtype str
         """
         num_cidrs = len(self.get_cidr_list())
         num_ranges = len(self.interval_set)
-        if num_ranges * 2 <= num_cidrs:
+        if num_ranges * 2 <= num_cidrs or range_only:
             return str(self)
         return self.get_cidr_list_str()
 
