@@ -150,3 +150,33 @@ jobs:
       - run: |
           export PYTHONPATH=.
           python tests/run_all_tests.py --type=k8s_live_general
+  build_package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: ./.github/actions/setup-nca-env
+      - name: Build package
+        run: |
+          pip install build
+          python -m build
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          name: nca-package
+          path: dist/*
+  test_package:
+    runs-on: ubuntu-latest
+    needs: build_package
+    steps:
+      - uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435  # v4.5.0
+        with:
+          python-version: 3.8
+          architecture: x64
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+          name: nca-package
+          path: nca_build
+      - run: |
+          pip install nca_build/network-config-analyzer-*.tar.gz
+          nca --connectivity -r https://github.com/IBM/network-config-analyzer/blob/master/tests/livesim_tests/livesim_topology.yaml
+        env:
+          GHE_TOKEN: ${{ github.token }}

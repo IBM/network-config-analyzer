@@ -301,7 +301,7 @@ def nca_main(argv=None):
                         help='A list of labels to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
-                        help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
+                        help='Output format specification (txt, csv, md, dot, jpg or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--expected_output', type=str, help='A file path of the expected query output,'
                                                             'relevant only with --connectivity and --semantic_diff')
@@ -336,7 +336,7 @@ def nca_main(argv=None):
         print(f'Error: {e}', file=stderr)
         if args.debug:
             print(traceback.format_exc(), file=stderr)
-        return 0 if args.return_0 else 1
+        return 0 if args.return_0 else 7
     return 0
 
 
