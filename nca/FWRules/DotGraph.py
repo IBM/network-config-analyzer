@@ -39,7 +39,9 @@ class DotGraph:
             {'ip_block': 'shape=box fontcolor=red2',
              'pod': 'shape=box fontcolor=blue',
              'livesim': 'shape=box fontcolor=fuchsia',
-             'clq': 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0'}
+             'clq': 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0',
+             'biclq': 'shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0',
+             }
 
     def add_node(self, subgraph, name, node_type, label):
         """
@@ -55,7 +57,7 @@ class DotGraph:
         node = self.Node(name, node_type, label)
         self.subgraphs[subgraph].nodes.append(node)
         self.all_nodes[name] = node
-        if node_type == 'clq':
+        if node_type in {'clq', 'biclq'}:
             self.labels.add(label[0])
 
     def add_edge(self, src_name, dst_name, label, is_dir):
@@ -129,7 +131,7 @@ class DotGraph:
         creates a string for the node in a dot file format
         return str: the string
         """
-        if node.node_type != 'clq':
+        if node.node_type not in {'clq', 'biclq'}:
             table = '<<table border="0" cellspacing="0">'
             for line in node.label:
                 if line:
@@ -146,10 +148,11 @@ class DotGraph:
         return str: the string
         """
         is_clq_edge = 'clq' in [edge.src.node_type, edge.dst.node_type]
+        is_biclq_edge = 'biclq' in [edge.src.node_type, edge.dst.node_type]
         edge_color = 'indigo' if is_clq_edge else 'darkorange4'
         src_type = 'normal' if not is_clq_edge and not edge.is_dir else 'none'
         dst_type = 'normal' if not is_clq_edge else 'none'
-        label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge else ''
+        label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge and not is_biclq_edge else ''
 
         line = f'\t\"{edge.src.name}\" -> \"{edge.dst.name}\"'
         line += f'[{label} color={edge_color} fontcolor=darkgreen dir=both arrowhead={dst_type} arrowtail={src_type}]\n'
