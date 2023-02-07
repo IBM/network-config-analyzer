@@ -158,7 +158,7 @@ jobs:
       - name: Build package
         run: |
           pip install build
-          python -m build
+          python -m build==0.10.0
       - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
         with:
           name: nca-package
