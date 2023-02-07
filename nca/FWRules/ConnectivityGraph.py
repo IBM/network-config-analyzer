@@ -72,7 +72,7 @@ class ConnectivityGraph:
             name = str(peer)
         return name, peer_type, nc_name
 
-    def _creates_cliqued_graph(self, directed_edges):
+    def _creates_cliqued_graph(self, directed_edges, conn_str):
         """
         A clique is a subset of nodes, where every pair of nodes in the subset has an edge
         This method creates a new graph with cliques. of each clique in the graph:
@@ -133,7 +133,7 @@ class ConnectivityGraph:
 
             if len(clique_namespaces_nodes) > 2:
                 # creating one more new node,  out of any namespace, and connect it to all other clique new nodes:
-                clique_node_name = f'clique_{len(cliques_nodes)}'
+                clique_node_name = f'clique_{conn_str}{len(cliques_nodes)}'
                 clique_node = (clique_node_name, '')
                 cliques_nodes.append(clique_node)
                 cliques_edges |= set([(clq_con, clique_node) for clq_con in clique_namespaces_nodes])
@@ -152,24 +152,29 @@ class ConnectivityGraph:
         bicliques_nodes = []
         bicliques_edges = set()
         directed_edges = directed_edges | not_directed_edges | set([(edge[1], edge[0]) for edge in not_directed_edges])
+        not_directed_edges = set()
 
-        all_destinations = set([edge[1] for edge in directed_edges])
-        all_sources = set([edge[0] for edge in directed_edges])
-        src_to_dst_set = {src: frozenset([e[1] for e in directed_edges if e[0] == src]) for src in all_sources}
-        all_dst_set = frozenset(src_to_dst_set.values())
-        src_set_to_dst_set = {frozenset([src for src in all_sources if src_to_dst_set[src] <= dst_set]): dst_set for dst_set in all_dst_set}
+        while True:
+            all_sources = set([edge[0] for edge in directed_edges])
+            src_to_dst_set = {src: frozenset([e[1] for e in directed_edges if e[0] == src]) for src in all_sources}
+            all_dst_set = frozenset(src_to_dst_set.values())
 
-
-        bicliques_ranks = { (src_set, dst_set) : len(src_set) * len(dst_set) - len(src_set) - len(dst_set) for src_set,dst_set in src_set_to_dst_set.items()}
-        best_biclique = max(bicliques_ranks, key=bicliques_ranks.get)
-        if bicliques_ranks[best_biclique] > 1:
+            all_bicliques = {frozenset([src for src in all_sources if src_to_dst_set[src] <= dst_set]): dst_set for dst_set in all_dst_set}
+            bicliques_ranks = {(src_set, dst_set): len(src_set) * len(dst_set) - len(src_set) - len(dst_set) for src_set, dst_set in all_bicliques.items()}
+            best_biclique = max(bicliques_ranks, key=bicliques_ranks.get) if len(bicliques_ranks) else (frozenset(), frozenset())
+            if bicliques_ranks.get(best_biclique, -1) < 0:
+                break
             directed_edges -= set(itertools.product(best_biclique[0], best_biclique[1]))
-            biclique_name = f'biclique_{len(bicliques_nodes)}'
+            biclique_name = f'biclique_{conn_str}{len(bicliques_nodes)}'
             biclique_node = (biclique_name, '')
             bicliques_nodes.append(biclique_node)
             bicliques_edges |= set([(src, biclique_node) for src in best_biclique[0]])
             bicliques_edges |= set([(biclique_node, dst) for dst in best_biclique[1]])
 
+        # replacing directed edges with not directed edges:
+        not_directed_edges = set([edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges])
+        directed_edges = directed_edges - not_directed_edges
+        not_directed_edges = set([edge for edge in not_directed_edges if edge[1] < edge[0]])
 
         ####################################################################################
 
@@ -206,7 +211,7 @@ class ConnectivityGraph:
                     dst_peer_name, _, dst_nc = self._get_peer_details(dst_peer)
                     directed_edges.add(((src_peer_name, src_nc), (dst_peer_name, dst_nc)))
 
-            directed_edges, not_directed_edges, new_cliques, new_bicliques = self._creates_cliqued_graph(directed_edges)
+            directed_edges, not_directed_edges, new_cliques, new_bicliques = self._creates_cliqued_graph(directed_edges, conn_str)
 
             for peer in new_cliques:
                 dot_graph.add_node(subgraph=peer[1], name=peer[0], node_type='clq', label=[conn_str])
