@@ -5,15 +5,13 @@
 import copy
 import os
 from enum import Enum
-from sys import stderr
-from ruamel.yaml import error
 from nca.FileScanners.GenericTreeScanner import TreeScannerFactory
 from nca.Utils.CmdlineRunner import CmdlineRunner
+from nca.Utils.NcaLogger import NcaLogger
 from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from .PeerContainer import PeerContainer
-from nca.Utils.NcaLogger import NcaLogger
 
 
 class ResourceType(Enum):
@@ -370,23 +368,15 @@ class ResourcesParser:
             pods_finder = PodsFinder()
             ns_finder = NamespacesFinder()
             labels_found = {}
-            try:
-                for res_code in yaml_file.data:
-                    ns_finder.parse_yaml_code_for_ns(res_code)
-                    pods_finder.namespaces_finder = ns_finder
-                    pods_finder.add_eps_from_yaml(res_code)
-                for item in ns_finder.namespaces.values():
-                    labels_found.update(item.labels)
-                for item in pods_finder.peer_set:
-                    labels_found.update(item.labels)
-                results.update({yaml_file.path: labels_found})
-
-            except error.MarkedYAMLError as prs_err:
-                print(
-                    f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
-                    'Parse Error:', prs_err.problem, file=stderr)
-            except UnicodeDecodeError as decode_err:
-                print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}')
+            for res_code in yaml_file.data:
+                ns_finder.parse_yaml_code_for_ns(res_code)
+                pods_finder.namespaces_finder = ns_finder
+                pods_finder.add_eps_from_yaml(res_code)
+            for item in ns_finder.namespaces.values():
+                labels_found.update(item.labels)
+            for item in pods_finder.peer_set:
+                labels_found.update(item.labels)
+            results.update({yaml_file.path: labels_found})
 
         return results
 
@@ -406,32 +396,24 @@ class ResourcesParser:
             elif resource_item == 'istio':
                 self._handle_istio_inputs(resource_flags)
             else:
-                rt_load = True if ResourceType.Policies in resource_flags else False
-                resource_scanner = TreeScannerFactory.get_scanner(resource_item, rt_load=rt_load)
+                fast_load = ResourceType.Policies not in resource_flags
+                resource_scanner = TreeScannerFactory.get_scanner(resource_item, fast_load=fast_load)
                 if resource_scanner is None:
                     continue
                 yaml_files = resource_scanner.get_yamls()
                 if not yaml_files:
                     continue
                 for yaml_file in yaml_files:
-                    try:
-                        for res_code in yaml_file.data:
-                            if ResourceType.Namespaces in resource_flags:
-                                self.ns_finder.parse_yaml_code_for_ns(res_code)
-                            if ResourceType.Pods in resource_flags:
-                                self.pods_finder.namespaces_finder = self.ns_finder
-                                self.pods_finder.add_eps_from_yaml(res_code)
-                                self.services_finder.namespaces_finder = self.ns_finder
-                                self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
-                            if ResourceType.Policies in resource_flags:
-                                self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
-
-                    except error.MarkedYAMLError as prs_err:
-                        print(
-                            f'{prs_err.problem_mark.name}:{prs_err.problem_mark.line}:{prs_err.problem_mark.column}:',
-                            'Parse Error:', prs_err.problem, file=stderr)
-                    except UnicodeDecodeError as decode_err:
-                        print(f'Parse Error: Failed to decode {yaml_file.path}. error:\n{decode_err.reason}')
+                    for res_code in yaml_file.data:
+                        if ResourceType.Namespaces in resource_flags:
+                            self.ns_finder.parse_yaml_code_for_ns(res_code)
+                        if ResourceType.Pods in resource_flags:
+                            self.pods_finder.namespaces_finder = self.ns_finder
+                            self.pods_finder.add_eps_from_yaml(res_code)
+                            self.services_finder.namespaces_finder = self.ns_finder
+                            self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
+                        if ResourceType.Policies in resource_flags:
+                            self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
 
         self.policies_finder.parse_policies_in_parse_queue()
 

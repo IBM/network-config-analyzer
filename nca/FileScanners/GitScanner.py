@@ -16,8 +16,8 @@ class GitScanner(GenericTreeScanner):
     """
     raw_github_content_prefix = 'https://raw.githubusercontent'
 
-    def __init__(self, url, rt_load=False):
-        GenericTreeScanner.__init__(self, rt_load)
+    def __init__(self, url, fast_load=False):
+        GenericTreeScanner.__init__(self, fast_load)
         self.url = url
         if url.startswith(self.raw_github_content_prefix):
             if not self.is_yaml_file(url):
