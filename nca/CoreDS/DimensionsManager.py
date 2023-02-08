@@ -24,11 +24,12 @@ class DimensionsManager:
         def __init__(self):
             # TODO: verify alphabet for regex type dimensions, currently using one default alphabet
             #  currently valid chars are: ['.', '/', '-', 0-9, a-z, A-Z ]
-            self.default_dfa_alphabet_chars = ".\\w/\\-"
-            self.default_dfa_alphabet_str = "[" + self.default_dfa_alphabet_chars + "]*"
+            self.default_dfa_alphabet_str = MinDFA.default_alphabet_regex
+            self.default_dfa_alphabet_chars = MinDFA.default_dfa_alphabet_chars
             self.default_interval_domain_tuple = (0, 100000)
             self.domain_str_to_dfa_map = dict()
             dfa_all_words_default = self._get_dfa_from_alphabet_str(self.default_dfa_alphabet_str)
+            dfa_all_words_path_domain = self._get_dfa_path_domain()
             ports_interval = CanonicalIntervalSet.get_interval_set(1, 65535)
             all_methods_interval = MethodSet(True)
             all_peers_interval = CanonicalIntervalSet.get_interval_set(0, 10000)  # assuming max possible peer number
@@ -37,7 +38,7 @@ class DimensionsManager:
             self.dim_dict["dst_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval)
             self.dim_dict["methods"] = (DimensionsManager.DimensionType.IntervalSet, all_methods_interval)
             self.dim_dict["peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval)
-            self.dim_dict["paths"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_default)
+            self.dim_dict["paths"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_path_domain)
             self.dim_dict["hosts"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_default)
 
             icmp_type_interval = CanonicalIntervalSet.get_interval_set(0, 254)
@@ -56,6 +57,11 @@ class DimensionsManager:
                 return self.domain_str_to_dfa_map[alphabet_str]
             new_dfa = MinDFA.dfa_all_words(alphabet_str)
             self.domain_str_to_dfa_map[alphabet_str] = new_dfa
+            return new_dfa
+
+        def _get_dfa_path_domain(self):
+            regex_str = "/" + self.default_dfa_alphabet_str
+            new_dfa = MinDFA.dfa_from_regex(regex_str)
             return new_dfa
 
     instance = None
@@ -146,3 +152,4 @@ class DimensionsManager:
             if complement_dfa.has_finite_len():
                 return f'all but {complement_dfa}'  # return set of words not accepted by this MinDFA
             return str(dim_values)  # return regex representing this MinDFA
+

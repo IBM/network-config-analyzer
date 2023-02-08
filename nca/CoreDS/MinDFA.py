@@ -8,6 +8,8 @@ from functools import lru_cache
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
 
+
+
 class MinDFA:
     """
     MinDFA is a wrapper class for greenery.fsm , to support the api required for dimensions in hypercube-set
@@ -41,6 +43,8 @@ class MinDFA:
         (no mix of MinDFA objects from different dimensions context)
 
     """
+    default_dfa_alphabet_chars = ".\\w/\\-"
+    default_alphabet_regex = "[.\\w/\\-]*"
 
     class Ternary:
         FALSE = 0
@@ -112,7 +116,7 @@ class MinDFA:
         # TODO: currently assuming input str as regex only has '*' operator for infinity
         if '*' not in s:
             res.is_all_words = MinDFA.Ternary.FALSE
-        res.regex_expr = s.replace("[.\\w/\\-]*", "*")
+        res.regex_expr = s.replace(MinDFA.default_alphabet_regex, "*")
         return res
 
     @staticmethod
@@ -180,9 +184,7 @@ class MinDFA:
         """
         str representation of the language accepted by this DFA:
         - option 1: if language has finite number of words -> return string with all accepted words.
-        - option 2 (costly): convert fsm to regex with greenery
-        update: changed option 2 to use instead a string of regex expressions with accumulated operations, from
-        which the object was constructed.
+        - option 2 : a string of regex expressions with accumulated operations, from which the object was constructed.
         :rtype: str
         """
 
@@ -232,10 +234,6 @@ class MinDFA:
         # update regex_expr of the result object
         if self.regex_expr == other.regex_expr:
             res.regex_expr = self.regex_expr
-        elif other.contained_in(self):
-            res.regex_expr = self.regex_expr
-        elif self.contained_in(other):
-            res.regex_expr = other.regex_expr
         else:
             res.regex_expr = f'({self.regex_expr})|({other.regex_expr})'
         return res
@@ -252,10 +250,6 @@ class MinDFA:
             res.is_all_words = MinDFA.Ternary.FALSE
         # update regex_expr of the result object
         if self.regex_expr == other.regex_expr:
-            res.regex_expr = self.regex_expr
-        elif other.contained_in(self):
-            res.regex_expr = other.regex_expr
-        elif self.contained_in(other):
             res.regex_expr = self.regex_expr
         else:
             res.regex_expr = f'({self.regex_expr})&({other.regex_expr})'

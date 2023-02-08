@@ -171,8 +171,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
             assert self.base_peer_set == other.base_peer_set
-            res = super().__eq__(
-                other) and self.named_ports == other.named_ports and self.excluded_named_ports == other.excluded_named_ports
+            res = super().__eq__(other) and self.named_ports == other.named_ports \
+                and self.excluded_named_ports == other.excluded_named_ports
             return res
         return False
 

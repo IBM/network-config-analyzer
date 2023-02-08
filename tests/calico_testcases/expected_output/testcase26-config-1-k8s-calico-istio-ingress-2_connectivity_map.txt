@@ -1,7 +1,7 @@
 For connections of type TCP, final fw rules for query: connectivity-6, config: testcase26-config-1-k8s-calico-istio-ingress-2:
 src: 0.0.0.0/0 dst_ns: [ingress-nginx] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [ratings-v1-b6994bb9] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: TCP {'methods': 'GET'}
-src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [details-v1-79f774bdb9] conn: TCP {'dst_ports': '9080', 'paths': '/details*'}
+src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [details-v1-79f774bdb9] conn: TCP {'dst_ports': '9080', 'paths': '/details/*'}
 src_ns: [ingress-nginx] src_pods: [*] dst_ns: [ingress-nginx] dst_pods: [*] conn: All connections
 src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
 

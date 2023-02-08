@@ -5,7 +5,7 @@ src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [productpage-v1-6b74
 src_ns: [default] src_pods: [app in (details,reviews)] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: All connections
 src_ns: [ingress-nginx,istio-system] src_pods: [*] dst_ns: [default] dst_pods: [productpage-v1-6b746f74dc] conn: All connections
 src_ns: [ingress-nginx,istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
-src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All but TCP {'dst_ports': '9080', 'paths': '/details*'}
+src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All but TCP {'dst_ports': '9080', 'paths': '/details/*'}
 src_ns: [ingress-nginx] src_pods: [*] dst_ns: [default] dst_pods: [app in (ratings,reviews)] conn: All connections
 
 Added connections between persistent peers and ipBlocks (based on topology from config: allow-all-config) :
