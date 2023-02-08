@@ -9,7 +9,6 @@ from functools import lru_cache
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
 
 
-
 class MinDFA:
     """
     MinDFA is a wrapper class for greenery.fsm , to support the api required for dimensions in hypercube-set

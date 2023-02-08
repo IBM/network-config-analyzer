@@ -62,6 +62,7 @@ class DimensionsManager:
         def _get_dfa_path_domain(self):
             regex_str = "/" + self.default_dfa_alphabet_str
             new_dfa = MinDFA.dfa_from_regex(regex_str)
+            new_dfa.is_all_words = MinDFA.Ternary.TRUE
             return new_dfa
 
     instance = None
@@ -152,4 +153,3 @@ class DimensionsManager:
             if complement_dfa.has_finite_len():
                 return f'all but {complement_dfa}'  # return set of words not accepted by this MinDFA
             return str(dim_values)  # return regex representing this MinDFA
-
