@@ -65,7 +65,7 @@ class MinDFA:
         self.fsm = fsm.Fsm(initial, finals, alphabet, states, map)
         self.is_all_words = MinDFA.Ternary.UNKNOWN
         self.complement_dfa = None
-        self.regex_expr = None
+        self.regex_expr = ''
 
     def __contains__(self, string):
         return string in self.fsm
@@ -263,21 +263,26 @@ class MinDFA:
 
     @lru_cache(maxsize=500)
     def __sub__(self, other):
+        if self.is_all_words == MinDFA.Ternary.TRUE and other.complement_dfa is not None:
+            return other.complement_dfa
+
         fsm_res = self.fsm - other.fsm
         res = MinDFA.dfa_from_fsm(fsm_res)
-        if other.is_all_words == MinDFA.Ternary.TRUE:
+        # update regex_expr of the result object
+        res.regex_expr = f'({self.regex_expr})-({other.regex_expr})'
+
+        if other.is_all_words == MinDFA.Ternary.TRUE:  # res becomes empty
             res.is_all_words = MinDFA.Ternary.FALSE
         elif other:
-            res.is_all_words = MinDFA.Ternary.FALSE
+            res.is_all_words = MinDFA.Ternary.FALSE  # res cannot be all words
         if self.is_all_words == MinDFA.Ternary.TRUE and not other:
             res.is_all_words = MinDFA.Ternary.TRUE
+
         if self.is_all_words == MinDFA.Ternary.TRUE:
             res.complement_dfa = other
             other.complement_dfa = res
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
-        # update regex_expr of the result object
-        res.regex_expr = f'({self.regex_expr})-({other.regex_expr})'
         return res
 
     @lru_cache(maxsize=500)
