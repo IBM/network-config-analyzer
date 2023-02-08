@@ -155,7 +155,6 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                 path_regex = path_string
             else:
                 if path_string:
-                    #path_regex = path_string + '|' + path_string + '/' + allowed_chars + '*'
                     path_regex = path_string + allowed_chars + '*'
                 else:
                     path_regex = allowed_chars + '*'
