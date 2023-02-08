@@ -101,3 +101,4 @@ digraph {
 	"istio-system/istio-ingressgateway-55d9fb9f-f4mzz" -> "default/reviews-v2-7bf8c9648f-7v7ps" [label="All connections" color="gold2" fontcolor="darkgreen"]
 	"istio-system/istio-ingressgateway-55d9fb9f-f4mzz" -> "default/reviews-v3-84779c7bbc-lfjvk" [label="All connections" color="gold2" fontcolor="darkgreen"]
 }
+

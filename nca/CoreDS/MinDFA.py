@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from greenery import fsm, parse
-from greenery.rxelems import from_fsm
 from functools import lru_cache
 
 
@@ -59,10 +58,14 @@ class MinDFA:
                                                             necessary)
         complement_dfa: MinDFA of the complement dfa of self, e.g: relevant when doing subtraction from 'all'.
                         for performance improvement (avoid computation of complement if could use this member instead).
+
+        regex_expr: str representation of regex expressions (possibly) with operations (subtract/intersect/union),
+                    from which the MinDFA object was constructed
         """
         self.fsm = fsm.Fsm(initial, finals, alphabet, states, map)
         self.is_all_words = MinDFA.Ternary.UNKNOWN
         self.complement_dfa = None
+        self.regex_expr = None
 
     def __contains__(self, string):
         return string in self.fsm
@@ -109,6 +112,7 @@ class MinDFA:
         # TODO: currently assuming input str as regex only has '*' operator for infinity
         if '*' not in s:
             res.is_all_words = MinDFA.Ternary.FALSE
+        res.regex_expr = s.replace("[.\\w/\\-]*", "*")
         return res
 
     @staticmethod
@@ -120,6 +124,7 @@ class MinDFA:
         """
         res = MinDFA.dfa_from_regex(alphabet)
         res.is_all_words = MinDFA.Ternary.TRUE
+        res.regex_expr = '*'
         return res
 
     # TODO: this function may not be necessary, if keeping the current __eq__ override
@@ -176,14 +181,19 @@ class MinDFA:
         str representation of the language accepted by this DFA:
         - option 1: if language has finite number of words -> return string with all accepted words.
         - option 2 (costly): convert fsm to regex with greenery
+        update: changed option 2 to use instead a string of regex expressions with accumulated operations, from
+        which the object was constructed.
         :rtype: str
         """
+
         if self.has_finite_len():
             return self._get_strings_set_str()
         if self.is_all_words == MinDFA.Ternary.TRUE:
             return "*"
-        # TODO: consider performance implications of this conversion from MinDFA to regex
-        return str(from_fsm(self.fsm))
+        return self.regex_expr
+        # in comment below: alternative based on conversion from MinDFA to regex
+        # not readable regex result + had performance implications of this conversion from MinDFA to regex
+        # return str(from_fsm(self.fsm))
 
     def get_fsm_str(self):
         """
@@ -219,6 +229,15 @@ class MinDFA:
         res = MinDFA.dfa_from_fsm(fsm_res)
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
+        # update regex_expr of the result object
+        if self.regex_expr == other.regex_expr:
+            res.regex_expr = self.regex_expr
+        elif other.contained_in(self):
+            res.regex_expr = self.regex_expr
+        elif self.contained_in(other):
+            res.regex_expr = other.regex_expr
+        else:
+            res.regex_expr = f'({self.regex_expr})|({other.regex_expr})'
         return res
 
     @lru_cache(maxsize=500)
@@ -231,6 +250,15 @@ class MinDFA:
         res = MinDFA.dfa_from_fsm(fsm_res)
         if self.is_all_words == MinDFA.Ternary.FALSE or other.is_all_words == MinDFA.Ternary.FALSE:
             res.is_all_words = MinDFA.Ternary.FALSE
+        # update regex_expr of the result object
+        if self.regex_expr == other.regex_expr:
+            res.regex_expr = self.regex_expr
+        elif other.contained_in(self):
+            res.regex_expr = other.regex_expr
+        elif self.contained_in(other):
+            res.regex_expr = self.regex_expr
+        else:
+            res.regex_expr = f'({self.regex_expr})&({other.regex_expr})'
         return res
 
     @lru_cache(maxsize=500)
@@ -248,6 +276,8 @@ class MinDFA:
             other.complement_dfa = res
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
+        # update regex_expr of the result object
+        res.regex_expr = f'({self.regex_expr})-({other.regex_expr})'
         return res
 
     @lru_cache(maxsize=500)
