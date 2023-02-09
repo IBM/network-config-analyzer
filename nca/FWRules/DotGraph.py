@@ -104,7 +104,7 @@ class DotGraph:
         items_to_present = [(label, short) for label, short in sorted(self.labels_dict.items()) if label != short]
         dict_table = '\\l'.join([f'{short:<15}{label}' for label, short in items_to_present])
         dict_table = f'label=\"Connectivity legend\\l{dict_table}\\l\"'
-        return f'\tdict_box [{dict_table} shape=box]\n'
+        return '{\n' + f'\tdict_box [{dict_table} shape=box]\n rank=sink\n' + '}\n'
 
     def _subgraph_to_str(self, subgraph):
         """
@@ -149,7 +149,7 @@ class DotGraph:
         """
         is_clq_edge = 'clq' in [edge.src.node_type, edge.dst.node_type]
         is_biclq_edge = 'biclq' in [edge.src.node_type, edge.dst.node_type]
-        edge_color = 'indigo' if is_clq_edge else 'darkorange4'
+        edge_color = 'indigo' if is_clq_edge else 'red' if is_biclq_edge else 'darkorange4'
         src_type = 'normal' if not is_clq_edge and not edge.is_dir else 'none'
         dst_type = 'normal' if not is_clq_edge else 'none'
         label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge and not is_biclq_edge else ''

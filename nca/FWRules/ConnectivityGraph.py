@@ -63,14 +63,15 @@ class ConnectivityGraph:
         """
         nc_name = peer.namespace.name if peer.namespace else 'external'
         if isinstance(peer, IpBlock):
-            return peer.get_ip_range_or_cidr_str(), 'ip_block', nc_name
+            return peer.get_ip_range_or_cidr_str(), 'ip_block', nc_name, [peer.get_ip_range_or_cidr_str()]
         is_livesim = peer.full_name().endswith('-livesim')
         peer_type = 'livesim' if is_livesim else 'pod'
         if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
             name = peer.workload_name
         else:
             name = str(peer)
-        return name, peer_type, nc_name
+        text = [t for t in name.split('/') if t != nc_name]
+        return name, peer_type, nc_name, text
 
     def _creates_cliqued_graph(self, directed_edges, conn_str):
         """
@@ -180,6 +181,34 @@ class ConnectivityGraph:
 
         return directed_edges | bicliques_edges, not_directed_edges | cliques_edges, cliques_nodes, bicliques_nodes
 
+    def _get_equals_peers(self):
+        all_peers = set(self.cluster_info.all_peers)
+        peers_connections = {peer: [] for peer in all_peers}
+
+        for connections, peer_pairs in self.connections_to_peers.items():
+            for src_peer, dst_peer in peer_pairs:
+                if src_peer != dst_peer and connections:
+                    peers_connections[src_peer].append((dst_peer, connections, False))
+                    peers_connections[dst_peer].append((src_peer, connections, True))
+
+        peers_connections = {peer: frozenset(connections) for peer, connections in peers_connections.items()}
+        equal_pairs = []
+        for peer0 in all_peers:
+            for peer1 in all_peers:
+                if peer0 != peer1 and\
+                        peers_connections[peer0] == peers_connections[peer1] and\
+                        peer0.namespace == peer1.namespace and\
+                        (peer1, peer0) not in equal_pairs:
+                    equal_pairs.append((peer0, peer1))
+
+        graph = networkx.Graph()
+        graph.add_edges_from(equal_pairs)
+        equal_sets = list(networkx.clique.find_cliques(graph))
+        left_out = all_peers - set(graph.nodes)
+
+        return equal_sets + [[p] for p in left_out]
+
+
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
@@ -191,13 +220,19 @@ class ConnectivityGraph:
         query_title = f'{self.output_config.queryName}/' if self.output_config.queryName else ''
         name = f'{query_title}{self.output_config.configName}{restriction_title}'
 
+        multi_peers = self._get_equals_peers()
+        #multi_peers = [[p] for p in self.cluster_info.all_peers]
+        representing_peers = [multi_peer[0] for multi_peer in multi_peers]
+
         dot_graph = DotGraph(name)
-        for peer in self.cluster_info.all_peers:
-            peer_name, node_type, nc_name = self._get_peer_details(peer)
-            text = [peer_name]
-            if node_type != 'ip_block':
-                text = [text for text in re.split('[/()]+', peer_name) if text != nc_name]
-            dot_graph.add_node(nc_name, peer_name, node_type, text)
+        for multi_peer in multi_peers:
+            representing_peer = multi_peer[0]
+            representing_peer_name, representing_node_type, representing_nc_name, _ = self._get_peer_details(representing_peer)
+            representing_text = []
+            for peer in multi_peer:
+                peer_name, node_type, nc_name, text = self._get_peer_details(peer)
+                representing_text += text
+            dot_graph.add_node(representing_nc_name, representing_peer_name, representing_node_type, set(representing_text))
 
         for connections, peer_pairs in self.connections_to_peers.items():
             directed_edges = set()
@@ -206,9 +241,9 @@ class ConnectivityGraph:
             conn_str = connections.get_simplified_connections_representation(True)
             conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
             for src_peer, dst_peer in peer_pairs:
-                if src_peer != dst_peer and connections:
-                    src_peer_name, _, src_nc = self._get_peer_details(src_peer)
-                    dst_peer_name, _, dst_nc = self._get_peer_details(dst_peer)
+                if src_peer != dst_peer and connections and src_peer in representing_peers and dst_peer in representing_peers:
+                    src_peer_name, _, src_nc, _ = self._get_peer_details(src_peer)
+                    dst_peer_name, _, dst_nc, _ = self._get_peer_details(dst_peer)
                     directed_edges.add(((src_peer_name, src_nc), (dst_peer_name, dst_nc)))
 
             directed_edges, not_directed_edges, new_cliques, new_bicliques = self._creates_cliqued_graph(directed_edges, conn_str)
