@@ -1,6 +1,8 @@
 # Network Config Analyzer (NCA)
 [![.github/workflows/test-push.yml](https://github.com/IBM/network-config-analyzer/actions/workflows/test-push.yml/badge.svg)](https://github.com/IBM/network-config-analyzer/actions/workflows/test-push.yml)
 [![.github/workflows/codeql-analysis.yml](https://github.com/IBM/network-config-analyzer/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/IBM/network-config-analyzer/actions/workflows/codeql-analysis.yml)
+[![OpenSSF
+Scorecard](https://api.securityscorecards.dev/projects/github.com/IBM/network-config-analyzer/badge)](https://api.securityscorecards.dev/projects/github.com/IBM/network-config-analyzer)
 ---
 ## What is NCA?
 NCA is a tool for analyzing Network Policies and other connectivity-configuration resources.
