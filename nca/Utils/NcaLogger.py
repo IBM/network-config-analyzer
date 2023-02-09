@@ -97,11 +97,11 @@ class NcaLogger(metaclass=Singleton):
             if not file:
                 file = sys.stderr
 
-        if self.is_mute():
-            if self._is_collecting_msgs:
+        if self._is_collecting_msgs:
+            if self.is_mute():
                 self._collected_messages.append(msg)
-        else:
-            print(msg, file=file)
+            else:
+                print(msg, file=file)
 
     def flush_messages(self, silent=False):
         """
