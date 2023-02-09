@@ -336,7 +336,7 @@ def nca_main(argv=None):
         print(f'Error: {e}', file=stderr)
         if args.debug:
             print(traceback.format_exc(), file=stderr)
-        return 0 if args.return_0 else 1
+        return 0 if args.return_0 else 7
     return 0
 
 

@@ -5,7 +5,6 @@
 
 import re
 from sys import stderr
-from ruamel.yaml import comments
 from enum import Enum
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
@@ -13,8 +12,9 @@ from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
-from nca.Utils.NcaLogger import NcaLogger
 from nca.CoreDS.Peer import IpBlock
+from nca.Utils.NcaLogger import NcaLogger
+from nca.FileScanners.GenericTreeScanner import ObjectWithLocation
 
 
 class GenericYamlParser:
@@ -54,8 +54,8 @@ class GenericYamlParser:
         :param obj: optionally, a CommentedBase object with context
         :return: None
         """
-        if isinstance(obj, comments.CommentedBase):
-            raise SyntaxError(msg, (self.yaml_file_name, obj.lc.line, obj.lc.col, '')) from None
+        if isinstance(obj, ObjectWithLocation):
+            raise SyntaxError(msg, (self.yaml_file_name, obj.line_number, obj.column_number, '')) from None
         raise SyntaxError(msg) from None
 
     def warning(self, msg, obj=None):
@@ -66,8 +66,8 @@ class GenericYamlParser:
         :return: None
         """
         print_msg = 'Warning: ' + msg
-        if isinstance(obj, comments.CommentedBase):
-            print_msg = f'{self.yaml_file_name}:{obj.lc.line}:{obj.lc.col}: {print_msg}'
+        if isinstance(obj, ObjectWithLocation):
+            print_msg = f'{self.yaml_file_name}:{obj.line_number}:{obj.column_number}: {print_msg}'
 
         NcaLogger().log_message(print_msg, file=stderr)
         self.warning_msgs.append(msg)
