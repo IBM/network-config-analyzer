@@ -24,11 +24,9 @@ class DimensionsManager:
         def __init__(self):
             # TODO: verify alphabet for regex type dimensions, currently using one default alphabet
             #  currently valid chars are: ['.', '/', '-', 0-9, a-z, A-Z ]
-            self.default_dfa_alphabet_str = MinDFA.default_alphabet_regex
-            self.default_dfa_alphabet_chars = MinDFA.default_dfa_alphabet_chars
             self.default_interval_domain_tuple = (0, 100000)
             self.domain_str_to_dfa_map = dict()
-            dfa_all_words_default = self._get_dfa_from_alphabet_str(self.default_dfa_alphabet_str)
+            dfa_all_words_default = self._get_dfa_from_alphabet_str(MinDFA.default_alphabet_regex)
             dfa_all_words_path_domain = self._get_dfa_path_domain()
             ports_interval = CanonicalIntervalSet.get_interval_set(1, 65535)
             all_methods_interval = MethodSet(True)
@@ -59,8 +57,9 @@ class DimensionsManager:
             self.domain_str_to_dfa_map[alphabet_str] = new_dfa
             return new_dfa
 
-        def _get_dfa_path_domain(self):
-            regex_str = "/" + self.default_dfa_alphabet_str
+        @staticmethod
+        def _get_dfa_path_domain():
+            regex_str = "/" + MinDFA.default_alphabet_regex
             new_dfa = MinDFA.dfa_from_regex(regex_str)
             new_dfa.is_all_words = MinDFA.Ternary.TRUE
             return new_dfa

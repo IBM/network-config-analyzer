@@ -223,9 +223,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         if items[0][0] == 'exact':
             pass
         elif items[0][0] == 'prefix':
-            regex += DimensionsManager().default_dfa_alphabet_str
+            if attr_name == 'uri':
+                return self.get_path_prefix_dfa(regex)
+            regex += MinDFA.default_alphabet_regex
         elif items[0][0] == 'regex':
-            regex.replace('.', DimensionsManager().default_dfa_alphabet_chars)
+            regex.replace('.', MinDFA.default_dfa_alphabet_chars)
             if attr_name == 'uri' and resource.get('ignoreUriCase') == 'True':
                 # https://github.com/google/re2/wiki/Syntax#:~:text=group%3B%20non%2Dcapturing-,(%3Fflags%3Are),-set%20flags%20during
                 regex = '(?i:' + regex + ')'

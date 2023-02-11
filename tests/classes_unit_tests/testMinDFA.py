@@ -3,7 +3,7 @@ from greenery import fsm
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MinDFA import MinDFA
 
-alphabet_regex = DimensionsManager().default_dfa_alphabet_str
+alphabet_regex = MinDFA.default_alphabet_regex
 
 
 def get_str_dfa(s):
@@ -187,3 +187,29 @@ class TestMinDFA(unittest.TestCase):
         # print(y)
         print(dfa1.__or__.cache_info())
         self.assertEqual(dfa1.__or__.cache_info().hits > 0, True)
+
+    def test_regex_for_paths(self):
+        allowed_chars = "[" + MinDFA.default_dfa_alphabet_chars + "]"
+        accepted_string1 = '/foo'
+        accepted_string2 = '/foo/'
+        accepted_string3 = '/foo/abc'
+        not_accepted_string = '/fooabc'
+        path_string = '/foo'  # as appearing in policy, with Prefix attribute
+        regex1 = path_string + '|' + path_string + '/' + allowed_chars + '*'
+        dfa1 = MinDFA.dfa_from_regex(regex1)
+        self.assertTrue(accepted_string1 in dfa1)
+        self.assertTrue(accepted_string2 in dfa1)
+        self.assertTrue(accepted_string3 in dfa1)
+        self.assertFalse(not_accepted_string in dfa1)
+
+        regex2 = f'{path_string}(/{allowed_chars}*)?'
+        print(regex2)
+        dfa2 = MinDFA.dfa_from_regex(regex2)
+        self.assertTrue(accepted_string1 in dfa2)
+        self.assertTrue(accepted_string2 in dfa2)
+        self.assertTrue(accepted_string3 in dfa2)
+        self.assertFalse(not_accepted_string in dfa2)
+
+        # dfa1 and dfa2 are equivalent
+        self.assertEqual(dfa1, dfa2)
+
