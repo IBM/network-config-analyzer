@@ -101,7 +101,7 @@ class DimensionsManager:
             interval = interval_tuple if interval_tuple is not None else self.default_interval_domain_tuple
             domain = CanonicalIntervalSet.get_interval_set(interval[0], interval[1])
         else:
-            alphabet = alphabet_str if alphabet_str is not None else self.default_dfa_alphabet_str
+            alphabet = alphabet_str if alphabet_str is not None else MinDFA.default_alphabet_regex
             domain = self._get_dfa_from_alphabet_str(alphabet)
         self.dim_dict[dim_name] = (dim_type, domain)
 
