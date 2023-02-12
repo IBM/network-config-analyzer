@@ -85,8 +85,9 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--period <minutes>`\
   Run NCA with given arguments every specified number of minutes
 - `--output_format <format>`\
-  Output format specification (txt/yaml/csv/md/dot/jpg).\
+  Output format specification (txt/yaml/csv/md/dot/jpg/txt_no_fw_rules).\
   For jpg format, Graphviz executables must be installed and on user systems' PATH.\
+  txt_no_fw_rules: supported for ConnectivityMap query, printing connectivity rules excluding firewall rules.\
   *default:* txt\
   *shorthand:* `-o`
 - `--file_out <file name>`\
