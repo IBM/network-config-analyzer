@@ -4,6 +4,8 @@
 #
 from dataclasses import dataclass
 from nca.CoreDS.ConnectionSet import ConnectionSet
+from nca.CoreDS.Peer import IpBlock, PeerSet
+from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
 from .IstioTrafficResources import istio_root_namespace
 
@@ -54,7 +56,8 @@ class IstioSidecar(NetworkPolicy):
 
         captured = from_peer in self.selected_peers
         # if not captured, or captured but the sidecar is not in from_peer top priority, don't consider connections
-        if not captured or (captured and not self._is_sidecar_prior(from_peer)):
+        # if not captured or (captured and not self._is_sidecar_prior(from_peer)):
+        if not captured:
             return PolicyConnections(False)
 
         conns = ConnectionSet(True)
@@ -67,6 +70,17 @@ class IstioSidecar(NetworkPolicy):
         # egress from from_peer to to_peer is not allowed : if to_peer not been captured in the rules' egress_peer_set,
         # or if the sidecar is global and to_peer is not in same namespace of from_peer while rule host's ns is '.'
         return PolicyConnections(True, allowed_conns=ConnectionSet())
+
+    def allowed_connections_optimized(self, is_ingress):
+        if is_ingress:
+            allowed = self.optimized_ingress_props.copy()
+            denied = self.optimized_denied_ingress_props.copy()
+            captured = PeerSet()
+        else:
+            allowed = self.optimized_egress_props.copy()
+            denied = self.optimized_denied_egress_props.copy()
+            captured = self.selected_peers if self.affects_egress else PeerSet()
+        return allowed, denied, captured
 
     def has_empty_rules(self, config_name=''):
         """
@@ -135,3 +149,31 @@ class IstioSidecar(NetworkPolicy):
                         self == self.namespace.prior_default_sidecar:
                     return True
         return False
+
+    @staticmethod
+    def combine_peer_sets_by_ns(from_peer_set, to_peer_set, peer_container):
+        res = []
+        from_peer_set_copy = from_peer_set.copy()
+        while from_peer_set_copy:
+            peer = list(from_peer_set_copy)[0]
+            if isinstance(peer, IpBlock):
+                from_peer_set_copy.remove(peer)
+                continue
+            peers_in_curr_ns = peer_container.get_namespace_pods(peer.namespace)
+            res.append((from_peer_set_copy & peers_in_curr_ns, to_peer_set & peers_in_curr_ns))
+            from_peer_set_copy -= peers_in_curr_ns
+        return res
+
+    def create_opt_egress_props(self, peer_container):
+        for rule in self.egress_rules:
+            if self.selected_peers and rule.egress_peer_set:
+                self.optimized_egress_props = \
+                    TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=self.selected_peers,
+                                                               dst_peers=rule.egress_peer_set)
+            peers_sets_by_ns = self.combine_peer_sets_by_ns(self.selected_peers, rule.special_egress_peer_set,
+                                                            peer_container)
+            for (from_peers, to_peers) in peers_sets_by_ns:
+                if from_peers and to_peers:
+                    self.optimized_egress_props |= \
+                        TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=from_peers,
+                                                                   dst_peers=to_peers)

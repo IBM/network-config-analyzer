@@ -659,32 +659,6 @@ class MinimizeFWRules:
         return self.fw_rules_map == other.fw_rules_map and self.cluster_info == other.cluster_info \
             and self.output_config == other.output_config and self.results_map == other.results_map
 
-    @staticmethod
-    def same_peers(fw_rules_list1, fw_rules_list2):
-        # assuming the same lists order
-        if len(fw_rules_list1) != len(fw_rules_list2):
-            return False
-        for index, rule1 in enumerate(fw_rules_list1):
-            rule2 = fw_rules_list2[index]
-            if rule1.src != rule2.src or rule1.dst != rule2.dst:
-                return False
-        return True
-
-    def unite_fw_rules_with_same_peers(self):
-        new_fw_rules_map = self.fw_rules_map
-        self.fw_rules_map = defaultdict(list)
-        while new_fw_rules_map:
-            the_conn, the_fw_rules =  new_fw_rules_map.popitem()
-            conns_to_remove = []
-            for conn, fw_rules in new_fw_rules_map.items():
-                if self.same_peers(fw_rules, the_fw_rules):
-                    the_conn |= conn
-                    conns_to_remove.append(conn)
-            for r in the_fw_rules: r.conn = the_conn
-            self.fw_rules_map[the_conn] = the_fw_rules
-            for conn in conns_to_remove:
-                new_fw_rules_map.pop(conn)
-
     def get_fw_rules_in_required_format(self, add_txt_header=True, add_csv_header=True, connectivity_restriction=None):
         """
         :param add_txt_header: bool flag to indicate if header of fw-rules query should be added in txt format
