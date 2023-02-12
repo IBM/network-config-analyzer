@@ -100,36 +100,33 @@ class ConnectivityGraph:
             return "red2"
         return "blue"
 
-    def _has_different_replicas(self, src_peer_name):
-        """
-        returns if the given peer name is attached to more than one pod (has pod replicas or copies)
-        :param str src_peer_name: the peer name to be checked
-        :rtype: bool
-        """
-        cnt = 0
-        for peer in self.cluster_info.all_peers:
-            peer_name, _ = self._get_peer_name(peer, True)
-            cnt += peer_name == src_peer_name
-            if cnt > 1:
-                return True
-        return False
-
     def get_connections_without_fw_rules_txt_format(self):
         """
         :rtype: str
         :return: a string of the original peers connectivity graph content (without adding fw-rules or livesim peers)
         """
         lines = set()
+        workload_name_to_peers_map = {}  # a dict from workload_name to pods set, to track replicas and copies
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
                 src_peer_name, _ = self._get_peer_name(src_peer, True)
-                if src_peer == dst_peer and self._has_different_replicas(src_peer_name):
-                    continue  # if a peer has different replicas or copies, a connection from it to itself will be added
+                if str(connections) == 'All connections' and src_peer == dst_peer:  # relevant with all connections only
+                    # add the pod to the map with its workload name
+                    if src_peer_name not in workload_name_to_peers_map:
+                        workload_name_to_peers_map[src_peer_name] = set()
+                    workload_name_to_peers_map[src_peer_name].add(src_peer)
+                    continue  # after having the full dict, lines from pod to itself will be added for workload names
+                    # with only one pod.
+                    # if a peer has different replicas or copies, a connection from it to itself will be added automatically
                     # only if there are connections between the replicas too (not only from a single pod to itself)
                 dst_peer_name, _ = self._get_peer_name(dst_peer, True)
                 conn_str = connections.get_simplified_connections_representation(True)
                 conn_str = conn_str.title() if not conn_str.isupper() else conn_str
                 lines.add(f'{src_peer_name} => {dst_peer_name} : {conn_str}')
+
+        # adding conns to itself for workloads with single replica
+        for workload_name in [wl for wl in workload_name_to_peers_map if len(workload_name_to_peers_map[wl]) == 1]:
+            lines.add(f'{workload_name} => {workload_name} : All Connections')
 
         return '\n'.join(line for line in sorted(list(lines)))
 
