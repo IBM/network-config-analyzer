@@ -59,6 +59,10 @@ class DimensionsManager:
 
         @staticmethod
         def _get_dfa_path_domain():
+            """
+            get a dfa that represents all valid words in the paths domain
+            :rtype MinDFA
+            """
             regex_str = "/" + MinDFA.default_alphabet_regex
             new_dfa = MinDFA.dfa_from_regex(regex_str)
             new_dfa.is_all_words = MinDFA.Ternary.TRUE

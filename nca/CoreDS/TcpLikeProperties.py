@@ -73,7 +73,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                           "peers": {"value": peers,
                                     "is_all": peers is None}}
 
-        cube, active_dims, has_empty_dim_value = self.get_cube_and_active_dims_from_input_values(dims_to_values)
+        cube, active_dims, has_empty_dim_value = self._get_cube_and_active_dims_from_input_values(dims_to_values)
 
         if not active_dims:
             self.set_all()
@@ -89,7 +89,13 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             self.excluded_named_ports[port_name] = all_ports
 
     @staticmethod
-    def get_cube_and_active_dims_from_input_values(dims_to_values):
+    def _get_cube_and_active_dims_from_input_values(dims_to_values):
+        """
+        Given initial values, get the matching cube and its active dimensions
+        :param dict dims_to_values: map from dimension name to values properties
+        :rtype tuple(list, list, bool)
+        :return: tuple with: (1) cube values (2) active dimensions (3) bool indication if some dimension is empty
+        """
         cube = []
         active_dims = []
         has_empty_dim_value = False

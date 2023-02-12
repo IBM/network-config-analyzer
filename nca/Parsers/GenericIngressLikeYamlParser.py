@@ -154,6 +154,11 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
 
     @staticmethod
     def get_path_prefix_dfa(path_string):
+        """
+        Given a prefix path, get its MinDFA that accepts all relevant paths
+        :param str path_string: a path string from policy, specified as Prefix
+        :rtype MinDFA
+        """
         if path_string == '/':
             return DimensionsManager().get_dimension_domain_by_name('paths')
         allowed_chars = "[" + MinDFA.default_dfa_alphabet_chars + "]"
