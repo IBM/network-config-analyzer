@@ -122,8 +122,6 @@ class ConnectivityGraph:
         lines = set()
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
-                if self._is_peer_livesim(src_peer) or self._is_peer_livesim(dst_peer):
-                    continue  # livesim peers to be excluded
                 src_peer_name, _ = self._get_peer_name(src_peer, True)
                 if src_peer == dst_peer and self._has_different_replicas(src_peer_name):
                     continue  # if a peer has different replicas or copies, a connection from it to itself will be added
