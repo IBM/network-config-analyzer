@@ -62,6 +62,8 @@ class NetworkPolicy:
         self.findings = []  # accumulated findings which are relevant only to this policy (emptiness and redundancy)
         self.referenced_labels = set()
         self.policy_kind = NetworkPolicy.PolicyType.Unknown
+        self.has_ipv6_addresses = False  # whether the policy referenced ip addresses (by user)
+        # if this flag is False, excluding ipv6 addresses from the query results will be enabled
 
     def __str__(self):
         return self.full_name()
@@ -249,12 +251,26 @@ class NetworkPolicy:
         return self.rule_containing(other_policy, other_policy.egress_rules[other_egress_rule_index - 1],
                                     other_egress_rule_index, self.egress_rules)
 
-    def referenced_ip_blocks(self):
+    def referenced_ip_blocks(self, exclude_ipv6=False):
         """
         Returns ip blocks referenced by this policy, or empty PeerSet
+        :param bool exclude_ipv6: indicates if to exclude the automatically added IPv6 addresses in the referenced ip_blocks.
+        IPv6 addresses that are referenced in the policy by the user will always be included
         :return: PeerSet of the referenced ip blocks
         """
         return PeerSet()  # default value, can be overridden in derived classes
+
+    def _include_ip_block(self, ip_block, exclude_ipv6):
+        """
+        returns whether to include or not the ipblock in the policy's referenced_ip_blocks
+        :param IpBlock ip_block: the ip_block to check
+        :param bool exclude_ipv6 : indicates if to exclude ipv6 addresses
+        excluding the ip_block will be enabled only if the policy didn't reference any ipv6 addresses.
+        if policy referenced only ipv4 addresses ,then the parser didn't add auto ip_blocks, all will be included.
+        otherwise, if the policy didn't reference any ips, this mean automatic ip_block with all ips was added,
+        this is the ip_block to be excluded - so query results will not consider the ipv6 full range
+        """
+        return ip_block.is_ipv4_block() or not exclude_ipv6
 
     def get_order(self):
         """

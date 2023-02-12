@@ -1,1 +1,2 @@
 include nca/VERSION.txt
+graft nca/NetworkConfig/LiveSim

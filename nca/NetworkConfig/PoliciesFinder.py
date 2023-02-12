@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from ruamel.yaml import YAML
 from collections import deque
+import yaml
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from nca.Parsers.K8sPolicyYamlParser import K8sPolicyYamlParser
@@ -131,8 +131,7 @@ class PoliciesFinder:
             self.parse_yaml_code_for_policy(policy, file_name)
 
     def _add_policies(self, doc, file_name):
-        yaml1 = YAML()
-        code = yaml1.load_all(doc)
+        code = yaml.load_all(doc, Loader=yaml.CSafeLoader)
         for policy_list in code:
             if isinstance(policy_list, dict):
                 self._add_policies_to_parse_queue(policy_list.get('items', []), file_name)

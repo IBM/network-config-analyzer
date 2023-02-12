@@ -627,7 +627,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json'}
+        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json', 'jpg'}
 
     def is_in_subset(self, peer):
         """
@@ -694,6 +694,12 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
+        peers_to_compare = self.config.peer_container.get_all_peers_group()
+
+        exclude_ipv6 = self.output_config.excludeIPv6Range
+        ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
+                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
+                                                   exclude_ipv6)
         connections = defaultdict(list)
         res = QueryAnswer(True)
         fw_rules = None
@@ -803,8 +809,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
         :rtype Union[str,dict]
         """
-        if self.output_config.outputFormat == 'dot':
-            dot_full, conn_graph = self.dot_format_from_connections_dict(connections, peers)
+        if self.output_config.outputFormat in ['dot', 'jpg']:
+            dot_full = self.dot_format_from_connections_dict(connections, peers)
             return dot_full, None
         # handle formats other than dot
         formatted_rules, fw_rules = self.fw_rules_from_connections_dict(connections, peers_to_compare)
@@ -817,7 +823,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
         :rtype Union[str,dict]
         """
-        if self.output_config.outputFormat == 'dot':
+        if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_full = self.dot_format_from_props(props, peers_to_compare)
             return dot_full, None
         # handle formats other than dot
@@ -835,7 +841,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
         connections_tcp, connections_non_tcp = self.convert_connections_to_split_by_tcp(connections)
-        if self.output_config.outputFormat == 'dot':
+        if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_tcp = self.dot_format_from_connections_dict(connections_tcp, peers, connectivity_tcp_str)
             dot_non_tcp = self.dot_format_from_connections_dict(connections_non_tcp, peers, connectivity_non_tcp_str)
             # concatenate the two graphs into one dot file
@@ -900,7 +906,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         conn_graph.add_edges(connections)
-        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction), conn_graph
+        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def dot_format_from_props(self, props, peers, connectivity_restriction=None):
         """
@@ -1046,8 +1052,9 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :return: A set of disjoint ip-blocks
         :rtype: PeerSet
         """
-        return IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(),
-                                          self.config2.get_referenced_ip_blocks())
+        exclude_ipv6 = self.output_config.excludeIPv6Range
+        return IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
+                                          self.config2.get_referenced_ip_blocks(exclude_ipv6), exclude_ipv6)
 
     @staticmethod
     def clone_without_ingress(config):
@@ -1270,10 +1277,13 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
-        old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(),
-                                                   IpBlock.get_all_ips_block_peer_set())
-        new_ip_blocks = IpBlock.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(),
-                                                   IpBlock.get_all_ips_block_peer_set())
+        exclude_ipv6 = self.output_config.excludeIPv6Range
+        old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
+                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
+                                                   exclude_ipv6)
+        new_ip_blocks = IpBlock.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(exclude_ipv6),
+                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
+                                                   exclude_ipv6)
 
         conn_graph_removed_per_key = dict()
         conn_graph_added_per_key = dict()
@@ -1334,7 +1344,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
         # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
         key = 'Changed connections between persistent peers and ipBlocks'
-        disjoint_ip_blocks = IpBlock.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks)
+        disjoint_ip_blocks = IpBlock.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks, exclude_ipv6)
         peers = captured_pods | disjoint_ip_blocks
         keys_list.append(key)
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, False)

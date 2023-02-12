@@ -1,3 +1,0 @@
-final fw rules for query: subset_deployment_connection_in_subset_endpoints_deployments_txt, config: np25:
-src_ns: [default] src_pods: [my-test-deployment-C] dst_ns: [default] dst_pods: [app=B] conn: All connections
-

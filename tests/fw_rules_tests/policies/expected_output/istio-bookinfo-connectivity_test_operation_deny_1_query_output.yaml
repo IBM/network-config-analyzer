@@ -14,16 +14,6 @@
       - Protocol: TCP
         properties:
         - methods: all but GET
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - Protocol: TCP
-        properties:
-        - methods: all but GET
     - src_ns:
       - default
       src_pods:
@@ -44,28 +34,12 @@
       - app!=details
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - app!=details
-      connection:
-      - All connections
     - src_ns:
       - default
       src_pods:
       - '*'
       dst_ip_block:
       - 0.0.0.0/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections
     - src_ns:
@@ -97,28 +71,12 @@
       - '*'
       connection:
       - All connections
-    - src_ip_block:
-      - ::/0
-      dst_ns:
-      - default
-      dst_pods:
-      - '*'
-      connection:
-      - All connections
     - src_ns:
       - default
       src_pods:
       - '*'
       dst_ip_block:
       - 0.0.0.0/0
-      connection:
-      - All connections
-    - src_ns:
-      - default
-      src_pods:
-      - '*'
-      dst_ip_block:
-      - ::/0
       connection:
       - All connections
     - src_ns:

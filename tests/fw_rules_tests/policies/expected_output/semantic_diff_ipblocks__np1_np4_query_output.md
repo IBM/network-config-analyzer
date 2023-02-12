@@ -14,7 +14,6 @@
 |||10.0.0.0/8|[kube-system]|[tier=frontend]|All connections|
 |||172.21.0.0/16|[kube-system]|[tier=frontend]|All connections|
 |||172.30.0.0/16|[kube-system]|[tier=frontend]|All connections|
-|||::/0|[kube-system]|[tier=frontend]|All connections|
 |semantic_diff, config1: np1, config2: np4, key: Removed connections between persistent peers and ipBlocks||||||
 ||[kube-system]|[tier=frontend]||0.0.0.0-49.49.255.255|All connections|
 ||[kube-system]|[tier=frontend]||49.50.0.1/32|All connections|
@@ -26,4 +25,3 @@
 ||[kube-system]|[tier=frontend]||49.50.0.5/32|All connections|
 ||[kube-system]|[tier=frontend]||49.50.0.7/32|All connections|
 ||[kube-system]|[tier=frontend]||49.50.0.9/32|All connections|
-||[kube-system]|[tier=frontend]||::/0|All connections|

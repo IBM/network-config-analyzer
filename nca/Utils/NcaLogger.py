@@ -43,6 +43,7 @@ class NcaLogger(metaclass=Singleton):
     def __init__(self):
         self._is_mute = False
         self._collected_messages = []
+        self._is_collecting_msgs = True
 
     def mute(self):
         """
@@ -63,6 +64,25 @@ class NcaLogger(metaclass=Singleton):
         """
         return self._is_mute
 
+    def collect_msgs(self):
+        """
+        collect muted messages
+        """
+        self._is_collecting_msgs = True
+
+    def dont_collect_msgs(self):
+        """
+        dont collect muted messages
+        """
+        self._is_collecting_msgs = False
+
+    def is_collecting_msgs(self):
+        """
+        Return are muted messages being collected?
+        :return: bool: True for collecting messages, False for not collecting messages.
+        """
+        return self._is_collecting_msgs
+
     def log_message(self, msg, file=None, level=None):
         """
         Log a message
@@ -77,10 +97,11 @@ class NcaLogger(metaclass=Singleton):
             if not file:
                 file = sys.stderr
 
-        if self.is_mute():
-            self._collected_messages.append(msg)
-        else:
-            print(msg, file=file)
+        if self._is_collecting_msgs:
+            if self.is_mute():
+                self._collected_messages.append(msg)
+            else:
+                print(msg, file=file)
 
     def flush_messages(self, silent=False):
         """

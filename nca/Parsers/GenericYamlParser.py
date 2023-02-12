@@ -4,14 +4,15 @@
 #
 
 from sys import stderr
-from ruamel.yaml import comments
 from enum import Enum
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.Peer import IpBlock
 from nca.Utils.NcaLogger import NcaLogger
+from nca.FileScanners.GenericTreeScanner import ObjectWithLocation
 
 
 class GenericYamlParser:
@@ -35,6 +36,7 @@ class GenericYamlParser:
         """
         self.yaml_file_name = yaml_file_name
         self.warning_msgs = []  # Collect all warning messages during parsing here
+        self.has_ipv6_addresses = False
 
     def set_file_name(self, yaml_file_name):
         """
@@ -50,8 +52,8 @@ class GenericYamlParser:
         :param obj: optionally, a CommentedBase object with context
         :return: None
         """
-        if isinstance(obj, comments.CommentedBase):
-            raise SyntaxError(msg, (self.yaml_file_name, obj.lc.line, obj.lc.col, '')) from None
+        if isinstance(obj, ObjectWithLocation):
+            raise SyntaxError(msg, (self.yaml_file_name, obj.line_number, obj.column_number, '')) from None
         raise SyntaxError(msg) from None
 
     def warning(self, msg, obj=None):
@@ -62,8 +64,8 @@ class GenericYamlParser:
         :return: None
         """
         print_msg = 'Warning: ' + msg
-        if isinstance(obj, comments.CommentedBase):
-            print_msg = f'{self.yaml_file_name}:{obj.lc.line}:{obj.lc.col}: {print_msg}'
+        if isinstance(obj, ObjectWithLocation):
+            print_msg = f'{self.yaml_file_name}:{obj.line_number}:{obj.column_number}: {print_msg}'
 
         NcaLogger().log_message(print_msg, file=stderr)
         self.warning_msgs.append(msg)
@@ -239,3 +241,15 @@ class GenericYamlParser:
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
         return res
+
+    def check_and_update_has_ipv6_addresses(self, peers):
+        """
+        checks if the peer list has ipv6 addresses
+        updates self.has_ipv6_addresses=true if at least on peer is an IPblock with IPv6 addresses
+        :param PeerSet peers: list of peers
+        """
+        for peer in peers:
+            if isinstance(peer, IpBlock):
+                if not peer.is_ipv4_block():
+                    self.has_ipv6_addresses = True
+                    return  # if at least one peer is ipv6 block , this policy has_ipv6, no need to continue

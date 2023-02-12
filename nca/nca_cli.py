@@ -150,7 +150,8 @@ def run_args(args):
                                          'outputPath': args.file_out or None,
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
-                                         'subset': {}})
+                                         'subset': {},
+                                         'excludeIPv6Range': not args.print_ipv6})
     expected_output = None
     # default values are for sanity query
     # np_list will be taken as args.<query_name> if it is not equal to the args parser's const value i.e ['']
@@ -301,7 +302,7 @@ def nca_main(argv=None):
                         help='A list of labels to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
-                        help='Output format specification (txt, csv, md, dot or yaml). The default is txt.')
+                        help='Output format specification (txt, csv, md, dot, jpg or yaml). The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--expected_output', type=str, help='A file path of the expected query output,'
                                                             'relevant only with --connectivity and --semantic_diff')
@@ -314,6 +315,9 @@ def nca_main(argv=None):
     parser.add_argument('--optimized_run', '-opt', type=str,
                         help='Whether to run optimized run (-opt=true), original run (-opt=false) - the default '
                              'or the comparison of the both (debug)', default='false')
+    parser.add_argument('--print_ipv6', action='store_true', help='Display IPv6 addresses connections too. '
+                                                                  'If the policy reference IPv6 addresses, '
+                                                                  'their connections will be printed anyway')
 
     args = parser.parse_args(argv)
 
@@ -336,7 +340,7 @@ def nca_main(argv=None):
         print(f'Error: {e}', file=stderr)
         if args.debug:
             print(traceback.format_exc(), file=stderr)
-        return 0 if args.return_0 else 1
+        return 0 if args.return_0 else 7
     return 0
 
 

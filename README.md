@@ -1,6 +1,8 @@
 # Network Config Analyzer (NCA)
 [![.github/workflows/test-push.yml](https://github.com/IBM/network-config-analyzer/actions/workflows/test-push.yml/badge.svg)](https://github.com/IBM/network-config-analyzer/actions/workflows/test-push.yml)
 [![.github/workflows/codeql-analysis.yml](https://github.com/IBM/network-config-analyzer/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/IBM/network-config-analyzer/actions/workflows/codeql-analysis.yml)
+[![OpenSSF
+Scorecard](https://api.securityscorecards.dev/projects/github.com/IBM/network-config-analyzer/badge)](https://api.securityscorecards.dev/projects/github.com/IBM/network-config-analyzer)
 ---
 ## What is NCA?
 NCA is a tool for analyzing Network Policies and other connectivity-configuration resources.
@@ -83,7 +85,8 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--period <minutes>`\
   Run NCA with given arguments every specified number of minutes
 - `--output_format <format>`\
-  Output format specification (txt/yaml/csv/md/dot).\
+  Output format specification (txt/yaml/csv/md/dot/jpg).\
+  For jpg format, Graphviz executables must be installed and on user systems' PATH.\
   *default:* txt\
   *shorthand:* `-o`
 - `--file_out <file name>`\
@@ -97,6 +100,9 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--output_endpoints`\
   Choose endpoints type in output (pods/deployments).\
   *default:* deployments
+  - `--print_ipv6`\
+  include IPv6 range in the query results even when the policies of the config do not contain any IPv6 addresses.
+  
 
 For more information on command-line switches combinations, see [Common Query Patterns](docs/CommonQueryPatterns.md#cmdline-queries)
 

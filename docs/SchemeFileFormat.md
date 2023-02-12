@@ -78,13 +78,15 @@ For example: `my_set/prod_ns/deny_all_policy`. If there are multiple policies na
 #### <a name="outputconfig"></a>Output Configuration object
 The supported entries in the outputConfiguration object are as follows:
 
-| Field           | Description                                                                    | Value                                  |
-|-----------------|--------------------------------------------------------------------------------|----------------------------------------|
-| outputFormat    | Output format specification.                                                   | string [ txt / yaml / csv / md / dot ] |
-| outputPath      | A file path to redirect output into.                                           | string                                 |
-| outputEndpoints | Choose endpoints type in output.                                               | string [ pods / deployments ]          |
-| subset          | A dict object with the defined subset elements to display in the output        | [subset](#subset) object               |
-| fullExplanation | Choose if to print all counterexamples causing the query result in the output | bool                                   |
+| Field            | Description                                                                                                     | Value                                       |
+|------------------|-----------------------------------------------------------------------------------------------------------------|---------------------------------------------|
+| outputFormat     | Output format specification.                                                                                    | string [ txt / yaml / csv / md / dot / jpg] |
+| outputPath       | A file path to redirect output into.                                                                            | string                                      |
+| outputEndpoints  | Choose endpoints type in output.                                                                                | string [ pods / deployments ]               |
+| subset           | A dict object with the defined subset elements to display in the output                                         | [subset](#subset) object                    |
+| fullExplanation  | Choose if to print all counterexamples causing the query result in the output                                   | bool                                        |
+| excludeIPv6Range | If the policies of the config do not contain any IPv6 addresses, do not include IPv6 range in the query results | bool  [default: True]                       |
+
 
 #### <a name="subset"></a>Subset object
 The supported entries in the subset object are as follows:

@@ -1,6 +1,5 @@
 final fw rules for query: connectivity_map, config: poc3:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
-src: ::/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
 src_ns: [default] src_pods: [app in (cartservice,checkoutservice,frontend,loadgenerator,recommendationservice)] dst_ns: [kube-system] dst_pods: [k8s-app=kube-dns] conn: UDP 53
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
 src_ns: [default] src_pods: [app in (checkoutservice,frontend)] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
