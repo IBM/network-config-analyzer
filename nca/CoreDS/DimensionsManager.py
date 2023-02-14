@@ -24,11 +24,10 @@ class DimensionsManager:
         def __init__(self):
             # TODO: verify alphabet for regex type dimensions, currently using one default alphabet
             #  currently valid chars are: ['.', '/', '-', 0-9, a-z, A-Z ]
-            self.default_dfa_alphabet_chars = ".\\w/\\-"
-            self.default_dfa_alphabet_str = "[" + self.default_dfa_alphabet_chars + "]*"
             self.default_interval_domain_tuple = (0, 100000)
             self.domain_str_to_dfa_map = dict()
-            dfa_all_words_default = self._get_dfa_from_alphabet_str(self.default_dfa_alphabet_str)
+            dfa_all_words_default = self._get_dfa_from_alphabet_str(MinDFA.default_alphabet_regex)
+            dfa_all_words_path_domain = self._get_dfa_path_domain()
             ports_interval = CanonicalIntervalSet.get_interval_set(1, 65535)
             all_methods_interval = MethodSet(True)
             all_peers_interval = CanonicalIntervalSet.get_interval_set(0, 10000)  # assuming max possible peer number
@@ -37,7 +36,7 @@ class DimensionsManager:
             self.dim_dict["dst_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval)
             self.dim_dict["methods"] = (DimensionsManager.DimensionType.IntervalSet, all_methods_interval)
             self.dim_dict["peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval)
-            self.dim_dict["paths"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_default)
+            self.dim_dict["paths"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_path_domain)
             self.dim_dict["hosts"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_default)
 
             icmp_type_interval = CanonicalIntervalSet.get_interval_set(0, 254)
@@ -56,6 +55,17 @@ class DimensionsManager:
                 return self.domain_str_to_dfa_map[alphabet_str]
             new_dfa = MinDFA.dfa_all_words(alphabet_str)
             self.domain_str_to_dfa_map[alphabet_str] = new_dfa
+            return new_dfa
+
+        @staticmethod
+        def _get_dfa_path_domain():
+            """
+            get a dfa that represents all valid words in the paths domain
+            :rtype MinDFA
+            """
+            regex_str = "/" + MinDFA.default_alphabet_regex
+            new_dfa = MinDFA.dfa_from_regex(regex_str)
+            new_dfa.is_all_words = MinDFA.Ternary.TRUE
             return new_dfa
 
     instance = None
@@ -95,7 +105,7 @@ class DimensionsManager:
             interval = interval_tuple if interval_tuple is not None else self.default_interval_domain_tuple
             domain = CanonicalIntervalSet.get_interval_set(interval[0], interval[1])
         else:
-            alphabet = alphabet_str if alphabet_str is not None else self.default_dfa_alphabet_str
+            alphabet = alphabet_str if alphabet_str is not None else MinDFA.default_alphabet_regex
             domain = self._get_dfa_from_alphabet_str(alphabet)
         self.dim_dict[dim_name] = (dim_type, domain)
 
