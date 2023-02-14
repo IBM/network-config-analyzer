@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
 from .IstioTrafficResources import istio_root_namespace
+from ..CoreDS.Peer import DNSEntry
 
 
 @dataclass
@@ -19,8 +20,8 @@ class IstioSidecarRule:
         Init the Egress rule of an Istio Sidecar
         :param Peer.PeerSet peer_set: The set of mesh internal peers this rule allows connection to
         :param Peer.PeerSet peers_for_ns_compare: The set of peers captured by a global sidecar with hosts
-        :param bool allow_all: indicates if this sidecar rule allows all egress from sidecar's peers
         having namespace equal to '.'
+        :param bool allow_all: indicates if this sidecar rule allows all egress from sidecar's peers
         """
         self.egress_peer_set = peer_set
         self.special_egress_peer_set = peers_for_ns_compare  # set of peers captured by a global sidecar with hosts of
@@ -141,9 +142,17 @@ class IstioSidecar(NetworkPolicy):
 
     @staticmethod
     def check_peers_in_same_namespace(from_peer, to_peer):
+        """
+        checks if from_peer and to_peer are in the same namespace or if to_peer is exported to from_peer
+        (in case to_peer is DNSEntry)
+        :param Peer from_peer: the src peer
+        :param Peer to_peer: the dst peer
+        :rtype: bool
+        """
         # a captured from_peer is always internal (having a specified namespace)
         from_ns = from_peer.namespace
         if to_peer.namespace:
             return from_ns == to_peer.namespace
         # else to_peer is a DNSEntry: it is exported to from_peer if it is exported to its namespace or to all namespaces
-        return '*' in to_peer.namespaces or from_ns in to_peer.namespaces
+        assert isinstance(to_peer, DNSEntry)
+        return to_peer.exported_to_all_namespaces or from_ns in to_peer.namespaces

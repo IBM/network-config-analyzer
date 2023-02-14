@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from nca.CoreDS.Peer import ClusterEP, IpBlock, Pod
+from nca.CoreDS.Peer import ClusterEP, IpBlock, Pod, DNSEntry
 from nca.Resources.K8sNamespace import K8sNamespace
 from .ClusterInfo import ClusterInfo
 
@@ -216,6 +216,8 @@ class FWRuleElement:
             return [IPBlockElement(ip) for ip in base_elem.split()]
         elif isinstance(base_elem, K8sNamespace):
             return [FWRuleElement({base_elem})]
+        elif isinstance(base_elem, DNSEntry):
+            return [DNSElement(base_elem)]
         # unknown base-elem type
         return None
 
@@ -407,6 +409,63 @@ class IPBlockElement(FWRuleElement):
         """
         # an ip block element does not represent any pods
         return set()
+
+
+class DNSElement(FWRuleElement):
+    """
+    class for single dnsEntry element in fw-rule
+    """
+
+    def __init__(self, element):
+        """
+        Create an object of DNSElement
+        :param element: an element of type DNSEntry
+        """
+        super().__init__(set())  # no ns for DNSEntry
+        self.element = element
+
+    def get_ns_str(self):
+        return ''
+
+    def get_pod_str(self):
+        """
+        :return: string for the field src_pods or dst_pods in representation for txt rule format
+        """
+        return self.element.name
+
+    def get_elem_list_obj(self):
+        """
+        :return: list[string] for the host name
+        """
+        return [self.element.name]
+
+    def __str__(self):
+        """
+        :return: string of the represented element
+        """
+        return self.element.name
+
+    def get_elem_str(self, is_src):
+        """
+        :param is_src: bool flag to indicate if element is src (True) or dst (False), always False
+        :return: string of the represented element with src or dst description of fields
+        """
+        prefix = 'src: ' if is_src else 'dst: '
+        suffix = ' ' if is_src else ''
+        return prefix + str(self) + suffix
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return isinstance(other, DNSElement) and self.element == other.element and super().__eq__(other)
+
+    def get_pods_set(self, cluster_info):
+        """
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :return: a set of pods in the cluster represented by this element
+        """
+        return {self.element}
 
 
 class FWRule:

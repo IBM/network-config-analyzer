@@ -62,7 +62,9 @@ class IstioGenericYamlParser(GenericYamlParser):
         :rtype: Peer.PeerSet
         """
         if workload_selector is None:
-            selected_peers = self.peer_container.get_all_peers_group()
+            # istio selected peers may only be clusterEP
+            selected_peers = self.peer_container.get_all_peers_group(add_external_ips=False, include_globals=False,
+                                                                     include_dns_entries=False)
         else:
             selected_peers = self._parse_workload_selector(workload_selector, dict_key)
         # if policy's namespace is the root namespace, then it applies to all cluster's namespaces

@@ -4,7 +4,7 @@ metadata:
   name: external-svc-first-test
 spec:
   hosts:
-  - "*.slack.com"
+  - www.slack.com
   - www.google.com
   location: MESH_EXTERNAL
   ports:

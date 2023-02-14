@@ -13,6 +13,5 @@ queries:
   - name: connectivity-internal-external
     connectivityMap:
       - mixed-sidecar
-#    outputConfiguration:
-#      fwRulesRunInTestMode: true
+    expectedOutput: ../../../expected_output/connectivity_internal_external_sidecar.txt
     expected: 0

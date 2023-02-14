@@ -9,7 +9,7 @@ from collections import defaultdict
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, DNSEntry
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
@@ -674,7 +674,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
-        peers_to_compare = self.config.peer_container.get_all_peers_group()
+        peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
 
         exclude_ipv6 = self.output_config.excludeIPv6Range
         ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
@@ -690,8 +690,10 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     peers.add(peer1)
                 elif not self.is_in_subset(peer2):
                     continue  # skipping pairs if none of them are in the given subset
-                if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
+                if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
                     continue  # skipping pairs with ip-blocks for both src and dst
+                if isinstance(peer1, DNSEntry):  # currently connections from external DNS to internal peers (or any dst) not supported
+                    continue
                 if peer1 == peer2:
                     # cannot restrict pod's connection to itself
                     connections[ConnectionSet(True)].append((peer1, peer2))

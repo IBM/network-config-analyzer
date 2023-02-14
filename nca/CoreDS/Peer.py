@@ -459,13 +459,21 @@ class IpBlock(Peer, CanonicalIntervalSet):
 
 
 class DNSEntry(Peer):
-
+    """
+    represents DNS entries, produced by ServiceEntry objects
+    """
     def __init__(self, host_mindfa=None, name=None, namespace=None):
+        """
+        Constructs a DNSEntry from the host minDFA provided
+        :param MinDFA host_mindfa: represents the minDFA of the host regex
+        """
         Peer.__init__(self, name, namespace)
         self.host_mindfa = host_mindfa
-        self.namespaces = []  # list of namespaces the peer is exported to,
-        # if the peer appears in multiple service-entries, this list should include all namespaces that these
-        # service-entries are exported to
+        self.namespaces = set()  # set of namespaces the peer is exported to,
+        # if the peer appears in multiple service-entries, this set should include all namespaces that these
+        # service-entries are exported to, the set will be cleared if the peer is exported to all namespaces, instead,
+        # the following flag will be True
+        self.exported_to_all_namespaces = False
 
     def __str__(self):
         return self.name
@@ -474,7 +482,19 @@ class DNSEntry(Peer):
         return self.name
 
     def update_namespaces(self, namespaces):
-        self.namespaces.extend(namespaces)
+        """
+        updates the namespaces fields of self, if the peer already exported to all namespaces, return (nothing to do)
+        otherwise, update the fields considering the given param value
+        :param list namespaces: the namespaces list to update self's namespaces with.
+        ['*'] indicates the peer is exported to all namespaces
+        """
+        if self.exported_to_all_namespaces:
+            return
+        if namespaces != ['*']:
+            self.namespaces.update(namespaces)
+        else:
+            self.exported_to_all_namespaces = True
+            self.namespaces.clear()
 
 
 class PeerSet(set):

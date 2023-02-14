@@ -4,8 +4,8 @@
 #
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP
-from .FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
+from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP, DNSEntry
+from .FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement, DNSElement
 
 
 class MinimizeCsFwRules:
@@ -107,7 +107,8 @@ class MinimizeCsFwRules:
 
         # TODO: what about peer pairs with ip blocks from containing connections, not only peer_pairs for this connection?
         pairs_with_elems_without_ns = set((src, dst) for (src, dst) in self.peer_pairs
-                                          if isinstance(src, (IpBlock, HostEP)) or isinstance(dst, (IpBlock, HostEP)))
+                                          if isinstance(src, (IpBlock, HostEP))
+                                          or isinstance(dst, (IpBlock, HostEP, DNSEntry)))
         self.peer_pairs_without_ns_expr |= pairs_with_elems_without_ns
         # compute pairs with src as pod/ip-block and dest as namespace
         self._compute_ns_pairs_with_partial_ns_expr(False)
@@ -430,6 +431,7 @@ class MinimizeCsFwRules:
         pod_and_pod_labels_elems = set(elem for elem in set_for_grouping_elems if
                                        isinstance(elem, (PodElement, PodLabelsElement)))
         ip_block_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, IPBlockElement))
+        dns_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, DNSElement))
         ns_elems = set_for_grouping_elems - (pod_and_pod_labels_elems | ip_block_elems)
 
         if ns_elems:
@@ -475,6 +477,13 @@ class MinimizeCsFwRules:
             # currently no grouping for ip blocks
             for elem in ip_block_elems:
                 if src_first:
+                    res.append(FWRule(fixed_elem, elem, self.connections))
+                else:
+                    res.append(FWRule(elem, fixed_elem, self.connections))
+
+        if dns_elems:
+            for elem in dns_elems:
+                if src_first:  # do we need both if else? , dns_elem may be a dst always
                     res.append(FWRule(fixed_elem, elem, self.connections))
                 else:
                     res.append(FWRule(elem, fixed_elem, self.connections))
