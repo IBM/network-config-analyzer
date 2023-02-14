@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+from nca.CoreDS.MinDFA import MinDFA
+from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet, IpBlock
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.MethodSet import MethodSet
