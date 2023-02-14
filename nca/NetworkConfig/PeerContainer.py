@@ -204,10 +204,15 @@ class PeerContainer:
                 res |= service.target_pods
         return res
 
-    def get_dns_entry_pods_matching_host_dfa(self, host_dfa):
+    def get_dns_entry_pods_matching_host_dfa(self, host_dns):
+        """
+        returns all DNSentry peers which include the host_dns
+        :param str host_dns : string representing a host
+        :rtype: PeerSet
+        """
         res = PeerSet()
         for peer in self.peer_set:
-            if isinstance(peer, DNSEntry) and peer.host_mindfa.__contains__(host_dfa):
+            if isinstance(peer, DNSEntry) and peer.host_mindfa.__contains__(host_dns):
                 res.add(peer)
         return res
 
@@ -235,7 +240,7 @@ class PeerContainer:
 
     def get_services_target_pods_in_namespace(self, namespace):
         """
-        Returns all pods that belong to services in the given namespace
+        Returns all pods that belong to services in/ exported to the given namespace
         :param K8sNamespace namespace:   namespace object
         :rtype: PeerSet
         """
@@ -276,15 +281,18 @@ class PeerContainer:
                         res.add(peer)
         return res
 
-    def get_all_peers_group(self, add_external_ips=False, include_globals=True):
+    def get_all_peers_group(self, add_external_ips=False, include_globals=True, include_dns_entries=False):
         """
         Return all peers known in the system
         :param bool add_external_ips: Whether to also add the full range of ips
         :param bool include_globals: Whether to include global peers
+        :param bool include_dns_entries: Whether to include DNSEntry peers
         :return PeerSet: The required set of peers
         """
         res = PeerSet()
         for peer in self.peer_set:
+            if isinstance(peer, DNSEntry) and not include_dns_entries:
+                continue
             if include_globals or not peer.is_global_peer():
                 res.add(peer)
         if add_external_ips:
@@ -325,6 +333,7 @@ class PeerContainer:
         for srv in service_list:
 
             if not isinstance(srv, K8sService):
+                self.services[srv.full_name()] = srv
                 continue
             #  for k8s services only, populate target ports
             if srv.selector:

@@ -87,11 +87,13 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         """
         Return the workload instances of the service in the given dns_name
         :param str dns_name: the service given in the host
+        :param PeerSet host_peers: peers that already match the namespace part of the host,
+        to reduce for matching the dns_name too
         :rtype: PeerSet
         """
         # supported dns_name format is fqdn with:
-        # 1. internal k8s services pattern <service_name>.<domain>.svc.cluster.local,
-        # the only relevant part of it is <service_name>
+        # 1. internal k8s services pattern <service_name>.<domain>.svc.cluster.local, the only relevant
+        # part of it is <service_name>
         # 2. external dns name (<>.<>.<>)
         if dns_name == '*':  # * means all services in namespace, all already in host_peers
             return host_peers
@@ -100,9 +102,9 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
                 return host_peers
             service_name = dns_name.split('.')[0]
             return host_peers & self.peer_container.get_target_pods_with_service_name(service_name)
-        else:  # dns entry case
-            return host_peers & self.peer_container.get_dns_entry_pods_matching_host_dfa(dns_name)
-        # TODO: check and test in live cluster if there are other cases of dns_name patterns to cover
+
+        # dns entry case
+        return host_peers & self.peer_container.get_dns_entry_pods_matching_host_dfa(dns_name)
 
     def _parse_egress_rule(self, egress_rule, allow_any):
         """
@@ -165,6 +167,13 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             peer.prior_sidecar = curr_sidecar
 
     def _parse_outbound_traffic_policy(self, outbound_traffic_policy):
+        """
+        determines the OutboundTrafficPolicy mode of the serviceEntry by parsing its OutboundTrafficPolicy if found,
+        otherwise, depends on istio's default mode
+        :param Union[dict, None] outbound_traffic_policy: the OutboundTrafficPolicy field to parse or None if not found
+        :return : true if the mode of OutboundTrafficPolicy/ default mode is allow_any, false otherwise
+        :rtype: bool
+        """
         # by default, istio configures the envoy proxy to passthrough requests for unknown services
         mode = 'ALLOW_ANY'
         if outbound_traffic_policy:
@@ -202,7 +211,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             self.syntax_error('Global Sidecar configuration should not have any workloadSelector.')
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
 
-        allow_any_flag = self._parse_outbound_traffic_policy(sidecar_spec.get('OutboundTrafficPolicy'))
+        allow_any_flag = self._parse_outbound_traffic_policy(sidecar_spec.get('outboundTrafficPolicy'))
 
         # istio ref declares both following statements:
         # 1.sidecar with workloadSelector takes precedence on a default sidecar. Handled in the following called method

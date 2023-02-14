@@ -12,31 +12,68 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
     def __init__(self, service_entry_file):
         super().__init__(service_entry_file)
 
-    def _parse_export_to(self, namespaces, curr_ns):
+    @staticmethod
+    def _parse_export_to(namespaces, curr_ns):
+        """
+        parses the list in exportTo field of the ServiceEntry if found, and returns the namespaces list which
+        the ServiceEntry is exported to. If exportTo not found , by default, a service is exported to all namespaces.
+        :param list[str] namespaces: the list of namespaces names given in exportTo field
+        :param str curr_ns: the name of this serviceEntry's namespace name
+        :return list of namespaces or ['*'] if exported to all namespaces
+        :rtype: list[str]
+        """
         if not namespaces:
-            return [], True
+            return ['*']
 
         ns_list = []
         for ns in namespaces:
             if ns == '*':
-                return [], True
+                return ['*']
             if ns == '.':
                 ns_list.append(str(curr_ns))
             else:
                 ns_list.append(ns)
+        return ns_list
 
-        return ns_list, False
+    @staticmethod
+    def get_or_create_dns_entry_peer(peer_set, host_dfa, host_name):
+        """
+        checks if the given peer set contains a DNSEntry peer with the given host_dfa, if yes returns it, otherwise
+        creates a new DNSEntry peer with the given host_dfa and host_name
+        :param peer_set: set of peers
+        :param host_dfa: the host MinDFA
+        :param str host_name: the host name
+        :return DNSEntry
+        """
+        for peer in peer_set:
+            if isinstance(peer, DNSEntry) and peer.host_mindfa == host_dfa:
+                return peer
+        return DNSEntry(host_mindfa=host_dfa, name=host_name)
 
-    def _parse_host_and_build_dns_entry(self, host, rule_dict):
+    def _parse_host_and_get_dns_entry(self, host, rule_dict, peer_set):
+        """
+        parse a host in the hosts field of the ServiceEntry, get or create a DNSEntry peer based on the host
+        :param str host : the host name/ url
+        :param dict rule_dict: the spec dict that includes the host
+        :param PeerSet peer_set: set of peers
+        :return a DNSEntry peer to add to the ServiceEntry's target_pods if the host is legal
+        :rtype Union[DNSEntry, None]
+        """
         if host == '*':
             self.syntax_error(f'illegal host {host}', rule_dict)
         host_dfa = self.parse_regex_host_value(host, rule_dict)
         if host_dfa:
-            # TODO: check if a DNSEntry with same host already exists, get it instead of creating new one
-            return DNSEntry(host_dfa, host)
+            # check if a DNSEntry with same host already exists in the peer set, get it, otherwise create new one
+            return self.get_or_create_dns_entry_peer(peer_set, host_dfa, host)
         return None
 
-    def parse_service(self, service_entry_obj):
+    def parse_service(self, service_entry_obj, peer_set):
+        """
+        Parses a service resource object and creates an IstioServiceEntry object
+        :param dict service_entry_obj: the service object to parse
+        :param PeerSet peer_set : set of the peers that already parsed by other input resources
+        :return: IstioServiceEntry object or None
+        """
         se_name, se_ns = self.parse_generic_yaml_objects_fields(service_entry_obj, ['ServiceEntry'],
                                                                 ['networking.istio.io/v1beta1',
                                                                  'networking.istio.io/v1alpha3'], 'istio', True)
@@ -70,10 +107,9 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         if not hosts:
             self.syntax_error('ServiceEntry spec must have at least one host', se_spec)
         for host in hosts:
-            service_entry.add_host(self._parse_host_and_build_dns_entry(host, se_spec))
+            service_entry.add_host(self._parse_host_and_get_dns_entry(host, se_spec, peer_set))
 
-        namespaces_list, all_ns_flag = self._parse_export_to(se_spec.get('exportTo', []), se_ns)
-        service_entry.update_namespaces_fields(namespaces_list, all_ns_flag)
+        service_entry.exported_to_namespaces = self._parse_export_to(se_spec.get('exportTo', []), se_ns)
         service_entry.update_hosts_namespaces()
 
         return service_entry

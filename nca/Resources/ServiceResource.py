@@ -33,6 +33,11 @@ class ServiceResource:
 
     @abstractmethod
     def is_service_exported_to_namespace(self, namespace):
+        """
+        checks if the service is in / exported to the given namespace
+        :param K8sNamespace namespace: a k8s namespace
+        :rtype: bool
+        """
         raise NotImplementedError
 
 
@@ -122,22 +127,22 @@ class IstioServiceEntry(ServiceResource):
     """
     def __init__(self, name, namespace_name):
         super().__init__(name, namespace_name)
-        self.exported_to_all_namespaces = True
-        self.exported_to_namespaces = []  # list of namespaces names that the service entry is exported to, to be filled
-        # only if exported_to_all_namespaces is False
-
-    def update_namespaces_fields(self, ns_list=None, all_flag=False):
-        self.exported_to_all_namespaces = all_flag
-        self.exported_to_namespaces = ns_list if not all_flag else []
+        self.exported_to_namespaces = []  # list of namespaces names that the service entry is exported to,
+        # if it is exported to all namespaces this will be equal to ['*']
 
     def add_host(self, dns_entry):
+        """
+        :param Peer.DNSEntry dns_entry: a dns entry peer (host) to be added to self's target pods
+        """
         if dns_entry:
             self.target_pods.add(dns_entry)
 
     def is_service_exported_to_namespace(self, namespace):
-        return self.exported_to_all_namespaces or namespace in self.exported_to_namespaces
+        return self.exported_to_namespaces == ['*'] or namespace in self.exported_to_namespaces
 
     def update_hosts_namespaces(self):
-        namespaces = '*' if self.exported_to_all_namespaces else self.exported_to_namespaces
+        """
+        updates the namespaces of the target pods of self
+        """
         for host in self.target_pods:
-            host.update_namespaces(namespaces)
+            host.update_namespaces(self.exported_to_namespaces)

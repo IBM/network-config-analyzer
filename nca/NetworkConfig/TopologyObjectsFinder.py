@@ -311,7 +311,7 @@ class NamespacesFinder:
 
 class ServicesFinder:
     """
-    This class is responsible for populating the services in the relevant input resources
+    This class is responsible for populating the services in the relevant input resources.
     Resources that contain services, may be:
     - git path of yaml file or a directory with yamls
     - local file (yaml or json) or a local directory containing yamls
@@ -336,6 +336,11 @@ class ServicesFinder:
                 self._parse_by_kind_and_update_services_list(srv_code, 'k8s')
 
     def parse_yaml_code_for_service(self, res_code, yaml_file):
+        """
+        parses service object from yaml file
+        :param dict res_code: the yaml object code
+        :param str yaml_file: the name of the file containing the res_code
+        """
         if not isinstance(res_code, dict):
             return
         kind = res_code.get('kind')
@@ -347,8 +352,14 @@ class ServicesFinder:
             self._parse_by_kind_and_update_services_list(res_code, yaml_file)
 
     def _parse_by_kind_and_update_services_list(self, srv_object, yaml_file):
+        """
+        parses the service object using the relevant parser for its kind (k8sService/ ServiceEntry)
+        and updates the services_list accordingly
+        :param dict srv_object: the service object code from the yaml content
+        :param str yaml_file: the name of the yaml file containing the service object
+        """
         parser = self._get_parser_by_kind(srv_object.get('kind'), yaml_file)
-        service = parser.parse_service(srv_object)
+        service = parser.parse_service(srv_object, self.pods_finder.peer_set)
         if service:
             service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
             if service.target_pods:  # in case of serviceEntry
@@ -357,6 +368,12 @@ class ServicesFinder:
 
     @staticmethod
     def _get_parser_by_kind(kind, yaml_file):
+        """
+        returning the yaml parser of the service object by its type
+        :param str kind: the kind of the service (i.e. k8sService or ServiceEntry)
+        :param str yaml_file: the name of the file containing the service object
+        :return the relevant yaml parser
+        """
         if kind == 'ServiceEntry':
             return IstioServiceEntryYamlParser(yaml_file)
         return K8sServiceYamlParser(yaml_file)
