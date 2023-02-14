@@ -1,17 +1,26 @@
-resourceList:
-  - ../../../example_podlist/bookinfo_ns_list.json
-  - ../../../example_podlist/bookinfo_deployments.yaml
-  - ../../../example_podlist/bookinfo_services.yaml
-  - bookinfo-service-entry-1.yaml
+
 
 networkConfigList:
   - name: mixed-sidecar
-    networkPolicyList:
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/bookinfo-service-entry-1.yaml
       - sidecar-w-internal-external-services.yaml
+
+  - name: allow-all-sidecar
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-wildcard-services.yaml
+      - sidecar-allows-any.yaml
 
 queries:
   - name: connectivity-internal-external
     connectivityMap:
       - mixed-sidecar
     expectedOutput: ../../../expected_output/connectivity_internal_external_sidecar.txt
+    expected: 0
+
+  - name: connectivity-allow-all-bookinfo
+    connectivityMap:
+      - allow-all-sidecar
     expected: 0

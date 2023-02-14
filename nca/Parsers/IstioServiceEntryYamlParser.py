@@ -85,7 +85,7 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
 
         allowed_keys = {'hosts': [1, list], 'addresses': [3, list], 'ports': [3, list], 'location': [0, str],
                         'resolution': [0, str], 'endpoints': [2, list], 'workloadSelector': [2, dict],
-                        'exportTo': [0, str], 'subjectAltNames': [3, list]}
+                        'exportTo': [0, list], 'subjectAltNames': [3, list]}
         # Note: even though the resolution field appears as required in Istio ServiceEntry reference,
         # live cluster accepts service-entry yaml without this field (not required)
 

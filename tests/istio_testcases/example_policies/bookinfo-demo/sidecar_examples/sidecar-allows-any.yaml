@@ -1,0 +1,10 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: sidecar-allows-any
+spec:
+  egress:
+    - hosts:
+        - "*/*"
+  outboundTrafficPolicy:
+    mode: ALLOW_ANY

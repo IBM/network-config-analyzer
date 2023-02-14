@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-https-wildcard-services
+spec:
+  hosts:
+    - api.dropboxapi.com
+    - www.googleapis.com
+    - api.facebook.com
+    - "*.newrelic.com"
+    - "*.wikipedia.org"
+    - "*.slack.com"
+  exportTo:
+    - "default"
+  location: MESH_EXTERNAL
+  ports:
+    - name: https-443
+      number: 443
+      protocol: HTTPS
+  resolution: NONE
