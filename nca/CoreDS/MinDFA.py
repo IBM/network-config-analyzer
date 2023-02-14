@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from greenery import fsm, parse
-from greenery.rxelems import from_fsm
 from functools import lru_cache
 
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
+
 
 class MinDFA:
     """
@@ -42,6 +42,8 @@ class MinDFA:
         (no mix of MinDFA objects from different dimensions context)
 
     """
+    default_dfa_alphabet_chars = ".\\w/\\-"
+    default_alphabet_regex = "[.\\w/\\-]*"
 
     class Ternary:
         FALSE = 0
@@ -59,10 +61,14 @@ class MinDFA:
                                                             necessary)
         complement_dfa: MinDFA of the complement dfa of self, e.g: relevant when doing subtraction from 'all'.
                         for performance improvement (avoid computation of complement if could use this member instead).
+
+        regex_expr: str representation of regex expressions (possibly) with operations (subtract/intersect/union),
+                    from which the MinDFA object was constructed
         """
         self.fsm = fsm.Fsm(initial, finals, alphabet, states, map)
         self.is_all_words = MinDFA.Ternary.UNKNOWN
         self.complement_dfa = None
+        self.regex_expr = ''
 
     def __contains__(self, string):
         return string in self.fsm
@@ -109,6 +115,7 @@ class MinDFA:
         # TODO: currently assuming input str as regex only has '*' operator for infinity
         if '*' not in s:
             res.is_all_words = MinDFA.Ternary.FALSE
+        res.regex_expr = s.replace(MinDFA.default_alphabet_regex, "*")
         return res
 
     @staticmethod
@@ -120,6 +127,7 @@ class MinDFA:
         """
         res = MinDFA.dfa_from_regex(alphabet)
         res.is_all_words = MinDFA.Ternary.TRUE
+        res.regex_expr = '*'
         return res
 
     # TODO: this function may not be necessary, if keeping the current __eq__ override
@@ -175,15 +183,18 @@ class MinDFA:
         """
         str representation of the language accepted by this DFA:
         - option 1: if language has finite number of words -> return string with all accepted words.
-        - option 2 (costly): convert fsm to regex with greenery
+        - option 2 : a string of regex expressions with accumulated operations, from which the object was constructed.
         :rtype: str
         """
+
         if self.has_finite_len():
             return self._get_strings_set_str()
         if self.is_all_words == MinDFA.Ternary.TRUE:
             return "*"
-        # TODO: consider performance implications of this conversion from MinDFA to regex
-        return str(from_fsm(self.fsm))
+        return self.regex_expr
+        # in comment below: alternative based on conversion from MinDFA to regex
+        # not readable regex result + had performance implications of this conversion from MinDFA to regex
+        # return str(from_fsm(self.fsm))
 
     def get_fsm_str(self):
         """
@@ -219,6 +230,11 @@ class MinDFA:
         res = MinDFA.dfa_from_fsm(fsm_res)
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
+        # update regex_expr of the result object
+        if self.regex_expr == other.regex_expr:
+            res.regex_expr = self.regex_expr
+        else:
+            res.regex_expr = f'({self.regex_expr})|({other.regex_expr})'
         return res
 
     @lru_cache(maxsize=500)
@@ -231,18 +247,30 @@ class MinDFA:
         res = MinDFA.dfa_from_fsm(fsm_res)
         if self.is_all_words == MinDFA.Ternary.FALSE or other.is_all_words == MinDFA.Ternary.FALSE:
             res.is_all_words = MinDFA.Ternary.FALSE
+        # update regex_expr of the result object
+        if self.regex_expr == other.regex_expr:
+            res.regex_expr = self.regex_expr
+        else:
+            res.regex_expr = f'({self.regex_expr})&({other.regex_expr})'
         return res
 
     @lru_cache(maxsize=500)
     def __sub__(self, other):
+        if self.is_all_words == MinDFA.Ternary.TRUE and other.complement_dfa is not None:
+            return other.complement_dfa
+
         fsm_res = self.fsm - other.fsm
         res = MinDFA.dfa_from_fsm(fsm_res)
-        if other.is_all_words == MinDFA.Ternary.TRUE:
+        # update regex_expr of the result object
+        res.regex_expr = f'({self.regex_expr})-({other.regex_expr})'
+
+        if other.is_all_words == MinDFA.Ternary.TRUE:  # res becomes empty
             res.is_all_words = MinDFA.Ternary.FALSE
         elif other:
-            res.is_all_words = MinDFA.Ternary.FALSE
+            res.is_all_words = MinDFA.Ternary.FALSE  # res cannot be all words
         if self.is_all_words == MinDFA.Ternary.TRUE and not other:
             res.is_all_words = MinDFA.Ternary.TRUE
+
         if self.is_all_words == MinDFA.Ternary.TRUE:
             res.complement_dfa = other
             other.complement_dfa = res

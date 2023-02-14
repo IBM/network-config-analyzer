@@ -12,6 +12,7 @@ dimensions5 = ["src_peers", "dst_peers", "protocols", "ports"]
 
 dim_manager = DimensionsManager()
 dim_manager.set_domain("methods_dfa", DimensionsManager.DimensionType.DFA)
+dim_manager.set_domain("paths", DimensionsManager.DimensionType.DFA)
 dim_manager.set_domain("ports", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
 dim_manager.set_domain("x", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
 dim_manager.set_domain("y", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
