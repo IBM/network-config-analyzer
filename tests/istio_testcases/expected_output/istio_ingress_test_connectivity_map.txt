@@ -1,7 +1,7 @@
 final fw rules for query: connectivity, config: istio-ingress:
 src: 0.0.0.0/0 dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [istio-ingressgateway] conn: All connections
-src_ns: [default] src_pods: [*] dst_ns: [prod] dst_pods: [ratings-v1-857bb87c57] conn: TCP {'dst_ports': '9080', 'hosts': 'eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local', 'paths': '/reviews/(/*)?'}
+src_ns: [default] src_pods: [*] dst_ns: [prod] dst_pods: [ratings-v1-857bb87c57] conn: TCP {'dst_ports': '9080', 'hosts': 'eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local', 'paths': '/reviews(/*)?'}
 src_ns: [default] src_pods: [*] dst_ns: [qa] dst_pods: [*] conn: TCP {'dst_ports': '7777', 'hosts': 'eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local'}
 src_ns: [default] src_pods: [productpage-v1-6f9df695b7] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [productpage-v1-6f9df695b7] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections

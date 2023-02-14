@@ -162,5 +162,7 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         if path_string == '/':
             return DimensionsManager().get_dimension_domain_by_name('paths')
         allowed_chars = "[" + MinDFA.default_dfa_alphabet_chars + "]"
+        if path_string.endswith('/'):
+            path_string = path_string[:-1]
         path_regex = f'{path_string}(/{allowed_chars}*)?'
         return MinDFA.dfa_from_regex(path_regex)
