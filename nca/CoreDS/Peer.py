@@ -381,6 +381,12 @@ class IpBlock(Peer, CanonicalIntervalSet):
                                                  IPNetworkAddress(exception_n.broadcast_address))
             self.add_hole(hole)
 
+    def remove_cidr(self, cidr):
+        ipn = ip_network(cidr, False)  # strict is False as k8s API shows an example CIDR where host bits are set
+        hole = CanonicalIntervalSet.Interval(IPNetworkAddress(ipn.network_address),
+                                             IPNetworkAddress(ipn.broadcast_address))
+        self.add_hole(hole)
+
     def get_peer_set(self):
         """
         :return: get PeerSet from IpBlock (empty set if IpBlock is empty)
@@ -659,6 +665,19 @@ class PeerSet(set):
                                  min(interval.end-self.min_pod_index, curr_pods_max_ind) + 1):
                     peer_list.append(self.sorted_peer_list[ind])
         return PeerSet(set(peer_list))
+
+    @staticmethod
+    def remove_ipv6_full_block(peer_set):
+        res = PeerSet()
+        for peer in peer_set:
+            if isinstance(peer, IpBlock):
+                peer.remove_cidr('::/0')
+                if peer:
+                    res.add(peer)
+            else:
+                res.add(peer)
+        return res
+
 
 
 def by_full_name(elem):

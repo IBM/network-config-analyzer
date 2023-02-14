@@ -694,22 +694,17 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
-        peers_to_compare = self.config.peer_container.get_all_peers_group()
-
-        exclude_ipv6 = self.output_config.excludeIPv6Range
-        ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
-                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
-                                                   exclude_ipv6)
         connections = defaultdict(list)
         res = QueryAnswer(True)
         fw_rules = None
         fw_rules_tcp = None
         fw_rules_non_tcp = None
+        exclude_ipv6 = self.output_config.excludeIPv6Range
         if self.config.optimized_run != 'true':
             peers_to_compare = self.config.peer_container.get_all_peers_group()
-
-            ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(),
-                                                       IpBlock.get_all_ips_block_peer_set())
+            ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
+                                                       IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
+                                                       exclude_ipv6)
             peers_to_compare |= ref_ip_blocks
             peers = PeerSet()
             peers1_start = time.time()
@@ -753,12 +748,13 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # add all relevant IpBlocks, used in connections
             opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
                                     all_conns_opt.project_on_one_dimension('dst_peers')
+            if exclude_ipv6:
+                opt_peers_to_compare = PeerSet.remove_ipv6_full_block(opt_peers_to_compare)
+
             subset_peers = self.compute_subset(opt_peers_to_compare)
-            src_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
-                                                                                   src_peers=subset_peers)
-            dst_peers_in_subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
-                                                                                   dst_peers=subset_peers)
-            all_conns_opt &= src_peers_in_subset_conns | dst_peers_in_subset_conns
+            subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
+                                                                      src_peers=subset_peers, dst_peers=subset_peers)
+            all_conns_opt &= subset_conns
             if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
                 output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare)
                 opt_end = time.time()
