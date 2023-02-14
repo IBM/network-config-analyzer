@@ -36,7 +36,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     (2) calico: +ve and -ve named ports, no src named ports, and no use of operators between these objects.
     """
 
-    dimensions_list = ["src_ports", "dst_ports", "methods", "paths", "hosts", "peers"]
+    dimensions_list = ["src_ports", "dst_ports", "methods", "hosts", "paths", "peers"]
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
     def __init__(self, source_ports=PortSet(), dest_ports=PortSet(), methods=MethodSet(True), paths=None, hosts=None,
@@ -59,37 +59,26 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         self.base_peer_set = base_peer_set if base_peer_set else PeerSet()
 
         # create the cube from input arguments
-        cube = []
-        active_dims = []
-        if not source_ports.is_all():
-            cube.append(source_ports.port_set)
-            active_dims.append("src_ports")
-        if not dest_ports.is_all():
-            cube.append(dest_ports.port_set)
-            active_dims.append("dst_ports")
-        if not methods.is_whole_range():
-            cube.append(methods)
-            active_dims.append("methods")
-        if paths is not None:
-            cube.append(paths)
-            active_dims.append("paths")
-        if hosts is not None:
-            cube.append(hosts)
-            active_dims.append("hosts")
-        if peers is not None:
-            cube.append(peers)
-            active_dims.append("peers")
+        # create a dict object that holds the values required to build the cube
+        dims_to_values = {"src_ports": {"value": source_ports.port_set,
+                                        "is_all": source_ports.is_all()},
+                          "dst_ports": {"value": dest_ports.port_set,
+                                        "is_all": dest_ports.is_all()},
+                          "methods": {"value": methods,
+                                      "is_all": methods.is_whole_range()},
+                          "hosts": {"value": hosts,
+                                    "is_all": hosts is None},
+                          "paths": {"value": paths,
+                                    "is_all": paths is None},
+                          "peers": {"value": peers,
+                                    "is_all": peers is None}}
+
+        cube, active_dims, has_empty_dim_value = self._get_cube_and_active_dims_from_input_values(dims_to_values)
 
         if not active_dims:
             self.set_all()
-        else:
-            has_empty_dim_value = False
-            for dim_val in cube:
-                if not dim_val:
-                    has_empty_dim_value = True
-                    break
-            if not has_empty_dim_value:
-                self.add_cube(cube, active_dims)
+        elif not has_empty_dim_value:
+            self.add_cube(cube, active_dims)
 
         # assuming named ports are only in dest, not src
         all_ports = PortSet.all_ports_interval.copy()
@@ -98,6 +87,27 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         for port_name in dest_ports.excluded_named_ports:
             # self.excluded_named_ports[port_name] = all_ports - source_ports.port_set
             self.excluded_named_ports[port_name] = all_ports
+
+    @staticmethod
+    def _get_cube_and_active_dims_from_input_values(dims_to_values):
+        """
+        Given initial values, get the matching cube and its active dimensions
+        :param dict dims_to_values: map from dimension name to values properties
+        :rtype tuple(list, list, bool)
+        :return: tuple with: (1) cube values (2) active dimensions (3) bool indication if some dimension is empty
+        """
+        cube = []
+        active_dims = []
+        has_empty_dim_value = False
+        # add values to cube by required order of dimensions
+        for dim in TcpLikeProperties.dimensions_list:
+            dim_val = dims_to_values[dim]["value"]
+            add_to_cube = not dims_to_values[dim]["is_all"]
+            if add_to_cube:
+                cube.append(dim_val)
+                active_dims.append(dim)
+                has_empty_dim_value |= not dim_val
+        return cube, active_dims, has_empty_dim_value
 
     def __bool__(self):
         return super().__bool__() or bool(self.named_ports)
@@ -167,8 +177,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
             assert self.base_peer_set == other.base_peer_set
-            res = super().__eq__(other) and self.named_ports == other.named_ports and \
-                self.excluded_named_ports == other.excluded_named_ports
+            res = super().__eq__(other) and self.named_ports == other.named_ports \
+                and self.excluded_named_ports == other.excluded_named_ports
             return res
         return False
 
