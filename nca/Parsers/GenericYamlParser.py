@@ -244,7 +244,7 @@ class GenericYamlParser:
         res.add_connections('TCP', tcp_properties)
         return res
 
-    def parse_regex_host_value(self, regex_value, rule=None):
+    def parse_regex_host_value(self, regex_value, rule):
         """
         for 'hosts' dimension of type MinDFA -> return a MinDFA, or None for all values
         :param str regex_value: input regex host value
@@ -254,8 +254,11 @@ class GenericYamlParser:
         if regex_value is None:
             return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
 
+        if regex_value == '*':
+            return DimensionsManager().get_dimension_domain_by_name('hosts')
+
         allowed_chars = "[\\w]"
-        allowed_chars_with_star_regex = "[*" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        allowed_chars_with_star_regex = "[*" + MinDFA.default_dfa_alphabet_chars + "]*"
         if not re.fullmatch(allowed_chars_with_star_regex, regex_value):
             self.syntax_error(f'Illegal characters in host {regex_value}', rule)
 
