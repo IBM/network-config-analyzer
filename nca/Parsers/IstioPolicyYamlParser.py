@@ -269,8 +269,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         :param dict operation: the operation object being parsed
         :return: str: the result regex/str after conversion
         """
-        allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
-        allowed_chars_with_star_regex = "[*" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        allowed_chars = "[" + MinDFA.default_dfa_alphabet_chars + "]"
+        allowed_chars_with_star_regex = "[*" + MinDFA.default_dfa_alphabet_chars + "]*"
         if not re.fullmatch(allowed_chars_with_star_regex, str_val_input):
             self.syntax_error(f'Illegal characters in {dim_name} {str_val_input} in {operation}')
 

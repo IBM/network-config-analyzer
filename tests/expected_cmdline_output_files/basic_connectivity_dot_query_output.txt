@@ -333,3 +333,4 @@ digraph {
 	"vendor-system/foofoo-app(ReplicaSet)" -> "vendor-system/barbar-app(ReplicaSet)" [label="All connections" color="gold2" fontcolor="darkgreen"]
 	"vendor-system/foofoo-app(ReplicaSet)" -> "vendor-system/foofoo-app(ReplicaSet)" [label="All connections" color="gold2" fontcolor="darkgreen"]
 }
+

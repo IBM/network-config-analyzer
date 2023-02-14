@@ -27,6 +27,34 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         self.default_backend_peers = PeerSet()
         self.default_backend_ports = PortSet()
 
+
+    def parse_regex_host_value(self, regex_value, rule):
+        """
+        for 'hosts' dimension of type MinDFA -> return a MinDFA, or None for all values
+        :param str regex_value: input regex host value
+        :param dict rule: the parsed rule object
+        :return: Union[MinDFA, None] object
+        """
+        if regex_value is None:
+            return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
+
+        if regex_value == '*':
+            return DimensionsManager().get_dimension_domain_by_name('hosts')
+
+        allowed_chars = "[\\w]"
+        allowed_chars_with_star_regex = "[*" + MinDFA.default_dfa_alphabet_chars + "]*"
+        if not re.fullmatch(allowed_chars_with_star_regex, regex_value):
+            self.syntax_error(f'Illegal characters in host {regex_value}', rule)
+
+        # convert regex_value into regex format supported by greenery
+        regex_value = regex_value.replace(".", "[.]")
+        if '*' in regex_value:
+            if not regex_value.startswith('*'):
+                self.syntax_error(f'Illegal host value pattern: {regex_value}')
+            regex_value = regex_value.replace("*", allowed_chars + '*')
+        return MinDFA.dfa_from_regex(regex_value)
+
+
     def _make_tcp_like_properties(self, dest_ports, peers, paths_dfa=None, hosts_dfa=None, methods_dfa=None):
         """
         get TcpLikeProperties with TCP allowed connections, corresponding to input properties cube.
@@ -122,3 +150,18 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         for peer_set, conns in peers_to_conns.items():
             res.append(IngressPolicyRule(peer_set, conns))
         return res
+
+    @staticmethod
+    def get_path_prefix_dfa(path_string):
+        """
+        Given a prefix path, get its MinDFA that accepts all relevant paths
+        :param str path_string: a path string from policy, specified as Prefix
+        :rtype MinDFA
+        """
+        if path_string == '/':
+            return DimensionsManager().get_dimension_domain_by_name('paths')
+        allowed_chars = "[" + MinDFA.default_dfa_alphabet_chars + "]"
+        if path_string.endswith('/'):
+            path_string = path_string[:-1]
+        path_regex = f'{path_string}(/{allowed_chars}*)?'
+        return MinDFA.dfa_from_regex(path_regex)
