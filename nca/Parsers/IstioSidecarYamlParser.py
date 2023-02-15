@@ -171,7 +171,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress
         allowed_spec_keys = {'workloadSelector': [0, dict], 'ingress': [3, list], 'egress': [0, list],
-                             'outboundTrafficPolicy': [3, str]}
+                             'outboundTrafficPolicy': [3, dict]}
         self.check_fields_validity(sidecar_spec, 'Sidecar spec', allowed_spec_keys)
         res_policy.affects_egress = sidecar_spec.get('egress') is not None
 
