@@ -42,10 +42,12 @@ jobs:
     steps:
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
       - uses: ./.github/actions/setup-nca-env
-      - run: pip install flake8
-      - name: Lint with flake8
-        run: flake8 nca --count --max-complexity=15 --max-line-length=127 --statistics
-
+      - name: flake8 Lint
+        uses: py-actions/flake8@2014ef764424fd7699d615323c17836092bec9b9
+        with:
+          path: nca
+          max-line-length: "127"
+          args: "--max-complexity=15"
   unit-tests:
     runs-on: ubuntu-latest
     steps:
