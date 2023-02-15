@@ -113,8 +113,7 @@ class ConnectivityGraph:
                 if str(connections) == 'All connections' and src_peer == dst_peer:  # relevant with all connections only
                     # add the pod to the map with its workload name
                     if src_peer_name not in workload_name_to_peers_map:
-                        workload_name_to_peers_map[src_peer_name] = set()
-                    workload_name_to_peers_map[src_peer_name].add(src_peer)
+                        workload_name_to_peers_map[src_peer_name] = {src_peer}
                     continue  # after having the full dict, lines from pod to itself will be added for workload names
                     # with only one pod.
                     # if a peer has different replicas or copies, a connection from it to itself will be added automatically
