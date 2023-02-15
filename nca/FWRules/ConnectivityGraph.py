@@ -103,7 +103,7 @@ class ConnectivityGraph:
     def get_connections_without_fw_rules_txt_format(self):
         """
         :rtype: str
-        :return: a string of the original peers connectivity graph content (without adding fw-rules or livesim peers)
+        :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
         """
         lines = set()
         workload_name_to_peers_map = {}  # a dict from workload_name to pods set, to track replicas and copies
