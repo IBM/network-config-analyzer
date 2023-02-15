@@ -110,7 +110,7 @@ class ConnectivityGraph:
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
                 src_peer_name, _ = self._get_peer_name(src_peer, True)
-                if str(connections) == 'All connections' and src_peer == dst_peer:  # relevant with all connections only
+                if src_peer == dst_peer:  # relevant with all connections only
                     # add the pod to the map with its workload name
                     if src_peer_name not in workload_name_to_peers_map:
                         workload_name_to_peers_map[src_peer_name] = {src_peer}
