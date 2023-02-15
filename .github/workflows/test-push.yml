@@ -47,7 +47,7 @@ jobs:
         with:
           path: nca
           max-line-length: "127"
-          args: "--max-complexity=15"
+          args: "--max-complexity=10"
   unit-tests:
     runs-on: ubuntu-latest
     steps:
