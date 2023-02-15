@@ -153,7 +153,6 @@ class GenericYamlParser:
         if kind not in object_kind:
             return None, None  # Not the relevant object
         api_version = yaml_object.get('apiVersion')
-        print(f'api_version field is {api_version} in {kind}')
         version_keywords = [layer_keywords] if not isinstance(layer_keywords, list) else layer_keywords
         if not any(keyword in api_version for keyword in version_keywords):
             return None, None  # apiVersion is not properly set
