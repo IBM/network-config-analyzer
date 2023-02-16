@@ -72,7 +72,8 @@ class ConnectivityGraph:
             name = str(peer)
         return name, peer_type, nc_name
 
-    def _creates_cliqued_graph(self, directed_edges):
+    @staticmethod
+    def _creates_cliqued_graph(directed_edges):
         """
         A clique is a subset of nodes, where every pair of nodes in the subset has an edge
         This method creates a new graph with cliques. of each clique in the graph:
@@ -97,9 +98,9 @@ class ConnectivityGraph:
         min_qlicue_size = 4
 
         # replacing directed edges with not directed edges:
-        not_directed_edges = set([edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges])
+        not_directed_edges = set(edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges)
         directed_edges = directed_edges - not_directed_edges
-        not_directed_edges = set([edge for edge in not_directed_edges if edge[1] < edge[0]])
+        not_directed_edges = set(edge for edge in not_directed_edges if edge[1] < edge[0])
 
         # find cliques in the graph:
         graph = networkx.Graph()
@@ -111,7 +112,7 @@ class ConnectivityGraph:
         for clique in cliques:
             if len(clique) < min_qlicue_size:
                 continue
-            clq_namespaces = sorted(set([peer[1] for peer in clique]))
+            clq_namespaces = sorted(set(peer[1] for peer in clique))
             # the list of new nodes of the clique:
             clique_namespaces_nodes = []
             for namespace_name in clq_namespaces:
@@ -124,7 +125,7 @@ class ConnectivityGraph:
                     clique_namespaces_nodes.append(namespace_clique_node)
 
                     # adds edges from the new node to the original clique nodes in the namespace
-                    not_directed_edges |= set([(namespace_clique_node, node) for node in clq_namespace_peers])
+                    not_directed_edges |= set((namespace_clique_node, node) for node in clq_namespace_peers)
                 else:
                     # if the namespace has only one node, we will not add a new clique node
                     # instead we will add it to the clique new nodes:
@@ -135,7 +136,7 @@ class ConnectivityGraph:
                 clique_node_name = f'clique_{len(cliques_nodes)}'
                 clique_node = (clique_node_name, '')
                 cliques_nodes.append(clique_node)
-                not_directed_edges |= set([(clq_con, clique_node) for clq_con in clique_namespaces_nodes])
+                not_directed_edges |= set((clq_con, clique_node) for clq_con in clique_namespaces_nodes)
             elif len(clique_namespaces_nodes) == 2:
                 # if only 2 new nodes - we will just connect them to each other
                 not_directed_edges.add((clique_namespaces_nodes[0], clique_namespaces_nodes[1]))
