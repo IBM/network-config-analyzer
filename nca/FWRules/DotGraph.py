@@ -4,12 +4,18 @@
 #
 import re
 from dataclasses import dataclass
+from enum import Enum
 
 
 class DotGraph:
     """
     represents a dot graph
     """
+    class NodeType(Enum):
+        IPBlock = 0
+        Pod = 1
+        Livesim = 2
+        Clique = 3
 
     class Subgraph:
         def __init__(self, name):
@@ -19,7 +25,7 @@ class DotGraph:
     @dataclass
     class Node:
         name: str
-        node_type: str
+        node_type: int
         label: str
 
     @dataclass
@@ -37,10 +43,11 @@ class DotGraph:
         self.labels = set()
         self.labels_dict = {}
         self.node_styles = \
-            {'ip_block': 'shape=box fontcolor=red2',
-             'pod': 'shape=box fontcolor=blue',
-             'livesim': 'shape=box fontcolor=fuchsia',
-             'clq': 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0'}
+            {self.NodeType.IPBlock: 'shape=box fontcolor=red2',
+             self.NodeType.Pod: 'shape=box fontcolor=blue',
+             self.NodeType.Livesim: 'shape=box fontcolor=fuchsia',
+             self.NodeType.Clique:
+                 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0'}
 
     def add_node(self, subgraph, name, node_type, label):
         """
@@ -56,7 +63,7 @@ class DotGraph:
         node = self.Node(name, node_type, label)
         self.subgraphs[subgraph].nodes.append(node)
         self.all_nodes[name] = node
-        if node_type == 'clq':
+        if node_type == self.NodeType.Clique:
             self.labels.add(label[0])
 
     def add_edge(self, src_name, dst_name, label, is_dir):
@@ -131,7 +138,7 @@ class DotGraph:
         creates a string for the node in a dot file format
         return str: the string
         """
-        if node.node_type != 'clq':
+        if node.node_type != self.NodeType.Clique:
             table = '<<table border="0" cellspacing="0">'
             for line in node.label:
                 if line:
@@ -147,7 +154,7 @@ class DotGraph:
         creates a string for the edge in a dot file format
         return str: the string
         """
-        is_clq_edge = 'clq' in [edge.src.node_type, edge.dst.node_type]
+        is_clq_edge = self.NodeType.Clique in [edge.src.node_type, edge.dst.node_type]
         edge_color = 'indigo' if is_clq_edge else 'darkorange4'
         src_type = 'normal' if not is_clq_edge and not edge.is_dir else 'none'
         dst_type = 'normal' if not is_clq_edge else 'none'

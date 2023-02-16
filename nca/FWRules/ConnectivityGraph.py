@@ -63,9 +63,9 @@ class ConnectivityGraph:
         """
         nc_name = peer.namespace.name if peer.namespace else ''
         if isinstance(peer, IpBlock):
-            return peer.get_ip_range_or_cidr_str(), 'ip_block', nc_name
+            return peer.get_ip_range_or_cidr_str(), DotGraph.NodeType.IPBlock, nc_name
         is_livesim = peer.full_name().endswith('-livesim')
-        peer_type = 'livesim' if is_livesim else 'pod'
+        peer_type = DotGraph.NodeType.Livesim if is_livesim else DotGraph.NodeType.Pod
         if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
             name = peer.workload_name
         else:
@@ -161,7 +161,7 @@ class ConnectivityGraph:
         for peer in self.cluster_info.all_peers:
             peer_name, node_type, nc_name = self._get_peer_details(peer)
             text = [peer_name]
-            if node_type != 'ip_block':
+            if node_type != DotGraph.NodeType.IPBlock:
                 text = [text for text in re.split('[/()]+', peer_name) if text != nc_name]
             dot_graph.add_node(nc_name, peer_name, node_type, text)
 
@@ -180,7 +180,7 @@ class ConnectivityGraph:
             directed_edges, not_directed_edges, new_peers = self._creates_cliqued_graph(directed_edges)
 
             for peer in new_peers:
-                dot_graph.add_node(subgraph=peer[1], name=peer[0], node_type='clq', label=[conn_str])
+                dot_graph.add_node(subgraph=peer[1], name=peer[0], node_type=DotGraph.NodeType.Clique, label=[conn_str])
             for edge in directed_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=True)
             for edge in not_directed_edges:
