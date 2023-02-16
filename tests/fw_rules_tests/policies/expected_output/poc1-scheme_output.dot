@@ -3,6 +3,7 @@ digraph {
 	label="Connectivity Graph of connectivity_map_dot/poc1"	labelloc = "t"
 	fontsize=30
 	fontcolor=webmaroon
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
@@ -19,12 +20,6 @@ subgraph cluster_default_namespace{
 	"default/recommendationservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>recommendationservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
 	"default/redis-cart(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>redis-cart</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
 	"default/shippingservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>shippingservice</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-}
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 }
 	"0.0.0.0/0" -> "default/frontend(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/cartservice(Deployment)" -> "default/redis-cart(Deployment)"[label="TCP 6379" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
