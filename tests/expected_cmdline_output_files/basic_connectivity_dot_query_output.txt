@@ -3,6 +3,7 @@ digraph {
 	label="Connectivity Graph of testcase8-networkpolicy1.yaml"	labelloc = "t"
 	fontsize=30
 	fontcolor=webmaroon
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 	"clique_4" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
 subgraph cluster_default_namespace{
 	label="default"
@@ -11,12 +12,6 @@ subgraph cluster_default_namespace{
 	"clique_0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
 	"default/cog-agents(DaemonSet)" [label=<<table border="0" cellspacing="0"><tr><td>cog-agents</td></tr><tr><td>DaemonSet</td></tr></table>> shape=box fontcolor=blue]
 	"default/cog-local-analyzer(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>cog-local-analyzer</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-}
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 }
 subgraph cluster_kube_system_namespace{
 	label="kube-system"
