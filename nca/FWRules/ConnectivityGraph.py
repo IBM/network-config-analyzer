@@ -176,7 +176,7 @@ class ConnectivityGraph:
 
         return directed_edges | bicliques_edges, not_directed_edges, bicliques_nodes
 
-    def _get_equals_peers(self):
+    def _get_equals_peers(self, also_connected):
         all_peers = set(self.cluster_info.all_peers)
         peers_connections = {peer: [] for peer in all_peers}
 
@@ -190,8 +190,22 @@ class ConnectivityGraph:
         equal_pairs = []
         for peer0 in all_peers:
             for peer1 in all_peers:
+                if also_connected:
+                    pc0 = set(peers_connections[peer0])
+                    pc1 = set(peers_connections[peer1])
+                    connections01 = set([con[1] for con in pc0 | pc1])
+
+                    missing0 = pc1 - pc0
+                    missing1 = pc0 - pc1
+                    should_be_missing0 = set([(peer0, con, True) for con in connections01]) | set([(peer0, con, False) for con in connections01])
+                    should_be_missing1 = set([(peer1, con, True) for con in connections01]) | set([(peer1, con, False) for con in connections01])
+                    same_connection = missing0 == should_be_missing0 and missing1 == should_be_missing1
+                    if len(self.connections_to_peers.keys()) == 4 and peer0.name == 'ibm-cloud-provider-ip-169-60-164-10-5c9dd7c9c-r66p2' and peer1.name == 'ibm-cloud-provider-ip-169-60-164-14-6d448884df-vsh47':
+                        print('got it')
+                else:
+                    same_connection = peers_connections[peer0] == peers_connections[peer1]
                 if peer0 != peer1 and\
-                        peers_connections[peer0] == peers_connections[peer1] and\
+                        same_connection and\
                         peer0.namespace == peer1.namespace and\
                         (peer1, peer0) not in equal_pairs:
                     equal_pairs.append((peer0, peer1))
@@ -216,14 +230,15 @@ class ConnectivityGraph:
         name = f'{query_title}{self.output_config.configName}{restriction_title}'
 
         group_equal_peers = True
-        group_equal_peers = False
+        #group_equal_peers = False
         find_cliques = True
-        #find_cliques = False
+        find_cliques = False
         find_bicliques = True
         find_bicliques = False
 
         if group_equal_peers:
-            multi_peers = self._get_equals_peers()
+            multi_peers = self._get_equals_peers(True)
+            #multi_peers = self._get_equals_peers(False)
         else:
             multi_peers = [[p] for p in self.cluster_info.all_peers]
 
