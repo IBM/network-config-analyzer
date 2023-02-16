@@ -4,6 +4,7 @@ digraph {
 	fontsize=30
 	fontcolor=webmaroon
 	dict_box [label="Connectivity legend\lTCP_0          TCP {'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/aaaa(/*)?'}\lTCP_1          TCP {'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/iiii(/*)?'}\lTCP_2          TCP {'dst_ports': '3200', 'hosts': 'ooo.y.z', 'paths': '/dddd(/*)?'}\lTCP_3          TCP {'dst_ports': '3456', 'hosts': 'ooo.y.z', 'paths': '/bbbb(/*)?'}\lTCP_4          TCP {'dst_ports': '3500', 'hosts': 'ooo.y.z', 'paths': '/ffff(/*)?'}\lTCP_5          TCP {'dst_ports': '4000', 'hosts': 'ooo.y.z', 'paths': '/gggg(/*)?'}\lTCP_6          TCP {'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/cccc(/*)?'}\lTCP_7          TCP {'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/jjjj(/*)?'}\l" shape=box]
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_example_namespace{
 	label="example"
 	fontsize=20
@@ -20,20 +21,14 @@ subgraph cluster_example_namespace{
 	"example/deploy-iiii(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-iiii</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-jjjj(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-jjjj</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
 }
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
-}
 subgraph cluster_ingress_controller_ns_namespace{
 	label="ingress-controller-ns"
 	fontsize=20
 	fontcolor=blue
 	"ingress-controller-ns/ingress-controller-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>ingress-controller-livesim</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=fuchsia]
 }
+	"0.0.0.0/0" -> "clique_0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"0.0.0.0/0" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"clique_0" -> "0.0.0.0/0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"clique_0" -> "example/deploy-aaaa(Deployment)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"clique_0" -> "example/deploy-bbbb(Deployment)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"clique_0" -> "example/deploy-cccc(Deployment)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]

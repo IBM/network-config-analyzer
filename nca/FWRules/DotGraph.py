@@ -5,6 +5,7 @@
 import re
 from dataclasses import dataclass
 
+
 class DotGraph:
     """
     represents a dot graph

@@ -61,7 +61,7 @@ class ConnectivityGraph:
         str: the peer type ip_block, livesim, or pod
         str: namespace name
         """
-        nc_name = peer.namespace.name if peer.namespace else 'external'
+        nc_name = peer.namespace.name if peer.namespace else ''
         if isinstance(peer, IpBlock):
             return peer.get_ip_range_or_cidr_str(), 'ip_block', nc_name
         is_livesim = peer.full_name().endswith('-livesim')
