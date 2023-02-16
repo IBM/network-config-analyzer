@@ -16,7 +16,7 @@
       - Protocol: TCP
         properties:
         - methods: GET
-          paths: /info[\--9A-Z_a-z]*
+          paths: /info*
         - methods: POST
           paths: /data
     - src_ns:

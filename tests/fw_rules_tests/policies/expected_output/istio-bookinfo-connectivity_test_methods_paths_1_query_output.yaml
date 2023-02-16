@@ -18,37 +18,38 @@
         - dst_ports:
           - 80
           methods: GET
-          paths: /good_path1, /good_path2, /some/path2
-          hosts: all but disallowed-host.com
+          hosts: allowed-host.com
+          paths: all but /bad/path1, /bad/path3
         - dst_ports:
           - 80
           methods: GET
-          paths: all but /bad/path1, /bad/path3, /good_path1, /good_path2, /some/path2
-          hosts: allowed-host.com
+          hosts: all but allowed-host.com, disallowed-host.com
+          paths: /good_path1, /good_path2, /some/path2
         - dst_ports:
           - 80
           methods: PUT
-          paths: /good_path1, /good_path2, /some/path2
           hosts: all but disallowed-host.com
+          paths: /good_path1, /good_path2, /some/path2
         - dst_ports:
           - 80
           methods: all but GET, PUT
-          paths: all but /bad/path1, /bad/path3, /some/path2
           hosts: allowed-host.com
+          paths: all but /bad/path1, /bad/path3, /some/path2
         - dst_ports:
           - 90
           methods: GET, PUT
-          paths: /good_path1, /good_path2, /some/path2
           hosts: all but disallowed-host.com
+          paths: /good_path1, /good_path2, /some/path2
         - dst_ports:
           - 100
           methods: all but PUT
-          paths: /some/path3
-        - dst_ports:
-          - 100
-          methods: all but PUT
-          paths: all but /bad/path1, /bad/path3, /some/path2, /some/path3
           hosts: allowed-host.com
+          paths: all but /bad/path1, /bad/path3, /some/path2
+        - dst_ports:
+          - 100
+          methods: all but PUT
+          hosts: all but allowed-host.com
+          paths: /some/path3
         - dst_ports:
           - 100
           methods: PUT
@@ -59,8 +60,8 @@
           - 91-99
           - 101-65535
           methods: all but PUT
-          paths: all but /bad/path1, /bad/path3, /some/path2
           hosts: allowed-host.com
+          paths: all but /bad/path1, /bad/path3, /some/path2
     - src_ns:
       - default
       src_pods:

@@ -72,7 +72,7 @@ jobs:
 
       - name: Build package
         run: |
-          pip install build
+          pip install build==0.10.0
           python -m build
 
       - name: Push version to PyPi
