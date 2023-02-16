@@ -195,7 +195,7 @@ class ConnectionSet:
             protocol_text = 'Protocol: ' + ProtocolNameResolver.get_protocol_name(protocol_num)
             properties = self.allowed_protocols[protocol_num]
             properties_text = ''
-            if not isinstance(properties, bool):
+            if not isinstance(properties, bool) and str(properties):
                 properties_text = ', ' + str(properties)
             return protocol_text + properties_text
 
