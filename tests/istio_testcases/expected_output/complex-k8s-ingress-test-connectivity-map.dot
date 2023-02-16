@@ -3,7 +3,8 @@ digraph {
 	label="Connectivity Graph of connectivity/complex-k8s-ingress-test"	labelloc = "t"
 	fontsize=30
 	fontcolor=webmaroon
-	dict_box [label="Connectivity legend\lTCP_7          TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'aaaa.y.z'}\lTCP_6          TCP {'dst_ports': '3000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'iiii.y.z'}\lTCP_5          TCP {'dst_ports': '3200', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'dddd.y.z'}\lTCP_4          TCP {'dst_ports': '3456', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'bbbb.y.z'}\lTCP_3          TCP {'dst_ports': '3500', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'ffff.y.z'}\lTCP_2          TCP {'dst_ports': '4000', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'gggg.y.z'}\lTCP_1          TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'cccc.y.z'}\lTCP_0          TCP {'dst_ports': '9950', 'paths': '/[\\--9A-Z_a-z]*', 'hosts': 'jjjj.y.z'}\l" shape=box]
+	dict_box [label="Connectivity legend\lTCP_0          TCP {'dst_ports': '3000', 'hosts': 'aaaa.y.z'}\lTCP_1          TCP {'dst_ports': '3000', 'hosts': 'iiii.y.z'}\lTCP_2          TCP {'dst_ports': '3200', 'hosts': 'dddd.y.z'}\lTCP_3          TCP {'dst_ports': '3456', 'hosts': 'bbbb.y.z'}\lTCP_4          TCP {'dst_ports': '3500', 'hosts': 'ffff.y.z'}\lTCP_5          TCP {'dst_ports': '4000', 'hosts': 'gggg.y.z'}\lTCP_6          TCP {'dst_ports': '9950', 'hosts': 'cccc.y.z'}\lTCP_7          TCP {'dst_ports': '9950', 'hosts': 'jjjj.y.z'}\l" shape=box]
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_example_namespace{
 	label="example"
 	fontsize=20
@@ -22,14 +23,8 @@ subgraph cluster_example_namespace{
 	"example/deploy-jjjj(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-jjjj</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
 	"example/istio-ingressgateway(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
 }
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
-}
+	"0.0.0.0/0" -> "clique_0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"0.0.0.0/0" -> "example/deploy-ingress-nginx(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"clique_0" -> "0.0.0.0/0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"clique_0" -> "example/deploy-aaaa(Deployment)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"clique_0" -> "example/deploy-bbbb(Deployment)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"clique_0" -> "example/deploy-cccc(Deployment)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
@@ -50,14 +45,14 @@ subgraph cluster_external_namespace{
 	"example/deploy-gggg(Deployment)" -> "example/deploy-ingress-nginx(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"example/deploy-hhhh(Deployment)" -> "example/deploy-ingress-nginx(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"example/deploy-iiii(Deployment)" -> "example/deploy-ingress-nginx(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-aaaa(Deployment)"[label="TCP_7" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-bbbb(Deployment)"[label="TCP_4" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-cccc(Deployment)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-dddd(Deployment)"[label="TCP_5" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-ffff(Deployment)"[label="TCP_3" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-gggg(Deployment)"[label="TCP_2" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-iiii(Deployment)"[label="TCP_6" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-jjjj(Deployment)"[label="TCP_0" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-aaaa(Deployment)"[label="TCP_0" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-bbbb(Deployment)"[label="TCP_3" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-cccc(Deployment)"[label="TCP_6" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-dddd(Deployment)"[label="TCP_2" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-ffff(Deployment)"[label="TCP_4" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-gggg(Deployment)"[label="TCP_5" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-iiii(Deployment)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-ingress-nginx(Deployment)" -> "example/deploy-jjjj(Deployment)"[label="TCP_7" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"example/deploy-jjjj(Deployment)" -> "example/deploy-ingress-nginx(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"example/istio-ingressgateway(Deployment)" -> "example/deploy-ingress-nginx(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 }

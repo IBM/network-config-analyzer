@@ -4,6 +4,7 @@ digraph {
 	fontsize=30
 	fontcolor=webmaroon
 	dict_box [label="Connectivity legend\lTCP            TCP {'methods': 'GET'}\l" shape=box]
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
@@ -14,12 +15,6 @@ subgraph cluster_default_namespace{
 	"default/reviews-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
 	"default/reviews-v2(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v2</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
 	"default/reviews-v3(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v3</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-}
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 }
 subgraph cluster_istio_system_namespace{
 	label="istio-system"
@@ -54,6 +49,7 @@ digraph {
 	label="Connectivity Graph of connectivity-bookinfo-demo-by-deployments/bookinfo-demo, for non-TCP connections"	labelloc = "t"
 	fontsize=30
 	fontcolor=webmaroon
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 	"clique_1" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
 subgraph cluster_default_namespace{
 	label="default"
@@ -66,12 +62,6 @@ subgraph cluster_default_namespace{
 	"default/reviews-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
 	"default/reviews-v2(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v2</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
 	"default/reviews-v3(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v3</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-}
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 }
 subgraph cluster_istio_system_namespace{
 	label="istio-system"

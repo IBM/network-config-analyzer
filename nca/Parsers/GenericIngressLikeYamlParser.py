@@ -40,8 +40,11 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         if regex_value is None:
             return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
 
+        if regex_value == '*':
+            return DimensionsManager().get_dimension_domain_by_name('hosts')
+
         allowed_chars = "[\\w]"
-        allowed_chars_with_star_regex = "[*" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        allowed_chars_with_star_regex = "[*" + MinDFA.default_dfa_alphabet_chars + "]*"
         if not re.fullmatch(allowed_chars_with_star_regex, regex_value):
             self.syntax_error(f'Illegal characters in host {regex_value}', rule)
 
@@ -148,3 +151,18 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         for peer_set, conns in peers_to_conns.items():
             res.append(IngressPolicyRule(peer_set, conns))
         return res
+
+    @staticmethod
+    def get_path_prefix_dfa(path_string):
+        """
+        Given a prefix path, get its MinDFA that accepts all relevant paths
+        :param str path_string: a path string from policy, specified as Prefix
+        :rtype MinDFA
+        """
+        if path_string == '/':
+            return DimensionsManager().get_dimension_domain_by_name('paths')
+        allowed_chars = "[" + MinDFA.default_dfa_alphabet_chars + "]"
+        if path_string.endswith('/'):
+            path_string = path_string[:-1]
+        path_regex = f'{path_string}(/{allowed_chars}*)?'
+        return MinDFA.dfa_from_regex(path_regex)

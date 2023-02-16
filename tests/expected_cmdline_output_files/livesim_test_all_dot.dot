@@ -3,7 +3,8 @@ digraph {
 	label="Connectivity Graph of **"	labelloc = "t"
 	fontsize=30
 	fontcolor=webmaroon
-	dict_box [label="Connectivity legend\lTCP_1          TCP {'dst_ports': '5678', 'paths': '/fo{2}(/[\\--9A-Z_a-z]*)?'}\lTCP_0          TCP {'dst_ports': '80', 'paths': '/(delay|status)[\\--9A-Z_a-z]*', 'hosts': 'httpbin.example.com'}\lUDP            UDP 53\l" shape=box]
+	dict_box [label="Connectivity legend\lTCP_0          TCP {'dst_ports': '5678', 'paths': '/foo(/*)?'}\lTCP_1          TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com', 'paths': '(/status(/*)?)|(/delay(/*)?)'}\lUDP            UDP 53\l" shape=box]
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
@@ -12,12 +13,6 @@ subgraph cluster_default_namespace{
 	"default/deployment-B(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-B</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
 	"default/foo-app(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>foo-app</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
 	"default/httpbin(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>httpbin</td></tr><tr><td>Deployment</td></tr></table>> shape=box fontcolor=blue]
-}
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 }
 subgraph cluster_ingress_controller_ns_namespace{
 	label="ingress-controller-ns"
@@ -46,8 +41,8 @@ subgraph cluster_kube_system_namespace{
 	"default/deployment-B(Deployment)" -> "kube-system/kube-dns-livesim(Pod)"[label="UDP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/foo-app(Pod)" -> "kube-system/kube-dns-livesim(Pod)"[label="UDP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/httpbin(Deployment)" -> "kube-system/kube-dns-livesim(Pod)"[label="UDP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ingress-controller-ns/ingress-controller-livesim(Pod)" -> "default/foo-app(Pod)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"istio-ingressgateway-ns/istio-ingressgateway-livesim(Pod)" -> "default/httpbin(Deployment)"[label="TCP_0" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ingress-controller-ns/ingress-controller-livesim(Pod)" -> "default/foo-app(Pod)"[label="TCP_0" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-ingressgateway-ns/istio-ingressgateway-livesim(Pod)" -> "default/httpbin(Deployment)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"kube-system/kube-dns-livesim(Pod)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"kube-system/kube-dns-livesim(Pod)" -> "default/foo-app(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"kube-system/kube-dns-livesim(Pod)" -> "default/httpbin(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]

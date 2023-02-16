@@ -3,18 +3,13 @@ digraph {
 	label="Connectivity Graph of connectivity_map_3/np3"	labelloc = "t"
 	fontsize=30
 	fontcolor=webmaroon
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 	"clique_1" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
 	"default/cognetive-agents(DaemonSet)" [label=<<table border="0" cellspacing="0"><tr><td>cognetive-agents</td></tr><tr><td>DaemonSet</td></tr></table>> shape=box fontcolor=blue]
-}
-subgraph cluster_external_namespace{
-	label="external"
-	fontsize=20
-	fontcolor=blue
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 }
 subgraph cluster_ibm_system_new_namespace{
 	label="ibm-system-new"
