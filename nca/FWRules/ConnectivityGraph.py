@@ -80,7 +80,6 @@ class ConnectivityGraph:
             peer_name = str(peer)
         return peer_name, peer_type, nc_name
 
-
     @staticmethod
     def _creates_cliqued_graph(directed_edges):
         """
