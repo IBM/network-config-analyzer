@@ -1,4 +1,5 @@
 For connections of type TCP, final fw rules for query: connectivity-map-of-onlineboutique, config: onlineboutique-resources:
+src_ns: [onlineboutique] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend)] dst_ns: [onlineboutique] dst_pods: [cartservice] conn: TCP {'dst_ports': '7070', 'methods': 'POST', 'paths': '/hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'}
 src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend)] dst_ns: [onlineboutique] dst_pods: [currencyservice] conn: TCP {'dst_ports': '7000', 'methods': 'POST', 'paths': '/hipstershop.CurrencyService/Convert, /hipstershop.CurrencyService/GetSupportedCurrencies'}
 src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend)] dst_ns: [onlineboutique] dst_pods: [shippingservice] conn: TCP {'dst_ports': '50051', 'methods': 'POST', 'paths': '/hipstershop.ShippingService/GetQuote, /hipstershop.ShippingService/ShipOrder'}

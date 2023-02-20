@@ -1,5 +1,6 @@
 For connections of type TCP, final fw rules for query: connectivity-map-bookinfo-multiple-sidecar-overrides, config: multiple-sidecar-overrides:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [app in (ratings,reviews)] dst_ns: [default] dst_pods: [details-v1] conn: All connections
 src_ns: [default] src_pods: [productpage-v1] dst_ns: [default] dst_pods: [ratings-v1] conn: All connections
 

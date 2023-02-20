@@ -1,4 +1,4 @@
-For connections of type TCP, final fw rules for query: connectivity-allow-any-bookinfo, config: allow-all-sidecar:
+For connections of type TCP, final fw rules for query: connectivity-allow-any, config: allow-all-sidecar:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst: *.newrelic.com conn: TCP 443
 src_ns: [default] src_pods: [*] dst: *.slack.com conn: TCP 443
@@ -15,7 +15,7 @@ src_ns: [default] src_pods: [app!=ratings] dst: api.dropboxapi.com conn: All con
 src_ns: [default] src_pods: [app!=ratings] dst: api.facebook.com conn: All connections
 src_ns: [default] src_pods: [app!=ratings] dst: www.googleapis.com conn: All connections
 
-For connections of type non-TCP, final fw rules for query: connectivity-allow-any-bookinfo, config: allow-all-sidecar:
+For connections of type non-TCP, final fw rules for query: connectivity-allow-any, config: allow-all-sidecar:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [*] conn: All connections
