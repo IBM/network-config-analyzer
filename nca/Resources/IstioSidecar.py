@@ -3,10 +3,12 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from dataclasses import dataclass
+from enum import Enum
+
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
 from .IstioTrafficResources import istio_root_namespace
-from ..CoreDS.Peer import DNSEntry
+from ..CoreDS.Peer import DNSEntry, IpBlock
 from ..CoreDS.PortSet import PortSet
 from ..CoreDS.TcpLikeProperties import TcpLikeProperties
 
@@ -38,9 +40,14 @@ class IstioSidecar(NetworkPolicy):
     This class implements istio-specific logic for Sidecar
     """
 
+    class OutboundMode(Enum):
+        ALLOW_ANY = 0
+        REGISTRY_ONLY = 1
+
     def __init__(self, name, namespace):
         super().__init__(name, namespace)
         self.default_sidecar = False  # a flag that indicates if the sidecar is selector-less (default) or not
+        self.outbound_mode = self.OutboundMode.ALLOW_ANY  # default mode is allow_any
 
     def __eq__(self, other):
         return super().__eq__(other) and self.default_sidecar == other.default_sidecar
@@ -62,6 +69,10 @@ class IstioSidecar(NetworkPolicy):
         # if not captured, or captured but the sidecar is not in from_peer top priority, don't consider connections
         if not captured or (captured and not self._is_sidecar_prior(from_peer)):
             return PolicyConnections(False)
+
+        # connections to IP-block is enabled only if the outbound mode is allow-any (disabled for registry only)
+        if isinstance(to_peer, IpBlock) and self.outbound_mode == IstioSidecar.OutboundMode.ALLOW_ANY:
+            return PolicyConnections(True, allowed_conns=ConnectionSet(True))
 
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
