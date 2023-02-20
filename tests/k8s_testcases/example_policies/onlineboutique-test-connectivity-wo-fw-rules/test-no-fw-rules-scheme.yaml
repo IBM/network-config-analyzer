@@ -1,0 +1,16 @@
+networkConfigList:
+  - name: onlineboutique-config
+    resourceList:
+    - ./ns.yaml
+    - ./kubernetes-manifests.yaml
+    - ./netpols.yaml
+    expectedWarnings: 0
+
+queries:
+  - name: onlineboutique-conn-graph-no-fw-rules
+    connectivityMap:
+      - onlineboutique-config
+    outputConfiguration:
+      outputFormat: txt_no_fw_rules
+    expectedOutput: ../../expected_output/onlineboutique-conn-graph-no-fw-rules.txt
+    expected: 0

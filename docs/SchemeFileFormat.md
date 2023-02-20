@@ -64,7 +64,7 @@ Each query object instructs the tool to run a specific check on one or more sets
 |allCaptured| Checks that all pods are captured by at least one NetworkPolicy in each existing k8s/calico/istio network layer                                                                                           |list of [config set](#configsets) names|
 |connectivityMap| Reports a summary of the allowed connections in the cluster                                                                                                                                               |list of [config set](#configsets) names| 
 |expected| The expected sum of returned results by all sub-queries in this query (a warning is issued on mismatch)                                                                                                   |integer|
-|expectedOutput| The file path of the expected output of this query (for connectivityMap or semanticDiff queries)                                                                                                          |string|
+|expectedOutput| The file path of the expected output of this query                                                                                                         |string|
 |expectedNotExecuted| The number of input configs/config pairs that the query is not expected to be run on. Reasons for not executing the configs are listed [here](CmdLineQueriesResults.md#a-query-will-not-be-executed-when) |integer|
 |outputConfiguration| A dict object with the required output configuration                                                                                                                                                      |[outputConfig](#outputconfig) object|
 
@@ -78,14 +78,14 @@ For example: `my_set/prod_ns/deny_all_policy`. If there are multiple policies na
 #### <a name="outputconfig"></a>Output Configuration object
 The supported entries in the outputConfiguration object are as follows:
 
-| Field            | Description                                                                                                     | Value                                       |
-|------------------|-----------------------------------------------------------------------------------------------------------------|---------------------------------------------|
-| outputFormat     | Output format specification.                                                                                    | string [ txt / yaml / csv / md / dot / jpg] |
-| outputPath       | A file path to redirect output into.                                                                            | string                                      |
-| outputEndpoints  | Choose endpoints type in output.                                                                                | string [ pods / deployments ]               |
-| subset           | A dict object with the defined subset elements to display in the output                                         | [subset](#subset) object                    |
-| fullExplanation  | Choose if to print all counterexamples causing the query result in the output                                   | bool                                        |
-| excludeIPv6Range | If the policies of the config do not contain any IPv6 addresses, do not include IPv6 range in the query results | bool  [default: True]                       |
+| Field            | Description                                                                                                     | Value                                                        |
+|------------------|-----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| outputFormat     | Output format specification.                                                                                    | string [ txt / yaml / csv / md / dot / jpg/ txt_no_fw_rules] |
+| outputPath       | A file path to redirect output into.                                                                            | string                                                       |
+| outputEndpoints  | Choose endpoints type in output.                                                                                | string [ pods / deployments ]                                |
+| subset           | A dict object with the defined subset elements to display in the output                                         | [subset](#subset) object                                     |
+| fullExplanation  | Choose if to print all counterexamples causing the query result in the output                                   | bool                                                         |
+| excludeIPv6Range | If the policies of the config do not contain any IPv6 addresses, do not include IPv6 range in the query results | bool  [default: True]                                        |
 
 
 #### <a name="subset"></a>Subset object

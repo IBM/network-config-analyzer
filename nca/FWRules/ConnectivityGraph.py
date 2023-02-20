@@ -52,10 +52,14 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def _get_peer_details(self, peer):
+    def _get_peer_details(self, peer, format_requirement=False):
         """
         Get the name of a peer object for connectivity graph, the type and the namespace
         :param Peer peer: the peer object
+        :param bool format_requirement: indicates if to make special changes in str result according to format requirements
+        some changes are required for txt_no_fw_rules format: - to print ip_range only for an ipblock
+        - replace () with [] for deployment workload_names
+        - if the peer has a replicaSet owner, type its full name with [ReplicaSet] regardless its suffix
         :return: tuple(str, str, str )
         str: the peer name
         str: the peer type ip_block, livesim, or pod
@@ -63,14 +67,18 @@ class ConnectivityGraph:
         """
         nc_name = peer.namespace.name if peer.namespace else ''
         if isinstance(peer, IpBlock):
-            return peer.get_ip_range_or_cidr_str(), DotGraph.NodeType.IPBlock, nc_name
+            return peer.get_ip_range_or_cidr_str(format_requirement), DotGraph.NodeType.IPBlock, nc_name
         is_livesim = peer.full_name().endswith('-livesim')
         peer_type = DotGraph.NodeType.Livesim if is_livesim else DotGraph.NodeType.Pod
         if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
-            name = peer.workload_name
+            peer_name = peer.replicaset_name if format_requirement and peer.replicaset_name else peer.workload_name
+            if format_requirement:
+                to_replace = {'(': '[', ')': ']'}
+                for ch in to_replace:
+                    peer_name = peer_name.replace(ch, to_replace[ch])
         else:
-            name = str(peer)
-        return name, peer_type, nc_name
+            peer_name = str(peer)
+        return peer_name, peer_type, nc_name
 
     @staticmethod
     def _creates_cliqued_graph(directed_edges):
@@ -145,6 +153,37 @@ class ConnectivityGraph:
             not_directed_edges = not_directed_edges - set(itertools.product(clique, clique))
 
         return directed_edges, not_directed_edges, cliques_nodes
+
+    def get_connections_without_fw_rules_txt_format(self):
+        """
+        :rtype: str
+        :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
+        """
+        lines = set()
+        workload_name_to_peers_map = {}  # a dict from workload_name to pods set, to track replicas and copies
+        for connections, peer_pairs in self.connections_to_peers.items():
+            for src_peer, dst_peer in peer_pairs:
+                src_peer_name = self._get_peer_details(src_peer, True)[0]
+                if src_peer == dst_peer:  # relevant with all connections only
+                    # add the pod to the map with its workload name
+                    if src_peer_name not in workload_name_to_peers_map:
+                        workload_name_to_peers_map[src_peer_name] = {src_peer}
+                    else:
+                        workload_name_to_peers_map[src_peer_name].add(src_peer)
+                    continue  # after having the full dict, lines from pod to itself will be added for workload names
+                    # with only one pod.
+                    # if a peer has different replicas or copies, a connection from it to itself will be added automatically
+                    # only if there are connections between the replicas too (not only from a single pod to itself)
+                dst_peer_name = self._get_peer_details(dst_peer, True)[0]
+                conn_str = connections.get_simplified_connections_representation(True)
+                conn_str = conn_str.title() if not conn_str.isupper() else conn_str
+                lines.add(f'{src_peer_name} => {dst_peer_name} : {conn_str}')
+
+        # adding conns to itself for workloads with single replica
+        for workload_name in [wl for wl in workload_name_to_peers_map if len(workload_name_to_peers_map[wl]) == 1]:
+            lines.add(f'{workload_name} => {workload_name} : All Connections')
+
+        return '\n'.join(line for line in sorted(list(lines)))
 
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
