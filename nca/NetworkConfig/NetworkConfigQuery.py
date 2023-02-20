@@ -705,7 +705,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         # if Istio is a layer in the network config - produce 2 maps, for TCP and for non-TCP
         # because Istio policies can only capture TCP connectivity
-        # if the output format is txt_no_fw_rules, results will not be split
         if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
             output_res = self.get_connectivity_output_split_by_tcp(connections, peers, peers_to_compare)
         else:
