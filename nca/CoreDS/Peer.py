@@ -20,6 +20,7 @@ class Peer:
         self.namespace = namespace
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
+        self.named_ports = {}  # A map from port name to the port number and its protocol/ to ServicePort
 
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name
@@ -51,9 +52,8 @@ class Peer:
     def is_global_peer(self):
         return False
 
-    @staticmethod
-    def get_named_ports():
-        return {}
+    def get_named_ports(self):
+        return self.named_ports
 
 
 class ClusterEP(Peer):
@@ -63,7 +63,6 @@ class ClusterEP(Peer):
 
     def __init__(self, name, namespace=None):
         super().__init__(name, namespace)
-        self.named_ports = {}  # A map from port name to the port number and its protocol
         self.profiles = []  # The set of attached profiles (Calico only)
         self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
@@ -95,9 +94,6 @@ class ClusterEP(Peer):
         if warn and name in self.named_ports:
             print('Warning: a port named', name, 'is multiply defined for pod', self.full_name(), file=stderr)
         self.named_ports[name] = (port_num, protocol)
-
-    def get_named_ports(self):
-        return self.named_ports
 
     def add_profile(self, profile_name):
         self.profiles.append(profile_name)
@@ -497,6 +493,9 @@ class DNSEntry(Peer):
         else:
             self.exported_to_all_namespaces = True
             self.namespaces.clear()
+
+    def update_named_ports(self, ports):
+        self.named_ports.update(ports.copy())
 
 
 class PeerSet(set):

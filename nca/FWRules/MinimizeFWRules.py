@@ -106,9 +106,9 @@ class MinimizeCsFwRules:
                     self.peer_pairs_without_ns_expr |= ns_product_pairs & self.peer_pairs
 
         # TODO: what about peer pairs with ip blocks from containing connections, not only peer_pairs for this connection?
-        pairs_with_elems_without_ns = set((src, dst) for (src, dst) in self.peer_pairs
-                                          if isinstance(src, (IpBlock, HostEP)) or
-                                          isinstance(dst, (IpBlock, HostEP, DNSEntry)))
+        pairs_with_elems_without_ns = \
+            set((src, dst) for (src, dst) in self.peer_pairs
+                if isinstance(src, (IpBlock, HostEP)) or isinstance(dst, (IpBlock, HostEP, DNSEntry)))
         self.peer_pairs_without_ns_expr |= pairs_with_elems_without_ns
         # compute pairs with src as pod/ip-block and dest as namespace
         self._compute_ns_pairs_with_partial_ns_expr(False)
@@ -432,7 +432,7 @@ class MinimizeCsFwRules:
                                        isinstance(elem, (PodElement, PodLabelsElement)))
         ip_block_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, IPBlockElement))
         dns_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, DNSElement))
-        ns_elems = set_for_grouping_elems - (pod_and_pod_labels_elems | ip_block_elems)
+        ns_elems = set_for_grouping_elems - (pod_and_pod_labels_elems | ip_block_elems | dns_elems)
 
         if ns_elems:
             # grouping of ns elements is straight-forward

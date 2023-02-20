@@ -3,6 +3,9 @@ kind: Sidecar
 metadata:
   name: sidecar-allows-any
 spec:
+  workloadSelector:
+    labels:
+      app: ratings
   egress:
     - hosts:
         - "*/*"

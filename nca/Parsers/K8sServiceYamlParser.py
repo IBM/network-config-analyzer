@@ -51,15 +51,9 @@ class K8sServiceYamlParser(GenericYamlParser):
 
         ports = service_spec.get('ports')
         if ports is not None:
-            for port in ports:
-                port_id = port.get('port')
-                if not port_id:
-                    continue
-                target_port = port.get('targetPort')
-                if not target_port:
-                    target_port = port_id
-                name = port.get('name', '')
-                if not service.add_port(K8sService.ServicePort(port_id, target_port,
-                                                               port.get('protocol', 'TCP'), name)):
-                    self.warning(f'The port {name} is not unique in Service {service.name}. Ignoring the port')
+            port_valid_keys = {'port': [0, int], 'name': [0, str], 'targetPort': 0, 'protocol': [0, str],
+                               'containerPort': 3, 'nodePort': 3, 'appProtocol': 3}
+            port_allowed_values = {'protocol': ['TCP', 'SCTP', 'UDP', 'HTTP', 'HTTPS', 'TLS']}
+            self._parse_and_add_service_resource_ports(ports, port_valid_keys, port_allowed_values, service)
+
         return service

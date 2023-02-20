@@ -13,6 +13,7 @@ from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.Peer import IpBlock
+from nca.Resources.ServiceResource import IstioServiceEntry, ServiceResource
 from nca.Utils.NcaLogger import NcaLogger
 from nca.FileScanners.GenericTreeScanner import ObjectWithLocation
 
@@ -281,3 +282,21 @@ class GenericYamlParser:
                 if not peer.is_ipv4_block():
                     self.has_ipv6_addresses = True
                     return  # if at least one peer is ipv6 block , this policy has_ipv6, no need to continue
+
+    def _parse_and_add_service_resource_ports(self, ports, port_valid_keys, allowed_values, service):
+        """
+        parses ports field of the given service resource (k8s-Service or istio ServiceEntry) and updates its ports accordingly
+        :param list[dict] ports: the ports field from the yaml object
+        :param dict port_valid_keys: the valid keys of a port for the relevant service object
+        :param dict allowed_values: the dict of allowed values of dields of port for the relevant service object
+        :param ServiceResource service: the service which is parsed
+        """
+        for port in ports:
+            self.check_fields_validity(port, 'port', port_valid_keys, allowed_values)
+            port_num_key = 'number' if isinstance(service, IstioServiceEntry) else 'port'
+            port_num = port.get(port_num_key, 0)
+            port_name = port.get('name', '')
+            if not service.add_port(ServiceResource.ServicePort(port_num=port_num, name=port_name,
+                                                                protocol=port.get('protocol', 'TCP'),
+                                                                target_port=port.get('targetPort', port_num))):
+                self.warning(f'The port {port_name} is not unique in Service {service.name}. Ignoring the port')

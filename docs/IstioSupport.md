@@ -45,6 +45,7 @@ In the ServiceEntry, the following is suported:
 | Field      | Supported (Sub)-Fields | 
 |------------|------------------------|
 | hosts      |                        |
+| ports      |                        |
 | location   |                        |
 | resolution |                        |
 | exportTo   |                        | 

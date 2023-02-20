@@ -362,8 +362,8 @@ class ServicesFinder:
         service = parser.parse_service(srv_object, self.pods_finder.peer_set)
         if service:
             service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
-            if service.target_pods:  # in case of serviceEntry
-                self.pods_finder.peer_set.update(service.target_pods)
+            if service.target_peers:  # in case of serviceEntry
+                self.pods_finder.peer_set.update(service.target_peers)
             self.services_list.append(service)
 
     @staticmethod

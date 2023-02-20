@@ -7,6 +7,8 @@ from nca.CoreDS.ConnectionSet import ConnectionSet
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
 from .IstioTrafficResources import istio_root_namespace
 from ..CoreDS.Peer import DNSEntry
+from ..CoreDS.PortSet import PortSet
+from ..CoreDS.TcpLikeProperties import TcpLikeProperties
 
 
 @dataclass
@@ -61,12 +63,14 @@ class IstioSidecar(NetworkPolicy):
         if not captured or (captured and not self._is_sidecar_prior(from_peer)):
             return PolicyConnections(False)
 
-        conns = ConnectionSet(True)
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
             if rule.allow_all or to_peer in rule.egress_peer_set or \
                     (to_peer in rule.special_egress_peer_set and self.check_peers_in_same_namespace(from_peer, to_peer)):
-                return PolicyConnections(True, allowed_conns=conns)
+                if isinstance(to_peer, DNSEntry):
+                    return PolicyConnections(True, allowed_conns=self._add_dst_peer_allowed_port_conns(to_peer.named_ports))
+                else:
+                    return PolicyConnections(True, allowed_conns=ConnectionSet(True))
 
         # egress from from_peer to to_peer is not allowed : if to_peer not been captured in the rules' egress_peer_set,
         # or if the sidecar is global and to_peer is not in same namespace of from_peer while rule host's ns is '.'
@@ -156,3 +160,17 @@ class IstioSidecar(NetworkPolicy):
         # else to_peer is a DNSEntry: it is exported to from_peer if it is exported to its namespace or to all namespaces
         assert isinstance(to_peer, DNSEntry)
         return to_peer.exported_to_all_namespaces or from_ns in to_peer.namespaces
+
+    @staticmethod
+    def _add_dst_peer_allowed_port_conns(named_ports):
+        """
+        computes the connections from a given named ports dict
+        :param dict named_ports: A map from port name to ServicePort
+        :rtype: ConnectionSet
+        """
+        dst_ports = PortSet()
+        res = ConnectionSet()
+        for srv_port in named_ports.values():
+            dst_ports.add_port(srv_port.port_num)
+            res.add_connections(protocol=srv_port.protocol, properties=TcpLikeProperties(PortSet(True), dst_ports))
+        return res

@@ -201,7 +201,7 @@ class PeerContainer:
         res = PeerSet()
         for service in self.services.values():
             if service.name == service_name:
-                res |= service.target_pods
+                res |= service.target_peers
         return res
 
     def get_dns_entry_pods_matching_host_dfa(self, host_dns):
@@ -225,29 +225,29 @@ class PeerContainer:
         res = PeerSet()
         for key, val in self.services.items():
             if name_substring in key:
-                res |= val.target_pods
+                res |= val.target_peers
         return res
 
-    def get_all_services_target_pods(self):
+    def get_all_services_target_peers(self):
         """
-        Returns all pods that belong to services
+        Returns all peers that belong to services
         :rtype: PeerSet
         """
         res = PeerSet()
         for service in self.services.values():
-            res |= service.target_pods
+            res |= service.target_peers
         return res
 
-    def get_services_target_pods_in_namespace(self, namespace):
+    def get_services_target_peers_in_namespace(self, namespace):
         """
-        Returns all pods that belong to services in/ exported to the given namespace
+        Returns all peers that belong to services in/ exported to the given namespace
         :param K8sNamespace namespace:   namespace object
         :rtype: PeerSet
         """
         res = PeerSet()
         for service in self.services.values():
             if service.is_service_exported_to_namespace(namespace):
-                res |= service.target_pods
+                res |= service.target_peers
         return res
 
     def get_pods_with_service_account_name(self, sa_name, namespace_str):
@@ -337,17 +337,17 @@ class PeerContainer:
                 continue
             #  for k8s services only, populate target ports
             if srv.selector:
-                srv.target_pods = self.peer_set
+                srv.target_peers = self.peer_set
             for key, val in srv.selector.items():
-                srv.target_pods &= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
-                                                             srv.namespace)
-            # remove target_pods that don't contain named ports referenced by target_ports
+                srv.target_peers &= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
+                                                              srv.namespace)
+            # remove target_peers that don't contain named ports referenced by target_ports
             for port in srv.ports.values():
                 if not isinstance(port.target_port, str):
                     continue
                 # check if all pods include this named port, and remove those that don't
                 pods_to_remove = PeerSet()
-                for pod in srv.target_pods:
+                for pod in srv.target_peers:
                     pod_named_port = pod.named_ports.get(port.target_port)
                     if not pod_named_port:
                         print(f'Warning: The named port {port.target_port} referenced in Service {srv.name}'
@@ -358,7 +358,7 @@ class PeerContainer:
                               f'referenced in Service {srv.name} does not match the protocol {pod_named_port[1]} '
                               f'defined in the pod {pod}. Ignoring the pod')
                         pods_to_remove.add(pod)
-                srv.target_pods -= pods_to_remove
-            if not srv.target_pods:
+                srv.target_peers -= pods_to_remove
+            if not srv.target_peers:
                 print(f'Warning: The service {srv.name} does not reference any pod')
             self.services[srv.full_name()] = srv  # applied to all services in the service_list

@@ -691,7 +691,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 elif not self.is_in_subset(peer2):
                     continue  # skipping pairs if none of them are in the given subset
                 if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
-                    continue  # skipping pairs with ip-blocks for both src and dst
+                    continue  # skipping pairs with ip-blocks for src and external dst
                 if isinstance(peer1, DNSEntry):
                     continue  # currently connections from external DNS to internal peers (or any dst) not supported
                 if peer1 == peer2:
@@ -832,7 +832,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         for conn, peers_list in connections.items():
             tcp_conns, non_tcp_conns = self.split_to_tcp_and_non_tcp_conns(conn)
             connections_tcp[tcp_conns] += peers_list
-            connections_non_tcp[non_tcp_conns] += peers_list
+            non_tcp_peer_list = self._exclude_dns_entries_from_peer_list(peers_list)  # dns entries may connect only with TCP
+            connections_non_tcp[non_tcp_conns] += non_tcp_peer_list
 
         return connections_tcp, connections_non_tcp
 
@@ -852,6 +853,20 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             tcp_conns = ConnectionSet(True)  # all connections in terms of TCP
 
         return tcp_conns, non_tcp_conns
+
+    @staticmethod
+    def _exclude_dns_entries_from_peer_list(peers_list):
+        """
+        Return a peer list with no DNSEntry peers
+        :param list peers_list: list of peers pairs
+        :rtype: list
+        """
+        peers_list_wo_dns = []
+        for peers_pair in peers_list:
+            # a DNSEnty peer may only be in the dest (peers_pair[1])
+            if not isinstance(peers_pair[1], DNSEntry):
+                peers_list_wo_dns.append(peers_pair)
+        return peers_list_wo_dns
 
 
 class TwoNetworkConfigsQuery(BaseNetworkQuery):

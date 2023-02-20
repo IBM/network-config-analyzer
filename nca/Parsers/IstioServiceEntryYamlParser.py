@@ -56,7 +56,7 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         :param str host : the host name/ url
         :param dict rule_dict: the spec dict that includes the host
         :param PeerSet peer_set: set of peers
-        :return a DNSEntry peer to add to the ServiceEntry's target_pods if the host is legal
+        :return a DNSEntry peer to add to the ServiceEntry's target_peers if the host is legal
         :rtype Union[DNSEntry, None]
         """
         if host == '*':
@@ -83,7 +83,7 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         service_entry = IstioServiceEntry(se_name, se_ns)
         se_spec = service_entry_obj['spec']
 
-        allowed_keys = {'hosts': [1, list], 'addresses': [3, list], 'ports': [3, list], 'location': [0, str],
+        allowed_keys = {'hosts': [1, list], 'addresses': [3, list], 'ports': [1, list], 'location': [0, str],
                         'resolution': [0, str], 'endpoints': [2, list], 'workloadSelector': [2, dict],
                         'exportTo': [0, list], 'subjectAltNames': [3, list]}
         # Note: even though the resolution field appears as required in Istio ServiceEntry reference,
@@ -109,7 +109,14 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         for host in hosts:
             service_entry.add_host(self._parse_host_and_get_dns_entry(host, se_spec, peer_set))
 
+        ports = se_spec.get('ports')
+        if not ports:
+            self.syntax_error('ServiceEntry spec must have at least one port', se_spec)
+        port_valid_keys = {'number': [1, int], 'protocol': [1, str], 'name': [1, str], 'targetPort': [0, int]}
+        port_allowed_values = {'protocol': ['HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS']}
+        self._parse_and_add_service_resource_ports(ports, port_valid_keys, port_allowed_values, service_entry)
+
         service_entry.exported_to_namespaces = self._parse_export_to(se_spec.get('exportTo', []), se_ns)
-        service_entry.update_hosts_namespaces()
+        service_entry.update_hosts_namespaces_and_ports()
 
         return service_entry

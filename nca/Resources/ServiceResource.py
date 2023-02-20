@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: Apache2.0
 #
 from abc import abstractmethod
+from dataclasses import dataclass
 from enum import Enum
+from typing import Union
+
 from nca.CoreDS.Peer import PeerSet
 
 
@@ -11,12 +14,23 @@ class ServiceResource:
     """
     A class that represents service resources
     """
+    @dataclass
+    class ServicePort:
+        """
+        Represents a K8s Service port
+        """
+        port_num: int
+        name: str
+        protocol: str
+        target_port: Union[str, int]
+
     def __init__(self, name, namespace_name):
         self.name = name
         self.namespace_name = namespace_name
         # The following self.namespace is a K8sNamespace (to be retrieved from namespace_name by the ServicesFinder)
         self.namespace = None
-        self.target_pods = PeerSet()
+        self.target_peers = PeerSet()
+        self.ports = {}  # a map from service port name to ServicePort object
 
     def __hash__(self):
         return hash(self.name)
@@ -40,6 +54,17 @@ class ServiceResource:
         """
         raise NotImplementedError
 
+    def add_port(self, service_port):
+        """
+        Add a service port
+        :param ServicePort service_port: The port to add by the key servicePort.port
+        :return: True iff successfully added the port, i.e. the port with this name did not exist
+        """
+        if self.ports.get(service_port.name):
+            return False
+        self.ports[service_port.name] = service_port
+        return True
+
 
 class K8sService(ServiceResource):
     """
@@ -52,16 +77,6 @@ class K8sService(ServiceResource):
         LoadBalancer = 2
         ExternalName = 3
 
-    class ServicePort:
-        """
-        Represents a K8s Service port
-        """
-        def __init__(self, port, target_port, protocol, name=''):
-            self.port = port
-            self.target_port = target_port  # a target port may be a number or a string (named port)
-            self.protocol = protocol
-            self.name = name
-
     def __init__(self, name, namespace_name):
         """
         :param str name: a service name
@@ -70,7 +85,6 @@ class K8sService(ServiceResource):
         super().__init__(name, namespace_name)
         self.type = self.ServiceType.ClusterIP
         self.selector = {}
-        self.ports = {}  # a map from service port name to ServicePort object
 
     def __eq__(self, other):
         if isinstance(other, K8sService):
@@ -102,20 +116,9 @@ class K8sService(ServiceResource):
 
     def get_port_by_number(self, number):
         for port in self.ports.values():
-            if port.port == number:
+            if port.port_num == number:
                 return port
         return None
-
-    def add_port(self, service_port):
-        """
-        Add a service port
-        :param ServicePort service_port: The port to add by the key servicePort.port
-        :return: True iff successfully added the port, i.e. the port with this name did not exist
-        """
-        if self.ports.get(service_port.name):
-            return False
-        self.ports[service_port.name] = service_port
-        return True
 
     def is_service_exported_to_namespace(self, namespace):
         return self.namespace == namespace
@@ -132,17 +135,19 @@ class IstioServiceEntry(ServiceResource):
 
     def add_host(self, dns_entry):
         """
-        :param Peer.DNSEntry dns_entry: a dns entry peer (host) to be added to self's target pods
+        :param Peer.DNSEntry dns_entry: a dns entry peer (host) to be added to self's target peers
         """
         if dns_entry:
-            self.target_pods.add(dns_entry)
+            self.target_peers.add(dns_entry)
 
     def is_service_exported_to_namespace(self, namespace):
         return self.exported_to_namespaces == ['*'] or namespace in self.exported_to_namespaces
 
-    def update_hosts_namespaces(self):
+    def update_hosts_namespaces_and_ports(self):
         """
-        updates the namespaces of the target pods of self
+        updates the namespaces and ports of the target peers of self
         """
-        for host in self.target_pods:
+        for host in self.target_peers:
             host.update_namespaces(self.exported_to_namespaces)
+            host.update_named_ports(self.ports)
+        self.ports.clear()  # after updating the peers ports we don't need self.ports anymore
