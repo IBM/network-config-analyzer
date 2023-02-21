@@ -94,7 +94,7 @@ class VirtualService:
         def __init__(self):
             self.uri_dfa = None
 #            self.scheme_dfa = None  # not supported yet
-            self.methods = MethodSet()
+            self.methods = None
 #            self.authority_dfa = None  # not supported yet
             self.destinations = []
 
