@@ -3,11 +3,15 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import itertools
+import re
 from collections import defaultdict
+import networkx
 from nca.CoreDS.Peer import Peer, IpBlock, PeerSet, ClusterEP, Pod
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from .DotGraph import DotGraph
 from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
 
@@ -116,34 +120,138 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
             for dst_peer in dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))
 
-    @staticmethod
-    def _is_peer_livesim(peer):
+    def _get_peer_details(self, peer, format_requirement=False):
         """
-        check if peer name indicates that this is a peer related to "livesim": resources added
-        during parsing, since they are required for the analysis but were missing from the input config
-
-        current convention is that such peers suffix is "-livesim"
-
+        Get the name of a peer object for connectivity graph, the type and the namespace
         :param Peer peer: the peer object
-        :rtype bool
+        :param bool format_requirement: indicates if to make special changes in str result according to format requirements
+        some changes are required for txt_no_fw_rules format: - to print ip_range only for an ipblock
+        - replace () with [] for deployment workload_names
+        - if the peer has a replicaSet owner, type its full name with [ReplicaSet] regardless its suffix
+        :return: tuple(str, str, str )
+        str: the peer name
+        str: the peer type ip_block, livesim, or pod
+        str: namespace name
         """
-        livesim_peer_name_suffix = "-livesim"
-        return peer.full_name().endswith(livesim_peer_name_suffix)
+        nc_name = peer.namespace.name if peer.namespace else ''
+        if isinstance(peer, IpBlock):
+            return peer.get_ip_range_or_cidr_str(format_requirement), DotGraph.NodeType.IPBlock, nc_name
+        is_livesim = peer.full_name().endswith('-livesim')
+        peer_type = DotGraph.NodeType.Livesim if is_livesim else DotGraph.NodeType.Pod
+        if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
+            peer_name = peer.replicaset_name if format_requirement and peer.replicaset_name else peer.workload_name
+            if format_requirement:
+                to_replace = {'(': '[', ')': ']'}
+                for ch in to_replace:
+                    peer_name = peer_name.replace(ch, to_replace[ch])
+        else:
+            peer_name = str(peer)
+        return peer_name, peer_type, nc_name
 
     @staticmethod
-    def _get_peer_color(is_livesim, is_ip_block):
+    def _creates_cliqued_graph(directed_edges):
         """
-        determine peer color for connectivity graph
-        :param is_livesim: is peer added from "livesim" (missing resource at input config)
-        :param is_ip_block:  is peer of type ip-block
-        :return: str of the peer color in the dot format
-        :rtype str
+        A clique is a subset of nodes, where every pair of nodes in the subset has an edge
+        This method creates a new graph with cliques. of each clique in the graph:
+            1. The original edges of the clique are removed
+            2. A clique is represented as one or more new nodes (see comment below*)
+            3. All new nodes representing one clique are connected to each other
+            4. The original nodes of the clique are connected to one of the clique nodes
+
+        comment: In most cases, when a clique has nodes from different namespaces,
+                 the clique will be represent by more than one node.
+                 a new node will be created for every namespace
+
+
+        :param: directed_edges: list of pairs representing the original graph
+        return: truple( list, list, list)
+        list: list of the directed edges
+        list: list of the not directed edges
+        list: list of the new nodes that was created to represent the cliques
+
         """
-        if is_livesim:
-            return "coral4"
-        elif is_ip_block:
-            return "red2"
-        return "blue"
+
+        min_qlicue_size = 4
+
+        # replacing directed edges with not directed edges:
+        not_directed_edges = set(edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges)
+        directed_edges = directed_edges - not_directed_edges
+        not_directed_edges = set(edge for edge in not_directed_edges if edge[1] < edge[0])
+
+        # find cliques in the graph:
+        graph = networkx.Graph()
+        graph.add_edges_from(not_directed_edges)
+        cliques = networkx.clique.find_cliques(graph)
+
+        cliques_nodes = []
+        cliques = sorted([sorted(clique) for clique in cliques])
+        for clique in cliques:
+            if len(clique) < min_qlicue_size:
+                continue
+            clq_namespaces = sorted(set(peer[1] for peer in clique))
+            # the list of new nodes of the clique:
+            clique_namespaces_nodes = []
+            for namespace_name in clq_namespaces:
+                clq_namespace_peers = [peer for peer in clique if peer[1] == namespace_name]
+                if len(clq_namespace_peers) > 1:
+                    # creates a new clique node for the namespace
+                    namespace_clique_name = f'clique_{len(cliques_nodes)}'
+                    namespace_clique_node = (namespace_clique_name, namespace_name)
+                    cliques_nodes.append(namespace_clique_node)
+                    clique_namespaces_nodes.append(namespace_clique_node)
+
+                    # adds edges from the new node to the original clique nodes in the namespace
+                    not_directed_edges |= set((namespace_clique_node, node) for node in clq_namespace_peers)
+                else:
+                    # if the namespace has only one node, we will not add a new clique node
+                    # instead we will add it to the clique new nodes:
+                    clique_namespaces_nodes.append(clq_namespace_peers[0])
+
+            if len(clique_namespaces_nodes) > 2:
+                # creating one more new node,  out of any namespace, and connect it to all other clique new nodes:
+                clique_node_name = f'clique_{len(cliques_nodes)}'
+                clique_node = (clique_node_name, '')
+                cliques_nodes.append(clique_node)
+                not_directed_edges |= set((clq_con, clique_node) for clq_con in clique_namespaces_nodes)
+            elif len(clique_namespaces_nodes) == 2:
+                # if only 2 new nodes - we will just connect them to each other
+                not_directed_edges.add((clique_namespaces_nodes[0], clique_namespaces_nodes[1]))
+
+            # removing the original edges of the clique:
+            not_directed_edges = not_directed_edges - set(itertools.product(clique, clique))
+
+        return directed_edges, not_directed_edges, cliques_nodes
+
+    def get_connections_without_fw_rules_txt_format(self):
+        """
+        :rtype: str
+        :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
+        """
+        lines = set()
+        workload_name_to_peers_map = {}  # a dict from workload_name to pods set, to track replicas and copies
+        for connections, peer_pairs in self.connections_to_peers.items():
+            for src_peer, dst_peer in peer_pairs:
+                src_peer_name = self._get_peer_details(src_peer, True)[0]
+                if src_peer == dst_peer:  # relevant with all connections only
+                    # add the pod to the map with its workload name
+                    if src_peer_name not in workload_name_to_peers_map:
+                        workload_name_to_peers_map[src_peer_name] = {src_peer}
+                    else:
+                        workload_name_to_peers_map[src_peer_name].add(src_peer)
+                    continue  # after having the full dict, lines from pod to itself will be added for workload names
+                    # with only one pod.
+                    # if a peer has different replicas or copies, a connection from it to itself will be added automatically
+                    # only if there are connections between the replicas too (not only from a single pod to itself)
+                dst_peer_name = self._get_peer_details(dst_peer, True)[0]
+                conn_str = connections.get_simplified_connections_representation(True)
+                conn_str = conn_str.title() if not conn_str.isupper() else conn_str
+                lines.add(f'{src_peer_name} => {dst_peer_name} : {conn_str}')
+
+        # adding conns to itself for workloads with single replica
+        for workload_name in [wl for wl in workload_name_to_peers_map if len(workload_name_to_peers_map[wl]) == 1]:
+            lines.add(f'{workload_name} => {workload_name} : All Connections')
+
+        return '\n'.join(line for line in sorted(list(lines)))
 
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
@@ -152,35 +260,39 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
         :rtype str
         :return: a string with content of dot format for connectivity graph
         """
-        header_suffix = '' if connectivity_restriction is None else f', for {connectivity_restriction} connections'
-        output_result = f'// The Connectivity Graph of {self.output_config.configName}{header_suffix}\n'
-        output_result += 'digraph ' + '{\n'
-        if self.output_config.queryName and self.output_config.configName:
-            header_label_str = f'{self.output_config.queryName}/{self.output_config.configName}{header_suffix}'
-            output_result += f'\tHEADER [shape="box" label=< <B>{header_label_str}' \
-                             f'</B> > fontsize=30 color=webmaroon fontcolor=webmaroon];\n'
-        peer_lines = set()
-        for peer in self.cluster_info.all_peers:
-            peer_name, is_ip_block = self._get_peer_name(peer)
-            peer_color = self._get_peer_color(self._is_peer_livesim(peer), is_ip_block)
-            peer_lines.add(f'\t\"{peer_name}\" [label=\"{peer_name}\" color=\"{peer_color}\" fontcolor=\"{peer_color}\"]\n')
+        restriction_title = f', for {connectivity_restriction} connections' if connectivity_restriction else ''
+        query_title = f'{self.output_config.queryName}/' if self.output_config.queryName else ''
+        name = f'{query_title}{self.output_config.configName}{restriction_title}'
 
-        edge_lines = set()
+        dot_graph = DotGraph(name)
+        for peer in self.cluster_info.all_peers:
+            peer_name, node_type, nc_name = self._get_peer_details(peer)
+            text = [peer_name]
+            if node_type != DotGraph.NodeType.IPBlock:
+                text = [text for text in re.split('[/()]+', peer_name) if text != nc_name]
+            dot_graph.add_node(nc_name, peer_name, node_type, text)
+
         for connections, peer_pairs in self.connections_to_peers.items():
+            directed_edges = set()
+            # todo - is there a better way to get edge details?
+            # we should revisit this code after reformatting connections labels
+            conn_str = connections.get_simplified_connections_representation(True)
+            conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer and connections:
-                    src_peer_name, _ = self._get_peer_name(src_peer)
-                    dst_peer_name, _ = self._get_peer_name(dst_peer)
-                    line = '\t'
-                    line += f'\"{src_peer_name}\"'
-                    line += ' -> '
-                    line += f'\"{dst_peer_name}\"'
-                    conn_str = connections.get_simplified_connections_representation(True).replace("Protocol:", "")
-                    line += f' [label=\"{conn_str}\" color=\"gold2\" fontcolor=\"darkgreen\"]\n'
-                    edge_lines.add(line)
-        output_result += ''.join(line for line in sorted(list(peer_lines))) + \
-                         ''.join(line for line in sorted(list(edge_lines))) + '}\n\n'
-        return output_result
+                    src_peer_name, _, src_nc = self._get_peer_details(src_peer)
+                    dst_peer_name, _, dst_nc = self._get_peer_details(dst_peer)
+                    directed_edges.add(((src_peer_name, src_nc), (dst_peer_name, dst_nc)))
+
+            directed_edges, not_directed_edges, new_peers = self._creates_cliqued_graph(directed_edges)
+
+            for peer in new_peers:
+                dot_graph.add_node(subgraph=peer[1], name=peer[0], node_type=DotGraph.NodeType.Clique, label=[conn_str])
+            for edge in directed_edges:
+                dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=True)
+            for edge in not_directed_edges:
+                dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=False)
+        return dot_graph.to_str()
 
     def convert_to_tcp_like_properties(self, peer_container):
         """
@@ -231,8 +343,8 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
             lines = set()
             for connections, peer_pairs in connections_sorted_by_size:
                 for src_peer, dst_peer in peer_pairs:
-                    src_peer_name, _ = self._get_peer_name(src_peer)
-                    dst_peer_name, _ = self._get_peer_name(dst_peer)
+                    src_peer_name = self._get_peer_details(src_peer)[0]
+                    dst_peer_name = self._get_peer_details(dst_peer)[0]
                     # on level of deployments, omit the 'all connections' between a pod to itself
                     # a connection between deployment to itself is derived from connection between 2 different pods of
                     # the same deployment

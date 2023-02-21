@@ -270,8 +270,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         :param dict operation: the operation object being parsed
         :return: str: the result regex/str after conversion
         """
-        allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
-        allowed_chars_with_star_regex = "[*" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        allowed_chars = "[" + MinDFA.default_dfa_alphabet_chars + "]"
+        allowed_chars_with_star_regex = "[*" + MinDFA.default_dfa_alphabet_chars + "]*"
         if not re.fullmatch(allowed_chars_with_star_regex, str_val_input):
             self.syntax_error(f'Illegal characters in {dim_name} {str_val_input} in {operation}')
 
@@ -543,7 +543,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         :rtype: IstioNetworkPolicy
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['AuthorizationPolicy'],
-                                                                        ['security.istio.io/v1beta1'], 'istio')
+                                                                        ['security.istio.io/v1beta1', 'security.istio.io/v1'],
+                                                                        'istio')
         if policy_name is None:
             return None  # not an Istio AuthorizationPolicy
         warn_if_missing = policy_ns != istio_root_namespace

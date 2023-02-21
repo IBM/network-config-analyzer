@@ -37,7 +37,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
     def validate_path_value(self, path_value, path):
         if path_value[0] != '/':
             self.syntax_error(f'Illegal path {path_value} in the rule path', path)
-        pattern = "[" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        pattern = "[" + MinDFA.default_dfa_alphabet_chars + "]*"
         if not re.fullmatch(pattern, path_value):
             self.syntax_error(f'Illegal characters in path {path_value} in {path}')
 
@@ -151,16 +151,13 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         """
         # first, convert path strings to dfas
         parsed_paths_with_dfa = []
-        allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
         for path_string, path_type, peers, ports in parsed_paths:
             if path_type == 'Exact':
-                path_regex = path_string
-            else:
-                if path_string:
-                    path_regex = path_string + '|' + path_string + '/' + allowed_chars + '*'
-                else:
-                    path_regex = '/' + allowed_chars + '*'
-            parsed_paths_with_dfa.append((path_string, MinDFA.dfa_from_regex(path_regex), path_type, peers, ports))
+                path_dfa = MinDFA.dfa_from_regex(path_string)
+            else:  # Prefix type
+                path_string = '/' if not path_string else path_string
+                path_dfa = GenericIngressLikeYamlParser.get_path_prefix_dfa(path_string)
+            parsed_paths_with_dfa.append((path_string, path_dfa, path_type, peers, ports))
 
         # next, avoid shorter sub-paths to extend to longer ones, using dfa operations
         res = []
