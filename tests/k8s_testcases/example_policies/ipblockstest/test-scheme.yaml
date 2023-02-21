@@ -1,0 +1,16 @@
+networkConfigList:
+  - name: ipblockstest-config
+    resourceList:
+    - ./ns.yaml
+    - ./pods.yaml
+    - ./netpols.yaml
+    expectedWarnings: 0
+
+queries:
+  - name: ipblocktest-conn-graph-no-fw-rules
+    connectivityMap:
+      - ipblockstest-config
+    outputConfiguration:
+      outputFormat: txt_no_fw_rules
+    expectedOutput: ../../expected_output/ipblocktest-conn-graph-no-fw-rules.txt
+    expected: 0

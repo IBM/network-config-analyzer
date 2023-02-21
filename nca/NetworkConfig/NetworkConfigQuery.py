@@ -621,7 +621,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json', 'jpg'}
+        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json', 'jpg', 'txt_no_fw_rules'}
 
     def is_in_subset(self, peer):
         """
@@ -721,14 +721,17 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         get the connectivity map output considering all connections in the output
         :param dict connections: the connections' dict (map from connection-set to peer pairs)
-        :param PeerSet peers: the peers to consider for dot output
+        :param PeerSet peers: the peers to consider for dot and txt_no_fw_rules output
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
         :rtype Union[str,dict]
         """
         if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_full = self.dot_format_from_connections_dict(connections, peers)
             return dot_full
-        # handle formats other than dot
+        if self.output_config.outputFormat == 'txt_no_fw_rules':
+            conns_wo_fw_rules = self._txt_no_fw_rules_format_from_connections_dict(connections, peers)
+            return conns_wo_fw_rules
+        # handle other formats
         formatted_rules = self.fw_rules_from_connections_dict(connections, peers_to_compare)
         return formatted_rules
 
@@ -766,6 +769,28 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_str = formatted_rules_tcp + formatted_rules_non_tcp
         return res_str
 
+    def _get_conn_graph(self, connections, peers):
+        """
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers: the peers to consider for building connectivity graph
+        :rtype:  ConnectivityGraph
+        :return the connectivity graph of the given connections and peers
+        """
+        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
+        conn_graph.add_edges(connections)
+        return conn_graph
+
+    def _txt_no_fw_rules_format_from_connections_dict(self, connections, peers):
+        """
+        :param dict connections: the connections' dict (map from connection-set to peer pairs)
+        :param PeerSet peers: the peers to consider for dot output
+        :rtype:  str
+        :return the connectivity map in txt_no_fw_rules format, the connections between peers, excluding fw-rules
+        and connections involving livesim peers
+        """
+        conn_graph = self._get_conn_graph(connections, peers)
+        return conn_graph.get_connections_without_fw_rules_txt_format()
+
     def dot_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
         """
         :param dict connections: the connections' dict (map from connection-set to peer pairs)
@@ -775,8 +800,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :rtype str
         :return the connectivity map in dot-format, considering connectivity_restriction if required
         """
-        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-        conn_graph.add_edges(connections)
+        conn_graph = self._get_conn_graph(connections, peers)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
@@ -788,8 +812,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return the connectivity map in fw-rules, considering connectivity_restriction if required
         :rtype: Union[str, dict]
         """
-        conn_graph = ConnectivityGraph(peers_to_compare, self.config.get_allowed_labels(), self.output_config)
-        conn_graph.add_edges(connections)
+        conn_graph = self._get_conn_graph(connections, peers_to_compare)
         fw_rules = conn_graph.get_minimized_firewall_rules()
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules
