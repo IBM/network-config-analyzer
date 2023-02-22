@@ -178,46 +178,46 @@ class ConnectivityGraph:
 
 ###########################################################################################################
 
-
-
-    def _get_equals_peers(self, also_connected):
-        all_peers = set(self.cluster_info.all_peers)
-        peers_connections = {peer: [] for peer in all_peers}
-
-        for connections, peer_pairs in self.connections_to_peers.items():
-            for src_peer, dst_peer in peer_pairs:
-                if src_peer != dst_peer and connections:
-                    peers_connections[src_peer].append((dst_peer, connections, False))
-                    peers_connections[dst_peer].append((src_peer, connections, True))
-
-        peers_connections = {peer: frozenset(connections) for peer, connections in peers_connections.items()}
+    def _find_peer_groups(self, peers_connections):
+        all_peers = peers_connections.keys()
         equal_pairs = []
-        for peer0 in all_peers:
-            for peer1 in all_peers:
-                if also_connected:
-                    pc0 = set(peers_connections[peer0])
-                    pc1 = set(peers_connections[peer1])
-                    connections01 = set([con[1] for con in pc0 | pc1])
-
-                    missing0 = pc1 - pc0
-                    missing1 = pc0 - pc1
-                    should_be_missing0 = set([(peer0, con, True) for con in connections01]) | set([(peer0, con, False) for con in connections01])
-                    should_be_missing1 = set([(peer1, con, True) for con in connections01]) | set([(peer1, con, False) for con in connections01])
-                    same_connection = missing0 == should_be_missing0 and missing1 == should_be_missing1
-                else:
-                    same_connection = peers_connections[peer0] == peers_connections[peer1]
-                if peer0 != peer1 and\
-                        same_connection and\
-                        peer0.namespace == peer1.namespace and\
-                        (peer1, peer0) not in equal_pairs:
-                    equal_pairs.append((peer0, peer1))
+        for peer0, peer1 in itertools.product(all_peers, all_peers):
+            if peer0 != peer1 and\
+                peer0.namespace == peer1.namespace and\
+                peers_connections[peer0] == peers_connections[peer1] and\
+                (peer1, peer0) not in equal_pairs:
+                equal_pairs.append((peer0, peer1))
 
         graph = networkx.Graph()
         graph.add_edges_from(equal_pairs)
         equal_sets = list(networkx.clique.find_cliques(graph))
         left_out = all_peers - set(graph.nodes)
+        return equal_sets, left_out
 
-        return equal_sets + [[p] for p in left_out]
+    def _get_equals_peers(self):
+        all_peers = set(self.cluster_info.all_peers)
+        peers_connections = {peer: [] for peer in all_peers}
+
+        for connections, peer_pairs in self.connections_to_peers.items():
+            for src_peer, dst_peer in peer_pairs:
+                peers_connections[src_peer].append((dst_peer, connections, False))
+                peers_connections[dst_peer].append((src_peer, connections, True))
+                peers_connections[src_peer].append((src_peer, connections, False))
+                peers_connections[src_peer].append((src_peer, connections, True))
+                peers_connections[dst_peer].append((dst_peer, connections, False))
+                peers_connections[dst_peer].append((dst_peer, connections, True))
+
+        peers_connections = {peer: frozenset(connections) for peer, connections in peers_connections.items()}
+        connected_equal_sets, left_out = self._find_peer_groups(peers_connections)
+
+        peers_connections = {peer: connections for peer, connections in peers_connections.items() if peer in left_out}
+        peers_connections = {peer: frozenset(connection for connection in connections if connection[0] != peer) for peer, connections in peers_connections.items()}
+
+        not_connected_equal_sets, left_out = self._find_peer_groups(peers_connections)
+
+
+
+        return connected_equal_sets + not_connected_equal_sets + [[p] for p in left_out]
 
 
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
@@ -234,7 +234,7 @@ class ConnectivityGraph:
 
         dot_graph = DotGraph(name)
 
-        multi_peers = self._get_equals_peers(True)
+        multi_peers = self._get_equals_peers()
         representing_peers = [multi_peer[0] for multi_peer in multi_peers]
         for multi_peer in multi_peers:
             representing_peer = multi_peer[0]
