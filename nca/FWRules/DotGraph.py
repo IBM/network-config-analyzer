@@ -17,7 +17,8 @@ class DotGraph:
         Livesim = 2
         Clique = 3
         BiClique = 4
-        MultiPod = 5
+        ConnMultiPod = 5
+        NotConnMultiPod = 6
 
     class Subgraph:
         def __init__(self, name):
@@ -51,7 +52,8 @@ class DotGraph:
              self.NodeType.Clique:
                  'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0',
              self.NodeType.BiClique: 'shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0',
-             self.NodeType.MultiPod: 'shape=box color=darkblue',
+             self.NodeType.ConnMultiPod: 'shape=box color=darkblue',
+             self.NodeType.NotConnMultiPod: 'shape=box color=maroon4',
              }
 
     def add_node(self, subgraph, name, node_type, label):
@@ -144,7 +146,7 @@ class DotGraph:
         return str: the string
         """
         if node.node_type not in {self.NodeType.Clique, self.NodeType.BiClique}:
-            border = '2' if node.node_type == self.NodeType.MultiPod else '0'
+            border = '2' if node.node_type in [self.NodeType.ConnMultiPod, self.NodeType.NotConnMultiPod ] else '0'
             table = '<<table border="' + border + '" cellspacing="0">'
             for line in node.label:
                 if line:

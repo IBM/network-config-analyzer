@@ -194,21 +194,25 @@ class ConnectivityGraph:
         left_out = all_peers - set(graph.nodes)
         return equal_sets, left_out
 
+
+###########################################################################################################
     def _get_equals_peers(self):
         all_peers = set(self.cluster_info.all_peers)
         peers_connections = {peer: [] for peer in all_peers}
 
         for connections, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
-                peers_connections[src_peer].append((dst_peer, connections, False))
-                peers_connections[dst_peer].append((src_peer, connections, True))
-                peers_connections[src_peer].append((src_peer, connections, False))
-                peers_connections[src_peer].append((src_peer, connections, True))
-                peers_connections[dst_peer].append((dst_peer, connections, False))
-                peers_connections[dst_peer].append((dst_peer, connections, True))
+                if src_peer != dst_peer and connections:
+                    peers_connections[src_peer].append((dst_peer, connections, False))
+                    peers_connections[dst_peer].append((src_peer, connections, True))
+                    peers_connections[src_peer].append((src_peer, connections, False))
+                    peers_connections[src_peer].append((src_peer, connections, True))
+                    peers_connections[dst_peer].append((dst_peer, connections, False))
+                    peers_connections[dst_peer].append((dst_peer, connections, True))
 
         peers_connections = {peer: frozenset(connections) for peer, connections in peers_connections.items()}
         connected_equal_sets, left_out = self._find_peer_groups(peers_connections)
+        connected_equal_sets_with_connections = [(equal_sets, set(conn[1] for conn in peers_connections[equal_sets[0]] )) for equal_sets in connected_equal_sets]
 
         peers_connections = {peer: connections for peer, connections in peers_connections.items() if peer in left_out}
         peers_connections = {peer: frozenset(connection for connection in connections if connection[0] != peer) for peer, connections in peers_connections.items()}
@@ -217,7 +221,7 @@ class ConnectivityGraph:
 
 
 
-        return connected_equal_sets + not_connected_equal_sets + [[p] for p in left_out]
+        return connected_equal_sets_with_connections, not_connected_equal_sets, [[p] for p in left_out]
 
 
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
@@ -232,21 +236,24 @@ class ConnectivityGraph:
         name = f'{query_title}{self.output_config.configName}{restriction_title}'
 
 
+        connected_multi_peers, not_connected_multi_peers, single_peers = self._get_equals_peers()
         dot_graph = DotGraph(name)
+        for peer in single_peers:
+            peer_name, node_type, nc_name, text = self._get_peer_details(peer[0])
+            dot_graph.add_node(nc_name, peer_name, node_type, [text])
+        multi_peers_with_type = [(p[0], p[1], DotGraph.NodeType.ConnMultiPod) for p in connected_multi_peers] + [(p, [], DotGraph.NodeType.NotConnMultiPod) for p in not_connected_multi_peers]
+        for multi_peer, multi_connections, node_type in multi_peers_with_type:
+            representing_peer_name, _, representing_nc_name, _ = self._get_peer_details(multi_peer[0])
+            representing_text = set(self._get_peer_details(peer)[3] for peer in multi_peer)
+            if len(representing_text) == 1:
+                node_type = self._get_peer_details(peer[0])[1]
+            dot_graph.add_node(representing_nc_name, representing_peer_name, node_type, representing_text)
+            for connections in multi_connections:
+                conn_str = connections.get_simplified_connections_representation(True)
+                conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
+                dot_graph.add_edge(representing_peer_name, representing_peer_name, label=conn_str, is_dir=False)
 
-        multi_peers = self._get_equals_peers()
-        representing_peers = [multi_peer[0] for multi_peer in multi_peers]
-        for multi_peer in multi_peers:
-            representing_peer = multi_peer[0]
-            representing_peer_name, representing_node_type, representing_nc_name, _ = self._get_peer_details(representing_peer)
-            representing_text = set()
-            for peer in multi_peer:
-                peer_name, node_type, nc_name, text = self._get_peer_details(peer)
-                representing_text.add(text)
-            if len(representing_text) > 1:
-                representing_node_type = DotGraph.NodeType.MultiPod
-            dot_graph.add_node(representing_nc_name, representing_peer_name, representing_node_type, representing_text)
-
+        representing_peers = [multi_peer[0][0] for multi_peer in connected_multi_peers] + [multi_peer[0] for multi_peer in not_connected_multi_peers + single_peers]
         for connections, peer_pairs in self.connections_to_peers.items():
             directed_edges = set()
             # todo - is there a better way to get edge details?
