@@ -4,7 +4,6 @@
 #
 
 import itertools
-import re
 from collections import defaultdict
 import networkx
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
@@ -96,16 +95,14 @@ class ConnectivityGraph:
                  a new node will be created for every namespace
 
 
-        :param: directed_edges: list of pairs representing the original graph
+        :param: not_directed_edges: list of pairs representing the original graph
         return: truple( list, list, list)
-        list: list of the directed edges
-        list: list of the not directed edges
+        list: list of the not directed edges lest in the graph
+        list: list of the new not directed edges representing the cliques
         list: list of the new nodes that was created to represent the cliques
 
         """
-
         min_qlicue_size = 4
-
 
         # find cliques in the graph:
         graph = networkx.Graph()
@@ -149,79 +146,115 @@ class ConnectivityGraph:
 
             # removing the original edges of the clique:
             not_directed_edges = not_directed_edges - set(itertools.product(clique, clique))
-
         return not_directed_edges, cliques_edges, cliques_nodes
 
+    @staticmethod
+    def _creates_bicliqued_graph(directed_edges, conn_str):
+        """
+        A biclique is a pair of sets. each node at the firs set as an edge to each node in the second set.
+        The algorithm:
+        1. for each src_node, find the set of the destination nodes (i.e. dst_sets).
+        2. for each dst_set found in (1), find the set of sources that connected to every node in the dst_set (i.e. src_set).
+           the (src_set, dst_set) is a biclique
+        3. find the best biclique - the biclique that reduce the highest number of edges
+        4. remove the biclique from the graph, and go back to (1) till no biclique found
 
-    def _creates_bicliqued_graph(self, directed_edges, conn_str):
+        :param: directed_edges: list of pairs representing the original graph
+        return: truple( list, list, list)
+        list: list of the directed edges that was left in the graph
+        list: list the new bicliques nodes
+        list: list the new bicliques edged
 
+        """
         bicliques_nodes = []
         bicliques_edges = set()
 
-        while True:
-            all_sources = set([edge[0] for edge in directed_edges])
-            src_to_dst_set = {src: frozenset([e[1] for e in directed_edges if e[0] == src]) for src in all_sources}
+        while directed_edges:
+            # find dst_sets:
+            all_sources = set(edge[0] for edge in directed_edges)
+            src_to_dst_set = {src: frozenset(e[1] for e in directed_edges if e[0] == src) for src in all_sources}
             all_dst_set = frozenset(src_to_dst_set.values())
 
-            all_bicliques = {frozenset([src for src in all_sources if src_to_dst_set[src] >= dst_set]): dst_set for dst_set in all_dst_set}
-            bicliques_ranks = {(src_set, dst_set): len(src_set) * len(dst_set) - len(src_set) - len(dst_set) for src_set, dst_set in all_bicliques.items()}
-            best_biclique = max(bicliques_ranks, key=bicliques_ranks.get) if len(bicliques_ranks) else (frozenset(), frozenset())
-            if bicliques_ranks.get(best_biclique, -1) < 1:
+            # find all bicliques:
+            all_bicliques = []
+            for dst_set in all_dst_set:
+                src_set = frozenset(src for src in all_sources if src_to_dst_set[src] >= dst_set)
+                all_bicliques.append((src_set, dst_set))
+            # find the best biclique:
+            bicliques_ranks = {(s, d): len(s) * len(d) - len(s) - len(d) for s, d in all_bicliques}
+            if max(bicliques_ranks.values()) < 1:
                 break
+            best_biclique = max(bicliques_ranks, key=bicliques_ranks.get)
+
+            # create the new biclique, and remove it from the graph:
             directed_edges -= set(itertools.product(best_biclique[0], best_biclique[1]))
             biclique_name = f'biclique_{conn_str}{len(bicliques_nodes)}'
             biclique_node = (biclique_name, '')
             bicliques_nodes.append(biclique_node)
-            bicliques_edges |= set([(src, biclique_node) for src in best_biclique[0]])
-            bicliques_edges |= set([(biclique_node, dst) for dst in best_biclique[1]])
+            bicliques_edges |= set((src, biclique_node) for src in best_biclique[0])
+            bicliques_edges |= set((biclique_node, dst) for dst in best_biclique[1])
         return directed_edges, bicliques_edges, bicliques_nodes
 
-    def _find_peer_groups(self, peers_connections):
-        all_peers = peers_connections.keys()
-        equal_pairs = []
-        for peer0, peer1 in itertools.product(all_peers, all_peers):
-            if peer0 != peer1 and\
-                peer0.namespace == peer1.namespace and\
-                peers_connections[peer0] == peers_connections[peer1] and\
-                (peer1, peer0) not in equal_pairs:
-                equal_pairs.append((peer0, peer1))
+    @staticmethod
+    def _find_equal_groups(peers_edges):
+        """
+        find set of peers that have the same io edges and the same namespace
+        :param: peers_edges: dict peer -> [peer edges]
+        return: list
+        list: list of lists, each list is a group of peers
+        list: list of peers that are not in any group
+        """
+        groups_dict = defaultdict(list)
+        for peer, peer_edges in peers_edges.items():
+            groups_dict[(peer.namespace, peer_edges)].append(peer)
+        groups = [v for v in groups_dict.values() if len(v) > 1]
+        left_out = [v[0] for v in groups_dict.values() if len(v) == 1]
+        return groups, left_out
 
-        graph = networkx.Graph()
-        graph.add_edges_from(equal_pairs)
-        equal_sets = list(networkx.clique.find_cliques(graph))
-        left_out = all_peers - set(graph.nodes)
-        return equal_sets, left_out
-
-
-###########################################################################################################
     def _get_equals_groups(self):
+        """
+        _get_equals_groups find in the graph sets of peers that has the same connections.
+        it find two kinds of groups:
+        1. set of peers that have the same input and the same output edges
+        2. set of peers that have the same input and the same output edges and also connected to each other
 
+        the algorithm:
+        1. for each peer, collect the list of input and output edges.
+        2. for each peer, add self pointing edge
+        3. find group of peers that share the same edges list (the group of kind (2))
+        4. remove the peers that are already grouped
+        5. remove the self pointing edge
+        6. find group of peers that share the same edges list (the group of kind (1))
+
+        return: list( pair(list, list))
+        list: list of the pairs, each pair is the group and the self edges of the group
+        """
         # for each peer, we get a list of (peer,conn,direction) that it connected to:
-        peers_connections = {peer: [] for peer in set(self.cluster_info.all_peers)}
+        peers_edges = {peer: [] for peer in set(self.cluster_info.all_peers)}
         for connection, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
                 if src_peer != dst_peer and connection:
-                    peers_connections[src_peer].append((dst_peer, connection, False))
-                    peers_connections[dst_peer].append((src_peer, connection, True))
+                    peers_edges[src_peer].append((dst_peer, connection, False))
+                    peers_edges[dst_peer].append((src_peer, connection, True))
 
-        # for each peer, adding a self connection only for connection that the peer already have:
-        for peer, peer_connections in peers_connections.items():
-            for connection in set(c[1] for c in peer_connections):
-                peers_connections[peer].append((peer, connection, False))
-                peers_connections[peer].append((peer, connection, True))
-        peers_connections = {peer: frozenset(connections) for peer, connections in peers_connections.items()}
+        # for each peer, adding a self edge only for connection that the peer already have:
+        for peer, peer_edges in peers_edges.items():
+            for connection in set(c[1] for c in peer_edges):
+                peers_edges[peer].append((peer, connection, False))
+                peers_edges[peer].append((peer, connection, True))
+        peers_edges = {peer: frozenset(edges) for peer, edges in peers_edges.items()}
 
-        connected_equal_sets, left_out = self._find_peer_groups(peers_connections)
-        result = [(equal_set, set(conn[1] for conn in peers_connections[equal_set[0]])) for equal_set in connected_equal_sets]
+        # find groups of peers that are also connected to each other:
+        connected_groups, left_out = self._find_equal_groups(peers_edges)
+        connected_groups = [(group, set(conn[1] for conn in peers_edges[group[0]])) for group in connected_groups]
 
         # removing the peers of groups that we already found:
-        peers_connections = {peer: connections for peer, connections in peers_connections.items() if peer in left_out}
+        peers_edges = {peer: edges for peer, edges in peers_edges.items() if peer in left_out}
         # removing the self loops:
-        peers_connections = {peer: frozenset(conn for conn in peer_conns if conn[0] != peer) for peer, peer_conns in peers_connections.items()}
-        not_connected_equal_sets, left_out = self._find_peer_groups(peers_connections)
-        result += [(es, []) for es in not_connected_equal_sets]
-        result += [([p], []) for p in left_out]
-        return result
+        peers_edges = {p: frozenset(e for e in p_edges if e[0] != p) for p, p_edges in peers_edges.items()}
+        not_connected_groups, left_out = self._find_equal_groups(peers_edges)
+        # returning [(group, list of self edges)]
+        return connected_groups + [(nc_group, []) for nc_group in not_connected_groups] + [([p], []) for p in left_out]
 
     def get_connections_without_fw_rules_txt_format(self):
         """
@@ -265,24 +298,27 @@ class ConnectivityGraph:
         query_title = f'{self.output_config.queryName}/' if self.output_config.queryName else ''
         name = f'{query_title}{self.output_config.configName}{restriction_title}'
 
-
-        multi_peers = self._get_equals_groups()
         dot_graph = DotGraph(name)
-        for multi_peer, peer_connections in multi_peers:
-            peer_name, node_type, nc_name, text = self._get_peer_details(multi_peer[0])
-            if len(multi_peer) > 1:
-                text = set(self._get_peer_details(peer)[3][0] for peer in multi_peer)
-            # a deployment can be a  multi_peer with more than one peer but only one text line
-            if len(text) > 1:
-                node_type = DotGraph.NodeType.MultiPod
+        peers_groups = self._get_equals_groups()
+        # we are going to treat a a peers_group as one peer.
+        # the first peer in the peers_group is representing the group
+        # we will add the text of all the peers in the group to this peer
+        for peers_group, peer_connections in peers_groups:
+            peer_name, node_type, nc_name, text = self._get_peer_details(peers_group[0])
+            if len(peers_group) > 1:
+                text = set(self._get_peer_details(peer)[3][0] for peer in peers_group)
+            # a deployment can be a multi_peer with more than one peer but the same text line
+            # in this case, we do not want to set it as MultiPod, so we check the text size and not group size:
+            node_type = DotGraph.NodeType.MultiPod if len(text) > 1 else node_type
             dot_graph.add_node(nc_name, peer_name, node_type, text)
+            # adding the self edges:
             if len(text) > 1:
                 for connections in peer_connections:
                     conn_str = connections.get_simplified_connections_representation(True)
                     conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
                     dot_graph.add_edge(peer_name, peer_name, label=conn_str, is_dir=False)
 
-        representing_peers = [multi_peer[0][0] for multi_peer in multi_peers]
+        representing_peers = [multi_peer[0][0] for multi_peer in peers_groups]
         for connections, peer_pairs in self.connections_to_peers.items():
             directed_edges = set()
             # todo - is there a better way to get edge details?
@@ -301,14 +337,14 @@ class ConnectivityGraph:
             not_directed_edges = set(edge for edge in not_directed_edges if edge[1] < edge[0])
 
             not_directed_edges, cliques_edges, new_cliques = self._creates_cliqued_graph(not_directed_edges, conn_str)
-            directed_edges = directed_edges | not_directed_edges | set([(edge[1], edge[0]) for edge in not_directed_edges])
+            directed_edges = directed_edges | not_directed_edges | set((edge[1], edge[0]) for edge in not_directed_edges)
 
             directed_edges, bicliques_edges, new_bicliques = self._creates_bicliqued_graph(directed_edges, conn_str)
 
             # replacing directed edges with not directed edges:
-            not_directed_edges = set([edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges])
+            not_directed_edges = set(edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges)
             directed_edges = directed_edges - not_directed_edges
-            not_directed_edges = set([edge for edge in not_directed_edges if edge[1] < edge[0]])
+            not_directed_edges = set(edge for edge in not_directed_edges if edge[1] < edge[0])
 
             for peer in new_cliques:
                 dot_graph.add_node(subgraph=peer[1], name=peer[0], node_type=DotGraph.NodeType.Clique, label=[conn_str])
