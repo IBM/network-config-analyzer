@@ -23,7 +23,7 @@ subgraph cluster_kube_system_new_namespace{
 	label="kube-system-new"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="2" cellspacing="0"><tr><td>heapster(Deployment-StatefulSet)</td></tr><tr><td>calico-node(DaemonSet)</td></tr></table>> shape=box color=darkblue]
+	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="2" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_kube_system_new_dummy_to_ignore_namespace{
 	label="kube-system-new-dummy-to-ignore"
@@ -65,13 +65,13 @@ subgraph cluster_ibm_system_new_namespace{
 	label="ibm-system-new"
 	fontsize=20
 	fontcolor=blue
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)</td></tr><tr><td>ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)</td></tr><tr><td>ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_kube_system_new_namespace{
 	label="kube-system-new"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="2" cellspacing="0"><tr><td>heapster(Deployment-StatefulSet)</td></tr><tr><td>calico-node(DaemonSet)</td></tr></table>> shape=box color=darkblue]
+	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="2" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_kube_system_new_dummy_to_ignore_namespace{
 	label="kube-system-new-dummy-to-ignore"

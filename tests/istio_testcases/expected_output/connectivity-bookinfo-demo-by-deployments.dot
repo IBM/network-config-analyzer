@@ -46,7 +46,7 @@ subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/details-v1(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>reviews-v1(Deployment-StatefulSet)</td></tr><tr><td>ratings-v1(Deployment-StatefulSet)</td></tr><tr><td>productpage-v1(Deployment-StatefulSet)</td></tr><tr><td>reviews-v3(Deployment-StatefulSet)</td></tr><tr><td>details-v1(Deployment-StatefulSet)</td></tr><tr><td>reviews-v2(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
+	"default/details-v1(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>details-v1(Deployment-StatefulSet)</td></tr><tr><td>productpage-v1(Deployment-StatefulSet)</td></tr><tr><td>ratings-v1(Deployment-StatefulSet)</td></tr><tr><td>reviews-v1(Deployment-StatefulSet)</td></tr><tr><td>reviews-v2(Deployment-StatefulSet)</td></tr><tr><td>reviews-v3(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_istio_system_namespace{
 	label="istio-system"

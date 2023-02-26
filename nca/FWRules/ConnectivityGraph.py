@@ -306,7 +306,7 @@ class ConnectivityGraph:
         for peers_group, peer_connections in peers_groups:
             peer_name, node_type, nc_name, text = self._get_peer_details(peers_group[0])
             if len(peers_group) > 1:
-                text = set(self._get_peer_details(peer)[3][0] for peer in peers_group)
+                text = sorted(set(self._get_peer_details(peer)[3][0] for peer in peers_group))
             # a deployment can be a multi_peer with more than one peer but the same text line
             # in this case, we do not want to set it as MultiPod, so we check the text size and not group size:
             node_type = DotGraph.NodeType.MultiPod if len(text) > 1 else node_type

@@ -8,7 +8,7 @@ subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/my-test-deployment-A(Deployment)" [label=<<table border="2" cellspacing="0"><tr><td>my-test-deployment-D(Deployment)</td></tr><tr><td>my-test-deployment-A(Deployment)</td></tr></table>> shape=box color=darkblue]
+	"default/my-test-deployment-A(Deployment)" [label=<<table border="2" cellspacing="0"><tr><td>my-test-deployment-A(Deployment)</td></tr><tr><td>my-test-deployment-D(Deployment)</td></tr></table>> shape=box color=darkblue]
 	"default/my-test-deployment-B(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-B(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"default/my-test-deployment-C(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-C(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 }

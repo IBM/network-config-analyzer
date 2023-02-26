@@ -17,7 +17,7 @@ subgraph cluster_example_namespace{
 	"example/deploy-bbbb(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-bbbb(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-cccc(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-cccc(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-dddd(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-dddd(Deployment)</td></tr></table>> shape=box fontcolor=blue]
-	"example/deploy-eeee(Deployment)" [label=<<table border="2" cellspacing="0"><tr><td>deploy-hhhh(Deployment)</td></tr><tr><td>istio-ingressgateway(Deployment)</td></tr><tr><td>deploy-eeee(Deployment)</td></tr></table>> shape=box color=darkblue]
+	"example/deploy-eeee(Deployment)" [label=<<table border="2" cellspacing="0"><tr><td>deploy-eeee(Deployment)</td></tr><tr><td>deploy-hhhh(Deployment)</td></tr><tr><td>istio-ingressgateway(Deployment)</td></tr></table>> shape=box color=darkblue]
 	"example/deploy-ffff(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-ffff(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-gggg(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-gggg(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-iiii(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-iiii(Deployment)</td></tr></table>> shape=box fontcolor=blue]
