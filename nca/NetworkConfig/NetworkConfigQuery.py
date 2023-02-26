@@ -748,12 +748,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # add all relevant IpBlocks, used in connections
             opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
                                     all_conns_opt.project_on_one_dimension('dst_peers')
-            if exclude_ipv6:
-                opt_peers_to_compare = PeerSet.remove_ipv6_full_block(opt_peers_to_compare)
-                possible_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
-                                                                          src_peers=opt_peers_to_compare,
-                                                                          dst_peers=opt_peers_to_compare)
-                all_conns_opt &= possible_conns
 
             subset_peers = self.compute_subset(opt_peers_to_compare)
             subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
@@ -761,20 +755,33 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                            TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
                                                                         dst_peers=subset_peers)
             all_conns_opt &= subset_conns
+            ip_blocks_filter = IpBlock.get_all_ips_block()
+            if exclude_ipv6:
+                ip_blocks_filter = IpBlock.get_all_ips_block(exclude_ipv6=True)
+                ref_ip_blocks = self.config.get_referenced_ip_blocks(exclude_ipv6)
+                for ip_block in ref_ip_blocks:
+                    ip_blocks_filter |= ip_block
+                opt_peers_to_compare.filter_ipv6_blocks(ip_blocks_filter)
+
             if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
-                output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare)
+                output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
+                    self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare, ip_blocks_filter)
                 opt_end = time.time()
                 print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
                 if self.config.optimized_run == 'debug':
-                    if fw_rules_tcp.fw_rules_map and opt_fw_rules_tcp.fw_rules_map:
+                    if fw_rules_tcp and fw_rules_tcp.fw_rules_map and \
+                            opt_fw_rules_tcp and opt_fw_rules_tcp.fw_rules_map:
                         self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp)
-                    if fw_rules_non_tcp.fw_rules_map and opt_fw_rules_non_tcp.fw_rules_map:
+                    if fw_rules_non_tcp and fw_rules_non_tcp.fw_rules_map and \
+                            opt_fw_rules_non_tcp and opt_fw_rules_non_tcp.fw_rules_map:
                         self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp)
             else:
-                output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare)
+                output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare,
+                                                                      ip_blocks_filter)
                 opt_end = time.time()
                 print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
-                if self.config.optimized_run == 'debug' and fw_rules and opt_fw_rules:
+                if self.config.optimized_run == 'debug' and fw_rules and fw_rules.fw_rules_map and \
+                        opt_fw_rules and opt_fw_rules.fw_rules_map:
                     self.compare_fw_rules(fw_rules, opt_fw_rules)
 
             if self.output_config.outputFormat in ['json', 'yaml']:
@@ -821,7 +828,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         formatted_rules, fw_rules = self.fw_rules_from_connections_dict(connections, peers_to_compare)
         return formatted_rules, fw_rules
 
-    def get_props_output_full(self, props, peers_to_compare):
+    def get_props_output_full(self, props, peers_to_compare, ip_blocks_filter):
         """
         get the connectivity map output considering all connections in the output
         :param TcpLikeProperties props: properties describing allowed connections
@@ -829,11 +836,11 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :rtype Union[str,dict]
         """
         if self.output_config.outputFormat in ['dot', 'jpg']:
-            dot_full = self.dot_format_from_props(props, peers_to_compare)
+            dot_full = self.dot_format_from_props(props, peers_to_compare, ip_blocks_filter)
             return dot_full, None
         # TODO - handle 'txt_no_fw_rules' output format
         # handle other formats
-        formatted_rules, fw_rules = self.fw_rules_from_props(props, peers_to_compare)
+        formatted_rules, fw_rules = self.fw_rules_from_props(props, peers_to_compare, ip_blocks_filter)
         return formatted_rules, fw_rules
 
     def get_connectivity_output_split_by_tcp(self, connections, peers, peers_to_compare):
@@ -870,7 +877,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_str = formatted_rules_tcp + formatted_rules_non_tcp
         return res_str, fw_rules_tcp, fw_rules_non_tcp
 
-    def get_props_output_split_by_tcp(self, props, peers_to_compare):
+    def get_props_output_split_by_tcp(self, props, peers_to_compare, ip_blocks_filter):
         """
         get the connectivity map output as two parts: TCP and non-TCP
         :param TcpLikeProperties props: properties describing allowed connections
@@ -881,14 +888,19 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         connectivity_non_tcp_str = 'non-TCP'
         props_tcp, props_non_tcp = self.convert_props_to_split_by_tcp(props)
         if self.output_config.outputFormat == 'dot':
-            dot_tcp = self.dot_format_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
-            dot_non_tcp = self.dot_format_from_props(props_non_tcp, peers_to_compare, connectivity_non_tcp_str)
+            dot_tcp = self.dot_format_from_props(props_tcp, peers_to_compare, ip_blocks_filter,
+                                                 connectivity_tcp_str)
+            dot_non_tcp = self.dot_format_from_props(props_non_tcp, peers_to_compare, ip_blocks_filter,
+                                                     connectivity_non_tcp_str)
             # concatenate the two graphs into one dot file
             res_str = dot_tcp + dot_non_tcp
             return res_str, None, None
         # handle formats other than dot
-        formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
-        formatted_rules_non_tcp, fw_rules_non_tcp = self.fw_rules_from_props(props_non_tcp, peers_to_compare, connectivity_non_tcp_str)
+        formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, peers_to_compare, ip_blocks_filter,
+                                                                     connectivity_tcp_str)
+        formatted_rules_non_tcp, fw_rules_non_tcp = self.fw_rules_from_props(props_non_tcp, peers_to_compare,
+                                                                             ip_blocks_filter,
+                                                                             connectivity_non_tcp_str)
         if self.output_config.outputFormat in ['json', 'yaml']:
             # get a dict object containing the two maps on different keys (TCP_rules and non-TCP_rules)
             rules = formatted_rules_tcp
@@ -935,7 +947,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         conn_graph = self._get_conn_graph(connections, peers)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
-    def dot_format_from_props(self, props, peers, connectivity_restriction=None):
+    def dot_format_from_props(self, props, peers, ip_blocks_filter, connectivity_restriction=None):
         """
         :param TcpLikeProperties props: properties describing allowed connections
         :param PeerSet peers: the peers to consider for dot output
@@ -946,8 +958,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         for cube in props:
-            conn_graph.add_edges_from_cube_dict(self.config.peer_container,
-                                                 props.get_cube_dict_with_orig_values(cube))
+            conn_graph.add_edges_from_cube_dict(self.config.peer_container, props.get_cube_dict_with_orig_values(cube),
+                                                ip_blocks_filter)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
@@ -964,7 +976,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules, fw_rules
 
-    def fw_rules_from_props(self, props, peers_to_compare, connectivity_restriction=None):
+    def fw_rules_from_props(self, props, peers_to_compare, ip_blocks_filter, connectivity_restriction=None):
         """
         :param TcpLikeProperties props: properties describing allowed connections
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
@@ -975,7 +987,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         cluster_info = ClusterInfo(peers_to_compare, self.config.get_allowed_labels())
         fw_rules_map = ConnectionSet.tcp_properties_to_fw_rules(props, cluster_info, self.config.peer_container,
-                                                                connectivity_restriction)
+                                                                ip_blocks_filter, connectivity_restriction)
         fw_rules = MinimizeFWRules(fw_rules_map, cluster_info, self.output_config, {})
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules, fw_rules

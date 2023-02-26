@@ -580,7 +580,8 @@ class ConnectionSet:
     # TODO - after moving to the optimized HC set implementation,
     #  get rid of ConnectionSet and move the code below to TcpLikeProperties.py
     @staticmethod
-    def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container, connectivity_restriction):
+    def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container, ip_blocks_filter,
+                                   connectivity_restriction):
         ignore_protocols = ProtocolSet()
         if connectivity_restriction:
             if connectivity_restriction == 'TCP':
@@ -602,6 +603,9 @@ class ConnectionSet:
                 new_cube_dict.pop('dst_peers')
             else:
                 dst_peers = peer_container.get_all_peers_group(True)
+            if IpBlock.get_all_ips_block() != ip_blocks_filter:
+                src_peers.filter_ipv6_blocks(ip_blocks_filter)
+                dst_peers.filter_ipv6_blocks(ip_blocks_filter)
             protocols = new_cube_dict.get('protocols')
             if protocols:
                 new_cube_dict.pop('protocols')

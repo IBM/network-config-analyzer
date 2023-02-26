@@ -79,7 +79,7 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
         """
         self.connections_to_peers.update(connections)
 
-    def add_edges_from_cube_dict(self, peer_container, cube_dict):
+    def add_edges_from_cube_dict(self, peer_container, cube_dict, ip_blocks_filter):
         """
         Add edges to the graph according to the give cube
         :param peer_container: the peer_container containing all possible peers
@@ -96,6 +96,10 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
             new_cube_dict.pop('dst_peers')
         else:
             dst_peers = peer_container.get_all_peers_group(True)
+        if IpBlock.get_all_ips_block() != ip_blocks_filter:
+            src_peers.filter_ipv6_blocks(ip_blocks_filter)
+            dst_peers.filter_ipv6_blocks(ip_blocks_filter)
+
         protocols = new_cube_dict.get('protocols')
         if protocols:
             new_cube_dict.pop('protocols')

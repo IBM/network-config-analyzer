@@ -329,13 +329,17 @@ class IpBlock(Peer, CanonicalIntervalSet):
         return self.get_cidr_list_str()
 
     @staticmethod
-    def get_all_ips_block(exclude_ipv6=False):
+    def get_all_ips_block(exclude_ipv6=False, exclude_ipv4=False):
         """
         :return: The full range of ipv4 and ipv6 addresses if exclude_ipv6 is False
         :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses
+        :param bool exclude_ipv4: indicates if to exclude the IPv4 addresses
         :rtype: IpBlock
         """
-        res = IpBlock('0.0.0.0/0')
+        assert not exclude_ipv6 or not exclude_ipv4
+        res = IpBlock()
+        if not exclude_ipv4:
+            res.add_cidr('0.0.0.0/0')
         if not exclude_ipv6:
             res.add_cidr('::/0')
         return res
@@ -348,7 +352,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
         :rtype: PeerSet
         """
         res = PeerSet()
-        res.add(IpBlock.get_all_ips_block(exclude_ipv6))
+        res.add(IpBlock.get_all_ips_block(exclude_ipv6=exclude_ipv6))
         return res
 
     def split(self):
@@ -668,18 +672,27 @@ class PeerSet(set):
                     peer_list.append(self.sorted_peer_list[ind])
         return PeerSet(set(peer_list))
 
-    @staticmethod
-    def remove_ipv6_full_block(peer_set):
-        res = PeerSet()
-        for peer in peer_set:
+    def filter_ipv6_blocks(self, ip_block_filter):
+        ipv6_cidr = '::/0'
+        peers_to_remove = []
+        peers_to_add = []
+        for peer in self:
             if isinstance(peer, IpBlock):
-                peer.remove_cidr('::/0')
-                if peer:
-                    res.add(peer)
-            else:
-                res.add(peer)
-        return res
+                peers_to_remove.append(peer)
+                if IpBlock.get_all_ips_block(exclude_ipv4=True).contained_in(peer):
+                    new_peer = peer.copy()
+                    new_peer.remove_cidr(ipv6_cidr)
+                    if new_peer:
+                        peers_to_add.append(new_peer)
+                elif peer.overlaps(ip_block_filter):
+                    new_peer = peer.copy()
+                    new_peer &= ip_block_filter
+                    peers_to_add.append(new_peer)
 
+        for peer in peers_to_remove:
+            self.remove(peer)
+        for peer in peers_to_add:
+            self.add(peer)
 
 
 def by_full_name(elem):
