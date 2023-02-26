@@ -66,7 +66,8 @@ class ConnectivityGraph:
         """
         nc_name = peer.namespace.name if peer.namespace else ''
         if isinstance(peer, IpBlock):
-            return peer.get_ip_range_or_cidr_str(), DotGraph.NodeType.IPBlock, nc_name, [peer.get_ip_range_or_cidr_str()]
+            peer_name = peer.get_ip_range_or_cidr_str(format_requirement)
+            return peer_name, DotGraph.NodeType.IPBlock, nc_name, [peer_name]
         is_livesim = peer.full_name().endswith('-livesim')
         peer_type = DotGraph.NodeType.Livesim if is_livesim else DotGraph.NodeType.Pod
         if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
