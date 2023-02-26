@@ -207,8 +207,8 @@ class ConnectivityGraph:
         groups_dict = defaultdict(list)
         for peer, peer_edges in peers_edges.items():
             groups_dict[(peer.namespace, peer_edges)].append(peer)
-        groups = [v for v in groups_dict.values() if len(v) > 1]
-        left_out = [v[0] for v in groups_dict.values() if len(v) == 1]
+        groups = [sorted(peer, key=str) for peer in groups_dict.values() if len(peer) > 1]
+        left_out = [peer[0] for peer in groups_dict.values() if len(peer) == 1]
         return groups, left_out
 
     def _get_equals_groups(self):

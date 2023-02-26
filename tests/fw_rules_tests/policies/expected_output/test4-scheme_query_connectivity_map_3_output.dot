@@ -15,13 +15,13 @@ subgraph cluster_ibm_system_new_namespace{
 	label="ibm-system-new"
 	fontsize=20
 	fontcolor=blue
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)</td></tr><tr><td>ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)</td></tr><tr><td>ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_kube_system_new_namespace{
 	label="kube-system-new"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-new/heapster(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>heapster(Deployment-StatefulSet)</td></tr><tr><td>calico-node(DaemonSet)</td></tr></table>> shape=box color=darkblue]
+	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="2" cellspacing="0"><tr><td>heapster(Deployment-StatefulSet)</td></tr><tr><td>calico-node(DaemonSet)</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_kube_system_new_dummy_to_ignore_namespace{
 	label="kube-system-new-dummy-to-ignore"
@@ -31,12 +31,12 @@ subgraph cluster_kube_system_new_dummy_to_ignore_namespace{
 }
 	"0.0.0.0/0" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"default/cognetive-agents(DaemonSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"default/cognetive-agents(DaemonSet)" -> "kube-system-new/heapster(Deployment-StatefulSet)"[label="TCP 85-90" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"default/cognetive-agents(DaemonSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="TCP 85-90" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"kube-system-new/heapster(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/heapster(Deployment-StatefulSet)" -> "default/cognetive-agents(DaemonSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/heapster(Deployment-StatefulSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/heapster(Deployment-StatefulSet)" -> "kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "default/cognetive-agents(DaemonSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 }
