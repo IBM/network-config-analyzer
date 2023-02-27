@@ -752,7 +752,13 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # concatenate the two graphs into one dot file
             res_str = dot_tcp + dot_non_tcp
             return res_str
-        # handle formats other than dot
+        if self.output_config.outputFormat == 'txt_no_fw_rules':
+            tcp_conns_wo_fw_rules = self._txt_no_fw_rules_format_from_connections_dict(connections_tcp, peers,
+                                                                                       connectivity_tcp_str)
+            non_tcp_conns_wo_fw_rules = self._txt_no_fw_rules_format_from_connections_dict(connections_non_tcp, peers,
+                                                                                           connectivity_non_tcp_str)
+            return tcp_conns_wo_fw_rules + '\n\n' + non_tcp_conns_wo_fw_rules
+        # handle formats other than dot and txt_no_fw_rules
         formatted_rules_tcp = self.fw_rules_from_connections_dict(connections_tcp, peers_to_compare,
                                                                   connectivity_tcp_str)
         formatted_rules_non_tcp = self.fw_rules_from_connections_dict(connections_non_tcp, peers_to_compare,
@@ -780,16 +786,17 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         conn_graph.add_edges(connections)
         return conn_graph
 
-    def _txt_no_fw_rules_format_from_connections_dict(self, connections, peers):
+    def _txt_no_fw_rules_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
         """
         :param dict connections: the connections' dict (map from connection-set to peer pairs)
         :param PeerSet peers: the peers to consider for dot output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP , or not
         :rtype:  str
         :return the connectivity map in txt_no_fw_rules format, the connections between peers, excluding fw-rules
         and connections involving livesim peers
         """
         conn_graph = self._get_conn_graph(connections, peers)
-        return conn_graph.get_connections_without_fw_rules_txt_format()
+        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
 
     def dot_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
         """
