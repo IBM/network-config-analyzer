@@ -81,8 +81,10 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                           "methods": {"value": methods, "is_all": methods.is_whole_range()},
                           "hosts": {"value": hosts, "is_all": hosts is None},
                           "paths": {"value": paths, "is_all": paths is None},
-                          "icmp_type": {"value": icmp_type, "is_all": icmp_type == DimensionsManager().get_dimension_domain_by_name('icmp_type')},
-                          "icmp_code": {"value": icmp_code, "is_all": icmp_code == DimensionsManager().get_dimension_domain_by_name('icmp_code')}}
+                          "icmp_type": {"value": icmp_type, "is_all":
+                              icmp_type == DimensionsManager().get_dimension_domain_by_name('icmp_type')},
+                          "icmp_code": {"value": icmp_code, "is_all":
+                              icmp_code == DimensionsManager().get_dimension_domain_by_name('icmp_code')}}
 
         cube, active_dims, has_empty_dim_value = self._get_cube_and_active_dims_from_input_values(dims_to_values)
 
@@ -526,7 +528,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     @staticmethod
     def make_empty_properties(peer_container=None):
-        return TcpLikeProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None, create_empty=True)
+        return TcpLikeProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None,
+                                 create_empty=True)
 
     @staticmethod
     def make_all_properties(peer_container=None):

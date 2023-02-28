@@ -9,7 +9,6 @@ from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.Peer import IpBlock
 from nca.Utils.NcaLogger import NcaLogger
 from nca.FileScanners.GenericTreeScanner import ObjectWithLocation
