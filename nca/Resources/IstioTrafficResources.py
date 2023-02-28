@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.MinDFA import MinDFA
-from nca.CoreDS.MethodSet import MethodSet
 from .K8sService import K8sService
 
 

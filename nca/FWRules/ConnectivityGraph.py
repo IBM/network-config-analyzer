@@ -7,7 +7,7 @@ import itertools
 import re
 from collections import defaultdict
 import networkx
-from nca.CoreDS.Peer import Peer, IpBlock, PeerSet, ClusterEP, Pod
+from nca.CoreDS.Peer import IpBlock, PeerSet, ClusterEP, Pod
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
@@ -79,11 +79,13 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
         """
         self.connections_to_peers.update(connections)
 
-    def add_edges_from_cube_dict(self, peer_container, cube_dict, ip_blocks_filter):
+    def add_edges_from_cube_dict(self, peer_container, cube_dict, ip_blocks_mask):
         """
         Add edges to the graph according to the give cube
         :param peer_container: the peer_container containing all possible peers
         :param dict cube_dict: the given cube in dictionary format
+        :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
+         whereas all other values should be filtered out in the output
         """
         new_cube_dict = cube_dict.copy()
         src_peers = new_cube_dict.get('src_peers')
@@ -96,9 +98,9 @@ class ConnectivityGraph(ConnectivityGraphPrototype):
             new_cube_dict.pop('dst_peers')
         else:
             dst_peers = peer_container.get_all_peers_group(True)
-        if IpBlock.get_all_ips_block() != ip_blocks_filter:
-            src_peers.filter_ipv6_blocks(ip_blocks_filter)
-            dst_peers.filter_ipv6_blocks(ip_blocks_filter)
+        if IpBlock.get_all_ips_block() != ip_blocks_mask:
+            src_peers.filter_ipv6_blocks(ip_blocks_mask)
+            dst_peers.filter_ipv6_blocks(ip_blocks_mask)
 
         protocols = new_cube_dict.get('protocols')
         if protocols:

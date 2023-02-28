@@ -8,7 +8,6 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.Resources.IngressPolicy import IngressPolicyRule
 from .GenericYamlParser import GenericYamlParser
 

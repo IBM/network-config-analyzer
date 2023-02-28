@@ -569,9 +569,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                 return False
         return True
 
-
-    ####################################### ICMP-related functions #######################################
-
+    # ICMP-related functions
     @staticmethod
     def make_icmp_properties(peer_container, protocol="", src_peers=None, dst_peers=None,
                              icmp_type=None, icmp_code=None):

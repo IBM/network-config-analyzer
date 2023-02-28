@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from collections import defaultdict
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP
 from .FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement

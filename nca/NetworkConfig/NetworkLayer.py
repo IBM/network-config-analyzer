@@ -181,7 +181,7 @@ class NetworkLayer:
                                                                             dst_peers=all_ips_peer_set)
         allowed_egress_conns, denied_egress_conns = self._allowed_xgress_conns_optimized(False, peer_container)
         allowed_egress_conns |= TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=all_ips_peer_set,
-                                                                            dst_peers=all_pods)
+                                                                           dst_peers=all_pods)
         res = allowed_ingress_conns & allowed_egress_conns
         # exclude IpBlock->IpBlock connections
         excluded_conns = TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=all_ips_peer_set,
@@ -249,14 +249,14 @@ class NetworkLayer:
         for policy in self.policies_list:
             policy_allowed_conns, policy_denied_conns, policy_captured = \
                 policy.allowed_connections_optimized(is_ingress)
-            if policy_captured: # not empty
+            if policy_captured:  # not empty
                 policy_denied_conns -= allowed_conns
-                #policy_denied_conns -= pass_conns  # Preparation for handling of pass
+                # policy_denied_conns -= pass_conns  # Preparation for handling of pass
                 policy_allowed_conns -= denied_conns
-                #policy_allowed_conns -= pass_conns  # Preparation for handling of pass
-                #policy_pass_conns -= denied_conns
-                #policy_pass_conns -= allowed_conns
-                #pass_conns |= policy_pass_conns
+                # policy_allowed_conns -= pass_conns  # Preparation for handling of pass
+                # policy_pass_conns -= denied_conns
+                # policy_pass_conns -= allowed_conns
+                # pass_conns |= policy_pass_conns
                 allowed_conns |= policy_allowed_conns
                 denied_conns |= policy_denied_conns
                 if captured_func(policy):
@@ -330,8 +330,8 @@ class IstioNetworkLayer(NetworkLayer):
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
-        allowed_conn, denied_conns, captured = self.collect_policies_conns_optimized(is_ingress,
-                                                                                     IstioNetworkLayer.captured_cond_func)
+        allowed_conn, denied_conns, captured = \
+            self.collect_policies_conns_optimized(is_ingress, IstioNetworkLayer.captured_cond_func)
         base_peer_set_with_ip = peer_container.get_all_peers_group(True)
         base_peer_set_no_ip = peer_container.get_all_peers_group()
         non_captured_peers = base_peer_set_no_ip - captured

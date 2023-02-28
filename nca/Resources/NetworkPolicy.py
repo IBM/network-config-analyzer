@@ -53,10 +53,10 @@ class NetworkPolicy:
         self.selected_peers = PeerSet()  # The peers affected by this policy
         self.ingress_rules = []
         self.egress_rules = []
-        self.optimized_ingress_props = TcpLikeProperties.make_empty_properties()  # allowed properties in hypercube set format
-        self.optimized_denied_ingress_props = TcpLikeProperties.make_empty_properties()  # denied properties in hypercube set format
-        self.optimized_egress_props = TcpLikeProperties.make_empty_properties()  # allowed properties in hypercube set format
-        self.optimized_denied_egress_props = TcpLikeProperties.make_empty_properties()  # denied properties in hypercube set format
+        self.optimized_ingress_props = TcpLikeProperties.make_empty_properties()
+        self.optimized_denied_ingress_props = TcpLikeProperties.make_empty_properties()
+        self.optimized_egress_props = TcpLikeProperties.make_empty_properties()
+        self.optimized_denied_egress_props = TcpLikeProperties.make_empty_properties()
         self.affects_ingress = False  # whether the policy affects the ingress of the selected peers
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
         self.findings = []  # accumulated findings which are relevant only to this policy (emptiness and redundancy)

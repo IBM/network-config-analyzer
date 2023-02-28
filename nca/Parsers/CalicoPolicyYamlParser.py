@@ -380,14 +380,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             if err:
                 self.syntax_error(err, not_icmp_data)
 
-        #res = ICMPDataSet(icmp_data is None and not_icmp_data is None)
         res = TcpLikeProperties.make_icmp_properties(self.peer_container)
         opt_props = TcpLikeProperties.make_empty_properties(self.peer_container)
         if self.optimized_run != 'false' and src_pods and dst_pods:
             opt_props = TcpLikeProperties.make_icmp_properties(self.peer_container, protocol=protocol,
                                                                src_peers=src_pods, dst_peers=dst_pods)
         if icmp_data is not None:
-            #res.add_to_set(icmp_type, icmp_code)
             res = TcpLikeProperties.make_icmp_properties(self.peer_container, icmp_type=icmp_type, icmp_code=icmp_code)
             if self.optimized_run != 'false' and src_pods and dst_pods:
                 opt_props = TcpLikeProperties.make_icmp_properties(self.peer_container, protocol=protocol,
@@ -395,12 +393,9 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                                                                    icmp_type=icmp_type, icmp_code=icmp_code)
             if not_icmp_data is not None:
                 if icmp_type == not_icmp_type and icmp_code == not_icmp_code:
-                    #res = ICMPDataSet()
                     res = TcpLikeProperties.make_empty_properties(self.peer_container)
                     self.warning('icmp and notICMP are conflicting - no traffic will be matched', not_icmp_data)
                 elif icmp_type == not_icmp_type and icmp_code is None:
-                    #tmp = ICMPDataSet()  # this is the only case where it makes sense to combine icmp and notICMP
-                    #tmp.add_to_set(not_icmp_type, not_icmp_code)
                     tmp = TcpLikeProperties.make_icmp_properties(self.peer_container, icmp_type=not_icmp_type,
                                                                  icmp_code=not_icmp_code)
                     res -= tmp
@@ -413,7 +408,6 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 else:
                     self.warning('notICMP has no effect', not_icmp_data)
         elif not_icmp_data is not None:
-            #res.add_all_but_given_pair(not_icmp_type, not_icmp_code)
             res = TcpLikeProperties.make_all_but_given_icmp_properties(self.peer_container,
                                                                        icmp_type=not_icmp_type,
                                                                        icmp_code=not_icmp_code)

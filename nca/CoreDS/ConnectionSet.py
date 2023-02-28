@@ -6,7 +6,6 @@
 from collections import defaultdict
 from .CanonicalIntervalSet import CanonicalIntervalSet
 from .TcpLikeProperties import TcpLikeProperties
-from .ICMPDataSet import ICMPDataSet
 from .ProtocolNameResolver import ProtocolNameResolver
 from .ProtocolSet import ProtocolSet
 from .Peer import PeerSet, IpBlock
@@ -578,8 +577,19 @@ class ConnectionSet:
     # TODO - after moving to the optimized HC set implementation,
     #  get rid of ConnectionSet and move the code below to TcpLikeProperties.py
     @staticmethod
-    def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container, ip_blocks_filter,
+    def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container, ip_blocks_mask,
                                    connectivity_restriction):
+        """
+        Build FWRules from the given TcpLikeProperties
+        :param TcpLikeProperties tcp_props: properties describing allowed connections
+        :param ClusterInfo cluster_info: the cluster info
+        :param PeerContainer peer_container: the peer container
+        :param IpBlock ip_blocks_mask: IpBlock containing all allowed ip values,
+         whereas all other values should be filtered out in the output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :return: FWRules map
+        """
         ignore_protocols = ProtocolSet()
         if connectivity_restriction:
             if connectivity_restriction == 'TCP':
@@ -601,9 +611,9 @@ class ConnectionSet:
                 new_cube_dict.pop('dst_peers')
             else:
                 dst_peers = peer_container.get_all_peers_group(True)
-            if IpBlock.get_all_ips_block() != ip_blocks_filter:
-                src_peers.filter_ipv6_blocks(ip_blocks_filter)
-                dst_peers.filter_ipv6_blocks(ip_blocks_filter)
+            if IpBlock.get_all_ips_block() != ip_blocks_mask:
+                src_peers.filter_ipv6_blocks(ip_blocks_mask)
+                dst_peers.filter_ipv6_blocks(ip_blocks_mask)
             protocols = new_cube_dict.get('protocols')
             if protocols:
                 new_cube_dict.pop('protocols')

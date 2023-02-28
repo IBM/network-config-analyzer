@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
-from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 
@@ -269,7 +268,7 @@ class NetworkConfig:
 
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
 
-    def allowed_connections_optimized(self, connectivityFilterIstioEdges, layer_name=None):
+    def allowed_connections_optimized(self, layer_name=None):
         """
         Computes the set of allowed connections between any relevant peers.
         :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
