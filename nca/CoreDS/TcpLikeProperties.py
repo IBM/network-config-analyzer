@@ -43,7 +43,9 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
     def __init__(self, source_ports=PortSet(True), dest_ports=PortSet(True), protocols=ProtocolSet(True),
-                 methods=MethodSet(True), paths=None, hosts=None, icmp_type=None, icmp_code=None,
+                 methods=MethodSet(True), paths=None, hosts=None,
+                 icmp_type=DimensionsManager().get_dimension_domain_by_name('icmp_type'),
+                 icmp_code=DimensionsManager().get_dimension_domain_by_name('icmp_code'),
                  base_peer_set=None, src_peers=None, dst_peers=None,
                  create_empty=False):
         """
@@ -79,8 +81,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                           "methods": {"value": methods, "is_all": methods.is_whole_range()},
                           "hosts": {"value": hosts, "is_all": hosts is None},
                           "paths": {"value": paths, "is_all": paths is None},
-                          "icmp_type": {"value": icmp_type, "is_all": icmp_type is None},
-                          "icmp_code": {"value": icmp_code, "is_all": icmp_code is None}}
+                          "icmp_type": {"value": icmp_type, "is_all": icmp_type == DimensionsManager().get_dimension_domain_by_name('icmp_type')},
+                          "icmp_code": {"value": icmp_code, "is_all": icmp_code == DimensionsManager().get_dimension_domain_by_name('icmp_code')}}
 
         cube, active_dims, has_empty_dim_value = self._get_cube_and_active_dims_from_input_values(dims_to_values)
 
@@ -215,7 +217,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, TcpLikeProperties):
-            # assert not self.base_peer_set or not other.base_peer_set or self.base_peer_set == other.base_peer_set
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
@@ -237,8 +238,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return res
 
     def __iand__(self, other):
-        # assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-        #        not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__iand__(other)
@@ -247,8 +246,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return self
 
     def __ior__(self, other):
-        # assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-        #        not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.excluded_named_ports
         assert not isinstance(other, TcpLikeProperties) or not other.excluded_named_ports
         super().__ior__(other)
@@ -266,8 +263,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return self
 
     def __isub__(self, other):
-        # assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-        #        not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
         super().__isub__(other)
@@ -281,8 +276,6 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
-        # assert not isinstance(other, TcpLikeProperties) or not self.base_peer_set or \
-        #        not other.base_peer_set or self.base_peer_set == other.base_peer_set
         assert not self.has_named_ports()
         assert not other.has_named_ports()
         return super().contained_in(other)
@@ -380,31 +373,16 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         Build the projection of self to the given dimension
         :param str dim_name: the given dimension
         :return: the projection on the given dimension, having that dimension type (either IntervalSet or DFA)
+         or None if the given dimension is not active
         """
         if dim_name not in self.active_dimensions:
-            if dim_name == "src_peers" or dim_name == "dst_peers":
-                return PeerSet()
-            elif dim_name == "src_ports" or dim_name == "dst_ports":
-                return PortSet()
-            elif dim_name == "protocols":
-                return ProtocolSet()
-            elif dim_name == "methods":
-                return MethodSet()
-            else:
-                return None
+            return None
         res = None
         for cube in self:
             cube_dict = self.get_cube_dict_with_orig_values(cube)
             values = cube_dict.get(dim_name)
             if values:
                 res = (res | values) if res else values
-        return res
-
-    @staticmethod
-    def cube_dict_to_str(cube_dict):
-        res = ""
-        for item in cube_dict.items():
-            res += str(item[0]) + " : " + str(item[1])
         return res
 
     @staticmethod
@@ -426,7 +404,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     def make_tcp_like_properties(peer_container, src_ports=PortSet(True), dst_ports=PortSet(True),
                                  protocols=ProtocolSet(True), src_peers=None, dst_peers=None,
                                  paths_dfa=None, hosts_dfa=None, methods=MethodSet(True),
-                                 icmp_type=None, icmp_code=None):
+                                 icmp_type=DimensionsManager().get_dimension_domain_by_name('icmp_type'),
+                                 icmp_code=DimensionsManager().get_dimension_domain_by_name('icmp_code')):
         """
         get TcpLikeProperties with TCP allowed connections, corresponding to input properties cube.
         TcpLikeProperties should not contain named ports: substitute them with corresponding port numbers, per peer
@@ -531,14 +510,14 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         cube_dict_copy = cube_dict.copy()
         src_ports = cube_dict_copy.pop("src_ports", PortSet(True))
         dst_ports = cube_dict_copy.pop("dst_ports", PortSet(True))
-        protocols = cube_dict_copy.pop("protocols", None)
+        protocols = cube_dict_copy.pop("protocols", ProtocolSet(True))
         src_peers = cube_dict_copy.pop("src_peers", None)
         dst_peers = cube_dict_copy.pop("dst_peers", None)
         paths_dfa = cube_dict_copy.pop("paths", None)
         hosts_dfa = cube_dict_copy.pop("hosts", None)
-        methods = cube_dict_copy.pop("methods", None)
-        icmp_type = cube_dict_copy.pop("icmp_type", None)
-        icmp_code = cube_dict_copy.pop("icmp_code", None)
+        methods = cube_dict_copy.pop("methods", MethodSet(True))
+        icmp_type = cube_dict_copy.pop("icmp_type", DimensionsManager().get_dimension_domain_by_name('icmp_type'))
+        icmp_code = cube_dict_copy.pop("icmp_code", DimensionsManager().get_dimension_domain_by_name('icmp_code'))
         assert not cube_dict_copy
         return TcpLikeProperties.make_tcp_like_properties(peer_container, src_ports=src_ports, dst_ports=dst_ports,
                                                           protocols=protocols, src_peers=src_peers, dst_peers=dst_peers,
@@ -578,8 +557,8 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             icmp_protocol_set.add_protocol(ProtocolNameResolver.get_protocol_number(protocol))
         else:
             icmp_protocol_set = ProtocolSet(True)
-        icmp_type_interval = None
-        icmp_code_interval = None
+        icmp_type_interval = DimensionsManager().get_dimension_domain_by_name('icmp_type')
+        icmp_code_interval = DimensionsManager().get_dimension_domain_by_name('icmp_code')
         if icmp_type:
             icmp_type_interval = CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type)
             if icmp_code:

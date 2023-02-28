@@ -227,17 +227,20 @@ class GenericYamlParser:
             self.syntax_error(err_message, array)
 
     @staticmethod
-    def _get_connection_set_from_properties(dest_ports, method_set=MethodSet(True), paths_dfa=None, hosts_dfa=None):
+    def _get_connection_set_from_properties(peer_container, dest_ports, methods=MethodSet(True), paths_dfa=None,
+                                            hosts_dfa=None):
         """
         get ConnectionSet with TCP allowed connections, corresponding to input properties cube
+        :param PeerContainer peer_container: the peer container
         :param PortSet dest_ports: ports set for dset_ports dimension
-        :param MethodSet method_set: methods set for methods dimension
+        :param MethodSet methods: methods set for methods dimension
         :param MinDFA paths_dfa: MinDFA obj for paths dimension
         :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
         :return: ConnectionSet with TCP allowed connections , corresponding to input properties cube
         """
-        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=method_set,
-                                           paths=paths_dfa, hosts=hosts_dfa)
+        tcp_properties = TcpLikeProperties.make_tcp_like_properties(peer_container, dst_ports=dest_ports,
+                                                                    methods=methods, paths_dfa=paths_dfa,
+                                                                    hosts_dfa=hosts_dfa)
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
         return res

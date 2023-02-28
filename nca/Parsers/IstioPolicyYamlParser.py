@@ -195,7 +195,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             return self.parse_principals(values, not_values)  # PeerSet
         elif key == 'destination.port':
             dst_ports = self.get_rule_ports(values, not_values)  # PortSet
-            return self._get_connection_set_from_properties(dst_ports)  # ConnectionSet
+            return self._get_connection_set_from_properties(self.peer_container, dst_ports)  # ConnectionSet
         return NotImplemented, False
 
     def parse_condition(self, condition):
@@ -398,7 +398,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         hosts_dfa = self.parse_regex_dimension_values("hosts", operation.get("hosts"), operation.get("notHosts"),
                                                       operation)
 
-        return self._get_connection_set_from_properties(dst_ports, methods_set, paths_dfa, hosts_dfa)
+        return self._get_connection_set_from_properties(self.peer_container, dst_ports, methods=methods_set,
+                                                        paths_dfa=paths_dfa, hosts_dfa=hosts_dfa)
 
     def parse_source(self, source_dict):
         """

@@ -97,7 +97,8 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
             port_set.port_set = ports
             port_set.named_ports = tcp_conns.named_ports
             port_set.excluded_named_ports = tcp_conns.excluded_named_ports
-            new_conns = self._get_connection_set_from_properties(port_set, paths_dfa=paths, hosts_dfa=hosts)
+            new_conns = self._get_connection_set_from_properties(self.peer_container, port_set, paths_dfa=paths,
+                                                                 hosts_dfa=hosts)
             if peers_to_conns.get(dst_peer_set):
                 peers_to_conns[dst_peer_set] |= new_conns  # optimize conns for the same peers
             else:
