@@ -438,7 +438,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.syntax_error('invalid protocol name: ' + protocol, rule)
         return ProtocolNameResolver.get_protocol_number(protocol)
 
-    def _parse_xgress_rule(self, rule, is_ingress, policy_selected_eps, is_profile):
+    def _parse_xgress_rule(self, rule, is_ingress, policy_selected_eps, is_profile):  # noqa: C901
         """
         Parse a single ingres/egress rule, producing a CalicoPolicyRule
         :param dict rule: The rule element to parse

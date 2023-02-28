@@ -66,7 +66,7 @@ class PoliciesFinder:
         """
         self.policies_container.append_policy(policy)
 
-    def parse_policies_in_parse_queue(self):
+    def parse_policies_in_parse_queue(self):  # noqa: C901
         istio_traffic_parser = None
         istio_sidecar_parser = None
         for policy, file_name, policy_type in self._parse_queue:

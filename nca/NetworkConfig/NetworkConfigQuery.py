@@ -692,7 +692,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 return False
         return True
 
-    def exec(self):
+    def exec(self):  # noqa: C901
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
