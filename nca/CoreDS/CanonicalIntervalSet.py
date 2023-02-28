@@ -366,4 +366,3 @@ class CanonicalIntervalSet:
         :return: Whether the interval set contains a single value
         """
         return len(self) == 1 and list(self)[0].is_single_value()
-

@@ -441,10 +441,8 @@ class ConnectionSet:
         :param protocol: the given protocol number
         :return: None
         """
-        if self.protocol_supports_ports(protocol):
+        if self.protocol_supports_ports(protocol) or self.protocol_is_icmp(protocol):
             self.allowed_protocols[protocol] = TcpLikeProperties.make_all_properties()
-        elif self.protocol_is_icmp(protocol):
-            self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
         else:
             self.allowed_protocols[protocol] = True
 
@@ -586,7 +584,7 @@ class ConnectionSet:
         if connectivity_restriction:
             if connectivity_restriction == 'TCP':
                 ignore_protocols.add_protocol('TCP')
-            else:  #connectivity_restriction == 'non-TCP'
+            else:  # connectivity_restriction == 'non-TCP'
                 ignore_protocols = ProtocolSet.get_non_tcp_protocols()
 
         fw_rules_map = defaultdict(list)

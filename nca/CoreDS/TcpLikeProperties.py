@@ -408,6 +408,21 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return res
 
     @staticmethod
+    def resolve_named_port(named_port, peer, protocols):
+        peer_named_ports = peer.get_named_ports()
+        real_port = peer_named_ports.get(named_port)
+        if not real_port:
+            print(f'Warning: Missing named port {named_port} in the pod {peer}. Ignoring the pod')
+            return None
+        if real_port[1] not in protocols:
+            print(f'Warning: Illegal protocol {real_port[1]} in the named port {named_port} '
+                  f'of the pod {peer}. Ignoring the pod')
+            return None
+        real_ports = PortSet()
+        real_ports.add_port(real_port[0])
+        return real_ports
+
+    @staticmethod
     def make_tcp_like_properties(peer_container, src_ports=PortSet(True), dst_ports=PortSet(True),
                                  protocols=ProtocolSet(True), src_peers=None, dst_peers=None,
                                  paths_dfa=None, hosts_dfa=None, methods=MethodSet(True),
@@ -441,65 +456,36 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             dst_peers_interval = None
         if (not src_ports.named_ports or not src_peers) and (not dst_ports.named_ports or not dst_peers):
             # Should not resolve named ports
-            res = TcpLikeProperties(source_ports=src_ports, dest_ports=dst_ports,
-                                    protocols=protocols, methods=methods, paths=paths_dfa, hosts=hosts_dfa,
-                                    icmp_type=icmp_type, icmp_code=icmp_code,
-                                    src_peers=src_peers_interval, dst_peers=dst_peers_interval,
-                                    base_peer_set=base_peer_set)
-            return res
+            return TcpLikeProperties(source_ports=src_ports, dest_ports=dst_ports,
+                                     protocols=protocols, methods=methods, paths=paths_dfa, hosts=hosts_dfa,
+                                     icmp_type=icmp_type, icmp_code=icmp_code,
+                                     src_peers=src_peers_interval, dst_peers=dst_peers_interval,
+                                     base_peer_set=base_peer_set)
         # Resolving named ports
-        tcp_properties = None
+        tcp_properties = TcpLikeProperties.make_empty_properties(peer_container)
         if src_ports.named_ports and dst_ports.named_ports:
-            assert src_peers
-            assert dst_peers
-            assert not src_ports.port_set
-            assert not dst_ports.port_set
+            assert src_peers and dst_peers
+            assert not src_ports.port_set and not dst_ports.port_set
             assert len(src_ports.named_ports) == 1 and len(dst_ports.named_ports) == 1
             src_named_port = list(src_ports.named_ports)[0]
             dst_named_port = list(dst_ports.named_ports)[0]
-            tcp_protocol = ProtocolSet()
-            tcp_protocol.add_protocol(ProtocolNameResolver.get_protocol_number('TCP'))
             for src_peer in src_peers:
-                src_peer_named_ports = src_peer.get_named_ports()
-                real_src_port = src_peer_named_ports.get(src_named_port)
-                if not real_src_port:
-                    print(f'Warning: Missing named port {src_named_port} in the pod {src_peer}. Ignoring the pod')
+                real_src_ports = TcpLikeProperties.resolve_named_port(src_named_port, src_peer, protocols)
+                if not real_src_ports:
                     continue
-                if real_src_port[1] not in protocols:
-                    print(f'Warning: Illegal protocol {real_src_port[1]} in the named port {src_named_port} '
-                          f'of the target pod {src_peer}. Ignoring the pod')
-                    continue
-                src_peer_in_set = PeerSet()
-                src_peer_in_set.add(src_peer)
-                real_src_ports = PortSet()
-                real_src_ports.add_port(real_src_port[0])
                 for dst_peer in dst_peers:
-                    dst_peer_named_ports = dst_peer.get_named_ports()
-                    real_dst_port = dst_peer_named_ports.get(dst_named_port)
-                    if not real_dst_port:
-                        print(f'Warning: Missing named port {dst_named_port} in the pod {dst_peer}. Ignoring the pod')
+                    real_dst_ports = TcpLikeProperties.resolve_named_port(dst_named_port, dst_peer, protocols)
+                    if not real_dst_ports:
                         continue
-                    if real_dst_port[1] not in protocols:
-                        print(f'Warning: Illegal protocol {real_dst_port[1]} in the named port {dst_named_port} '
-                              f'of the target pod {dst_peer}. Ignoring the pod')
-                        continue
-                    dst_peer_in_set = PeerSet()
-                    dst_peer_in_set.add(dst_peer)
-                    real_dst_ports = PortSet()
-                    real_dst_ports.add_port(real_dst_port[0])
-
                     props = TcpLikeProperties(source_ports=real_src_ports, dest_ports=real_dst_ports,
-                                              protocols=protocols if protocols else tcp_protocol, methods=methods,
+                                              protocols=protocols, methods=methods,
                                               paths=paths_dfa, hosts=hosts_dfa,
                                               icmp_type=icmp_type, icmp_code=icmp_code,
-                                              src_peers=base_peer_set.get_peer_interval_of(src_peer_in_set),
-                                              dst_peers=base_peer_set.get_peer_interval_of(dst_peer_in_set),
+                                              src_peers=base_peer_set.get_peer_interval_of(PeerSet({src_peer})),
+                                              dst_peers=base_peer_set.get_peer_interval_of(PeerSet({dst_peer})),
                                               base_peer_set=base_peer_set)
 
-                    if tcp_properties:
-                        tcp_properties |= props
-                    else:
-                        tcp_properties = props
+                    tcp_properties |= props
         else:
             # either only src_ports or only dst_ports contain named ports
             if src_ports.named_ports:
@@ -512,41 +498,26 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             assert not port_set_with_named_ports.port_set
             assert len(port_set_with_named_ports.named_ports) == 1
             port = list(port_set_with_named_ports.named_ports)[0]
-            tcp_protocol = ProtocolSet()
-            tcp_protocol.add_protocol(ProtocolNameResolver.get_protocol_number('TCP'))
             for peer in peers_for_named_ports:
-                named_ports = peer.get_named_ports()
-                real_port = named_ports.get(port)
-                if not real_port:
-                    print(f'Warning: Missing named port {port} in the pod {peer}. Ignoring the pod')
+                real_ports = TcpLikeProperties.resolve_named_port(port, peer, protocols)
+                if not real_ports:
                     continue
-                if real_port[1] not in protocols:
-                    print(f'Warning: Illegal protocol {real_port[1]} in the named port {port} of the target pod {peer}.'
-                          f'Ignoring the pod')
-                    continue
-                peer_in_set = PeerSet()
-                peer_in_set.add(peer)
-                ports = PortSet()
-                ports.add_port(real_port[0])
                 if src_ports.named_ports:
-                    props = TcpLikeProperties(source_ports=ports, dest_ports=dst_ports,
-                                              protocols=protocols if protocols else tcp_protocol, methods=methods,
+                    props = TcpLikeProperties(source_ports=real_ports, dest_ports=dst_ports,
+                                              protocols=protocols, methods=methods,
                                               paths=paths_dfa, hosts=hosts_dfa,
                                               icmp_type=icmp_type, icmp_code=icmp_code,
-                                              src_peers=base_peer_set.get_peer_interval_of(peer_in_set),
+                                              src_peers=base_peer_set.get_peer_interval_of(PeerSet({peer})),
                                               dst_peers=dst_peers_interval, base_peer_set=base_peer_set)
                 else:
-                    props = TcpLikeProperties(source_ports=src_ports, dest_ports=ports,
-                                              protocols=protocols if protocols else tcp_protocol, methods=methods,
+                    props = TcpLikeProperties(source_ports=src_ports, dest_ports=real_ports,
+                                              protocols=protocols, methods=methods,
                                               paths=paths_dfa, hosts=hosts_dfa,
                                               icmp_type=icmp_type, icmp_code=icmp_code,
                                               src_peers=src_peers_interval,
-                                              dst_peers=base_peer_set.get_peer_interval_of(peer_in_set),
+                                              dst_peers=base_peer_set.get_peer_interval_of(PeerSet({peer})),
                                               base_peer_set=base_peer_set)
-                if tcp_properties:
-                    tcp_properties |= props
-                else:
-                    tcp_properties = props
+                tcp_properties |= props
         return tcp_properties
 
     @staticmethod
