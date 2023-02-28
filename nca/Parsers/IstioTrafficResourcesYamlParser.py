@@ -265,6 +265,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             methods = self.parse_istio_regex_string(item, 'method', vs.full_name())
             if methods:
                 parsed_route.add_methods(methods)
+            else:
+                parsed_route.add_methods(MethodSet(True))
 
     def parse_http_route_destinations(self, route, parsed_route, vs):
         """

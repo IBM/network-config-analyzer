@@ -73,10 +73,10 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         # create a dict object that holds the values required to build the cube
         dims_to_values = {"src_peers": {"value": src_peers, "is_all": src_peers is None},
                           "dst_peers": {"value": dst_peers, "is_all": dst_peers is None},
-                          "protocols": {"value": protocols, "is_all": protocols is None or protocols.is_whole_range()},
+                          "protocols": {"value": protocols, "is_all": protocols.is_whole_range()},
                           "src_ports": {"value": source_ports.port_set, "is_all": source_ports.is_all()},
                           "dst_ports": {"value": dest_ports.port_set, "is_all": dest_ports.is_all()},
-                          "methods": {"value": methods, "is_all": methods is None or methods.is_whole_range()},
+                          "methods": {"value": methods, "is_all": methods.is_whole_range()},
                           "hosts": {"value": hosts, "is_all": hosts is None},
                           "paths": {"value": paths, "is_all": paths is None},
                           "icmp_type": {"value": icmp_type, "is_all": icmp_type is None},
