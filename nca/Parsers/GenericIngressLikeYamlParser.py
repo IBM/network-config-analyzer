@@ -2,6 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+import re
 
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
@@ -28,6 +29,32 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         self.namespace = None
         self.default_backend_peers = PeerSet()
         self.default_backend_ports = PortSet()
+
+    def parse_regex_host_value(self, regex_value, rule):
+        """
+        for 'hosts' dimension of type MinDFA -> return a MinDFA, or None for all values
+        :param str regex_value: input regex host value
+        :param dict rule: the parsed rule object
+        :return: Union[MinDFA, None] object
+        """
+        if regex_value is None:
+            return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
+
+        if regex_value == '*':
+            return DimensionsManager().get_dimension_domain_by_name('hosts')
+
+        allowed_chars = "[\\w]"
+        allowed_chars_with_star_regex = "[*" + MinDFA.default_dfa_alphabet_chars + "]*"
+        if not re.fullmatch(allowed_chars_with_star_regex, regex_value):
+            self.syntax_error(f'Illegal characters in host {regex_value}', rule)
+
+        # convert regex_value into regex format supported by greenery
+        regex_value = regex_value.replace(".", "[.]")
+        if '*' in regex_value:
+            if not regex_value.startswith('*'):
+                self.syntax_error(f'Illegal host value pattern: {regex_value}')
+            regex_value = regex_value.replace("*", allowed_chars + '*')
+        return MinDFA.dfa_from_regex(regex_value)
 
     def _make_tcp_like_properties(self, dest_ports, peers, paths_dfa=None, hosts_dfa=None, methods_dfa=None):
         """

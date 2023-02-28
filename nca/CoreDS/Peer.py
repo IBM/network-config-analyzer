@@ -460,13 +460,11 @@ class DNSEntry(Peer):
     """
     represents DNS entries, produced by ServiceEntry objects
     """
-    def __init__(self, host_mindfa=None, name=None, namespace=None):
+    def __init__(self, name=None, namespace=None):
         """
         Constructs a DNSEntry from the host minDFA provided
-        :param MinDFA host_mindfa: represents the minDFA of the host regex
         """
         Peer.__init__(self, name, namespace)
-        self.host_mindfa = host_mindfa
         self.namespaces = set()  # set of namespaces the peer is exported to,
         # if the peer appears in multiple service-entries, this set should include all namespaces that these
         # service-entries are exported to, the set will be cleared if the peer is exported to all namespaces, instead,

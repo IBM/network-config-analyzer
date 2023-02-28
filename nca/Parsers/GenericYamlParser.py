@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-import re
 from sys import stderr
 from enum import Enum
-from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.MethodSet import MethodSet
@@ -244,32 +242,6 @@ class GenericYamlParser:
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
         return res
-
-    def parse_regex_host_value(self, regex_value, rule):
-        """
-        for 'hosts' dimension of type MinDFA -> return a MinDFA, or None for all values
-        :param str regex_value: input regex host value
-        :param dict rule: the parsed rule object
-        :return: Union[MinDFA, None] object
-        """
-        if regex_value is None:
-            return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
-
-        if regex_value == '*':
-            return DimensionsManager().get_dimension_domain_by_name('hosts')
-
-        allowed_chars = "[\\w]"
-        allowed_chars_with_star_regex = "[*" + MinDFA.default_dfa_alphabet_chars + "]*"
-        if not re.fullmatch(allowed_chars_with_star_regex, regex_value):
-            self.syntax_error(f'Illegal characters in host {regex_value}', rule)
-
-        # convert regex_value into regex format supported by greenery
-        regex_value = regex_value.replace(".", "[.]")
-        if '*' in regex_value:
-            if not regex_value.startswith('*'):
-                self.syntax_error(f'Illegal host value pattern: {regex_value}')
-            regex_value = regex_value.replace("*", allowed_chars + '*')
-        return MinDFA.dfa_from_regex(regex_value)
 
     def check_and_update_has_ipv6_addresses(self, peers):
         """

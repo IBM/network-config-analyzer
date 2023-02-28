@@ -2,7 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+import re
 from sys import stderr
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, DNSEntry
 from nca.Resources.K8sNamespace import K8sNamespace
@@ -204,7 +204,7 @@ class PeerContainer:
                 res |= service.target_peers
         return res
 
-    def get_dns_entry_pods_matching_host_dfa(self, host_dns):
+    def get_dns_entry_pods_matching_host_name(self, host_dns):
         """
         returns all DNSentry peers which include the host_dns
         :param str host_dns : string representing a host
@@ -212,7 +212,7 @@ class PeerContainer:
         """
         res = PeerSet()
         for peer in self.peer_set:
-            if isinstance(peer, DNSEntry) and peer.host_mindfa.__contains__(host_dns):
+            if isinstance(peer, DNSEntry) and re.fullmatch(peer.name, host_dns):
                 res.add(peer)
         return res
 

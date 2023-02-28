@@ -2,6 +2,8 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+import re
+
 from nca.CoreDS.Peer import DNSEntry
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 from nca.Resources.ServiceResource import IstioServiceEntry
@@ -35,20 +37,29 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
                 ns_list.append(ns)
         return ns_list
 
+    def _legal_host_name(self, host_name):
+        """
+        returns if the host name is a DNS name with wildcard prefix.
+        :param str host_name: host name to check
+        return: an re-matching object if the host name matches the DNS pattern, None otherwise
+        :rtype Union[str, None]
+        """
+        dns_pattern = "[*.\\w/\\-]*"
+        return re.fullmatch(dns_pattern, host_name)
+
     @staticmethod
-    def get_or_create_dns_entry_peer(peer_set, host_dfa, host_name):
+    def get_or_create_dns_entry_peer(peer_set, host_name):
         """
         checks if the given peer set contains a DNSEntry peer with the given host_dfa, if yes returns it, otherwise
         creates a new DNSEntry peer with the given host_dfa and host_name
         :param peer_set: set of peers
-        :param host_dfa: the host MinDFA
         :param str host_name: the host name
         :return DNSEntry
         """
         for peer in peer_set:
-            if isinstance(peer, DNSEntry) and peer.host_mindfa == host_dfa:
+            if isinstance(peer, DNSEntry) and peer.name == host_name:
                 return peer
-        return DNSEntry(host_mindfa=host_dfa, name=host_name)
+        return DNSEntry(name=host_name)
 
     def _parse_host_and_get_dns_entry(self, host, rule_dict, peer_set):
         """
@@ -61,10 +72,9 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         """
         if host == '*':
             self.syntax_error(f'illegal host {host}', rule_dict)
-        host_dfa = self.parse_regex_host_value(host, rule_dict)
-        if host_dfa:
+        if self._legal_host_name(host):
             # check if a DNSEntry with same host already exists in the peer set, get it, otherwise create new one
-            return self.get_or_create_dns_entry_peer(peer_set, host_dfa, host)
+            return self.get_or_create_dns_entry_peer(peer_set, host)
         return None
 
     def parse_service(self, service_entry_obj, peer_set):
