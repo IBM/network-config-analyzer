@@ -59,10 +59,11 @@ class ConnectivityGraph:
         some changes are required for txt_no_fw_rules format: - to print ip_range only for an ipblock
         - replace () with [] for deployment workload_names
         - if the peer has a replicaSet owner, type its full name with [ReplicaSet] regardless its suffix
-        :return: tuple(str, str, str )
+        :return: tuple(str, str, str, str )
         str: the peer name
         str: the peer type ip_block, livesim, or pod
         str: namespace name
+        str: text - the text to present at connectivity graph
         """
         nc_name = peer.namespace.name if peer.namespace else ''
         if isinstance(peer, IpBlock):
@@ -78,11 +79,32 @@ class ConnectivityGraph:
                     peer_name = peer_name.replace(ch, to_replace[ch])
         else:
             peer_name = str(peer)
-        text = [t for t in peer_name.split('/') if t != nc_name][0]
+        # text = the peer_name after removing the namespace_name from it, if exist
+        text = ('/').join([t for t in peer_name.split('/') if t != nc_name])
         return peer_name, peer_type, nc_name, [text]
 
     @staticmethod
-    def _creates_cliqued_graph(not_directed_edges, conn_str):
+    def reformat_graph(undirected_edges, directed_edges, allow_undirected):
+        """
+        reformat_graph replace undirected_edges with directed_edges and vice versa
+        :param: undirected_edges: set of pairs
+        :param: directed_edges: set of pairs
+        :param: allow_undirected_edges: bool
+        return: truple( set, set)
+        set: set of the undirected edges in the graph
+        set: set of the directed edges in the graph
+        """
+        if allow_undirected:
+            undirected_edges = set(edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges) | undirected_edges
+            directed_edges = directed_edges - undirected_edges
+            undirected_edges = set(edge for edge in undirected_edges if edge[1] < edge[0])
+        else:
+            directed_edges = directed_edges | undirected_edges | set((edge[1], edge[0]) for edge in undirected_edges)
+            undirected_edges = set()
+        return undirected_edges, directed_edges
+
+    @staticmethod
+    def _creates_cliqued_graph(undirected_edges, conn_str):
         """
         A clique is a subset of nodes, where every pair of nodes in the subset has an edge
         This method creates a new graph with cliques. of each clique in the graph:
@@ -96,10 +118,10 @@ class ConnectivityGraph:
                  a new node will be created for every namespace
 
 
-        :param: not_directed_edges: list of pairs representing the original graph
+        :param: undirected_edges: list of pairs representing the original graph
         return: truple( list, list, list)
-        list: list of the not directed edges lest in the graph
-        list: list of the new not directed edges representing the cliques
+        list: list of the undirected edges left in the graph
+        list: list of the new undirected edges representing the cliques
         list: list of the new nodes that was created to represent the cliques
 
         """
@@ -107,7 +129,7 @@ class ConnectivityGraph:
 
         # find cliques in the graph:
         graph = networkx.Graph()
-        graph.add_edges_from(not_directed_edges)
+        graph.add_edges_from(undirected_edges)
         cliques = networkx.clique.find_cliques(graph)
 
         cliques_nodes = []
@@ -146,8 +168,8 @@ class ConnectivityGraph:
                 cliques_edges.add((clique_namespaces_nodes[0], clique_namespaces_nodes[1]))
 
             # removing the original edges of the clique:
-            not_directed_edges = not_directed_edges - set(itertools.product(clique, clique))
-        return not_directed_edges, cliques_edges, cliques_nodes
+            undirected_edges = undirected_edges - set(itertools.product(clique, clique))
+        return undirected_edges, cliques_edges, cliques_nodes
 
     @staticmethod
     def _creates_bicliqued_graph(directed_edges, conn_str):
@@ -234,7 +256,9 @@ class ConnectivityGraph:
         peers_edges = {peer: [] for peer in set(self.cluster_info.all_peers)}
         for connection, peer_pairs in self.connections_to_peers.items():
             for src_peer, dst_peer in peer_pairs:
-                if src_peer != dst_peer and connection:
+                if not connection:
+                    continue
+                if src_peer != dst_peer:
                     peers_edges[src_peer].append((dst_peer, connection, False))
                     peers_edges[dst_peer].append((src_peer, connection, True))
 
@@ -332,20 +356,11 @@ class ConnectivityGraph:
                     dst_peer_name, _, dst_nc, _ = self._get_peer_details(dst_peer)
                     directed_edges.add(((src_peer_name, src_nc), (dst_peer_name, dst_nc)))
 
-            # replacing directed edges with not directed edges:
-            not_directed_edges = set(edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges)
-            directed_edges = directed_edges - not_directed_edges
-            not_directed_edges = set(edge for edge in not_directed_edges if edge[1] < edge[0])
-
-            not_directed_edges, cliques_edges, new_cliques = self._creates_cliqued_graph(not_directed_edges, conn_str)
-            directed_edges = directed_edges | not_directed_edges | set((edge[1], edge[0]) for edge in not_directed_edges)
-
+            undirected_edges, directed_edges = self.reformat_graph(set(), directed_edges, allow_undirected=True)
+            undirected_edges, cliques_edges, new_cliques = self._creates_cliqued_graph(undirected_edges, conn_str)
+            undirected_edges, directed_edges = self.reformat_graph(undirected_edges, directed_edges, allow_undirected=False)
             directed_edges, bicliques_edges, new_bicliques = self._creates_bicliqued_graph(directed_edges, conn_str)
-
-            # replacing directed edges with not directed edges:
-            not_directed_edges = set(edge for edge in directed_edges if (edge[1], edge[0]) in directed_edges)
-            directed_edges = directed_edges - not_directed_edges
-            not_directed_edges = set(edge for edge in not_directed_edges if edge[1] < edge[0])
+            undirected_edges, directed_edges = self.reformat_graph(undirected_edges, directed_edges, allow_undirected=True)
 
             for peer in new_cliques:
                 dot_graph.add_node(subgraph=peer[1], name=peer[0], node_type=DotGraph.NodeType.Clique, label=[conn_str])
@@ -353,7 +368,7 @@ class ConnectivityGraph:
                 dot_graph.add_node(subgraph=peer[1], name=peer[0], node_type=DotGraph.NodeType.BiClique, label=[conn_str])
             for edge in directed_edges | bicliques_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=True)
-            for edge in not_directed_edges | cliques_edges:
+            for edge in undirected_edges | cliques_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=False)
         return dot_graph.to_str()
 

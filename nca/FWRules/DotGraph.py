@@ -145,7 +145,7 @@ class DotGraph:
         """
         if node.node_type not in {self.NodeType.Clique, self.NodeType.BiClique}:
             border = '2' if node.node_type == self.NodeType.MultiPod else '0'
-            table = '<<table border="' + border + '" cellspacing="0">'
+            table = f'<<table border="{border}" cellspacing="0">'
             for line in node.label:
                 if line:
                     table += f'<tr><td>{line}</td></tr>'
