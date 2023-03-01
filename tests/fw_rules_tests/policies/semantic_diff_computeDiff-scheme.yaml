@@ -54,11 +54,11 @@ queries:
   semanticDiff:
   - new1
   - old1
-  expected: 2
   outputConfiguration:
     fwRulesRunInTestMode: false
     outputFormat: dot
     outputPath: null
+  expectedNotExecuted: 1  # dot is not supported for semanticDiff
   expectedOutput: expected_output/semantic_diff_old1_new1_query_output.dot
 - name: semantic_diff_old1_new1_md
   semanticDiff:
