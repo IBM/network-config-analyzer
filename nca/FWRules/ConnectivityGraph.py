@@ -275,7 +275,7 @@ class ConnectivityGraph:
         # find groups of peers that are also connected to each other:
         connected_groups, left_out = self._find_equal_groups(peers_edges)
         # for every group, also add the connection of the group (should be only one)
-        connected_groups = [(group, edges_connections[(group[0], group[1])]) for group in connected_groups]
+        connected_groups = [(group, edges_connections.get((group[0], group[1]), None)) for group in connected_groups]
 
         # removing the peers of groups that we already found:
         peers_edges = {peer: edges for peer, edges in peers_edges.items() if peer in left_out}
