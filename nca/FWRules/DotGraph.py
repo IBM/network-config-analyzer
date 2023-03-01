@@ -16,6 +16,8 @@ class DotGraph:
         Pod = 1
         Livesim = 2
         Clique = 3
+        BiClique = 4
+        MultiPod = 5
 
     class Subgraph:
         def __init__(self, name):
@@ -47,7 +49,10 @@ class DotGraph:
              self.NodeType.Pod: 'shape=box fontcolor=blue',
              self.NodeType.Livesim: 'shape=box fontcolor=fuchsia',
              self.NodeType.Clique:
-                 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0'}
+                 'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0',
+             self.NodeType.BiClique: 'shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0',
+             self.NodeType.MultiPod: 'shape=box color=darkblue',
+             }
 
     def add_node(self, subgraph, name, node_type, label):
         """
@@ -63,7 +68,7 @@ class DotGraph:
         node = self.Node(name, node_type, label)
         self.subgraphs[subgraph].nodes.append(node)
         self.all_nodes[name] = node
-        if node_type == self.NodeType.Clique:
+        if node_type in {self.NodeType.Clique, self.NodeType.BiClique}:
             self.labels.add(label[0])
 
     def add_edge(self, src_name, dst_name, label, is_dir):
@@ -111,7 +116,7 @@ class DotGraph:
         items_to_present.sort()
         dict_table = '\\l'.join([f'{short:<15}{label}' for short, label in items_to_present])
         dict_table = f'label=\"Connectivity legend\\l{dict_table}\\l\"'
-        return f'\tdict_box [{dict_table} shape=box]\n'
+        return f'{{\n\tdict_box [{dict_table} shape=box]\n rank=sink\n}}\n'
 
     def _subgraph_to_str(self, subgraph):
         """
@@ -138,8 +143,9 @@ class DotGraph:
         creates a string for the node in a dot file format
         return str: the string
         """
-        if node.node_type != self.NodeType.Clique:
-            table = '<<table border="0" cellspacing="0">'
+        if node.node_type not in {self.NodeType.Clique, self.NodeType.BiClique}:
+            border = '2' if node.node_type == self.NodeType.MultiPod else '0'
+            table = f'<<table border="{border}" cellspacing="0">'
             for line in node.label:
                 if line:
                     table += f'<tr><td>{line}</td></tr>'
@@ -155,10 +161,11 @@ class DotGraph:
         return str: the string
         """
         is_clq_edge = self.NodeType.Clique in [edge.src.node_type, edge.dst.node_type]
-        edge_color = 'indigo' if is_clq_edge else 'darkorange4'
+        is_biclq_edge = self.NodeType.BiClique in [edge.src.node_type, edge.dst.node_type]
+        edge_color = 'indigo' if is_clq_edge else 'red' if is_biclq_edge else 'darkorange4'
         src_type = 'normal' if not is_clq_edge and not edge.is_dir else 'none'
         dst_type = 'normal' if not is_clq_edge else 'none'
-        label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge else ''
+        label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge and not is_biclq_edge else ''
 
         line = f'\t\"{edge.src.name}\" -> \"{edge.dst.name}\"'
         line += f'[{label} color={edge_color} fontcolor=darkgreen dir=both arrowhead={dst_type} arrowtail={src_type}]\n'
