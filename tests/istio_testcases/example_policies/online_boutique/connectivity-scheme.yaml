@@ -42,6 +42,14 @@ queries:
     #  outputPath: online_boutique_new_istio_policies_synthesis_res.dot
     expectedOutput: ../../expected_output/new_online_boutique_synth_res_connectivity_map.txt
 
+  - name: new_online_boutique_synth_res_connectivity_map_wo_fw_rules
+    connectivityMap:
+      - new_online_boutique_synthesis_res
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt_no_fw_rules
+    expectedOutput: ../../expected_output/new_online_boutique_synth_res_connectivity_map_wo_fw_rules.txt
+
   - name: semantic_diff_online_boutique_new_input_vs_synth_res
     semanticDiff:
       - new_online_boutique

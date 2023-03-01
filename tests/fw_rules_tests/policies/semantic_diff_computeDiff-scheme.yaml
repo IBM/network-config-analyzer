@@ -54,11 +54,11 @@ queries:
   semanticDiff:
   - new1
   - old1
-  expected: 2
   outputConfiguration:
     fwRulesRunInTestMode: false
     outputFormat: dot
     outputPath: null
+  expectedNotExecuted: 1  # dot is not supported for semanticDiff
   expectedOutput: expected_output/semantic_diff_old1_new1_query_output.dot
 - name: semantic_diff_old1_new1_md
   semanticDiff:
@@ -91,6 +91,16 @@ queries:
     outputFormat: txt
     outputPath: null
   expectedOutput: expected_output/semantic_diff_old1_new1a_query_output.txt
+- name: semantic_diff_old1_new1a_txt_no_fw_rules
+  semanticDiff:
+  - new1a
+  - old1
+  expected: 2
+  outputConfiguration:
+    fwRulesRunInTestMode: false
+    outputFormat: txt_no_fw_rules
+    outputPath: null
+  expectedOutput: expected_output/semantic_diff_old1_new1a_txt_no_fw_rules_query_output.txt
 - name: semantic_diff_old1_new1a_csv
   semanticDiff:
   - new1a
