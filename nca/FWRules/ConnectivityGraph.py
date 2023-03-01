@@ -125,7 +125,7 @@ class ConnectivityGraph:
         list: list of the new nodes that was created to represent the cliques
 
         """
-        min_qlicue_size = 4
+        min_clique_size = 4
 
         # find cliques in the graph:
         graph = networkx.Graph()
@@ -136,7 +136,7 @@ class ConnectivityGraph:
         cliques_edges = set()
         cliques = sorted([sorted(clique) for clique in cliques])
         for clique in cliques:
-            if len(clique) < min_qlicue_size:
+            if len(clique) < min_clique_size:
                 continue
             clq_namespaces = sorted(set(peer[1] for peer in clique))
             # the list of new nodes of the clique:
@@ -254,13 +254,16 @@ class ConnectivityGraph:
         """
         # for each peer, we get a list of (peer,conn,direction) that it connected to:
         peers_edges = {peer: [] for peer in set(self.cluster_info.all_peers)}
+        edges_connections = dict()
         for connection, peer_pairs in self.connections_to_peers.items():
+            if not connection:
+                continue
             for src_peer, dst_peer in peer_pairs:
-                if not connection:
-                    continue
                 if src_peer != dst_peer:
                     peers_edges[src_peer].append((dst_peer, connection, False))
                     peers_edges[dst_peer].append((src_peer, connection, True))
+                    edges_connections[(src_peer, dst_peer)] = connection
+                    edges_connections[(dst_peer, src_peer)] = connection
 
         # for each peer, adding a self edge only for connection that the peer already have:
         for peer, peer_edges in peers_edges.items():
@@ -271,7 +274,8 @@ class ConnectivityGraph:
 
         # find groups of peers that are also connected to each other:
         connected_groups, left_out = self._find_equal_groups(peers_edges)
-        connected_groups = [(group, set(conn[1] for conn in peers_edges[group[0]])) for group in connected_groups]
+        # for every group, also add the connection of the group (should be only one)
+        connected_groups = [(group, edges_connections[(group[0], group[1])]) for group in connected_groups]
 
         # removing the peers of groups that we already found:
         peers_edges = {peer: edges for peer, edges in peers_edges.items() if peer in left_out}
@@ -279,7 +283,7 @@ class ConnectivityGraph:
         peers_edges = {p: frozenset(e for e in p_edges if e[0] != p) for p, p_edges in peers_edges.items()}
         not_connected_groups, left_out = self._find_equal_groups(peers_edges)
         # returning [(group, list of self edges)]
-        return connected_groups + [(nc_group, []) for nc_group in not_connected_groups] + [([p], []) for p in left_out]
+        return connected_groups + [(nc_group, None) for nc_group in not_connected_groups] + [([p], None) for p in left_out]
 
     def get_connections_without_fw_rules_txt_format(self):
         """
@@ -328,7 +332,7 @@ class ConnectivityGraph:
         # we are going to treat a a peers_group as one peer.
         # the first peer in the peers_group is representing the group
         # we will add the text of all the peers in the group to this peer
-        for peers_group, peer_connections in peers_groups:
+        for peers_group, group_connection in peers_groups:
             peer_name, node_type, nc_name, text = self._get_peer_details(peers_group[0])
             if len(peers_group) > 1:
                 text = sorted(set(self._get_peer_details(peer)[3][0] for peer in peers_group))
@@ -337,11 +341,10 @@ class ConnectivityGraph:
             node_type = DotGraph.NodeType.MultiPod if len(text) > 1 else node_type
             dot_graph.add_node(nc_name, peer_name, node_type, text)
             # adding the self edges:
-            if len(text) > 1:
-                for connections in peer_connections:
-                    conn_str = connections.get_simplified_connections_representation(True)
-                    conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
-                    dot_graph.add_edge(peer_name, peer_name, label=conn_str, is_dir=False)
+            if len(text) > 1 and group_connection:
+                conn_str = group_connection.get_simplified_connections_representation(True)
+                conn_str = conn_str.replace("Protocol:", "").replace('All connections', 'All')
+                dot_graph.add_edge(peer_name, peer_name, label=conn_str, is_dir=False)
 
         representing_peers = [multi_peer[0][0] for multi_peer in peers_groups]
         for connections, peer_pairs in self.connections_to_peers.items():

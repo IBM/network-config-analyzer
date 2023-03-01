@@ -116,7 +116,7 @@ class DotGraph:
         items_to_present.sort()
         dict_table = '\\l'.join([f'{short:<15}{label}' for short, label in items_to_present])
         dict_table = f'label=\"Connectivity legend\\l{dict_table}\\l\"'
-        return '{\n' + f'\tdict_box [{dict_table} shape=box]\n rank=sink\n' + '}\n'
+        return f'{{\n\tdict_box [{dict_table} shape=box]\n rank=sink\n}}\n'
 
     def _subgraph_to_str(self, subgraph):
         """
