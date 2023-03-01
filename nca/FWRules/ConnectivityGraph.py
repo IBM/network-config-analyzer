@@ -157,7 +157,8 @@ class ConnectivityGraph:
     def get_connections_without_fw_rules_txt_format(self, connectivity_msg=None):
         """
         :param Union[str,None] connectivity_msg: a msg header describing either the type of connectivity (TCP/non-TCP)
-            for connectivity-map output with connectivity restriction,  or the type of connectivity changes for semantic-diff query output
+            for connectivity-map output with connectivity restriction,
+            or the type of connectivity changes for semantic-diff query output
         :rtype: str
         :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
         """
