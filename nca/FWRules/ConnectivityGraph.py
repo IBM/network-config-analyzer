@@ -154,14 +154,19 @@ class ConnectivityGraph:
 
         return directed_edges, not_directed_edges, cliques_nodes
 
-    def get_connections_without_fw_rules_txt_format(self):
+    def get_connections_without_fw_rules_txt_format(self, connectivity_msg=None):
         """
+        :param Union[str,None] connectivity_msg: a msg header describing either the type of connectivity (TCP/non-TCP)
+            for connectivity-map output with connectivity restriction,
+            or the type of connectivity changes for semantic-diff query output
         :rtype: str
         :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
         """
         lines = set()
         workload_name_to_peers_map = {}  # a dict from workload_name to pods set, to track replicas and copies
         for connections, peer_pairs in self.connections_to_peers.items():
+            if not connections:
+                continue
             for src_peer, dst_peer in peer_pairs:
                 src_peer_name = self._get_peer_details(src_peer, True)[0]
                 if src_peer == dst_peer:  # relevant with all connections only
@@ -183,7 +188,11 @@ class ConnectivityGraph:
         for workload_name in [wl for wl in workload_name_to_peers_map if len(workload_name_to_peers_map[wl]) == 1]:
             lines.add(f'{workload_name} => {workload_name} : All Connections')
 
-        return '\n'.join(line for line in sorted(list(lines)))
+        lines_list = []
+        if connectivity_msg:
+            lines_list.append(connectivity_msg)
+        lines_list.extend(sorted(list(lines)))
+        return '\n'.join(lines_list)
 
     def get_connectivity_dot_format_str(self, connectivity_restriction=None):
         """
