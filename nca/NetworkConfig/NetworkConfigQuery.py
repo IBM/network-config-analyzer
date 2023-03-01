@@ -753,10 +753,13 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_str = dot_tcp + dot_non_tcp
             return res_str
         if self.output_config.outputFormat == 'txt_no_fw_rules':
-            tcp_conns_wo_fw_rules = self._txt_no_fw_rules_format_from_connections_dict(connections_tcp, peers,
-                                                                                       connectivity_tcp_str)
-            non_tcp_conns_wo_fw_rules = self._txt_no_fw_rules_format_from_connections_dict(connections_non_tcp, peers,
-                                                                                           connectivity_non_tcp_str)
+            conns_msg_suffix = ' Connections:'
+            tcp_conns_wo_fw_rules = \
+                self._txt_no_fw_rules_format_from_connections_dict(connections_tcp, peers,
+                                                                   connectivity_tcp_str + conns_msg_suffix)
+            non_tcp_conns_wo_fw_rules = \
+                self._txt_no_fw_rules_format_from_connections_dict(connections_non_tcp, peers,
+                                                                   connectivity_non_tcp_str + conns_msg_suffix)
             return tcp_conns_wo_fw_rules + '\n\n' + non_tcp_conns_wo_fw_rules
         # handle formats other than dot and txt_no_fw_rules
         formatted_rules_tcp = self.fw_rules_from_connections_dict(connections_tcp, peers_to_compare,
@@ -993,7 +996,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md', 'json'}
+        return {'txt', 'yaml', 'csv', 'md', 'json', 'txt_no_fw_rules'}
 
     @staticmethod
     def _get_updated_key(key, is_added):
@@ -1036,15 +1039,18 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         """
         updated_key = self._get_updated_key(key, is_added)
         topology_config_name = self.name2 if is_added else self.name1
-        conn_graph_explanation = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
+        connectivity_changes_header = f'{updated_key} (based on topology from config: {topology_config_name}) :'
+        if self.output_config.outputFormat == 'txt_no_fw_rules':
+            conn_graph_explanation = conn_graph.get_connections_without_fw_rules_txt_format(connectivity_changes_header) + '\n'
+        else:
+            conn_graph_explanation = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
 
         if self.output_config.outputFormat in ['json', 'yaml']:
             explanation_dict = {'description': updated_key}
             explanation_dict.update(conn_graph_explanation)
             key_explanation = ComputedExplanation(dict_explanation=explanation_dict)
         else:
-            str_explanation = f'\n{updated_key} (based on topology from config: {topology_config_name}) :\n' \
-                if self.output_config.outputFormat == 'txt' else ''
+            str_explanation = f'\n{connectivity_changes_header}\n' if self.output_config.outputFormat == 'txt' else ''
             str_explanation += conn_graph_explanation
             key_explanation = ComputedExplanation(str_explanation=str_explanation)
 

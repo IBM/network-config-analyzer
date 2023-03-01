@@ -154,10 +154,10 @@ class ConnectivityGraph:
 
         return directed_edges, not_directed_edges, cliques_nodes
 
-    def get_connections_without_fw_rules_txt_format(self, connectivity_restriction=None):
+    def get_connections_without_fw_rules_txt_format(self, connectivity_msg=None):
         """
-        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
-               TCP / non-TCP , or not
+        :param Union[str,None] connectivity_msg: a msg header describing either the type of connectivity (TCP/non-TCP)
+            or the type of connectivity changes
         :rtype: str
         :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
         """
@@ -188,8 +188,8 @@ class ConnectivityGraph:
             lines.add(f'{workload_name} => {workload_name} : All Connections')
 
         lines_list = []
-        if connectivity_restriction:
-            lines_list.append(connectivity_restriction + ' Connections:')
+        if connectivity_msg:
+            lines_list.append(connectivity_msg)
         lines_list.extend(sorted(list(lines)))
         return '\n'.join(lines_list)
 
