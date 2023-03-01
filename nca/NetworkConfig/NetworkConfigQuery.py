@@ -67,10 +67,10 @@ class BaseNetworkQuery:
                 error_msg = f'Error: Network configuration \'{config.name}\' does not have any peers. Can not run Query'
                 query_answer = QueryAnswer(output_result=error_msg, query_not_executed=True)
                 return query_answer.numerical_result, self._handle_output(query_answer), query_answer.query_not_executed
-        query_answer = self.execute(cmd_line_flag)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
+            query_answer = QueryAnswer(query_not_executed=True)
             return query_answer.numerical_result, '', query_answer.query_not_executed
-
+        query_answer = self.execute(cmd_line_flag)
         return query_answer.numerical_result, self._handle_output(query_answer), query_answer.query_not_executed
 
     def _handle_output(self, query_answer):
