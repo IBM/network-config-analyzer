@@ -91,6 +91,7 @@ queries:
     fwRulesGroupByLabelSinglePod: true
     outputFormat: dot
     outputPath: null
+  expectedNotExecuted: 1 # dot is not supported for semanticDiff
   expectedOutput: expected_output/semantic_diff_identical_query_output.dot
 - name: semantic_diff_identical
   semanticDiff:
@@ -141,12 +142,12 @@ queries:
   semanticDiff:
   - config_a
   - config_b
-  expected: 10
   outputConfiguration:
     fwRulesRunInTestMode: false
     fwRulesGroupByLabelSinglePod: true
     outputFormat: dot
     outputPath: null
+  expectedNotExecuted: 1  # dot is not supported for semanticDiff
   expectedOutput: expected_output/semantic_diff_a_to_b_query_output.dot
 - name: semantic_diff_a_to_b
   semanticDiff:

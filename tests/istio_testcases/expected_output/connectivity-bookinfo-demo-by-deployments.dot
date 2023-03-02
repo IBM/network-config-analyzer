@@ -3,44 +3,36 @@ digraph {
 	label="Connectivity Graph of connectivity-bookinfo-demo-by-deployments/bookinfo-demo, for TCP connections"	labelloc = "t"
 	fontsize=30
 	fontcolor=webmaroon
+{
 	dict_box [label="Connectivity legend\lTCP            TCP {'methods': 'GET'}\l" shape=box]
+ rank=sink
+}
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
+	"biclique_All0" [shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0  xlabel="All"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/details-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>details-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/productpage-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>productpage-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/ratings-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>ratings-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/reviews-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/reviews-v2(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v2</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/reviews-v3(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v3</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
+	"default/details-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>details-v1(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
+	"default/productpage-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>productpage-v1(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
+	"default/ratings-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>ratings-v1(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
+	"default/reviews-v1(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>reviews-v1(Deployment-StatefulSet)</td></tr><tr><td>reviews-v2(Deployment-StatefulSet)</td></tr><tr><td>reviews-v3(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_istio_system_namespace{
 	label="istio-system"
 	fontsize=20
 	fontcolor=blue
-	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
+	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
 }
-	"default/details-v1(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/details-v1(Deployment-StatefulSet)" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/productpage-v1(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"biclique_All0" -> "0.0.0.0/0"[ color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"biclique_All0" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)"[ color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/details-v1(Deployment-StatefulSet)" -> "biclique_All0"[ color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/productpage-v1(Deployment-StatefulSet)" -> "biclique_All0"[ color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/productpage-v1(Deployment-StatefulSet)" -> "default/details-v1(Deployment-StatefulSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/productpage-v1(Deployment-StatefulSet)" -> "default/reviews-v1(Deployment-StatefulSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/productpage-v1(Deployment-StatefulSet)" -> "default/reviews-v2(Deployment-StatefulSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/productpage-v1(Deployment-StatefulSet)" -> "default/reviews-v3(Deployment-StatefulSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/productpage-v1(Deployment-StatefulSet)" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/ratings-v1(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/ratings-v1(Deployment-StatefulSet)" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v1(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/ratings-v1(Deployment-StatefulSet)" -> "biclique_All0"[ color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/reviews-v1(Deployment-StatefulSet)" -> "biclique_All0"[ color=red fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/reviews-v1(Deployment-StatefulSet)" -> "default/ratings-v1(Deployment-StatefulSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v1(Deployment-StatefulSet)" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v2(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v2(Deployment-StatefulSet)" -> "default/ratings-v1(Deployment-StatefulSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v2(Deployment-StatefulSet)" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v3(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v3(Deployment-StatefulSet)" -> "default/ratings-v1(Deployment-StatefulSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/reviews-v3(Deployment-StatefulSet)" -> "istio-system/istio-ingressgateway(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" -> "default/productpage-v1(Deployment-StatefulSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 }
@@ -50,32 +42,20 @@ digraph {
 	fontsize=30
 	fontcolor=webmaroon
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
-	"clique_1" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"clique_0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
-	"default/details-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>details-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/productpage-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>productpage-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/ratings-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>ratings-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/reviews-v1(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v1</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/reviews-v2(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v2</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
-	"default/reviews-v3(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>reviews-v3</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
+	"default/details-v1(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>details-v1(Deployment-StatefulSet)</td></tr><tr><td>productpage-v1(Deployment-StatefulSet)</td></tr><tr><td>ratings-v1(Deployment-StatefulSet)</td></tr><tr><td>reviews-v1(Deployment-StatefulSet)</td></tr><tr><td>reviews-v2(Deployment-StatefulSet)</td></tr><tr><td>reviews-v3(Deployment-StatefulSet)</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_istio_system_namespace{
 	label="istio-system"
 	fontsize=20
 	fontcolor=blue
-	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway</td></tr><tr><td>Deployment-StatefulSet</td></tr></table>> shape=box fontcolor=blue]
+	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
 }
-	"0.0.0.0/0" -> "clique_1"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "clique_1"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "default/details-v1(Deployment-StatefulSet)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "default/productpage-v1(Deployment-StatefulSet)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "default/ratings-v1(Deployment-StatefulSet)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "default/reviews-v1(Deployment-StatefulSet)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "default/reviews-v2(Deployment-StatefulSet)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "default/reviews-v3(Deployment-StatefulSet)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" -> "clique_1"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"default/details-v1(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"default/details-v1(Deployment-StatefulSet)" -> "default/details-v1(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"istio-system/istio-ingressgateway(Deployment-StatefulSet)" -> "default/details-v1(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 }

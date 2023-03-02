@@ -59,11 +59,11 @@ queries:
     semanticDiff:
       - np1_named_ports
       - np2_named_ports
-    expected: 2
     outputConfiguration:
       fwRulesRunInTestMode: false
       outputFormat: dot
       outputPath: null
+    expectedNotExecuted: 1  # dot is not supported for semanticDiff
     expectedOutput: expected_output/semantic_diff_named_ports_np1_and_np2_query_output.dot
   - name: semantic_diff_named_ports_np1_and_np2_md
     semanticDiff:

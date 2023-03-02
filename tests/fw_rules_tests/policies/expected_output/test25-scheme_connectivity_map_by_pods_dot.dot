@@ -8,17 +8,9 @@ subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/my-test-deployment-A-1" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-A-1</td></tr></table>> shape=box fontcolor=blue]
-	"default/my-test-deployment-A-2" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-A-2</td></tr></table>> shape=box fontcolor=blue]
-	"default/my-test-deployment-B-1" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-B-1</td></tr></table>> shape=box fontcolor=blue]
-	"default/my-test-deployment-B-2" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-B-2</td></tr></table>> shape=box fontcolor=blue]
-	"default/my-test-deployment-C-1" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-C-1</td></tr></table>> shape=box fontcolor=blue]
-	"default/my-test-deployment-C-2" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-C-2</td></tr></table>> shape=box fontcolor=blue]
-	"default/my-test-deployment-D-1" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-D-1</td></tr></table>> shape=box fontcolor=blue]
-	"default/my-test-deployment-D-2" [label=<<table border="0" cellspacing="0"><tr><td>my-test-deployment-D-2</td></tr></table>> shape=box fontcolor=blue]
+	"default/my-test-deployment-A-1" [label=<<table border="2" cellspacing="0"><tr><td>my-test-deployment-A-1</td></tr><tr><td>my-test-deployment-A-2</td></tr><tr><td>my-test-deployment-D-1</td></tr><tr><td>my-test-deployment-D-2</td></tr></table>> shape=box color=darkblue]
+	"default/my-test-deployment-B-1" [label=<<table border="2" cellspacing="0"><tr><td>my-test-deployment-B-1</td></tr><tr><td>my-test-deployment-B-2</td></tr></table>> shape=box color=darkblue]
+	"default/my-test-deployment-C-1" [label=<<table border="2" cellspacing="0"><tr><td>my-test-deployment-C-1</td></tr><tr><td>my-test-deployment-C-2</td></tr></table>> shape=box color=darkblue]
 }
 	"default/my-test-deployment-C-1" -> "default/my-test-deployment-B-1"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/my-test-deployment-C-1" -> "default/my-test-deployment-B-2"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/my-test-deployment-C-2" -> "default/my-test-deployment-B-1"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/my-test-deployment-C-2" -> "default/my-test-deployment-B-2"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 }

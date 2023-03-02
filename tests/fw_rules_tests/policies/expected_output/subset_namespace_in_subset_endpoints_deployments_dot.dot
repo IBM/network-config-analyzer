@@ -7,18 +7,15 @@ subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/Pod1(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod1</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
-	"default/Pod4(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod4</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"default/Pod1(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod1(Pod)</td></tr></table>> shape=box fontcolor=blue]
+	"default/Pod4(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod4(Pod)</td></tr></table>> shape=box fontcolor=blue]
 }
 subgraph cluster_ns3_namespace{
 	label="ns3"
 	fontsize=20
 	fontcolor=blue
-	"ns3/Pod7(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod7</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
-	"ns3/Pod8(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod8</td></tr><tr><td>Pod</td></tr></table>> shape=box fontcolor=blue]
+	"ns3/Pod7(Pod)" [label=<<table border="2" cellspacing="0"><tr><td>Pod7(Pod)</td></tr><tr><td>Pod8(Pod)</td></tr></table>> shape=box color=darkblue]
 }
 	"default/Pod1(Pod)" -> "ns3/Pod7(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/Pod1(Pod)" -> "ns3/Pod8(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ns3/Pod7(Pod)" -> "default/Pod4(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ns3/Pod8(Pod)" -> "default/Pod4(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 }
