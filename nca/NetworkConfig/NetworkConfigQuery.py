@@ -431,7 +431,7 @@ class SanityQuery(NetworkConfigQuery):
                                                       config_with_other_policy).disjoint_referenced_ip_blocks()
             for pod1 in pods_to_compare:
                 for pod2 in pods_to_compare:
-                    if isinstance(pod1, IpBlock) and isinstance(pod2, IpBlock):
+                    if isinstance(pod1, (IpBlock, DNSEntry)) and isinstance(pod2, (IpBlock, DNSEntry)):
                         continue
                     if pod1 == pod2:
                         continue  # no way to prevent a pod from communicating with itself
@@ -691,9 +691,12 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 elif not self.is_in_subset(peer2):
                     continue  # skipping pairs if none of them are in the given subset
                 if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
-                    continue  # skipping pairs with ip-blocks for src and external dst
+                    continue  # skipping pairs with ip-blocks as src and external dst
                 if isinstance(peer1, DNSEntry):
-                    continue  # currently connections from external DNS to internal peers (or any dst) not supported
+                    continue  # connections from external DNS to internal peers (or any dst) not supported
+                if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) and \
+                        isinstance(peer2, DNSEntry):
+                    continue  # egress to DNSEntry will not be considered if no istio policies available
                 if peer1 == peer2:
                     # cannot restrict pod's connection to itself
                     connections[ConnectionSet(True)].append((peer1, peer2))
