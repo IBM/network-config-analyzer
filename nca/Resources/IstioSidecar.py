@@ -79,7 +79,7 @@ class IstioSidecar(NetworkPolicy):
             if rule.allow_all or to_peer in rule.egress_peer_set or \
                     (to_peer in rule.special_egress_peer_set and self.check_peers_in_same_namespace(from_peer, to_peer)):
                 if isinstance(to_peer, DNSEntry):
-                    return PolicyConnections(True, allowed_conns=self._add_dst_peer_allowed_port_conns(to_peer.named_ports))
+                    return PolicyConnections(True, allowed_conns=self.update_ports_of_dns_entry_conns(to_peer))
                 else:
                     return PolicyConnections(True, allowed_conns=ConnectionSet(True))
 
@@ -173,15 +173,15 @@ class IstioSidecar(NetworkPolicy):
         return to_peer.exported_to_all_namespaces or from_ns in to_peer.namespaces
 
     @staticmethod
-    def _add_dst_peer_allowed_port_conns(named_ports):
+    def update_ports_of_dns_entry_conns(to_peer):
         """
-        computes the connections from a given named ports dict
-        :param dict named_ports: A map from port name to ServicePort
+        computes the allowed connections to a DNSEntry peer considering its ports
+        :param DNSEntry to_peer: the dst DNSEntry peer
         :rtype: ConnectionSet
         """
         dst_ports = PortSet()
         res = ConnectionSet()
-        for srv_port in named_ports.values():
+        for srv_port in to_peer.named_ports.values():
             dst_ports.add_port(srv_port.port_num)
             res.add_connections(protocol=srv_port.protocol, properties=TcpLikeProperties(PortSet(True), dst_ports))
         return res

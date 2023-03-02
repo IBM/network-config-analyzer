@@ -3,8 +3,7 @@ src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections
 src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [*] dst: www.slack.com conn: TCP 443
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [app!=productpage] conn: All connections
-src_ns: [default] src_pods: [app!=ratings] dst: www.google.com conn: All connections
-src_ns: [default] src_pods: [app!=ratings] dst: www.slack.com conn: All connections
+src_ns: [default] src_pods: [app!=ratings] dst: www.google.com conn: TCP 443
 src_ns: [default] src_pods: [app!=ratings] dst_ns: [default] dst_pods: [*] conn: All connections
 
 For connections of type non-TCP, final fw rules for query: connectivity-internal-external, config: mixed-sidecar:

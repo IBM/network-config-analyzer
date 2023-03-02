@@ -6,7 +6,8 @@ from bisect import insort
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import IpBlock, HostEP
+from nca.CoreDS.Peer import IpBlock, HostEP, DNSEntry
+from nca.Resources.IstioSidecar import IstioSidecar
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
 from nca.Resources.NetworkPolicy import PolicyConnections, NetworkPolicy
 
@@ -229,6 +230,9 @@ class IstioNetworkLayer(NetworkLayer):
         if not captured_res:  # no allow policies for target
             # add connections allowed by default that are not captured
             allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
+            # exception: update allowed non-captured conns to DNSEntry dst with the peers' actual ports only
+            if isinstance(to_peer, DNSEntry):
+                allowed_non_captured_conns = IstioSidecar.update_ports_of_dns_entry_conns(to_peer)
         return PolicyConnections(captured_res, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
