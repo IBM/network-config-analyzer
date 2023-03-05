@@ -501,34 +501,38 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                         dst_num_port_set = PortSet()
                         dst_num_port_set.port_set = dst_res_ports.port_set.copy()
                         conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                        src_ports=src_num_port_set,
-                                                                                        dst_ports=dst_num_port_set,
-                                                                                        protocols=protocols,
-                                                                                        src_peers=src_res_pods,
-                                                                                        dst_peers=dst_res_pods)
+                                                                                         src_ports=src_num_port_set,
+                                                                                         dst_ports=dst_num_port_set,
+                                                                                         protocols=protocols,
+                                                                                         src_peers=src_res_pods,
+                                                                                         dst_peers=dst_res_pods)
                 elif ConnectionSet.protocol_is_icmp(protocol):
                     icmp_props, conn_props = self._parse_icmp(rule.get('icmp'), rule.get('notICMP'),
-                                                             protocol, src_res_pods, dst_res_pods)
+                                                              protocol, src_res_pods, dst_res_pods)
                     connections.add_connections(protocol, icmp_props)
                 else:
                     connections.add_connections(protocol, True)
                     if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
-                        conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container, protocols=protocols,
-                                                                                        src_peers=src_res_pods,
-                                                                                        dst_peers=dst_res_pods)
+                        conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
+                                                                                         protocols=protocols,
+                                                                                         src_peers=src_res_pods,
+                                                                                         dst_peers=dst_res_pods)
         elif not_protocol is not None:
             connections.add_all_connections()
             connections.remove_protocol(not_protocol)
             if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                 protocols = ProtocolSet(True)
                 protocols.remove_protocol(not_protocol)
-                conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container, protocols=protocols,
-                                                                                src_peers=src_res_pods, dst_peers=dst_res_pods)
+                conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
+                                                                                 protocols=protocols,
+                                                                                 src_peers=src_res_pods,
+                                                                                 dst_peers=dst_res_pods)
         else:
             connections.allow_all = True
             if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                 conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                src_peers=src_res_pods, dst_peers=dst_res_pods)
+                                                                                 src_peers=src_res_pods,
+                                                                                 dst_peers=dst_res_pods)
         self._verify_named_ports(rule, dst_res_pods, connections)
 
         if not src_res_pods and policy_selected_eps and (is_ingress or not is_profile):

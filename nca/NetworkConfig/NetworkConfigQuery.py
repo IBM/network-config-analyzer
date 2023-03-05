@@ -755,7 +755,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             subset_peers = self.compute_subset(opt_peers_to_compare)
             subset_conns = ConnectivityProperties.make_connectivity_properties(self.config.peer_container,
                                                                                src_peers=subset_peers) | \
-                           ConnectivityProperties.make_connectivity_properties(self.config.peer_container, dst_peers=subset_peers)
+                ConnectivityProperties.make_connectivity_properties(self.config.peer_container, dst_peers=subset_peers)
             all_conns_opt &= subset_conns
             ip_blocks_mask = IpBlock.get_all_ips_block()
             if exclude_ipv6:

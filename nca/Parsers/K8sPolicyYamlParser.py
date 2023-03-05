@@ -346,9 +346,10 @@ class K8sPolicyYamlParser(GenericYamlParser):
                     dest_num_port_set = PortSet()
                     dest_num_port_set.port_set = dest_port_set.port_set.copy()
                     conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                    dst_ports=dest_num_port_set,
-                                                                                    protocols=protocols,
-                                                                                    src_peers=src_pods, dst_peers=dst_pods)
+                                                                                     dst_ports=dest_num_port_set,
+                                                                                     protocols=protocols,
+                                                                                     src_peers=src_pods,
+                                                                                     dst_peers=dst_pods)
                     res_opt_props |= conn_props
         else:
             res_conns = ConnectionSet(True)
