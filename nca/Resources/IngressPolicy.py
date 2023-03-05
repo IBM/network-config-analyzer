@@ -109,12 +109,12 @@ class IngressPolicy(NetworkPolicy):
         """
 
         if is_ingress:
-            allowed = ConnectivityProperties.make_empty_properties()
+            allowed = ConnectivityProperties.make_empty_props()
             captured = PeerSet()
         else:
             allowed = self.optimized_egress_props.copy()
             captured = self.selected_peers if self.affects_egress else PeerSet()
-        return allowed, ConnectivityProperties.make_empty_properties(), captured
+        return allowed, ConnectivityProperties.make_empty_props(), captured
 
     def has_empty_rules(self, _config_name=''):
         """

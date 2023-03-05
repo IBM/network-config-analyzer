@@ -438,7 +438,7 @@ class ConnectionSet:
         :return: None
         """
         if self.protocol_supports_ports(protocol) or self.protocol_is_icmp(protocol):
-            self.allowed_protocols[protocol] = ConnectivityProperties.make_all_properties()
+            self.allowed_protocols[protocol] = ConnectivityProperties.make_all_props()
         else:
             self.allowed_protocols[protocol] = True
 
@@ -544,13 +544,13 @@ class ConnectionSet:
 
     def convert_to_connectivity_properties(self, peer_container):
         if self.allow_all:
-            return ConnectivityProperties.make_all_properties(peer_container)
+            return ConnectivityProperties.make_all_props(peer_container)
 
-        res = ConnectivityProperties.make_empty_properties(peer_container)
+        res = ConnectivityProperties.make_empty_props(peer_container)
         for protocol, properties in self.allowed_protocols.items():
             protocols = ProtocolSet()
             protocols.add_protocol(protocol)
-            this_prop = ConnectivityProperties.make_connectivity_properties(peer_container, protocols=protocols)
+            this_prop = ConnectivityProperties.make_conn_props(peer_container, protocols=protocols)
             if isinstance(properties, bool):
                 if properties:
                     res |= this_prop
@@ -561,7 +561,7 @@ class ConnectionSet:
     @staticmethod
     def get_all_tcp_connections():
         tcp_conns = ConnectionSet()
-        tcp_conns.add_connections('TCP', ConnectivityProperties.make_all_properties())
+        tcp_conns.add_connections('TCP', ConnectivityProperties.make_all_props())
         return tcp_conns
 
     @staticmethod
@@ -621,13 +621,13 @@ class ConnectionSet:
                 protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
                 for protocol in protocol_names:
                     if new_cube_dict:
-                        conns.add_connections(protocol, ConnectivityProperties.make_connectivity_properties_from_dict(peer_container,
-                                                                                                                      new_cube_dict))
+                        conns.add_connections(protocol, ConnectivityProperties.make_conn_props_from_dict(peer_container,
+                                                                                                         new_cube_dict))
                     else:
                         if ConnectionSet.protocol_supports_ports(protocol):
-                            conns.add_connections(protocol, ConnectivityProperties.make_all_properties(peer_container))
+                            conns.add_connections(protocol, ConnectivityProperties.make_all_props(peer_container))
                         elif ConnectionSet.protocol_is_icmp(protocol):
-                            conns.add_connections(protocol, ConnectivityProperties.make_all_properties(peer_container))
+                            conns.add_connections(protocol, ConnectivityProperties.make_all_props(peer_container))
                         else:
                             conns.add_connections(protocol, True)
             # create FWRules for src_peers and dst_peers
@@ -671,13 +671,13 @@ class ConnectionSet:
 
     @staticmethod
     def fw_rules_to_tcp_properties(fw_rules, peer_container):
-        res = ConnectivityProperties.make_empty_properties(peer_container)
+        res = ConnectivityProperties.make_empty_props(peer_container)
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:
                 conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)
                 src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
                 dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
-                rule_props = ConnectivityProperties.make_connectivity_properties(peer_container, src_peers=src_peers,
-                                                                                 dst_peers=dst_peers) & conn_props
+                rule_props = ConnectivityProperties.make_conn_props(peer_container, src_peers=src_peers,
+                                                                    dst_peers=dst_peers) & conn_props
                 res |= rule_props
         return res

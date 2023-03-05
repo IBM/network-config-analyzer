@@ -403,11 +403,11 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         return real_ports
 
     @staticmethod
-    def make_connectivity_properties(peer_container, src_ports=PortSet(True), dst_ports=PortSet(True),
-                                     protocols=ProtocolSet(True), src_peers=None, dst_peers=None,
-                                     paths_dfa=None, hosts_dfa=None, methods=MethodSet(True),
-                                     icmp_type=DimensionsManager().get_dimension_domain_by_name('icmp_type'),
-                                     icmp_code=DimensionsManager().get_dimension_domain_by_name('icmp_code')):
+    def make_conn_props(peer_container, src_ports=PortSet(True), dst_ports=PortSet(True),
+                        protocols=ProtocolSet(True), src_peers=None, dst_peers=None,
+                        paths_dfa=None, hosts_dfa=None, methods=MethodSet(True),
+                        icmp_type=DimensionsManager().get_dimension_domain_by_name('icmp_type'),
+                        icmp_code=DimensionsManager().get_dimension_domain_by_name('icmp_code')):
         """
         get ConnectivityProperties with allowed connections, corresponding to input properties cube.
         ConnectivityProperties should not contain named ports: substitute them with corresponding port numbers, per peer
@@ -443,7 +443,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                                           src_peers=src_peers_interval, dst_peers=dst_peers_interval,
                                           base_peer_set=base_peer_set)
         # Resolving named ports
-        conn_properties = ConnectivityProperties.make_empty_properties(peer_container)
+        conn_properties = ConnectivityProperties.make_empty_props(peer_container)
         if src_ports.named_ports and dst_ports.named_ports:
             assert src_peers and dst_peers
             assert not src_ports.port_set and not dst_ports.port_set
@@ -502,7 +502,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         return conn_properties
 
     @staticmethod
-    def make_connectivity_properties_from_dict(peer_container, cube_dict):
+    def make_conn_props_from_dict(peer_container, cube_dict):
         """
         Create ConnectivityProperties from the given cube
         :param PeerContainer peer_container: the set of all peers
@@ -521,18 +521,18 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         icmp_type = cube_dict_copy.pop("icmp_type", DimensionsManager().get_dimension_domain_by_name('icmp_type'))
         icmp_code = cube_dict_copy.pop("icmp_code", DimensionsManager().get_dimension_domain_by_name('icmp_code'))
         assert not cube_dict_copy
-        return ConnectivityProperties.make_connectivity_properties(peer_container, src_ports=src_ports, dst_ports=dst_ports,
-                                                                   protocols=protocols, src_peers=src_peers, dst_peers=dst_peers,
-                                                                   paths_dfa=paths_dfa, hosts_dfa=hosts_dfa, methods=methods,
-                                                                   icmp_type=icmp_type, icmp_code=icmp_code)
+        return ConnectivityProperties.make_conn_props(peer_container, src_ports=src_ports, dst_ports=dst_ports,
+                                                      protocols=protocols, src_peers=src_peers, dst_peers=dst_peers,
+                                                      paths_dfa=paths_dfa, hosts_dfa=hosts_dfa, methods=methods,
+                                                      icmp_type=icmp_type, icmp_code=icmp_code)
 
     @staticmethod
-    def make_empty_properties(peer_container=None):
+    def make_empty_props(peer_container=None):
         return ConnectivityProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None,
                                       create_empty=True)
 
     @staticmethod
-    def make_all_properties(peer_container=None):
+    def make_all_props(peer_container=None):
         return ConnectivityProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None)
 
     def are_auto_conns(self):
@@ -553,8 +553,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     # ICMP-related functions
     @staticmethod
-    def make_icmp_properties(peer_container, protocol="", src_peers=None, dst_peers=None,
-                             icmp_type=None, icmp_code=None):
+    def make_icmp_props(peer_container, protocol="", src_peers=None, dst_peers=None,
+                        icmp_type=None, icmp_code=None):
         if protocol:
             icmp_protocol_set = ProtocolSet()
             icmp_protocol_set.add_protocol(ProtocolNameResolver.get_protocol_number(protocol))
@@ -566,22 +566,22 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             icmp_type_interval = CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type)
             if icmp_code:
                 icmp_code_interval = CanonicalIntervalSet.get_interval_set(icmp_code, icmp_code)
-        return ConnectivityProperties.make_connectivity_properties(peer_container=peer_container, protocols=icmp_protocol_set,
-                                                                   src_peers=src_peers, dst_peers=dst_peers,
-                                                                   icmp_type=icmp_type_interval, icmp_code=icmp_code_interval)
+        return ConnectivityProperties.make_conn_props(peer_container=peer_container, protocols=icmp_protocol_set,
+                                                      src_peers=src_peers, dst_peers=dst_peers,
+                                                      icmp_type=icmp_type_interval, icmp_code=icmp_code_interval)
 
     @staticmethod
-    def make_all_but_given_icmp_properties(peer_container, protocol="", src_peers=None, dst_peers=None,
-                                           icmp_type=None, icmp_code=None):
+    def make_all_but_given_icmp_props(peer_container, protocol="", src_peers=None, dst_peers=None,
+                                      icmp_type=None, icmp_code=None):
         if protocol:
             icmp_protocol_set = ProtocolSet()
             icmp_protocol_set.add_protocol(ProtocolNameResolver.get_protocol_number(protocol))
         else:
             icmp_protocol_set = ProtocolSet(True)
-        all_icmp_props = ConnectivityProperties.make_connectivity_properties(peer_container=peer_container,
-                                                                             protocols=icmp_protocol_set,
-                                                                             src_peers=src_peers, dst_peers=dst_peers)
-        given_icmp_props = ConnectivityProperties.make_icmp_properties(peer_container, protocol=protocol,
-                                                                       src_peers=src_peers, dst_peers=dst_peers,
-                                                                       icmp_type=icmp_type, icmp_code=icmp_code, )
+        all_icmp_props = ConnectivityProperties.make_conn_props(peer_container=peer_container,
+                                                                protocols=icmp_protocol_set,
+                                                                src_peers=src_peers, dst_peers=dst_peers)
+        given_icmp_props = ConnectivityProperties.make_icmp_props(peer_container, protocol=protocol,
+                                                                  src_peers=src_peers, dst_peers=dst_peers,
+                                                                  icmp_type=icmp_type, icmp_code=icmp_code, )
         return all_icmp_props-given_icmp_props

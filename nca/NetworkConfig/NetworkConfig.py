@@ -282,7 +282,7 @@ class NetworkConfig:
             else:
                 conns_res = self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
         else:
-            conns_res = ConnectivityProperties.make_all_properties()  # all connections
+            conns_res = ConnectivityProperties.make_all_props()  # all connections
             for layer, layer_obj in self.policies_container.layers.items():
                 conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
                 # all allowed connections: intersection of all allowed connections from all layers

@@ -237,9 +237,9 @@ class GenericYamlParser:
         :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
         :return: ConnectionSet with allowed connections , corresponding to input properties cube
         """
-        tcp_properties = ConnectivityProperties.make_connectivity_properties(peer_container, dst_ports=dest_ports,
-                                                                             methods=methods, paths_dfa=paths_dfa,
-                                                                             hosts_dfa=hosts_dfa)
+        tcp_properties = ConnectivityProperties.make_conn_props(peer_container, dst_ports=dest_ports,
+                                                                methods=methods, paths_dfa=paths_dfa,
+                                                                hosts_dfa=hosts_dfa)
         res = ConnectionSet()
         res.add_connections('TCP', tcp_properties)
         return res

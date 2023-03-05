@@ -102,13 +102,13 @@ class ConnectivityGraph:
             protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
             for protocol in protocol_names:
                 if new_cube_dict:
-                    conns.add_connections(protocol, ConnectivityProperties.make_connectivity_properties_from_dict(peer_container,
-                                                                                                                  new_cube_dict))
+                    conns.add_connections(protocol, ConnectivityProperties.make_conn_props_from_dict(peer_container,
+                                                                                                     new_cube_dict))
                 else:
                     if ConnectionSet.protocol_supports_ports(protocol):
-                        conns.add_connections(protocol, ConnectivityProperties.make_all_properties())
+                        conns.add_connections(protocol, ConnectivityProperties.make_all_props())
                     elif ConnectionSet.protocol_is_icmp(protocol):
-                        conns.add_connections(protocol, ConnectivityProperties.make_all_properties())
+                        conns.add_connections(protocol, ConnectivityProperties.make_all_props())
                     else:
                         conns.add_connections(protocol, True)
         for src_peer in src_peers:
@@ -454,22 +454,22 @@ class ConnectivityGraph:
         :param peer_container: The peer container
         :return: ConnectivityProperties representing the connectivity graph
         """
-        res = ConnectivityProperties.make_empty_properties()
+        res = ConnectivityProperties.make_empty_props()
         for item in self.connections_to_peers.items():
             if item[0].allow_all:
                 for peer_pair in item[1]:
-                    res |= ConnectivityProperties.make_connectivity_properties(peer_container,
-                                                                               src_peers=PeerSet({peer_pair[0]}),
-                                                                               dst_peers=PeerSet({peer_pair[1]}))
+                    res |= ConnectivityProperties.make_conn_props(peer_container,
+                                                                  src_peers=PeerSet({peer_pair[0]}),
+                                                                  dst_peers=PeerSet({peer_pair[1]}))
             else:
                 for prot in item[0].allowed_protocols.items():
                     protocols = ProtocolSet()
                     protocols.add_protocol(prot[0])
                     if isinstance(prot[1], bool):
                         for peer_pair in item[1]:
-                            res |= ConnectivityProperties.make_connectivity_properties(peer_container, protocols=protocols,
-                                                                                       src_peers=PeerSet({peer_pair[0]}),
-                                                                                       dst_peers=PeerSet({peer_pair[1]}))
+                            res |= ConnectivityProperties.make_conn_props(peer_container, protocols=protocols,
+                                                                          src_peers=PeerSet({peer_pair[0]}),
+                                                                          dst_peers=PeerSet({peer_pair[1]}))
                         continue
                     for cube in prot[1]:
                         cube_dict = prot[1].get_cube_dict_with_orig_values(cube)
@@ -478,7 +478,7 @@ class ConnectivityGraph:
                             new_cube_dict = cube_dict.copy()
                             new_cube_dict["src_peers"] = PeerSet({peer_pair[0]})
                             new_cube_dict["dst_peers"] = PeerSet({peer_pair[1]})
-                            res |= ConnectivityProperties.make_connectivity_properties_from_dict(peer_container, new_cube_dict)
+                            res |= ConnectivityProperties.make_conn_props_from_dict(peer_container, new_cube_dict)
         return res
 
     def get_minimized_firewall_rules(self):

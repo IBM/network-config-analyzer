@@ -330,7 +330,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             src_pods = policy_selected_pods
             dst_pods = res_pods
 
-        res_opt_props = ConnectivityProperties.make_empty_properties(self.peer_container)  # ConnectivityProperties
+        res_opt_props = ConnectivityProperties.make_empty_props(self.peer_container)  # ConnectivityProperties
         ports_array = rule.get('ports', [])
         if ports_array:
             res_conns = ConnectionSet()
@@ -338,24 +338,24 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 protocol, dest_port_set = self.parse_port(port)
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
-                res_conns.add_connections(protocol, ConnectivityProperties.make_connectivity_properties(
+                res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(
                     self.peer_container, dst_ports=dest_port_set))  # K8s doesn't reason about src ports
                 if self.optimized_run != 'false' and src_pods and dst_pods:
                     protocols = ProtocolSet()
                     protocols.add_protocol(protocol)
                     dest_num_port_set = PortSet()
                     dest_num_port_set.port_set = dest_port_set.port_set.copy()
-                    conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                     dst_ports=dest_num_port_set,
-                                                                                     protocols=protocols,
-                                                                                     src_peers=src_pods,
-                                                                                     dst_peers=dst_pods)
+                    conn_props = ConnectivityProperties.make_conn_props(self.peer_container,
+                                                                        dst_ports=dest_num_port_set,
+                                                                        protocols=protocols,
+                                                                        src_peers=src_pods,
+                                                                        dst_peers=dst_pods)
                     res_opt_props |= conn_props
         else:
             res_conns = ConnectionSet(True)
             if self.optimized_run != 'false' and src_pods and dst_pods:
-                res_opt_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                    src_peers=src_pods, dst_peers=dst_pods)
+                res_opt_props = ConnectivityProperties.make_conn_props(self.peer_container,
+                                                                       src_peers=src_pods, dst_peers=dst_pods)
         if not res_pods:
             self.warning('Rule selects no pods', rule)
 

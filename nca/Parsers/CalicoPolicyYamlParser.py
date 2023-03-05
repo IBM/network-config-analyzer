@@ -380,42 +380,42 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             if err:
                 self.syntax_error(err, not_icmp_data)
 
-        res = ConnectivityProperties.make_icmp_properties(self.peer_container)
-        opt_props = ConnectivityProperties.make_empty_properties(self.peer_container)
+        res = ConnectivityProperties.make_icmp_props(self.peer_container)
+        opt_props = ConnectivityProperties.make_empty_props(self.peer_container)
         if self.optimized_run != 'false' and src_pods and dst_pods:
-            opt_props = ConnectivityProperties.make_icmp_properties(self.peer_container, protocol=protocol,
-                                                                    src_peers=src_pods, dst_peers=dst_pods)
+            opt_props = ConnectivityProperties.make_icmp_props(self.peer_container, protocol=protocol,
+                                                               src_peers=src_pods, dst_peers=dst_pods)
         if icmp_data is not None:
-            res = ConnectivityProperties.make_icmp_properties(self.peer_container, icmp_type=icmp_type, icmp_code=icmp_code)
+            res = ConnectivityProperties.make_icmp_props(self.peer_container, icmp_type=icmp_type, icmp_code=icmp_code)
             if self.optimized_run != 'false' and src_pods and dst_pods:
-                opt_props = ConnectivityProperties.make_icmp_properties(self.peer_container, protocol=protocol,
-                                                                        src_peers=src_pods, dst_peers=dst_pods,
-                                                                        icmp_type=icmp_type, icmp_code=icmp_code)
+                opt_props = ConnectivityProperties.make_icmp_props(self.peer_container, protocol=protocol,
+                                                                   src_peers=src_pods, dst_peers=dst_pods,
+                                                                   icmp_type=icmp_type, icmp_code=icmp_code)
             if not_icmp_data is not None:
                 if icmp_type == not_icmp_type and icmp_code == not_icmp_code:
-                    res = ConnectivityProperties.make_empty_properties(self.peer_container)
+                    res = ConnectivityProperties.make_empty_props(self.peer_container)
                     self.warning('icmp and notICMP are conflicting - no traffic will be matched', not_icmp_data)
                 elif icmp_type == not_icmp_type and icmp_code is None:
-                    tmp = ConnectivityProperties.make_icmp_properties(self.peer_container, icmp_type=not_icmp_type,
-                                                                      icmp_code=not_icmp_code)
+                    tmp = ConnectivityProperties.make_icmp_props(self.peer_container, icmp_type=not_icmp_type,
+                                                                 icmp_code=not_icmp_code)
                     res -= tmp
                     if self.optimized_run != 'false':
-                        tmp_opt_props = ConnectivityProperties.make_icmp_properties(self.peer_container, protocol=protocol,
-                                                                                    src_peers=src_pods, dst_peers=dst_pods,
-                                                                                    icmp_type=not_icmp_type,
-                                                                                    icmp_code=not_icmp_code)
+                        tmp_opt_props = ConnectivityProperties.make_icmp_props(self.peer_container, protocol=protocol,
+                                                                               src_peers=src_pods, dst_peers=dst_pods,
+                                                                               icmp_type=not_icmp_type,
+                                                                               icmp_code=not_icmp_code)
                         opt_props -= tmp_opt_props
                 else:
                     self.warning('notICMP has no effect', not_icmp_data)
         elif not_icmp_data is not None:
-            res = ConnectivityProperties.make_all_but_given_icmp_properties(self.peer_container,
-                                                                            icmp_type=not_icmp_type,
-                                                                            icmp_code=not_icmp_code)
+            res = ConnectivityProperties.make_all_but_given_icmp_props(self.peer_container,
+                                                                       icmp_type=not_icmp_type,
+                                                                       icmp_code=not_icmp_code)
             if self.optimized_run != 'false' and src_pods and dst_pods:
-                opt_props = ConnectivityProperties.make_all_but_given_icmp_properties(self.peer_container, protocol=protocol,
-                                                                                      src_peers=src_pods, dst_peers=dst_pods,
-                                                                                      icmp_type=not_icmp_type,
-                                                                                      icmp_code=not_icmp_code)
+                opt_props = ConnectivityProperties.make_all_but_given_icmp_props(self.peer_container, protocol=protocol,
+                                                                                 src_peers=src_pods, dst_peers=dst_pods,
+                                                                                 icmp_type=not_icmp_type,
+                                                                                 icmp_code=not_icmp_code)
 
         return res, opt_props
 
@@ -482,7 +482,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             src_res_pods &= policy_selected_eps
 
         connections = ConnectionSet()
-        conn_props = ConnectivityProperties.make_empty_properties(self.peer_container)
+        conn_props = ConnectivityProperties.make_empty_props(self.peer_container)
         if protocol is not None:
             protocols = ProtocolSet()
             protocols.add_protocol(protocol)
@@ -493,19 +493,19 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                     self.warning('notProtocol field has no effect', rule)
             else:
                 if protocol_supports_ports:
-                    connections.add_connections(protocol, ConnectivityProperties.make_connectivity_properties(
+                    connections.add_connections(protocol, ConnectivityProperties.make_conn_props(
                         self.peer_container, src_ports=src_res_ports, dst_ports=dst_res_ports))
                     if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                         src_num_port_set = PortSet()
                         src_num_port_set.port_set = src_res_ports.port_set.copy()
                         dst_num_port_set = PortSet()
                         dst_num_port_set.port_set = dst_res_ports.port_set.copy()
-                        conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                         src_ports=src_num_port_set,
-                                                                                         dst_ports=dst_num_port_set,
-                                                                                         protocols=protocols,
-                                                                                         src_peers=src_res_pods,
-                                                                                         dst_peers=dst_res_pods)
+                        conn_props = ConnectivityProperties.make_conn_props(self.peer_container,
+                                                                            src_ports=src_num_port_set,
+                                                                            dst_ports=dst_num_port_set,
+                                                                            protocols=protocols,
+                                                                            src_peers=src_res_pods,
+                                                                            dst_peers=dst_res_pods)
                 elif ConnectionSet.protocol_is_icmp(protocol):
                     icmp_props, conn_props = self._parse_icmp(rule.get('icmp'), rule.get('notICMP'),
                                                               protocol, src_res_pods, dst_res_pods)
@@ -513,26 +513,26 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 else:
                     connections.add_connections(protocol, True)
                     if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
-                        conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                         protocols=protocols,
-                                                                                         src_peers=src_res_pods,
-                                                                                         dst_peers=dst_res_pods)
+                        conn_props = ConnectivityProperties.make_conn_props(self.peer_container,
+                                                                            protocols=protocols,
+                                                                            src_peers=src_res_pods,
+                                                                            dst_peers=dst_res_pods)
         elif not_protocol is not None:
             connections.add_all_connections()
             connections.remove_protocol(not_protocol)
             if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                 protocols = ProtocolSet(True)
                 protocols.remove_protocol(not_protocol)
-                conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                 protocols=protocols,
-                                                                                 src_peers=src_res_pods,
-                                                                                 dst_peers=dst_res_pods)
+                conn_props = ConnectivityProperties.make_conn_props(self.peer_container,
+                                                                    protocols=protocols,
+                                                                    src_peers=src_res_pods,
+                                                                    dst_peers=dst_res_pods)
         else:
             connections.allow_all = True
             if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
-                conn_props = ConnectivityProperties.make_connectivity_properties(self.peer_container,
-                                                                                 src_peers=src_res_pods,
-                                                                                 dst_peers=dst_res_pods)
+                conn_props = ConnectivityProperties.make_conn_props(self.peer_container,
+                                                                    src_peers=src_res_pods,
+                                                                    dst_peers=dst_res_pods)
         self._verify_named_ports(rule, dst_res_pods, connections)
 
         if not src_res_pods and policy_selected_eps and (is_ingress or not is_profile):
