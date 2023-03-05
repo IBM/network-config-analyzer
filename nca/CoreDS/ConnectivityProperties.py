@@ -13,9 +13,9 @@ from .Peer import PeerSet
 from .ProtocolNameResolver import ProtocolNameResolver
 
 
-class TcpLikeProperties(CanonicalHyperCubeSet):
+class ConnectivityProperties(CanonicalHyperCubeSet):
     """
-    A class for holding a set of cubes, each defined over dimensions from TcpLikeProperties.dimensions_list
+    A class for holding a set of cubes, each defined over dimensions from ConnectivityProperties.dimensions_list
     For UDP, SCTP protocols, the actual used dimensions are only [source ports, dest ports]
     for TCP, it may be any of the dimensions from dimensions_list.
 
@@ -26,7 +26,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
     The method convert_named_ports is responsible for applying this late binding, and is called by a policy's method
     allowed_connections() to get policy's allowed connections, given <src, dest> peers and direction ingress/egress
     Given a specific dest-peer context, the pod's named ports mapping is known, and used for the named ports conversion.
-    Some of the operators for TcpLikeProperties are not supported for objects with (included and excluded) named ports.
+    Some of the operators for ConnectivityProperties are not supported for objects with (included and excluded) named ports.
     For example, in the general case, the result for (all but port "x") | (all but port 10) has 2 options:
         (1) if the dest pod has named port "x" mapped to 10 -> the result would be: (all but port 10)
         (2) otherwise, the result would be: (all ports)
@@ -62,7 +62,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :param CanonicalIntervalSet src_peers: the set of source peers
         :param CanonicalIntervalSet dst_peers: the set of target peers
         """
-        super().__init__(TcpLikeProperties.dimensions_list)
+        super().__init__(ConnectivityProperties.dimensions_list)
         assert (not src_peers and not dst_peers) or base_peer_set
 
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
@@ -113,7 +113,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         active_dims = []
         has_empty_dim_value = False
         # add values to cube by required order of dimensions
-        for dim in TcpLikeProperties.dimensions_list:
+        for dim in ConnectivityProperties.dimensions_list:
             dim_val = dims_to_values[dim]["value"]
             add_to_cube = not dims_to_values[dim]["is_all"]
             if add_to_cube:
@@ -218,7 +218,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return {'properties': cubs_dict_list}
 
     def __eq__(self, other):
-        if isinstance(other, TcpLikeProperties):
+        if isinstance(other, ConnectivityProperties):
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
@@ -241,17 +241,17 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     def __iand__(self, other):
         assert not self.has_named_ports()
-        assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
+        assert not isinstance(other, ConnectivityProperties) or not other.has_named_ports()
         super().__iand__(other)
-        if isinstance(other, TcpLikeProperties):
+        if isinstance(other, ConnectivityProperties):
             self.base_peer_set |= other.base_peer_set
         return self
 
     def __ior__(self, other):
         assert not self.excluded_named_ports
-        assert not isinstance(other, TcpLikeProperties) or not other.excluded_named_ports
+        assert not isinstance(other, ConnectivityProperties) or not other.excluded_named_ports
         super().__ior__(other)
-        if isinstance(other, TcpLikeProperties):
+        if isinstance(other, ConnectivityProperties):
             self.base_peer_set |= other.base_peer_set
             res_named_ports = dict({})
             for port_name in self.named_ports:
@@ -266,15 +266,15 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     def __isub__(self, other):
         assert not self.has_named_ports()
-        assert not isinstance(other, TcpLikeProperties) or not other.has_named_ports()
+        assert not isinstance(other, ConnectivityProperties) or not other.has_named_ports()
         super().__isub__(other)
-        if isinstance(other, TcpLikeProperties):
+        if isinstance(other, ConnectivityProperties):
             self.base_peer_set |= other.base_peer_set
         return self
 
     def contained_in(self, other):
         """
-        :param TcpLikeProperties other: Another PortSetPair
+        :param ConnectivityProperties other: Another PortSetPair
         :return: Whether all (source port, target port) pairs in self also appear in other
         :rtype: bool
         """
@@ -324,7 +324,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
                 self.add_hole(rectangle, active_dims)
 
     def copy(self):
-        res = TcpLikeProperties()
+        res = ConnectivityProperties()
         # from CanonicalHyperCubeSet.copy():
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
@@ -337,7 +337,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
 
     def print_diff(self, other, self_name, other_name):
         """
-        :param TcpLikeProperties other: Another PortSetPair object
+        :param ConnectivityProperties other: Another PortSetPair object
         :param str self_name: A name for 'self'
         :param str other_name: A name for 'other'
         :return: If self!=other, return a string showing a (source, target) pair that appears in only one of them
@@ -403,14 +403,14 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         return real_ports
 
     @staticmethod
-    def make_tcp_like_properties(peer_container, src_ports=PortSet(True), dst_ports=PortSet(True),
-                                 protocols=ProtocolSet(True), src_peers=None, dst_peers=None,
-                                 paths_dfa=None, hosts_dfa=None, methods=MethodSet(True),
-                                 icmp_type=DimensionsManager().get_dimension_domain_by_name('icmp_type'),
-                                 icmp_code=DimensionsManager().get_dimension_domain_by_name('icmp_code')):
+    def make_connectivity_properties(peer_container, src_ports=PortSet(True), dst_ports=PortSet(True),
+                                     protocols=ProtocolSet(True), src_peers=None, dst_peers=None,
+                                     paths_dfa=None, hosts_dfa=None, methods=MethodSet(True),
+                                     icmp_type=DimensionsManager().get_dimension_domain_by_name('icmp_type'),
+                                     icmp_code=DimensionsManager().get_dimension_domain_by_name('icmp_code')):
         """
-        get TcpLikeProperties with TCP allowed connections, corresponding to input properties cube.
-        TcpLikeProperties should not contain named ports: substitute them with corresponding port numbers, per peer
+        get ConnectivityProperties with allowed connections, corresponding to input properties cube.
+        ConnectivityProperties should not contain named ports: substitute them with corresponding port numbers, per peer
         :param PeerContainer peer_container: The set of endpoints and their namespaces
         :param PortSet src_ports: ports set for src_ports dimension (possibly containing named ports)
         :param PortSet dst_ports: ports set for dst_ports dimension (possibly containing named ports)
@@ -422,7 +422,7 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         :param MethodSet methods: CanonicalIntervalSet obj for methods dimension
         :param CanonicalIntervalSet icmp_type: ICMP-specific parameter (type dimension)
         :param CanonicalIntervalSet icmp_code: ICMP-specific parameter (code dimension)
-        :return: TcpLikeProperties with TCP allowed connections, corresponding to input properties cube
+        :return: ConnectivityProperties with allowed connections, corresponding to input properties cube
         """
         base_peer_set = peer_container.peer_set.copy()
         if src_peers:
@@ -437,13 +437,13 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             dst_peers_interval = None
         if (not src_ports.named_ports or not src_peers) and (not dst_ports.named_ports or not dst_peers):
             # Should not resolve named ports
-            return TcpLikeProperties(source_ports=src_ports, dest_ports=dst_ports,
-                                     protocols=protocols, methods=methods, paths=paths_dfa, hosts=hosts_dfa,
-                                     icmp_type=icmp_type, icmp_code=icmp_code,
-                                     src_peers=src_peers_interval, dst_peers=dst_peers_interval,
-                                     base_peer_set=base_peer_set)
+            return ConnectivityProperties(source_ports=src_ports, dest_ports=dst_ports,
+                                          protocols=protocols, methods=methods, paths=paths_dfa, hosts=hosts_dfa,
+                                          icmp_type=icmp_type, icmp_code=icmp_code,
+                                          src_peers=src_peers_interval, dst_peers=dst_peers_interval,
+                                          base_peer_set=base_peer_set)
         # Resolving named ports
-        tcp_properties = TcpLikeProperties.make_empty_properties(peer_container)
+        conn_properties = ConnectivityProperties.make_empty_properties(peer_container)
         if src_ports.named_ports and dst_ports.named_ports:
             assert src_peers and dst_peers
             assert not src_ports.port_set and not dst_ports.port_set
@@ -451,22 +451,22 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             src_named_port = list(src_ports.named_ports)[0]
             dst_named_port = list(dst_ports.named_ports)[0]
             for src_peer in src_peers:
-                real_src_ports = TcpLikeProperties.resolve_named_port(src_named_port, src_peer, protocols)
+                real_src_ports = ConnectivityProperties.resolve_named_port(src_named_port, src_peer, protocols)
                 if not real_src_ports:
                     continue
                 for dst_peer in dst_peers:
-                    real_dst_ports = TcpLikeProperties.resolve_named_port(dst_named_port, dst_peer, protocols)
+                    real_dst_ports = ConnectivityProperties.resolve_named_port(dst_named_port, dst_peer, protocols)
                     if not real_dst_ports:
                         continue
-                    props = TcpLikeProperties(source_ports=real_src_ports, dest_ports=real_dst_ports,
-                                              protocols=protocols, methods=methods,
-                                              paths=paths_dfa, hosts=hosts_dfa,
-                                              icmp_type=icmp_type, icmp_code=icmp_code,
-                                              src_peers=base_peer_set.get_peer_interval_of(PeerSet({src_peer})),
-                                              dst_peers=base_peer_set.get_peer_interval_of(PeerSet({dst_peer})),
-                                              base_peer_set=base_peer_set)
+                    props = ConnectivityProperties(source_ports=real_src_ports, dest_ports=real_dst_ports,
+                                                   protocols=protocols, methods=methods,
+                                                   paths=paths_dfa, hosts=hosts_dfa,
+                                                   icmp_type=icmp_type, icmp_code=icmp_code,
+                                                   src_peers=base_peer_set.get_peer_interval_of(PeerSet({src_peer})),
+                                                   dst_peers=base_peer_set.get_peer_interval_of(PeerSet({dst_peer})),
+                                                   base_peer_set=base_peer_set)
 
-                    tcp_properties |= props
+                    conn_properties |= props
         else:
             # either only src_ports or only dst_ports contain named ports
             if src_ports.named_ports:
@@ -480,34 +480,34 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             assert len(port_set_with_named_ports.named_ports) == 1
             port = list(port_set_with_named_ports.named_ports)[0]
             for peer in peers_for_named_ports:
-                real_ports = TcpLikeProperties.resolve_named_port(port, peer, protocols)
+                real_ports = ConnectivityProperties.resolve_named_port(port, peer, protocols)
                 if not real_ports:
                     continue
                 if src_ports.named_ports:
-                    props = TcpLikeProperties(source_ports=real_ports, dest_ports=dst_ports,
-                                              protocols=protocols, methods=methods,
-                                              paths=paths_dfa, hosts=hosts_dfa,
-                                              icmp_type=icmp_type, icmp_code=icmp_code,
-                                              src_peers=base_peer_set.get_peer_interval_of(PeerSet({peer})),
-                                              dst_peers=dst_peers_interval, base_peer_set=base_peer_set)
+                    props = ConnectivityProperties(source_ports=real_ports, dest_ports=dst_ports,
+                                                   protocols=protocols, methods=methods,
+                                                   paths=paths_dfa, hosts=hosts_dfa,
+                                                   icmp_type=icmp_type, icmp_code=icmp_code,
+                                                   src_peers=base_peer_set.get_peer_interval_of(PeerSet({peer})),
+                                                   dst_peers=dst_peers_interval, base_peer_set=base_peer_set)
                 else:
-                    props = TcpLikeProperties(source_ports=src_ports, dest_ports=real_ports,
-                                              protocols=protocols, methods=methods,
-                                              paths=paths_dfa, hosts=hosts_dfa,
-                                              icmp_type=icmp_type, icmp_code=icmp_code,
-                                              src_peers=src_peers_interval,
-                                              dst_peers=base_peer_set.get_peer_interval_of(PeerSet({peer})),
-                                              base_peer_set=base_peer_set)
-                tcp_properties |= props
-        return tcp_properties
+                    props = ConnectivityProperties(source_ports=src_ports, dest_ports=real_ports,
+                                                   protocols=protocols, methods=methods,
+                                                   paths=paths_dfa, hosts=hosts_dfa,
+                                                   icmp_type=icmp_type, icmp_code=icmp_code,
+                                                   src_peers=src_peers_interval,
+                                                   dst_peers=base_peer_set.get_peer_interval_of(PeerSet({peer})),
+                                                   base_peer_set=base_peer_set)
+                conn_properties |= props
+        return conn_properties
 
     @staticmethod
-    def make_tcp_like_properties_from_dict(peer_container, cube_dict):
+    def make_connectivity_properties_from_dict(peer_container, cube_dict):
         """
-        Create TcpLikeProperties from the given cube
+        Create ConnectivityProperties from the given cube
         :param PeerContainer peer_container: the set of all peers
         :param dict cube_dict: the given cube represented as a dictionary
-        :return: TcpLikeProperties
+        :return: ConnectivityProperties
         """
         cube_dict_copy = cube_dict.copy()
         src_ports = cube_dict_copy.pop("src_ports", PortSet(True))
@@ -521,19 +521,19 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
         icmp_type = cube_dict_copy.pop("icmp_type", DimensionsManager().get_dimension_domain_by_name('icmp_type'))
         icmp_code = cube_dict_copy.pop("icmp_code", DimensionsManager().get_dimension_domain_by_name('icmp_code'))
         assert not cube_dict_copy
-        return TcpLikeProperties.make_tcp_like_properties(peer_container, src_ports=src_ports, dst_ports=dst_ports,
-                                                          protocols=protocols, src_peers=src_peers, dst_peers=dst_peers,
-                                                          paths_dfa=paths_dfa, hosts_dfa=hosts_dfa, methods=methods,
-                                                          icmp_type=icmp_type, icmp_code=icmp_code)
+        return ConnectivityProperties.make_connectivity_properties(peer_container, src_ports=src_ports, dst_ports=dst_ports,
+                                                                   protocols=protocols, src_peers=src_peers, dst_peers=dst_peers,
+                                                                   paths_dfa=paths_dfa, hosts_dfa=hosts_dfa, methods=methods,
+                                                                   icmp_type=icmp_type, icmp_code=icmp_code)
 
     @staticmethod
     def make_empty_properties(peer_container=None):
-        return TcpLikeProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None,
-                                 create_empty=True)
+        return ConnectivityProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None,
+                                      create_empty=True)
 
     @staticmethod
     def make_all_properties(peer_container=None):
-        return TcpLikeProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None)
+        return ConnectivityProperties(base_peer_set=peer_container.peer_set.copy() if peer_container else None)
 
     def are_auto_conns(self):
         if not {'src_peers', 'dst_peers'}.issubset(set(self.active_dimensions)):
@@ -566,9 +566,9 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             icmp_type_interval = CanonicalIntervalSet.get_interval_set(icmp_type, icmp_type)
             if icmp_code:
                 icmp_code_interval = CanonicalIntervalSet.get_interval_set(icmp_code, icmp_code)
-        return TcpLikeProperties.make_tcp_like_properties(peer_container=peer_container, protocols=icmp_protocol_set,
-                                                          src_peers=src_peers, dst_peers=dst_peers,
-                                                          icmp_type=icmp_type_interval, icmp_code=icmp_code_interval)
+        return ConnectivityProperties.make_connectivity_properties(peer_container=peer_container, protocols=icmp_protocol_set,
+                                                                   src_peers=src_peers, dst_peers=dst_peers,
+                                                                   icmp_type=icmp_type_interval, icmp_code=icmp_code_interval)
 
     @staticmethod
     def make_all_but_given_icmp_properties(peer_container, protocol="", src_peers=None, dst_peers=None,
@@ -578,10 +578,10 @@ class TcpLikeProperties(CanonicalHyperCubeSet):
             icmp_protocol_set.add_protocol(ProtocolNameResolver.get_protocol_number(protocol))
         else:
             icmp_protocol_set = ProtocolSet(True)
-        all_icmp_props = TcpLikeProperties.make_tcp_like_properties(peer_container=peer_container,
-                                                                    protocols=icmp_protocol_set,
-                                                                    src_peers=src_peers, dst_peers=dst_peers)
-        given_icmp_props = TcpLikeProperties.make_icmp_properties(peer_container, protocol=protocol,
-                                                                  src_peers=src_peers, dst_peers=dst_peers,
-                                                                  icmp_type=icmp_type, icmp_code=icmp_code,)
+        all_icmp_props = ConnectivityProperties.make_connectivity_properties(peer_container=peer_container,
+                                                                             protocols=icmp_protocol_set,
+                                                                             src_peers=src_peers, dst_peers=dst_peers)
+        given_icmp_props = ConnectivityProperties.make_icmp_properties(peer_container, protocol=protocol,
+                                                                       src_peers=src_peers, dst_peers=dst_peers,
+                                                                       icmp_type=icmp_type, icmp_code=icmp_code, )
         return all_icmp_props-given_icmp_props

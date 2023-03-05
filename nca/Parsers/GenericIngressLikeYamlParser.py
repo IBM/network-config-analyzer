@@ -57,27 +57,27 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
     def _make_allow_rules(self, allowed_conns):
         """
         Make deny rules from the given connections
-        :param TcpLikeProperties allowed_conns: the given allowed connections
+        :param ConnectivityProperties allowed_conns: the given allowed connections
         :return: the list of deny IngressPolicyRules
         """
         return self._make_rules_from_conns(allowed_conns)
 
-    def _make_rules_from_conns(self, tcp_conns):
+    def _make_rules_from_conns(self, conn_props):
         """
         Make IngressPolicyRules from the given connections
-        :param TcpLikeProperties tcp_conns: the given connections
+        :param ConnectivityProperties conn_props: the given connections
         :return: the list of IngressPolicyRules
         """
         peers_to_conns = {}
         res = []
         # extract peers dimension from cubes
-        for cube in tcp_conns:
+        for cube in conn_props:
             ports = None
             paths = None
             hosts = None
             src_peer_set = None
             dst_peer_set = None
-            for i, dim in enumerate(tcp_conns.active_dimensions):
+            for i, dim in enumerate(conn_props.active_dimensions):
                 if dim == "dst_ports":
                     ports = cube[i]
                 elif dim == "paths":
@@ -85,9 +85,9 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
                 elif dim == "hosts":
                     hosts = cube[i]
                 elif dim == "src_peers":
-                    src_peer_set = tcp_conns.base_peer_set.get_peer_set_by_indices(cube[i])
+                    src_peer_set = conn_props.base_peer_set.get_peer_set_by_indices(cube[i])
                 elif dim == "dst_peers":
-                    dst_peer_set = tcp_conns.base_peer_set.get_peer_set_by_indices(cube[i])
+                    dst_peer_set = conn_props.base_peer_set.get_peer_set_by_indices(cube[i])
                 else:
                     assert False
             assert not src_peer_set
@@ -95,8 +95,8 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
                 dst_peer_set = self.peer_container.peer_set.copy()
             port_set = PortSet()
             port_set.port_set = ports
-            port_set.named_ports = tcp_conns.named_ports
-            port_set.excluded_named_ports = tcp_conns.excluded_named_ports
+            port_set.named_ports = conn_props.named_ports
+            port_set.excluded_named_ports = conn_props.excluded_named_ports
             new_conns = self._get_connection_set_from_properties(self.peer_container, port_set, paths_dfa=paths,
                                                                  hosts_dfa=hosts)
             if peers_to_conns.get(dst_peer_set):

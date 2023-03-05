@@ -12,7 +12,7 @@ from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.FWRules.MinimizeFWRules import MinimizeFWRules
 from nca.FWRules.ClusterInfo import ClusterInfo
@@ -742,7 +742,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             else:
                 res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
 
-        all_conns_opt = TcpLikeProperties.make_empty_properties()
+        all_conns_opt = ConnectivityProperties.make_empty_properties()
         opt_start = time.time()
         if self.config.optimized_run != 'false':
             all_conns_opt = self.config.allowed_connections_optimized()
@@ -753,9 +753,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 all_conns_opt.project_on_one_dimension('dst_peers')
 
             subset_peers = self.compute_subset(opt_peers_to_compare)
-            subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
-                                                                      src_peers=subset_peers) | \
-                TcpLikeProperties.make_tcp_like_properties(self.config.peer_container, dst_peers=subset_peers)
+            subset_conns = ConnectivityProperties.make_connectivity_properties(self.config.peer_container,
+                                                                               src_peers=subset_peers) | \
+                           ConnectivityProperties.make_connectivity_properties(self.config.peer_container, dst_peers=subset_peers)
             all_conns_opt &= subset_conns
             ip_blocks_mask = IpBlock.get_all_ips_block()
             if exclude_ipv6:
@@ -794,7 +794,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     def compare_orig_to_opt_conn(self, orig_conn_graph, opt_props):
         print("Converting orig_conn_graph to tcp_like_properties...")
-        orig_tcp_props = orig_conn_graph.convert_to_tcp_like_properties(self.config.peer_container)
+        orig_tcp_props = orig_conn_graph.convert_to_connectivity_properties(self.config.peer_container)
         assert orig_tcp_props.contained_in(opt_props) and opt_props.contained_in(orig_tcp_props)  # workaround for ==
         # The following assert exposes the bug in HC set
         assert not orig_tcp_props.contained_in(opt_props) or not opt_props.contained_in(orig_tcp_props) or \
@@ -834,7 +834,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def get_props_output_full(self, props, peers_to_compare, ip_blocks_mask):
         """
         get the connectivity map output considering all connections in the output
-        :param TcpLikeProperties props: properties describing allowed connections
+        :param ConnectivityProperties props: properties describing allowed connections
         :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
@@ -895,7 +895,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     def get_props_output_split_by_tcp(self, props, peers_to_compare, ip_blocks_mask):
         """
         get the connectivity map output as two parts: TCP and non-TCP
-        :param TcpLikeProperties props: properties describing allowed connections
+        :param ConnectivityProperties props: properties describing allowed connections
         :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
@@ -968,7 +968,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     def dot_format_from_props(self, props, peers, ip_blocks_mask, connectivity_restriction=None):
         """
-        :param TcpLikeProperties props: properties describing allowed connections
+        :param ConnectivityProperties props: properties describing allowed connections
         :param PeerSet peers: the peers to consider for dot output
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
@@ -999,7 +999,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     def fw_rules_from_props(self, props, peers_to_compare, ip_blocks_mask, connectivity_restriction=None):
         """
-        :param TcpLikeProperties props: properties describing allowed connections
+        :param ConnectivityProperties props: properties describing allowed connections
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
@@ -1051,16 +1051,16 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     def convert_props_to_split_by_tcp(self, props):
         """
-        given the TcpLikeProperties properties set, convert it to two properties sets, one for TCP only, and the other
+        given the ConnectivityProperties properties set, convert it to two properties sets, one for TCP only, and the other
         for non-TCP only.
-        :param TcpLikeProperties props: properties describing allowed connections
+        :param ConnectivityProperties props: properties describing allowed connections
         :return: a tuple of the two properties sets: first for TCP, second for non-TCP
-        :rtype: tuple(TcpLikeProperties, TcpLikeProperties)
+        :rtype: tuple(ConnectivityProperties, ConnectivityProperties)
         """
         tcp_protocol = ProtocolSet()
         tcp_protocol.add_protocol('TCP')
-        tcp_props = props & TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
-                                                                       protocols=tcp_protocol)
+        tcp_props = props & ConnectivityProperties.make_connectivity_properties(self.config.peer_container,
+                                                                                protocols=tcp_protocol)
         non_tcp_props = props - tcp_props
         return tcp_props, non_tcp_props
 

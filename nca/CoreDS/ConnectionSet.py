@@ -5,7 +5,7 @@
 
 from collections import defaultdict
 from .CanonicalIntervalSet import CanonicalIntervalSet
-from .TcpLikeProperties import TcpLikeProperties
+from .ConnectivityProperties import ConnectivityProperties
 from .ProtocolNameResolver import ProtocolNameResolver
 from .ProtocolSet import ProtocolSet
 from .Peer import PeerSet, IpBlock
@@ -160,7 +160,7 @@ class ConnectionSet:
         """
         :param bool is_str: should get str representation (True) or list representation (False)
         :param str protocol_text: str description of protocol
-        :param Union[bool, TcpLikeProperties, ICMPDataSet] properties: properties object of the protocol
+        :param Union[bool, ConnectivityProperties, ICMPDataSet] properties: properties object of the protocol
         :return: representation required for a given pair of protocol and its properties
         :rtype: Union[dict, str]
         """
@@ -403,7 +403,7 @@ class ConnectionSet:
         Add connections to the set of connections
         :param int,str protocol: protocol number of the connections to add
         :param properties: an object with protocol properties (e.g., ports), if relevant
-        :type properties: Union[bool, TcpLikeProperties, ICMPDataSet]
+        :type properties: Union[bool, ConnectivityProperties, ICMPDataSet]
         :return: None
         """
         if isinstance(protocol, str):
@@ -438,7 +438,7 @@ class ConnectionSet:
         :return: None
         """
         if self.protocol_supports_ports(protocol) or self.protocol_is_icmp(protocol):
-            self.allowed_protocols[protocol] = TcpLikeProperties.make_all_properties()
+            self.allowed_protocols[protocol] = ConnectivityProperties.make_all_properties()
         else:
             self.allowed_protocols[protocol] = True
 
@@ -542,15 +542,15 @@ class ConnectionSet:
 
         return 'No diff.'
 
-    def convert_to_tcp_like_properties(self, peer_container):
+    def convert_to_connectivity_properties(self, peer_container):
         if self.allow_all:
-            return TcpLikeProperties.make_all_properties(peer_container)
+            return ConnectivityProperties.make_all_properties(peer_container)
 
-        res = TcpLikeProperties.make_empty_properties(peer_container)
+        res = ConnectivityProperties.make_empty_properties(peer_container)
         for protocol, properties in self.allowed_protocols.items():
             protocols = ProtocolSet()
             protocols.add_protocol(protocol)
-            this_prop = TcpLikeProperties.make_tcp_like_properties(peer_container, protocols=protocols)
+            this_prop = ConnectivityProperties.make_connectivity_properties(peer_container, protocols=protocols)
             if isinstance(properties, bool):
                 if properties:
                     res |= this_prop
@@ -561,7 +561,7 @@ class ConnectionSet:
     @staticmethod
     def get_all_tcp_connections():
         tcp_conns = ConnectionSet()
-        tcp_conns.add_connections('TCP', TcpLikeProperties.make_all_properties())
+        tcp_conns.add_connections('TCP', ConnectivityProperties.make_all_properties())
         return tcp_conns
 
     @staticmethod
@@ -572,13 +572,13 @@ class ConnectionSet:
         # return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()
 
     # TODO - after moving to the optimized HC set implementation,
-    #  get rid of ConnectionSet and move the code below to TcpLikeProperties.py
+    #  get rid of ConnectionSet and move the code below to ConnectivityProperties.py
     @staticmethod
     def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container, ip_blocks_mask,
                                    connectivity_restriction):
         """
-        Build FWRules from the given TcpLikeProperties
-        :param TcpLikeProperties tcp_props: properties describing allowed connections
+        Build FWRules from the given ConnectivityProperties
+        :param ConnectivityProperties tcp_props: properties describing allowed connections
         :param ClusterInfo cluster_info: the cluster info
         :param PeerContainer peer_container: the peer container
         :param IpBlock ip_blocks_mask: IpBlock containing all allowed ip values,
@@ -621,13 +621,13 @@ class ConnectionSet:
                 protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
                 for protocol in protocol_names:
                     if new_cube_dict:
-                        conns.add_connections(protocol, TcpLikeProperties.make_tcp_like_properties_from_dict(peer_container,
-                                                                                                             new_cube_dict))
+                        conns.add_connections(protocol, ConnectivityProperties.make_connectivity_properties_from_dict(peer_container,
+                                                                                                                      new_cube_dict))
                     else:
                         if ConnectionSet.protocol_supports_ports(protocol):
-                            conns.add_connections(protocol, TcpLikeProperties.make_all_properties(peer_container))
+                            conns.add_connections(protocol, ConnectivityProperties.make_all_properties(peer_container))
                         elif ConnectionSet.protocol_is_icmp(protocol):
-                            conns.add_connections(protocol, TcpLikeProperties.make_all_properties(peer_container))
+                            conns.add_connections(protocol, ConnectivityProperties.make_all_properties(peer_container))
                         else:
                             conns.add_connections(protocol, True)
             # create FWRules for src_peers and dst_peers
@@ -671,13 +671,13 @@ class ConnectionSet:
 
     @staticmethod
     def fw_rules_to_tcp_properties(fw_rules, peer_container):
-        res = TcpLikeProperties.make_empty_properties(peer_container)
+        res = ConnectivityProperties.make_empty_properties(peer_container)
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:
-                conn_props = fw_rule.conn.convert_to_tcp_like_properties(peer_container)
+                conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)
                 src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
                 dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
-                rule_props = TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=src_peers,
-                                                                        dst_peers=dst_peers) & conn_props
+                rule_props = ConnectivityProperties.make_connectivity_properties(peer_container, src_peers=src_peers,
+                                                                                 dst_peers=dst_peers) & conn_props
                 res |= rule_props
         return res

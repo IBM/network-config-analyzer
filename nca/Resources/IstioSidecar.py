@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, PeerSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
 from .IstioTrafficResources import istio_root_namespace
 
@@ -168,12 +168,12 @@ class IstioSidecar(NetworkPolicy):
         for rule in self.egress_rules:
             if self.selected_peers and rule.egress_peer_set:
                 self.optimized_egress_props = \
-                    TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=self.selected_peers,
-                                                               dst_peers=rule.egress_peer_set)
+                    ConnectivityProperties.make_connectivity_properties(peer_container, src_peers=self.selected_peers,
+                                                                        dst_peers=rule.egress_peer_set)
             peers_sets_by_ns = self.combine_peer_sets_by_ns(self.selected_peers, rule.special_egress_peer_set,
                                                             peer_container)
             for (from_peers, to_peers) in peers_sets_by_ns:
                 if from_peers and to_peers:
                     self.optimized_egress_props |= \
-                        TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=from_peers,
-                                                                   dst_peers=to_peers)
+                        ConnectivityProperties.make_connectivity_properties(peer_container, src_peers=from_peers,
+                                                                            dst_peers=to_peers)

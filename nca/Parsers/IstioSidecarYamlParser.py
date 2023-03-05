@@ -4,7 +4,7 @@
 #
 import re
 from nca.CoreDS.Peer import PeerSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from nca.Resources.IstioSidecar import IstioSidecar, IstioSidecarRule
 from nca.Resources.IstioTrafficResources import istio_root_namespace
@@ -177,7 +177,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         self.namespace = self.peer_container.get_namespace(policy_ns, warn_if_missing)
         res_policy = IstioSidecar(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
-        res_policy.add_optimized_ingress_props(TcpLikeProperties.make_all_properties(self.peer_container))
+        res_policy.add_optimized_ingress_props(ConnectivityProperties.make_all_properties(self.peer_container))
 
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress

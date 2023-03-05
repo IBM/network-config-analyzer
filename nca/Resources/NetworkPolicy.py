@@ -7,7 +7,7 @@ from enum import Enum
 from dataclasses import dataclass
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 
 
 class NetworkPolicy:
@@ -53,10 +53,10 @@ class NetworkPolicy:
         self.selected_peers = PeerSet()  # The peers affected by this policy
         self.ingress_rules = []
         self.egress_rules = []
-        self.optimized_ingress_props = TcpLikeProperties.make_empty_properties()
-        self.optimized_denied_ingress_props = TcpLikeProperties.make_empty_properties()
-        self.optimized_egress_props = TcpLikeProperties.make_empty_properties()
-        self.optimized_denied_egress_props = TcpLikeProperties.make_empty_properties()
+        self.optimized_ingress_props = ConnectivityProperties.make_empty_properties()
+        self.optimized_denied_ingress_props = ConnectivityProperties.make_empty_properties()
+        self.optimized_egress_props = ConnectivityProperties.make_empty_properties()
+        self.optimized_denied_egress_props = ConnectivityProperties.make_empty_properties()
         self.affects_ingress = False  # whether the policy affects the ingress of the selected peers
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
         self.findings = []  # accumulated findings which are relevant only to this policy (emptiness and redundancy)
