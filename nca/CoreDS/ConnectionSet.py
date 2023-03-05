@@ -204,9 +204,6 @@ class ConnectionSet:
 
         protocol_text = 'Protocols: '
         for idx, protocol in enumerate(self.allowed_protocols.keys()):
-            if idx > 5:
-                protocol_text += ', ...'
-                break
             if idx > 0:
                 protocol_text += ', '
             protocol_text += ProtocolNameResolver.get_protocol_name(protocol)
