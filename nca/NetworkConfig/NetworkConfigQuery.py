@@ -757,17 +757,17 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                                       src_peers=subset_peers) | \
                 TcpLikeProperties.make_tcp_like_properties(self.config.peer_container, dst_peers=subset_peers)
             all_conns_opt &= subset_conns
-            ip_blocks_filter = IpBlock.get_all_ips_block()
+            ip_blocks_mask = IpBlock.get_all_ips_block()
             if exclude_ipv6:
-                ip_blocks_filter = IpBlock.get_all_ips_block(exclude_ipv6=True)
+                ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6=True)
                 ref_ip_blocks = self.config.get_referenced_ip_blocks(exclude_ipv6)
                 for ip_block in ref_ip_blocks:
-                    ip_blocks_filter |= ip_block
-                opt_peers_to_compare.filter_ipv6_blocks(ip_blocks_filter)
+                    ip_blocks_mask |= ip_block
+                opt_peers_to_compare.filter_ipv6_blocks(ip_blocks_mask)
 
             if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
                 output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
-                    self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare, ip_blocks_filter)
+                    self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare, ip_blocks_mask)
                 opt_end = time.time()
                 print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
                 if self.config.optimized_run == 'debug':
@@ -779,7 +779,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                         self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp)
             else:
                 output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare,
-                                                                      ip_blocks_filter)
+                                                                      ip_blocks_mask)
                 opt_end = time.time()
                 print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
                 if self.config.optimized_run == 'debug' and fw_rules and fw_rules.fw_rules_map and \

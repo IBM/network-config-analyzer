@@ -672,21 +672,19 @@ class PeerSet(set):
                     peer_list.append(self.sorted_peer_list[ind])
         return PeerSet(set(peer_list))
 
-    def filter_ipv6_blocks(self, ip_block_filter):
-        ipv6_cidr = '::/0'
+    def filter_ipv6_blocks(self, ip_blocks_mask):
+        """
+        Update ip blocks in the peer set by keeping only parts overlapping with the given mask.
+        :param ip_blocks_mask: the mask according to which ip blocks should be updated
+        """
         peers_to_remove = []
         peers_to_add = []
         for peer in self:
             if isinstance(peer, IpBlock):
                 peers_to_remove.append(peer)
-                if IpBlock.get_all_ips_block(exclude_ipv4=True).contained_in(peer):
+                if peer.overlaps(ip_blocks_mask):
                     new_peer = peer.copy()
-                    new_peer.remove_cidr(ipv6_cidr)
-                    if new_peer:
-                        peers_to_add.append(new_peer)
-                elif peer.overlaps(ip_block_filter):
-                    new_peer = peer.copy()
-                    new_peer &= ip_block_filter
+                    new_peer &= ip_blocks_mask
                     peers_to_add.append(new_peer)
 
         for peer in peers_to_remove:
