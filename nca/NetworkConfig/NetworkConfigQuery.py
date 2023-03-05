@@ -72,10 +72,10 @@ class BaseNetworkQuery:
                 error_msg = f'Error: Network configuration \'{config.name}\' does not have any peers. Can not run Query'
                 query_answer = QueryAnswer(output_result=error_msg, query_not_executed=True)
                 return query_answer.numerical_result, self._handle_output(query_answer), query_answer.query_not_executed
-        query_answer = self.execute(cmd_line_flag)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
+            query_answer = QueryAnswer(query_not_executed=True)
             return query_answer.numerical_result, '', query_answer.query_not_executed
-
+        query_answer = self.execute(cmd_line_flag)
         return query_answer.numerical_result, self._handle_output(query_answer), query_answer.query_not_executed
 
     def _handle_output(self, query_answer):
@@ -865,7 +865,17 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # concatenate the two graphs into one dot file
             res_str = dot_tcp + dot_non_tcp
             return res_str, None, None
-        # handle formats other than dot
+
+        if self.output_config.outputFormat == 'txt_no_fw_rules':
+            conns_msg_suffix = ' Connections:'
+            tcp_conns_wo_fw_rules = \
+                self._txt_no_fw_rules_format_from_connections_dict(connections_tcp, peers,
+                                                                   connectivity_tcp_str + conns_msg_suffix)
+            non_tcp_conns_wo_fw_rules = \
+                self._txt_no_fw_rules_format_from_connections_dict(connections_non_tcp, peers,
+                                                                   connectivity_non_tcp_str + conns_msg_suffix)
+            return tcp_conns_wo_fw_rules + '\n\n' + non_tcp_conns_wo_fw_rules, None, None
+        # handle formats other than dot and txt_no_fw_rules
         formatted_rules_tcp, fw_rules_tcp = \
             self.fw_rules_from_connections_dict(connections_tcp, peers_to_compare, connectivity_tcp_str)
         formatted_rules_non_tcp, fw_rules_non_tcp = \
@@ -894,7 +904,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
         props_tcp, props_non_tcp = self.convert_props_to_split_by_tcp(props)
-        if self.output_config.outputFormat == 'dot':
+        if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_tcp = self.dot_format_from_props(props_tcp, peers_to_compare, ip_blocks_mask,
                                                  connectivity_tcp_str)
             dot_non_tcp = self.dot_format_from_props(props_non_tcp, peers_to_compare, ip_blocks_mask,
@@ -902,7 +912,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # concatenate the two graphs into one dot file
             res_str = dot_tcp + dot_non_tcp
             return res_str, None, None
-        # handle formats other than dot
+        # TODO - handle 'txt_no_fw_rules' output format
+        # handle formats other than dot and txt_no_fw_rules
         formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, peers_to_compare, ip_blocks_mask,
                                                                      connectivity_tcp_str)
         formatted_rules_non_tcp, fw_rules_non_tcp = self.fw_rules_from_props(props_non_tcp, peers_to_compare,
@@ -931,16 +942,17 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         conn_graph.add_edges(connections)
         return conn_graph
 
-    def _txt_no_fw_rules_format_from_connections_dict(self, connections, peers):
+    def _txt_no_fw_rules_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
         """
         :param dict connections: the connections' dict (map from connection-set to peer pairs)
         :param PeerSet peers: the peers to consider for dot output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP , or not
         :rtype:  str
         :return the connectivity map in txt_no_fw_rules format, the connections between peers, excluding fw-rules
         and connections involving livesim peers
         """
         conn_graph = self._get_conn_graph(connections, peers)
-        return conn_graph.get_connections_without_fw_rules_txt_format()
+        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
 
     def dot_format_from_connections_dict(self, connections, peers, connectivity_restriction=None):
         """
@@ -1187,7 +1199,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md', 'json'}
+        return {'txt', 'yaml', 'csv', 'md', 'json', 'txt_no_fw_rules'}
 
     @staticmethod
     def _get_updated_key(key, is_added):
@@ -1230,15 +1242,18 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         """
         updated_key = self._get_updated_key(key, is_added)
         topology_config_name = self.name2 if is_added else self.name1
-        conn_graph_explanation = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
+        connectivity_changes_header = f'{updated_key} (based on topology from config: {topology_config_name}) :'
+        if self.output_config.outputFormat == 'txt_no_fw_rules':
+            conn_graph_explanation = conn_graph.get_connections_without_fw_rules_txt_format(connectivity_changes_header) + '\n'
+        else:
+            conn_graph_explanation = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
 
         if self.output_config.outputFormat in ['json', 'yaml']:
             explanation_dict = {'description': updated_key}
             explanation_dict.update(conn_graph_explanation)
             key_explanation = ComputedExplanation(dict_explanation=explanation_dict)
         else:
-            str_explanation = f'\n{updated_key} (based on topology from config: {topology_config_name}) :\n' \
-                if self.output_config.outputFormat == 'txt' else ''
+            str_explanation = f'\n{connectivity_changes_header}\n' if self.output_config.outputFormat == 'txt' else ''
             str_explanation += conn_graph_explanation
             key_explanation = ComputedExplanation(str_explanation=str_explanation)
 

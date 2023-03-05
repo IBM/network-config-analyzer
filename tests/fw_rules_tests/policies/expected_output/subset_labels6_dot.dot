@@ -7,7 +7,6 @@ subgraph cluster_ns2_namespace{
 	label="ns2"
 	fontsize=20
 	fontcolor=blue
-	"ns2/deployment-F-1" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F-1</td></tr></table>> shape=box fontcolor=blue]
-	"ns2/deployment-F-2" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F-2</td></tr></table>> shape=box fontcolor=blue]
+	"ns2/deployment-F-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-F-1</td></tr><tr><td>deployment-F-2</td></tr></table>> shape=box color=darkblue]
 }
 }

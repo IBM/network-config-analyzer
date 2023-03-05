@@ -7,27 +7,20 @@ subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/deployment-E-1" [label=<<table border="0" cellspacing="0"><tr><td>deployment-E-1</td></tr></table>> shape=box fontcolor=blue]
-	"default/deployment-E-2" [label=<<table border="0" cellspacing="0"><tr><td>deployment-E-2</td></tr></table>> shape=box fontcolor=blue]
-	"default/deployment-Eb-1" [label=<<table border="0" cellspacing="0"><tr><td>deployment-Eb-1</td></tr></table>> shape=box fontcolor=blue]
-	"default/deployment-Eb-2" [label=<<table border="0" cellspacing="0"><tr><td>deployment-Eb-2</td></tr></table>> shape=box fontcolor=blue]
+	"default/deployment-E-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-E-1</td></tr><tr><td>deployment-E-2</td></tr></table>> shape=box color=darkblue]
+	"default/deployment-Eb-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-Eb-1</td></tr><tr><td>deployment-Eb-2</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_ns1_namespace{
 	label="ns1"
 	fontsize=20
 	fontcolor=blue
-	"ns1/deployment-A-1" [label=<<table border="0" cellspacing="0"><tr><td>deployment-A-1</td></tr></table>> shape=box fontcolor=blue]
-	"ns1/deployment-A-2" [label=<<table border="0" cellspacing="0"><tr><td>deployment-A-2</td></tr></table>> shape=box fontcolor=blue]
+	"ns1/deployment-A-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-A-1</td></tr><tr><td>deployment-A-2</td></tr></table>> shape=box color=darkblue]
 }
 subgraph cluster_ns2_namespace{
 	label="ns2"
 	fontsize=20
 	fontcolor=blue
-	"ns2/deployment-F-1" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F-1</td></tr></table>> shape=box fontcolor=blue]
-	"ns2/deployment-F-2" [label=<<table border="0" cellspacing="0"><tr><td>deployment-F-2</td></tr></table>> shape=box fontcolor=blue]
+	"ns2/deployment-F-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-F-1</td></tr><tr><td>deployment-F-2</td></tr></table>> shape=box color=darkblue]
 }
 	"ns1/deployment-A-1" -> "default/deployment-E-1"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ns1/deployment-A-1" -> "default/deployment-E-2"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ns1/deployment-A-2" -> "default/deployment-E-1"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ns1/deployment-A-2" -> "default/deployment-E-2"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 }
