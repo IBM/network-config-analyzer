@@ -10,6 +10,7 @@ from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, HostEP
 from nca.Resources.K8sNamespace import K8sNamespace
 from nca.Parsers.K8sServiceYamlParser import K8sServiceYamlParser
 from nca.Utils.NcaLogger import NcaLogger
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class PodsFinder:
@@ -160,6 +161,7 @@ class PodsFinder:
                 for port in container.get('ports') or []:
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
             self._add_peer(pod)
+            ExplTracker().add_item('', workload_resource, pod.name)
 
     def _add_networkset_from_yaml(self, networkset_object):
         """

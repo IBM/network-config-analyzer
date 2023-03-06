@@ -12,7 +12,7 @@ from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from .PeerContainer import PeerContainer
-
+from nca.Utils.ExplTracker import ExplTracker
 
 class ResourceType(Enum):
     Unknown = 0
@@ -408,11 +408,17 @@ class ResourcesParser:
                         if ResourceType.Namespaces in resource_flags:
                             self.ns_finder.parse_yaml_code_for_ns(res_code)
                         if ResourceType.Pods in resource_flags:
+                            if res_code:
+                                # Track filenames and content
+                                ExplTracker().add_item(yaml_file.path, res_code, res_code.get('metadata').get('name'))
                             self.pods_finder.namespaces_finder = self.ns_finder
                             self.pods_finder.add_eps_from_yaml(res_code)
                             self.services_finder.namespaces_finder = self.ns_finder
                             self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
                         if ResourceType.Policies in resource_flags:
+                            if res_code:
+                                # Track filenames and content
+                                ExplTracker().add_item(yaml_file.path, res_code, res_code.get('metadata').get('name'))
                             self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
 
         self.policies_finder.parse_policies_in_parse_queue()

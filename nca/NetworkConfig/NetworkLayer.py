@@ -11,7 +11,7 @@ from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
 from nca.Resources.NetworkPolicy import PolicyConnections, NetworkPolicy
-
+from nca.Utils.ExplTracker import ExplTracker
 
 # TODO: add a layer for connectivity based on service type (culsterIP / LB / NodePort)? / containers ports?
 
@@ -261,7 +261,9 @@ class NetworkLayer:
                 denied_conns |= policy_denied_conns
                 if captured_func(policy):
                     captured |= policy_captured
-
+                # Track the peers that were affected by this policy
+                for peer in captured:
+                    ExplTracker().add_peer_policy(peer, policy)
         return allowed_conns, denied_conns, captured
 
 
