@@ -10,5 +10,5 @@ spec:
   ports:
    - name: https-443
      number: 443
-     protocol: TCP #HTTPS
+     protocol: HTTPS
   resolution: NONE
