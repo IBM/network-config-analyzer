@@ -11,6 +11,7 @@ from nca.Utils.OutputFilesFlags import OutputFilesFlags
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .NetworkConfig import NetworkConfig
 from . import NetworkConfigQuery
+from nca.Utils.ExplTracker import ExplTracker
 
 
 @dataclass
@@ -35,12 +36,13 @@ class QueryResult:
         self.query_iterations_output.append(iteration_results[1])
         self.num_not_executed += iteration_results[2]
 
-    def compute_final_results(self, output_format):
+    def compute_final_results(self, output_format, expl_nodes):
         """
         extracts the final query results from self variables
         from self.query_iterations_output computes the final str output of the query,
         other results returned as is from query_result.
         :param str output_format: the output format to form the final output
+        :param list str: expl_nodes: the nodes for explaining the connectivity
         if output format is json, dumps the output list into one-top-leveled string
         if output format is yaml, dumps the output list into str of a list of yaml objects
         otherwise, writes the output list items split by \n
@@ -54,7 +56,8 @@ class QueryResult:
                                sort_keys=False)
         else:
             output = '\n'.join(self.query_iterations_output)
-        return self.numerical_result, output, self.num_not_executed
+        expl_out = '\n'.join(ExplTracker().explain(expl_nodes))
+        return self.numerical_result, output+expl_out, self.num_not_executed
 
 
 class NetworkConfigQueryRunner:
@@ -169,7 +172,7 @@ class NetworkConfigQueryRunner:
         query_result = QueryResult()
         for config in self.configs_array:
             query_result.update(self._execute_one_config_query(self.query_name, self._get_config(config)))
-        return query_result.compute_final_results(self.output_configuration.outputFormat)
+        return query_result.compute_final_results(self.output_configuration.outputFormat, self.output_configuration.expl)
 
     def _run_query_on_configs_vs_base_config(self, cmd_line_flag):
         query_result = QueryResult()

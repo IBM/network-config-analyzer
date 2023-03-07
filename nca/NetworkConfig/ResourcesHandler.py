@@ -396,7 +396,7 @@ class ResourcesParser:
             elif resource_item == 'istio':
                 self._handle_istio_inputs(resource_flags)
             else:
-                fast_load = ResourceType.Policies not in resource_flags
+                fast_load = (ResourceType.Policies not in resource_flags) and not ExplTracker().is_active()
                 resource_scanner = TreeScannerFactory.get_scanner(resource_item, fast_load=fast_load)
                 if resource_scanner is None:
                     continue
@@ -410,7 +410,11 @@ class ResourcesParser:
                         if ResourceType.Pods in resource_flags:
                             if res_code:
                                 # Track filenames and content
-                                ExplTracker().add_item(yaml_file.path, res_code, res_code.get('metadata').get('name'))
+                                ExplTracker().add_item(yaml_file.path,
+                                                       res_code,
+                                                       res_code.get('metadata').get('name'),
+                                                       res_code.line_number
+                                                       )
                             self.pods_finder.namespaces_finder = self.ns_finder
                             self.pods_finder.add_eps_from_yaml(res_code)
                             self.services_finder.namespaces_finder = self.ns_finder
@@ -418,7 +422,11 @@ class ResourcesParser:
                         if ResourceType.Policies in resource_flags:
                             if res_code:
                                 # Track filenames and content
-                                ExplTracker().add_item(yaml_file.path, res_code, res_code.get('metadata').get('name'))
+                                ExplTracker().add_item(yaml_file.path,
+                                                       res_code,
+                                                       res_code.get('metadata').get('name'),
+                                                       res_code.line_number
+                                                       )
                             self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
 
         self.policies_finder.parse_policies_in_parse_queue()

@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from nca.Utils.NcaLogger import Singleton
+from nca.Utils.Utils import Singleton
+from nca.Utils.NcaLogger import NcaLogger
 
 
 class ExplDescriptor:
@@ -40,14 +41,21 @@ class ExplTracker(metaclass=Singleton):
     def __init__(self):
         self.ExplDescriptorContainer = {}
         self.ExplPeerToPolicyContainer = {}
+        self._is_active = False
+
+    def activate(self):
+        self._is_active = True
+
+    def is_active(self):
+        return self._is_active
 
     def get_path_from_deployment(self, content):
         return self.ExplDescriptorContainer[content.get('metadata').get('name')].get('path')
 
-    def add_item(self, path, content, name):
+    def add_item(self, path, content, name, ln):
         if path == '':
             path = self.get_path_from_deployment(content)
-        self.ExplDescriptorContainer[name] = {'path': path, 'content': content}
+        self.ExplDescriptorContainer[name] = {'path': path, 'line': ln}
 
     def add_peer_policy(self, peer, policy):
         peer_name = peer.name
@@ -56,3 +64,27 @@ class ExplTracker(metaclass=Singleton):
             self.ExplPeerToPolicyContainer[peer_name] = set()
         self.ExplPeerToPolicyContainer[peer_name].add(policy_name)
 
+    def explain(self, nodes):
+        if len(nodes) < 1:
+            return
+        elif len(nodes) > 2:
+            NcaLogger().log_message(f'Explainability error: only 1 or 2 nodes are allowed for explainability query,'
+                                    f' found {len(nodes)} ', level='E')
+            return
+        results = {}
+        for node in nodes:
+            if not self.ExplDescriptorContainer.get(node):
+                NcaLogger().log_message(f'Explainability error: {node} was not found in the connectivity results', level='E')
+                return
+            results[node] = self.ExplDescriptorContainer.get(node)
+            for policy in self.ExplPeerToPolicyContainer.get(node):
+                results[policy] = self.ExplDescriptorContainer.get(policy)
+        out = []
+        if len(nodes) == 1:
+            out.append(f'Configurations affecting node {nodes[0]}: \n')
+        else:
+            out.append(f'Configurations affecting the connectivity between {nodes[0]} and {nodes[1]}:')
+        for name in results.keys():
+            out.append(f'{name} - line {results.get(name).get("line")} in file {results.get(name).get("path")}')
+
+        return out
