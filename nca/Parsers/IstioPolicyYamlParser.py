@@ -489,7 +489,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         to_array = self.get_key_array_and_validate_not_empty(rule, 'to')
         # currently parsing only ports
         # TODO: extend operations parsing to include other attributes
-        conn_props = ConnectivityProperties.make_empty_props(self.peer_container)
+        conn_props = ConnectivityProperties.make_empty_props()
         if to_array is not None:
             connections = ConnectionSet()
             for operation_dict in to_array:
@@ -498,7 +498,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
                 conn_props |= conns.convert_to_connectivity_properties(self.peer_container)
         else:  # no 'to' in the rule => all connections allowed
             connections = ConnectionSet(True)
-            conn_props = ConnectivityProperties.make_all_props(self.peer_container)
+            conn_props = ConnectivityProperties.make_all_props()
 
         # condition possible result value:
         #         source-ip (from) , source-namespace (from) [Peerset], destination.port (to) [ConnectionSet]
@@ -517,7 +517,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             self.warning('Rule selects no pods', rule)
         condition_props = condition_conns.convert_to_connectivity_properties(self.peer_container)
         if not res_peers or not selected_peers:
-            condition_props = ConnectivityProperties.make_empty_props(self.peer_container)
+            condition_props = ConnectivityProperties.make_empty_props()
         else:
             condition_props &= ConnectivityProperties.make_conn_props(self.peer_container, src_peers=res_peers,
                                                                       dst_peers=selected_peers)
@@ -575,7 +575,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             res_policy.add_ingress_rule(rule)
             res_policy.add_optimized_ingress_props(optimized_props,
                                                    res_policy.action == IstioNetworkPolicy.ActionType.Allow)
-        res_policy.add_optimized_egress_props(ConnectivityProperties.make_all_props(self.peer_container))
+        res_policy.add_optimized_egress_props(ConnectivityProperties.make_all_props())
         if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:
             self.syntax_error("DENY action without rules is meaningless as it will never be triggered")
 

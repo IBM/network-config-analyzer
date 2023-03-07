@@ -480,19 +480,20 @@ class PeerSet(set):
 
     ipv4_highest_number = int(ip_network('0.0.0.0/0').broadcast_address)
     ipv6_highest_number = int(ip_network('::/0').broadcast_address)
-    pod_highest_number = 9999  # assuming maximum 10,000 pods
+    max_num_of_pods = 10000
     gap_width = 5  # the gap is needed to avoid mixed-type intervals union
     min_ipv4_index = 0
     max_ipv4_index = min_ipv4_index + ipv4_highest_number
     min_ipv6_index = max_ipv4_index + gap_width
     max_ipv6_index = min_ipv6_index + ipv6_highest_number
     min_pod_index = max_ipv6_index + gap_width
-    max_pod_index = min_pod_index + pod_highest_number
+    max_pod_index = min_pod_index + max_num_of_pods - 1
 
     def __init__(self, peer_set=None):
         super().__init__(peer_set or set())
         self.sorted_peer_list = []  # for converting PeerSet to CanonicalIntervalSet
         self.last_size_when_updated_sorted_peer_list = 0
+        assert len(self.get_set_without_ip_block()) <= self.max_num_of_pods
 
     def __contains__(self, item):
         if isinstance(item, IpBlock):  # a special check here because an IpBlock may be contained in another IpBlock
@@ -541,10 +542,14 @@ class PeerSet(set):
         return res
 
     def __ior__(self, other):
-        return PeerSet(super().__ior__(other))
+        res = PeerSet(super().__ior__(other))
+        assert len(res.get_set_without_ip_block()) <= self.max_num_of_pods
+        return res
 
     def __or__(self, other):
-        return PeerSet(super().__or__(other))
+        res = PeerSet(super().__or__(other))
+        assert len(res.get_set_without_ip_block()) <= self.max_num_of_pods
+        return res
 
     def __isub__(self, other):
         # subtraction on IpBlocks

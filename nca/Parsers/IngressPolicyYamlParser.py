@@ -185,7 +185,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         :param MinDFA paths_dfa: the paths for the default connections
         :return: ConnectivityProperties containing default connections or None (when no default backend exists)
         """
-        default_conns = ConnectivityProperties.make_empty_props(self.peer_container)
+        default_conns = ConnectivityProperties.make_empty_props()
         if self.default_backend_peers:
             if paths_dfa:
                 default_conns = \
@@ -215,8 +215,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.check_fields_validity(rule, 'ingress rule', allowed_elements)
         hosts_dfa = self.parse_regex_host_value(rule.get("host"), rule)
         paths_array = self.get_key_array_and_validate_not_empty(rule.get('http'), 'paths')
-        allowed_conns = ConnectivityProperties.make_empty_props(self.peer_container)
-        default_conns = ConnectivityProperties.make_empty_props(self.peer_container)
+        allowed_conns = ConnectivityProperties.make_empty_props()
+        default_conns = ConnectivityProperties.make_empty_props()
         if paths_array is not None:
             all_paths_dfa = None
             parsed_paths = []
@@ -271,7 +271,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         if not res_policy.selected_peers:
             self.missing_k8s_ingress_peers = True
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
-        allowed_conns = ConnectivityProperties.make_empty_props(self.peer_container)
+        allowed_conns = ConnectivityProperties.make_empty_props()
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):
             conns, hosts_dfa = self.parse_rule(ingress_rule)

@@ -330,7 +330,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             src_pods = policy_selected_pods
             dst_pods = res_pods
 
-        res_opt_props = ConnectivityProperties.make_empty_props(self.peer_container)  # ConnectivityProperties
+        res_opt_props = ConnectivityProperties.make_empty_props()
         ports_array = rule.get('ports', [])
         if ports_array:
             res_conns = ConnectionSet()

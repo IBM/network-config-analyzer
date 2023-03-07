@@ -381,7 +381,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 self.syntax_error(err, not_icmp_data)
 
         res = ConnectivityProperties.make_icmp_props(self.peer_container)
-        opt_props = ConnectivityProperties.make_empty_props(self.peer_container)
+        opt_props = ConnectivityProperties.make_empty_props()
         if self.optimized_run != 'false' and src_pods and dst_pods:
             opt_props = ConnectivityProperties.make_icmp_props(self.peer_container, protocol=protocol,
                                                                src_peers=src_pods, dst_peers=dst_pods)
@@ -393,7 +393,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                                                                    icmp_type=icmp_type, icmp_code=icmp_code)
             if not_icmp_data is not None:
                 if icmp_type == not_icmp_type and icmp_code == not_icmp_code:
-                    res = ConnectivityProperties.make_empty_props(self.peer_container)
+                    res = ConnectivityProperties.make_empty_props()
                     self.warning('icmp and notICMP are conflicting - no traffic will be matched', not_icmp_data)
                 elif icmp_type == not_icmp_type and icmp_code is None:
                     tmp = ConnectivityProperties.make_icmp_props(self.peer_container, icmp_type=not_icmp_type,
@@ -482,7 +482,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             src_res_pods &= policy_selected_eps
 
         connections = ConnectionSet()
-        conn_props = ConnectivityProperties.make_empty_props(self.peer_container)
+        conn_props = ConnectivityProperties.make_empty_props()
         if protocol is not None:
             protocols = ProtocolSet()
             protocols.add_protocol(protocol)

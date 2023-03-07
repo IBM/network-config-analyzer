@@ -800,8 +800,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                orig_tcp_props == opt_props
 
     def compare_fw_rules(self, fw_rules1, fw_rules2):
-        tcp_props1 = ConnectionSet.fw_rules_to_tcp_properties(fw_rules1, self.config.peer_container)
-        tcp_props2 = ConnectionSet.fw_rules_to_tcp_properties(fw_rules2, self.config.peer_container)
+        tcp_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, self.config.peer_container)
+        tcp_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, self.config.peer_container)
         if tcp_props1 == tcp_props2:
             print("Original and optimized fw-rules are semantically equivalent")
         else:
@@ -1008,8 +1008,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :rtype: Union[str, dict]
         """
         cluster_info = ClusterInfo(peers_to_compare, self.config.get_allowed_labels())
-        fw_rules_map = ConnectionSet.tcp_properties_to_fw_rules(props, cluster_info, self.config.peer_container,
-                                                                ip_blocks_mask, connectivity_restriction)
+        fw_rules_map = ConnectionSet.conn_props_to_fw_rules(props, cluster_info, self.config.peer_container,
+                                                            ip_blocks_mask, connectivity_restriction)
         fw_rules = MinimizeFWRules(fw_rules_map, cluster_info, self.output_config, {})
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules, fw_rules

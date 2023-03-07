@@ -544,9 +544,9 @@ class ConnectionSet:
 
     def convert_to_connectivity_properties(self, peer_container):
         if self.allow_all:
-            return ConnectivityProperties.make_all_props(peer_container)
+            return ConnectivityProperties.make_all_props()
 
-        res = ConnectivityProperties.make_empty_props(peer_container)
+        res = ConnectivityProperties.make_empty_props()
         for protocol, properties in self.allowed_protocols.items():
             protocols = ProtocolSet()
             protocols.add_protocol(protocol)
@@ -574,11 +574,11 @@ class ConnectionSet:
     # TODO - after moving to the optimized HC set implementation,
     #  get rid of ConnectionSet and move the code below to ConnectivityProperties.py
     @staticmethod
-    def tcp_properties_to_fw_rules(tcp_props, cluster_info, peer_container, ip_blocks_mask,
-                                   connectivity_restriction):
+    def conn_props_to_fw_rules(conn_props, cluster_info, peer_container, ip_blocks_mask,
+                               connectivity_restriction):
         """
         Build FWRules from the given ConnectivityProperties
-        :param ConnectivityProperties tcp_props: properties describing allowed connections
+        :param ConnectivityProperties conn_props: properties describing allowed connections
         :param ClusterInfo cluster_info: the cluster info
         :param PeerContainer peer_container: the peer container
         :param IpBlock ip_blocks_mask: IpBlock containing all allowed ip values,
@@ -595,8 +595,8 @@ class ConnectionSet:
                 ignore_protocols = ProtocolSet.get_non_tcp_protocols()
 
         fw_rules_map = defaultdict(list)
-        for cube in tcp_props:
-            cube_dict = tcp_props.get_cube_dict_with_orig_values(cube)
+        for cube in conn_props:
+            cube_dict = conn_props.get_cube_dict_with_orig_values(cube)
             new_cube_dict = cube_dict.copy()
             src_peers = new_cube_dict.get('src_peers')
             if src_peers:
@@ -625,9 +625,9 @@ class ConnectionSet:
                                                                                                          new_cube_dict))
                     else:
                         if ConnectionSet.protocol_supports_ports(protocol):
-                            conns.add_connections(protocol, ConnectivityProperties.make_all_props(peer_container))
+                            conns.add_connections(protocol, ConnectivityProperties.make_all_props())
                         elif ConnectionSet.protocol_is_icmp(protocol):
-                            conns.add_connections(protocol, ConnectivityProperties.make_all_props(peer_container))
+                            conns.add_connections(protocol, ConnectivityProperties.make_all_props())
                         else:
                             conns.add_connections(protocol, True)
             # create FWRules for src_peers and dst_peers
@@ -670,8 +670,8 @@ class ConnectionSet:
         return res
 
     @staticmethod
-    def fw_rules_to_tcp_properties(fw_rules, peer_container):
-        res = ConnectivityProperties.make_empty_props(peer_container)
+    def fw_rules_to_conn_props(fw_rules, peer_container):
+        res = ConnectivityProperties.make_empty_props()
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:
                 conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)

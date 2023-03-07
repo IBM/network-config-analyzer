@@ -338,7 +338,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param MinDFA host_dfa: the hosts attribute
         :return: ConnectivityProperties with allowed connections
         """
-        allowed_conns = ConnectivityProperties.make_empty_props(self.peer_container)
+        allowed_conns = ConnectivityProperties.make_empty_props()
         for http_route in vs.http_routes:
             for dest in http_route.destinations:
                 conns = \
