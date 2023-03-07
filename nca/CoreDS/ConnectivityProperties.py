@@ -79,10 +79,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         # create a dict object that holds the values required to build the cube
         dims_to_values = {"src_peers": {"value": src_peers_interval,
                                         "is_all": src_peers_interval ==
-                                                  DimensionsManager().get_dimension_domain_by_name('src_peers')},
+                                        DimensionsManager().get_dimension_domain_by_name('src_peers')},
                           "dst_peers": {"value": dst_peers_interval,
                                         "is_all": dst_peers_interval ==
-                                                  DimensionsManager().get_dimension_domain_by_name('dst_peers')},
+                                        DimensionsManager().get_dimension_domain_by_name('dst_peers')},
                           "protocols": {"value": protocols, "is_all": protocols.is_whole_range()},
                           "src_ports": {"value": source_ports.port_set, "is_all": source_ports.is_all()},
                           "dst_ports": {"value": dest_ports.port_set, "is_all": dest_ports.is_all()},
@@ -91,10 +91,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                           "paths": {"value": paths, "is_all": paths is None},
                           "icmp_type": {"value": icmp_type_interval,
                                         "is_all": icmp_type_interval ==
-                                                  DimensionsManager().get_dimension_domain_by_name('icmp_type')},
+                                        DimensionsManager().get_dimension_domain_by_name('icmp_type')},
                           "icmp_code": {"value": icmp_code_interval,
                                         "is_all": icmp_code_interval ==
-                                                  DimensionsManager().get_dimension_domain_by_name('icmp_code')}}
+                                        DimensionsManager().get_dimension_domain_by_name('icmp_code')}}
 
         cube, active_dims, has_empty_dim_value = self._get_cube_and_active_dims_from_input_values(dims_to_values)
 
