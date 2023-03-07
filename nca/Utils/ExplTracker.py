@@ -85,6 +85,6 @@ class ExplTracker(metaclass=Singleton):
         else:
             out.append(f'Configurations affecting the connectivity between {nodes[0]} and {nodes[1]}:')
         for name in results.keys():
-            out.append(f'{name} - line {results.get(name).get("line")} in file {results.get(name).get("path")}')
+            out.append(f'{name}: line {results.get(name).get("line")} in file {results.get(name).get("path")}')
 
         return out
