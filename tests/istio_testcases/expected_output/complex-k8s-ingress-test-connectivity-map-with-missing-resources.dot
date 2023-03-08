@@ -2,11 +2,8 @@
 digraph {
 	label="Connectivity Graph of connectivity-2/complex-k8s-ingress-test-missing-resources"	labelloc = "t"
 	fontsize=30
-	fontcolor=webmaroon
-{
+	fontcolor=maroon
 	dict_box [label="Connectivity legend\lTCP_0          TCP {'dst_ports': '3000', 'hosts': 'aaaa.y.z'}\lTCP_1          TCP {'dst_ports': '3000', 'hosts': 'iiii.y.z'}\lTCP_2          TCP {'dst_ports': '3200', 'hosts': 'dddd.y.z'}\lTCP_3          TCP {'dst_ports': '3456', 'hosts': 'bbbb.y.z'}\lTCP_4          TCP {'dst_ports': '3500', 'hosts': 'ffff.y.z'}\lTCP_5          TCP {'dst_ports': '4000', 'hosts': 'gggg.y.z'}\lTCP_6          TCP {'dst_ports': '9950', 'hosts': 'cccc.y.z'}\lTCP_7          TCP {'dst_ports': '9950', 'hosts': 'jjjj.y.z'}\l" shape=box]
- rank=sink
-}
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_example_namespace{
 	label="example"
@@ -17,7 +14,7 @@ subgraph cluster_example_namespace{
 	"example/deploy-bbbb(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-bbbb(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-cccc(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-cccc(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-dddd(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-dddd(Deployment)</td></tr></table>> shape=box fontcolor=blue]
-	"example/deploy-eeee(Deployment)" [label=<<table border="2" cellspacing="0"><tr><td>deploy-eeee(Deployment)</td></tr><tr><td>deploy-hhhh(Deployment)</td></tr></table>> shape=box color=darkblue]
+	"example/deploy-eeee(Deployment)" [label=<<table border="2" cellspacing="0"><tr><td>deploy-eeee(Deployment)</td></tr><tr><td>deploy-hhhh(Deployment)</td></tr></table>> shape=box color=blue4]
 	"example/deploy-ffff(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-ffff(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-gggg(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-gggg(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"example/deploy-iiii(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-iiii(Deployment)</td></tr></table>> shape=box fontcolor=blue]
@@ -27,7 +24,7 @@ subgraph cluster_ingress_controller_ns_namespace{
 	label="ingress-controller-ns"
 	fontsize=20
 	fontcolor=blue
-	"ingress-controller-ns/ingress-controller-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>ingress-controller-livesim(Pod)</td></tr></table>> shape=box fontcolor=fuchsia]
+	"ingress-controller-ns/ingress-controller-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>ingress-controller-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta]
 }
 	"0.0.0.0/0" -> "clique_0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"0.0.0.0/0" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
