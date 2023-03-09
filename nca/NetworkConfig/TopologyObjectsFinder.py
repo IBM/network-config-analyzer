@@ -244,10 +244,14 @@ class PodsFinder:
         self._add_peer(wep)
 
     def _add_dns_entries_from_yaml(self, srv_entry_object):
+        """
+        Add DNSEntry peers to the container based on the given istio ServiceEntry resource instance
+        :param dict srv_entry_object: The service-entry object to parse for dns-entry peers
+        :return: None
+        """
         parser = IstioServiceEntryYamlParser()
         dns_entries = parser.parse_serviceentry(srv_entry_object, self.peer_set)
-        for entry in dns_entries:
-            self.peer_set.add(entry)
+        self.peer_set |= dns_entries
 
 
 class NamespacesFinder:
@@ -340,7 +344,7 @@ class ServicesFinder:
             return
         parser = K8sServiceYamlParser('k8s')
         for srv_code in srv_resources.get('items', []):
-            self._parse_and_update_services_list(srv_code, 'k8s', parser)
+            self._parse_and_update_services_list(srv_code, parser)
 
     def parse_yaml_code_for_service(self, res_code, yaml_file):
         parser = K8sServiceYamlParser(yaml_file)
@@ -350,16 +354,14 @@ class ServicesFinder:
         if kind in {'List'}:
             for srv_item in res_code.get('items', []):
                 if isinstance(srv_item, dict) and srv_item.get('kind') in ['Service']:
-                    self._parse_and_update_services_list(srv_item, yaml_file, parser)
+                    self._parse_and_update_services_list(srv_item, parser)
         elif kind in ['Service']:
-            self._parse_and_update_services_list(res_code, yaml_file, parser)
+            self._parse_and_update_services_list(res_code, parser)
 
-    def _parse_and_update_services_list(self, srv_object, yaml_file, parser):
+    def _parse_and_update_services_list(self, srv_object, parser):
         """
-        parses the service object using the relevant parser for its kind (k8sService/ ServiceEntry)
-        and updates the services_list accordingly
+        parses the service object using the given parser and updates the services_list accordingly
         :param dict srv_object: the service object code from the yaml content
-        :param str yaml_file: the name of the yaml file containing the service object / 'k8s' for live cluster
         :param K8sServiceYamlParser parser: the service object parser
         """
         service = parser.parse_service(srv_object)
