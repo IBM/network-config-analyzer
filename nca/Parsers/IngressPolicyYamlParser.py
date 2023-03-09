@@ -96,7 +96,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
         rule_ports = PortSet()
         rule_ports.add_port(service_port.target_port)  # may be either a number or a named port
-        return srv.target_peers, rule_ports, True
+        return srv.target_pods, rule_ports, True
 
     def parse_ingress_path(self, path):
         """

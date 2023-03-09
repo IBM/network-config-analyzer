@@ -410,7 +410,6 @@ class ResourcesParser:
                             self.pods_finder.namespaces_finder = self.ns_finder
                             self.pods_finder.add_eps_from_yaml(res_code)
                             self.services_finder.namespaces_finder = self.ns_finder
-                            self.services_finder.pods_finder = self.pods_finder
                             self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
                         if ResourceType.Policies in resource_flags:
                             self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
@@ -434,7 +433,6 @@ class ResourcesParser:
             self.pods_finder.namespaces_finder = self.ns_finder
             self.pods_finder.load_peer_from_k8s_live_cluster()
             self.services_finder.namespaces_finder = self.ns_finder
-            self.services_finder.pods_finder = self.pods_finder
             self.services_finder.load_services_from_live_cluster()
         if ResourceType.Policies in resource_flags:
             self.policies_finder.load_policies_from_k8s_cluster()

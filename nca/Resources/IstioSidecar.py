@@ -181,8 +181,8 @@ class IstioSidecar(NetworkPolicy):
         """
         dst_ports = PortSet()
         res = ConnectionSet()
-        for srv_port in to_peer.named_ports.values():
-            dst_ports.add_port(srv_port.port_num)
+        for named_port in to_peer.named_ports.values():
+            dst_ports.add_port(named_port[0])
             # all allowed protocols of service-entry (source of dns-entries) are TCPLike
             # the allowed protocols are: 'HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS'
             res.add_connections(protocol='TCP', properties=TcpLikeProperties(PortSet(True), dst_ports))

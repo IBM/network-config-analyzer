@@ -69,6 +69,8 @@ class PodsFinder:
             self._add_hep_from_yaml(yaml_obj)
         elif kind in ['NetworkSet', 'GlobalNetworkSet']:
             self._add_networkset_from_yaml(yaml_obj)
+        elif kind == 'ServiceEntry':
+            self._add_dns_entries_from_yaml(yaml_obj)
 
     def _add_pod_from_yaml(self, pod_object):
         """
@@ -241,6 +243,12 @@ class PodsFinder:
 
         self._add_peer(wep)
 
+    def _add_dns_entries_from_yaml(self, srv_entry_object):
+        parser = IstioServiceEntryYamlParser()
+        dns_entries = parser.parse_serviceentry(srv_entry_object, self.peer_set)
+        for entry in dns_entries:
+            self.peer_set.add(entry)
+
 
 class NamespacesFinder:
     """
@@ -319,61 +327,42 @@ class ServicesFinder:
 
     def __init__(self):
         self.namespaces_finder = None
-        self.pods_finder = None
         self.services_list = []
 
     def load_services_from_live_cluster(self):
         """
         Loads and parses service resources from live cluster
-        :return: The list of parsed service resources in the relevant K8sService or ServiceEntry format
+        :return: The list of parsed services in K8sService format
         """
-        for resource_name in ['service', 'serviceentry']:
-            yaml_file = CmdlineRunner.get_k8s_resources(resource_name)
-            srv_resources = yaml.load(yaml_file, Loader=yaml.CSafeLoader)
-            if not isinstance(srv_resources, dict):
-                continue
-            for srv_code in srv_resources.get('items', []):
-                self._parse_by_kind_and_update_services_list(srv_code, 'k8s')
+        yaml_file = CmdlineRunner.get_k8s_resources('service')
+        srv_resources = yaml.load(yaml_file, Loader=yaml.CSafeLoader)
+        if not isinstance(srv_resources, dict):
+            return
+        parser = K8sServiceYamlParser('k8s')
+        for srv_code in srv_resources.get('items', []):
+            self._parse_and_update_services_list(srv_code, 'k8s', parser)
 
     def parse_yaml_code_for_service(self, res_code, yaml_file):
-        """
-        parses service object from yaml file
-        :param dict res_code: the yaml object code
-        :param str yaml_file: the name of the file containing the res_code
-        """
+        parser = K8sServiceYamlParser(yaml_file)
         if not isinstance(res_code, dict):
             return
         kind = res_code.get('kind')
         if kind in {'List'}:
             for srv_item in res_code.get('items', []):
-                if isinstance(srv_item, dict) and srv_item.get('kind') in ['Service', 'ServiceEntry']:
-                    self._parse_by_kind_and_update_services_list(srv_item, yaml_file)
-        elif kind in ['Service', 'ServiceEntry']:
-            self._parse_by_kind_and_update_services_list(res_code, yaml_file)
+                if isinstance(srv_item, dict) and srv_item.get('kind') in ['Service']:
+                    self._parse_and_update_services_list(srv_item, yaml_file, parser)
+        elif kind in ['Service']:
+            self._parse_and_update_services_list(res_code, yaml_file, parser)
 
-    def _parse_by_kind_and_update_services_list(self, srv_object, yaml_file):
+    def _parse_and_update_services_list(self, srv_object, yaml_file, parser):
         """
         parses the service object using the relevant parser for its kind (k8sService/ ServiceEntry)
         and updates the services_list accordingly
         :param dict srv_object: the service object code from the yaml content
-        :param str yaml_file: the name of the yaml file containing the service object
+        :param str yaml_file: the name of the yaml file containing the service object / 'k8s' for live cluster
+        :param K8sServiceYamlParser parser: the service object parser
         """
-        parser = self._get_parser_by_kind(srv_object.get('kind'), yaml_file)
-        service = parser.parse_service(srv_object, self.pods_finder.peer_set)
+        service = parser.parse_service(srv_object)
         if service:
             service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
-            if service.target_peers:  # in case of serviceEntry
-                self.pods_finder.peer_set.update(service.target_peers)
             self.services_list.append(service)
-
-    @staticmethod
-    def _get_parser_by_kind(kind, yaml_file):
-        """
-        returning the yaml parser of the service object by its type
-        :param str kind: the kind of the service (i.e. k8sService or ServiceEntry)
-        :param str yaml_file: the name of the file containing the service object
-        :return the relevant yaml parser
-        """
-        if kind == 'ServiceEntry':
-            return IstioServiceEntryYamlParser(yaml_file)
-        return K8sServiceYamlParser(yaml_file)

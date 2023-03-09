@@ -4,15 +4,14 @@
 #
 import re
 
-from nca.CoreDS.Peer import DNSEntry
+from nca.CoreDS.Peer import DNSEntry, PeerSet
 from nca.Parsers.GenericYamlParser import GenericYamlParser
-from nca.Resources.ServiceResource import IstioServiceEntry
 
 
 class IstioServiceEntryYamlParser(GenericYamlParser):
 
-    def __init__(self, service_entry_file):
-        super().__init__(service_entry_file)
+    def __init__(self):
+        super().__init__()
 
     @staticmethod
     def _parse_export_to(namespaces, curr_ns):
@@ -37,7 +36,8 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
                 ns_list.append(ns)
         return ns_list
 
-    def _legal_host_name(self, host_name):
+    @staticmethod
+    def _legal_host_name(host_name):
         """
         returns if the host name is a DNS name with wildcard prefix.
         :param str host_name: host name to check
@@ -77,12 +77,12 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
             return self.get_or_create_dns_entry_peer(peer_set, host)
         return None
 
-    def parse_service(self, service_entry_obj, peer_set):
+    def parse_serviceentry(self, service_entry_obj, peer_set):
         """
-        Parses a service resource object and creates an IstioServiceEntry object
+        Parses Istio ServiceEntry object and creates DNSEntry peers from its hosts
         :param dict service_entry_obj: the service object to parse
         :param PeerSet peer_set : set of the peers that already parsed by other input resources
-        :return: IstioServiceEntry object or None
+        :return: PeerSet with DNSEntry peers created by this object
         """
         se_name, se_ns = self.parse_generic_yaml_objects_fields(service_entry_obj, ['ServiceEntry'],
                                                                 ['networking.istio.io/v1beta1',
@@ -90,7 +90,6 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         if se_name is None:
             return None   # not a ServiceEntry object, nothing to build
 
-        service_entry = IstioServiceEntry(se_name, se_ns)
         se_spec = service_entry_obj['spec']
 
         allowed_keys = {'hosts': [1, list], 'addresses': [3, list], 'ports': [1, list], 'location': [0, str],
@@ -114,19 +113,24 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
             self.warning(f'{resolution} value is not supported yet for resolution')
 
         hosts = se_spec.get('hosts')
+        dns_entry_peers = PeerSet()
         if not hosts:
             self.syntax_error('ServiceEntry spec must have at least one host', se_spec)
         for host in hosts:
-            service_entry.add_host(self._parse_host_and_get_dns_entry(host, se_spec, peer_set))
+            dns_entry_peers.add(self._parse_host_and_get_dns_entry(host, se_spec, peer_set))
 
         ports = se_spec.get('ports')
         if not ports:
             self.syntax_error('ServiceEntry spec must have at least one port', se_spec)
-        port_valid_keys = {'number': [1, int], 'protocol': [1, str], 'name': [1, str], 'targetPort': [0, int]}
+        port_valid_keys = {'number': [1, int], 'protocol': [1, str], 'name': [1, str], 'targetPort': [3, int]}
         port_allowed_values = {'protocol': ['HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS']}
-        self._parse_and_add_service_resource_ports(ports, port_valid_keys, port_allowed_values, service_entry)
 
-        service_entry.exported_to_namespaces = self._parse_export_to(se_spec.get('exportTo', []), se_ns)
-        service_entry.update_hosts_namespaces_and_ports()
+        for dns_peer in dns_entry_peers:
+            # parse and update the peers' ports
+            for port in ports:
+                self.check_fields_validity(port, 'port', port_valid_keys, port_allowed_values)
+                dns_peer.add_named_port(port.get('name', ''), port.get('number'), port.get('protocol', 'TCP'))
+            # parse exportTo field and update the DNSEntry peers' namespaces
+            dns_peer.update_namespaces(self._parse_export_to(se_spec.get('exportTo', []), se_ns))
 
-        return service_entry
+        return dns_entry_peers

@@ -170,8 +170,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         determines the OutboundTrafficPolicy mode of the serviceEntry by parsing its OutboundTrafficPolicy if found,
         otherwise, depends on istio's default mode
         :param Union[dict, None] outbound_traffic_policy: the OutboundTrafficPolicy field to parse or None if not found
-        :return : true if the mode of OutboundTrafficPolicy/ default mode is allow_any, false otherwise
-        :rtype: bool
+        :rtype: IstioSidecar.OutboundMode
         """
         # by default, istio configures the envoy proxy to passthrough requests for unknown services
         mode = IstioSidecar.OutboundMode.ALLOW_ANY

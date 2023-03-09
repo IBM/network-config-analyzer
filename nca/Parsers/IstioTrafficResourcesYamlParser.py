@@ -337,7 +337,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         allowed_conns = None
         for http_route in vs.http_routes:
             for dest in http_route.destinations:
-                conns = self._make_tcp_like_properties(dest.port, dest.service.target_peers, http_route.uri_dfa,
+                conns = self._make_tcp_like_properties(dest.port, dest.service.target_pods, http_route.uri_dfa,
                                                        host_dfa, http_route.methods)
                 if not allowed_conns:
                     allowed_conns = conns

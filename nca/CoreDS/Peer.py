@@ -55,6 +55,21 @@ class Peer:
     def get_named_ports(self):
         return self.named_ports
 
+    def add_named_port(self, name, port_num, protocol, warn=True):
+        """
+        Adds a named port which is defined for the endpoint
+        :param str name: The name given to the named port
+        :param int port_num: Port number
+        :param str protocol: Port protocol
+        :param bool warn: Whether to warn if the port is already being used
+        :return: None
+        """
+        if not name:
+            return
+        if warn and name in self.named_ports:
+            print('Warning: a port named', name, 'is multiply defined for pod', self.full_name(), file=stderr)
+        self.named_ports[name] = (port_num, protocol)
+
 
 class ClusterEP(Peer):
     """
@@ -79,21 +94,6 @@ class ClusterEP(Peer):
 
     def full_name(self):
         return self.name
-
-    def add_named_port(self, name, port_num, protocol, warn=True):
-        """
-        Adds a named port which is defined for the endpoint
-        :param str name: The name given to the named port
-        :param int port_num: Port number
-        :param str protocol: Port protocol
-        :param bool warn: Whether to warn if the port is already being used
-        :return: None
-        """
-        if not name:
-            return
-        if warn and name in self.named_ports:
-            print('Warning: a port named', name, 'is multiply defined for pod', self.full_name(), file=stderr)
-        self.named_ports[name] = (port_num, protocol)
 
     def add_profile(self, profile_name):
         self.profiles.append(profile_name)
@@ -491,9 +491,6 @@ class DNSEntry(Peer):
         else:
             self.exported_to_all_namespaces = True
             self.namespaces.clear()
-
-    def update_named_ports(self, ports):
-        self.named_ports.update(ports.copy())
 
 
 class PeerSet(set):

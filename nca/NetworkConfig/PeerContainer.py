@@ -6,7 +6,7 @@ import re
 from sys import stderr
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, DNSEntry
 from nca.Resources.K8sNamespace import K8sNamespace
-from nca.Resources.ServiceResource import ServiceResource, K8sService
+from nca.Resources.K8sService import K8sService
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 
 
@@ -201,7 +201,7 @@ class PeerContainer:
         res = PeerSet()
         for service in self.services.values():
             if service.name == service_name:
-                res |= service.target_peers
+                res |= service.target_pods
         return res
 
     def get_dns_entry_pods_matching_host_name(self, host_dns):
@@ -225,29 +225,38 @@ class PeerContainer:
         res = PeerSet()
         for key, val in self.services.items():
             if name_substring in key:
-                res |= val.target_peers
+                res |= val.target_pods
         return res
 
     def get_all_services_target_peers(self):
         """
-        Returns all peers that belong to services
+        Returns all pods that belong to services and all DNSEntry peers (if existed) as this type of peers
+        is produced by ServiceEntry objects
         :rtype: PeerSet
         """
         res = PeerSet()
         for service in self.services.values():
-            res |= service.target_peers
+            res |= service.target_pods
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry):
+                res.add(peer)
         return res
 
     def get_services_target_peers_in_namespace(self, namespace):
         """
         Returns all peers that belong to services in/ exported to the given namespace
+        (i.e. pods that belong to k8s services in the given namespace,
+        or DNSEntry peers which are exported to the namespace)
         :param K8sNamespace namespace:   namespace object
         :rtype: PeerSet
         """
         res = PeerSet()
         for service in self.services.values():
-            if service.is_service_exported_to_namespace(namespace):
-                res |= service.target_peers
+            if service.namespace == namespace:
+                res |= service.target_pods
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry) and (peer.exported_to_all_namespaces or namespace.name in peer.namespaces):
+                res.add(peer)
         return res
 
     def get_pods_with_service_account_name(self, sa_name, namespace_str):
@@ -318,36 +327,33 @@ class PeerContainer:
         Returns a service with a given name and a given namespace
         :param name: the service name
         :param ns: the service namespace
-        :return: The ServiceResource object
+        :return: The K8sService object
         """
-        full_name = ServiceResource.service_full_name(name, ns)
+        full_name = K8sService.service_full_name(name, ns)
         return self.services.get(full_name)
 
     def _set_services_and_populate_target_pods(self, service_list):
         """
-        Populates self.services from the given service list,
-        and for every k8s service computes and populates its target pods
-        :param list service_list: list of services parsed from input resources
+        Populates services from the given service list,
+        and for every service computes and populates its target pods
+        :param list[k8sService] service_list: list of service in K8sService format
         :return: None
         """
         for srv in service_list:
-
-            if not isinstance(srv, K8sService):
-                self.services[srv.full_name()] = srv
-                continue
-            #  for k8s services only, populate target ports
+            # populate target ports
             if srv.selector:
-                srv.target_peers = self.peer_set
+                srv.target_pods = self.peer_set
             for key, val in srv.selector.items():
-                srv.target_peers &= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
-                                                              srv.namespace)
-            # remove target_peers that don't contain named ports referenced by target_ports
+                srv.namespace = self.get_namespace(srv.namespace_name)
+                srv.target_pods &= self.get_peers_with_label(key, [val], GenericYamlParser.FilterActionType.In,
+                                                             srv.namespace)
+            # remove target_pods that don't contain named ports referenced by target_ports
             for port in srv.ports.values():
                 if not isinstance(port.target_port, str):
                     continue
                 # check if all pods include this named port, and remove those that don't
                 pods_to_remove = PeerSet()
-                for pod in srv.target_peers:
+                for pod in srv.target_pods:
                     pod_named_port = pod.named_ports.get(port.target_port)
                     if not pod_named_port:
                         print(f'Warning: The named port {port.target_port} referenced in Service {srv.name}'
@@ -358,7 +364,7 @@ class PeerContainer:
                               f'referenced in Service {srv.name} does not match the protocol {pod_named_port[1]} '
                               f'defined in the pod {pod}. Ignoring the pod')
                         pods_to_remove.add(pod)
-                srv.target_peers -= pods_to_remove
-            if not srv.target_peers:
+                srv.target_pods -= pods_to_remove
+            if not srv.target_pods:
                 print(f'Warning: The service {srv.name} does not reference any pod')
-            self.services[srv.full_name()] = srv  # applied to all services in the service_list
+            self.services[srv.full_name()] = srv
