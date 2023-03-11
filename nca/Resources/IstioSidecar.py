@@ -79,7 +79,9 @@ class IstioSidecar(NetworkPolicy):
             if rule.allow_all or to_peer in rule.egress_peer_set or \
                     (to_peer in rule.special_egress_peer_set and self.check_peers_in_same_namespace(from_peer, to_peer)):
                 if isinstance(to_peer, DNSEntry):
-                    return PolicyConnections(True, allowed_conns=self.update_ports_of_dns_entry_conns(to_peer, str(from_peer.namespace)))
+                    return \
+                        PolicyConnections(True, allowed_conns=self.update_ports_of_dns_entry_conns(to_peer,
+                                                                                                   str(from_peer.namespace)))
                 else:
                     return PolicyConnections(True, allowed_conns=ConnectionSet(True))
 
