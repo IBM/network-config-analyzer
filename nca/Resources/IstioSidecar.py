@@ -79,7 +79,7 @@ class IstioSidecar(NetworkPolicy):
             if rule.allow_all or to_peer in rule.egress_peer_set or \
                     (to_peer in rule.special_egress_peer_set and self.check_peers_in_same_namespace(from_peer, to_peer)):
                 if isinstance(to_peer, DNSEntry):
-                    return PolicyConnections(True, allowed_conns=self.update_ports_of_dns_entry_conns(to_peer))
+                    return PolicyConnections(True, allowed_conns=self.update_ports_of_dns_entry_conns(to_peer, str(from_peer.namespace)))
                 else:
                     return PolicyConnections(True, allowed_conns=ConnectionSet(True))
 
@@ -170,20 +170,32 @@ class IstioSidecar(NetworkPolicy):
             return from_ns == to_peer.namespace
         # else to_peer is a DNSEntry: it is exported to from_peer if it is exported to its namespace or to all namespaces
         assert isinstance(to_peer, DNSEntry)
-        return to_peer.exported_to_all_namespaces or from_ns in to_peer.namespaces
+        return '*' in to_peer.namespaces_ports.keys() or from_ns in to_peer.namespaces_ports.keys()
 
     @staticmethod
-    def update_ports_of_dns_entry_conns(to_peer):
+    def update_ports_of_dns_entry_conns(to_peer, from_ns):
         """
-        computes the allowed connections to a DNSEntry peer considering its ports
+        computes the allowed connections to a DNSEntry peer considering its ports and the src namespace
         :param DNSEntry to_peer: the dst DNSEntry peer
+        :param str from_ns : the namespace name of the src peer
         :rtype: ConnectionSet
         """
+        if not from_ns:
+            return ConnectionSet()  # if we get here means that the src peer is not internal (ClusterEP),
+            # the connections will not be considered
+
         dst_ports = PortSet()
         res = ConnectionSet()
-        for named_port in to_peer.named_ports.values():
-            dst_ports.add_port(named_port[0])
-            # all allowed protocols of service-entry (source of dns-entries) are TCPLike
-            # the allowed protocols are: 'HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS'
-            res.add_connections(protocol='TCP', properties=TcpLikeProperties(PortSet(True), dst_ports))
+        # the ports that this src can connect with to to_peer, are ports that are exported to all namespaces and the
+        # ports that are exported specifically to the src namespace
+        if '*' in to_peer.namespaces_ports.keys():
+            for port_num in to_peer.namespaces_ports['*']:
+                dst_ports.add_port(port_num)
+        if from_ns in to_peer.namespaces_ports.keys():
+            for port_num in to_peer.namespaces_ports[from_ns]:
+                dst_ports.add_port(port_num)
+
+        # all allowed protocols of service-entry (source of dns-entries) are TCPLike
+        # the allowed protocols are: 'HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS'
+        res.add_connections(protocol='TCP', properties=TcpLikeProperties(PortSet(True), dst_ports))
         return res

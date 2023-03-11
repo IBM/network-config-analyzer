@@ -19,6 +19,13 @@ networkConfigList:
       - service_entry_resources/external-https-wildcard-services.yaml
       - sidecar-allows-any.yaml
 
+  - name: allow-all-sidecar-multiple-service-entry
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-wildcard-services.yaml
+      - service_entry_resources/external-https-services-another-port.yaml
+      - sidecar-allows-any.yaml
+
 queries:
   - name: connectivity-internal-external
     connectivityMap:
@@ -37,3 +44,10 @@ queries:
       - allow-all-sidecar
     expectedOutput: ../../../expected_output/connectivity_bookinfo_ratings_allow_any_sidecar.txt
     expected: 0
+
+  - name: connectivity-allow-any-multiple-service-entries
+    connectivityMap:
+      - allow-all-sidecar-multiple-service-entry
+    expectedOutput: ../../../expected_output/connectivity_bookinfo_ratings_allow_any_sidecar_multiple_service_entries.txt
+    expected: 0
+

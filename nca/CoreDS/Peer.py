@@ -20,7 +20,6 @@ class Peer:
         self.namespace = namespace
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
-        self.named_ports = {}  # A map from port name to the port number and its protocol/ to ServicePort
 
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name
@@ -52,23 +51,9 @@ class Peer:
     def is_global_peer(self):
         return False
 
-    def get_named_ports(self):
-        return self.named_ports
-
-    def add_named_port(self, name, port_num, protocol, warn=True):
-        """
-        Adds a named port which is defined for the endpoint
-        :param str name: The name given to the named port
-        :param int port_num: Port number
-        :param str protocol: Port protocol
-        :param bool warn: Whether to warn if the port is already being used
-        :return: None
-        """
-        if not name:
-            return
-        if warn and name in self.named_ports:
-            print('Warning: a port named', name, 'is multiply defined for pod', self.full_name(), file=stderr)
-        self.named_ports[name] = (port_num, protocol)
+    @staticmethod
+    def get_named_ports():
+        return {}
 
 
 class ClusterEP(Peer):
@@ -78,6 +63,7 @@ class ClusterEP(Peer):
 
     def __init__(self, name, namespace=None):
         super().__init__(name, namespace)
+        self.named_ports = {}  # A map from port name to the port number and its protocol
         self.profiles = []  # The set of attached profiles (Calico only)
         self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
@@ -94,6 +80,24 @@ class ClusterEP(Peer):
 
     def full_name(self):
         return self.name
+
+    def add_named_port(self, name, port_num, protocol, warn=True):
+        """
+        Adds a named port which is defined for the endpoint
+        :param str name: The name given to the named port
+        :param int port_num: Port number
+        :param str protocol: Port protocol
+        :param bool warn: Whether to warn if the port is already being used
+        :return: None
+        """
+        if not name:
+            return
+        if warn and name in self.named_ports:
+            print('Warning: a port named', name, 'is multiply defined for pod', self.full_name(), file=stderr)
+        self.named_ports[name] = (port_num, protocol)
+
+    def get_named_ports(self):
+        return self.named_ports
 
     def add_profile(self, profile_name):
         self.profiles.append(profile_name)
@@ -465,11 +469,11 @@ class DNSEntry(Peer):
         Constructs a DNSEntry from the host minDFA provided
         """
         Peer.__init__(self, name, namespace)
-        self.namespaces = set()  # set of namespaces the peer is exported to,
+        self.namespaces_ports = {}  # dict of namespaces which the peer is exported to with the ports its
+        # exported to on each namespace.
         # if the peer appears in multiple service-entries, this set should include all namespaces that these
-        # service-entries are exported to, the set will be cleared if the peer is exported to all namespaces, instead,
-        # the following flag will be True
-        self.exported_to_all_namespaces = False
+        # service-entries are exported to and for each, the ports its exported to.
+        # '*' indicates that it is exported to all namespace for at least one service-entry
 
     def __str__(self):
         return self.name
@@ -477,20 +481,26 @@ class DNSEntry(Peer):
     def __repr__(self):
         return self.name
 
-    def update_namespaces(self, namespaces):
+    def update_namespaces_to_ports_dict(self, namespaces, ports):
         """
-        updates the namespaces fields of self, if the peer already exported to all namespaces, return (nothing to do)
-        otherwise, update the fields considering the given param value
-        :param list namespaces: the namespaces list to update self's namespaces with.
+        updates self.namespaces_ports dict
+        :param list[str] namespaces: the namespaces list to update self's namespaces with.
         ['*'] indicates the peer is exported to all namespaces
+        :param list[int] ports: list of ports numbers that the peer is exported to for the given namespaces
         """
-        if self.exported_to_all_namespaces:
-            return
+
         if namespaces != ['*']:
-            self.namespaces.update(namespaces)
-        else:
-            self.exported_to_all_namespaces = True
-            self.namespaces.clear()
+            for namespace in namespaces:
+                if namespace in self.namespaces_ports.keys():
+                    self.namespaces_ports[namespace].extend(ports)
+                else:
+                    self.namespaces_ports[namespace] = ports
+
+        else:  # namespaces = ['*']
+            if '*' in self.namespaces_ports.keys():
+                self.namespaces_ports['*'].extend(ports)
+            else:
+                self.namespaces_ports['*'] = ports
 
 
 class PeerSet(set):

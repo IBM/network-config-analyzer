@@ -124,13 +124,13 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
             self.syntax_error('ServiceEntry spec must have at least one port', se_spec)
         port_valid_keys = {'number': [1, int], 'protocol': [1, str], 'name': [1, str], 'targetPort': [3, int]}
         port_allowed_values = {'protocol': ['HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS']}
+        ports_numbers = []  # for our dnsEntry peers connections, only port number interests us
+        for port in ports:
+            self.check_fields_validity(port, 'port', port_valid_keys, port_allowed_values)
+            ports_numbers.append(port.get('number'))
 
         for dns_peer in dns_entry_peers:
-            # parse and update the peers' ports
-            for port in ports:
-                self.check_fields_validity(port, 'port', port_valid_keys, port_allowed_values)
-                dns_peer.add_named_port(port.get('name', ''), port.get('number'), port.get('protocol', 'TCP'))
-            # parse exportTo field and update the DNSEntry peers' namespaces
-            dns_peer.update_namespaces(self._parse_export_to(se_spec.get('exportTo', []), se_ns))
+            # parse exportTo field and update the DNSEntry peers' namespaces_ports
+            dns_peer.update_namespaces_to_ports_dict(self._parse_export_to(se_spec.get('exportTo', []), se_ns), ports_numbers)
 
         return dns_entry_peers

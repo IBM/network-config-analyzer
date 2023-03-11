@@ -232,7 +232,7 @@ class IstioNetworkLayer(NetworkLayer):
             allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
             # exception: update allowed non-captured conns to DNSEntry dst with the peers' actual ports only
             if isinstance(to_peer, DNSEntry):
-                allowed_non_captured_conns = IstioSidecar.update_ports_of_dns_entry_conns(to_peer)
+                allowed_non_captured_conns = IstioSidecar.update_ports_of_dns_entry_conns(to_peer, str(from_peer.namespace))
         return PolicyConnections(captured_res, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 

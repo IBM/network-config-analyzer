@@ -255,7 +255,8 @@ class PeerContainer:
             if service.namespace == namespace:
                 res |= service.target_pods
         for peer in self.peer_set:
-            if isinstance(peer, DNSEntry) and (peer.exported_to_all_namespaces or namespace.name in peer.namespaces):
+            if isinstance(peer, DNSEntry) and \
+                    ('*' in peer.namespaces_ports.keys() or namespace.name in peer.namespaces_ports.keys()):
                 res.add(peer)
         return res
 
