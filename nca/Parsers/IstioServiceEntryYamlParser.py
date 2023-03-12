@@ -47,7 +47,9 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         return: re-matching object if the host name matches the DNS pattern, None otherwise
         :rtype Union[str, None]
         """
-        dns_pattern = "[*.\\w/\\-]*"
+        dns_pattern = r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?"
+        if host_name.startswith('*.'):
+            return re.fullmatch(dns_pattern, host_name[2:])
         return re.fullmatch(dns_pattern, host_name)
 
     @staticmethod

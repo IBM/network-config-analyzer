@@ -4,6 +4,7 @@
 #
 import copy
 import ipaddress
+import re
 from ipaddress import ip_network
 from sys import stderr
 from string import hexdigits
@@ -470,17 +471,31 @@ class DNSEntry(Peer):
         Constructs a DNSEntry from the host name provided
         """
         Peer.__init__(self, name, namespace)
+        self.re_pattern = ''
         self.namespaces_ports = {}  # dict of namespaces which the peer is exported to with the ports its
         # exported to on each namespace.
         # if the peer appears in multiple service-entries, this set should include all namespaces that these
         # service-entries are exported to and for each, the ports its exported to.
         # '*' indicates that it is exported to all namespaces for at least one service-entry
+        self.compute_re_pattern_from_host_name()
 
     def __str__(self):
         return self.name
 
     def __repr__(self):
         return self.name
+
+    def compute_re_pattern_from_host_name(self):
+        """
+        translates the host name (dns) to a pattern that may be used with re library methods
+         - "*" at the beginning of the host name will be replaced with an FQDN pattern
+         - the "." in the host name may not be replaced by any other character
+        """
+        if self.name.startswith('*'):
+            name_suffix = re.escape(self.name[1:])
+            self.re_pattern = r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?" + name_suffix
+        else:
+            self.re_pattern = re.escape(self.name)
 
     def update_namespaces_to_ports_dict(self, namespaces, ports):
         """

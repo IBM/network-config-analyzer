@@ -212,7 +212,7 @@ class PeerContainer:
         """
         res = PeerSet()
         for peer in self.peer_set:
-            if isinstance(peer, DNSEntry) and re.fullmatch(peer.name, host_dns):
+            if isinstance(peer, DNSEntry) and re.fullmatch(peer.re_pattern, host_dns):
                 res.add(peer)
         return res
 
