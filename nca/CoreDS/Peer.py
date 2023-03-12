@@ -462,18 +462,19 @@ class IpBlock(Peer, CanonicalIntervalSet):
 
 class DNSEntry(Peer):
     """
-    represents DNS entries, produced by ServiceEntry objects
+    represents DNS entries, produced by ServiceEntry objects.
+    A DNSEntry peer is created for each host in the service-entry hosts' list
     """
     def __init__(self, name=None, namespace=None):
         """
-        Constructs a DNSEntry from the host minDFA provided
+        Constructs a DNSEntry from the host name provided
         """
         Peer.__init__(self, name, namespace)
         self.namespaces_ports = {}  # dict of namespaces which the peer is exported to with the ports its
         # exported to on each namespace.
         # if the peer appears in multiple service-entries, this set should include all namespaces that these
         # service-entries are exported to and for each, the ports its exported to.
-        # '*' indicates that it is exported to all namespace for at least one service-entry
+        # '*' indicates that it is exported to all namespaces for at least one service-entry
 
     def __str__(self):
         return self.name
@@ -483,24 +484,16 @@ class DNSEntry(Peer):
 
     def update_namespaces_to_ports_dict(self, namespaces, ports):
         """
-        updates self.namespaces_ports dict
-        :param list[str] namespaces: the namespaces list to update self's namespaces with.
+        updates self.namespaces_ports dict, updates the value with ports for each namespace in namespaces
+        :param list[str] namespaces: the namespaces list to add to the dict or update its value.
         ['*'] indicates the peer is exported to all namespaces
         :param list[int] ports: list of ports numbers that the peer is exported to for the given namespaces
         """
-
-        if namespaces != ['*']:
-            for namespace in namespaces:
-                if namespace in self.namespaces_ports.keys():
-                    self.namespaces_ports[namespace].extend(ports)
-                else:
-                    self.namespaces_ports[namespace] = ports
-
-        else:  # namespaces = ['*']
-            if '*' in self.namespaces_ports.keys():
-                self.namespaces_ports['*'].extend(ports)
+        for namespace in namespaces:
+            if namespace in self.namespaces_ports:
+                self.namespaces_ports[namespace].extend(ports)
             else:
-                self.namespaces_ports['*'] = ports
+                self.namespaces_ports[namespace] = ports
 
 
 class PeerSet(set):

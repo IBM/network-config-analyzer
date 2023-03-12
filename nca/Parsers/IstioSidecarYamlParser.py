@@ -97,7 +97,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         # 2. external dns name (<>.<>.<>)
         if dns_name == '*':  # * means all services in namespace, all already in host_peers
             return host_peers
-        if 'cluster' in dns_name:  # internal service case
+        if 'svc.cluster.local' in dns_name:  # internal service case
             if dns_name.startswith('*.'):  # all services in namespace, already in host_peers
                 return host_peers
             service_name = dns_name.split('.')[0]
@@ -106,11 +106,10 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         # dns entry case
         return host_peers & self.peer_container.get_dns_entry_pods_matching_host_name(dns_name)
 
-    def _parse_egress_rule(self, egress_rule, outbound_mode):
+    def _parse_egress_rule(self, egress_rule):
         """
         Parse a single egress rule, producing a IstioSidecarRule
         :param dict egress_rule: The dict with the egress rule (IstioEgressListener) fields
-        :param IstioSidecar.OutboundMode outbound_mode: sidecar's outbound traffic policy mode
         :return: A IstioSidecarRule with the proper PeerSet
         :rtype: IstioSidecarRule
         """
@@ -126,9 +125,6 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         for host in hosts:
             # Services in the specified namespace matching dnsName will be exposed.
             namespace, dns_name = self._validate_and_partition_host_format(host)
-            # special case of allow_any with all services (not only the services in our peer container)
-            if outbound_mode == IstioSidecar.OutboundMode.ALLOW_ANY and namespace == '*' and dns_name == '*':
-                return IstioSidecarRule(allow_all=True)
             host_peers, special_case_host = self._get_peers_from_host_namespace(namespace)
             self._validate_dns_name_pattern(dns_name)
             if host_peers:  # if there are services in the specified namespace
@@ -168,7 +164,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
     def _parse_outbound_traffic_policy(self, outbound_traffic_policy):
         """
         determines the OutboundTrafficPolicy mode of the serviceEntry by parsing its OutboundTrafficPolicy if found,
-        otherwise, depends on istio's default mode
+        otherwise istio's default mode
         :param Union[dict, None] outbound_traffic_policy: the OutboundTrafficPolicy field to parse or None if not found
         :rtype: IstioSidecar.OutboundMode
         """
@@ -212,8 +208,6 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             self.syntax_error('Global Sidecar configuration should not have any workloadSelector.')
         res_policy.selected_peers = self.update_policy_peers(workload_selector, 'labels')
 
-        res_policy.outbound_mode = self._parse_outbound_traffic_policy(sidecar_spec.get('outboundTrafficPolicy'))
-
         # istio ref declares both following statements:
         # 1.sidecar with workloadSelector takes precedence on a default sidecar. Handled in the following called method
         self._check_and_save_sidecar_if_top_priority(res_policy)
@@ -221,8 +215,9 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         # from the namespace-wide or the global default Sidecar. However, istio does not merge User-defined sidecars.
         # (See Clarification: https://discuss.istio.io/t/istio-sidecar-doc-description-vs-live-cluster-behavior/13849)
         for egress_rule in sidecar_spec.get('egress') or []:
-            res_policy.add_egress_rule(self._parse_egress_rule(egress_rule, res_policy.outbound_mode))
+            res_policy.add_egress_rule(self._parse_egress_rule(egress_rule))
 
+        res_policy.outbound_mode = self._parse_outbound_traffic_policy(sidecar_spec.get('outboundTrafficPolicy'))
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels
 

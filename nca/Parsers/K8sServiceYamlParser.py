@@ -55,7 +55,9 @@ class K8sServiceYamlParser(GenericYamlParser):
             port_allowed_values = {'protocol': ['TCP', 'SCTP', 'UDP', 'HTTP', 'HTTPS', 'TLS']}
             for port in ports:
                 self.check_fields_validity(port, 'port', port_valid_keys, port_allowed_values)
-                port_num = port.get('port', 0)
+                port_num = port.get('port')
+                if not port_num:
+                    continue
                 port_name = port.get('name', '')
                 if not service.add_port(K8sService.ServicePort(port_num=port_num, name=port_name,
                                                                protocol=port.get('protocol', 'TCP'),

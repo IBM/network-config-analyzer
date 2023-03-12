@@ -19,20 +19,17 @@ class IstioSidecarRule:
     A class representing a single egress rule (IstioEgressListener) in an Istio Sidecar object
     """
 
-    def __init__(self, peer_set=None, peers_for_ns_compare=None, allow_all=False):
+    def __init__(self, peer_set=None, peers_for_ns_compare=None):
         """
         Init the Egress rule of an Istio Sidecar
         :param Peer.PeerSet peer_set: The set of mesh internal peers this rule allows connection to
         :param Peer.PeerSet peers_for_ns_compare: The set of peers captured by a global sidecar with hosts
         having namespace equal to '.'
-        :param bool allow_all: indicates if this sidecar rule allows all egress from sidecar's peers
         """
         self.egress_peer_set = peer_set
         self.special_egress_peer_set = peers_for_ns_compare  # set of peers captured by a global sidecar with hosts of
-        # './<any>' form - then peers in this set will be in allowed connections
-        # only if are in the same namespace of the source peer captured by the sidecar
-        self.allow_all = allow_all  # will be true if sidecar's outboundMode is allow_any and hosts in this rule
-        # are of the form */*  - in this case the above peer sets will be empty
+        # './<any>' form - then peers in this set will be in allowed connections only if are in the same namespace of the
+        # source peer captured by the sidecar
 
 
 class IstioSidecar(NetworkPolicy):
@@ -76,7 +73,7 @@ class IstioSidecar(NetworkPolicy):
 
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
-            if rule.allow_all or to_peer in rule.egress_peer_set or \
+            if to_peer in rule.egress_peer_set or \
                     (to_peer in rule.special_egress_peer_set and self.check_peers_in_same_namespace(from_peer, to_peer)):
                 if isinstance(to_peer, DNSEntry):
                     return \
@@ -100,7 +97,7 @@ class IstioSidecar(NetworkPolicy):
         empty_egress_rules = set()
         full_name = self.full_name(config_name)
         for rule_index, egress_rule in enumerate(self.egress_rules, start=1):
-            if not egress_rule.allow_all and not egress_rule.egress_peer_set:
+            if not egress_rule.egress_peer_set:
                 emptiness = f'Rule no. {rule_index} in Sidecar {full_name} does not select any pods/services'
                 emptiness_explanation.append(emptiness)
                 empty_egress_rules.add(rule_index)
@@ -160,7 +157,7 @@ class IstioSidecar(NetworkPolicy):
     @staticmethod
     def check_peers_in_same_namespace(from_peer, to_peer):
         """
-        checks if from_peer and to_peer are in the same namespace or if to_peer is exported to from_peer
+        checks if from_peer and to_peer are in the same namespace or if to_peer is exported to from_peer's namespace
         (in case to_peer is DNSEntry)
         :param Peer from_peer: the src peer
         :param Peer to_peer: the dst peer
@@ -172,7 +169,7 @@ class IstioSidecar(NetworkPolicy):
             return from_ns == to_peer.namespace
         # else to_peer is a DNSEntry: it is exported to from_peer if it is exported to its namespace or to all namespaces
         assert isinstance(to_peer, DNSEntry)
-        return '*' in to_peer.namespaces_ports.keys() or from_ns in to_peer.namespaces_ports.keys()
+        return '*' in to_peer.namespaces_ports or from_ns in to_peer.namespaces_ports
 
     @staticmethod
     def update_ports_of_dns_entry_conns(to_peer, from_ns):
@@ -183,17 +180,17 @@ class IstioSidecar(NetworkPolicy):
         :rtype: ConnectionSet
         """
         if not from_ns:
-            return ConnectionSet()  # if we get here means that the src peer is not internal (ClusterEP),
+            return ConnectionSet()  # if we get here means that the src peer is not internal (i.e. not ClusterEP),
             # the connections will not be considered
 
         dst_ports = PortSet()
         res = ConnectionSet()
         # the ports that this src can connect with to to_peer, are ports that are exported to all namespaces and the
-        # ports that are exported specifically to the src namespace
-        if '*' in to_peer.namespaces_ports.keys():
+        # ports that are exported specifically to the src's namespace
+        if '*' in to_peer.namespaces_ports:
             for port_num in to_peer.namespaces_ports['*']:
                 dst_ports.add_port(port_num)
-        if from_ns in to_peer.namespaces_ports.keys():
+        if from_ns in to_peer.namespaces_ports:
             for port_num in to_peer.namespaces_ports[from_ns]:
                 dst_ports.add_port(port_num)
 

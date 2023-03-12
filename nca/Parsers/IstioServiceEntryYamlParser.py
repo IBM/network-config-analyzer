@@ -9,6 +9,9 @@ from nca.Parsers.GenericYamlParser import GenericYamlParser
 
 
 class IstioServiceEntryYamlParser(GenericYamlParser):
+    """
+    A parser for Istio ServiceEntry objects
+    """
 
     def __init__(self):
         super().__init__()
@@ -41,7 +44,7 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         """
         returns if the host name is a DNS name with wildcard prefix.
         :param str host_name: host name to check
-        return: an re-matching object if the host name matches the DNS pattern, None otherwise
+        return: re-matching object if the host name matches the DNS pattern, None otherwise
         :rtype Union[str, None]
         """
         dns_pattern = "[*.\\w/\\-]*"
@@ -50,8 +53,8 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
     @staticmethod
     def get_or_create_dns_entry_peer(peer_set, host_name):
         """
-        checks if the given peer set contains a DNSEntry peer with the given host_dfa, if yes returns it, otherwise
-        creates a new DNSEntry peer with the given host_dfa and host_name
+        checks if the given peer set contains a DNSEntry peer with the given host_name, if yes returns it, otherwise
+        creates a new DNSEntry peer with the given host_name
         :param peer_set: set of peers
         :param str host_name: the host name
         :return DNSEntry
@@ -68,14 +71,12 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         :param dict rule_dict: the spec dict that includes the host
         :param PeerSet peer_set: set of peers
         :return a DNSEntry peer to add to the ServiceEntry's target_peers if the host is legal
-        :rtype Union[DNSEntry, None]
+        :rtype DNSEntry
         """
-        if host == '*':
+        if host == '*' or not self._legal_host_name(host):
             self.syntax_error(f'illegal host {host}', rule_dict)
-        if self._legal_host_name(host):
-            # check if a DNSEntry with same host already exists in the peer set, get it, otherwise create new one
-            return self.get_or_create_dns_entry_peer(peer_set, host)
-        return None
+        # check if a DNSEntry with same host already exists in the peer set, get it, otherwise create new one
+        return self.get_or_create_dns_entry_peer(peer_set, host)
 
     def parse_serviceentry(self, service_entry_obj, peer_set):
         """
@@ -83,6 +84,7 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         :param dict service_entry_obj: the service object to parse
         :param PeerSet peer_set : set of the peers that already parsed by other input resources
         :return: PeerSet with DNSEntry peers created by this object
+        :rtype: PeerSet
         """
         se_name, se_ns = self.parse_generic_yaml_objects_fields(service_entry_obj, ['ServiceEntry'],
                                                                 ['networking.istio.io/v1beta1',

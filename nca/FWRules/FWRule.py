@@ -207,8 +207,8 @@ class FWRuleElement:
     def create_fw_elements_from_base_element(base_elem):
         """
         create a list of fw-rule-elements from base-element
-        :param base_elem: of type ClusterEP/IpBlock/K8sNamespace
-        :return: list fw-rule-elements of type:  list[PodElement]/list[IPBlockElement]/list[FWRuleElement]
+        :param base_elem: of type ClusterEP/IpBlock/K8sNamespace/DNSEntry
+        :return: list fw-rule-elements of type:  list[PodElement]/list[IPBlockElement]/list[FWRuleElement]/list[DNSElement]
         """
         if isinstance(base_elem, ClusterEP):
             return [PodElement(base_elem)]
@@ -431,7 +431,7 @@ class DNSElement(FWRuleElement):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
         """
-        return self.element.name
+        return ''
 
     def get_elem_list_obj(self):
         """
@@ -450,6 +450,7 @@ class DNSElement(FWRuleElement):
         :param is_src: bool flag to indicate if element is src (True) or dst (False), always False
         :return: string of the represented element with src or dst description of fields
         """
+        assert not is_src  # currently we don't support DNSEntry as src peer
         prefix = 'src: ' if is_src else 'dst: '
         suffix = ' ' if is_src else ''
         return prefix + str(self) + suffix
@@ -465,7 +466,8 @@ class DNSElement(FWRuleElement):
         :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
         :return: a set of pods in the cluster represented by this element
         """
-        return {self.element}
+        # an dns-entry element does not represent any pods
+        return set()
 
 
 class FWRule:
@@ -537,11 +539,11 @@ class FWRule:
         if component == 'src_ns':
             return self.src.get_ns_str()
         elif component == 'src_pods':
-            return str(self.src) if isinstance(self.src, IPBlockElement) else self.src.get_pod_str()
+            return str(self.src) if isinstance(self.src, (IPBlockElement, DNSElement)) else self.src.get_pod_str()
         elif component == 'dst_ns':
             return self.dst.get_ns_str()
         elif component == 'dst_pods':
-            return str(self.dst) if isinstance(self.dst, IPBlockElement) else self.dst.get_pod_str()
+            return str(self.dst) if isinstance(self.dst, (IPBlockElement, DNSElement)) else self.dst.get_pod_str()
         elif component == 'connection':
             return self.conn.get_simplified_connections_representation(True)
         return ''
@@ -561,14 +563,15 @@ class FWRule:
         """
         src_ns_list = sorted([str(ns) for ns in self.src.ns_info])
         dst_ns_list = sorted([str(ns) for ns in self.dst.ns_info])
-        src_pods_list = self.src.get_elem_list_obj() if not isinstance(self.src, IPBlockElement) else None
-        dst_pods_list = self.dst.get_elem_list_obj() if not isinstance(self.dst, IPBlockElement) else None
+        src_pods_list = self.src.get_elem_list_obj() if not isinstance(self.src, (IPBlockElement, DNSElement)) else None
+        dst_pods_list = self.dst.get_elem_list_obj() if not isinstance(self.dst, (IPBlockElement, DNSElement)) else None
         src_ip_block_list = sorted(self.src.get_elem_list_obj()) if isinstance(self.src, IPBlockElement) else None
         dst_ip_block_list = sorted(self.dst.get_elem_list_obj()) if isinstance(self.dst, IPBlockElement) else None
+        dst_dns_entry_list = sorted(self.dst.get_elem_list_obj()) if isinstance(self.dst, DNSElement) else None
         conn_list = self.conn.get_simplified_connections_representation(False)
 
         rule_obj = {}
-        if src_ip_block_list is None and dst_ip_block_list is None:
+        if src_ip_block_list is None and dst_ip_block_list is None and dst_dns_entry_list is None:
             rule_obj = {'src_ns': src_ns_list,
                         'src_pods': src_pods_list,
                         'dst_ns': dst_ns_list,
@@ -584,6 +587,12 @@ class FWRule:
             rule_obj = {'src_ns': src_ns_list,
                         'src_pods': src_pods_list,
                         'dst_ip_block': dst_ip_block_list,
+                        'connection': conn_list}
+
+        elif dst_dns_entry_list is not None:
+            rule_obj = {'src_ns': src_ns_list,
+                        'src_pods': src_pods_list,
+                        'dst_dns_entry': dst_dns_entry_list,
                         'connection': conn_list}
         return rule_obj
 
