@@ -222,7 +222,7 @@ class PeerContainer:
 
     def get_dns_entry_pods_matching_host_name(self, host_name):
         """
-        returns all DNSentry peers which include the host_dns
+        returns all DNSentry peers which are equal/contained in the host_name
         :param str host_name: the host name as it appears in the policy's hosts list
         :rtype: PeerSet
         """
@@ -230,7 +230,7 @@ class PeerContainer:
         # re.fullmatch behavior in accordance with live-cluster behaviour.
         # only sidecar host should contain the service-entry host.
         # the opposite containment direction is not considered for connections
-        # (examples in:
+        # (detailed examples in:
         # tests/istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-test-sidecar-connectivity-scheme.yaml)
         host_pattern = self._compute_re_pattern_from_host_name(host_name)
         for peer in self.peer_set:
