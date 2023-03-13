@@ -1,5 +1,4 @@
 
-
 networkConfigList:
   - name: mixed-sidecar
     resourceList:
@@ -26,6 +25,24 @@ networkConfigList:
       - service_entry_resources/external-https-services-another-port.yaml
       - sidecar-allows-any.yaml
 
+  # this config includes a service-entry with general host name "*.wikipedia.org", while the sidecar supports egress
+  # to the specific "en.wikipedia.org" - from testing on live cluster , this is not considered as match,
+  # and we don't expect to see the host name in the selected peers connection list
+  - name: sidecar-w-specific-host-name
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-wildcard-services.yaml
+      - sidecar-w-specific-host.yaml
+
+  # this config includes a service-entry with specific host name "api.facebook.com", while the sidecar supports egress
+  # to the general "*.facebook.com" (a service-entry match) - according to live-cluster we expect to see
+  # "api.facebook.com" (the dns-entry name) in the selected peers connection-list
+  - name: sidecar-w-general-host-name
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-wildcard-services.yaml
+      - sidecar-w-general-host.yaml
+
 queries:
   - name: connectivity-internal-external
     connectivityMap:
@@ -51,3 +68,14 @@ queries:
     expectedOutput: ../../../expected_output/connectivity_bookinfo_ratings_allow_any_sidecar_multiple_service_entries.txt
     expected: 0
 
+  - name: connectivity-sidecar-host-name-does-not-contain-service-entry-hosts
+    connectivityMap:
+      - sidecar-w-specific-host-name  # if the sidecar's host is more specified than the service-entry host (does not contain it) it will not be considered in the connections of selected peers
+    expectedOutput: ../../../expected_output/connectivity_sidecar_host_name_does_not_contain_se_hosts.txt
+    expected: 0
+
+  - name: connectivity-sidecar-host-name-contains-service-entry-hosts
+    connectivityMap:
+      - sidecar-w-general-host-name  # if the sidecar's host contains any service-entry host, the service-entry's host will be added to the connections of selected peers
+    expectedOutput: ../../../expected_output/connectivity_sidecar_host_name_contains_service_entry_hosts.txt
+    expected: 0

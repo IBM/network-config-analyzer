@@ -204,15 +204,37 @@ class PeerContainer:
                 res |= service.target_pods
         return res
 
-    def get_dns_entry_pods_matching_host_name(self, host_dns):
+    @staticmethod
+    def _compute_re_pattern_from_host_name(host_name):
+        """
+        translates the host name (dns) to a pattern that may be used with re library methods
+         - "*" at the beginning of the host name will be replaced with an FQDN pattern
+         - the "." in the host name may not be replaced by any other character
+         :param str host_name: the host name
+         :return: the re-pattern of the host name
+         :rtype: str
+        """
+        if host_name.startswith('*'):
+            name_suffix = re.escape(host_name[1:])
+            return r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?" + name_suffix
+
+        return re.escape(host_name)
+
+    def get_dns_entry_pods_matching_host_name(self, host_name):
         """
         returns all DNSentry peers which include the host_dns
-        :param str host_dns : string representing a host
+        :param str host_name: the host name as it appears in the policy's hosts list
         :rtype: PeerSet
         """
         res = PeerSet()
+        # re.fullmatch behavior in accordance with live-cluster behaviour.
+        # only sidecar host should contain the service-entry host.
+        # the opposite containment direction is not considered for connections
+        # (examples in:
+        # tests/istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-test-sidecar-connectivity-scheme.yaml)
+        host_pattern = self._compute_re_pattern_from_host_name(host_name)
         for peer in self.peer_set:
-            if isinstance(peer, DNSEntry) and re.fullmatch(peer.re_pattern, host_dns):
+            if isinstance(peer, DNSEntry) and (peer.name == host_name or re.fullmatch(host_pattern, peer.name)):
                 res.add(peer)
         return res
 
