@@ -177,18 +177,15 @@ class NetworkLayer:
         all_pods = peer_container.get_all_peers_group()
         all_ips_peer_set = PeerSet({IpBlock.get_all_ips_block()})
         conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
-        conn_cube.set_dim("src_peers", all_pods)
-        conn_cube.set_dim("dst_peers", all_ips_peer_set)
+        conn_cube.set_dims({"src_peers": all_pods, "dst_peers": all_ips_peer_set})
         allowed_ingress_conns, denied_ingres_conns = self._allowed_xgress_conns_optimized(True, peer_container)
         allowed_ingress_conns |= ConnectivityProperties.make_conn_props(conn_cube)
         allowed_egress_conns, denied_egress_conns = self._allowed_xgress_conns_optimized(False, peer_container)
-        conn_cube.set_dim("src_peers", all_ips_peer_set)
-        conn_cube.set_dim("dst_peers", all_pods)
+        conn_cube.set_dims({"src_peers": all_ips_peer_set, "dst_peers": all_pods})
         allowed_egress_conns |= ConnectivityProperties.make_conn_props(conn_cube)
         res = allowed_ingress_conns & allowed_egress_conns
         # exclude IpBlock->IpBlock connections
-        conn_cube.set_dim("src_peers", all_ips_peer_set)
-        conn_cube.set_dim("dst_peers", all_ips_peer_set)
+        conn_cube.set_dims({"src_peers": all_ips_peer_set, "dst_peers": all_ips_peer_set})
         excluded_conns = ConnectivityProperties.make_conn_props(conn_cube)
         res -= excluded_conns
         return res
@@ -301,11 +298,9 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         if non_captured:
             conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
             if is_ingress:
-                conn_cube.set_dim("src_peers", base_peer_set_with_ip)
-                conn_cube.set_dim("dst_peers", non_captured)
+                conn_cube.set_dims({"src_peers": base_peer_set_with_ip, "dst_peers": non_captured})
             else:
-                conn_cube.set_dim("src_peers", non_captured)
-                conn_cube.set_dim("dst_peers", base_peer_set_with_ip)
+                conn_cube.set_dims({"src_peers": non_captured, "dst_peers": base_peer_set_with_ip})
             non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             allowed_conn |= non_captured_conns
         return allowed_conn, denied_conns
@@ -340,16 +335,13 @@ class IstioNetworkLayer(NetworkLayer):
         conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
         if non_captured_peers:
             if is_ingress:
-                conn_cube.set_dim("src_peers", base_peer_set_with_ip)
-                conn_cube.set_dim("dst_peers", non_captured_peers)
+                conn_cube.set_dims({"src_peers": base_peer_set_with_ip, "dst_peers": non_captured_peers})
             else:
-                conn_cube.set_dim("src_peers", non_captured_peers)
-                conn_cube.set_dim("dst_peers", base_peer_set_with_ip)
+                conn_cube.set_dims({"src_peers": non_captured_peers, "dst_peers": base_peer_set_with_ip})
             non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             allowed_conn |= (non_captured_conns - denied_conns)
-        conn_cube.set_dim("src_peers", base_peer_set_with_ip)
-        conn_cube.set_dim("dst_peers", base_peer_set_with_ip)
-        conn_cube.set_dim("protocols", ProtocolSet.get_non_tcp_protocols())
+        conn_cube.set_dims({"src_peers": base_peer_set_with_ip, "dst_peers": base_peer_set_with_ip,
+                            "protocols": ProtocolSet.get_non_tcp_protocols()})
         allowed_conn |= ConnectivityProperties.make_conn_props(conn_cube)
         return allowed_conn, denied_conns
 
@@ -373,15 +365,13 @@ class IngressNetworkLayer(NetworkLayer):
         base_peer_set_no_ip = peer_container.get_all_peers_group()
         conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
         if is_ingress:
-            conn_cube.set_dim("src_peers", base_peer_set_with_ip)
-            conn_cube.set_dim("dst_peers", base_peer_set_no_ip)
+            conn_cube.set_dims({"src_peers": base_peer_set_with_ip, "dst_peers": base_peer_set_no_ip})
             non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             allowed_conn |= non_captured_conns
         else:
             non_captured_peers = base_peer_set_no_ip - captured
             if non_captured_peers:
-                conn_cube.set_dim("src_peers", non_captured_peers)
-                conn_cube.set_dim("dst_peers", base_peer_set_with_ip)
+                conn_cube.set_dims({"src_peers": non_captured_peers, "dst_peers": base_peer_set_with_ip})
                 non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
                 allowed_conn |= non_captured_conns
         return allowed_conn, denied_conns

@@ -675,8 +675,7 @@ class ConnectionSet:
                 src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
                 dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
                 conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
-                conn_cube.set_dim("src_peers", src_peers)
-                conn_cube.set_dim("dst_peers", dst_peers)
+                conn_cube.set_dims({"src_peers": src_peers, "dst_peers": dst_peers})
                 rule_props = ConnectivityProperties.make_conn_props(conn_cube) & conn_props
                 res |= rule_props
         return res

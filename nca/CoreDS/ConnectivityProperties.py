@@ -110,6 +110,10 @@ class ConnectivityCube(dict):
         else:  # the rest of dimensions do not need a translation
             self[dim_name] = dim_value
 
+    def set_dims(self, dims):
+        for dim_name, dim_value in dims.items():
+            self.set_dim(dim_name, dim_value)
+
     def unset_dim(self, dim_name):
         assert dim_name in self.dimensions_list
         self[dim_name] = DimensionsManager().get_dimension_domain_by_name(dim_name)
@@ -553,8 +557,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             real_ports -= excluded_real_ports
             if not real_ports:
                 continue
-            conn_cube.set_dim("dst_ports", real_ports)
-            conn_cube.set_dim("dst_peers", PeerSet({peer}))
+            conn_cube.set_dims({"dst_ports": real_ports, "dst_peers": PeerSet({peer})})
             props = ConnectivityProperties(conn_cube)
             conn_properties |= props
         return conn_properties

@@ -238,8 +238,7 @@ class GenericYamlParser:
         :return: ConnectionSet with allowed connections , corresponding to input properties cube
         """
         conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
-        conn_cube.set_dim("dst_ports", dest_ports)
-        conn_cube.set_dim("methods", methods)
+        conn_cube.set_dims({"dst_ports": dest_ports, "methods": methods})
         if paths_dfa:
             conn_cube.set_dim("paths", paths_dfa)
         if hosts_dfa:

@@ -520,8 +520,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             condition_props = ConnectivityProperties.make_empty_props()
         else:
             conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-            conn_cube.set_dim("src_peers", res_peers)
-            conn_cube.set_dim("dst_peers", selected_peers)
+            conn_cube.set_dims({"src_peers": res_peers, "dst_peers": selected_peers})
             condition_props &= ConnectivityProperties.make_conn_props(conn_cube)
         connections &= condition_conns
         conn_props &= condition_props
