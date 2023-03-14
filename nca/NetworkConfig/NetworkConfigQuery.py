@@ -426,7 +426,7 @@ class SanityQuery(NetworkConfigQuery):
             if not other_policy.has_deny_rules():
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
-            pods_to_compare = self.config.peer_container.get_all_peers_group()
+            pods_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
             pods_to_compare |= TwoNetworkConfigsQuery(self.config,
                                                       config_with_other_policy).disjoint_referenced_ip_blocks()
             for pod1 in pods_to_compare:
