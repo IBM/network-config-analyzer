@@ -29,7 +29,14 @@ CONNECTIVITY_CT = 'connectivity'
 
 class InteractiveConnectivityGraph:
 
-    class SvgEditor:
+    @dataclass
+    class BasicElement:
+        e_id: str
+        e_class: str
+        e_title: str
+        e_conn: str
+
+    class SvgGraph:
         def __init__(self, input_svg_file, output_directory):
             self.input_svg_file = input_svg_file
             self.output_directory = output_directory
@@ -40,7 +47,7 @@ class InteractiveConnectivityGraph:
                 self.soup = BeautifulSoup(cvg_file.read(), 'xml')
 
 
-        def set_tags_info(self):
+        def set_soup_tags_info(self):
             # wrap the title + background polygon with an <a>:
             graph_polygon = self.soup.svg.polygon
             graph_polygon = graph_polygon.wrap(self.soup.new_tag('a'))
@@ -87,16 +94,16 @@ class InteractiveConnectivityGraph:
 
 
         @staticmethod
-        def get_tag_info(tag):
+        def get_soup_tag_info(tag):
             t_id = tag[ID_TA]
             t_class = tag[CLASS_TA]
             t_title = tag[TITLE_TA]
             t_conn = tag.get(CONNECTIVITY_TA) if tag.get(CONNECTIVITY_TA) else ''
-            return t_id, t_class, str(t_title), t_conn
+            return InteractiveConnectivityGraph.BasicElement(t_id, t_class, str(t_title), t_conn)
 
 
         def get_tags_info(self):
-            return [(self.get_tag_info(tag)) for tag in self.soup.svg.find_all('a')]
+            return [(self.get_soup_tag_info(tag)) for tag in self.soup.svg.find_all('a')]
 
 
         def create_output(self, relations, highlights):
@@ -105,39 +112,42 @@ class InteractiveConnectivityGraph:
             os.mkdir(self.output_directory)
             os.mkdir(os.path.join(self.output_directory, 'elements'))
             for tag in self.soup.svg.find_all('a'):
-                t_id, t_class, _, _ = self.get_tag_info(tag)
-                if t_class == BACKGROUND_CT:
-                    tag_file_name = os.path.join(self.output_directory, t_id + '.svg')
+                tag_info = self.get_soup_tag_info(tag)
+                if tag_info.e_class == BACKGROUND_CT:
+                    tag_file_name = os.path.join(self.output_directory, tag_info.e_id + '.svg')
                 else:
-                    tag_file_name = os.path.join(self.output_directory, 'elements', t_id + '.svg')
+                    tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.e_id + '.svg')
                 tag_soup = copy.copy(self.soup)
-                ids = relations[t_id]
+                ids = relations[tag_info.e_id]
                 for tag2 in tag_soup.svg.find_all('a'):
-                    t_id2, t_class2, _, _ = self.get_tag_info(tag2)
-                    if t_id2 not in ids:
+                    tag_info2 = self.get_soup_tag_info(tag2)
+                    if tag_info2.e_id not in ids:
                         tag2.extract()
                         continue
-                    if (t_class == BACKGROUND_CT and t_class2 == BACKGROUND_CT) or (t_class != BACKGROUND_CT and t_class2 != BACKGROUND_CT):
-                        tag2['xlink:href'] = t_id2 + '.svg'
-                    elif t_class == BACKGROUND_CT and t_class2 != BACKGROUND_CT:
-                        tag2['xlink:href'] = 'elements/' + t_id2 + '.svg'
+                    if (tag_info.e_class == BACKGROUND_CT and tag_info2.e_class == BACKGROUND_CT) or (tag_info.e_class != BACKGROUND_CT and tag_info2.e_class != BACKGROUND_CT):
+                        tag2['xlink:href'] = tag_info2.e_id + '.svg'
+                    elif tag_info.e_class == BACKGROUND_CT and tag_info2.e_class != BACKGROUND_CT:
+                        tag2['xlink:href'] = 'elements/' + tag_info2.e_id + '.svg'
                     else:
-                        tag2['xlink:href'] = '../' + t_id2 + '.svg'
+                        tag2['xlink:href'] = '../' + tag_info2.e_id + '.svg'
 
-                    if t_id2 in highlights[t_id]:
-                        if t_class2 == NODE_CT:
+                    if tag_info2.e_id in highlights[tag_info.e_id]:
+                        if tag_info2.e_class == NODE_CT:
                             tag2.polygon['stroke-width'] = '5'
-                        if t_class2 == NAMESPACE_CT:
+                        if tag_info2.e_class == NAMESPACE_CT:
                             tag2.polygon['stroke-width'] = '5'
                             tag2['font-weight'] = 'bold'
-                        if t_class2 == EDGE_CT:
+                        if tag_info2.e_class == EDGE_CT:
                             tag2.path['stroke-width'] = '3'
                             tag2['font-weight'] = 'bold'
-                        if t_class2 == CONNECTIVITY_CT:
+                        if tag_info2.e_class == CONNECTIVITY_CT:
                             tag2['text-decoration'] = 'underline'
                             tag2['font-weight'] = 'bold'
                 with open(tag_file_name, 'wb') as tag_cvg_file:
                     tag_cvg_file.write(tag_soup.prettify(encoding='utf-8'))
+
+
+###################################################################################################################
 
 
     class GraphRelations:
@@ -218,23 +228,23 @@ class InteractiveConnectivityGraph:
             self.highlights = defaultdict(set)
 
         def create_graph_elements(self):
-            all_conns = set(t[3] for t in self.tags_info)
+            all_conns = set(t.e_conn for t in self.tags_info)
             for t_conn in all_conns:
                 self.graph.conn_legend.conns[t_conn] = self.Conn()
-            for t_id, t_class, t_title, t_conn in self.tags_info:
-                if t_class == BACKGROUND_CT:
-                    self.graph.t_id = t_id
-                    self.graph.name = t_title
-                elif t_class == NAMESPACE_CT:
-                    namespace_name = t_title.replace('cluster_', '').replace('_namespace', '')
-                    self.graph.namespaces[namespace_name] = self.Namespace(t_id, namespace_name)
-                elif t_class == NODE_CT:
-                    self.graph.nodes[t_title] = self.Node(t_id, t_title, self.graph.conn_legend.conns[t_conn])
-                elif t_class == EDGE_CT:
-                    src_name, dst_name = t_title.split('->')
-                    self.graph.edges[(src_name, dst_name)] = self.Edge(t_id, src_name, dst_name, self.graph.conn_legend.conns[t_conn])
-                elif t_class == CONNECTIVITY_CT:
-                    self.graph.conn_legend.conns[t_conn].t_id = t_id
+            for el in self.tags_info:
+                if el.e_class == BACKGROUND_CT:
+                    self.graph.t_id = el.e_id
+                    self.graph.name = el.e_title
+                elif el.e_class == NAMESPACE_CT:
+                    namespace_name = el.e_title.replace('cluster_', '').replace('_namespace', '')
+                    self.graph.namespaces[namespace_name] = self.Namespace(el.e_id, namespace_name)
+                elif el.e_class == NODE_CT:
+                    self.graph.nodes[el.e_title] = self.Node(el.e_id, el.e_title, self.graph.conn_legend.conns[el.e_conn])
+                elif el.e_class == EDGE_CT:
+                    src_name, dst_name = el.e_title.split('->')
+                    self.graph.edges[(src_name, dst_name)] = self.Edge(el.e_id, src_name, dst_name, self.graph.conn_legend.conns[el.e_conn])
+                elif el.e_class == CONNECTIVITY_CT:
+                    self.graph.conn_legend.conns[el.e_conn].t_id = el.e_id
 
 
         def connect_graph_elements(self):
@@ -250,8 +260,7 @@ class InteractiveConnectivityGraph:
                 edge.dst = self.graph.nodes[dst_name]
 
             all_cliques_nodes = [node for node in self.graph.nodes.keys() if node.startswith('clique_')]
-            # todo:
-            all_cliques_edges = [edge for edge in self.graph.edges.keys() if edge[0].startswith('clique_') and edge[1].startswith('clique_')]
+            all_cliques_edges = [edge for edge in itertools.product(all_cliques_nodes, all_cliques_nodes) if edge in self.graph.edges.keys()]
             clqs_graph = networkx.Graph()
             clqs_graph.add_nodes_from(all_cliques_nodes)
             clqs_graph.add_edges_from(all_cliques_edges)
@@ -278,7 +287,7 @@ class InteractiveConnectivityGraph:
 
         def set_tags_relations(self):
 
-            for tag_id in [tag_info[0] for tag_info in self.tags_info]:
+            for tag_id in [el.e_id for el in self.tags_info]:
                 self.relations[tag_id].add(tag_id)
                 self.highlights[tag_id].add(tag_id)
                 self.relations[tag_id].add(self.graph.t_id)
@@ -341,16 +350,16 @@ class InteractiveConnectivityGraph:
 
     @staticmethod
     def create_interactive_graph(file_name, output_directory):
-        svg_editor = InteractiveConnectivityGraph.SvgEditor(file_name,output_directory)
-        svg_editor.read_input_file()
-        svg_editor.set_tags_info()
-        tags_info = svg_editor.get_tags_info()
+        svg_graph = InteractiveConnectivityGraph.SvgGraph(file_name, output_directory)
+        svg_graph.read_input_file()
+        svg_graph.set_soup_tags_info()
+        tags_info = svg_graph.get_tags_info()
         graph_relations = InteractiveConnectivityGraph.GraphRelations(tags_info)
         graph_relations.create_graph_elements()
         graph_relations.connect_graph_elements()
         graph_relations.set_tags_relations()
         relations, highlights = graph_relations.get_tags_relations()
-        svg_editor.create_output(relations, highlights)
+        svg_graph.create_output(relations, highlights)
 
 
 if __name__ == "__main__":
