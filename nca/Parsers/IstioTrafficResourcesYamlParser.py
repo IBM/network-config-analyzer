@@ -397,8 +397,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 allowed_conns = self.make_allowed_connections(vs, host_dfa)
                 if allowed_conns:
                     res_policy.add_rules(self._make_allow_rules(allowed_conns))
-                    protocols = ProtocolSet()
-                    protocols.add_protocol('TCP')
+                    protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
                     conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
                     conn_cube.set_dims({"protocols": protocols, "src_peers": res_policy.selected_peers})
                     allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)

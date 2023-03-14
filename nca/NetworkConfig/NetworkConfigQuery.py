@@ -1059,8 +1059,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return: a tuple of the two properties sets: first for TCP, second for non-TCP
         :rtype: tuple(ConnectivityProperties, ConnectivityProperties)
         """
-        tcp_protocol = ProtocolSet()
-        tcp_protocol.add_protocol('TCP')
+        tcp_protocol = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
         conn_cube = ConnectivityCube(self.config.peer_container.get_all_peers_group())
         conn_cube.set_dim("protocols", tcp_protocol)
         tcp_props = props & ConnectivityProperties.make_conn_props(conn_cube)

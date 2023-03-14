@@ -343,8 +343,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 # K8s doesn't reason about src ports
                 res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 if self.optimized_run != 'false' and src_pods and dst_pods:
-                    protocols = ProtocolSet()
-                    protocols.add_protocol(protocol)
+                    protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
                     conn_cube.set_dims({"protocols": protocols, "src_peers": src_pods, "dst_peers": dst_pods})
                     conn_props = ConnectivityProperties.make_conn_props(conn_cube)
                     res_opt_props |= conn_props

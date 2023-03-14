@@ -380,8 +380,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             if err:
                 self.syntax_error(err, not_icmp_data)
 
-        protocols = ProtocolSet()
-        protocols.add_protocol(protocol)
+        protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
         base_peer_set = self.peer_container.get_all_peers_group()
         conn_cube = ConnectivityCube(base_peer_set)
         if icmp_type:
@@ -493,8 +492,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         connections = ConnectionSet()
         conn_props = ConnectivityProperties.make_empty_props()
         if protocol is not None:
-            protocols = ProtocolSet()
-            protocols.add_protocol(protocol)
+            protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
             if not_protocol is not None:
                 if protocol == not_protocol:
                     self.warning('Protocol and notProtocol are conflicting, no traffic will be matched', rule)

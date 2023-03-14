@@ -28,6 +28,12 @@ class ProtocolSet(CanonicalIntervalSet):
         res.remove_protocol('TCP')
         return res
 
+    @staticmethod
+    def get_protocol_set_with_single_protocol(protocol):
+        res = ProtocolSet()
+        res.add_protocol(protocol)
+        return res
+
     def __contains__(self, protocol):
         if isinstance(protocol, str):
             protocol_num = ProtocolNameResolver.get_protocol_number(protocol)

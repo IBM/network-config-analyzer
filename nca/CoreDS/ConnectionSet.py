@@ -548,8 +548,7 @@ class ConnectionSet:
 
         res = ConnectivityProperties.make_empty_props()
         for protocol, properties in self.allowed_protocols.items():
-            protocols = ProtocolSet()
-            protocols.add_protocol(protocol)
+            protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
             conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
             conn_cube.set_dim("protocols", protocols)
             this_prop = ConnectivityProperties.make_conn_props(conn_cube)
