@@ -952,17 +952,19 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                 config_without_ingress.append_policy_to_config(policy)
         return config_without_ingress
 
-    def _get_parallel_peer_in_other_config(self, peer1):
+    def _get_parallel_peer_in_other_config(self, peer1, second_config=True):
         """
-        returns the peer with same name of the given peer1 from the second config of self
-        :param Peer peer1: a peer from self.config1 to find its parallel in the second config
-        :return the peer from self.config2 with same full_name of given peer1
-        :rtype: Peer
+        returns the peer with same name of the given peer1 from the other config of self
+        :param Peer peer1: a peer from one of the configs to find its parallel in the other config
+        :param bool second_config: indicates if the other config is self.config2, otherwise self.config1
+        :return the peer from the other self config with same full_name of given peer1
+        :rtype: Peer (ClusterEP)
         """
         # this def is used when we have istio sidecars in the configs' policies, since peer1 in self.config1 may have
         # different prior_sidecar than peer1 in config2 and this affects and may change the allowed connections of peer1
-        # in self.config2
-        for peer2 in self.config2.peer_container.get_all_peers_group():
+        # in each config
+        config = self.config2 if second_config else self.config1
+        for peer2 in config.peer_container.get_all_peers_group():
             if peer2 == peer1:  # compares peers full_names
                 return peer2
         return None  # should not get here ever, since this def is called after checking that configs have same peers
@@ -1389,7 +1391,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                 if peer1 == peer2:
                     continue
                 if isinstance(peer1, DNSEntry):
-                    continue
+                    continue  # connections from dns entries are not considered
                 conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1_flag:
                     continue
@@ -1510,7 +1512,7 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                 else not query_answer.bool_result
             return query_answer
 
-        peers_to_compare = self.config2.peer_container.get_all_peers_group()
+        peers_to_compare = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config2.get_captured_pods() | self.config1.get_captured_pods()
         extended_conns_list = []
@@ -1518,11 +1520,17 @@ class InterferesQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-
+                if isinstance(peer1, DNSEntry):
+                    continue  # connections from dns entries are not considered
                 _, captured2_flag, conns2_captured, _ = self.config2.allowed_connections(peer1, peer2)
                 if not captured2_flag:
                     continue
-                _, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
+                # if config1 has Istio sidecar, then peer1's prior_sidecar may be different in each config,
+                # we need to get config1.peer1 in order to get its correct connections (based on its prior-sidecar)
+                config1_peer1 = peer1
+                if self.config1.policies_container.contains_istio_sidecar():
+                    config1_peer1 = self._get_parallel_peer_in_other_config(peer1, second_config=False)
+                _, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(config1_peer1, peer2)
                 if captured1_flag and not conns1_captured.contained_in(conns2_captured):
                     extended_conns_list.append(PeersAndConnections(str(peer1), str(peer2), conns1_captured,
                                                                    conns2_captured))
@@ -1565,7 +1573,7 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
+        peers_to_compare = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         intersect_connections_list = []
@@ -1573,11 +1581,18 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
+                if isinstance(peer1, DNSEntry):
+                    continue  # connections from dns entries are not considered
                 conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1_flag:
                     continue
                 conns1 = conns1_captured if only_captured else conns1_all
-                conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
+                # if config2 has Istio sidecar, then peer1's prior_sidecar may be different in each config,
+                # we need to get config2.peer1 in order to get its correct connections (based on its prior-sidecar)
+                config2_peer1 = peer1
+                if self.config2.policies_container.contains_istio_sidecar():
+                    config2_peer1 = self._get_parallel_peer_in_other_config(peer1)
+                conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, peer2)
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
                     intersect_connections_list.append(PeersAndConnections(str(peer1), str(peer2), conns_in_both))

@@ -15,13 +15,13 @@ networkConfigList:
     networkPolicyList:
       - sidecar-allows-all-in-registery-only.yaml
 
-  - name: sidecar-with-local-sevices-only
+  - name: sidecar-with-local-hosts-only
     resourceList:
       - bookinfo-topology
       - service_entry_resources/bookinfo-service-entry-1.yaml
-      - sidecar-with-local-services-only.yaml
+      - sidecar-with-local-hosts-only.yaml
 
-  - name: sidecar-with-local-and-dns-services
+  - name: sidecar-with-local-and-dns-hosts
     resourceList:
       - bookinfo-topology
       - service_entry_resources/bookinfo-service-entry-1.yaml
@@ -63,8 +63,8 @@ queries:
 
   - name: equiv-one-with-dns-entry
     equivalence:
-      - sidecar-with-local-sevices-only
-      - sidecar-with-local-and-dns-services
+      - sidecar-with-local-hosts-only
+      - sidecar-with-local-and-dns-hosts
     outputConfiguration:
       fullExplanation: True
     expectedOutput: ../../../expected_output/equiv_configs_w_sidecars_different_hosts.txt
