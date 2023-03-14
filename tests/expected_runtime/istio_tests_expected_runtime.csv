@@ -8,9 +8,10 @@ istio_testcases/example_policies/bookinfo-demo/bookinfo-test-equiv-scheme.yaml,0
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-principals-scheme.yaml,0.27
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-request-attrs-scheme.yaml,5.68
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-sidecar-tests-scheme.yaml,0.92
-istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-test-sidecar-connectivity-scheme.yaml,0.57
+istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-test-sidecar-connectivity-scheme.yaml,0.42
+istio_testcases/example_policies/bookinfo-demo/sidecar_examples/equivalence-with-sidecars-scheme.yaml,0.30
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/global-sidecar-permits-test-scheme.yaml,0.08
-istio_testcases/example_policies/bookinfo-demo/sidecar_examples/sanity-vacuity-emptiness-redundancy-w-sidecar-scheme.yaml,0.11
+istio_testcases/example_policies/bookinfo-demo/sidecar_examples/sanity-vacuity-emptiness-redundancy-w-sidecar-scheme.yaml,0.06
 istio_testcases/example_policies/bookinfo-from-live-cluster/connectivity-map-by-deployments-scheme.yaml,0.45
 istio_testcases/example_policies/complex-ingress-test/complex-istio-and-k8s-ingress-test-scheme.yaml,3.14
 istio_testcases/example_policies/complex-ingress-test/complex-istio-ingress-test-scheme.yaml,0.93
