@@ -18,6 +18,8 @@ networkConfigList:
       - service_entry_resources/external-https-wildcard-services.yaml
       - sidecar-allows-any.yaml
 
+  # in the following config we have 2 service entries with some same hosts in both but different ports, we want to check
+  # that the connections to these common hosts is allowed in both ports (considering the src namespace - from exportTo)
   - name: allow-all-sidecar-multiple-service-entry
     resourceList:
       - bookinfo-topology
