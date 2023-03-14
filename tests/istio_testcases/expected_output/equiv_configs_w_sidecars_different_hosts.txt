@@ -1,0 +1,3 @@
+sidecar-with-local-sevices-only and sidecar-with-local-and-dns-services are not semantically equivalent.
+Connections allowed in sidecar-with-local-sevices-only which are different in sidecar-with-local-and-dns-services:
+src: default/ratings-v1-1, dst: www.slack.com, description: sidecar-with-local-and-dns-services allows communication using protocol TCP while sidecar-with-local-sevices-only does not.

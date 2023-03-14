@@ -1,0 +1,71 @@
+resourceList:
+  - bookinfo-topology
+  - service_entry_resources/external-https-wildcard-services.yaml
+
+networkConfigList:
+  - name: default-sidecar-allows-any
+    networkPolicyList:
+      - default-sidecar-allow-any.yaml
+
+  - name: sidecar-with-selector-allows-any
+    networkPolicyList:
+      - sidecar-allows-any.yaml
+
+  - name: sidecar-with-selector-registery-only
+    networkPolicyList:
+      - sidecar-allows-all-in-registery-only.yaml
+
+  - name: sidecar-with-local-sevices-only
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/bookinfo-service-entry-1.yaml
+      - sidecar-with-local-services-only.yaml
+
+  - name: sidecar-with-local-and-dns-services
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/bookinfo-service-entry-1.yaml
+      - sidecar-w-internal-external-services.yaml
+
+queries:
+  - name: equiv-configs-allow-any
+    equivalence:
+      - default-sidecar-allows-any
+      - sidecar-with-selector-allows-any
+    expected: 0  # expected to be semantically equal
+
+  - name: connectivity-allow-any-configs-different-outbound-modes
+    connectivityMap:
+      # the difference between the maps of the following configs is that the second restricts connectivity to ip-blocks for app: ratings
+      - sidecar-with-selector-allows-any
+      - sidecar-with-selector-registery-only
+    expectedOutput: ../../../expected_output/connectivity_map_configs_w_sidecars_different_outbound_mode.txt
+    expected: 0
+
+  - name: equiv-configs-allow-any-different-outbound-modes
+    equivalence:
+      - sidecar-with-selector-allows-any
+      - sidecar-with-selector-registery-only
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/equiv_configs_w_sidecars_different_outbound_mode.txt
+    expected: 1  # not equal , the second restricts conns to ip-blocks for app: ratings
+
+  - name: strong-equiv-allow-any-different-outbound-modes
+    strongEquivalence:
+      - sidecar-with-selector-allows-any
+      - sidecar-with-selector-registery-only
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/strong_equiv_configs_w_sidecars_different_outbound_mode.txt
+    expected: 1  # not same set of sidecars
+
+
+  - name: equiv-one-with-dns-entry
+    equivalence:
+      - sidecar-with-local-sevices-only
+      - sidecar-with-local-and-dns-services
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/equiv_configs_w_sidecars_different_hosts.txt
+    expected: 1

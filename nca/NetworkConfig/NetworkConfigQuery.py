@@ -952,6 +952,21 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                 config_without_ingress.append_policy_to_config(policy)
         return config_without_ingress
 
+    def _get_parallel_peer_in_other_config(self, peer1):
+        """
+        returns the peer with same name of the given peer1 from the second config of self
+        :param Peer peer1: a peer from self.config1 to find its parallel in the second config
+        :return the peer from self.config2 with same full_name of given peer1
+        :rtype: Peer
+        """
+        # this def is used when we have istio sidecars in the configs' policies, since peer1 in self.config1 may have
+        # different prior_sidecar than peer1 in config2 and this affects and may change the allowed connections of peer1
+        # in self.config2
+        for peer2 in self.config2.peer_container.get_all_peers_group():
+            if peer2 == peer1:  # compares peers full_names
+                return peer2
+        return None  # should not get here ever, since this def is called after checking that configs have same topology
+
     def execute(self, cmd_line_flag):
         return self.exec(cmd_line_flag)
 
@@ -975,7 +990,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
             query_answer.numerical_result = not query_answer.bool_result
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
+        peers_to_compare = self.config1.peer_container.get_all_peers_group(include_dns_entries= True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods(layer_name) | self.config2.get_captured_pods(layer_name)
         different_conns_list = []
@@ -983,8 +998,15 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
+                if isinstance(peer1, DNSEntry):
+                    continue  # connections from DNSEntry peers are not important
                 conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2, layer_name)
-                conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2, layer_name)
+                # if config2 has Istio sidecar, then peer1's prior_sidecar may be different in each config,
+                # we need to get config2.peer1 in order to get its correct connections (based on its prior-sidecar)
+                config2_peer1 = peer1
+                if self.config2.policies_container.contains_istio_sidecar():
+                    config2_peer1 = self._get_parallel_peer_in_other_config(peer1)
+                conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, peer2, layer_name)
                 if conns1 != conns2:
                     different_conns_list.append(PeersAndConnections(str(peer1), str(peer2), conns1, conns2))
                     if not self.output_config.fullExplanation:

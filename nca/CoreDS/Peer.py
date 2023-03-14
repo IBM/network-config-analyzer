@@ -482,6 +482,14 @@ class DNSEntry(Peer):
     def __repr__(self):
         return self.name
 
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.name == other.name
+        return False
+
     def update_namespaces_to_ports_dict(self, namespaces, ports):
         """
         updates self.namespaces_ports dict, updates the value with ports for each namespace in namespaces

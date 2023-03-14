@@ -1,0 +1,1 @@
+sidecar-with-selector-allows-any contains a network policy named default/sidecar-allows-any[PolicyType.IstioSidecar], but sidecar-with-selector-registery-only does not
