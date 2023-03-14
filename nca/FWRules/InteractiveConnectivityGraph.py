@@ -6,7 +6,6 @@ import os
 import shutil
 import itertools
 import copy
-from collections import defaultdict
 from dataclasses import dataclass, field
 
 # Tags Attributes:
@@ -35,12 +34,15 @@ class InteractiveConnectivityGraph:
         e_class: str
         e_title: str
         e_conn: str
+        relations: set = field(default_factory=set)
+        highlights: set = field(default_factory=set)
 
     class SvgGraph:
-        def __init__(self, input_svg_file, output_directory):
+        def __init__(self, input_svg_file, output_directory, elements):
             self.input_svg_file = input_svg_file
             self.output_directory = output_directory
             self.soup = None
+            self.elements = elements
 
         def read_input_file(self):
             with open(file_name) as cvg_file:
@@ -102,11 +104,14 @@ class InteractiveConnectivityGraph:
             return InteractiveConnectivityGraph.BasicElement(t_id, t_class, str(t_title), t_conn)
 
 
-        def get_tags_info(self):
-            return [(self.get_soup_tag_info(tag)) for tag in self.soup.svg.find_all('a')]
+        def set_elements_info(self):
+            for tag in self.soup.svg.find_all('a'):
+                e = self.get_soup_tag_info(tag)
+                self.elements[e.e_id] = e
+            self.elements[''] = InteractiveConnectivityGraph.BasicElement('', '', '', '')
 
 
-        def create_output(self, relations, highlights):
+        def create_output(self):
             if os.path.isdir(self.output_directory):
                 shutil.rmtree(self.output_directory)
             os.mkdir(self.output_directory)
@@ -118,10 +123,10 @@ class InteractiveConnectivityGraph:
                 else:
                     tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.e_id + '.svg')
                 tag_soup = copy.copy(self.soup)
-                ids = relations[tag_info.e_id]
+                related_ids = self.elements[tag_info.e_id].relations
                 for tag2 in tag_soup.svg.find_all('a'):
                     tag_info2 = self.get_soup_tag_info(tag2)
-                    if tag_info2.e_id not in ids:
+                    if tag_info2.e_id not in related_ids:
                         tag2.extract()
                         continue
                     if (tag_info.e_class == BACKGROUND_CT and tag_info2.e_class == BACKGROUND_CT) or (tag_info.e_class != BACKGROUND_CT and tag_info2.e_class != BACKGROUND_CT):
@@ -131,7 +136,7 @@ class InteractiveConnectivityGraph:
                     else:
                         tag2['xlink:href'] = '../' + tag_info2.e_id + '.svg'
 
-                    if tag_info2.e_id in highlights[tag_info.e_id]:
+                    if tag_info2.e_id in self.elements[tag_info.e_id].highlights:
                         if tag_info2.e_class == NODE_CT:
                             tag2.polygon['stroke-width'] = '5'
                         if tag_info2.e_class == NAMESPACE_CT:
@@ -220,18 +225,16 @@ class InteractiveConnectivityGraph:
 
 
 
-        def __init__(self, tags_info):
-            self.tags_info = tags_info
+        def __init__(self, elements):
+            self.elements = elements
             self.graph = self.Graph()
             self.graph.conn_legend = self.ConnLegend()
-            self.relations = defaultdict(set)
-            self.highlights = defaultdict(set)
 
         def create_graph_elements(self):
-            all_conns = set(t.e_conn for t in self.tags_info)
+            all_conns = set(t.e_conn for t in self.elements.values())
             for t_conn in all_conns:
                 self.graph.conn_legend.conns[t_conn] = self.Conn()
-            for el in self.tags_info:
+            for el in self.elements.values():
                 if el.e_class == BACKGROUND_CT:
                     self.graph.t_id = el.e_id
                     self.graph.name = el.e_title
@@ -287,84 +290,82 @@ class InteractiveConnectivityGraph:
 
         def set_tags_relations(self):
 
-            for tag_id in [el.e_id for el in self.tags_info]:
-                self.relations[tag_id].add(tag_id)
-                self.highlights[tag_id].add(tag_id)
-                self.relations[tag_id].add(self.graph.t_id)
+            for tag_id, element in self.elements.items():
+                element.relations.add(tag_id)
+                element.highlights.add(tag_id)
+                element.relations.add(self.graph.t_id)
                 for c in self.graph.conn_legend.conns.values():
-                    self.relations[tag_id].add(c.t_id)
-                self.relations[self.graph.t_id].add(tag_id)
-                self.relations[tag_id] |= set(n.t_id for n in self.graph.nodes.values() if n.real_node())
+                    element.relations.add(c.t_id)
+                self.elements[self.graph.t_id].relations.add(tag_id)
+                element.relations |= set(n.t_id for n in self.graph.nodes.values() if n.real_node())
 
             for namespace in self.graph.namespaces.values():
                 for node in namespace.nodes:
-                    self.relations[node.t_id].add(namespace.t_id)
+                    self.elements[node.t_id].relations.add(namespace.t_id)
 
             for edge in self.graph.edges.values():
-                self.relations[edge.t_id] |= self.relations[edge.src.t_id]
-                self.relations[edge.t_id] |= self.relations[edge.dst.t_id]
-                self.relations[edge.conn.t_id] |= self.relations[edge.t_id]
+                self.elements[edge.t_id].relations |= self.elements[edge.src.t_id].relations
+                self.elements[edge.t_id].relations |= self.elements[edge.dst.t_id].relations
+                self.elements[edge.conn.t_id].relations |= self.elements[edge.t_id].relations
 
             for node in self.graph.nodes.values():
                 for edge in node.edges:
-                    self.relations[node.t_id] |= self.relations[edge.t_id]
+                    self.elements[node.t_id].relations |= self.elements[edge.t_id].relations
 
             for clique in self.graph.cliques:
                 for el in clique.nodes + clique.edges:
                     for e in clique.edges:
-                        self.relations[el.t_id] |= self.relations[e.t_id]
-                        self.relations[clique.conn.t_id] |= self.relations[e.t_id]
+                        self.elements[el.t_id].relations |= self.elements[e.t_id].relations
+                        self.elements[clique.conn.t_id].relations |= self.elements[e.t_id].relations
                 clq_core = [n for n in clique.nodes if not n.real_node()] + clique.edges
                 for cc in clq_core:
-                    self.highlights[cc.t_id].add(clique.conn.t_id)
+                    self.elements[cc.t_id].highlights.add(clique.conn.t_id)
                 for cc1, cc2 in itertools.product(clq_core, clq_core):
-                    self.highlights[cc1.t_id].add(cc2.t_id)
+                    self.elements[cc1.t_id].highlights.add(cc2.t_id)
 
             for biclique in self.graph.bicliques:
-                dst_edges_relations = set().union(*[self.relations[e.t_id] for e in biclique.dst_edges])
-                src_edges_relations = set().union(*[self.relations[e.t_id] for e in biclique.src_edges])
+                dst_edges_relations = set().union(*[self.elements[e.t_id].relations for e in biclique.dst_edges])
+                src_edges_relations = set().union(*[self.elements[e.t_id].relations for e in biclique.src_edges])
                 for n in biclique.src_nodes:
-                    self.relations[n.t_id] |= dst_edges_relations
+                    self.elements[n.t_id].relations |= dst_edges_relations
                 for n in biclique.dst_nodes:
-                    self.relations[n.t_id] |= src_edges_relations
+                    self.elements[n.t_id].relations |= src_edges_relations
                 for e in biclique.dst_edges + biclique.src_edges:
-                    self.relations[e.t_id] |= src_edges_relations
-                    self.relations[e.t_id] |= dst_edges_relations
-                self.relations[biclique.conn.t_id] |= self.relations[biclique.node.t_id]
+                    self.elements[e.t_id].relations |= src_edges_relations
+                    self.elements[e.t_id].relations |= dst_edges_relations
+                self.elements[biclique.conn.t_id].relations |= self.elements[biclique.node.t_id].relations
                 biclq_core = biclique.dst_edges + biclique.src_edges + [biclique.node]
                 for bcc in biclq_core:
-                    self.highlights[bcc.t_id].add(biclique.conn.t_id)
+                    self.elements[bcc.t_id].highlights.add(biclique.conn.t_id)
                 for bcc1, bcc2 in itertools.product(biclq_core, biclq_core):
-                    self.highlights[bcc1.t_id].add(bcc2.t_id)
+                    self.elements[bcc1.t_id].highlights.add(bcc2.t_id)
 
             for namespace in self.graph.namespaces.values():
                 for node in namespace.nodes:
-                    self.relations[namespace.t_id] |= self.relations[node.t_id]
+                    self.elements[namespace.t_id].relations |= self.elements[node.t_id].relations
 
             for edge in self.graph.edges.values():
-                self.highlights[edge.t_id].add(edge.conn.t_id)
-
-        def get_tags_relations(self):
-            return self.relations, self.highlights
+                self.elements[edge.t_id].highlights.add(edge.conn.t_id)
 
 
-    @staticmethod
-    def create_interactive_graph(file_name, output_directory):
-        svg_graph = InteractiveConnectivityGraph.SvgGraph(file_name, output_directory)
-        svg_graph.read_input_file()
-        svg_graph.set_soup_tags_info()
-        tags_info = svg_graph.get_tags_info()
-        graph_relations = InteractiveConnectivityGraph.GraphRelations(tags_info)
-        graph_relations.create_graph_elements()
-        graph_relations.connect_graph_elements()
-        graph_relations.set_tags_relations()
-        relations, highlights = graph_relations.get_tags_relations()
-        svg_graph.create_output(relations, highlights)
+    def __init__(self, file_name, output_directory):
+        self.elements = {}
+        self.svg_graph = InteractiveConnectivityGraph.SvgGraph(file_name, output_directory, self.elements)
+        self.graph_relations = InteractiveConnectivityGraph.GraphRelations(self.elements)
+
+    def create_interactive_graph(self):
+        self.svg_graph.read_input_file()
+        self.svg_graph.set_soup_tags_info()
+        self.svg_graph.set_elements_info()
+        self.graph_relations.create_graph_elements()
+        self.graph_relations.connect_graph_elements()
+        self.graph_relations.set_tags_relations()
+        self.svg_graph.create_output()
 
 
 if __name__ == "__main__":
     file_name = sys.argv[1]
     output_directory = file_name + '_connectivity_dir'
-    InteractiveConnectivityGraph.create_interactive_graph(file_name, output_directory)
+    InteractiveConnectivityGraph(file_name, output_directory).create_interactive_graph()
 
 
