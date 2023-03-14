@@ -965,7 +965,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         for peer2 in self.config2.peer_container.get_all_peers_group():
             if peer2 == peer1:  # compares peers full_names
                 return peer2
-        return None  # should not get here ever, since this def is called after checking that configs have same topology
+        return None  # should not get here ever, since this def is called after checking that configs have same peers
 
     def execute(self, cmd_line_flag):
         return self.exec(cmd_line_flag)
@@ -1370,12 +1370,13 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     """
 
     def exec(self, cmd_line_flag=False, only_captured=False):
-        config1_peers = self.config1.peer_container.get_all_peers_group()
-        peers_in_config1_not_in_config2 = config1_peers - self.config2.peer_container.get_all_peers_group()
+        config1_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        peers_in_config1_not_in_config2 =\
+            config1_peers - self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         if peers_in_config1_not_in_config2:
             peers_list = [str(e) for e in peers_in_config1_not_in_config2]
             final_explanation = \
-                PodsListsExplanations(explanation_description=f'Pods in {self.name1} which are not in {self.name2}',
+                PodsListsExplanations(explanation_description=f'Peers in {self.name1} which are not in {self.name2}',
                                       pods_list=sorted(peers_list))
             return QueryAnswer(False, f'{self.name1} is not contained in {self.name2} ',
                                output_explanation=[final_explanation], numerical_result=0 if not cmd_line_flag else 1)
@@ -1387,11 +1388,18 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
+                if isinstance(peer1, DNSEntry):
+                    continue
                 conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1_flag:
                     continue
                 conns1 = conns1_captured if only_captured else conns1_all
-                conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2)
+                # if config2 has Istio sidecar, then peer1's prior_sidecar may be different in each config,
+                # we need to get config2.peer1 in order to get its correct connections (based on its prior-sidecar)
+                config2_peer1 = peer1
+                if self.config2.policies_container.contains_istio_sidecar():
+                    config2_peer1 = self._get_parallel_peer_in_other_config(peer1)
+                conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, peer2)
                 if not conns1.contained_in(conns2):
                     not_contained_list.append(PeersAndConnections(str(peer1), str(peer2), conns1))
                     if not self.output_config.fullExplanation:

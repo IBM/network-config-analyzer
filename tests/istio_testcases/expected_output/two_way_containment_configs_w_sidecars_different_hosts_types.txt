@@ -1,0 +1,3 @@
+Network configuration sidecar-with-local-sevices-only is a proper subset of sidecar-with-local-and-dns-services but sidecar-with-local-and-dns-services is not contained in sidecar-with-local-sevices-only
+Connections allowed in sidecar-with-local-and-dns-services which are not a subset of those in sidecar-with-local-sevices-only:
+src: default/ratings-v1-1, dst: www.slack.com, conn: Protocol: TCP, 443

@@ -1,0 +1,1 @@
+The two network configurations default-sidecar-allows-any and sidecar-with-selector-allows-any are semantically equivalent.
