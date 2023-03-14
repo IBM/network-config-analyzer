@@ -6,7 +6,7 @@
 import itertools
 from collections import defaultdict
 import networkx
-from nca.CoreDS.Peer import IpBlock, PeerSet, ClusterEP, Pod
+from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
@@ -68,42 +68,31 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def add_edges_from_cube_dict(self, peer_container, cube_dict, ip_blocks_mask):
+    def add_edges_from_cube_dict(self, conn_cube, ip_blocks_mask):
         """
         Add edges to the graph according to the give cube
-        :param peer_container: the peer_container containing all possible peers
-        :param dict cube_dict: the given cube in dictionary format
+        :param ConnectivityCube conn_cube: the given cube
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
         """
-        new_cube_dict = cube_dict.copy()
-        src_peers = new_cube_dict.get('src_peers')
-        if src_peers:
-            new_cube_dict.pop('src_peers')
-        else:
-            src_peers = peer_container.get_all_peers_group(True)
-        dst_peers = new_cube_dict.get('dst_peers')
-        if dst_peers:
-            new_cube_dict.pop('dst_peers')
-        else:
-            dst_peers = peer_container.get_all_peers_group(True)
+        src_peers = conn_cube.get_dim("src_peers")
+        conn_cube.unset_dim("src_peers")
+        dst_peers = conn_cube.get_dim("dst_peers")
+        conn_cube.unset_dim("dst_peers")
         if IpBlock.get_all_ips_block() != ip_blocks_mask:
             src_peers.filter_ipv6_blocks(ip_blocks_mask)
             dst_peers.filter_ipv6_blocks(ip_blocks_mask)
+        protocols = conn_cube.get_dim("protocols")
+        conn_cube.unset_dim("protocols")
 
-        protocols = new_cube_dict.get('protocols')
-        if protocols:
-            new_cube_dict.pop('protocols')
-
-        if not protocols and not new_cube_dict:
+        if not protocols and not conn_cube.has_active_dim():
             conns = ConnectionSet(True)
         else:
             conns = ConnectionSet()
             protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
             for protocol in protocol_names:
-                if new_cube_dict:
-                    conns.add_connections(protocol, ConnectivityProperties.make_conn_props_from_dict(peer_container,
-                                                                                                     new_cube_dict))
+                if conn_cube.has_active_dim():
+                    conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 else:
                     if ConnectionSet.protocol_supports_ports(protocol):
                         conns.add_connections(protocol, ConnectivityProperties.make_all_props())
@@ -447,39 +436,6 @@ class ConnectivityGraph:
             for edge in undirected_edges | cliques_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=False)
         return dot_graph.to_str()
-
-    def convert_to_tcp_like_properties(self, peer_container):
-        """
-        Used for testing of the optimized solution: converting connectivity graph back to ConnectivityProperties
-        :param peer_container: The peer container
-        :return: ConnectivityProperties representing the connectivity graph
-        """
-        res = ConnectivityProperties.make_empty_props()
-        for item in self.connections_to_peers.items():
-            if item[0].allow_all:
-                for peer_pair in item[1]:
-                    res |= ConnectivityProperties.make_conn_props(peer_container,
-                                                                  src_peers=PeerSet({peer_pair[0]}),
-                                                                  dst_peers=PeerSet({peer_pair[1]}))
-            else:
-                for prot in item[0].allowed_protocols.items():
-                    protocols = ProtocolSet()
-                    protocols.add_protocol(prot[0])
-                    if isinstance(prot[1], bool):
-                        for peer_pair in item[1]:
-                            res |= ConnectivityProperties.make_conn_props(peer_container, protocols=protocols,
-                                                                          src_peers=PeerSet({peer_pair[0]}),
-                                                                          dst_peers=PeerSet({peer_pair[1]}))
-                        continue
-                    for cube in prot[1]:
-                        cube_dict = prot[1].get_cube_dict_with_orig_values(cube)
-                        cube_dict["protocols"] = protocols
-                        for peer_pair in item[1]:
-                            new_cube_dict = cube_dict.copy()
-                            new_cube_dict["src_peers"] = PeerSet({peer_pair[0]})
-                            new_cube_dict["dst_peers"] = PeerSet({peer_pair[1]})
-                            res |= ConnectivityProperties.make_conn_props_from_dict(peer_container, new_cube_dict)
-        return res
 
     def get_minimized_firewall_rules(self):
         """

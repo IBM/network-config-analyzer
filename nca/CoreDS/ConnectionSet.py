@@ -5,7 +5,7 @@
 
 from collections import defaultdict
 from .CanonicalIntervalSet import CanonicalIntervalSet
-from .ConnectivityProperties import ConnectivityProperties
+from .ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from .ProtocolNameResolver import ProtocolNameResolver
 from .ProtocolSet import ProtocolSet
 from .Peer import PeerSet, IpBlock
@@ -550,7 +550,9 @@ class ConnectionSet:
         for protocol, properties in self.allowed_protocols.items():
             protocols = ProtocolSet()
             protocols.add_protocol(protocol)
-            this_prop = ConnectivityProperties.make_conn_props(peer_container, protocols=protocols)
+            conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
+            conn_cube.set_dim("protocols", protocols)
+            this_prop = ConnectivityProperties.make_conn_props(conn_cube)
             if isinstance(properties, bool):
                 if properties:
                     res |= this_prop
@@ -596,33 +598,28 @@ class ConnectionSet:
 
         fw_rules_map = defaultdict(list)
         for cube in conn_props:
-            cube_dict = conn_props.get_cube_dict_with_orig_values(cube)
-            new_cube_dict = cube_dict.copy()
-            src_peers = new_cube_dict.get('src_peers')
-            if src_peers:
-                new_cube_dict.pop('src_peers')
-            else:
+            conn_cube = conn_props.get_connectivity_cube(cube)
+            src_peers = conn_cube.get_dim("src_peers")
+            if not src_peers:
                 src_peers = peer_container.get_all_peers_group(True)
-            dst_peers = new_cube_dict.get('dst_peers')
-            if dst_peers:
-                new_cube_dict.pop('dst_peers')
-            else:
+            conn_cube.unset_dim("src_peers")
+            dst_peers = conn_cube.get_dim("dst_peers")
+            if not dst_peers:
                 dst_peers = peer_container.get_all_peers_group(True)
+            conn_cube.unset_dim("dst_peers")
             if IpBlock.get_all_ips_block() != ip_blocks_mask:
                 src_peers.filter_ipv6_blocks(ip_blocks_mask)
                 dst_peers.filter_ipv6_blocks(ip_blocks_mask)
-            protocols = new_cube_dict.get('protocols')
-            if protocols:
-                new_cube_dict.pop('protocols')
-            if not new_cube_dict and (not protocols or protocols == ignore_protocols):
+            protocols = conn_cube.get_dim("protocols")
+            conn_cube.unset_dim("protocols")
+            if not conn_cube.has_active_dim() and (not protocols or protocols == ignore_protocols):
                 conns = ConnectionSet(True)
             else:
                 conns = ConnectionSet()
                 protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
                 for protocol in protocol_names:
-                    if new_cube_dict:
-                        conns.add_connections(protocol, ConnectivityProperties.make_conn_props_from_dict(peer_container,
-                                                                                                         new_cube_dict))
+                    if conn_cube.has_active_dim():
+                        conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                     else:
                         if ConnectionSet.protocol_supports_ports(protocol):
                             conns.add_connections(protocol, ConnectivityProperties.make_all_props())
@@ -677,7 +674,9 @@ class ConnectionSet:
                 conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)
                 src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
                 dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
-                rule_props = ConnectivityProperties.make_conn_props(peer_container, src_peers=src_peers,
-                                                                    dst_peers=dst_peers) & conn_props
+                conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
+                conn_cube.set_dim("src_peers", src_peers)
+                conn_cube.set_dim("dst_peers", dst_peers)
+                rule_props = ConnectivityProperties.make_conn_props(conn_cube) & conn_props
                 res |= rule_props
         return res

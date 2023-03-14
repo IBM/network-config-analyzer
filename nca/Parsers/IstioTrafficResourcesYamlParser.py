@@ -8,7 +8,7 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -340,12 +340,15 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         """
         allowed_conns = ConnectivityProperties.make_empty_props()
         for http_route in vs.http_routes:
+            conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+            conn_cube.set_dim("paths", http_route.uri_dfa)
+            conn_cube.set_dim("hosts", host_dfa)
+            conn_cube.set_dim("methods", http_route.methods)
             for dest in http_route.destinations:
+                conn_cube.set_dim("dst_ports", dest.port)
+                conn_cube.set_dim("dst_peers", dest.service.target_pods)
                 conns = \
-                    ConnectivityProperties.make_conn_props(self.peer_container, dst_ports=dest.port,
-                                                           dst_peers=dest.service.target_pods,
-                                                           paths_dfa=http_route.uri_dfa, hosts_dfa=host_dfa,
-                                                           methods=http_route.methods)
+                    ConnectivityProperties.make_conn_props(conn_cube)
                 allowed_conns |= conns
         return allowed_conns
 
@@ -399,8 +402,10 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                     res_policy.add_rules(self._make_allow_rules(allowed_conns))
                     protocols = ProtocolSet()
                     protocols.add_protocol('TCP')
-                    allowed_conns &= ConnectivityProperties.make_conn_props(self.peer_container, protocols=protocols,
-                                                                            src_peers=res_policy.selected_peers)
+                    conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+                    conn_cube.set_dim("protocols", protocols)
+                    conn_cube.set_dim("src_peers", res_policy.selected_peers)
+                    allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)
                     res_policy.add_optimized_egress_props(allowed_conns)
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)

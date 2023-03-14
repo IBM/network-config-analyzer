@@ -7,7 +7,7 @@ import re
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -338,24 +338,25 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 protocol, dest_port_set = self.parse_port(port)
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
-                res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(
-                    self.peer_container, dst_ports=dest_port_set))  # K8s doesn't reason about src ports
+                conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+                conn_cube.set_dim("dst_ports", dest_port_set)
+                # K8s doesn't reason about src ports
+                res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 if self.optimized_run != 'false' and src_pods and dst_pods:
                     protocols = ProtocolSet()
                     protocols.add_protocol(protocol)
-                    dest_num_port_set = PortSet()
-                    dest_num_port_set.port_set = dest_port_set.port_set.copy()
-                    conn_props = ConnectivityProperties.make_conn_props(self.peer_container,
-                                                                        dst_ports=dest_num_port_set,
-                                                                        protocols=protocols,
-                                                                        src_peers=src_pods,
-                                                                        dst_peers=dst_pods)
+                    conn_cube.set_dim("protocols", protocols)
+                    conn_cube.set_dim("src_peers", src_pods)
+                    conn_cube.set_dim("dst_peers", dst_pods)
+                    conn_props = ConnectivityProperties.make_conn_props(conn_cube)
                     res_opt_props |= conn_props
         else:
             res_conns = ConnectionSet(True)
-            if self.optimized_run != 'false' and src_pods and dst_pods:
-                res_opt_props = ConnectivityProperties.make_conn_props(self.peer_container,
-                                                                       src_peers=src_pods, dst_peers=dst_pods)
+            if self.optimized_run != 'false':
+                conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+                conn_cube.set_dim("src_peers", src_pods)
+                conn_cube.set_dim("dst_peers", dst_pods)
+                res_opt_props = ConnectivityProperties.make_conn_props(conn_cube)
         if not res_pods:
             self.warning('Rule selects no pods', rule)
 

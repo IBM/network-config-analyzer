@@ -12,7 +12,7 @@ from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.FWRules.MinimizeFWRules import MinimizeFWRules
 from nca.FWRules.ClusterInfo import ClusterInfo
@@ -753,8 +753,12 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 all_conns_opt.project_on_one_dimension('dst_peers')
 
             subset_peers = self.compute_subset(opt_peers_to_compare)
-            subset_conns = ConnectivityProperties.make_conn_props(self.config.peer_container, src_peers=subset_peers) | \
-                ConnectivityProperties.make_conn_props(self.config.peer_container, dst_peers=subset_peers)
+            src_peers_conn_cube = ConnectivityCube(self.config.peer_container.get_all_peers_group())
+            dst_peers_conn_cube = ConnectivityCube(self.config.peer_container.get_all_peers_group())
+            src_peers_conn_cube.set_dim("src_peers", subset_peers)
+            dst_peers_conn_cube.set_dim("dst_peers", subset_peers)
+            subset_conns = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
+                ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
             all_conns_opt &= subset_conns
             ip_blocks_mask = IpBlock.get_all_ips_block()
             if exclude_ipv6:
@@ -978,8 +982,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         for cube in props:
-            conn_graph.add_edges_from_cube_dict(self.config.peer_container, props.get_cube_dict_with_orig_values(cube),
-                                                ip_blocks_mask)
+            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), ip_blocks_mask)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
@@ -1058,8 +1061,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         tcp_protocol = ProtocolSet()
         tcp_protocol.add_protocol('TCP')
-        tcp_props = props & ConnectivityProperties.make_conn_props(self.config.peer_container,
-                                                                   protocols=tcp_protocol)
+        conn_cube = ConnectivityCube(self.config.peer_container.get_all_peers_group())
+        conn_cube.set_dim("protocols", tcp_protocol)
+        tcp_props = props & ConnectivityProperties.make_conn_props(conn_cube)
         non_tcp_props = props - tcp_props
         return tcp_props, non_tcp_props
 

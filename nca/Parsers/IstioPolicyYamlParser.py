@@ -10,7 +10,7 @@ from nca.CoreDS.Peer import IpBlock, PeerSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.MethodSet import MethodSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
 from nca.Resources.IstioTrafficResources import istio_root_namespace
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -519,8 +519,10 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         if not res_peers or not selected_peers:
             condition_props = ConnectivityProperties.make_empty_props()
         else:
-            condition_props &= ConnectivityProperties.make_conn_props(self.peer_container, src_peers=res_peers,
-                                                                      dst_peers=selected_peers)
+            conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+            conn_cube.set_dim("src_peers", res_peers)
+            conn_cube.set_dim("dst_peers", selected_peers)
+            condition_props &= ConnectivityProperties.make_conn_props(conn_cube)
         connections &= condition_conns
         conn_props &= condition_props
         return IstioPolicyRule(res_peers, connections), conn_props
