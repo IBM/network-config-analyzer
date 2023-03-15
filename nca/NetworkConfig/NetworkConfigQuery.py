@@ -969,7 +969,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         If no istio sidecar in the other config policies, the def returns the given peer
         :param Peer peer: a peer from one of the configs to find its parallel in the other config as needed
         :param bool second_config: indicates if the other config is self.config2, otherwise self.config1
-        :rtype: Peer (ClusterEP)
+        :rtype: Peer
         """
         other_config = self.config2 if second_config else self.config1
         if other_config.policies_container.contains_istio_sidecar():
