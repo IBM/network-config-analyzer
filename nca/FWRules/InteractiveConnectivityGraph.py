@@ -1,5 +1,7 @@
-import sys
-from collections import defaultdict
+#
+# Copyright 2020- IBM Inc. All rights reserved
+# SPDX-License-Identifier: Apache2.0
+#
 
 import networkx
 from bs4 import BeautifulSoup
@@ -8,9 +10,33 @@ import shutil
 import itertools
 import copy
 from dataclasses import dataclass, field
+from collections import defaultdict
+import posixpath
 
 
 class InteractiveConnectivityGraph:
+    """
+    InteractiveConnectivityGraph is a class for creating an interactive connectivity graph from an svg file.
+    The interactive connectivity graph is an set of svg files.
+    Each element (aka tag) in the svg file has a link to another svg file.
+    The input is an svg file, containing a connectivity graph
+    The output is a set of svg files, one for each element in the graph
+    the main process for creating the interactive graph:
+    (1) parsing the input svg file, into a beautifulsoup object.
+    (2) changing the soup object, for later enabling adding links, and adding missing information.
+    (3) reading from the soup object abstract information of the elements in the graph.
+    (4) using this abstract information to create an abstract connectivity graph.
+    (5) from the abstract graph, for each element, creating a list of related elements.
+    (6) for each element, create an svg file containing these related elements.
+
+    InteractiveConnectivityGraph has two main inner classes:
+      - class SvgGraph - implementation of steps (1) (2) (3) (6)
+      - class AbstractGraph - implementation of steps (4) (5)
+
+    another inner classes:
+       - class ElementInfo - the abstract information extracted at step (3)
+       - class ElementRelations - the relation information created at step (5)
+    """
     @dataclass
     class ElementInfo:
         t_id: str
@@ -20,11 +46,45 @@ class InteractiveConnectivityGraph:
 
     @dataclass
     class ElementRelations:
+        """
+        represents the relations between elements each element has:
+        (1) a list of elements to be in the element svg file.
+        (2) a list of elements to be highlighted in the element svg file.
+        """
         relations: set = field(default_factory=set)
         highlights: set = field(default_factory=set)
 
-    class SvgGraph:
+    def __init__(self, svg_file_name, output_directory):
+        """
+        Creates the InteractiveConnectivityGraph
+        param: svg_file_name: str
+        param: output_directory: str
+        """
+        self.svg_graph = self.SvgGraph(svg_file_name, output_directory)
+        self.abstract_graph = self.AbstractGraph()
 
+    def create_interactive_graph(self):
+        """
+        the main method of the creation of the interactive_graph
+        """
+
+        # (1) parsing the input svg file, into a beautifulsoup object:
+        self.svg_graph.read_input_file()
+        # (2) changing the soup object, for enabling linking, and adding missing information:
+        self.svg_graph.set_soup_tags_info()
+        # (3) reading from the soup object abstract information of the elements in the graph:
+        elements_info = self.svg_graph.get_elements_info()
+        # (4) using this abstract information to create an abstract connectivity graph:
+        self.abstract_graph.create_graph(elements_info)
+        # (5) from the abstract graph, for each element, creating a list of related elements:
+        elements_relations = self.abstract_graph.set_tags_relations()
+        # (6) for each element, create an svg file containing these related elements:
+        self.svg_graph.create_output(elements_relations)
+
+    class SvgGraph:
+        """
+        The SvgGraph is responsible of reading, changing, and writing the svg information.
+        """
         # Tags Attributes:
         CLASS_TA = 'class'
         ID_TA = 'id'
@@ -41,15 +101,29 @@ class InteractiveConnectivityGraph:
         CONNECTIVITY_CT = 'connectivity'
 
         def __init__(self, input_svg_file, output_directory):
+            """
+            Creates the InteractiveConnectivityGraph
+            param: svg_file_name: str
+            param: output_directory: str
+            """
             self.input_svg_file = input_svg_file
             self.output_directory = output_directory
             self.soup = None
 
         def read_input_file(self):
+            """
+            read the file, and save is in soup object
+            """
             with open(self.input_svg_file) as cvg_file:
                 self.soup = BeautifulSoup(cvg_file.read(), 'xml')
 
         def set_soup_tags_info(self):
+            """
+            do the following changes the soup object:
+            (1) every element that we want to add a link - we must change its name from <g> to <a>, or wrap it with an <a>
+            (2) adding/changing the following attribute to every element: id, class, title, conn
+
+            """
             # wrap the title + background polygon with an <a>:
             graph_polygon = self.soup.svg.polygon
             graph_polygon = graph_polygon.wrap(self.soup.new_tag('a'))
@@ -57,7 +131,7 @@ class InteractiveConnectivityGraph:
             graph_text = self.soup.svg.find('text')
             graph_polygon.append(graph_text)
 
-            # set class to legend components:
+            # set class to all the legend components:
             conn_legend = self.soup.svg.find('title', string='dict_box')
             if conn_legend:
                 conn_legend = conn_legend.find_parent('g')
@@ -72,7 +146,8 @@ class InteractiveConnectivityGraph:
                 if tag[self.CLASS_TA] not in [self.GRAPH_CT, self.LEGEND_MISC_CT]:
                     tag.name = 'a'
 
-            # add missing id and titles:
+            # add missing id and titles to background and conns:
+            # moving the title for all the others:
             for tag in self.soup.svg.find_all('a'):
                 if tag[self.CLASS_TA] == self.BACKGROUND_CT:
                     tag[self.ID_TA] = 'index'
@@ -85,7 +160,7 @@ class InteractiveConnectivityGraph:
                 else:
                     tag[self.TITLE_TA] = tag.title.string
 
-                # 3. set connectivity:
+                # set connectivity for all elements:
                 if tag[self.CLASS_TA] == self.EDGE_CT and tag.find('text'):
                     tag[self.CONNECTIVITY_TA] = tag.find('text').string
                 elif tag[self.CLASS_TA] == self.NODE_CT and tag.title and 'clique' in tag.title.string:
@@ -93,7 +168,12 @@ class InteractiveConnectivityGraph:
                 elif tag[self.CLASS_TA] == self.CONNECTIVITY_CT:
                     tag[self.CONNECTIVITY_TA] = tag[self.TITLE_TA]
 
-        def get_soup_tag_info(self, tag):
+        def _get_soup_tag_info(self, tag):
+            """
+            read a the information from a soup tag
+            param: tag: the tag from the soup object
+            return ElementInfo
+            """
             t_id = tag[self.ID_TA]
             t_class = tag[self.CLASS_TA]
             t_title = tag[self.TITLE_TA]
@@ -101,20 +181,42 @@ class InteractiveConnectivityGraph:
             return InteractiveConnectivityGraph.ElementInfo(t_id, t_class, str(t_title), t_conn)
 
         def get_elements_info(self):
-            elements_info = [self.get_soup_tag_info(tag) for tag in self.soup.svg.find_all('a')]
+            """
+            read a the information from all soup tags
+            return: list of ElementInfo
+            """
+            elements_info = [self._get_soup_tag_info(tag) for tag in self.soup.svg.find_all('a')]
             elements_info.append(InteractiveConnectivityGraph.ElementInfo('', '', '', ''))
             return elements_info
 
         def _set_related_tag_link(self, related_tag, related_tag_info, t_class):
-            if (t_class == self.BACKGROUND_CT and related_tag_info.t_class == self.BACKGROUND_CT) or (
-                    t_class != self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT):
-                related_tag['xlink:href'] = related_tag_info.t_id + '.svg'
+            """
+            Set the link in the soup tag.
+            Not all the svg files sits in the same directory,
+            (all svg file, except the main file, are in sub directory)
+            therefore, relative path depends on the class of:
+             1. the element that we creates the svg file for
+             2. the soup tag the we currently update the link
+
+             param: related_tag: the tag from the soup object that we want to update its link
+             param: related_tag_info :the information of this tag: ElementInfo
+             param: t_class: the class of the tag that creates the svg file for: str
+            """
+            if (t_class == self.BACKGROUND_CT and related_tag_info.t_class == self.BACKGROUND_CT) or \
+               (t_class != self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT):
+                relative_path = '.'
             elif t_class == self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT:
-                related_tag['xlink:href'] = 'elements/' + related_tag_info.t_id + '.svg'
+                relative_path = 'elements'
             else:
-                related_tag['xlink:href'] = '../' + related_tag_info.t_id + '.svg'
+                relative_path = '..'
+            related_tag['xlink:href'] = posixpath.join(relative_path, related_tag_info.t_id + '.svg')
 
         def _highlight_tag(self, tag, t_class):
+            """
+            add highlight ingo to the soup tag, depends on the class
+            param: tag: the soup tag to edit
+            param: class: the class type of the tag
+            """
             if t_class == self.NODE_CT:
                 tag.polygon['stroke-width'] = '5'
             if t_class == self.NAMESPACE_CT:
@@ -128,6 +230,12 @@ class InteractiveConnectivityGraph:
                 tag['font-weight'] = 'bold'
 
         def _save_tag_file(self, tag_soup, tag_info):
+            """
+            save the soup to an svg file, the name and location is according to the class and id
+            (all svg file, except the main file, are in sub directory)
+            param: tag_soup: the soup to save: soup
+            param: tag_info: the information of the tag the we currently save its soup
+            """
             if tag_info.t_class == self.BACKGROUND_CT:
                 tag_file_name = os.path.join(self.output_directory, tag_info.t_id + '.svg')
             else:
@@ -136,17 +244,29 @@ class InteractiveConnectivityGraph:
                 tag_cvg_file.write(tag_soup.prettify(encoding='utf-8'))
 
         def create_output(self, elements_relations):
+            """
+            Creates the set of svg files as an interactive graph
+            param: elements_relations: dict t_id -> ElementRelations:
+            for each tag:
+            1. a list of ids of tags that should be in the svg file of the tag.
+            2. a list of ids of tags that should be highlighted in the svg file of the tag.
+
+            for each tag:
+            (1) creating duplicate the soap object
+            (2) remove from the duplicated soup all other tags which are not related to the tag.
+            (3) highlights the tags that should be highlighted in the the duplicated soup
+            (4) save the duplicated soup to an svg file
+            """
             if os.path.isdir(self.output_directory):
                 shutil.rmtree(self.output_directory)
             os.mkdir(self.output_directory)
             os.mkdir(os.path.join(self.output_directory, 'elements'))
             for tag in self.soup.svg.find_all('a'):
-                tag_info = self.get_soup_tag_info(tag)
+                tag_info = self._get_soup_tag_info(tag)
                 tag_soup = copy.copy(self.soup)
-                related_ids = elements_relations[tag_info.t_id].relations
                 for related_tag in tag_soup.svg.find_all('a'):
-                    related_tag_info = self.get_soup_tag_info(related_tag)
-                    if related_tag_info.t_id not in related_ids:
+                    related_tag_info = self._get_soup_tag_info(related_tag)
+                    if related_tag_info.t_id not in elements_relations[tag_info.t_id].relations:
                         related_tag.extract()
                         continue
                     self._set_related_tag_link(related_tag, related_tag_info, tag_info.t_class)
@@ -154,9 +274,17 @@ class InteractiveConnectivityGraph:
                         self._highlight_tag(related_tag, related_tag_info.t_class)
                 self._save_tag_file(tag_soup, tag_info)
 
-    ###################################################################################################################
+    class AbstractGraph:
+        """
+        AbstractGraph is responsible of
+        (1) building the connectivity graph from the elements info
+        (2) find the relations between the elements
+        AbstractGraph has inner classes to build the graph: ConnLegend, Conn, Edge, Node, Namespace, Clique, BiClique, Graph
 
-    class GraphRelations:
+        the building of the graph is done in two steps:
+        (1a) creating objects of these classes for each element
+        (1b) connecting between the objects using naming convention
+        """
 
         @dataclass
         class ConnLegend:
@@ -215,13 +343,25 @@ class InteractiveConnectivityGraph:
             edges: dict = field(default_factory=dict)
             cliques: list = field(default_factory=list)
             bicliques: list = field(default_factory=list)
-            conn_legend = None
+            conn_legend: object = None
 
         def __init__(self):
             self.graph = self.Graph()
             self.graph.conn_legend = self.ConnLegend()
 
-        def create_graph_elements(self, elements_info):
+        def create_graph(self, elements_info):
+            """
+            (1a) creating objects of these classes for each element
+            (1b) connecting between the objects using naming convention
+            """
+            self._create_graph_elements(elements_info)
+            self._connect_graph_elements()
+
+        def _create_graph_elements(self, elements_info):
+            """
+            param: elements_info: list(ElementInformation): the information of each element
+            creates an object for each element according to the element information
+            """
             all_conns = set(t.t_conn for t in elements_info)
             for t_conn in all_conns:
                 self.graph.conn_legend.conns[t_conn] = self.Conn()
@@ -236,11 +376,18 @@ class InteractiveConnectivityGraph:
                     self.graph.nodes[el.t_title] = self.Node(el.t_id, el.t_title, self.graph.conn_legend.conns[el.t_conn])
                 elif el.t_class == InteractiveConnectivityGraph.SvgGraph.EDGE_CT:
                     src_name, dst_name = el.t_title.split('->')
-                    self.graph.edges[(src_name, dst_name)] = self.Edge(el.t_id, src_name, dst_name, self.graph.conn_legend.conns[el.t_conn])
+                    edge = self.Edge(el.t_id, src_name, dst_name, self.graph.conn_legend.conns[el.t_conn])
+                    self.graph.edges[(src_name, dst_name)] = edge
                 elif el.t_class == InteractiveConnectivityGraph.SvgGraph.CONNECTIVITY_CT:
                     self.graph.conn_legend.conns[el.t_conn].t_id = el.t_id
 
-        def connect_graph_elements(self):
+        def _connect_graph_elements(self):
+            """
+            building the graph
+            (1) put every node in its namespace
+            (2) set src and dst for each edge
+            (3) creates clique and bicliques
+            """
             for name, node in self.graph.nodes.items():
                 node.edges = [edge for edge in self.graph.edges.values() if node.name in [edge.src_name, edge.dst_name]]
                 namespace_name = node.name.split('/')[0].replace('-', '_')
@@ -252,14 +399,19 @@ class InteractiveConnectivityGraph:
                 edge.src = self.graph.nodes[src_name]
                 edge.dst = self.graph.nodes[dst_name]
 
+            # creating cliques:
+            # find all cliques nodes and edges:
             all_cliques_nodes = [node for node in self.graph.nodes.keys() if node.startswith('clique_')]
             all_cliques_edges = [edge for edge in itertools.product(all_cliques_nodes, all_cliques_nodes) if
                                  edge in self.graph.edges.keys()]
+            # a clique can have more than one clique node, so
+            # we find connected set of cliques nodes, each set is a clique
             clqs_graph = networkx.Graph()
             clqs_graph.add_nodes_from(all_cliques_nodes)
             clqs_graph.add_edges_from(all_cliques_edges)
             clique_sets = networkx.connected_components(clqs_graph)
 
+            # for each set build its clique, add its nodes and edges:
             for clique_set in clique_sets:
                 cliqut_conn = self.graph.nodes[list(clique_set)[0]].conn
                 clique = self.Clique(cliqut_conn)
@@ -270,6 +422,9 @@ class InteractiveConnectivityGraph:
                 clique.nodes = [node for node in self.graph.nodes.values() if node.name in node_names]
                 self.graph.cliques.append(clique)
 
+            # creating bicliques:
+            # each biclique node represent a biclique
+            # so we just find the src and dst of a biclique node, and create a biclique
             all_bicliques_nodes = [node for name, node in self.graph.nodes.items() if name.startswith('biclique_')]
             for biclique_node in all_bicliques_nodes:
                 biclique = self.BiClique(biclique_node.conn, biclique_node)
@@ -279,36 +434,54 @@ class InteractiveConnectivityGraph:
                 biclique.dst_nodes = [edge.dst for edge in biclique.dst_edges]
                 self.graph.bicliques.append(biclique)
 
-        def set_basic_relations(self, tag_id, element_relation):
-            element_relation.relations.add(tag_id)
-            element_relation.highlights.add(tag_id)
+        def _add_basic_relations(self, t_id, element_relation):
+            """
+            adding to the element_relation of t_id the elements that should be on every svg file
+            param: t_id: string
+            param: element_relation: ElementRelations
+            """
+            element_relation.relations.add(t_id)
+            element_relation.highlights.add(t_id)
             element_relation.relations.add(self.graph.t_id)
             for conn in self.graph.conn_legend.conns.values():
                 element_relation.relations.add(conn.t_id)
             # to remain all pods in all graphs:
-            # elements_relations[tag_id].relations |= set(n.t_id for n in self.graph.nodes.values() if n.real_node())
+            # elements_relations[t_id].relations |= set(n.t_id for n in self.graph.nodes.values() if n.real_node())
 
         def set_tags_relations(self):
+            """
+            find the related elements of each element
+            return:  elements_relations dict {str: ElementRelations}: for each element list of relations and list of highlights
+            """
             elements_relations = defaultdict(InteractiveConnectivityGraph.ElementRelations)
-            all_items = list(self.graph.conn_legend.conns.values()) + list(self.graph.edges.values()) + \
-                        list(self.graph.nodes.values()) + list(self.graph.namespaces.values()) + [self.graph]
+
+            # first add the basic relations:
+            all_items = list(self.graph.conn_legend.conns.values()) + list(self.graph.edges.values()) + list(self.graph.nodes.values()) + list(self.graph.namespaces.values()) + [self.graph]
             for item in all_items:
-                self.set_basic_relations(item.t_id, elements_relations[item.t_id])
+                self._add_basic_relations(item.t_id, elements_relations[item.t_id])
+
+            # the grapg itself will have all the items:
             elements_relations[self.graph.t_id].relations |= set(item.t_id for item in all_items)
 
+            # add namespaces to nodes:
             for namespace in self.graph.namespaces.values():
                 for node in namespace.nodes:
                     elements_relations[node.t_id].relations.add(namespace.t_id)
 
+            # add nodes of edge to an edge
+            # add edge to its connectivity
             for edge in self.graph.edges.values():
                 elements_relations[edge.t_id].relations |= elements_relations[edge.src.t_id].relations
                 elements_relations[edge.t_id].relations |= elements_relations[edge.dst.t_id].relations
                 elements_relations[edge.conn.t_id].relations |= elements_relations[edge.t_id].relations
 
+            # add to nodes its edges
             for node in self.graph.nodes.values():
                 for edge in node.edges:
                     elements_relations[node.t_id].relations |= elements_relations[edge.t_id].relations
 
+            # add edge and nodes to all clique elements (conns already inside)
+            # highlights all clique core elements with each other
             for clique in self.graph.cliques:
                 for el in clique.nodes + clique.edges:
                     for e in clique.edges:
@@ -320,6 +493,26 @@ class InteractiveConnectivityGraph:
                 for cc1, cc2 in itertools.product(clq_core, clq_core):
                     elements_relations[cc1.t_id].highlights.add(cc2.t_id)
 
+            self._set_bicliques_relations(elements_relations)
+
+            # add nodes to namespace:
+            for namespace in self.graph.namespaces.values():
+                for node in namespace.nodes:
+                    elements_relations[namespace.t_id].relations |= elements_relations[node.t_id].relations
+
+            # hightlights edge connectivity:
+            for edge in self.graph.edges.values():
+                elements_relations[edge.t_id].highlights.add(edge.conn.t_id)
+
+            return elements_relations
+
+        def _set_bicliques_relations(self, elements_relations):
+            """
+            param: elements_relations: dict {str: ElementRelations} : the relation to update
+            for each *src* node/edge of the biclique, we do not add all biclique, we just add all *dst* nodes+edges
+            we also hightlights all biclique core elements with each other + relevant connectivity
+
+            """
             for biclique in self.graph.bicliques:
                 dst_edges_relations = set().union(*[elements_relations[e.t_id].relations for e in biclique.dst_edges])
                 src_edges_relations = set().union(*[elements_relations[e.t_id].relations for e in biclique.src_edges])
@@ -336,27 +529,3 @@ class InteractiveConnectivityGraph:
                     elements_relations[bcc.t_id].highlights.add(biclique.conn.t_id)
                 for bcc1, bcc2 in itertools.product(biclq_core, biclq_core):
                     elements_relations[bcc1.t_id].highlights.add(bcc2.t_id)
-
-            for namespace in self.graph.namespaces.values():
-                for node in namespace.nodes:
-                    elements_relations[namespace.t_id].relations |= elements_relations[node.t_id].relations
-
-            for edge in self.graph.edges.values():
-                elements_relations[edge.t_id].highlights.add(edge.conn.t_id)
-
-            return elements_relations
-
-    def __init__(self, file_name, output_directory):
-        self.svg_graph = InteractiveConnectivityGraph.SvgGraph(file_name, output_directory)
-        self.graph_relations = InteractiveConnectivityGraph.GraphRelations()
-
-    def create_interactive_graph(self):
-        self.svg_graph.read_input_file()
-        self.svg_graph.set_soup_tags_info()
-        elements_info = self.svg_graph.get_elements_info()
-        self.graph_relations.create_graph_elements(elements_info)
-        self.graph_relations.connect_graph_elements()
-        elements_relations = self.graph_relations.set_tags_relations()
-        self.svg_graph.create_output(elements_relations)
-
-
