@@ -967,7 +967,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         in this case, in order to get the correct allowed connections of the peer,
         this def returns the peer with same name of the given peer from the other config of self.
         If no istio sidecar in the other config policies, the def returns the given peer
-        :param Peer: a peer from one of the configs to find its parallel in the other config as needed
+        :param Peer peer: a peer from one of the configs to find its parallel in the other config as needed
         :param bool second_config: indicates if the other config is self.config2, otherwise self.config1
         :rtype: Peer (ClusterEP)
         """
