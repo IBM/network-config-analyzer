@@ -902,8 +902,9 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         self.name2 = os.path.basename(config2.name) if config2.name.startswith('./') else config2.name
         # the following flag will be used to indicate if we should get DNSEntry peers when getting all config's peers
         # for connections comparing. DNSEntry peers should be included only if we have Istio layer in the policies.
-        self.consider_dns_entry_peers = NetworkLayerName.Istio in self.config1.policies_container.layers or \
-                                        NetworkLayerName.Istio in self.config2.policies_container.layers
+        self.consider_dns_entry_peers = \
+            NetworkLayerName.Istio in self.config1.policies_container.layers or \
+            NetworkLayerName.Istio in self.config2.policies_container.layers
 
     def get_configs_names(self):
         """
