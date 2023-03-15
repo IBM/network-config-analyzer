@@ -456,7 +456,8 @@ class InteractiveConnectivityGraph:
             elements_relations = defaultdict(InteractiveConnectivityGraph.ElementRelations)
 
             # first add the basic relations:
-            all_items = list(self.graph.conn_legend.conns.values()) + list(self.graph.edges.values()) + list(self.graph.nodes.values()) + list(self.graph.namespaces.values()) + [self.graph]
+            all_items = list(self.graph.conn_legend.conns.values()) + list(self.graph.edges.values()) +\
+                list(self.graph.nodes.values()) + list(self.graph.namespaces.values()) + [self.graph]
             for item in all_items:
                 self._add_basic_relations(item.t_id, elements_relations[item.t_id])
 
