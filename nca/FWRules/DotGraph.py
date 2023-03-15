@@ -113,15 +113,14 @@ class DotGraph:
         if not self.labels_dict:
             return ''
         items_to_present = [(short, label) for label, short in self.labels_dict.items()]
-        #items_to_present = [(short, label) for label, short in self.labels_dict.items() if label != short]
         items_to_present.sort()
-        #dict_table = '\\l'.join([f'{short:<15}{label}' for short, label in items_to_present])
 
-        dict_table = f'<<table border="0" cellspacing="0">'
-        dict_table += f'<tr><td  align="text">Connectivity legend<br align="left" /></td></tr>'
+        dict_table = '<<table border="0" cellspacing="0">'
+        dict_table += '<tr><td  align="text">Connectivity legend<br align="left" /></td></tr>'
         for short, label in items_to_present:
             trimmed = f'{label[0:30]}...' if len(label) > 32 else label
-            dict_table += f'<tr><td align="text" tooltip="{label}" href="bogus">{short}     {trimmed}<br align="left" /></td></tr>'
+            line = f'{short}     {trimmed}'
+            dict_table += f'<tr><td align="text" tooltip="{label}" href="bogus">{line}<br align="left" /></td></tr>'
         dict_table += '</table>>'
 
         dict_table = f'label={dict_table}'
@@ -187,7 +186,7 @@ class DotGraph:
         """
         if not self.labels:
             return False
-        if len(self.labels) == 1 and len(self.labels[0]) <= 11:
+        if len(self.labels) == 1 and len(next(iter(self.labels))) <= 11:
             self.labels_dict = {label: label for label in self.labels}
             return False
 

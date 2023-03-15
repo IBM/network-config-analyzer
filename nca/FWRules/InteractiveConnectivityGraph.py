@@ -31,10 +31,10 @@ class InteractiveConnectivityGraph:
 
     @dataclass
     class ElementInfo:
-        e_id: str
-        e_class: str
-        e_title: str
-        e_conn: str
+        t_id: str
+        t_class: str
+        t_title: str
+        t_conn: str
 
     @dataclass
     class ElementRelations:
@@ -60,7 +60,7 @@ class InteractiveConnectivityGraph:
             graph_text = self.soup.svg.find('text')
             graph_polygon.append(graph_text)
 
-            # update class to connectivities:
+            # set class to legend components:
             conn_legend = self.soup.svg.find('title', string='dict_box')
             if conn_legend:
                 conn_legend = conn_legend.find_parent('g')
@@ -112,7 +112,16 @@ class InteractiveConnectivityGraph:
             elements_info.append(InteractiveConnectivityGraph.ElementInfo('', '', '', ''))
             return elements_info
 
-        def highlight_tag(self, tag, t_class):
+        def _set_related_tag_link(self, related_tag, related_tag_info, t_class):
+            if (t_class == BACKGROUND_CT and related_tag_info.t_class == BACKGROUND_CT) or (
+                    t_class != BACKGROUND_CT and related_tag_info.t_class != BACKGROUND_CT):
+                related_tag['xlink:href'] = related_tag_info.t_id + '.svg'
+            elif t_class == BACKGROUND_CT and related_tag_info.t_class != BACKGROUND_CT:
+                related_tag['xlink:href'] = 'elements/' + related_tag_info.t_id + '.svg'
+            else:
+                related_tag['xlink:href'] = '../' + related_tag_info.t_id + '.svg'
+
+        def _highlight_tag(self, tag, t_class):
             if t_class == NODE_CT:
                 tag.polygon['stroke-width'] = '5'
             if t_class == NAMESPACE_CT:
@@ -125,20 +134,11 @@ class InteractiveConnectivityGraph:
                 tag['text-decoration'] = 'underline'
                 tag['font-weight'] = 'bold'
 
-        def set_related_tag_link(self, related_tag, related_tag_info, t_class):
-            if (t_class == BACKGROUND_CT and related_tag_info.e_class == BACKGROUND_CT) or (
-                    t_class != BACKGROUND_CT and related_tag_info.e_class != BACKGROUND_CT):
-                related_tag['xlink:href'] = related_tag_info.e_id + '.svg'
-            elif t_class == BACKGROUND_CT and related_tag_info.e_class != BACKGROUND_CT:
-                related_tag['xlink:href'] = 'elements/' + related_tag_info.e_id + '.svg'
+        def _save_tag_file(self, tag_soup, tag_info):
+            if tag_info.t_class == BACKGROUND_CT:
+                tag_file_name = os.path.join(self.output_directory, tag_info.t_id + '.svg')
             else:
-                related_tag['xlink:href'] = '../' + related_tag_info.e_id + '.svg'
-
-        def save_tag_file(self, tag_soup, tag_info):
-            if tag_info.e_class == BACKGROUND_CT:
-                tag_file_name = os.path.join(self.output_directory, tag_info.e_id + '.svg')
-            else:
-                tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.e_id + '.svg')
+                tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.t_id + '.svg')
             with open(tag_file_name, 'wb') as tag_cvg_file:
                 tag_cvg_file.write(tag_soup.prettify(encoding='utf-8'))
 
@@ -150,16 +150,16 @@ class InteractiveConnectivityGraph:
             for tag in self.soup.svg.find_all('a'):
                 tag_info = self.get_soup_tag_info(tag)
                 tag_soup = copy.copy(self.soup)
-                related_ids = elements_relations[tag_info.e_id].relations
+                related_ids = elements_relations[tag_info.t_id].relations
                 for related_tag in tag_soup.svg.find_all('a'):
                     related_tag_info = self.get_soup_tag_info(related_tag)
-                    if related_tag_info.e_id not in related_ids:
+                    if related_tag_info.t_id not in related_ids:
                         related_tag.extract()
                         continue
-                    self.set_related_tag_link(related_tag, related_tag_info, tag_info.e_class)
-                    if related_tag_info.e_id in elements_relations[tag_info.e_id].highlights:
-                        self.highlight_tag(related_tag, related_tag_info.e_class)
-                self.save_tag_file(tag_soup, tag_info)
+                    self._set_related_tag_link(related_tag, related_tag_info, tag_info.t_class)
+                    if related_tag_info.t_id in elements_relations[tag_info.t_id].highlights:
+                        self._highlight_tag(related_tag, related_tag_info.t_class)
+                self._save_tag_file(tag_soup, tag_info)
 
 ###################################################################################################################
 
@@ -239,23 +239,23 @@ class InteractiveConnectivityGraph:
             self.graph.conn_legend = self.ConnLegend()
 
         def create_graph_elements(self, elements_info):
-            all_conns = set(t.e_conn for t in elements_info)
+            all_conns = set(t.t_conn for t in elements_info)
             for t_conn in all_conns:
                 self.graph.conn_legend.conns[t_conn] = self.Conn()
             for el in elements_info:
-                if el.e_class == BACKGROUND_CT:
-                    self.graph.t_id = el.e_id
-                    self.graph.name = el.e_title
-                elif el.e_class == NAMESPACE_CT:
-                    namespace_name = el.e_title.replace('cluster_', '').replace('_namespace', '')
-                    self.graph.namespaces[namespace_name] = self.Namespace(el.e_id, namespace_name)
-                elif el.e_class == NODE_CT:
-                    self.graph.nodes[el.e_title] = self.Node(el.e_id, el.e_title, self.graph.conn_legend.conns[el.e_conn])
-                elif el.e_class == EDGE_CT:
-                    src_name, dst_name = el.e_title.split('->')
-                    self.graph.edges[(src_name, dst_name)] = self.Edge(el.e_id, src_name, dst_name, self.graph.conn_legend.conns[el.e_conn])
-                elif el.e_class == CONNECTIVITY_CT:
-                    self.graph.conn_legend.conns[el.e_conn].t_id = el.e_id
+                if el.t_class == BACKGROUND_CT:
+                    self.graph.t_id = el.t_id
+                    self.graph.name = el.t_title
+                elif el.t_class == NAMESPACE_CT:
+                    namespace_name = el.t_title.replace('cluster_', '').replace('_namespace', '')
+                    self.graph.namespaces[namespace_name] = self.Namespace(el.t_id, namespace_name)
+                elif el.t_class == NODE_CT:
+                    self.graph.nodes[el.t_title] = self.Node(el.t_id, el.t_title, self.graph.conn_legend.conns[el.t_conn])
+                elif el.t_class == EDGE_CT:
+                    src_name, dst_name = el.t_title.split('->')
+                    self.graph.edges[(src_name, dst_name)] = self.Edge(el.t_id, src_name, dst_name, self.graph.conn_legend.conns[el.t_conn])
+                elif el.t_class == CONNECTIVITY_CT:
+                    self.graph.conn_legend.conns[el.t_conn].t_id = el.t_id
 
 
         def connect_graph_elements(self):
@@ -278,8 +278,8 @@ class InteractiveConnectivityGraph:
             clique_sets = networkx.connected_components(clqs_graph)
 
             for clique_set in clique_sets:
-                clique_conn = self.graph.nodes[list(clique_set)[0]].conn
-                clique = self.Clique(clique_conn)
+                cliqut_conn = self.graph.nodes[list(clique_set)[0]].conn
+                clique = self.Clique(cliqut_conn)
                 clique_set_names = clique_set
                 clique.edges = [edge for edge in self.graph.edges.values() if edge.src_name in clique_set_names or edge.dst_name in clique_set_names]
                 node_names = set(e.src_name for e in clique.edges) | set(e.dst_name for e in clique.edges)
