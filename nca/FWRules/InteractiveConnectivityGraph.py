@@ -159,7 +159,7 @@ class InteractiveConnectivityGraph:
                     self.set_related_tag_link(related_tag, related_tag_info, tag_info.e_class)
                     if related_tag_info.e_id in elements_relations[tag_info.e_id].highlights:
                         self.highlight_tag(related_tag, related_tag_info.e_class)
-            self.save_tag_file(tag_soup, tag_info)
+                self.save_tag_file(tag_soup, tag_info)
 
 ###################################################################################################################
 
