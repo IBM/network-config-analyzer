@@ -178,7 +178,7 @@ class InteractiveConnectivityGraph:
             t_id: str
             name: str
             #conn: Conn
-            conn: int
+            conn: int # todo
             edges: list = field(default_factory=list)
 
             def real_node(self):
@@ -190,16 +190,16 @@ class InteractiveConnectivityGraph:
             src_name: str
             dst_name: str
             #conn: Conn
-            conn: int
+            conn: int # todo
             # src: Node = None
             # dst: Node = None
-            src: int = 0
-            dst: int = 0
+            src: int = 0 # todo
+            dst: int = 0 # todo
 
         @dataclass
         class Clique:
             #conn: Conn
-            conn: int
+            conn: int # todo
             nodes: list = field(default_factory=list)
             edges: list = field(default_factory=list)
 
@@ -288,18 +288,22 @@ class InteractiveConnectivityGraph:
                 biclique.dst_nodes = [edge.dst for edge in biclique.dst_edges]
                 self.graph.bicliques.append(biclique)
 
+        def set_basic_relations(self, tag_id, element_relation):
+            element_relation.relations.add(tag_id)
+            element_relation.highlights.add(tag_id)
+            element_relation.relations.add(self.graph.t_id)
+            for conn in self.graph.conn_legend.conns.values():
+                element_relation.relations.add(conn.t_id)
+            # to remain all pods in all graphs:
+            # elements_relations[tag_id].relations |= set(n.t_id for n in self.graph.nodes.values() if n.real_node())
 
-        def set_tags_relations(self, elements_info):
+        def set_tags_relations(self):
             elements_relations = defaultdict(InteractiveConnectivityGraph.ElementRelations)
-            for element in elements_info:
-                tag_id = element.e_id
-                elements_relations[tag_id].relations.add(tag_id)
-                elements_relations[tag_id].highlights.add(tag_id)
-                elements_relations[tag_id].relations.add(self.graph.t_id)
-                for c in self.graph.conn_legend.conns.values():
-                    elements_relations[tag_id].relations.add(c.t_id)
-                elements_relations[self.graph.t_id].relations.add(tag_id)
-                elements_relations[tag_id].relations |= set(n.t_id for n in self.graph.nodes.values() if n.real_node())
+            all_items = list(self.graph.conn_legend.conns.values()) + list(self.graph.edges.values()) + \
+                        list(self.graph.nodes.values()) + list(self.graph.namespaces.values())
+            for item in all_items:
+                self.set_basic_relations(item.t_id, elements_relations[item.t_id])
+            elements_relations[self.graph.t_id].relations |= set([self.graph.t_id]) | set(item.t_id for item in all_items)
 
             for namespace in self.graph.namespaces.values():
                 for node in namespace.nodes:
@@ -362,7 +366,7 @@ class InteractiveConnectivityGraph:
         elements_info = self.svg_graph.get_elements_info()
         self.graph_relations.create_graph_elements(elements_info)
         self.graph_relations.connect_graph_elements()
-        elements_relations = self.graph_relations.set_tags_relations(elements_info)
+        elements_relations = self.graph_relations.set_tags_relations()
         self.svg_graph.create_output(elements_relations)
 
 
