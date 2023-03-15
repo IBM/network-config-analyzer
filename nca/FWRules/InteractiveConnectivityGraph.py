@@ -112,6 +112,35 @@ class InteractiveConnectivityGraph:
             elements_info.append(InteractiveConnectivityGraph.ElementInfo('', '', '', ''))
             return elements_info
 
+        def highlight_tag(self, tag, t_class):
+            if t_class == NODE_CT:
+                tag.polygon['stroke-width'] = '5'
+            if t_class == NAMESPACE_CT:
+                tag.polygon['stroke-width'] = '5'
+                tag['font-weight'] = 'bold'
+            if t_class == EDGE_CT:
+                tag.path['stroke-width'] = '3'
+                tag['font-weight'] = 'bold'
+            if t_class == CONNECTIVITY_CT:
+                tag['text-decoration'] = 'underline'
+                tag['font-weight'] = 'bold'
+
+        def set_related_tag_link(self, related_tag, related_tag_info, t_class):
+            if (t_class == BACKGROUND_CT and related_tag_info.e_class == BACKGROUND_CT) or (
+                    t_class != BACKGROUND_CT and related_tag_info.e_class != BACKGROUND_CT):
+                related_tag['xlink:href'] = related_tag_info.e_id + '.svg'
+            elif t_class == BACKGROUND_CT and related_tag_info.e_class != BACKGROUND_CT:
+                related_tag['xlink:href'] = 'elements/' + related_tag_info.e_id + '.svg'
+            else:
+                related_tag['xlink:href'] = '../' + related_tag_info.e_id + '.svg'
+
+        def save_tag_file(self, tag_soup, tag_info):
+            if tag_info.e_class == BACKGROUND_CT:
+                tag_file_name = os.path.join(self.output_directory, tag_info.e_id + '.svg')
+            else:
+                tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.e_id + '.svg')
+            with open(tag_file_name, 'wb') as tag_cvg_file:
+                tag_cvg_file.write(tag_soup.prettify(encoding='utf-8'))
 
         def create_output(self, elements_relations):
             if os.path.isdir(self.output_directory):
@@ -120,39 +149,17 @@ class InteractiveConnectivityGraph:
             os.mkdir(os.path.join(self.output_directory, 'elements'))
             for tag in self.soup.svg.find_all('a'):
                 tag_info = self.get_soup_tag_info(tag)
-                if tag_info.e_class == BACKGROUND_CT:
-                    tag_file_name = os.path.join(self.output_directory, tag_info.e_id + '.svg')
-                else:
-                    tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.e_id + '.svg')
                 tag_soup = copy.copy(self.soup)
                 related_ids = elements_relations[tag_info.e_id].relations
-                for tag2 in tag_soup.svg.find_all('a'):
-                    tag_info2 = self.get_soup_tag_info(tag2)
-                    if tag_info2.e_id not in related_ids:
-                        tag2.extract()
+                for related_tag in tag_soup.svg.find_all('a'):
+                    related_tag_info = self.get_soup_tag_info(related_tag)
+                    if related_tag_info.e_id not in related_ids:
+                        related_tag.extract()
                         continue
-                    if (tag_info.e_class == BACKGROUND_CT and tag_info2.e_class == BACKGROUND_CT) or (tag_info.e_class != BACKGROUND_CT and tag_info2.e_class != BACKGROUND_CT):
-                        tag2['xlink:href'] = tag_info2.e_id + '.svg'
-                    elif tag_info.e_class == BACKGROUND_CT and tag_info2.e_class != BACKGROUND_CT:
-                        tag2['xlink:href'] = 'elements/' + tag_info2.e_id + '.svg'
-                    else:
-                        tag2['xlink:href'] = '../' + tag_info2.e_id + '.svg'
-
-                    if tag_info2.e_id in elements_relations[tag_info.e_id].highlights:
-                        if tag_info2.e_class == NODE_CT:
-                            tag2.polygon['stroke-width'] = '5'
-                        if tag_info2.e_class == NAMESPACE_CT:
-                            tag2.polygon['stroke-width'] = '5'
-                            tag2['font-weight'] = 'bold'
-                        if tag_info2.e_class == EDGE_CT:
-                            tag2.path['stroke-width'] = '3'
-                            tag2['font-weight'] = 'bold'
-                        if tag_info2.e_class == CONNECTIVITY_CT:
-                            tag2['text-decoration'] = 'underline'
-                            tag2['font-weight'] = 'bold'
-                with open(tag_file_name, 'wb') as tag_cvg_file:
-                    tag_cvg_file.write(tag_soup.prettify(encoding='utf-8'))
-
+                    self.set_related_tag_link(related_tag, related_tag_info, tag_info.e_class)
+                    if related_tag_info.e_id in elements_relations[tag_info.e_id].highlights:
+                        self.highlight_tag(related_tag, related_tag_info.e_class)
+            self.save_tag_file(tag_soup, tag_info)
 
 ###################################################################################################################
 
@@ -300,10 +307,10 @@ class InteractiveConnectivityGraph:
         def set_tags_relations(self):
             elements_relations = defaultdict(InteractiveConnectivityGraph.ElementRelations)
             all_items = list(self.graph.conn_legend.conns.values()) + list(self.graph.edges.values()) + \
-                        list(self.graph.nodes.values()) + list(self.graph.namespaces.values())
+                        list(self.graph.nodes.values()) + list(self.graph.namespaces.values()) + [self.graph]
             for item in all_items:
                 self.set_basic_relations(item.t_id, elements_relations[item.t_id])
-            elements_relations[self.graph.t_id].relations |= set([self.graph.t_id]) | set(item.t_id for item in all_items)
+            elements_relations[self.graph.t_id].relations |= set(item.t_id for item in all_items)
 
             for namespace in self.graph.namespaces.values():
                 for node in namespace.nodes:
