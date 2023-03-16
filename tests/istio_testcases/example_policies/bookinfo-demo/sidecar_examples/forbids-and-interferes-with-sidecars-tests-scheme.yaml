@@ -12,6 +12,21 @@ networkConfigList:
     networkPolicyList:
       - sidecar-w-internal-external-services.yaml
 
+  - name: sidecar-allows-any-one-service-entry
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-wildcard-services.yaml
+      - sidecar-allows-any.yaml
+
+   # in the following config we have 2 service entries with some common hosts in both but different ports, we want to check
+  # that config2 extends some connections of config1
+  - name: allow-all-sidecar-multiple-service-entry
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-wildcard-services.yaml
+      - service_entry_resources/external-https-services-less-hosts-and-different-port.yaml
+      - sidecar-allows-any.yaml
+
 queries:
   - name: forbids-on-configs-one-with-dns-entry
     forbids:
@@ -39,3 +54,12 @@ queries:
       fullExplanation: True
     expectedOutput: ../../../expected_output/pair_wise_interferes_configs_w_sidecars_different_hosts_types.txt
     expected: 1 # only first config extends second
+
+  - name: interferes-dns-entries-porting
+    interferes:
+      - sidecar-allows-any-one-service-entry
+      - allow-all-sidecar-multiple-service-entry
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/interferes_multiple_service_entries_extends_porting.txt
+    expected: 1 # second config extends first one

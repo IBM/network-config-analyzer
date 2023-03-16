@@ -1,0 +1,8 @@
+allow-all-sidecar-new-service-entry is not contained in sidecar-with-selector-allows-any
+Connections allowed in allow-all-sidecar-new-service-entry which are not a subset of those in sidecar-with-selector-allows-any:
+src: default/ratings-v1-1, dst: *.newrelic.com, conn: Protocol: TCP, 80
+src: default/ratings-v1-1, dst: *.slack.com, conn: Protocol: TCP, 80
+src: default/ratings-v1-1, dst: *.wikipedia.org, conn: Protocol: TCP, 80
+src: default/ratings-v1-1, dst: api.dropboxapi.com, conn: Protocol: TCP, 80
+src: default/ratings-v1-1, dst: api.facebook.com, conn: Protocol: TCP, 80
+src: default/ratings-v1-1, dst: www.googleapis.com, conn: Protocol: TCP, 80

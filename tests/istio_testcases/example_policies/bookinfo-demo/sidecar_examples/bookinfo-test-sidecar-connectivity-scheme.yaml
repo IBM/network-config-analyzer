@@ -18,13 +18,13 @@ networkConfigList:
       - service_entry_resources/external-https-wildcard-services.yaml
       - sidecar-allows-any.yaml
 
-  # in the following config we have 2 service entries with some same hosts in both but different ports, we want to check
+  # in the following config we have 2 service entries with some common hosts in both but different ports, we want to check
   # that the connections to these common hosts is allowed in both ports (considering the src namespace - if included in exportTo)
   - name: allow-all-sidecar-multiple-service-entry
     resourceList:
       - bookinfo-topology
       - service_entry_resources/external-https-wildcard-services.yaml
-      - service_entry_resources/external-https-services-another-port.yaml
+      - service_entry_resources/external-https-services-less-hosts-and-different-port.yaml
       - sidecar-allows-any.yaml
 
   # this config includes a service-entry with general host name "*.wikipedia.org", while the sidecar supports egress

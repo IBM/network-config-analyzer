@@ -27,6 +27,12 @@ networkConfigList:
       - service_entry_resources/bookinfo-service-entry-1.yaml
       - sidecar-w-internal-external-services.yaml
 
+  - name: allow-all-sidecar-new-service-entry
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-wildcard-services-new-port.yaml
+      - sidecar-allows-any.yaml
+
 queries:
   - name: equiv-configs-allow-any
     equivalence:
@@ -60,7 +66,6 @@ queries:
     expectedOutput: ../../../expected_output/strong_equiv_configs_w_sidecars_different_outbound_mode.txt
     expected: 1  # not same set of sidecars
 
-
   - name: equiv-one-with-dns-entry
     equivalence:
       - sidecar-with-local-hosts-only
@@ -68,4 +73,17 @@ queries:
     outputConfiguration:
       fullExplanation: True
     expectedOutput: ../../../expected_output/equiv_configs_w_sidecars_different_hosts.txt
+    expected: 1
+
+  - name: equiv-same-sidecar-different-service-entries-port
+    # the second config is having the same sidecar and same dns entries.
+    # however, the difference in service-entry objects is porting the conns to the dns entries
+    # which means although the topology peers are the same, the conns are different , so we want to check equivalence
+    equivalence:
+      - sidecar-with-selector-allows-any
+      - allow-all-sidecar-new-service-entry
+    outputConfiguration:
+      fullExplanation: True
+      outputFormat: json
+    expectedOutput: ../../../expected_output/equiv_configs_same_sidecar_different_service_entries_port.json
     expected: 1

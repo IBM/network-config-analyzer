@@ -55,6 +55,10 @@ class Peer:
     def get_named_ports():
         return {}
 
+    def get_ports_exported_to_ns(self, src_namespace):
+        # implemented in DNSEntry
+        return []
+
 
 class ClusterEP(Peer):
     """
@@ -502,6 +506,33 @@ class DNSEntry(Peer):
                 self.namespaces_ports[namespace].extend(ports)
             else:
                 self.namespaces_ports[namespace] = ports
+
+    def same_namespaces_ports(self, other):
+        """
+        compares the namespaces and ports of self and other
+        :param DNSEntry other: the other peer to compare current exports with
+        :return: if both peers have same namespaces and ports exports
+        :rtype: bool
+        """
+        for namespace, ports in other.namespaces_ports.items():
+            other_ports = set(ports + other.namespaces_ports.get('*', []))
+            self_ports = self.get_ports_exported_to_ns(namespace)
+            if other_ports != self_ports:
+                return False
+        return True
+
+    def get_ports_exported_to_ns(self, src_namespace):
+        """
+        return a set of ports numbers that are exported to the given namespace,
+        this def will return the ports that are exported to the specified namespace and the ports that are exported
+        to all namespaces
+        :param str src_namespace: namespace name
+        :rtype: set[int] to get unique ports
+        """
+        res = []
+        res.extend(self.namespaces_ports.get('*', []))
+        res.extend(self.namespaces_ports.get(src_namespace, []))
+        return set(res)
 
 
 class PeerSet(set):

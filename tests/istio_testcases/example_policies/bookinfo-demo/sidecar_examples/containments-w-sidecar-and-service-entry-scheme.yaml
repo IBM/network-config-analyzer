@@ -27,6 +27,13 @@ networkConfigList:
       - service_entry_resources/bookinfo-service-entry-1.yaml
       - sidecar-w-internal-external-services.yaml
 
+  - name: allow-all-sidecar-new-service-entry
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-wildcard-services-new-port.yaml
+      - sidecar-allows-any.yaml
+
+
 queries:
   - name: containment-configs-allow-any
     containment:
@@ -84,3 +91,23 @@ queries:
       fullExplanation: True
     expectedOutput: ../../../expected_output/two_way_containment_configs_w_sidecars_different_hosts_types.txt
     expected: 2 # second config contains the conns of the first config but not the opposite
+
+  - name: containment-configs-allow-any-different-service-entries-porting
+    containment:
+      # same sidecars and dns-entry peers but different porting
+      - sidecar-with-selector-allows-any
+      - allow-all-sidecar-new-service-entry
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/containment_configs_allow_any_different_service_entries_porting.txt
+    expected: 0 # connections are not contained in each other because of the different ports
+
+  - name: two-way-containment-configs-allow-any-different-service-entries-porting
+    twoWayContainment:
+      # same sidecars and dns-entry peers but different porting
+      - sidecar-with-selector-allows-any
+      - allow-all-sidecar-new-service-entry
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/two_way_containment_configs_allow_any_different_service_entries_porting.txt
+    expected: 0 # connections are not contained in each other because of the different ports

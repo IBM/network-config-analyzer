@@ -960,6 +960,16 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                 config_without_ingress.append_policy_to_config(policy)
         return config_without_ingress
 
+    def is_identical_dns_entries_porting(self):
+        """
+        if istio layer is not contained in the configs returns true always
+        for istio layer only, if there are dns_entry peers in the topology, checks if the peers are exported equally to
+        namespaces (on same ports) on both configs
+        """
+        if not self.consider_dns_entry_peers:
+            return True
+        return self.config1.peer_container.dns_entries_have_same_conns(self.config2.peer_container)
+
     def get_parallel_peer_in_other_config_if_needed(self, peer, second_config=True):
         """
         if we have istio sidecars in the configs/ in the other config,
@@ -973,10 +983,28 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         """
         other_config = self.config2 if second_config else self.config1
         if other_config.policies_container.contains_istio_sidecar():
-            for other_peer in other_config.peer_container.get_all_peers_group():
+            for other_peer in other_config.peer_container.get_all_peers_group(include_dns_entries=True):
                 if other_peer == peer:  # compares peers full_names
                     return other_peer
         return peer
+
+    def check_if_dns_entry_exported_differently(self, dns_entry, src_namespace):
+        """
+        checks if the dns_entry peers with same name in the different configs, are exported on the same ports to the
+        given src_namespace, if not, then we need to compute the connections to them considering the actual ports
+        :param DNSEntry dns_entry : the dns_entry peer to check
+        :parm str src_namespace: the name of the namespace to check the exported ports of the dns_entry to
+        :return: if there are any differences in the connecting ports of them,
+        returns the copy of the DNSEntry peer of dns_entry on each config else returns None objects
+        :rtype: Union[DNSEntry,None], Union[DNSEntry,None]
+        """
+        config1_dns = self.get_parallel_peer_in_other_config_if_needed(dns_entry, False)
+        config2_dns = self.get_parallel_peer_in_other_config_if_needed(dns_entry, True)
+        dns1_ports = config1_dns.get_ports_exported_to_ns(src_namespace)
+        dns2_ports = config2_dns.get_ports_exported_to_ns(src_namespace)
+        if dns1_ports != dns2_ports:
+            return config1_dns, config2_dns
+        return None, None
 
     def execute(self, cmd_line_flag):
         return self.exec(cmd_line_flag)
@@ -997,7 +1025,9 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
 
     def exec(self, cmd_line_flag=False, layer_name=None):
         query_answer = self.is_identical_topologies(True)
-        if query_answer.output_result:
+        # before returning, we want to check the special case of istio layer of having same topology containing
+        # dns_entry peers with same exports to namespaces and ports, if not, we will continue with executing equiv
+        if query_answer.output_result and self.is_identical_dns_entries_porting():
             query_answer.numerical_result = not query_answer.bool_result
             return query_answer
 
@@ -1016,6 +1046,18 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 # we need to get config2.peer1 in order to get its correct connections (based on its prior-sidecar)
                 config2_peer1 = self.get_parallel_peer_in_other_config_if_needed(peer1)
                 conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, peer2, layer_name)
+                if self.consider_dns_entry_peers and isinstance(peer2, DNSEntry):
+                    # a DNSEntry peer may be with same name in both configs but exported to different ports and namespaces
+                    # in each config, so we need to check, if there are any differences and compute the conns accordingly
+                    # an example: query: equiv-same-sidecar-different-service-entries-port
+                    # file: tests/istio_testcases/example_policies/bookinfo-demo/sidecar_examples/
+                    # equivalence-with-sidecars-scheme.yaml
+                    src_namespace = str(peer1.namespace)
+                    config1_dns, config2_dns = self.check_if_dns_entry_exported_differently(peer2, src_namespace)
+                    if config1_dns:
+                        conns1, _, _, _ = self.config1.allowed_connections(peer1, config1_dns, layer_name)
+                        conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, config2_dns, layer_name)
+
                 if conns1 != conns2:
                     different_conns_list.append(PeersAndConnections(str(peer1), str(peer2), conns1, conns2))
                     if not self.output_config.fullExplanation:
@@ -1255,6 +1297,16 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 # we need to get config2.peer1 in order to get its correct connections (based on its prior-sidecar)
                 config2_peer1 = self.get_parallel_peer_in_other_config_if_needed(peer1)
                 new_conns, _, _, _ = self.config2.allowed_connections(config2_peer1, peer2)
+
+                if self.consider_dns_entry_peers and isinstance(peer2, DNSEntry):
+                    # a DNSEntry peer may be with same name in both configs but exported to different ports and namespaces
+                    # in each config, so we need to check, if there are any differences and compute the conns accordingly
+                    src_namespace = str(peer1.namespace)
+                    config1_dns, config2_dns = self.check_if_dns_entry_exported_differently(peer2, src_namespace)
+                    if config1_dns:
+                        old_conns, _, _, _ = self.config1.allowed_connections(peer1, config1_dns)
+                        new_conns, _, _, _ = self.config2.allowed_connections(config2_peer1, config2_dns)
+
                 if new_conns != old_conns:
                     conn_graph_removed_per_key[key].add_edge(peer1, peer2, old_conns - new_conns)
                     conn_graph_added_per_key[key].add_edge(peer1, peer2, new_conns - old_conns)
@@ -1350,7 +1402,9 @@ class StrongEquivalenceQuery(TwoNetworkConfigsQuery):
 
     def exec(self, cmd_line_flag):
         query_answer = self.is_identical_topologies(True)
-        if query_answer.output_result:
+        # before returning, we want to check the special case of istio layer of having same topology containing
+        # dns_entry peers with same exports to namespaces and ports, if not , conns semantics will be different
+        if query_answer.output_result and self.is_identical_dns_entries_porting():
             query_answer.numerical_result = not query_answer.bool_result
             return query_answer
 
@@ -1416,6 +1470,16 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                 # we need to get config2.peer1 in order to get its correct connections (based on its prior-sidecar)
                 config2_peer1 = self.get_parallel_peer_in_other_config_if_needed(peer1)
                 conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, peer2)
+
+                if self.consider_dns_entry_peers and isinstance(peer2, DNSEntry):
+                    # a DNSEntry peer may be with same name in both configs but exported to different ports and namespaces
+                    # in each config, so we need to check, if there are any differences and compute the conns accordingly
+                    src_namespace = str(peer1.namespace)
+                    config1_dns, config2_dns = self.check_if_dns_entry_exported_differently(peer2, src_namespace)
+                    if config1_dns:
+                        conns1, _, _, _ = self.config1.allowed_connections(peer1, config1_dns)
+                        conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, config2_dns)
+
                 if not conns1.contained_in(conns2):
                     not_contained_list.append(PeersAndConnections(str(peer1), str(peer2), conns1))
                     if not self.output_config.fullExplanation:
@@ -1445,7 +1509,9 @@ class TwoWayContainmentQuery(TwoNetworkConfigsQuery):
 
     def exec(self, cmd_line_flag):
         query_answer = self.is_identical_topologies(True)
-        if query_answer.bool_result and query_answer.output_result:
+        # before returning, we want to check the special case of istio layer of having same topology containing
+        # dns_entry peers with same exports to namespaces and ports, if not, we will continue with executing
+        if query_answer.bool_result and query_answer.output_result and self.is_identical_dns_entries_porting():
             return query_answer  # identical configurations (contained)
 
         contained_1_in_2 = \
@@ -1491,7 +1557,9 @@ class PermitsQuery(TwoNetworkConfigsQuery):
                                output_result='There are no NetworkPolicies in the given permits config. '
                                              'No traffic is specified as permitted.', query_not_executed=True)
         query_answer = self.is_identical_topologies()
-        if query_answer.output_result:
+        # before returning, we want to check the special case of istio layer of having same topology containing
+        # dns_entry peers with same exports to namespaces and ports, if not , we will continue with executing
+        if query_answer.output_result and self.is_identical_dns_entries_porting():
             query_answer.numerical_result = 0 if not cmd_line_flag else not query_answer.bool_result
             if query_answer.bool_result:  # same topologies and same policies
                 query_answer.output_result = output_result_on_permit
@@ -1521,7 +1589,9 @@ class InterferesQuery(TwoNetworkConfigsQuery):
 
     def exec(self, cmd_line_flag):
         query_answer = self.is_identical_topologies()
-        if query_answer.output_result:
+        # before returning, we want to check the special case of istio layer of having same topology containing
+        # dns_entry peers with same exports to namespaces and ports, if not , we will continue with executing
+        if query_answer.output_result and self.is_identical_dns_entries_porting():
             query_answer.numerical_result = query_answer.bool_result if not cmd_line_flag \
                 else not query_answer.bool_result
             return query_answer
@@ -1543,6 +1613,16 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                 # we need to get config1.peer1 in order to get its correct connections (based on its prior-sidecar)
                 config1_peer1 = self.get_parallel_peer_in_other_config_if_needed(peer1, second_config=False)
                 _, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(config1_peer1, peer2)
+
+                if self.consider_dns_entry_peers and isinstance(peer2, DNSEntry):
+                    # a DNSEntry peer may be with same name in both configs but exported to different ports and namespaces
+                    # in each config, so we need to check, if there are any differences and compute the conns accordingly
+                    src_namespace = str(peer1.namespace)
+                    config1_dns, config2_dns = self.check_if_dns_entry_exported_differently(peer2, src_namespace)
+                    if config1_dns:
+                        _, captured2_flag, conns2_captured, _ = self.config2.allowed_connections(peer1, config2_dns)
+                        _, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(config1_peer1, config1_dns)
+
                 if captured1_flag and not conns1_captured.contained_in(conns2_captured):
                     extended_conns_list.append(PeersAndConnections(str(peer1), str(peer2), conns1_captured,
                                                                    conns2_captured))
@@ -1582,7 +1662,9 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
 
     def exec(self, cmd_line_flag=False, only_captured=True):
         query_answer = self.is_identical_topologies()
-        if query_answer.output_result:
+        # before returning, we want to check the special case of istio layer of having same topology containing
+        # dns_entry peers with same exports to namespaces and ports, if not , we will continue with executing
+        if query_answer.output_result and self.is_identical_dns_entries_porting():
             return query_answer
 
         peers_to_compare = self.config1.peer_container.get_all_peers_group(include_dns_entries=self.consider_dns_entry_peers)
@@ -1598,11 +1680,21 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                 conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1_flag:
                     continue
-                conns1 = conns1_captured if only_captured else conns1_all
                 # if config2 has Istio sidecar, then peer1's prior_sidecar may be different in each config,
                 # we need to get config2.peer1 in order to get its correct connections (based on its prior-sidecar)
                 config2_peer1 = self.get_parallel_peer_in_other_config_if_needed(peer1)
                 conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, peer2)
+
+                if self.consider_dns_entry_peers and isinstance(peer2, DNSEntry):
+                    # a DNSEntry peer may be with same name in both configs but exported to different ports and namespaces
+                    # in each config, so we need to check, if there are any differences and compute the conns accordingly
+                    src_namespace = str(peer1.namespace)
+                    config1_dns, config2_dns = self.check_if_dns_entry_exported_differently(peer2, src_namespace)
+                    if config1_dns:
+                        conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, config1_dns)
+                        conns2, _, _, _ = self.config2.allowed_connections(config2_peer1, config2_dns)
+
+                conns1 = conns1_captured if only_captured else conns1_all
                 conns_in_both = conns2 & conns1
                 if bool(conns_in_both):
                     intersect_connections_list.append(PeersAndConnections(str(peer1), str(peer2), conns_in_both))

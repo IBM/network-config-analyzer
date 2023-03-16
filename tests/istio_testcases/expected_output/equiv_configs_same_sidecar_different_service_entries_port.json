@@ -1,0 +1,54 @@
+[
+  {
+    "query": "equiv-same-sidecar-different-service-entries-port",
+    "configs": [
+      "sidecar-with-selector-allows-any",
+      "allow-all-sidecar-new-service-entry"
+    ],
+    "numerical_result": 1,
+    "textual_result": "sidecar-with-selector-allows-any and allow-all-sidecar-new-service-entry are not semantically equivalent.",
+    "explanation": [
+      {
+        "description": "Connections allowed in sidecar-with-selector-allows-any which are different in allow-all-sidecar-new-service-entry",
+        "connections": [
+          {
+            "src": "default/ratings-v1-1",
+            "dst": "*.newrelic.com",
+            "conns_config1": "Protocol: TCP, 443",
+            "conns_config2": "Protocol: TCP, 80"
+          },
+          {
+            "src": "default/ratings-v1-1",
+            "dst": "*.slack.com",
+            "conns_config1": "Protocol: TCP, 443",
+            "conns_config2": "Protocol: TCP, 80"
+          },
+          {
+            "src": "default/ratings-v1-1",
+            "dst": "*.wikipedia.org",
+            "conns_config1": "Protocol: TCP, 443",
+            "conns_config2": "Protocol: TCP, 80"
+          },
+          {
+            "src": "default/ratings-v1-1",
+            "dst": "api.dropboxapi.com",
+            "conns_config1": "Protocol: TCP, 443",
+            "conns_config2": "Protocol: TCP, 80"
+          },
+          {
+            "src": "default/ratings-v1-1",
+            "dst": "api.facebook.com",
+            "conns_config1": "Protocol: TCP, 443",
+            "conns_config2": "Protocol: TCP, 80"
+          },
+          {
+            "src": "default/ratings-v1-1",
+            "dst": "www.googleapis.com",
+            "conns_config1": "Protocol: TCP, 443",
+            "conns_config2": "Protocol: TCP, 80"
+          }
+        ]
+      }
+    ]
+  }
+]

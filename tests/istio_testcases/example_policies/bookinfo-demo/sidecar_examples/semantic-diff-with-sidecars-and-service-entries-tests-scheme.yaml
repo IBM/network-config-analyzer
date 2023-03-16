@@ -22,6 +22,12 @@ networkConfigList:
       - service_entry_resources/bookinfo-service-entry-1.yaml
       - sidecar-w-internal-external-services.yaml
 
+  - name: sidecar-with-selector-allows-any-less-hosts-different-port
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/external-https-services-less-hosts-and-different-port.yaml
+      - sidecar-allows-any.yaml
+
 queries:
   - name: semantic-diff-lost-conns-test
     # case of lost connections between an intersected peer (ratings) and ipBlocks due to changes in sidecars
@@ -38,3 +44,12 @@ queries:
       - sidecar-with-local-and-dns-hosts
     expectedOutput: ../../../expected_output/semantic_diff_sidecars_added_conns_test.txt
     expected: 1
+
+  - name: semantic-diff-removed-and-changed-conns
+    # the second config has common (less) dns-entries with the first but with another port
+    # we have case of 1- removed peer (dns-entries), 2- changed connections between persistent peers (pods-dns_entries)
+    semanticDiff:
+      - sidecar-with-selector-allows-any
+      - sidecar-with-selector-allows-any-less-hosts-different-port
+    expectedOutput: ../../../expected_output/semantic_diff_sidecars_removed_and_changed_conns.txt
+    expected: 3

@@ -2,6 +2,7 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+import itertools
 import re
 from sys import stderr
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, DNSEntry
@@ -44,6 +45,18 @@ class PeerContainer:
          :param PeerContainer other: the peer container to compare current with
         """
         return isinstance(other, PeerContainer) and self.peer_set == other.peer_set and self.services == other.services
+
+    def dns_entries_have_same_conns(self, other):
+        """
+        returns true if all the DNSEntry peers in both PeerContainers are exported equally to namespaces on same ports
+        :param PeerContainer other: the peer container to compare dns_entry peers of current with
+        :rtype: bool
+        """
+        for pair in itertools.product(self.peer_set, other.peer_set):
+            if pair[0] == pair[1] and isinstance(pair[0], DNSEntry):
+                if not pair[0].same_namespaces_ports(pair[1]):
+                    return False
+        return True
 
     def delete_all_namespaces(self):
         if self.get_num_peers() > 0:  # Only delete namespaces if no peers are present
