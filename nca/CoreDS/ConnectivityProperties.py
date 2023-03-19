@@ -534,7 +534,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         dst_ports = conn_cube.get_dim("dst_ports")
         dst_peers = conn_cube.get_dim("dst_peers")
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
-        if (not dst_ports.named_ports and not dst_ports.excluded_named_ports ) or not dst_peers:
+        if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or not dst_peers:
             # Should not resolve named ports
             return ConnectivityProperties(conn_cube)
 

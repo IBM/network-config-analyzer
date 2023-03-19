@@ -350,7 +350,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         return self._get_rule_peers(entity_rule), self._get_rule_ports(entity_rule, protocol_supports_ports)
 
-    def _parse_icmp(self, icmp_data, not_icmp_data, protocol, src_pods, dst_pods):
+    def _parse_icmp(self, icmp_data, not_icmp_data, protocol, src_pods, dst_pods):  # noqa: C901
         """
         Parse the icmp and notICMP parts of a rule
         :param dict icmp_data:
@@ -398,7 +398,6 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             opt_conn_cube.set_dims({"src_peers": src_pods, "dst_peers": dst_pods, "protocols": protocols})
             opt_not_conn_cube.set_dims({"src_peers": src_pods, "dst_peers": dst_pods, "protocols": protocols})
 
-        res = ConnectivityProperties.make_empty_props()
         opt_props = ConnectivityProperties.make_empty_props()
         if icmp_data is not None:
             res = ConnectivityProperties.make_conn_props(conn_cube)
@@ -424,7 +423,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                             ConnectivityProperties.make_conn_props(opt_not_conn_cube)
         else:  # no icmp_data or no_icmp_data; only protocol
             res = ConnectivityProperties.make_conn_props(conn_cube)
-            opt_props = ConnectivityProperties.make_conn_props(opt_conn_cube)
+            if self.optimized_run != 'false':
+                opt_props = ConnectivityProperties.make_conn_props(opt_conn_cube)
         return res, opt_props
 
     def _parse_protocol(self, protocol, rule):
