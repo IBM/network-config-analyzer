@@ -1,7 +1,8 @@
 import unittest
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.Peer import PeerSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 
 
 class TestNamedPorts(unittest.TestCase):
@@ -12,16 +13,19 @@ class TestNamedPorts(unittest.TestCase):
         src_res_ports = PortSet(True)
         dst_res_ports = PortSet()
         dst_res_ports.add_port("x")
-        tcp_properties1 = ConnectivityProperties(src_res_ports, dst_res_ports)
+        conn_cube = ConnectivityCube(PeerSet())
+        conn_cube.set_dims({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
+        tcp_properties1 = ConnectivityProperties(conn_cube)
         dst_res_ports2 = PortSet()
         dst_res_ports2.add_port("y")
-        tcp_properties2 = ConnectivityProperties(src_res_ports, dst_res_ports2)
+        conn_cube.set_dim("dst_ports", dst_res_ports2)
+        tcp_properties2 = ConnectivityProperties(conn_cube)
         tcp_properties_res = tcp_properties1 | tcp_properties2
         named_ports_dict = {"x": (15, 6), "z": (20, 6), "y": (16, 6)}
         tcp_properties_res.convert_named_ports(named_ports_dict, 6)
-        #print(tcp_properties_res)
+        # print(tcp_properties_res)
         cubes_list = tcp_properties_res._get_cubes_list_from_layers()
-        expected_res_cubes = [[CanonicalIntervalSet.get_interval_set(15,16)]]
+        expected_res_cubes = [[CanonicalIntervalSet.get_interval_set(15, 16)]]
         self.assertEqual(expected_res_cubes, cubes_list)
 
     def test_calico_flow_1(self):
@@ -35,7 +39,9 @@ class TestNamedPorts(unittest.TestCase):
         dst_res_ports.add_port("y")
         dst_res_ports.add_port("z")
         dst_res_ports.add_port("w")
-        tcp_properties = ConnectivityProperties(src_res_ports, dst_res_ports)
+        conn_cube = ConnectivityCube(PeerSet())
+        conn_cube.set_dims({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
+        tcp_properties = ConnectivityProperties(conn_cube)
         tcp_properties_2 = tcp_properties.copy()
 
         self.assertTrue(tcp_properties.has_named_ports())
@@ -66,7 +72,9 @@ class TestNamedPorts(unittest.TestCase):
         dst_res_ports = PortSet(True)
         dst_res_ports -= not_ports
         src_res_ports.add_port_range(1, 100)
-        tcp_properties = ConnectivityProperties(src_res_ports, dst_res_ports)
+        conn_cube = ConnectivityCube(PeerSet())
+        conn_cube.set_dims({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
+        tcp_properties = ConnectivityProperties(conn_cube)
         tcp_properties_2 = tcp_properties.copy()
 
         self.assertTrue(tcp_properties.has_named_ports())
