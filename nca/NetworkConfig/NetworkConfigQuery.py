@@ -795,21 +795,13 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
         return res
 
-    def compare_orig_to_opt_conn(self, orig_conn_graph, opt_props):
-        print("Converting orig_conn_graph to tcp_like_properties...")
-        orig_tcp_props = orig_conn_graph.convert_to_connectivity_properties(self.config.peer_container)
-        assert orig_tcp_props.contained_in(opt_props) and opt_props.contained_in(orig_tcp_props)  # workaround for ==
-        # The following assert exposes the bug in HC set
-        assert not orig_tcp_props.contained_in(opt_props) or not opt_props.contained_in(orig_tcp_props) or \
-               orig_tcp_props == opt_props
-
     def compare_fw_rules(self, fw_rules1, fw_rules2):
-        tcp_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, self.config.peer_container)
-        tcp_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, self.config.peer_container)
-        if tcp_props1 == tcp_props2:
+        conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, self.config.peer_container)
+        conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, self.config.peer_container)
+        if conn_props1 == conn_props2:
             print("Original and optimized fw-rules are semantically equivalent")
         else:
-            diff_prop = (tcp_props1 - tcp_props2) | (tcp_props2 - tcp_props1)
+            diff_prop = (conn_props1 - conn_props2) | (conn_props2 - conn_props1)
             if diff_prop.are_auto_conns():
                 print("Original and optimized fw-rules differ only in auto-connections")
             else:

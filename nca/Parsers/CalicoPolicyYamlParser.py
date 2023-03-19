@@ -9,7 +9,7 @@ from nca.CoreDS.Peer import PeerSet, IpBlock
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ICMPDataSet import ICMPDataSet
+from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy, CalicoPolicyRule
@@ -350,6 +350,27 @@ class CalicoPolicyYamlParser(GenericYamlParser):
 
         return self._get_rule_peers(entity_rule), self._get_rule_ports(entity_rule, protocol_supports_ports)
 
+    @staticmethod
+    def check_icmp_code_type_validity(icmp_type, icmp_code):
+        """
+        Checks that the type,code pair is a valid combination for an ICMP connection
+        :param int icmp_type: Connection type
+        :param int icmp_code: Connection code
+        :return: A string with an error if the pair is invalid. An empty string otherwise
+        :rtype: str
+        """
+        if icmp_code is not None and icmp_type is None:
+            return 'ICMP code cannot be specified without a type'
+
+        is_valid, err_message = DimensionsManager().validate_value_by_domain(icmp_type, 'icmp_type', 'ICMP type')
+        if not is_valid:
+            return err_message
+        if icmp_code is not None:
+            is_valid, err_message = DimensionsManager().validate_value_by_domain(icmp_code, 'icmp_code', 'ICMP code')
+            if not is_valid:
+                return err_message
+        return ''
+
     def _parse_icmp(self, icmp_data, not_icmp_data, protocol, src_pods, dst_pods):  # noqa: C901
         """
         Parse the icmp and notICMP parts of a rule
@@ -371,12 +392,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         allowed_keys = {'type': 0, 'code': 0}
         if icmp_data is not None:
             self.check_fields_validity(icmp_data, 'ICMP', allowed_keys)
-            err = ICMPDataSet.check_code_type_validity(icmp_type, icmp_code)
+            err = self.check_icmp_code_type_validity(icmp_type, icmp_code)
             if err:
                 self.syntax_error(err, icmp_data)
         if not_icmp_data is not None:
             self.check_fields_validity(not_icmp_data, 'notICMP', allowed_keys)
-            err = ICMPDataSet.check_code_type_validity(not_icmp_type, not_icmp_code)
+            err = self.check_icmp_code_type_validity(not_icmp_type, not_icmp_code)
             if err:
                 self.syntax_error(err, not_icmp_data)
 

@@ -213,7 +213,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
     """
 
     # TODO: change constructor defaults? either all arguments in "allow all" by default, or "empty" by default
-    def __init__(self, conn_cube, create_empty=False):
+    def __init__(self, conn_cube, create_empty=False, create_all=False):
         """
         This will create connectivity properties made of the given connectivity cube.
         This includes tcp properties, non-tcp properties, icmp data properties.
@@ -222,11 +222,14 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :param bool create_empty: whether to create an empty properties (representing logical False)
         """
         super().__init__(ConnectivityCube.dimensions_list)
-
+        assert not create_empty or not create_all
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.base_peer_set = conn_cube.base_peer_set.copy()
         if create_empty:
+            return
+        if create_all:  # optimization
+            self.set_all()
             return
 
         cube, active_dims, has_empty_dim_value = conn_cube.get_ordered_cube_and_active_dims()
@@ -577,7 +580,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         Returns all connectivity properties, representing logical True
         :return: ConnectivityProperties
         """
-        return ConnectivityProperties(ConnectivityCube(PeerSet()))
+        return ConnectivityProperties(ConnectivityCube(PeerSet()), create_all=True)
 
     def are_auto_conns(self):
         """
