@@ -788,11 +788,11 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 if self.config.optimized_run == 'debug' and fw_rules and fw_rules.fw_rules_map and \
                         opt_fw_rules and opt_fw_rules.fw_rules_map:
                     self.compare_fw_rules(fw_rules, opt_fw_rules)
-
-            if self.output_config.outputFormat in ['json', 'yaml']:
-                res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
-            else:
-                res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
+            if self.config.optimized_run == 'true':
+                if self.output_config.outputFormat in ['json', 'yaml']:
+                    res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
+                else:
+                    res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
         return res
 
     def compare_fw_rules(self, fw_rules1, fw_rules2):
