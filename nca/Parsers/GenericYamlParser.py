@@ -225,29 +225,6 @@ class GenericYamlParser:
         if not is_valid:
             self.syntax_error(err_message, array)
 
-    @staticmethod
-    def _get_connection_set_from_properties(peer_container, dest_ports, methods=MethodSet(True), paths_dfa=None,
-                                            hosts_dfa=None):
-        """
-        get ConnectionSet with allowed connections, corresponding to input properties cube
-        :param PeerContainer peer_container: the peer container
-        :param PortSet dest_ports: ports set for dset_ports dimension
-        :param MethodSet methods: methods set for methods dimension
-        :param MinDFA paths_dfa: MinDFA obj for paths dimension
-        :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
-        :return: ConnectionSet with allowed connections , corresponding to input properties cube
-        """
-        conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
-        conn_cube.set_dims({"dst_ports": dest_ports, "methods": methods})
-        if paths_dfa:
-            conn_cube.set_dim("paths", paths_dfa)
-        if hosts_dfa:
-            conn_cube.set_dim("hosts", hosts_dfa)
-        tcp_properties = ConnectivityProperties.make_conn_props(conn_cube)
-        res = ConnectionSet()
-        res.add_connections('TCP', tcp_properties)
-        return res
-
     def check_and_update_has_ipv6_addresses(self, peers):
         """
         checks if the peer list has ipv6 addresses

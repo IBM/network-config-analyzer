@@ -8,6 +8,8 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.Resources.IngressPolicy import IngressPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
@@ -62,43 +64,28 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         """
         return self._make_rules_from_conns(allowed_conns)
 
-    def _make_rules_from_conns(self, conn_props):
+    @staticmethod
+    def _make_rules_from_conns(conn_props):
         """
         Make IngressPolicyRules from the given connections
         :param ConnectivityProperties conn_props: the given connections
         :return: the list of IngressPolicyRules
         """
+        assert not conn_props.named_ports
+        assert not conn_props.excluded_named_ports
         peers_to_conns = {}
         res = []
         # extract peers dimension from cubes
         for cube in conn_props:
-            ports = None
-            paths = None
-            hosts = None
-            src_peer_set = None
-            dst_peer_set = None
-            for i, dim in enumerate(conn_props.active_dimensions):
-                if dim == "dst_ports":
-                    ports = cube[i]
-                elif dim == "paths":
-                    paths = cube[i]
-                elif dim == "hosts":
-                    hosts = cube[i]
-                elif dim == "src_peers":
-                    src_peer_set = conn_props.base_peer_set.get_peer_set_by_indices(cube[i])
-                elif dim == "dst_peers":
-                    dst_peer_set = conn_props.base_peer_set.get_peer_set_by_indices(cube[i])
-                else:
-                    assert False
+            conn_cube = conn_props.get_connectivity_cube(cube)
+            src_peer_set = conn_cube.get_dim("src_peers")
+            conn_cube.unset_dim("src_peers")
+            dst_peer_set = conn_cube.get_dim("dst_peers")
+            conn_cube.unset_dim("dst_peers")
             assert not src_peer_set
-            if not dst_peer_set:
-                dst_peer_set = self.peer_container.peer_set.copy()
-            port_set = PortSet()
-            port_set.port_set = ports
-            port_set.named_ports = conn_props.named_ports
-            port_set.excluded_named_ports = conn_props.excluded_named_ports
-            new_conns = self._get_connection_set_from_properties(self.peer_container, port_set, paths_dfa=paths,
-                                                                 hosts_dfa=hosts)
+            new_props = ConnectivityProperties.make_conn_props(conn_cube)
+            new_conns = ConnectionSet()
+            new_conns.add_connections('TCP', new_props)
             if peers_to_conns.get(dst_peer_set):
                 peers_to_conns[dst_peer_set] |= new_conns  # optimize conns for the same peers
             else:
