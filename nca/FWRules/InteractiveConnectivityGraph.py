@@ -4,13 +4,14 @@
 #
 
 import networkx
-from bs4 import BeautifulSoup
 import os
+import sys
 import shutil
 import itertools
 import copy
 from dataclasses import dataclass, field
 from collections import defaultdict
+from bs4 import BeautifulSoup
 import posixpath
 
 
@@ -114,8 +115,11 @@ class InteractiveConnectivityGraph:
             """
             read the file, and save is in soup object
             """
-            with open(self.input_svg_file) as cvg_file:
-                self.soup = BeautifulSoup(cvg_file.read(), 'xml')
+            try:
+                with open(self.input_svg_file) as cvg_file:
+                    self.soup = BeautifulSoup(cvg_file.read(), 'xml')
+            except Exception as e:
+                print(f'Failed to open file: {self.input_svg_file}\n{e} for reading', file=sys.stderr)
 
         def set_soup_tags_info(self):
             """
@@ -240,8 +244,11 @@ class InteractiveConnectivityGraph:
                 tag_file_name = os.path.join(self.output_directory, tag_info.t_id + '.svg')
             else:
                 tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.t_id + '.svg')
-            with open(tag_file_name, 'wb') as tag_cvg_file:
-                tag_cvg_file.write(tag_soup.prettify(encoding='utf-8'))
+            try:
+                with open(tag_file_name, 'wb') as tag_cvg_file:
+                    tag_cvg_file.write(tag_soup.prettify(encoding='utf-8'))
+            except Exception as e:
+                print(f'Failed to open file: {self.tag_cvg_file}\n{e} for writing', file=sys.stderr)
 
         def create_output(self, elements_relations):
             """
@@ -259,10 +266,14 @@ class InteractiveConnectivityGraph:
 
             param:  elements_relations dict {str: ElementRelations}: for each element list of relations and list of highlights
             """
-            if os.path.isdir(self.output_directory):
-                shutil.rmtree(self.output_directory)
-            os.mkdir(self.output_directory)
-            os.mkdir(os.path.join(self.output_directory, 'elements'))
+            try:
+                if os.path.isdir(self.output_directory):
+                    shutil.rmtree(self.output_directory)
+                os.mkdir(self.output_directory)
+                os.mkdir(os.path.join(self.output_directory, 'elements'))
+            except Exception as e:
+                print(f'Failed to create directory: {self.output_directory}\n{e} for writing', file=sys.stderr)
+                return
             for tag in self.soup.svg.find_all('a'):
                 tag_info = self._get_soup_tag_info(tag)
                 tag_soup = copy.copy(self.soup)
