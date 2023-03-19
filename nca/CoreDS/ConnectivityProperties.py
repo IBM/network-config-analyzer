@@ -303,6 +303,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                 values_list = str(dim_values)
             elif dim == "src_peers" or dim == "dst_peers":
                 values_list = self.base_peer_set.get_peer_set_by_indices(dim_values)
+                values_list = ','.join(str(peer.full_name()) for peer in values_list)
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = dim_values.get_interval_set_list_numbers_and_ranges()
                 if is_txt:
@@ -553,13 +554,13 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         assert dst_peers
         for peer in dst_peers:
             real_ports = ConnectivityProperties.resolve_named_ports(dst_ports.named_ports, peer, protocols)
+            if real_ports:
+                conn_cube.set_dims({"dst_ports": real_ports, "dst_peers": PeerSet({peer})})
+                conn_properties |= ConnectivityProperties(conn_cube)
             excluded_real_ports = ConnectivityProperties.resolve_named_ports(dst_ports.excluded_named_ports, peer, protocols)
-            real_ports -= excluded_real_ports
-            if not real_ports:
-                continue
-            conn_cube.set_dims({"dst_ports": real_ports, "dst_peers": PeerSet({peer})})
-            props = ConnectivityProperties(conn_cube)
-            conn_properties |= props
+            if excluded_real_ports:
+                conn_cube.set_dims({"dst_ports": excluded_real_ports, "dst_peers": PeerSet({peer})})
+                conn_properties -= ConnectivityProperties(conn_cube)
         return conn_properties
 
     @staticmethod
