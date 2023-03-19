@@ -415,7 +415,7 @@ class ConnectionSet:
         if protocol in self.allowed_protocols:
             self.allowed_protocols[protocol] |= properties
         else:
-            self.allowed_protocols[protocol] = properties
+            self.allowed_protocols[protocol] = properties if isinstance(properties, bool) else properties.copy()
 
     def remove_protocol(self, protocol):
         """
