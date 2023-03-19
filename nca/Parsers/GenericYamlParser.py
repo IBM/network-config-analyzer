@@ -6,9 +6,6 @@
 from sys import stderr
 from enum import Enum
 from nca.CoreDS.DimensionsManager import DimensionsManager
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
-from nca.CoreDS.MethodSet import MethodSet
-from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock
 from nca.Utils.NcaLogger import NcaLogger
 from nca.FileScanners.GenericTreeScanner import ObjectWithLocation
