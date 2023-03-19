@@ -183,7 +183,7 @@ class InteractiveConnectivityGraph:
         def get_elements_info(self):
             """
             read a the information from all soup tags
-            return: list of ElementInfo
+            return: list(ElementInformation): the information of each element
             """
             elements_info = [self._get_soup_tag_info(tag) for tag in self.soup.svg.find_all('a')]
             elements_info.append(InteractiveConnectivityGraph.ElementInfo('', '', '', ''))
@@ -256,6 +256,8 @@ class InteractiveConnectivityGraph:
             (2) remove from the duplicated soup all other tags which are not related to the tag.
             (3) highlights the tags that should be highlighted in the the duplicated soup
             (4) save the duplicated soup to an svg file
+
+            param:  elements_relations dict {str: ElementRelations}: for each element list of relations and list of highlights
             """
             if os.path.isdir(self.output_directory):
                 shutil.rmtree(self.output_directory)
@@ -353,14 +355,15 @@ class InteractiveConnectivityGraph:
             """
             (1a) creating objects of these classes for each element
             (1b) connecting between the objects using naming convention
+            param: elements_info: list(ElementInformation): the information of each element
             """
             self._create_graph_elements(elements_info)
             self._connect_graph_elements()
 
         def _create_graph_elements(self, elements_info):
             """
-            param: elements_info: list(ElementInformation): the information of each element
             creates an object for each element according to the element information
+            param: elements_info: list(ElementInformation): the information of each element
             """
             all_conns = set(t.t_conn for t in elements_info)
             for t_conn in all_conns:
@@ -509,10 +512,10 @@ class InteractiveConnectivityGraph:
 
         def _set_bicliques_relations(self, elements_relations):
             """
-            param: elements_relations: dict {str: ElementRelations} : the relation to update
             for each *src* node/edge of the biclique, we do not add all biclique, we just add all *dst* nodes+edges
             we also hightlights all biclique core elements with each other + relevant connectivity
 
+            param: elements_relations: dict {str: ElementRelations} : the relation to update
             """
             for biclique in self.graph.bicliques:
                 dst_edges_relations = set().union(*[elements_relations[e.t_id].relations for e in biclique.dst_edges])
