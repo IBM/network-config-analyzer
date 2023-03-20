@@ -2,9 +2,10 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-import re
+
 from dataclasses import dataclass
 from enum import Enum
+import string
 
 
 class DotGraph:
@@ -190,26 +191,30 @@ class DotGraph:
             self.labels_dict = {label: label for label in self.labels}
             return False
 
-        labels_tokens = {}
+        labels_short = {}
+        # for each label, the short will look like "tcp<port>" if there is a port, or "TCP" if there is no port
         for label in self.labels:
-            # todo - we might need a better approach splitting the labels to tokens
-            # we should revisit this code after reformatting connections labels
-            labels_tokens[label] = re.findall(r"[\w']+", label)
-        first_tokens = set(t[0] for t in labels_tokens.values())
-        for first_token in first_tokens:
-            token_labels = [label for label, tokens in labels_tokens.items() if tokens[0] == first_token]
-            if len(token_labels) == 1:
-                self.labels_dict[token_labels[0]] = first_token
-            else:
-                one_token_labels = [label for label in token_labels if labels_tokens[label] == [first_token]]
-                if len(one_token_labels) == 1:
-                    self.labels_dict[one_token_labels[0]] = first_token
-                    token_labels.remove(one_token_labels[0])
+            splitted_label = label.split(' ', 1)
+            label_type = splitted_label.pop(0)
+            label_port = splitted_label[0] if splitted_label else ''
+            if label_port.startswith('{'):
+                # we use only one 'dst_ports'.
+                connections = eval(f'[{label_port}]')
+                ports = [conn['dst_ports'] for conn in connections if 'dst_ports' in conn.keys()]
+                label_port = ports[0] if ports else ''
+                # 'dst_ports' can be too long (like 'port0,port1-port2' ) we trim it to the first port:
+                if len(label_port) > 6:
+                    label_port = label_port.split(',')[0].split('-')[0]
+            labels_short[label] = f'{label_type.lower()}{label_port}' if label_port else label_type
 
-                # we want sort the labels before giving each label its index:
-                token_labels.sort()
-                for label in token_labels:
-                    self.labels_dict[label] = f'{first_token}_{token_labels.index(label)}'
-                    # todo - maybe put another token instead of the index
-                    # we should revisit this code after reformatting connections labels
+        # for labels sharing the same short, we will add a letter to the end of the short:
+        for short in set(labels_short.values()):
+            short_labels = [label for label, l_short in labels_short.items() if l_short == short]
+            if len(short_labels) == 1:
+                self.labels_dict[short_labels[0]] = short
+            else:
+                # we want sort the labels before giving each label its letter:
+                short_labels.sort()
+                for label in short_labels:
+                    self.labels_dict[label] = f'{short}{string.ascii_lowercase[short_labels.index(label)]}'
         return True
