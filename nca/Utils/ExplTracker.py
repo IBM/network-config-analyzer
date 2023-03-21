@@ -123,8 +123,12 @@ class ExplTracker(metaclass=Singleton):
         if direction:
             out = [f'\n({direction}){node_name}:']
         for name in results:
-            out.append(f'{name}: line {self.ExplDescriptorContainer.get(name).get("line")} '
-                       f'in file {self.ExplDescriptorContainer.get(name).get("path")}')
+            path = self.ExplDescriptorContainer.get(name).get("path")
+            if path == '':  # special element (like Default Policy)
+                out.append(f'{name}')
+            else:
+                out.append(f'{name}: line {self.ExplDescriptorContainer.get(name).get("line")} '
+                           f'in file {path}')
         return out
 
     def explain(self, nodes):
