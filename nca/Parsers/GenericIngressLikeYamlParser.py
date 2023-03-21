@@ -8,7 +8,8 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.Resources.IngressPolicy import IngressPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
@@ -39,8 +40,11 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         if regex_value is None:
             return None  # to represent that all is allowed, and this dimension can be inactive in the generated cube
 
+        if regex_value == '*':
+            return DimensionsManager().get_dimension_domain_by_name('hosts')
+
         allowed_chars = "[\\w]"
-        allowed_chars_with_star_regex = "[*" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        allowed_chars_with_star_regex = "[*" + MinDFA.default_dfa_alphabet_chars + "]*"
         if not re.fullmatch(allowed_chars_with_star_regex, regex_value):
             self.syntax_error(f'Illegal characters in host {regex_value}', rule)
 
@@ -55,47 +59,33 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
     def _make_allow_rules(self, allowed_conns):
         """
         Make deny rules from the given connections
-        :param TcpLikeProperties allowed_conns: the given allowed connections
+        :param ConnectivityProperties allowed_conns: the given allowed connections
         :return: the list of deny IngressPolicyRules
         """
         return self._make_rules_from_conns(allowed_conns)
 
-    def _make_rules_from_conns(self, tcp_conns):
+    @staticmethod
+    def _make_rules_from_conns(conn_props):
         """
         Make IngressPolicyRules from the given connections
-        :param TcpLikeProperties tcp_conns: the given connections
+        :param ConnectivityProperties conn_props: the given connections
         :return: the list of IngressPolicyRules
         """
+        assert not conn_props.named_ports
+        assert not conn_props.excluded_named_ports
         peers_to_conns = {}
         res = []
         # extract peers dimension from cubes
-        for cube in tcp_conns:
-            ports = None
-            paths = None
-            hosts = None
-            src_peer_set = None
-            dst_peer_set = None
-            for i, dim in enumerate(tcp_conns.active_dimensions):
-                if dim == "dst_ports":
-                    ports = cube[i]
-                elif dim == "paths":
-                    paths = cube[i]
-                elif dim == "hosts":
-                    hosts = cube[i]
-                elif dim == "src_peers":
-                    src_peer_set = tcp_conns.base_peer_set.get_peer_set_by_indices(cube[i])
-                elif dim == "dst_peers":
-                    dst_peer_set = tcp_conns.base_peer_set.get_peer_set_by_indices(cube[i])
-                else:
-                    assert False
+        for cube in conn_props:
+            conn_cube = conn_props.get_connectivity_cube(cube)
+            src_peer_set = conn_cube["src_peers"]
+            conn_cube.unset_dim("src_peers")
+            dst_peer_set = conn_cube["dst_peers"]
+            conn_cube.unset_dim("dst_peers")
             assert not src_peer_set
-            if not dst_peer_set:
-                dst_peer_set = self.peer_container.peer_set.copy()
-            port_set = PortSet()
-            port_set.port_set = ports
-            port_set.named_ports = tcp_conns.named_ports
-            port_set.excluded_named_ports = tcp_conns.excluded_named_ports
-            new_conns = self._get_connection_set_from_properties(port_set, paths_dfa=paths, hosts_dfa=hosts)
+            new_props = ConnectivityProperties.make_conn_props(conn_cube)
+            new_conns = ConnectionSet()
+            new_conns.add_connections('TCP', new_props)
             if peers_to_conns.get(dst_peer_set):
                 peers_to_conns[dst_peer_set] |= new_conns  # optimize conns for the same peers
             else:
@@ -103,3 +93,18 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         for peer_set, conns in peers_to_conns.items():
             res.append(IngressPolicyRule(peer_set, conns))
         return res
+
+    @staticmethod
+    def get_path_prefix_dfa(path_string):
+        """
+        Given a prefix path, get its MinDFA that accepts all relevant paths
+        :param str path_string: a path string from policy, specified as Prefix
+        :rtype MinDFA
+        """
+        if path_string == '/':
+            return DimensionsManager().get_dimension_domain_by_name('paths')
+        allowed_chars = "[" + MinDFA.default_dfa_alphabet_chars + "]"
+        if path_string.endswith('/'):
+            path_string = path_string[:-1]
+        path_regex = f'{path_string}(/{allowed_chars}*)?'
+        return MinDFA.dfa_from_regex(path_regex)

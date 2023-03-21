@@ -26,7 +26,7 @@ class SchemeRunner(GenericYamlParser):
             self.output_config_from_cli_args['outputFormat'] = output_format
         if output_path is not None:
             self.output_config_from_cli_args['outputPath'] = output_path
-        self.optimized_run=optimized_run
+        self.optimized_run = optimized_run
 
         scanner = TreeScannerFactory.get_scanner(scheme_file_name)
         for yaml_file in scanner.get_yamls():

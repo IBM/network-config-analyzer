@@ -25,7 +25,7 @@ class PoliciesFinder:
         self.policies_container = PoliciesContainer()
         self._parse_queue = deque()
         self.peer_container = None
-        self.optimized_run=optimized_run
+        self.optimized_run = optimized_run
         # following missing resources fields are relevant for "livesim" mode,
         # where certain resources are added to enable the analysis
         self.missing_istio_gw_pods_with_labels = {}
@@ -66,7 +66,7 @@ class PoliciesFinder:
         """
         self.policies_container.append_policy(policy)
 
-    def parse_policies_in_parse_queue(self):
+    def parse_policies_in_parse_queue(self):  # noqa: C901
         istio_traffic_parser = None
         istio_sidecar_parser = None
         for policy, file_name, policy_type in self._parse_queue:

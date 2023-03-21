@@ -4,12 +4,11 @@
 #
 
 from functools import reduce
-from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -225,9 +224,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         if items[0][0] == 'exact':
             pass
         elif items[0][0] == 'prefix':
-            regex += DimensionsManager().default_dfa_alphabet_str
+            if attr_name == 'uri':
+                return self.get_path_prefix_dfa(regex)
+            regex += MinDFA.default_alphabet_regex
         elif items[0][0] == 'regex':
-            regex.replace('.', DimensionsManager().default_dfa_alphabet_chars)
+            regex.replace('.', MinDFA.default_dfa_alphabet_chars)
             if attr_name == 'uri' and resource.get('ignoreUriCase') == 'True':
                 # https://github.com/google/re2/wiki/Syntax#:~:text=group%3B%20non%2Dcapturing-,(%3Fflags%3Are),-set%20flags%20during
                 regex = '(?i:' + regex + ')'
@@ -264,6 +265,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             methods = self.parse_istio_regex_string(item, 'method', vs.full_name())
             if methods:
                 parsed_route.add_methods(methods)
+            else:
+                parsed_route.add_methods(MethodSet(True))
 
     def parse_http_route_destinations(self, route, parsed_route, vs):
         """
@@ -333,16 +336,16 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         Create allowed connections of the given VirtualService
         :param VirtualService vs: the given VirtualService and the given hosts
         :param MinDFA host_dfa: the hosts attribute
-        :return: TcpLikeProperties with TCP allowed connections
+        :return: ConnectivityProperties with allowed connections
         """
-        allowed_conns = TcpLikeProperties.make_empty_properties(self.peer_container)
+        allowed_conns = ConnectivityProperties.make_empty_props()
         for http_route in vs.http_routes:
+            conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+            conn_cube.update({"paths": http_route.uri_dfa, "hosts": host_dfa, "methods": http_route.methods})
             for dest in http_route.destinations:
+                conn_cube.update({"dst_ports": dest.port, "dst_peers": dest.service.target_pods})
                 conns = \
-                    TcpLikeProperties.make_tcp_like_properties(self.peer_container, dst_ports=dest.port,
-                                                               dst_peers=dest.service.target_pods,
-                                                               paths_dfa=http_route.uri_dfa, hosts_dfa=host_dfa,
-                                                               methods=http_route.methods)
+                    ConnectivityProperties.make_conn_props(conn_cube)
                 allowed_conns |= conns
         return allowed_conns
 
@@ -394,10 +397,10 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 allowed_conns = self.make_allowed_connections(vs, host_dfa)
                 if allowed_conns:
                     res_policy.add_rules(self._make_allow_rules(allowed_conns))
-                    protocols = ProtocolSet()
-                    protocols.add_protocol('TCP')
-                    allowed_conns &= TcpLikeProperties.make_tcp_like_properties(self.peer_container, protocols=protocols,
-                                                                                src_peers=res_policy.selected_peers)
+                    protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
+                    conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+                    conn_cube.update({"protocols": protocols, "src_peers": res_policy.selected_peers})
+                    allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)
                     res_policy.add_optimized_egress_props(allowed_conns)
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)

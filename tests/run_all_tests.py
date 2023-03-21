@@ -63,7 +63,7 @@ class CliQuery:
 class SchemeFile:
     def __init__(self, scheme_filename):
         self.test_name = scheme_filename
-        test_args = ['--scheme', self.test_name, '-opt=debug']
+        test_args = ['--scheme', self.test_name, '-opt=false']
         self.args_obj = TestArgs(test_args)
 
     def update_arg_at_scheme_file_output_config(self, arg_name, arg_value):

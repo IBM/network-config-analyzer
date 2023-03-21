@@ -7,7 +7,7 @@ import re
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -310,9 +310,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
         :param dict rule: The rule to parse
         :param str peer_array_key: The key which defined the peer set ('from' for ingress, 'to' for egress)
         :param Peer.PeerSet policy_selected_pods: The set of pods the policy applies to
-        :return: A tuple (K8sPolicyRule, TcpLikeProperties) with the proper PeerSet and attributes, where
-        TcpLikeProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
-        :rtype: tuple(K8sPolicyRule, TcpLikeProperties)
+        :return: A tuple (K8sPolicyRule, ConnectivityProperties) with the proper PeerSet and attributes, where
+        ConnectivityProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
+        :rtype: tuple(K8sPolicyRule, ConnectivityProperties)
         """
         self.check_fields_validity(rule, 'ingress/egress rule', {peer_array_key: [0, list], 'ports': [0, list]})
         peer_array = rule.get(peer_array_key, [])
@@ -330,7 +330,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             src_pods = policy_selected_pods
             dst_pods = res_pods
 
-        res_opt_props = TcpLikeProperties.make_empty_properties(self.peer_container)  # TcpLikeProperties
+        res_opt_props = ConnectivityProperties.make_empty_props()
         ports_array = rule.get('ports', [])
         if ports_array:
             res_conns = ConnectionSet()
@@ -338,23 +338,21 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 protocol, dest_port_set = self.parse_port(port)
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
-                res_conns.add_connections(protocol, TcpLikeProperties.make_tcp_like_properties(
-                    self.peer_container, dst_ports=dest_port_set))  # K8s doesn't reason about src ports
+                conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+                conn_cube["dst_ports"] = dest_port_set
+                # K8s doesn't reason about src ports
+                res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 if self.optimized_run != 'false' and src_pods and dst_pods:
-                    protocols = ProtocolSet()
-                    protocols.add_protocol(protocol)
-                    dest_num_port_set = PortSet()
-                    dest_num_port_set.port_set = dest_port_set.port_set.copy()
-                    tcp_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                           dst_ports=dest_num_port_set,
-                                                                           protocols=protocols,
-                                                                           src_peers=src_pods, dst_peers=dst_pods)
-                    res_opt_props |= tcp_props
+                    protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
+                    conn_cube.update({"protocols": protocols, "src_peers": src_pods, "dst_peers": dst_pods})
+                    conn_props = ConnectivityProperties.make_conn_props(conn_cube)
+                    res_opt_props |= conn_props
         else:
             res_conns = ConnectionSet(True)
-            if self.optimized_run != 'false' and src_pods and dst_pods:
-                res_opt_props = TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                                           src_peers=src_pods, dst_peers=dst_pods)
+            if self.optimized_run != 'false':
+                conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+                conn_cube.update({"src_peers": src_pods, "dst_peers": dst_pods})
+                res_opt_props = ConnectivityProperties.make_conn_props(conn_cube)
         if not res_pods:
             self.warning('Rule selects no pods', rule)
 
@@ -392,9 +390,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
         Also, checking validity of named ports w.r.t. the policy's captured pods
         :param dict rule: The dict with the rule fields
         :param Peer.PeerSet policy_selected_pods: The set of pods the policy applies to
-        :return: A tuple (K8sPolicyRule, TcpLikeProperties) with the proper PeerSet and attributes, where
-        TcpLikeProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
-        :rtype: tuple(K8sPolicyRule, TcpLikeProperties)
+        :return: A tuple (K8sPolicyRule, ConnectivityProperties) with the proper PeerSet and attributes, where
+        ConnectivityProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
+        :rtype: tuple(K8sPolicyRule, ConnectivityProperties)
         """
         res_rule, res_opt_props = self.parse_ingress_egress_rule(rule, 'from', policy_selected_pods)
         self.verify_named_ports(rule, policy_selected_pods, res_rule.port_set)
@@ -406,9 +404,9 @@ class K8sPolicyYamlParser(GenericYamlParser):
         Also, checking validity of named ports w.r.t. the rule's peer set
         :param dict rule: The dict with the rule fields
         :param Peer.PeerSet policy_selected_pods: The set of pods the policy applies to
-        :return: A tuple (K8sPolicyRule, TcpLikeProperties) with the proper PeerSet and attributes, where
-        TcpLikeProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
-        :rtype: tuple(K8sPolicyRule, TcpLikeProperties)
+        :return: A tuple (K8sPolicyRule, ConnectivityProperties) with the proper PeerSet and attributes, where
+        ConnectivityProperties is an optimized rule format with protocols, src_peers and dst_peers in a HyperCubeSet
+        :rtype: tuple(K8sPolicyRule, ConnectivityProperties)
         """
         res_rule, res_opt_props = self.parse_ingress_egress_rule(rule, 'to', policy_selected_pods)
         self.verify_named_ports(rule, res_rule.peer_set, res_rule.port_set)

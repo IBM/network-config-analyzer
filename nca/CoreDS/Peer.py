@@ -149,10 +149,11 @@ class Pod(ClusterEP):
         self.owner_name = owner_name
         self.service_account_name = service_account_name
         self.full_name_str = self.namespace.name + '/' + self.name
-
+        self.replicaset_name = None
         if not owner_name:  # no owner
             self.workload_name = f'{namespace.name}/{name}(Pod)'
         elif owner_kind == 'ReplicaSet':
+            self.replicaset_name = f'{namespace.name}/{owner_name}(ReplicaSet)'
             # if owner name ends with hex-suffix, assume the pod is generated indirectly
             # by Deployment or StatefulSet; and remove the hex-suffix from workload name
             suffix = owner_name[owner_name.rfind('-') + 1:]
@@ -315,25 +316,30 @@ class IpBlock(Peer, CanonicalIntervalSet):
         cidr_list = self.get_cidr_list()
         return ','.join(str(cidr) for cidr in cidr_list)
 
-    def get_ip_range_or_cidr_str(self):
+    def get_ip_range_or_cidr_str(self, range_only=False):
         """
         Get str for self with shorter notation - either as ip range or as cidr
+        :param bool range_only: indicates if to return the self str as ip range only
         :rtype str
         """
         num_cidrs = len(self.get_cidr_list())
         num_ranges = len(self.interval_set)
-        if num_ranges * 2 <= num_cidrs:
+        if num_ranges * 2 <= num_cidrs or range_only:
             return str(self)
         return self.get_cidr_list_str()
 
     @staticmethod
-    def get_all_ips_block(exclude_ipv6=False):
+    def get_all_ips_block(exclude_ipv6=False, exclude_ipv4=False):
         """
         :return: The full range of ipv4 and ipv6 addresses if exclude_ipv6 is False
         :param bool exclude_ipv6: indicates if to exclude the IPv6 addresses
+        :param bool exclude_ipv4: indicates if to exclude the IPv4 addresses
         :rtype: IpBlock
         """
-        res = IpBlock('0.0.0.0/0')
+        assert not exclude_ipv6 or not exclude_ipv4
+        res = IpBlock()
+        if not exclude_ipv4:
+            res.add_cidr('0.0.0.0/0')
         if not exclude_ipv6:
             res.add_cidr('::/0')
         return res
@@ -346,7 +352,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
         :rtype: PeerSet
         """
         res = PeerSet()
-        res.add(IpBlock.get_all_ips_block(exclude_ipv6))
+        res.add(IpBlock.get_all_ips_block(exclude_ipv6=exclude_ipv6))
         return res
 
     def split(self):
@@ -474,19 +480,20 @@ class PeerSet(set):
 
     ipv4_highest_number = int(ip_network('0.0.0.0/0').broadcast_address)
     ipv6_highest_number = int(ip_network('::/0').broadcast_address)
-    pod_highest_number = 9999  # assuming maximum 10,000 pods
+    max_num_of_pods = 10000
     gap_width = 5  # the gap is needed to avoid mixed-type intervals union
     min_ipv4_index = 0
     max_ipv4_index = min_ipv4_index + ipv4_highest_number
     min_ipv6_index = max_ipv4_index + gap_width
     max_ipv6_index = min_ipv6_index + ipv6_highest_number
     min_pod_index = max_ipv6_index + gap_width
-    max_pod_index = min_pod_index + pod_highest_number
+    max_pod_index = min_pod_index + max_num_of_pods - 1
 
     def __init__(self, peer_set=None):
         super().__init__(peer_set or set())
         self.sorted_peer_list = []  # for converting PeerSet to CanonicalIntervalSet
         self.last_size_when_updated_sorted_peer_list = 0
+        assert len(self.get_set_without_ip_block()) <= self.max_num_of_pods
 
     def __contains__(self, item):
         if isinstance(item, IpBlock):  # a special check here because an IpBlock may be contained in another IpBlock
@@ -535,10 +542,14 @@ class PeerSet(set):
         return res
 
     def __ior__(self, other):
-        return PeerSet(super().__ior__(other))
+        res = PeerSet(super().__ior__(other))
+        assert len(res.get_set_without_ip_block()) <= self.max_num_of_pods
+        return res
 
     def __or__(self, other):
-        return PeerSet(super().__or__(other))
+        res = PeerSet(super().__or__(other))
+        assert len(res.get_set_without_ip_block()) <= self.max_num_of_pods
+        return res
 
     def __isub__(self, other):
         # subtraction on IpBlocks
@@ -670,18 +681,25 @@ class PeerSet(set):
                     peer_list.append(self.sorted_peer_list[ind])
         return PeerSet(set(peer_list))
 
-    @staticmethod
-    def remove_ipv6_full_block(peer_set):
-        res = PeerSet()
-        for peer in peer_set:
+    def filter_ipv6_blocks(self, ip_blocks_mask):
+        """
+        Update ip blocks in the peer set by keeping only parts overlapping with the given mask.
+        :param ip_blocks_mask: the mask according to which ip blocks should be updated
+        """
+        peers_to_remove = []
+        peers_to_add = []
+        for peer in self:
             if isinstance(peer, IpBlock):
-                peer.remove_cidr('::/0')
-                if peer:
-                    res.add(peer)
-            else:
-                res.add(peer)
-        return res
+                peers_to_remove.append(peer)
+                if peer.overlaps(ip_blocks_mask):
+                    new_peer = peer.copy()
+                    new_peer &= ip_blocks_mask
+                    peers_to_add.append(new_peer)
 
+        for peer in peers_to_remove:
+            self.remove(peer)
+        for peer in peers_to_add:
+            self.add(peer)
 
 
 def by_full_name(elem):

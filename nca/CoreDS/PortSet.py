@@ -56,6 +56,9 @@ class PortSet:
             interval = CanonicalIntervalSet.Interval(port, port)
             self.port_set.add_interval(interval)
 
+    def add_ports(self, port_set):
+        self.port_set |= port_set
+
     def remove_port(self, port):
         if isinstance(port, str):
             self.named_ports.discard(port)

@@ -7,7 +7,7 @@ from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
 from nca.Resources.NetworkPolicy import PolicyConnections, NetworkPolicy
@@ -109,7 +109,7 @@ class NetworkLayersContainer(dict):
         Get allowed connections between for all relevant peers for an empty layer (no policies).
         :param PeerContainer peer_container: holds all the peers
         :param NetworkLayerName layer_name: The empty layer name
-        :rtype: TcpLikeProperties
+        :rtype: ConnectivityProperties
         """
         empty_layer_obj = layer_name.create_network_layer([])
         return empty_layer_obj.allowed_connections_optimized(peer_container)
@@ -172,20 +172,21 @@ class NetworkLayer:
         considering all layer's policies (and defaults)
         :param PeerContainer peer_container: the peer container holding the peers
         :return: all allowed connections
-        :rtype: TcpLikeProperties
+        :rtype: ConnectivityProperties
         """
         all_pods = peer_container.get_all_peers_group()
         all_ips_peer_set = PeerSet({IpBlock.get_all_ips_block()})
+        conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
+        conn_cube.update({"src_peers": all_pods, "dst_peers": all_ips_peer_set})
         allowed_ingress_conns, denied_ingres_conns = self._allowed_xgress_conns_optimized(True, peer_container)
-        allowed_ingress_conns |= TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=all_pods,
-                                                                            dst_peers=all_ips_peer_set)
+        allowed_ingress_conns |= ConnectivityProperties.make_conn_props(conn_cube)
         allowed_egress_conns, denied_egress_conns = self._allowed_xgress_conns_optimized(False, peer_container)
-        allowed_egress_conns |= TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=all_ips_peer_set,
-                                                                            dst_peers=all_pods)
+        conn_cube.update({"src_peers": all_ips_peer_set, "dst_peers": all_pods})
+        allowed_egress_conns |= ConnectivityProperties.make_conn_props(conn_cube)
         res = allowed_ingress_conns & allowed_egress_conns
         # exclude IpBlock->IpBlock connections
-        excluded_conns = TcpLikeProperties.make_tcp_like_properties(peer_container, src_peers=all_ips_peer_set,
-                                                                    dst_peers=all_ips_peer_set)
+        conn_cube.update({"src_peers": all_ips_peer_set, "dst_peers": all_ips_peer_set})
+        excluded_conns = ConnectivityProperties.make_conn_props(conn_cube)
         res -= excluded_conns
         return res
 
@@ -241,10 +242,10 @@ class NetworkLayer:
         :param captured_func: callable that returns True if the policy satisfies additional conditions required for
          considering captured pods instead of applying the default connections.
         :return: allowed_conns, denied_conns and set of peers to be added to captured peers
-        :rtype: tuple (TcpLikeProperties, TcpLikeProperties, PeerSet)
+        :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
-        allowed_conns = TcpLikeProperties.make_empty_properties()
-        denied_conns = TcpLikeProperties.make_empty_properties()
+        allowed_conns = ConnectivityProperties.make_empty_props()
+        denied_conns = ConnectivityProperties.make_empty_props()
         captured = PeerSet()
         for policy in self.policies_list:
             # Track the peers that were affected by this policy
@@ -256,18 +257,19 @@ class NetworkLayer:
                                               )
             policy_allowed_conns, policy_denied_conns, policy_captured = \
                 policy.allowed_connections_optimized(is_ingress)
-            if policy_captured: # not empty
+            if policy_captured:  # not empty
                 policy_denied_conns -= allowed_conns
-                #policy_denied_conns -= pass_conns  # Preparation for handling of pass
+                # policy_denied_conns -= pass_conns  # Preparation for handling of pass
                 policy_allowed_conns -= denied_conns
-                #policy_allowed_conns -= pass_conns  # Preparation for handling of pass
-                #policy_pass_conns -= denied_conns
-                #policy_pass_conns -= allowed_conns
-                #pass_conns |= policy_pass_conns
+                # policy_allowed_conns -= pass_conns  # Preparation for handling of pass
+                # policy_pass_conns -= denied_conns
+                # policy_pass_conns -= allowed_conns
+                # pass_conns |= policy_pass_conns
                 allowed_conns |= policy_allowed_conns
                 denied_conns |= policy_denied_conns
                 if captured_func(policy):
                     captured |= policy_captured
+
         return allowed_conns, denied_conns, captured
 
 
@@ -301,17 +303,12 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         base_peer_set_no_hep = PeerSet(set([peer for peer in base_peer_set_no_ip if not isinstance(peer, HostEP)]))
         non_captured = base_peer_set_no_hep - captured
         if non_captured:
+            conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
             if is_ingress:
-                non_captured_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                               src_peers=base_peer_set_with_ip,
-                                                               dst_peers=non_captured)
+                conn_cube.update({"src_peers": base_peer_set_with_ip, "dst_peers": non_captured})
             else:
-                non_captured_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                               src_peers=non_captured,
-                                                               dst_peers=base_peer_set_with_ip)
-
+                conn_cube.update({"src_peers": non_captured, "dst_peers": base_peer_set_with_ip})
+            non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             ExplTracker().add_default_policy(non_captured_conns.project_on_one_dimension('dst_peers'),
                                              non_captured_conns.project_on_one_dimension('src_peers'),
                                              is_ingress
@@ -341,27 +338,22 @@ class IstioNetworkLayer(NetworkLayer):
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
-        allowed_conn, denied_conns, captured = self.collect_policies_conns_optimized(is_ingress,
-                                                                                     IstioNetworkLayer.captured_cond_func)
+        allowed_conn, denied_conns, captured = \
+            self.collect_policies_conns_optimized(is_ingress, IstioNetworkLayer.captured_cond_func)
         base_peer_set_with_ip = peer_container.get_all_peers_group(True)
         base_peer_set_no_ip = peer_container.get_all_peers_group()
         non_captured_peers = base_peer_set_no_ip - captured
+        conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
         if non_captured_peers:
             if is_ingress:
-                non_captured_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                               src_peers=base_peer_set_with_ip,
-                                                               dst_peers=non_captured_peers)
+                conn_cube.update({"src_peers": base_peer_set_with_ip, "dst_peers": non_captured_peers})
             else:
-                non_captured_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                               src_peers=non_captured_peers,
-                                                               dst_peers=base_peer_set_with_ip)
+                conn_cube.update({"src_peers": non_captured_peers, "dst_peers": base_peer_set_with_ip})
+            non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             allowed_conn |= (non_captured_conns - denied_conns)
-        allowed_conn |= TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                                   protocols=ProtocolSet.get_non_tcp_protocols(),
-                                                                   src_peers=base_peer_set_with_ip,
-                                                                   dst_peers=base_peer_set_with_ip)
+        conn_cube.update({"src_peers": base_peer_set_with_ip, "dst_peers": base_peer_set_with_ip,
+                          "protocols": ProtocolSet.get_non_tcp_protocols()})
+        allowed_conn |= ConnectivityProperties.make_conn_props(conn_cube)
         return allowed_conn, denied_conns
 
 
@@ -382,18 +374,15 @@ class IngressNetworkLayer(NetworkLayer):
         allowed_conn, denied_conns, captured = self.collect_policies_conns_optimized(is_ingress)
         base_peer_set_with_ip = peer_container.get_all_peers_group(True)
         base_peer_set_no_ip = peer_container.get_all_peers_group()
+        conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
         if is_ingress:
-            non_captured_conns = \
-                TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                           src_peers=base_peer_set_with_ip,
-                                                           dst_peers=base_peer_set_no_ip)
+            conn_cube.update({"src_peers": base_peer_set_with_ip, "dst_peers": base_peer_set_no_ip})
+            non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             allowed_conn |= non_captured_conns
         else:
             non_captured_peers = base_peer_set_no_ip - captured
             if non_captured_peers:
-                non_captured_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(peer_container,
-                                                               src_peers=non_captured_peers,
-                                                               dst_peers=base_peer_set_with_ip)
+                conn_cube.update({"src_peers": non_captured_peers, "dst_peers": base_peer_set_with_ip})
+                non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
                 allowed_conn |= non_captured_conns
         return allowed_conn, denied_conns

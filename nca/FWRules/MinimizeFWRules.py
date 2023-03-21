@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from collections import defaultdict
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP
 from .FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
@@ -673,7 +672,8 @@ class MinimizeFWRules:
             query_name += ', config: ' + self.output_config.configName
         output_format = self.output_config.outputFormat
         if output_format not in FWRule.supported_formats:
-            print(f'error: unexpected outputFormat in output configuration value [should be txt/yaml/csv],  '
+            supported_formats_joined = '\\'.join(FWRule.supported_formats)
+            print(f'error: unexpected outputFormat in output configuration value [should be {supported_formats_joined}], '
                   f'value is: {output_format}')
         return self.get_fw_rules_content(query_name, output_format, add_txt_header, add_csv_header, connectivity_restriction)
 

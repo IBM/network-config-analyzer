@@ -8,7 +8,7 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -37,7 +37,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
     def validate_path_value(self, path_value, path):
         if path_value[0] != '/':
             self.syntax_error(f'Illegal path {path_value} in the rule path', path)
-        pattern = "[" + DimensionsManager().default_dfa_alphabet_chars + "]*"
+        pattern = "[" + MinDFA.default_dfa_alphabet_chars + "]*"
         if not re.fullmatch(pattern, path_value):
             self.syntax_error(f'Illegal characters in path {path_value} in {path}')
 
@@ -151,16 +151,13 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         """
         # first, convert path strings to dfas
         parsed_paths_with_dfa = []
-        allowed_chars = "[" + DimensionsManager().default_dfa_alphabet_chars + "]"
         for path_string, path_type, peers, ports in parsed_paths:
             if path_type == 'Exact':
-                path_regex = path_string
-            else:
-                if path_string:
-                    path_regex = path_string + '|' + path_string + '/' + allowed_chars + '*'
-                else:
-                    path_regex = '/' + allowed_chars + '*'
-            parsed_paths_with_dfa.append((path_string, MinDFA.dfa_from_regex(path_regex), path_type, peers, ports))
+                path_dfa = MinDFA.dfa_from_regex(path_string)
+            else:  # Prefix type
+                path_string = '/' if not path_string else path_string
+                path_dfa = GenericIngressLikeYamlParser.get_path_prefix_dfa(path_string)
+            parsed_paths_with_dfa.append((path_string, path_dfa, path_type, peers, ports))
 
         # next, avoid shorter sub-paths to extend to longer ones, using dfa operations
         res = []
@@ -186,29 +183,26 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         Creates default backend connections for given hosts and paths
         :param MinDFA hosts_dfa: the hosts for the default connections
         :param MinDFA paths_dfa: the paths for the default connections
-        :return: TcpLikeProperties containing default connections or None (when no default backend exists)
+        :return: ConnectivityProperties containing default connections or None (when no default backend exists)
         """
-        default_conns = TcpLikeProperties.make_empty_properties(self.peer_container)
+        default_conns = ConnectivityProperties.make_empty_props()
         if self.default_backend_peers:
+            conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+            conn_cube.update({"dst_ports": self.default_backend_ports, "dst_peers": self.default_backend_peers})
+            if hosts_dfa:
+                conn_cube["hosts"] = hosts_dfa
             if paths_dfa:
-                default_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                               dst_ports=self.default_backend_ports,
-                                                               dst_peers=self.default_backend_peers,
-                                                               paths_dfa=paths_dfa, hosts_dfa=hosts_dfa)
+                conn_cube["paths"] = paths_dfa
+                default_conns = ConnectivityProperties.make_conn_props(conn_cube)
             else:
-                default_conns = \
-                    TcpLikeProperties.make_tcp_like_properties(self.peer_container,
-                                                               dst_ports=self.default_backend_ports,
-                                                               dst_peers=self.default_backend_peers,
-                                                               hosts_dfa=hosts_dfa)
+                default_conns = ConnectivityProperties.make_conn_props(conn_cube)
         return default_conns
 
     def parse_rule(self, rule):
         """
         Parses a single ingress rule, producing a number of IngressPolicyRules (per path).
         :param dict rule: The rule resource
-        :return: A tuple containing TcpLikeProperties including allowed connections for the given rule,
+        :return: A tuple containing ConnectivityProperties including allowed connections for the given rule,
         and a dfa for hosts
         """
         if rule is None:
@@ -218,8 +212,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.check_fields_validity(rule, 'ingress rule', allowed_elements)
         hosts_dfa = self.parse_regex_host_value(rule.get("host"), rule)
         paths_array = self.get_key_array_and_validate_not_empty(rule.get('http'), 'paths')
-        allowed_conns = TcpLikeProperties.make_empty_properties(self.peer_container)
-        default_conns = TcpLikeProperties.make_empty_properties(self.peer_container)
+        allowed_conns = ConnectivityProperties.make_empty_props()
+        default_conns = ConnectivityProperties.make_empty_props()
         if paths_array is not None:
             all_paths_dfa = None
             parsed_paths = []
@@ -229,11 +223,12 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                     parsed_paths.append(path_resources)
             if parsed_paths:
                 parsed_paths_with_dfa = self.segregate_longest_paths_and_make_dfa(parsed_paths)
+                conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+                conn_cube["hosts"] = hosts_dfa
                 for (_, paths_dfa, _, peers, ports) in parsed_paths_with_dfa:
                     # every path is converted to allowed connections
-                    conns = TcpLikeProperties.make_tcp_like_properties(self.peer_container, dst_ports=ports,
-                                                                       dst_peers=peers, paths_dfa=paths_dfa,
-                                                                       hosts_dfa=hosts_dfa)
+                    conn_cube.update({"dst_ports": ports, "dst_peers": peers, "paths": paths_dfa})
+                    conns = ConnectivityProperties.make_conn_props(conn_cube)
                     allowed_conns |= conns
                     if not all_paths_dfa:
                         all_paths_dfa = paths_dfa
@@ -274,7 +269,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         if not res_policy.selected_peers:
             self.missing_k8s_ingress_peers = True
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
-        allowed_conns = TcpLikeProperties.make_empty_properties(self.peer_container)
+        allowed_conns = ConnectivityProperties.make_empty_props()
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):
             conns, hosts_dfa = self.parse_rule(ingress_rule)
@@ -294,10 +289,10 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         # then no connections rules to add (Ingress policy has no effect)
         if allowed_conns:
             res_policy.add_rules(self._make_allow_rules(allowed_conns))
-            protocols = ProtocolSet()
-            protocols.add_protocol('TCP')
-            allowed_conns &= TcpLikeProperties.make_tcp_like_properties(self.peer_container, protocols=protocols,
-                                                                        src_peers=res_policy.selected_peers)
+            protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
+            conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
+            conn_cube.update({"protocols": protocols, "src_peers": res_policy.selected_peers})
+            allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)
             res_policy.add_optimized_egress_props(allowed_conns)
         res_policy.findings = self.warning_msgs
         return res_policy

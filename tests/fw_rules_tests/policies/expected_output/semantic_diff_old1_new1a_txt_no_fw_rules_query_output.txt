@@ -1,0 +1,5 @@
+Added connections between persistent peers (based on topology from config: old1) :
+demo/account-query[DaemonSet] => demo/bank-ui[DaemonSet] : TCP 8080
+demo/bank-ui[DaemonSet] => demo/account-command[DaemonSet] : All Connections
+Removed connections between persistent peers (based on topology from config: new1a) :
+demo/account-query[DaemonSet] => demo/bank-ui[DaemonSet] : UDP 8080

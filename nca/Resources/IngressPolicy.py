@@ -5,7 +5,7 @@
 
 from enum import IntEnum
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import PeerSet
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
 
@@ -102,19 +102,19 @@ class IngressPolicy(NetworkPolicy):
         Evaluate the set of connections this ingress resource allows between any two peers
         :param bool is_ingress: For compatibility with other policies.
          Will return the set of allowed connections only for is_ingress being False.
-        :return: A TcpLikeProperties object containing all allowed connections for any peers,
-        TcpLikeProperties object containing all denied connections,
+        :return: A ConnectivityProperties object containing all allowed connections for any peers,
+        ConnectivityProperties object containing all denied connections,
         and the peer set of captured peers by this policy.
-        :rtype: tuple (TcpLikeProperties, TcpLikeProperties, PeerSet)
+        :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
 
         if is_ingress:
-            allowed = TcpLikeProperties.make_empty_properties()
+            allowed = ConnectivityProperties.make_empty_props()
             captured = PeerSet()
         else:
             allowed = self.optimized_egress_props.copy()
             captured = self.selected_peers if self.affects_egress else PeerSet()
-        return allowed, TcpLikeProperties.make_empty_properties(), captured
+        return allowed, ConnectivityProperties.make_empty_props(), captured
 
     def has_empty_rules(self, _config_name=''):
         """

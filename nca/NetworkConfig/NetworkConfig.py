@@ -6,8 +6,7 @@
 from dataclasses import dataclass, field
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
-from nca.CoreDS.ProtocolSet import ProtocolSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 
@@ -269,12 +268,12 @@ class NetworkConfig:
 
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
 
-    def allowed_connections_optimized(self, connectivityFilterIstioEdges, layer_name=None):
+    def allowed_connections_optimized(self, layer_name=None):
         """
         Computes the set of allowed connections between any relevant peers.
         :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
         :return: allowed_conns: all allowed connections for relevant peers.
-        :rtype: TcpLikeProperties
+        :rtype: ConnectivityProperties
         """
         if layer_name is not None:
             if layer_name not in self.policies_container.layers:
@@ -283,7 +282,7 @@ class NetworkConfig:
             else:
                 conns_res = self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
         else:
-            conns_res = TcpLikeProperties.make_all_properties()  # all connections
+            conns_res = ConnectivityProperties.make_all_props()  # all connections
             for layer, layer_obj in self.policies_container.layers.items():
                 conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
                 # all allowed connections: intersection of all allowed connections from all layers

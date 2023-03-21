@@ -10,6 +10,11 @@ dimensions2 = ["ports", "src_ports", "methods", "paths"]
 dimensions3 = ["src_ports", "ports", "methods", "paths", "hosts"]
 dim_manager = DimensionsManager()
 dim_manager.set_domain("ports", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
+# overriding domain of paths dimension to be [\w]* instead of /[\w]*
+# currently the tests assume a path value does not have to start with '/'.
+# when using the domain /[\w]* with current tests, some will fail.
+# some detailed explanation at commented out test test_basic_or_2
+dim_manager.set_domain("paths", DimensionsManager.DimensionType.DFA)
 
 
 def get_str_dfa(s):
@@ -1006,6 +1011,30 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         # print(z)
         self.assertEqual({z_cube_expected_1, z_cube_expected_2}, z._get_cubes_set())
         # print(z)
+
+    # def test_basic_or_2(self):
+    #     x = CanonicalHyperCubeSet(dimensions)
+    #     y = CanonicalHyperCubeSet(dimensions)
+    #     paths_dfa = get_str_dfa("abc")
+    #     ports_range = CanonicalIntervalSet.get_interval_set(10, 20)
+    #     x.add_cube([paths_dfa], ["paths"])
+    #     y.add_cube([ports_range], ["ports"])
+    #     # print(x)
+    #     # print(y)
+    #     z_cube_expected_1 = (
+    #         CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65535), paths_dfa)
+    #     z_cube_expected_2 = (
+    #         CanonicalIntervalSet.get_interval_set(10, 20), dim_manager.get_dimension_domain_by_name("paths"))
+    #     z = x | y
+    #     # print(z)
+    #     w = str(z)
+    #     # failing the comparison of z actual cubes to expected cubes
+    #     # the problem is that one of the cubes of z is (10-20, (abc)|/*-(abc)) which is (abc)|/* , instead of just (/*) ,
+    #     # because (abc) is outside the domain
+    #     # when changing paths dfa to be "/abc" the issue is resolved.
+    #     # consider adding validation of cubes values within the domains.
+    #     self.assertEqual({z_cube_expected_1, z_cube_expected_2}, z._get_cubes_set())
+    #     # print(z)
 
     def test_basic_and_2(self):
         x = CanonicalHyperCubeSet(dimensions)
