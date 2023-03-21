@@ -8,7 +8,6 @@ from .CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from .DimensionsManager import DimensionsManager
 from .PortSet import PortSet
 from .MethodSet import MethodSet
-from .ProtocolSet import ProtocolSet
 from .Peer import PeerSet
 from .ProtocolNameResolver import ProtocolNameResolver
 from .MinDFA import MinDFA
