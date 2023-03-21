@@ -152,7 +152,7 @@ class ConnectivityCube(dict):
                 res.named_ports = self.named_ports
                 res.excluded_named_ports = self.excluded_named_ports
             return res
-        elif dim_name == "icmp_type" or dim_name == "icmp_code":
+        elif dim_name in ["icmp_type", "icmp_code"]:
             if self.is_active_dim(dim_name):
                 # translate CanonicalIntervalSet back to int
                 return dim_value.validate_and_get_single_value()
