@@ -58,12 +58,12 @@ class ConnectivityCube(dict):
         self.excluded_named_ports = set()  # used only in the original solution
         self.base_peer_set = base_peer_set
         for dim in self.dimensions_list:
-            self[dim] = DimensionsManager().get_dimension_domain_by_name(dim)
+            self.set_dim_directly(dim, DimensionsManager().get_dimension_domain_by_name(dim))
 
     def copy(self):
         res = ConnectivityCube(self.base_peer_set.copy())
         for dim_name, dim_value in self.items():
-            if isinstance(self[dim_name], MinDFA):
+            if isinstance(dim_value, MinDFA):
                 res.set_dim_directly(dim_name, dim_value)
             else:
                 res.set_dim_directly(dim_name, dim_value.copy())
@@ -89,7 +89,11 @@ class ConnectivityCube(dict):
 
     def set_dim_directly(self, dim_name, dim_value):
         assert dim_name in self.dimensions_list
-        self[dim_name] = dim_value
+        super().__setitem__(dim_name, dim_value)
+
+    def get_dim_directly(self, dim_name):
+        assert dim_name in self.dimensions_list
+        return super().__getitem__(dim_name)
 
     def __setitem__(self, dim_name, dim_value):
         assert dim_name in self.dimensions_list
@@ -97,18 +101,18 @@ class ConnectivityCube(dict):
             return
         if dim_name == "src_peers" or dim_name == "dst_peers":
             # translate PeerSet to CanonicalIntervalSet
-            self[dim_name] = self.base_peer_set.get_peer_interval_of(dim_value)
+            self.set_dim_directly(dim_name, self.base_peer_set.get_peer_interval_of(dim_value))
         elif dim_name == "src_ports" or dim_name == "dst_ports":
             # extract port_set from PortSet
-            self[dim_name] = dim_value.port_set
+            self.set_dim_directly(dim_name, dim_value.port_set)
             if dim_name == "dst_ports":
                 self.named_ports = dim_value.named_ports
                 self.excluded_named_ports = dim_value.excluded_named_ports
         elif dim_name == "icmp_type" or dim_name == "icmp_code":
             # translate int to CanonicalIntervalSet
-            self[dim_name] = CanonicalIntervalSet.get_interval_set(dim_value, dim_value)
+            self.set_dim_directly(dim_name, CanonicalIntervalSet.get_interval_set(dim_value, dim_value))
         else:  # the rest of dimensions do not need a translation
-            self[dim_name] = dim_value
+            self.set_dim_directly(dim_name, dim_value)
 
     def update(self, dims=None, **f):
         for dim_name, dim_value in dims.items():
@@ -116,19 +120,20 @@ class ConnectivityCube(dict):
 
     def unset_dim(self, dim_name):
         assert dim_name in self.dimensions_list
-        self[dim_name] = DimensionsManager().get_dimension_domain_by_name(dim_name)
+        self.set_dim_directly(dim_name, DimensionsManager().get_dimension_domain_by_name(dim_name))
 
     def __getitem__(self, dim_name):
         assert dim_name in self.dimensions_list
+        dim_value = self.get_dim_directly(dim_name)
         if dim_name == "src_peers" or dim_name == "dst_peers":
             if self.is_active_dim(dim_name):
                 # translate CanonicalIntervalSet back to PeerSet
-                return self.base_peer_set.get_peer_set_by_indices(self[dim_name])
+                return self.base_peer_set.get_peer_set_by_indices(dim_value)
             else:
                 return None
         elif dim_name == "src_ports" or dim_name == "dst_ports":
             res = PortSet()
-            res.add_ports(self[dim_name])
+            res.add_ports(dim_value)
             if dim_name == "dst_ports":
                 res.named_ports = self.named_ports
                 res.excluded_named_ports = self.excluded_named_ports
@@ -136,18 +141,18 @@ class ConnectivityCube(dict):
         elif dim_name == "icmp_type" or dim_name == "icmp_code":
             if self.is_active_dim(dim_name):
                 # translate CanonicalIntervalSet back to int
-                return self[dim_name].validate_and_get_single_value()
+                return dim_value.validate_and_get_single_value()
             else:
                 return None
         else:  # the rest of dimensions do not need a translation
-            if isinstance(self[dim_name], MinDFA):
-                return self[dim_name]
+            if isinstance(dim_value, MinDFA):
+                return dim_value
             else:
-                return self[dim_name].copy()   # TODO - do we need this copy?
+                return dim_value.copy()   # TODO - do we need this copy?
 
     def has_active_dim(self):
         for dim in self.dimensions_list:
-            if self[dim] != DimensionsManager().get_dimension_domain_by_name(dim):
+            if self.get_dim_directly(dim) != DimensionsManager().get_dimension_domain_by_name(dim):
                 return True
         return False
 
@@ -161,11 +166,12 @@ class ConnectivityCube(dict):
         has_empty_dim_value = False
         # add values to cube by required order of dimensions
         for dim in self.dimensions_list:
-            if self[dim] != DimensionsManager().get_dimension_domain_by_name(dim):
-                if isinstance(self[dim], MinDFA):
-                    cube.append(self[dim])
+            dim_value = self.get_dim_directly(dim)
+            if dim_value != DimensionsManager().get_dimension_domain_by_name(dim):
+                if isinstance(dim_value, MinDFA):
+                    cube.append(dim_value)
                 else:
-                    cube.append(self[dim].copy())  # TODO - do we need this copy?
+                    cube.append(dim_value.copy())  # TODO - do we need this copy?
                 active_dims.append(dim)
                 has_empty_dim_value |= self.is_empty_dim(dim)
         return cube, active_dims, has_empty_dim_value
