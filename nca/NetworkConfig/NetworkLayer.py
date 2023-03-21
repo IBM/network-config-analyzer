@@ -341,7 +341,7 @@ class IstioNetworkLayer(NetworkLayer):
             non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             allowed_conn |= (non_captured_conns - denied_conns)
         conn_cube.update({"src_peers": base_peer_set_with_ip, "dst_peers": base_peer_set_with_ip,
-                            "protocols": ProtocolSet.get_non_tcp_protocols()})
+                          "protocols": ProtocolSet.get_non_tcp_protocols()})
         allowed_conn |= ConnectivityProperties.make_conn_props(conn_cube)
         return allowed_conn, denied_conns
 
