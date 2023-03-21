@@ -103,7 +103,7 @@ class ConnectivityCube(dict):
         if dim_name in ["src_peers", "dst_peers"]:
             # translate PeerSet to CanonicalIntervalSet
             self.set_dim_directly(dim_name, self.base_peer_set.get_peer_interval_of(dim_value))
-        elif dim_name == "src_ports" or dim_name == "dst_ports":
+        elif dim_name in ["src_ports", "dst_ports" ]:
             # extract port_set from PortSet
             self.set_dim_directly(dim_name, dim_value.port_set)
             if dim_name == "dst_ports":
