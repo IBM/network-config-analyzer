@@ -40,6 +40,7 @@ class ConnectivityCube(dict):
     def copy(self):
         """
         Returns a copy of the given ConnectivityCube object
+        :rtype: ConnectivityCube
         """
         res = ConnectivityCube(self.base_peer_set.copy())
         for dim_name, dim_value in self.items():
@@ -479,6 +480,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                 self.add_hole(rectangle, active_dims)
 
     def copy(self):
+        """
+        :rtype: ConnectivityProperties
+        """
         res = ConnectivityProperties.create_props_from_cube(ConnectivityCube(self.base_peer_set))
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
