@@ -243,7 +243,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         cube, active_dims, has_empty_dim_value = conn_cube.get_ordered_cube_and_active_dims()
         if has_empty_dim_value:
-            return
+            return res
 
         if not active_dims:
             res.set_all()
