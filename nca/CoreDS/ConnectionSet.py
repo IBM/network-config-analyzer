@@ -610,7 +610,7 @@ class ConnectionSet:
                 dst_peers.filter_ipv6_blocks(ip_blocks_mask)
             protocols = conn_cube["protocols"]
             conn_cube.unset_dim("protocols")
-            if not conn_cube.has_active_dim() and (not protocols or protocols == ignore_protocols):
+            if not conn_cube.has_active_dim() and protocols == ignore_protocols:
                 conns = ConnectionSet(True)
             else:
                 conns = ConnectionSet()
