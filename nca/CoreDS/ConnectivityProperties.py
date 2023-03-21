@@ -145,7 +145,7 @@ class ConnectivityCube(dict):
                 return self.base_peer_set.get_peer_set_by_indices(dim_value)
             else:
                 return None
-        elif dim_name == "src_ports" or dim_name == "dst_ports":
+        elif dim_name in ["src_ports", "dst_ports"]:
             res = PortSet()
             res.add_ports(dim_value)
             if dim_name == "dst_ports":
