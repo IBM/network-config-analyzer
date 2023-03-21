@@ -599,6 +599,10 @@ class PeerSet(set):
         res.add_interval(CanonicalIntervalSet.Interval(PeerSet.min_pod_index, PeerSet.max_pod_index))
         return res
 
+    def get_peer_names_list(self):
+        names = list(elem.full_name_str for elem in self if not isinstance(elem, IpBlock))
+        return names
+
     def update_sorted_peer_list_if_needed(self):
         """
         create self.sorted_peer_list from non IpBlock pods

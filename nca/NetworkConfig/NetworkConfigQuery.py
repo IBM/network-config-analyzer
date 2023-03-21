@@ -24,6 +24,7 @@ from .QueryOutputHandler import QueryAnswer, DictOutputHandler, StringOutputHand
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, \
     PoliciesWithCommonPods, PeersAndConnections, ComputedExplanation
 from .NetworkLayer import NetworkLayerName
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class QueryType(Enum):
@@ -755,6 +756,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             subset_conns = TcpLikeProperties.make_tcp_like_properties(self.config.peer_container,
                                                                       src_peers=subset_peers, dst_peers=subset_peers)
             all_conns_opt &= subset_conns
+            ExplTracker().set_connections(all_conns_opt)
+
             if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
                 output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare)
                 opt_end = time.time()

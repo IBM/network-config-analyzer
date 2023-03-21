@@ -247,6 +247,13 @@ class NetworkLayer:
         denied_conns = TcpLikeProperties.make_empty_properties()
         captured = PeerSet()
         for policy in self.policies_list:
+            # Track the peers that were affected by this policy
+            for peer in policy.selected_peers:
+                ExplTracker().add_peer_policy(peer,
+                                              policy.name,
+                                              policy.optimized_egress_props.project_on_one_dimension('dst_peers'),
+                                              policy.optimized_ingress_props.project_on_one_dimension('src_peers'),
+                                              )
             policy_allowed_conns, policy_denied_conns, policy_captured = \
                 policy.allowed_connections_optimized(is_ingress)
             if policy_captured: # not empty
@@ -261,9 +268,6 @@ class NetworkLayer:
                 denied_conns |= policy_denied_conns
                 if captured_func(policy):
                     captured |= policy_captured
-                # Track the peers that were affected by this policy
-                for peer in captured:
-                    ExplTracker().add_peer_policy(peer, policy)
         return allowed_conns, denied_conns, captured
 
 
@@ -307,6 +311,11 @@ class K8sCalicoNetworkLayer(NetworkLayer):
                     TcpLikeProperties.make_tcp_like_properties(peer_container,
                                                                src_peers=non_captured,
                                                                dst_peers=base_peer_set_with_ip)
+
+            ExplTracker().add_default_policy(non_captured_conns.project_on_one_dimension('dst_peers'),
+                                             non_captured_conns.project_on_one_dimension('src_peers'),
+                                             is_ingress
+                                             )
             allowed_conn |= non_captured_conns
         return allowed_conn, denied_conns
 

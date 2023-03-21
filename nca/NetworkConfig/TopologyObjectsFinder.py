@@ -107,6 +107,7 @@ class PodsFinder:
             for port in container.get('ports') or []:
                 pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
         self._add_peer(pod)
+        ExplTracker().add_item(pod_object.path, pod.full_name(), pod_object.line_number)
 
     def _add_peer(self, peer):
         """
@@ -161,7 +162,7 @@ class PodsFinder:
                 for port in container.get('ports') or []:
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
             self._add_peer(pod)
-            ExplTracker().add_item('', workload_resource, pod.name, workload_resource.line_number)
+            ExplTracker().add_item(workload_resource.path, pod.full_name(), workload_resource.line_number)
 
     def _add_networkset_from_yaml(self, networkset_object):
         """

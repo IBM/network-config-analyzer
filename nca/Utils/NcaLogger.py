@@ -85,6 +85,10 @@ class NcaLogger(metaclass=Singleton):
             msg = f'Warning: {msg}'
             if not file:
                 file = sys.stderr
+        elif level == 'E':
+            msg = f'Error: {msg}'
+            if not file:
+                file = sys.stderr
 
         if self._is_collecting_msgs:
             if self.is_mute():

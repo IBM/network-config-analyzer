@@ -408,13 +408,6 @@ class ResourcesParser:
                         if ResourceType.Namespaces in resource_flags:
                             self.ns_finder.parse_yaml_code_for_ns(res_code)
                         if ResourceType.Pods in resource_flags:
-                            if res_code:
-                                # Track filenames and content
-                                ExplTracker().add_item(yaml_file.path,
-                                                       res_code,
-                                                       res_code.get('metadata').get('name'),
-                                                       res_code.line_number
-                                                       )
                             self.pods_finder.namespaces_finder = self.ns_finder
                             self.pods_finder.add_eps_from_yaml(res_code)
                             self.services_finder.namespaces_finder = self.ns_finder
@@ -423,7 +416,6 @@ class ResourcesParser:
                             if res_code:
                                 # Track filenames and content
                                 ExplTracker().add_item(yaml_file.path,
-                                                       res_code,
                                                        res_code.get('metadata').get('name'),
                                                        res_code.line_number
                                                        )
