@@ -109,7 +109,7 @@ class ConnectivityCube(dict):
             if dim_name == "dst_ports":
                 self.named_ports = dim_value.named_ports
                 self.excluded_named_ports = dim_value.excluded_named_ports
-        elif dim_name == "icmp_type" or dim_name == "icmp_code":
+        elif dim_name in ["icmp_type", "icmp_code"]:
             # translate int to CanonicalIntervalSet
             self.set_dim_directly(dim_name, CanonicalIntervalSet.get_interval_set(dim_value, dim_value))
         else:  # the rest of dimensions do not need a translation
