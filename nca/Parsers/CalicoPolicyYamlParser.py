@@ -429,6 +429,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                     res = ConnectivityProperties.make_empty_props()
                     self.warning('icmp and notICMP are conflicting - no traffic will be matched', not_icmp_data)
                 elif icmp_type == not_icmp_type and icmp_code is None:
+                   # this is the only case where it makes sense to combine icmp and notICMP
                     tmp = ConnectivityProperties.make_conn_props(not_conn_cube)
                     res -= tmp
                     if self.optimized_run != 'false':
