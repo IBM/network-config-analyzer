@@ -339,7 +339,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
                 conn_cube = ConnectivityCube.make_from_dict(self.peer_container.get_all_peers_group(),
-                                                            {"dst_ports", dest_port_set})
+                                                            {"dst_ports": dest_port_set})
                 # K8s doesn't reason about src ports
                 res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 if self.optimized_run != 'false' and src_pods and dst_pods:
