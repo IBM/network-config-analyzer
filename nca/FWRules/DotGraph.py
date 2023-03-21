@@ -198,13 +198,14 @@ class DotGraph:
             label_type = splitted_label.pop(0)
             label_port = splitted_label[0] if splitted_label else ''
             if label_port.startswith('{'):
-                # we use only one 'dst_ports'.
+                # it is not a port, its a list of dict, a dict can have 'dst_ports'
+                # we will use only one 'dst_ports':
                 connections = eval(f'[{label_port}]')
                 ports = [conn['dst_ports'] for conn in connections if 'dst_ports' in conn.keys()]
                 label_port = ports[0] if ports else ''
-                # 'dst_ports' can be too long (like 'port0,port1-port2' ) we trim it to the first port:
-                if len(label_port) > 6:
-                    label_port = label_port.split(',')[0].split('-')[0]
+            # a 'dst_ports' can be too long (like 'port0,port1-port2' ) we trim it to the first port:
+            if len(label_port) > 6:
+                label_port = label_port.split(',')[0].split('-')[0]
             labels_short[label] = f'{label_type.lower()}{label_port}' if label_port else label_type
 
         # for labels sharing the same short, we will add a letter to the end of the short:
