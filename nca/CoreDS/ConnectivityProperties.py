@@ -220,7 +220,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         the named ports cannot be resolved at parse time, and so are kept in named_ports and excluded_named_ports,
         as explained below.
         Second, at the query time, ConnectivityProperties is calculated for every pair of peers, and the named ports
-        are resolved. The pairs of peers and the protocols are keps in ConnectionSet class, together with
+        are resolved. The pairs of peers and the protocols are kept in ConnectionSet class, together with
         the resulting ConnectivityProperties.
 
     The usage of this class in the optimized solution:
