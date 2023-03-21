@@ -341,7 +341,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             dim_domain = DimensionsManager().get_dimension_domain_by_name(dim)
             if dim_domain == dim_values:
                 continue  # skip dimensions with all values allowed in a cube
-            if dim == 'protocols' or dim == 'methods':
+            if dim in ['protocols', 'methods']:
                 values_list = str(dim_values)
             elif dim == "src_peers" or dim == "dst_peers":
                 peers_set = self.base_peer_set.get_peer_set_by_indices(dim_values)
