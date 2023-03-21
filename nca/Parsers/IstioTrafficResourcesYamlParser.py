@@ -340,8 +340,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         """
         allowed_conns = ConnectivityProperties.make_empty_props()
         for http_route in vs.http_routes:
-            conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-            conn_cube.update({"paths": http_route.uri_dfa, "hosts": host_dfa, "methods": http_route.methods})
+            conn_cube = ConnectivityCube.make_from_dict(self.peer_container.get_all_peers_group(), {
+                "paths": http_route.uri_dfa, "hosts": host_dfa, "methods": http_route.methods})
             for dest in http_route.destinations:
                 conn_cube.update({"dst_ports": dest.port, "dst_peers": dest.service.target_pods})
                 conns = \
@@ -398,8 +398,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 if allowed_conns:
                     res_policy.add_rules(self._make_allow_rules(allowed_conns))
                     protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-                    conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-                    conn_cube.update({"protocols": protocols, "src_peers": res_policy.selected_peers})
+                    conn_cube = ConnectivityCube.make_from_dict(self.peer_container.get_all_peers_group(), {
+                        "protocols": protocols, "src_peers": res_policy.selected_peers})
                     allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)
                     res_policy.add_optimized_egress_props(allowed_conns)
                     res_policy.findings = self.warning_msgs

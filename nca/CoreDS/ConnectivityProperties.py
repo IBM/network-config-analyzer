@@ -50,6 +50,8 @@ class ConnectivityCube(dict):
 
     def __init__(self, base_peer_set):
         """
+        By default, each dimension in the cube is initialized with entire domain value, which represents
+        "don't care" or inactive dimension (i.e., the dimension has no impact).
         :param PeerSet base_peer_set: the set of all possible peers, which will be referenced by the indices
         in 'src_peers' and 'dst_peers'
         """
@@ -146,13 +148,13 @@ class ConnectivityCube(dict):
         else:  # the rest of dimensions do not need a translation
             self.set_dim_directly(dim_name, dim_value)
 
-    def update(self, dims=None, **f):
+    def update(self, the_dict=None, **f):
         """
         Sets multiple dimension values at once, after converting them into their internal formats.
-        :param dict dims: a dictionary from dimension names to dimension values, having all dimensions to be set
+        :param dict the_dict: a dictionary from dimension names to dimension values, having all dimensions to be set
         :param f: Not used; required by the base class (dict) interface.
         """
-        for dim_name, dim_value in dims.items():
+        for dim_name, dim_value in the_dict.items():
             self[dim_name] = dim_value
 
     def unset_dim(self, dim_name):
@@ -230,6 +232,12 @@ class ConnectivityCube(dict):
                     cube.append(dim_value.copy())  # TODO - do we need this copy?
                 active_dims.append(dim)
         return cube, active_dims
+
+    @staticmethod
+    def make_from_dict(base_peer_set, the_dict):
+        ccube = ConnectivityCube(base_peer_set)
+        ccube.update(the_dict)
+        return ccube
 
 
 class ConnectivityProperties(CanonicalHyperCubeSet):

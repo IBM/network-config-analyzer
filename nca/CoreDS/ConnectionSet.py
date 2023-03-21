@@ -549,8 +549,7 @@ class ConnectionSet:
         res = ConnectivityProperties.make_empty_props()
         for protocol, properties in self.allowed_protocols.items():
             protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
-            conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
-            conn_cube["protocols"] = protocols
+            conn_cube = ConnectivityCube.make_from_dict(peer_container.get_all_peers_group(), {"protocols": protocols})
             this_prop = ConnectivityProperties.make_conn_props(conn_cube)
             if isinstance(properties, bool):
                 if properties:
@@ -673,8 +672,8 @@ class ConnectionSet:
                 conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)
                 src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
                 dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
-                conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
-                conn_cube.update({"src_peers": src_peers, "dst_peers": dst_peers})
+                conn_cube = ConnectivityCube.make_from_dict(peer_container.get_all_peers_group(),
+                                                            {"src_peers": src_peers, "dst_peers": dst_peers})
                 rule_props = ConnectivityProperties.make_conn_props(conn_cube) & conn_props
                 res |= rule_props
         return res

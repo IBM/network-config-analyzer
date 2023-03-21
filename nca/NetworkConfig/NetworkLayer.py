@@ -176,8 +176,8 @@ class NetworkLayer:
         """
         all_pods = peer_container.get_all_peers_group()
         all_ips_peer_set = PeerSet({IpBlock.get_all_ips_block()})
-        conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
-        conn_cube.update({"src_peers": all_pods, "dst_peers": all_ips_peer_set})
+        conn_cube = ConnectivityCube.make_from_dict(peer_container.get_all_peers_group(),
+                                                    {"src_peers": all_pods, "dst_peers": all_ips_peer_set})
         allowed_ingress_conns, denied_ingres_conns = self._allowed_xgress_conns_optimized(True, peer_container)
         allowed_ingress_conns |= ConnectivityProperties.make_conn_props(conn_cube)
         allowed_egress_conns, denied_egress_conns = self._allowed_xgress_conns_optimized(False, peer_container)
