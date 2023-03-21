@@ -139,7 +139,7 @@ class ConnectivityCube(dict):
         """
         assert dim_name in self.dimensions_list
         dim_value = self.get_dim_directly(dim_name)
-        if dim_name == "src_peers" or dim_name == "dst_peers":
+        if dim_name in ["src_peers", "dst_peers"]:
             if self.is_active_dim(dim_name):
                 # translate CanonicalIntervalSet back to PeerSet
                 return self.base_peer_set.get_peer_set_by_indices(dim_value)
