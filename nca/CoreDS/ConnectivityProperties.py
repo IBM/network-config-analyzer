@@ -100,7 +100,7 @@ class ConnectivityCube(dict):
         assert dim_name in self.dimensions_list
         if dim_value is None:
             return
-        if dim_name == "src_peers" or dim_name == "dst_peers":
+        if dim_name in ["src_peers", "dst_peers"]:
             # translate PeerSet to CanonicalIntervalSet
             self.set_dim_directly(dim_name, self.base_peer_set.get_peer_interval_of(dim_value))
         elif dim_name == "src_ports" or dim_name == "dst_ports":
