@@ -588,9 +588,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         # Initialize conn_properties
         if dst_ports.port_set:
-            dst_ports_no_named_ports = dst_ports.copy()
-            dst_ports_no_named_ports.named_ports = set()
-            dst_ports_no_named_ports.excluded_named_ports = set()
+            dst_ports_no_named_ports = PortSet()
+            dst_ports_no_named_ports.port_set = dst_ports.port_set.copy()
             conn_cube["dst_ports"] = dst_ports_no_named_ports
             conn_properties = ConnectivityProperties.create_props_from_cube(conn_cube)
         else:
