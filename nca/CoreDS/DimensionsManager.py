@@ -34,20 +34,22 @@ class DimensionsManager:
             all_methods_interval = MethodSet(True)
             all_protocols_interval = ProtocolSet(True)
             all_peers_interval = PeerSet.get_all_peers_and_ip_blocks_interval()
+            # dim_dict is a map from a dimension name to a tuple
+            # (dimension type, dimension full domain, dimension empty value)
             self.dim_dict = dict()
-            self.dim_dict["src_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval)
-            self.dim_dict["dst_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval)
-            self.dim_dict["methods"] = (DimensionsManager.DimensionType.IntervalSet, all_methods_interval)
-            self.dim_dict["protocols"] = (DimensionsManager.DimensionType.IntervalSet, all_protocols_interval)
-            self.dim_dict["src_peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval)
-            self.dim_dict["dst_peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval)
-            self.dim_dict["paths"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_path_domain)
-            self.dim_dict["hosts"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_default)
+            self.dim_dict["src_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval, CanonicalIntervalSet())
+            self.dim_dict["dst_ports"] = (DimensionsManager.DimensionType.IntervalSet, ports_interval, CanonicalIntervalSet())
+            self.dim_dict["methods"] = (DimensionsManager.DimensionType.IntervalSet, all_methods_interval, MethodSet())
+            self.dim_dict["protocols"] = (DimensionsManager.DimensionType.IntervalSet, all_protocols_interval, ProtocolSet())
+            self.dim_dict["src_peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval, CanonicalIntervalSet())
+            self.dim_dict["dst_peers"] = (DimensionsManager.DimensionType.IntervalSet, all_peers_interval, CanonicalIntervalSet())
+            self.dim_dict["paths"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_path_domain, MinDFA.dfa_from_regex(""))
+            self.dim_dict["hosts"] = (DimensionsManager.DimensionType.DFA, dfa_all_words_default, MinDFA.dfa_from_regex(""))
 
             icmp_type_interval = CanonicalIntervalSet.get_interval_set(0, 254)
             icmp_code_interval = CanonicalIntervalSet.get_interval_set(0, 255)
-            self.dim_dict["icmp_type"] = (DimensionsManager.DimensionType.IntervalSet, icmp_type_interval)
-            self.dim_dict["icmp_code"] = (DimensionsManager.DimensionType.IntervalSet, icmp_code_interval)
+            self.dim_dict["icmp_type"] = (DimensionsManager.DimensionType.IntervalSet, icmp_type_interval, CanonicalIntervalSet())
+            self.dim_dict["icmp_code"] = (DimensionsManager.DimensionType.IntervalSet, icmp_code_interval, CanonicalIntervalSet())
 
         def _get_dfa_from_alphabet_str(self, alphabet_str):
             """
@@ -97,6 +99,14 @@ class DimensionsManager:
         :return: CanonicalIntervalSet object or MinDFA object  (depends on dimension type)
         """
         return self.dim_dict[dim_name][1]
+
+    def get_empty_dimension_by_name(self, dim_name):
+        """
+        get empty dimension value from its name
+        :param str dim_name: dimension name
+        :return: CanonicalIntervalSet object or MinDFA object  (depends on dimension type)
+        """
+        return self.dim_dict[dim_name][2]
 
     def set_domain(self, dim_name, dim_type, interval_tuple=None, alphabet_str=None):
         """

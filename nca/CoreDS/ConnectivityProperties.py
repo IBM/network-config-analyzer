@@ -23,30 +23,6 @@ class ConnectivityCube(dict):
 
     dimensions_list = ["src_peers", "dst_peers", "protocols", "src_ports", "dst_ports", "methods", "hosts", "paths",
                        "icmp_type", "icmp_code"]
-    internal_empty_dim_values = {
-        "src_peers": CanonicalIntervalSet(),
-        "dst_peers": CanonicalIntervalSet(),
-        "protocols": ProtocolSet(),
-        "src_ports": CanonicalIntervalSet(),
-        "dst_ports": CanonicalIntervalSet(),
-        "methods": MethodSet(),
-        "hosts": MinDFA.dfa_from_regex(""),
-        "paths": MinDFA.dfa_from_regex(""),
-        "icmp_type": CanonicalIntervalSet(),
-        "icmp_code": CanonicalIntervalSet()
-    }
-    external_empty_dim_values = {
-        "src_peers": PeerSet(),
-        "dst_peers": PeerSet(),
-        "protocols": ProtocolSet(),
-        "src_ports": PortSet(),
-        "dst_ports": PortSet(),
-        "methods": MethodSet(),
-        "hosts": MinDFA.dfa_from_regex(""),
-        "paths": MinDFA.dfa_from_regex(""),
-        "icmp_type": None,
-        "icmp_code": None
-    }
 
     def __init__(self, base_peer_set):
         """
@@ -74,20 +50,12 @@ class ConnectivityCube(dict):
                 res.set_dim_directly(dim_name, dim_value.copy())
         return res
 
-    @staticmethod
-    def get_empty_dim(dim_name):
-        """
-        Returns an empty value of a given dimension
-        :param dim_name: the given dimension name
-        """
-        return ConnectivityCube.external_empty_dim_values.get(dim_name)
-
     def is_empty_dim(self, dim_name):
         """
         Returns True iff a given dimension is empty
         :param str dim_name: the given dimension name
         """
-        if self.get_dim_directly(dim_name) != self.internal_empty_dim_values.get(dim_name):
+        if self.get_dim_directly(dim_name) != DimensionsManager().get_empty_dimension_by_name(dim_name):
             return False
 
         # for "dst_ports" can have named ports in original solution
@@ -557,20 +525,24 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def project_on_one_dimension(self, dim_name):
         """
-        Build the projection of self to the given dimension
+        Build the projection of self to the given dimension.
+        Supports any dimension except of icmp data (icmp_type and icmp_code).
         :param str dim_name: the given dimension
         :return: the projection on the given dimension, having that dimension type.
-         or empty dimension value if the given dimension is not active
+         or None if the given dimension is not active
         """
-        res = ConnectivityCube.get_empty_dim(dim_name)
+        if dim_name == "icmp_type" or dim_name == "icmp_code":
+            return None  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
-            return res
+            return None
+        res = None
         for cube in self:
             conn_cube = self.get_connectivity_cube(cube)
             values = conn_cube[dim_name]
-            if values:
+            if values and res:
                 res |= values
-
+            elif values:
+                res = values
         return res
 
     @staticmethod
