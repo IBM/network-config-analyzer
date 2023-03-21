@@ -61,6 +61,9 @@ class ConnectivityCube(dict):
             self.set_dim_directly(dim, DimensionsManager().get_dimension_domain_by_name(dim))
 
     def copy(self):
+        """
+        Returns a copy of the given ConnectivityCube object
+        """
         res = ConnectivityCube(self.base_peer_set.copy())
         for dim_name, dim_value in self.items():
             if isinstance(dim_value, MinDFA):
@@ -71,31 +74,60 @@ class ConnectivityCube(dict):
 
     @staticmethod
     def get_empty_dim(dim_name):
+        """
+        Returns an empty value of a given dimension
+        :param dim_name: the given dimension name
+        """
         return ConnectivityCube.external_empty_dim_values.get(dim_name)
 
     def is_empty_dim(self, dim_name):
-        assert dim_name in self.dimensions_list
-        if dim_name == "dst_ports":  # can have named ports in original solution
-            return self.get(dim_name) == self.internal_empty_dim_values.get(dim_name) and \
-                   not self.named_ports and not self.excluded_named_ports
-        return self.get(dim_name) == self.internal_empty_dim_values.get(dim_name)
+        """
+        Returns True iff a given dimension is empty
+        :param str dim_name: the given dimension name
+        """
+        if self.get_dim_directly(dim_name) != self.internal_empty_dim_values.get(dim_name):
+            return False
+
+        # for "dst_ports" can have named ports in original solution
+        return not self.named_ports and not self.excluded_named_ports if dim_name == "dst_ports" else True
 
     def is_full_dim(self, dim_name):
-        assert dim_name in self.dimensions_list
-        return self.get(dim_name) == DimensionsManager().get_dimension_domain_by_name(dim_name)
+        """
+        Returns True iff a given dimension is full
+        :param str dim_name: the given dimension name
+        """
+        return self.get_dim_directly(dim_name) == DimensionsManager().get_dimension_domain_by_name(dim_name)
 
     def is_active_dim(self, dim_name):
+        """
+        Returns True iff a given dimension is active (i.e., not full)
+        :param str dim_name: the given dimension name
+        """
         return not self.is_full_dim(dim_name)
 
     def set_dim_directly(self, dim_name, dim_value):
+        """
+        Sets a given dimension value directly, assuming the value is in the internal format of that dimension.
+        :param str dim_name: the given dimension name
+        :param dim_value: the given dimension value
+        """
         assert dim_name in self.dimensions_list
         super().__setitem__(dim_name, dim_value)
 
     def get_dim_directly(self, dim_name):
+        """
+        Returns a given dimension value directly (in its internal format).
+        :param str dim_name: the given dimension name
+        """
         assert dim_name in self.dimensions_list
         return super().__getitem__(dim_name)
 
     def __setitem__(self, dim_name, dim_value):
+        """
+        Sets a given dimension value after converting it into the internal format of that dimension.
+        :param str dim_name: the given dimension name
+        :param dim_value: the given dimension value
+        """
         assert dim_name in self.dimensions_list
         if dim_value is None:
             return
@@ -115,14 +147,27 @@ class ConnectivityCube(dict):
             self.set_dim_directly(dim_name, dim_value)
 
     def update(self, dims=None, **f):
+        """
+        Sets multiple dimension values at once, after converting them into their internal formats.
+        :param dict dims: a dictionary from dimension names to dimension values, having all dimensions to be set
+        :param f: Not used; required by the base class (dict) interface.
+        """
         for dim_name, dim_value in dims.items():
             self[dim_name] = dim_value
 
     def unset_dim(self, dim_name):
+        """
+        Sets a given dimension to its default (containing all possible values)
+        :param str dim_name: the given dimension name
+        """
         assert dim_name in self.dimensions_list
         self.set_dim_directly(dim_name, DimensionsManager().get_dimension_domain_by_name(dim_name))
 
     def __getitem__(self, dim_name):
+        """
+        Returns a given dimension value after converting it from internal to external format.
+        :param str dim_name: the given dimension name
+        """
         assert dim_name in self.dimensions_list
         dim_value = self.get_dim_directly(dim_name)
         if dim_name == "src_peers" or dim_name == "dst_peers":
@@ -151,19 +196,30 @@ class ConnectivityCube(dict):
                 return dim_value.copy()   # TODO - do we need this copy?
 
     def has_active_dim(self):
+        """
+        Returns True iff the cube has at least one active dimension. Otherwise, returns False.
+        """
         for dim in self.dimensions_list:
             if self.get_dim_directly(dim) != DimensionsManager().get_dimension_domain_by_name(dim):
+                return True
+        return False
+
+    def is_empty(self):
+        """
+        Returns True iff the cube has at least one empty dimension. Otherwise, returns False.
+        """
+        for dim in self.dimensions_list:
+            if self.is_empty_dim(dim):
                 return True
         return False
 
     def get_ordered_cube_and_active_dims(self):
         """
         Translate the connectivity cube to an ordered cube, and compute its active dimensions
-        :return: tuple with: (1) cube values (2) active dimensions (3) bool indication if some dimension is empty
+        :return: tuple with: (1) cube values (2) active dimensions
         """
         cube = []
         active_dims = []
-        has_empty_dim_value = False
         # add values to cube by required order of dimensions
         for dim in self.dimensions_list:
             dim_value = self.get_dim_directly(dim)
@@ -173,8 +229,7 @@ class ConnectivityCube(dict):
                 else:
                     cube.append(dim_value.copy())  # TODO - do we need this copy?
                 active_dims.append(dim)
-                has_empty_dim_value |= self.is_empty_dim(dim)
-        return cube, active_dims, has_empty_dim_value
+        return cube, active_dims
 
 
 class ConnectivityProperties(CanonicalHyperCubeSet):
@@ -240,11 +295,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         res = ConnectivityProperties()
         res.base_peer_set = conn_cube.base_peer_set.copy()
-
-        cube, active_dims, has_empty_dim_value = conn_cube.get_ordered_cube_and_active_dims()
-        if has_empty_dim_value:
+        if conn_cube.is_empty():
             return res
 
+        cube, active_dims = conn_cube.get_ordered_cube_and_active_dims()
         if not active_dims:
             res.set_all()
         else:
