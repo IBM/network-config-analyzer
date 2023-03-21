@@ -343,7 +343,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                 continue  # skip dimensions with all values allowed in a cube
             if dim in ['protocols', 'methods']:
                 values_list = str(dim_values)
-            elif dim == "src_peers" or dim == "dst_peers":
+            elif dim in ["src_peers", "dst_peers"]:
                 peers_set = self.base_peer_set.get_peer_set_by_indices(dim_values)
                 peers_str_list = [str(peer.full_name()) for peer in peers_set]
                 values_list = ','.join(peers_str_list) if is_txt else peers_str_list
