@@ -78,9 +78,9 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         # extract peers dimension from cubes
         for cube in conn_props:
             conn_cube = conn_props.get_connectivity_cube(cube)
-            src_peer_set = conn_cube.get_dim("src_peers")
+            src_peer_set = conn_cube["src_peers"]
             conn_cube.unset_dim("src_peers")
-            dst_peer_set = conn_cube.get_dim("dst_peers")
+            dst_peer_set = conn_cube["dst_peers"]
             conn_cube.unset_dim("dst_peers")
             assert not src_peer_set
             new_props = ConnectivityProperties.make_conn_props(conn_cube)

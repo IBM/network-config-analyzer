@@ -339,19 +339,19 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
                 conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-                conn_cube.set_dim("dst_ports", dest_port_set)
+                conn_cube["dst_ports"] = dest_port_set
                 # K8s doesn't reason about src ports
                 res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 if self.optimized_run != 'false' and src_pods and dst_pods:
                     protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
-                    conn_cube.set_dims({"protocols": protocols, "src_peers": src_pods, "dst_peers": dst_pods})
+                    conn_cube.update({"protocols": protocols, "src_peers": src_pods, "dst_peers": dst_pods})
                     conn_props = ConnectivityProperties.make_conn_props(conn_cube)
                     res_opt_props |= conn_props
         else:
             res_conns = ConnectionSet(True)
             if self.optimized_run != 'false':
                 conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-                conn_cube.set_dims({"src_peers": src_pods, "dst_peers": dst_pods})
+                conn_cube.update({"src_peers": src_pods, "dst_peers": dst_pods})
                 res_opt_props = ConnectivityProperties.make_conn_props(conn_cube)
         if not res_pods:
             self.warning('Rule selects no pods', rule)

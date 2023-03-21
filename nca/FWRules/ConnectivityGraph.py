@@ -75,14 +75,14 @@ class ConnectivityGraph:
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
         """
-        src_peers = conn_cube.get_dim("src_peers")
+        src_peers = conn_cube["src_peers"]
         conn_cube.unset_dim("src_peers")
-        dst_peers = conn_cube.get_dim("dst_peers")
+        dst_peers = conn_cube["dst_peers"]
         conn_cube.unset_dim("dst_peers")
         if IpBlock.get_all_ips_block() != ip_blocks_mask:
             src_peers.filter_ipv6_blocks(ip_blocks_mask)
             dst_peers.filter_ipv6_blocks(ip_blocks_mask)
-        protocols = conn_cube.get_dim("protocols")
+        protocols = conn_cube["protocols"]
         conn_cube.unset_dim("protocols")
 
         if not protocols and not conn_cube.has_active_dim():

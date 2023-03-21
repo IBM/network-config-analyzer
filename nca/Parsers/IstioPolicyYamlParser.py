@@ -196,7 +196,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         elif key == 'destination.port':
             dst_ports = self.get_rule_ports(values, not_values)  # PortSet
             conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-            conn_cube.set_dim("dst_ports", dst_ports)
+            conn_cube["dst_ports"] = dst_ports
             return ConnectivityProperties.make_conn_props(conn_cube)  # ConnectivityProperties
         return NotImplemented, False
 
@@ -400,7 +400,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         hosts_dfa = self.parse_regex_dimension_values("hosts", operation.get("hosts"), operation.get("notHosts"),
                                                       operation)
         conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-        conn_cube.set_dims({"dst_ports": dst_ports, "methods": methods_set, "paths": paths_dfa, 'hosts': hosts_dfa})
+        conn_cube.update({"dst_ports": dst_ports, "methods": methods_set, "paths": paths_dfa, 'hosts': hosts_dfa})
         return ConnectivityProperties.make_conn_props(conn_cube)
 
     def parse_source(self, source_dict):
@@ -523,7 +523,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             condition_props = ConnectivityProperties.make_empty_props()
         else:
             conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-            conn_cube.set_dims({"src_peers": res_peers, "dst_peers": selected_peers})
+            conn_cube.update({"src_peers": res_peers, "dst_peers": selected_peers})
             condition_props &= ConnectivityProperties.make_conn_props(conn_cube)
         connections &= condition_conns
         conn_props &= condition_props

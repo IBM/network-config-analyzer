@@ -188,11 +188,11 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         default_conns = ConnectivityProperties.make_empty_props()
         if self.default_backend_peers:
             conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-            conn_cube.set_dims({"dst_ports": self.default_backend_ports, "dst_peers": self.default_backend_peers})
+            conn_cube.update({"dst_ports": self.default_backend_ports, "dst_peers": self.default_backend_peers})
             if hosts_dfa:
-                conn_cube.set_dim("hosts", hosts_dfa)
+                conn_cube["hosts"] = hosts_dfa
             if paths_dfa:
-                conn_cube.set_dim("paths", paths_dfa)
+                conn_cube["paths"] = paths_dfa
                 default_conns = ConnectivityProperties.make_conn_props(conn_cube)
             else:
                 default_conns = ConnectivityProperties.make_conn_props(conn_cube)
@@ -224,10 +224,10 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             if parsed_paths:
                 parsed_paths_with_dfa = self.segregate_longest_paths_and_make_dfa(parsed_paths)
                 conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-                conn_cube.set_dim("hosts", hosts_dfa)
+                conn_cube["hosts"] = hosts_dfa
                 for (_, paths_dfa, _, peers, ports) in parsed_paths_with_dfa:
                     # every path is converted to allowed connections
-                    conn_cube.set_dims({"dst_ports": ports, "dst_peers": peers, "paths": paths_dfa})
+                    conn_cube.update({"dst_ports": ports, "dst_peers": peers, "paths": paths_dfa})
                     conns = ConnectivityProperties.make_conn_props(conn_cube)
                     allowed_conns |= conns
                     if not all_paths_dfa:
@@ -291,7 +291,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             res_policy.add_rules(self._make_allow_rules(allowed_conns))
             protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
             conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-            conn_cube.set_dims({"protocols": protocols, "src_peers": res_policy.selected_peers})
+            conn_cube.update({"protocols": protocols, "src_peers": res_policy.selected_peers})
             allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)
             res_policy.add_optimized_egress_props(allowed_conns)
         res_policy.findings = self.warning_msgs
