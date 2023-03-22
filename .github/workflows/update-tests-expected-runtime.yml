@@ -13,7 +13,7 @@ jobs:
     outputs:
       changed_tests: ${{ steps.changes.outputs.changed_tests}}
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-nca-env
@@ -28,7 +28,7 @@ jobs:
     needs: changed-tests
     if: ${{needs.changed-tests.outputs.changed_tests}}
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - uses: dawidd6/action-download-artifact@5e780fc7bbd0cac69fc73271ed86edf5dcb72d67
         with:
