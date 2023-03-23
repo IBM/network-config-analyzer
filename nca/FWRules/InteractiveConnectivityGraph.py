@@ -94,6 +94,7 @@ class InteractiveConnectivityGraph:
         ID_TA = 'id'
         TITLE_TA = 'title'
         CONNECTIVITY_TA = 'connectivity'
+        CLICKABLE_TA = 'clickable'
 
         # Class types
         GRAPH_CT = 'graph'
@@ -153,8 +154,9 @@ class InteractiveConnectivityGraph:
             explanation_cluster = self.soup.svg.find('title', string='cluster_map_explanation').find_parent('g')
             explanation_cluster[self.CLASS_TA] = self.EXPLANATION_CT
             # for element that we want to add a link, we replace <g> with <a>:
-            for tag in self.soup.svg.find_all('g'):
+            for tag in self.soup.svg.find_all(True):
                 if tag.get(self.CLASS_TA) and tag[self.CLASS_TA] not in [self.GRAPH_CT, self.LEGEND_MISC_CT, self.EXPLANATION_CT]:
+                    tag[self.CLICKABLE_TA] = 'true'
                     tag.name = 'a'
 
             # add missing id and titles to background and conns:
@@ -195,12 +197,18 @@ class InteractiveConnectivityGraph:
             t_text = [str(t.string) for t in tag.find_all('text')] if t_class == self.NODE_CT else []
             return InteractiveConnectivityGraph.ElementInfo(t_id, t_class, str(t_title), t_conn, t_text)
 
+        def _get_clickable_elements(self, soup):
+            """
+            get the clickable elements of the soup
+            """
+            return soup.find_all(attrs={self.CLICKABLE_TA: 'true'})
+
         def get_elements_info(self):
             """
             read the information from all soup tags
             return: list(ElementInformation): the information of each element
             """
-            elements_info = [self._get_soup_tag_info(tag) for tag in self.soup.svg.find_all('a') if tag.get(self.CLASS_TA)]
+            elements_info = [self._get_soup_tag_info(tag) for tag in self._get_clickable_elements(self.soup)]
             elements_info.append(InteractiveConnectivityGraph.ElementInfo('', '', '', '', []))
             return elements_info
 
@@ -291,16 +299,12 @@ class InteractiveConnectivityGraph:
             except Exception as e:
                 print(f'Failed to create directory: {self.output_directory}\n{e} for writing', file=sys.stderr)
                 return
-            for tag in self.soup.svg.find_all('a'):
-                if not tag.get(self.CLASS_TA):
-                    continue
+            for tag in self._get_clickable_elements(self.soup):
                 tag_info = self._get_soup_tag_info(tag)
                 tag_soup = copy.copy(self.soup)
                 if tag_info.t_class != self.BACKGROUND_CT:
                     self._set_explanation(tag_soup, elements_relations[tag_info.t_id].explanation)
-                for related_tag in tag_soup.svg.find_all('a'):
-                    if not related_tag.get(self.CLASS_TA):
-                        continue
+                for related_tag in self._get_clickable_elements(tag_soup):
                     related_tag_info = self._get_soup_tag_info(related_tag)
                     if related_tag_info.t_id not in elements_relations[tag_info.t_id].relations:
                         related_tag.extract()
