@@ -249,7 +249,7 @@ class InteractiveConnectivityGraph:
                 with open(tag_file_name, 'wb') as tag_svg_file:
                     tag_svg_file.write(tag_soup.prettify(encoding='utf-8'))
             except Exception as e:
-                print(f'Failed to open file: {self.tag_file_name}\n{e} for writing', file=sys.stderr)
+                print(f'Failed to open file: {tag_file_name}\n{e} for writing', file=sys.stderr)
 
         def create_output(self, elements_relations):
             """
