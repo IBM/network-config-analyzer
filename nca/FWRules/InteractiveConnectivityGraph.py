@@ -44,6 +44,7 @@ class InteractiveConnectivityGraph:
         t_class: str
         t_title: str
         t_conn: str
+        t_text: list
 
     @dataclass
     class ElementRelations:
@@ -54,6 +55,7 @@ class InteractiveConnectivityGraph:
         """
         relations: set = field(default_factory=set)
         highlights: set = field(default_factory=set)
+        explanation: list = field(default_factory=set)
 
     def __init__(self, svg_file_name, output_directory):
         """
@@ -95,6 +97,7 @@ class InteractiveConnectivityGraph:
         # Class types
         GRAPH_CT = 'graph'
         LEGEND_MISC_CT = 'conn_legend_misc'
+        EXPLANATION_CT = 'explanation'
         BACKGROUND_CT = 'background'
         NAMESPACE_CT = 'cluster'
         NODE_CT = 'node'
@@ -145,14 +148,20 @@ class InteractiveConnectivityGraph:
                 for conn in conn_legend.find_all('g'):
                     conn[self.CLASS_TA] = self.LEGEND_MISC_CT
 
+            # setting class to explanation tag:
+            explanation_cluster = self.soup.svg.find('title', string='cluster_map_explanation').find_parent('g')
+            explanation_cluster[self.CLASS_TA] = self.EXPLANATION_CT
             # for element that we want to add a link, we replace <g> with <a>:
             for tag in self.soup.svg.find_all('g'):
-                if tag[self.CLASS_TA] not in [self.GRAPH_CT, self.LEGEND_MISC_CT]:
+                if tag.get(self.CLASS_TA) and tag[self.CLASS_TA] not in [self.GRAPH_CT, self.LEGEND_MISC_CT, self.EXPLANATION_CT]:
                     tag.name = 'a'
 
             # add missing id and titles to background and conns:
             # moving the title for all the others:
             for tag in self.soup.svg.find_all('a'):
+                if not tag.get(self.CLASS_TA):
+                    # it is  a tooltip
+                    continue
                 if tag[self.CLASS_TA] == self.BACKGROUND_CT:
                     tag[self.ID_TA] = 'index'
                     tag[self.TITLE_TA] = tag.find('text').string
@@ -182,15 +191,16 @@ class InteractiveConnectivityGraph:
             t_class = tag[self.CLASS_TA]
             t_title = tag[self.TITLE_TA]
             t_conn = tag.get(self.CONNECTIVITY_TA) if tag.get(self.CONNECTIVITY_TA) else ''
-            return InteractiveConnectivityGraph.ElementInfo(t_id, t_class, str(t_title), t_conn)
+            t_text = [str(t.string) for t in tag.find_all('text')] if t_class == self.NODE_CT else []
+            return InteractiveConnectivityGraph.ElementInfo(t_id, t_class, str(t_title), t_conn, t_text)
 
         def get_elements_info(self):
             """
             read a the information from all soup tags
             return: list(ElementInformation): the information of each element
             """
-            elements_info = [self._get_soup_tag_info(tag) for tag in self.soup.svg.find_all('a')]
-            elements_info.append(InteractiveConnectivityGraph.ElementInfo('', '', '', ''))
+            elements_info = [self._get_soup_tag_info(tag) for tag in self.soup.svg.find_all('a') if tag.get(self.CLASS_TA)]
+            elements_info.append(InteractiveConnectivityGraph.ElementInfo('', '', '', '', []))
             return elements_info
 
         def _set_related_tag_link(self, related_tag, related_tag_info, t_class):
@@ -250,6 +260,12 @@ class InteractiveConnectivityGraph:
             except Exception as e:
                 print(f'Failed to open file: {self.tag_cvg_file}\n{e} for writing', file=sys.stderr)
 
+        def _set_explanation(self, tag_soup, explanation):
+            explanation_cluster = tag_soup.svg.find('title', string='cluster_map_explanation').find_parent('g')
+            place_holders = explanation_cluster.find_all('text')
+            for holder, line in zip(place_holders, explanation + ['']*(len(place_holders) - len(explanation))):
+                holder.string = line
+
         def create_output(self, elements_relations):
             """
             Creates the set of svg files as an interactive graph
@@ -275,9 +291,15 @@ class InteractiveConnectivityGraph:
                 print(f'Failed to create directory: {self.output_directory}\n{e} for writing', file=sys.stderr)
                 return
             for tag in self.soup.svg.find_all('a'):
+                if not tag.get(self.CLASS_TA):
+                    continue
                 tag_info = self._get_soup_tag_info(tag)
                 tag_soup = copy.copy(self.soup)
+                if tag_info.t_class != self.BACKGROUND_CT:
+                    self._set_explanation(tag_soup, elements_relations[tag_info.t_id].explanation)
                 for related_tag in tag_soup.svg.find_all('a'):
+                    if not related_tag.get(self.CLASS_TA):
+                        continue
                     related_tag_info = self._get_soup_tag_info(related_tag)
                     if related_tag_info.t_id not in elements_relations[tag_info.t_id].relations:
                         related_tag.extract()
@@ -305,6 +327,7 @@ class InteractiveConnectivityGraph:
 
         @dataclass(unsafe_hash=True)
         class Conn:
+            text: str = field(default_factory=list)
             t_id: str = ''
 
         @dataclass
@@ -318,6 +341,7 @@ class InteractiveConnectivityGraph:
             t_id: str
             name: str
             conn: object
+            text: list
             edges: list = field(default_factory=list)
 
             def real_node(self):
@@ -387,7 +411,7 @@ class InteractiveConnectivityGraph:
                     namespace_name = el.t_title.replace('cluster_', '').replace('_namespace', '')
                     self.graph.namespaces[namespace_name] = self.Namespace(el.t_id, namespace_name)
                 elif el.t_class == InteractiveConnectivityGraph.SvgGraph.NODE_CT:
-                    self.graph.nodes[el.t_title] = self.Node(el.t_id, el.t_title, self.graph.conn_legend.conns[el.t_conn])
+                    self.graph.nodes[el.t_title] = self.Node(el.t_id, el.t_title, self.graph.conn_legend.conns[el.t_conn], el.t_text)
                 elif el.t_class == InteractiveConnectivityGraph.SvgGraph.EDGE_CT:
                     src_name, dst_name = el.t_title.split('->')
                     edge = self.Edge(el.t_id, src_name, dst_name, self.graph.conn_legend.conns[el.t_conn])
@@ -519,6 +543,7 @@ class InteractiveConnectivityGraph:
             for edge in self.graph.edges.values():
                 elements_relations[edge.t_id].highlights.add(edge.conn.t_id)
 
+            self._set_tags_explenation(elements_relations)
             return elements_relations
 
         def _set_bicliques_relations(self, elements_relations):
@@ -544,3 +569,51 @@ class InteractiveConnectivityGraph:
                     elements_relations[bcc.t_id].highlights.add(biclique.conn.t_id)
                 for bcc1, bcc2 in itertools.product(biclq_core, biclq_core):
                     elements_relations[bcc1.t_id].highlights.add(bcc2.t_id)
+
+
+        def _set_tags_explenation(self, elements_relations):
+            """
+            find the related elements of each element
+            return:  elements_relations dict {str: ElementRelations}: for each element list of relations and list of highlights
+            """
+            all_items = list(self.graph.conn_legend.conns.values()) + list(self.graph.edges.values()) +\
+                list(self.graph.nodes.values()) + list(self.graph.namespaces.values()) + [self.graph]
+            for item in all_items:
+                elements_relations[item.t_id].explanation = [f'this is not a good explanation of {item.t_id}']*2
+
+            for node in self.graph.nodes.values():
+                if len(node.text) == 1:
+                    elements_relations[node.t_id].explanation = [f'This sub graph is a point of view of the pod \'{node.text[0]}\' (see highlighted)',
+                                                                 f'It shows all the connections of the pod']
+                else:
+                    elements_relations[node.t_id].explanation = ['This sub graph is a point of view of set of pods (see highlighted)',
+                                                                 'All The pods in this set have the same connectivity rules']
+            # add namespaces to nodes:
+            for namespace in self.graph.namespaces.values():
+                for node in namespace.nodes:
+                    if len(node.text) == 1:
+                        elements_relations[node.t_id].explanation.append(f'{node.name} is at namespace {namespace.name}')
+                    else:
+                        elements_relations[node.t_id].explanation.append(f'All the pods are at namespace {namespace.name}')
+
+            for edge in self.graph.edges.values():
+                elements_relations[edge.t_id].explanation = [
+                    f'This sub graph is a point of view of the connection between \'{edge.src.text[0]}\' and  \'{edge.dst.text[0]}\'']
+
+            for clique in self.graph.cliques:
+                clq_core = [n for n in clique.nodes if not n.real_node()] + clique.edges
+                for cc in clq_core:
+                    elements_relations[cc.t_id].explanation = [f'This sub graph is a point of view of a Clique {clique.conn.t_id}']
+
+            for biclique in self.graph.bicliques:
+                biclq_core = biclique.dst_edges + biclique.src_edges + [biclique.node]
+                for bcc in biclq_core:
+                    elements_relations[bcc.t_id].explanation = [f'This sub graph is a point of view of a biClique {biclique.conn.t_id}']
+
+            for ns_name, namespace in self.graph.namespaces.items():
+                elements_relations[namespace.t_id].explanation = [f'This sub graph is a point of view of a namespace {ns_name}']
+            return
+
+            # hightlights edge connectivity:
+            for edge in self.graph.edges.values():
+                elements_relations[edge.t_id].highlights.add(edge.conn.t_id)

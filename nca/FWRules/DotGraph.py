@@ -55,6 +55,16 @@ class DotGraph:
              self.NodeType.MultiPod: 'shape=box color=blue4',
              }
 
+        self.node_tooltip = \
+            {self.NodeType.IPBlock: 'IPblock',
+             self.NodeType.Pod: 'regular pod',
+             self.NodeType.Livesim: 'livesim - not a real pod',
+             self.NodeType.Clique: 'Every two pods connected to the CLIQUE has a connection between them\n. Connection:',
+             self.NodeType.BiClique: 'Every source pod of the BICLIQUE has a connection to every destination pod.\nConnection:',
+             self.NodeType.MultiPod: 'A set of pods sharing the same connectivity',
+             }
+
+
     def add_node(self, subgraph, name, node_type, label):
         """
         add a node to the graph
@@ -98,11 +108,22 @@ class DotGraph:
         output_result += '\tlabelloc = "t"\n'
         output_result += '\tfontsize=30\n'
         output_result += '\tfontcolor=maroon\n'
+        output_result += '\tsubgraph cluster_map_explanation {\n'
         if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
         self.subgraphs = dict(sorted(self.subgraphs.items()))
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
         output_result += ''.join(sorted([self._edge_to_str(edge) for edge in self.edges]))
+        output_result += '\tcolor=white\n'
+        output_result += f'\tlabel=\"' \
+                         f'I am a very long explanation. I am a very long explanation. I am a very long explanation. I am a very long explanation.\l' \
+                         f'I am a very long explanation. I am a very long explanation. I am a very long explanation.\l ' \
+                         f'I am a very long explanation. I am  I am a very long explanation.\l ' \
+                         f'I am a very long explanation. I am . I am a very long explanation. I am a very long explanation.\l\"'
+        output_result += '\tlabelloc = "b"\n'
+        output_result += '\tfontsize=15\n'
+        output_result += '\tfontcolor=maroon\n'
+        output_result += '\t}\n'
         output_result += '}\n'
         return output_result
 
@@ -139,6 +160,7 @@ class DotGraph:
             output_result += f'\tlabel=\"{subgraph.name}\"\n'
             output_result += '\tfontsize=20\n'
             output_result += '\tfontcolor=blue\n'
+            output_result += '\ttooltip="Pods sharing the same namespace"\n'
         nodes_lines = set()
         for node in subgraph.nodes:
             nodes_lines.add(self._node_to_str(node))
@@ -160,9 +182,10 @@ class DotGraph:
                     table += f'<tr><td>{line}</td></tr>'
             table += '</table>>'
             label = f'label={table}'
-            return f'\t\"{node.name}\" [{label} {self.node_styles[node.node_type]}]\n'
+            return f'\t\"{node.name}\" [{label} {self.node_styles[node.node_type]} tooltip=\"{self.node_tooltip[node.node_type]}\"]\n'
         else:
-            return f'\t\"{node.name}\" [{self.node_styles[node.node_type]}  xlabel=\"{self.labels_dict[node.label[0]]}\"]\n'
+            return f'\t\"{node.name}\" [{self.node_styles[node.node_type]}  xlabel=\"{self.labels_dict[node.label[0]]}\" ' \
+                   f'tooltip=\"{self.node_tooltip[node.node_type]}{node.label[0]}\"]\n'
 
     def _edge_to_str(self, edge):
         """
@@ -175,9 +198,9 @@ class DotGraph:
         src_type = 'normal' if not is_clq_edge and not edge.is_dir else 'none'
         dst_type = 'normal' if not is_clq_edge else 'none'
         label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge and not is_biclq_edge else ''
-
+        tooltip = f'labeltooltip=\"{edge.label}\"' if not is_clq_edge and not is_biclq_edge else ''
         line = f'\t\"{edge.src.name}\" -> \"{edge.dst.name}\"'
-        line += f'[{label} color={edge_color} fontcolor=darkgreen dir=both arrowhead={dst_type} arrowtail={src_type}]\n'
+        line += f'[{label} {tooltip} color={edge_color} fontcolor=darkgreen dir=both arrowhead={dst_type} arrowtail={src_type}]\n'
         return line
 
     def _set_labels_dict(self):
