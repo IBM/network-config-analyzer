@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-import networkx
+from __future__ import annotations
 import os
 import sys
 import shutil
@@ -11,8 +11,9 @@ import itertools
 import copy
 from dataclasses import dataclass, field
 from collections import defaultdict
-from bs4 import BeautifulSoup
 import posixpath
+import networkx
+from bs4 import BeautifulSoup
 
 
 class InteractiveConnectivityGraph:
@@ -119,8 +120,8 @@ class InteractiveConnectivityGraph:
             read the file, and save is in soup object
             """
             try:
-                with open(self.input_svg_file) as cvg_file:
-                    self.soup = BeautifulSoup(cvg_file.read(), 'xml')
+                with open(self.input_svg_file) as svg_file:
+                    self.soup = BeautifulSoup(svg_file.read(), 'xml')
             except Exception as e:
                 print(f'Failed to open file: {self.input_svg_file}\n{e} for reading', file=sys.stderr)
 
@@ -183,7 +184,7 @@ class InteractiveConnectivityGraph:
 
         def _get_soup_tag_info(self, tag):
             """
-            read a the information from a soup tag
+            read the information from a soup tag
             param: tag: the tag from the soup object
             return ElementInfo
             """
@@ -196,7 +197,7 @@ class InteractiveConnectivityGraph:
 
         def get_elements_info(self):
             """
-            read a the information from all soup tags
+            read the information from all soup tags
             return: list(ElementInformation): the information of each element
             """
             elements_info = [self._get_soup_tag_info(tag) for tag in self.soup.svg.find_all('a') if tag.get(self.CLASS_TA)]
@@ -210,7 +211,7 @@ class InteractiveConnectivityGraph:
             (all svg file, except the main file, are in sub directory)
             therefore, relative path depends on the class of:
              1. the element that we creates the svg file for
-             2. the soup tag the we currently update the link
+             2. the soup tag for which we currently update the link
 
              param: related_tag: the tag from the soup object that we want to update its link
              param: related_tag_info :the information of this tag: ElementInfo
@@ -233,13 +234,13 @@ class InteractiveConnectivityGraph:
             """
             if t_class == self.NODE_CT:
                 tag.polygon['stroke-width'] = '5'
-            if t_class == self.NAMESPACE_CT:
+            elif t_class == self.NAMESPACE_CT:
                 tag.polygon['stroke-width'] = '5'
                 tag['font-weight'] = 'bold'
-            if t_class == self.EDGE_CT:
+            elif t_class == self.EDGE_CT:
                 tag.path['stroke-width'] = '3'
                 tag['font-weight'] = 'bold'
-            if t_class == self.CONNECTIVITY_CT:
+            elif t_class == self.CONNECTIVITY_CT:
                 tag['text-decoration'] = 'underline'
                 tag['font-weight'] = 'bold'
 
@@ -248,17 +249,17 @@ class InteractiveConnectivityGraph:
             save the soup to an svg file, the name and location is according to the class and id
             (all svg file, except the main file, are in sub directory)
             param: tag_soup: the soup to save: soup
-            param: tag_info: the information of the tag the we currently save its soup
+            param: tag_info: the information of the tag for which we currently save its soup
             """
             if tag_info.t_class == self.BACKGROUND_CT:
                 tag_file_name = os.path.join(self.output_directory, tag_info.t_id + '.svg')
             else:
                 tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.t_id + '.svg')
             try:
-                with open(tag_file_name, 'wb') as tag_cvg_file:
-                    tag_cvg_file.write(tag_soup.prettify(encoding='utf-8'))
+                with open(tag_file_name, 'wb') as tag_svg_file:
+                    tag_svg_file.write(tag_soup.prettify(encoding='utf-8'))
             except Exception as e:
-                print(f'Failed to open file: {self.tag_cvg_file}\n{e} for writing', file=sys.stderr)
+                print(f'Failed to open file: {tag_file_name}\n{e} for writing', file=sys.stderr)
 
         def _set_explanation(self, tag_soup, explanation):
             explanation_cluster = tag_soup.svg.find('title', string='cluster_map_explanation').find_parent('g')
@@ -340,7 +341,7 @@ class InteractiveConnectivityGraph:
         class Node:
             t_id: str
             name: str
-            conn: object
+            conn: InteractiveConnectivityGraph.AbstractGraph.Conn
             text: list
             edges: list = field(default_factory=list)
 
@@ -352,20 +353,20 @@ class InteractiveConnectivityGraph:
             t_id: str
             src_name: str
             dst_name: str
-            conn: object
-            src: object = None
-            dst: object = None
+            conn: InteractiveConnectivityGraph.AbstractGraph.Conn
+            src: InteractiveConnectivityGraph.AbstractGraph.Node = None
+            dst: InteractiveConnectivityGraph.AbstractGraph.Node = None
 
         @dataclass
         class Clique:
-            conn: object
+            conn: InteractiveConnectivityGraph.AbstractGraph.Conn
             nodes: list = field(default_factory=list)
             edges: list = field(default_factory=list)
 
         @dataclass
         class BiClique:
-            conn: object
-            node: object
+            conn: InteractiveConnectivityGraph.AbstractGraph.Conn
+            node: InteractiveConnectivityGraph.AbstractGraph.Node
             src_nodes: list = field(default_factory=list)
             src_edges: list = field(default_factory=list)
             dst_nodes: list = field(default_factory=list)
@@ -380,7 +381,7 @@ class InteractiveConnectivityGraph:
             edges: dict = field(default_factory=dict)
             cliques: list = field(default_factory=list)
             bicliques: list = field(default_factory=list)
-            conn_legend: object = None
+            conn_legend: InteractiveConnectivityGraph.AbstractGraph.ConnLegend = None
 
         def __init__(self):
             self.graph = self.Graph()
@@ -439,9 +440,9 @@ class InteractiveConnectivityGraph:
 
             # creating cliques:
             # find all cliques nodes and edges:
-            all_cliques_nodes = [node for node in self.graph.nodes.keys() if node.startswith('clique_')]
+            all_cliques_nodes = [node for node in self.graph.nodes if node.startswith('clique_')]
             all_cliques_edges = [edge for edge in itertools.product(all_cliques_nodes, all_cliques_nodes) if
-                                 edge in self.graph.edges.keys()]
+                                 edge in self.graph.edges]
             # a clique can have more than one clique node, so
             # we find connected set of cliques nodes, each set is a clique
             clqs_graph = networkx.Graph()
