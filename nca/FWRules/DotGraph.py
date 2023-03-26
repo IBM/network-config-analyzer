@@ -64,7 +64,6 @@ class DotGraph:
              self.NodeType.MultiPod: 'A set of pods sharing the same connectivity',
              }
 
-
     def add_node(self, subgraph, name, node_type, label):
         """
         add a node to the graph
