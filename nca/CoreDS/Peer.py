@@ -555,7 +555,7 @@ class PeerSet(set):
         Note: PeerSet is a mutable type. Use with caution!
         :return: hash value for this object.
         """
-        return hash(','.join(str(peer.full_name()) for peer in sorted(list(self))))
+        return hash(','.join(str(peer.full_name()) for peer in sorted(list(elem for elem in self), key=by_full_name)))
 
     def rep(self):
         """
