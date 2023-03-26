@@ -6,7 +6,7 @@ from enum import Enum
 from .CanonicalIntervalSet import CanonicalIntervalSet
 from .MethodSet import MethodSet
 from .ProtocolSet import ProtocolSet
-from .Peer import PeerSet
+from .Peer import BasePeerSet
 from .MinDFA import MinDFA
 
 
@@ -33,7 +33,7 @@ class DimensionsManager:
             ports_interval = CanonicalIntervalSet.get_interval_set(1, 65535)
             all_methods_interval = MethodSet(True)
             all_protocols_interval = ProtocolSet(True)
-            all_peers_interval = PeerSet.get_all_peers_and_ip_blocks_interval()
+            all_peers_interval = BasePeerSet.get_all_peers_and_ip_blocks_interval()
             # dim_dict is a map from a dimension name to a tuple
             # (dimension type, dimension full domain, dimension empty value)
             self.dim_dict = dict()

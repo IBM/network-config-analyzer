@@ -402,13 +402,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 self.syntax_error(err, not_icmp_data)
 
         protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
-        base_peer_set = self.peer_container.get_all_peers_group()
-        conn_cube = ConnectivityCube(base_peer_set)
+        conn_cube = ConnectivityCube()
         if icmp_type:
             conn_cube["icmp_type"] = icmp_type
             if icmp_code:
                 conn_cube["icmp_code"] = icmp_code
-        not_conn_cube = ConnectivityCube(base_peer_set)
+        not_conn_cube = ConnectivityCube()
         if not_icmp_type:
             not_conn_cube["icmp_type"] = not_icmp_type
             if not_icmp_code:
@@ -522,8 +521,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                     self.warning('notProtocol field has no effect', rule)
             else:
                 if protocol_supports_ports:
-                    conn_cube = ConnectivityCube.make_from_dict(self.peer_container.get_all_peers_group(), {
-                        "src_ports": src_res_ports, "dst_ports": dst_res_ports})
+                    conn_cube = ConnectivityCube.make_from_dict({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
                     connections.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                     if self.optimized_run != 'false':
                         conn_cube.update({"protocols": protocols, "src_peers": src_res_pods, "dst_peers": dst_res_pods})
@@ -535,8 +533,8 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 else:
                     connections.add_connections(protocol, True)
                     if self.optimized_run != 'false':
-                        conn_cube = ConnectivityCube.make_from_dict(self.peer_container.get_all_peers_group(), {
-                            "protocols": protocols, "src_peers": src_res_pods, "dst_peers": dst_res_pods})
+                        conn_cube = ConnectivityCube.make_from_dict({"protocols": protocols, "src_peers": src_res_pods,
+                                                                     "dst_peers": dst_res_pods})
                         conn_props = ConnectivityProperties.make_conn_props(conn_cube)
         elif not_protocol is not None:
             connections.add_all_connections()
@@ -544,14 +542,13 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                 protocols = ProtocolSet(True)
                 protocols.remove_protocol(not_protocol)
-                conn_cube = ConnectivityCube.make_from_dict(self.peer_container.get_all_peers_group(), {
-                    "protocols": protocols, "src_peers": src_res_pods, "dst_peers": dst_res_pods})
+                conn_cube = ConnectivityCube.make_from_dict({"protocols": protocols, "src_peers": src_res_pods,
+                                                             "dst_peers": dst_res_pods})
                 conn_props = ConnectivityProperties.make_conn_props(conn_cube)
         else:
             connections.allow_all = True
             if self.optimized_run != 'false':
-                conn_cube = ConnectivityCube.make_from_dict(self.peer_container.get_all_peers_group(),
-                                                            {"src_peers": src_res_pods, "dst_peers": dst_res_pods})
+                conn_cube = ConnectivityCube.make_from_dict({"src_peers": src_res_pods, "dst_peers": dst_res_pods})
                 conn_props = ConnectivityProperties.make_conn_props(conn_cube)
         self._verify_named_ports(rule, dst_res_pods, connections)
 
