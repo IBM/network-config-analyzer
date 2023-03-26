@@ -60,7 +60,7 @@ class DotGraph:
              self.NodeType.Pod: 'regular pod',
              self.NodeType.Livesim: 'livesim - not a real pod',
              self.NodeType.Clique: 'Every two pods connected to the CLIQUE has a connection between them\n. Connection:',
-             self.NodeType.BiClique: 'Every source pod of the BICLIQUE has a connection to every destination pod.\nConnection:',
+             self.NodeType.BiClique: 'Every source pod of the BICLIQUE is connected to every destination pod.\nConnection:',
              self.NodeType.MultiPod: 'A set of pods sharing the same connectivity',
              }
 
@@ -114,17 +114,30 @@ class DotGraph:
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
         output_result += ''.join(sorted([self._edge_to_str(edge) for edge in self.edges]))
         output_result += '\tcolor=white\n'
-        output_result += f'\tlabel=\"' \
-                         f'I am a very long explanation. I am a very long explanation. I am a very long explanation. I am a very long explanation.\l' \
-                         f'I am a very long explanation. I am a very long explanation. I am a very long explanation.\l ' \
-                         f'I am a very long explanation. I am  I am a very long explanation.\l ' \
-                         f'I am a very long explanation. I am . I am a very long explanation. I am a very long explanation.\l\"'
+        output_result += self._explanation_to_str()
         output_result += '\tlabelloc = "b"\n'
         output_result += '\tfontsize=15\n'
         output_result += '\tfontcolor=maroon\n'
         output_result += '\t}\n'
         output_result += '}\n'
         return output_result
+
+    def _explanation_to_str(self):
+        """
+        creates a string in dot format og the explanation label
+        """
+        explanation = ['an explanation line',
+                       'a longer explanation line',
+                       'a very very very very very very very very very very very longed explanation line',
+                       'the forth explanation line',
+                       'the end explanation line',
+                       ]
+        explanation_table = '<<table border="0" cellspacing="0">'
+        for line in explanation:
+            explanation_table += f'<tr><td align="text" >{line} <br align="left" /></td></tr>'
+        explanation_table += '</table>>\n'
+
+        return f'\tlabel={explanation_table}'
 
     def _labels_dict_to_str(self):
         """
@@ -181,10 +194,11 @@ class DotGraph:
                     table += f'<tr><td>{line}</td></tr>'
             table += '</table>>'
             label = f'label={table}'
-            return f'\t\"{node.name}\" [{label} {self.node_styles[node.node_type]} tooltip=\"{self.node_tooltip[node.node_type]}\"]\n'
+            node_desc = f'{label} {self.node_styles[node.node_type]} tooltip=\"{self.node_tooltip[node.node_type]}\"'
         else:
-            return f'\t\"{node.name}\" [{self.node_styles[node.node_type]}  xlabel=\"{self.labels_dict[node.label[0]]}\" ' \
-                   f'tooltip=\"{self.node_tooltip[node.node_type]}{node.label[0]}\"]\n'
+            node_desc = f'{self.node_styles[node.node_type]}  xlabel=\"{self.labels_dict[node.label[0]]}\" ' \
+                   f'tooltip=\"{self.node_tooltip[node.node_type]}{node.label[0]}\"'
+        return f'\t\"{node.name}\" [{node_desc}]\n'
 
     def _edge_to_str(self, edge):
         """
@@ -196,10 +210,11 @@ class DotGraph:
         edge_color = 'indigo' if is_clq_edge else 'red' if is_biclq_edge else 'darkorange4'
         src_type = 'normal' if not is_clq_edge and not edge.is_dir else 'none'
         dst_type = 'normal' if not is_clq_edge else 'none'
+        arrow_type = f'dir=both arrowhead={dst_type} arrowtail={src_type}'
         label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge and not is_biclq_edge else ''
         tooltip = f'labeltooltip=\"{edge.label}\"' if not is_clq_edge and not is_biclq_edge else ''
         line = f'\t\"{edge.src.name}\" -> \"{edge.dst.name}\"'
-        line += f'[{label} {tooltip} color={edge_color} fontcolor=darkgreen dir=both arrowhead={dst_type} arrowtail={src_type}]\n'
+        line += f'[{label} {tooltip} color={edge_color} fontcolor=darkgreen {arrow_type}]\n'
         return line
 
     def _set_labels_dict(self):

@@ -158,9 +158,10 @@ class InteractiveConnectivityGraph:
             explanation_cluster[self.CLASS_TA] = self.EXPLANATION_CT
             # for element that we want to add a link, we replace <g> with <a>:
             for tag in self.soup.svg.find_all(True):
-                if tag.get(self.CLASS_TA) and tag[self.CLASS_TA] not in [self.GRAPH_CT, self.LEGEND_MISC_CT, self.EXPLANATION_CT]:
-                    tag[self.CLICKABLE_TA] = 'true'
-                    tag.name = 'a'
+                if tag.get(self.CLASS_TA):
+                    if tag[self.CLASS_TA] not in [self.GRAPH_CT, self.LEGEND_MISC_CT, self.EXPLANATION_CT]:
+                        tag[self.CLICKABLE_TA] = 'true'
+                        tag.name = 'a'
 
             # add missing id and titles to background and conns:
             # moving the title for all the others:
@@ -425,7 +426,8 @@ class InteractiveConnectivityGraph:
                     namespace_name = el.t_title.replace('cluster_', '').replace('_namespace', '')
                     self.graph.namespaces[namespace_name] = self.Namespace(el.t_id, namespace_name)
                 elif el.t_class == InteractiveConnectivityGraph.SvgGraph.NODE_CT:
-                    self.graph.nodes[el.t_title] = self.Node(el.t_id, el.t_title, self.graph.conn_legend.conns[el.t_conn], el.t_text)
+                    self.graph.nodes[el.t_title] = \
+                        self.Node(el.t_id, el.t_title, self.graph.conn_legend.conns[el.t_conn], el.t_text)
                 elif el.t_class == InteractiveConnectivityGraph.SvgGraph.EDGE_CT:
                     src_name, dst_name = el.t_title.split('->')
                     edge = self.Edge(el.t_id, src_name, dst_name, self.graph.conn_legend.conns[el.t_conn])
@@ -585,7 +587,6 @@ class InteractiveConnectivityGraph:
                 for bcc1, bcc2 in itertools.product(biclq_core, biclq_core):
                     elements_relations[bcc1.t_id].highlights.add(bcc2.t_id)
 
-
         def set_tags_explanation(self, elements_relations):
             """
             set explanation of each element
@@ -598,38 +599,43 @@ class InteractiveConnectivityGraph:
 
             for node in self.graph.nodes.values():
                 if len(node.short_names) == 1:
-                    elements_relations[node.t_id].explanation = [f'This sub graph is a point of view of the pod \'{node.short_names[0]}\' (see highlighted)',
-                                                                 f'It shows all the connections of the pod']
+                    elements_relations[node.t_id].explanation = [
+                        f'This sub graph is a point of view of the pod \'{node.short_names[0]}\' (see highlighted)',
+                        'It shows all the connections of the pod']
                     if node.namespace:
                         elements_relations[node.t_id].explanation.append(f'{node.name} is at namespace {node.namespace.name}')
                     if 'livesim' in node.name:
                         elements_relations[node.t_id].explanation.append('A livesim pod is ...')
-
                 else:
-                    elements_relations[node.t_id].explanation = [f'This sub graph is a point of view of set of {len(node.short_names)}pods (see highlighted)',
-                                                                 'All The pods in this set have the same connectivity rules']
+                    elements_relations[node.t_id].explanation = [
+                        f'This sub graph is a point of view of set of {len(node.short_names)}pods (see highlighted)',
+                        'All The pods in this set have the same connectivity rules']
                     if node.namespace:
-                        elements_relations[node.t_id].explanation.append(f'All the pods are at namespace {node.namespace.name}')
+                        elements_relations[node.t_id].explanation.append(f'All the pods at namespace {node.namespace.name}')
 
             for edge in self.graph.edges.values():
                 elements_relations[edge.t_id].explanation = [
-                    f'This sub graph is a point of view of the connection between \'{edge.src.short_names[0]}\' and  \'{edge.dst.short_names[0]}\'',
+                    f'This sub graph is a point of view of the connection between'
+                    f' \'{edge.src.short_names[0]}\' and  \'{edge.dst.short_names[0]}\'',
                     f'with connectivity {edge.conn.full_description}']
 
             for clique in self.graph.cliques:
                 clq_core = [n for n in clique.nodes if not n.real_node()] + clique.edges
                 for cc in clq_core:
-                    elements_relations[cc.t_id].explanation = [f'This sub graph is a point of view of a Clique {clique.conn.full_description}']
+                    elements_relations[cc.t_id].explanation = [
+                        f'This sub graph is a point of view of a Clique {clique.conn.full_description}']
 
             for biclique in self.graph.bicliques:
                 biclq_core = biclique.dst_edges + biclique.src_edges + [biclique.node]
                 for bcc in biclq_core:
-                    elements_relations[bcc.t_id].explanation = [f'This sub graph is a point of view of a biClique {biclique.conn.full_description}']
+                    elements_relations[bcc.t_id].explanation = [
+                        f'This sub graph is a point of view of a biClique {biclique.conn.full_description}']
 
             for ns_name, namespace in self.graph.namespaces.items():
-                elements_relations[namespace.t_id].explanation = [f'This sub graph is a point of view of a namespace {ns_name}']
+                elements_relations[namespace.t_id].explanation = [
+                    f'This sub graph is a point of view of a namespace {ns_name}']
 
             for conn in self.graph.conn_legend.conns.values():
-                elements_relations[conn.t_id].explanation = [f'This sub graph is a point of view of a connectivity {conn.name}:',
-                                                             f'{conn.full_description}']
-
+                elements_relations[conn.t_id].explanation = [
+                    f'This sub graph is a point of view of a connectivity {conn.name}:',
+                    f'{conn.full_description}']
