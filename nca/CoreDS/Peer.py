@@ -654,14 +654,17 @@ class BasePeerSet:
             :return: CanonicalIntervalSet for the peer_set
             """
             res = CanonicalIntervalSet()
+            covered_peers = peer_set.copy()  # for check that we covered all peers
             for index, peer in enumerate(self.ordered_peer_list):
                 if peer in peer_set:
+                    covered_peers.add(peer)
                     assert not isinstance(peer, IpBlock)
                     res.add_interval(CanonicalIntervalSet.Interval(self.min_pod_index + index,
                                                                    self.min_pod_index + index))
             # Now pick IpBlocks
             for ipb in peer_set:
                 if isinstance(ipb, IpBlock):
+                    covered_peers.add(ipb)
                     for cidr in ipb:
                         if isinstance(cidr.start.address, ipaddress.IPv4Address):
                             res.add_interval(CanonicalIntervalSet.Interval(self.min_ipv4_index + int(cidr.start),
@@ -671,6 +674,7 @@ class BasePeerSet:
                                                                            self.min_ipv6_index + int(cidr.end)))
                         else:
                             assert False
+            assert covered_peers == peer_set
             return res
 
         def get_peer_set_by_indices(self, peer_interval_set):
