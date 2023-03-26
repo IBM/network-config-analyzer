@@ -156,7 +156,7 @@ class InteractiveConnectivityGraph:
             # setting class to explanation tag:
             explanation_cluster = self.soup.svg.find('title', string='cluster_map_explanation').find_parent('g')
             explanation_cluster[self.CLASS_TA] = self.EXPLANATION_CT
-            # for element that we want to add a link, we replace <g> with <a>:
+            # for element that we want to add a link, we replace <g> with <a>, and mark as clickable:
             for tag in self.soup.svg.find_all(True):
                 if tag.get(self.CLASS_TA):
                     if tag[self.CLASS_TA] not in [self.GRAPH_CT, self.LEGEND_MISC_CT, self.EXPLANATION_CT]:
@@ -165,10 +165,7 @@ class InteractiveConnectivityGraph:
 
             # add missing id and titles to background and conns:
             # moving the title for all the others:
-            for tag in self.soup.svg.find_all('a'):
-                if not tag.get(self.CLASS_TA):
-                    # it is  a tooltip
-                    continue
+            for tag in self._get_clickable_elements():
                 if tag[self.CLASS_TA] == self.BACKGROUND_CT:
                     tag[self.ID_TA] = 'index'
                     tag[self.TITLE_TA] = tag.find('text').string
@@ -206,10 +203,12 @@ class InteractiveConnectivityGraph:
                 t_text = []
             return InteractiveConnectivityGraph.ElementInfo(t_id, t_class, str(t_title), t_conn, t_text)
 
-        def _get_clickable_elements(self, soup):
+        def _get_clickable_elements(self, soup=None):
             """
             get the clickable elements of the soup
             """
+            if not soup:
+                soup = self.soup
             return soup.find_all(attrs={self.CLICKABLE_TA: 'true'})
 
         def get_elements_info(self):
@@ -217,7 +216,7 @@ class InteractiveConnectivityGraph:
             read the information from all soup tags
             return: list(ElementInformation): the information of each element
             """
-            elements_info = [self._get_soup_tag_info(tag) for tag in self._get_clickable_elements(self.soup)]
+            elements_info = [self._get_soup_tag_info(tag) for tag in self._get_clickable_elements()]
             return elements_info
 
         def _set_related_tag_link(self, related_tag, related_tag_info, t_class):
@@ -278,6 +277,11 @@ class InteractiveConnectivityGraph:
                 print(f'Failed to open file: {tag_file_name}\n{e} for writing', file=sys.stderr)
 
         def _set_explanation(self, tag_soup, explanation):
+            """
+            set the explanation of the graph of a tag
+            param: tag_soup: the soup of the specific tag
+            param explanation: list of str: the explanation
+            """
             explanation_cluster = tag_soup.svg.find('title', string='cluster_map_explanation').find_parent('g')
             place_holders = explanation_cluster.find_all('text')
             for holder, line in zip(place_holders, explanation + ['']*(len(place_holders) - len(explanation))):
@@ -307,7 +311,7 @@ class InteractiveConnectivityGraph:
             except Exception as e:
                 print(f'Failed to create directory: {self.output_directory}\n{e} for writing', file=sys.stderr)
                 return
-            for tag in self._get_clickable_elements(self.soup):
+            for tag in self._get_clickable_elements():
                 tag_info = self._get_soup_tag_info(tag)
                 tag_soup = copy.copy(self.soup)
                 if tag_info.t_class != self.BACKGROUND_CT:
