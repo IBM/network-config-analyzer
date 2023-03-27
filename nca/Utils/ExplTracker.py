@@ -95,8 +95,8 @@ class ExplTracker(metaclass=Singleton):
                                     level='E')
         for cube in self.conns:
             conn = self.conns.get_cube_dict(cube)
-            src_peers = conn.get('src_peers').get_peer_names_list()
-            dst_peers = conn.get('dst_peers').get_peer_names_list()
+            src_peers = conn.get('src_peers').split(',')
+            dst_peers = conn.get('dst_peers').split(',')
             if src in src_peers and dst in dst_peers:
                 return True
         return False

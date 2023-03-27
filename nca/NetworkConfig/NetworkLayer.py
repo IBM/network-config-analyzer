@@ -250,10 +250,24 @@ class NetworkLayer:
         for policy in self.policies_list:
             # Track the peers that were affected by this policy
             for peer in policy.selected_peers:
+                opt_egr_props = policy.optimized_egress_props
+                dst_opt_egr_props_projected = opt_egr_props.project_on_one_dimension('dst_peers')
+                dst_peers = PeerSet()
+                for cube in opt_egr_props:
+                    conn_cube = opt_egr_props.get_connectivity_cube(cube)
+                    dst_peers |= conn_cube["dst_peers"]
+
+                opt_ingr_props = policy.optimized_ingress_props
+                src_opt_ingr_props_projected = opt_ingr_props.project_on_one_dimension('src_peers')
+                src_peers = PeerSet()
+                for cube in opt_ingr_props:
+                    conn_cube = opt_ingr_props.get_connectivity_cube(cube)
+                    src_peers |= conn_cube["src_peers"]
+
                 ExplTracker().add_peer_policy(peer,
                                               policy.name,
-                                              policy.optimized_egress_props.project_on_one_dimension('dst_peers'),
-                                              policy.optimized_ingress_props.project_on_one_dimension('src_peers'),
+                                              dst_peers,
+                                              src_peers,
                                               )
             policy_allowed_conns, policy_denied_conns, policy_captured = \
                 policy.allowed_connections_optimized(is_ingress)
