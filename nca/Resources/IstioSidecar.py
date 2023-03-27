@@ -166,7 +166,7 @@ class IstioSidecar(NetworkPolicy):
 
     def create_opt_egress_props(self, peer_container):
         for rule in self.egress_rules:
-            conn_cube = ConnectivityCube(peer_container.get_all_peers_group())
+            conn_cube = ConnectivityCube()
             if self.selected_peers and rule.egress_peer_set:
                 conn_cube.update({"src_peers": self.selected_peers, "dst_peers": rule.egress_peer_set})
                 self.optimized_egress_props = ConnectivityProperties.make_conn_props(conn_cube)

@@ -13,8 +13,7 @@ class TestNamedPorts(unittest.TestCase):
         src_res_ports = PortSet(True)
         dst_res_ports = PortSet()
         dst_res_ports.add_port("x")
-        conn_cube = ConnectivityCube(PeerSet())
-        conn_cube.update({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
+        conn_cube = ConnectivityCube.make_from_dict({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
         tcp_properties1 = ConnectivityProperties.create_props_from_cube(conn_cube)
         dst_res_ports2 = PortSet()
         dst_res_ports2.add_port("y")
@@ -39,8 +38,7 @@ class TestNamedPorts(unittest.TestCase):
         dst_res_ports.add_port("y")
         dst_res_ports.add_port("z")
         dst_res_ports.add_port("w")
-        conn_cube = ConnectivityCube(PeerSet())
-        conn_cube.update({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
+        conn_cube = ConnectivityCube.make_from_dict({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
         tcp_properties = ConnectivityProperties.create_props_from_cube(conn_cube)
         tcp_properties_2 = tcp_properties.copy()
 
@@ -72,8 +70,7 @@ class TestNamedPorts(unittest.TestCase):
         dst_res_ports = PortSet(True)
         dst_res_ports -= not_ports
         src_res_ports.add_port_range(1, 100)
-        conn_cube = ConnectivityCube(PeerSet())
-        conn_cube.update({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
+        conn_cube = ConnectivityCube.make_from_dict({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
         tcp_properties = ConnectivityProperties.create_props_from_cube(conn_cube)
         tcp_properties_2 = tcp_properties.copy()
 

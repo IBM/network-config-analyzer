@@ -754,10 +754,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 all_conns_opt.project_on_one_dimension('dst_peers')
 
             subset_peers = self.compute_subset(opt_peers_to_compare)
-            src_peers_conn_cube = ConnectivityCube(self.config.peer_container.get_all_peers_group())
-            dst_peers_conn_cube = ConnectivityCube(self.config.peer_container.get_all_peers_group())
-            src_peers_conn_cube["src_peers"] = subset_peers
-            dst_peers_conn_cube["dst_peers"] = subset_peers
+            src_peers_conn_cube = ConnectivityCube.make_from_dict({"src_peers": subset_peers})
+            dst_peers_conn_cube = ConnectivityCube.make_from_dict({"dst_peers": subset_peers})
             subset_conns = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
                 ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
             all_conns_opt &= subset_conns
@@ -1054,8 +1052,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :rtype: tuple(ConnectivityProperties, ConnectivityProperties)
         """
         tcp_protocol = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-        conn_cube = ConnectivityCube(self.config.peer_container.get_all_peers_group())
-        conn_cube["protocols"] = tcp_protocol
+        conn_cube = ConnectivityCube.make_from_dict({"protocols": tcp_protocol})
         tcp_props = props & ConnectivityProperties.make_conn_props(conn_cube)
         non_tcp_props = props - tcp_props
         return tcp_props, non_tcp_props

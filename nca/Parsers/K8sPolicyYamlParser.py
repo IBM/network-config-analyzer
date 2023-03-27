@@ -338,8 +338,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 protocol, dest_port_set = self.parse_port(port)
                 if isinstance(protocol, str):
                     protocol = ProtocolNameResolver.get_protocol_number(protocol)
-                conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-                conn_cube["dst_ports"] = dest_port_set
+                conn_cube = ConnectivityCube.make_from_dict({"dst_ports": dest_port_set})
                 # K8s doesn't reason about src ports
                 res_conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 if self.optimized_run != 'false' and src_pods and dst_pods:
@@ -350,8 +349,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
         else:
             res_conns = ConnectionSet(True)
             if self.optimized_run != 'false':
-                conn_cube = ConnectivityCube(self.peer_container.get_all_peers_group())
-                conn_cube.update({"src_peers": src_pods, "dst_peers": dst_pods})
+                conn_cube = ConnectivityCube.make_from_dict({"src_peers": src_pods, "dst_peers": dst_pods})
                 res_opt_props = ConnectivityProperties.make_conn_props(conn_cube)
         if not res_pods:
             self.warning('Rule selects no pods', rule)

@@ -86,7 +86,7 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
             new_props = ConnectivityProperties.make_conn_props(conn_cube)
             new_conns = ConnectionSet()
             new_conns.add_connections('TCP', new_props)
-            if peers_to_conns.get(dst_peer_set):
+            if dst_peer_set in peers_to_conns:
                 peers_to_conns[dst_peer_set] |= new_conns  # optimize conns for the same peers
             else:
                 peers_to_conns[dst_peer_set] = new_conns

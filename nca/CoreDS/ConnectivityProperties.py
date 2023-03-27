@@ -8,8 +8,7 @@ from .CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from .DimensionsManager import DimensionsManager
 from .PortSet import PortSet
 from .MethodSet import MethodSet
-from .ProtocolSet import ProtocolSet
-from .Peer import PeerSet
+from .Peer import PeerSet, BasePeerSet
 from .ProtocolNameResolver import ProtocolNameResolver
 from .MinDFA import MinDFA
 
@@ -23,45 +22,24 @@ class ConnectivityCube(dict):
 
     dimensions_list = ["src_peers", "dst_peers", "protocols", "src_ports", "dst_ports", "methods", "hosts", "paths",
                        "icmp_type", "icmp_code"]
-    internal_empty_dim_values = {
-        "src_peers": CanonicalIntervalSet(),
-        "dst_peers": CanonicalIntervalSet(),
-        "protocols": ProtocolSet(),
-        "src_ports": CanonicalIntervalSet(),
-        "dst_ports": CanonicalIntervalSet(),
-        "methods": MethodSet(),
-        "hosts": MinDFA.dfa_from_regex(""),
-        "paths": MinDFA.dfa_from_regex(""),
-        "icmp_type": CanonicalIntervalSet(),
-        "icmp_code": CanonicalIntervalSet()
-    }
-    external_empty_dim_values = {
-        "src_peers": PeerSet(),
-        "dst_peers": PeerSet(),
-        "protocols": ProtocolSet(),
-        "src_ports": PortSet(),
-        "dst_ports": PortSet(),
-        "methods": MethodSet(),
-        "hosts": MinDFA.dfa_from_regex(""),
-        "paths": MinDFA.dfa_from_regex(""),
-        "icmp_type": None,
-        "icmp_code": None
-    }
 
-    def __init__(self, base_peer_set):
+    def __init__(self):
         """
-        :param PeerSet base_peer_set: the set of all possible peers, which will be referenced by the indices
-        in 'src_peers' and 'dst_peers'
+        By default, each dimension in the cube is initialized with entire domain value, which represents
+        "don't care" or inactive dimension (i.e., the dimension has no impact).
         """
         super().__init__()
         self.named_ports = set()  # used only in the original solution
         self.excluded_named_ports = set()  # used only in the original solution
-        self.base_peer_set = base_peer_set
         for dim in self.dimensions_list:
             self.set_dim_directly(dim, DimensionsManager().get_dimension_domain_by_name(dim))
 
     def copy(self):
-        res = ConnectivityCube(self.base_peer_set.copy())
+        """
+        Returns a copy of the given ConnectivityCube object
+        :rtype: ConnectivityCube
+        """
+        res = ConnectivityCube()
         for dim_name, dim_value in self.items():
             if isinstance(dim_value, MinDFA):
                 res.set_dim_directly(dim_name, dim_value)
@@ -69,76 +47,110 @@ class ConnectivityCube(dict):
                 res.set_dim_directly(dim_name, dim_value.copy())
         return res
 
-    @staticmethod
-    def get_empty_dim(dim_name):
-        return ConnectivityCube.external_empty_dim_values.get(dim_name)
-
     def is_empty_dim(self, dim_name):
-        assert dim_name in self.dimensions_list
-        if dim_name == "dst_ports":  # can have named ports in original solution
-            return self.get(dim_name) == self.internal_empty_dim_values.get(dim_name) and \
-                   not self.named_ports and not self.excluded_named_ports
-        return self.get(dim_name) == self.internal_empty_dim_values.get(dim_name)
+        """
+        Returns True iff a given dimension is empty
+        :param str dim_name: the given dimension name
+        """
+        if self.get_dim_directly(dim_name) != DimensionsManager().get_empty_dimension_by_name(dim_name):
+            return False
+
+        # for "dst_ports" can have named ports in original solution
+        return not self.named_ports and not self.excluded_named_ports if dim_name == "dst_ports" else True
 
     def is_full_dim(self, dim_name):
-        assert dim_name in self.dimensions_list
-        return self.get(dim_name) == DimensionsManager().get_dimension_domain_by_name(dim_name)
+        """
+        Returns True iff a given dimension is full
+        :param str dim_name: the given dimension name
+        """
+        return self.get_dim_directly(dim_name) == DimensionsManager().get_dimension_domain_by_name(dim_name)
 
     def is_active_dim(self, dim_name):
+        """
+        Returns True iff a given dimension is active (i.e., not full)
+        :param str dim_name: the given dimension name
+        """
         return not self.is_full_dim(dim_name)
 
     def set_dim_directly(self, dim_name, dim_value):
+        """
+        Sets a given dimension value directly, assuming the value is in the internal format of that dimension.
+        :param str dim_name: the given dimension name
+        :param dim_value: the given dimension value
+        """
         assert dim_name in self.dimensions_list
         super().__setitem__(dim_name, dim_value)
 
     def get_dim_directly(self, dim_name):
+        """
+        Returns a given dimension value directly (in its internal format).
+        :param str dim_name: the given dimension name
+        """
         assert dim_name in self.dimensions_list
         return super().__getitem__(dim_name)
 
     def __setitem__(self, dim_name, dim_value):
+        """
+        Sets a given dimension value after converting it into the internal format of that dimension.
+        :param str dim_name: the given dimension name
+        :param dim_value: the given dimension value
+        """
         assert dim_name in self.dimensions_list
         if dim_value is None:
             return
-        if dim_name == "src_peers" or dim_name == "dst_peers":
+        if dim_name in ["src_peers", "dst_peers"]:
             # translate PeerSet to CanonicalIntervalSet
-            self.set_dim_directly(dim_name, self.base_peer_set.get_peer_interval_of(dim_value))
-        elif dim_name == "src_ports" or dim_name == "dst_ports":
+            self.set_dim_directly(dim_name, BasePeerSet().get_peer_interval_of(dim_value))
+        elif dim_name in ["src_ports", "dst_ports"]:
             # extract port_set from PortSet
             self.set_dim_directly(dim_name, dim_value.port_set)
             if dim_name == "dst_ports":
                 self.named_ports = dim_value.named_ports
                 self.excluded_named_ports = dim_value.excluded_named_ports
-        elif dim_name == "icmp_type" or dim_name == "icmp_code":
+        elif dim_name in ["icmp_type", "icmp_code"]:
             # translate int to CanonicalIntervalSet
             self.set_dim_directly(dim_name, CanonicalIntervalSet.get_interval_set(dim_value, dim_value))
         else:  # the rest of dimensions do not need a translation
             self.set_dim_directly(dim_name, dim_value)
 
-    def update(self, dims=None, **f):
-        for dim_name, dim_value in dims.items():
+    def update(self, the_dict=None, **f):
+        """
+        Sets multiple dimension values at once, after converting them into their internal formats.
+        :param dict the_dict: a dictionary from dimension names to dimension values, having all dimensions to be set
+        :param f: Not used; required by the base class (dict) interface.
+        """
+        for dim_name, dim_value in the_dict.items():
             self[dim_name] = dim_value
 
     def unset_dim(self, dim_name):
+        """
+        Sets a given dimension to its default (containing all possible values)
+        :param str dim_name: the given dimension name
+        """
         assert dim_name in self.dimensions_list
         self.set_dim_directly(dim_name, DimensionsManager().get_dimension_domain_by_name(dim_name))
 
     def __getitem__(self, dim_name):
+        """
+        Returns a given dimension value after converting it from internal to external format.
+        :param str dim_name: the given dimension name
+        """
         assert dim_name in self.dimensions_list
         dim_value = self.get_dim_directly(dim_name)
-        if dim_name == "src_peers" or dim_name == "dst_peers":
+        if dim_name in ["src_peers", "dst_peers"]:
             if self.is_active_dim(dim_name):
                 # translate CanonicalIntervalSet back to PeerSet
-                return self.base_peer_set.get_peer_set_by_indices(dim_value)
+                return BasePeerSet().get_peer_set_by_indices(dim_value)
             else:
                 return None
-        elif dim_name == "src_ports" or dim_name == "dst_ports":
+        elif dim_name in ["src_ports", "dst_ports"]:
             res = PortSet()
             res.add_ports(dim_value)
             if dim_name == "dst_ports":
                 res.named_ports = self.named_ports
                 res.excluded_named_ports = self.excluded_named_ports
             return res
-        elif dim_name == "icmp_type" or dim_name == "icmp_code":
+        elif dim_name in ["icmp_type", "icmp_code"]:
             if self.is_active_dim(dim_name):
                 # translate CanonicalIntervalSet back to int
                 return dim_value.validate_and_get_single_value()
@@ -151,19 +163,30 @@ class ConnectivityCube(dict):
                 return dim_value.copy()   # TODO - do we need this copy?
 
     def has_active_dim(self):
+        """
+        Returns True iff the cube has at least one active dimension. Otherwise, returns False.
+        """
         for dim in self.dimensions_list:
             if self.get_dim_directly(dim) != DimensionsManager().get_dimension_domain_by_name(dim):
+                return True
+        return False
+
+    def is_empty(self):
+        """
+        Returns True iff the cube has at least one empty dimension. Otherwise, returns False.
+        """
+        for dim in self.dimensions_list:
+            if self.is_empty_dim(dim):
                 return True
         return False
 
     def get_ordered_cube_and_active_dims(self):
         """
         Translate the connectivity cube to an ordered cube, and compute its active dimensions
-        :return: tuple with: (1) cube values (2) active dimensions (3) bool indication if some dimension is empty
+        :return: tuple with: (1) cube values (2) active dimensions
         """
         cube = []
         active_dims = []
-        has_empty_dim_value = False
         # add values to cube by required order of dimensions
         for dim in self.dimensions_list:
             dim_value = self.get_dim_directly(dim)
@@ -173,8 +196,13 @@ class ConnectivityCube(dict):
                 else:
                     cube.append(dim_value.copy())  # TODO - do we need this copy?
                 active_dims.append(dim)
-                has_empty_dim_value |= self.is_empty_dim(dim)
-        return cube, active_dims, has_empty_dim_value
+        return cube, active_dims
+
+    @staticmethod
+    def make_from_dict(the_dict):
+        ccube = ConnectivityCube()
+        ccube.update(the_dict)
+        return ccube
 
 
 class ConnectivityProperties(CanonicalHyperCubeSet):
@@ -190,7 +218,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         the named ports cannot be resolved at parse time, and so are kept in named_ports and excluded_named_ports,
         as explained below.
         Second, at the query time, ConnectivityProperties is calculated for every pair of peers, and the named ports
-        are resolved. The pairs of peers and the protocols are keps in ConnectionSet class, together with
+        are resolved. The pairs of peers and the protocols are kept in ConnectionSet class, together with
         the resulting ConnectivityProperties.
 
     The usage of this class in the optimized solution:
@@ -226,7 +254,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         super().__init__(ConnectivityCube.dimensions_list)
         self.named_ports = {}  # a mapping from dst named port (String) to src ports interval set
         self.excluded_named_ports = {}  # a mapping from dst named port (String) to src ports interval set
-        self.base_peer_set = PeerSet()
         if create_all:
             self.set_all()
 
@@ -239,12 +266,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             whereas missing dimensions are represented by their default values (representing all possible values).
         """
         res = ConnectivityProperties()
-        res.base_peer_set = conn_cube.base_peer_set.copy()
-
-        cube, active_dims, has_empty_dim_value = conn_cube.get_ordered_cube_and_active_dims()
-        if has_empty_dim_value:
+        if conn_cube.is_empty():
             return res
 
+        cube, active_dims = conn_cube.get_ordered_cube_and_active_dims()
         if not active_dims:
             res.set_all()
         else:
@@ -289,7 +314,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :return: the cube in ConnectivityCube format
         :rtype: ConnectivityCube
         """
-        res = ConnectivityCube(self.base_peer_set)
+        res = ConnectivityCube()
         for i, dim in enumerate(self.active_dimensions):
             if isinstance(cube[i], MinDFA):
                 res.set_dim_directly(dim, cube[i])
@@ -312,11 +337,12 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             dim_domain = DimensionsManager().get_dimension_domain_by_name(dim)
             if dim_domain == dim_values:
                 continue  # skip dimensions with all values allowed in a cube
-            if dim == 'protocols' or dim == 'methods':
+            if dim in ['protocols', 'methods']:
                 values_list = str(dim_values)
-            elif dim == "src_peers" or dim == "dst_peers":
-                values_list = self.base_peer_set.get_peer_set_by_indices(dim_values)
-                values_list = ','.join(str(peer.full_name()) for peer in values_list)
+            elif dim in ["src_peers", "dst_peers"]:
+                peers_set = BasePeerSet().get_peer_set_by_indices(dim_values)
+                peers_str_list = [str(peer.full_name()) for peer in peers_set]
+                values_list = ','.join(peers_str_list) if is_txt else peers_str_list
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = dim_values.get_interval_set_list_numbers_and_ranges()
                 if is_txt:
@@ -368,8 +394,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         assert not self.has_named_ports()
         assert not isinstance(other, ConnectivityProperties) or not other.has_named_ports()
         super().__iand__(other)
-        if isinstance(other, ConnectivityProperties):
-            self.base_peer_set |= other.base_peer_set
         return self
 
     def __ior__(self, other):
@@ -377,7 +401,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         assert not isinstance(other, ConnectivityProperties) or not other.excluded_named_ports
         super().__ior__(other)
         if isinstance(other, ConnectivityProperties):
-            self.base_peer_set |= other.base_peer_set
             res_named_ports = dict({})
             for port_name in self.named_ports:
                 res_named_ports[port_name] = self.named_ports[port_name]
@@ -393,8 +416,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         assert not self.has_named_ports()
         assert not isinstance(other, ConnectivityProperties) or not other.has_named_ports()
         super().__isub__(other)
-        if isinstance(other, ConnectivityProperties):
-            self.base_peer_set |= other.base_peer_set
         return self
 
     def contained_in(self, other):
@@ -449,7 +470,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                 self.add_hole(rectangle, active_dims)
 
     def copy(self):
-        res = ConnectivityProperties.create_props_from_cube(ConnectivityCube(self.base_peer_set))
+        """
+        :rtype: ConnectivityProperties
+        """
+        res = ConnectivityProperties.create_props_from_cube(ConnectivityCube())
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
@@ -495,20 +519,24 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def project_on_one_dimension(self, dim_name):
         """
-        Build the projection of self to the given dimension
+        Build the projection of self to the given dimension.
+        Supports any dimension except of icmp data (icmp_type and icmp_code).
         :param str dim_name: the given dimension
         :return: the projection on the given dimension, having that dimension type.
-         or empty dimension value if the given dimension is not active
+         or None if the given dimension is not active
         """
-        res = ConnectivityCube.get_empty_dim(dim_name)
+        if dim_name == "icmp_type" or dim_name == "icmp_code":
+            return None  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
-            return res
+            return None
+        res = None
         for cube in self:
             conn_cube = self.get_connectivity_cube(cube)
             values = conn_cube[dim_name]
-            if values:
+            if values and res:
                 res |= values
-
+            elif values:
+                res = values
         return res
 
     @staticmethod
@@ -554,9 +582,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         # Initialize conn_properties
         if dst_ports.port_set:
-            dst_ports_no_named_ports = dst_ports.copy()
-            dst_ports_no_named_ports.named_ports = set()
-            dst_ports_no_named_ports.excluded_named_ports = set()
+            dst_ports_no_named_ports = PortSet()
+            dst_ports_no_named_ports.port_set = dst_ports.port_set.copy()
             conn_cube["dst_ports"] = dst_ports_no_named_ports
             conn_properties = ConnectivityProperties.create_props_from_cube(conn_cube)
         else:
