@@ -5,7 +5,7 @@
 
 from nca.Utils.Utils import Singleton
 from nca.Utils.NcaLogger import NcaLogger
-
+from nca.CoreDS.Peer import PeerSet
 
 class ExplDescriptor:
     def __init__(self, name, config_code, config_file):
@@ -84,6 +84,16 @@ class ExplTracker(metaclass=Singleton):
                                                                  egress_dst,
                                                                  ingress_src,
                                                                  )
+
+    @staticmethod
+    def extract_peers(conns):
+        src_peers = PeerSet()
+        dst_peers = PeerSet()
+        for cube in conns:
+            conn_cube = conns.get_connectivity_cube(cube)
+            src_peers |= conn_cube["src_peers"]
+            dst_peers |= conn_cube["dst_peers"]
+        return src_peers, dst_peers
 
     def set_connections(self, conns):
         self.conns = conns

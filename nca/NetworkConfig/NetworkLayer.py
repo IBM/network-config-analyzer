@@ -250,20 +250,8 @@ class NetworkLayer:
         for policy in self.policies_list:
             # Track the peers that were affected by this policy
             for peer in policy.selected_peers:
-                opt_egr_props = policy.optimized_egress_props
-                dst_opt_egr_props_projected = opt_egr_props.project_on_one_dimension('dst_peers')
-                dst_peers = PeerSet()
-                for cube in opt_egr_props:
-                    conn_cube = opt_egr_props.get_connectivity_cube(cube)
-                    dst_peers |= conn_cube["dst_peers"]
-
-                opt_ingr_props = policy.optimized_ingress_props
-                src_opt_ingr_props_projected = opt_ingr_props.project_on_one_dimension('src_peers')
-                src_peers = PeerSet()
-                for cube in opt_ingr_props:
-                    conn_cube = opt_ingr_props.get_connectivity_cube(cube)
-                    src_peers |= conn_cube["src_peers"]
-
+                src_peers, _ = ExplTracker().extract_peers(policy.optimized_ingress_props)
+                _, dst_peers = ExplTracker().extract_peers(policy.optimized_egress_props)
                 ExplTracker().add_peer_policy(peer,
                                               policy.name,
                                               dst_peers,
@@ -323,8 +311,9 @@ class K8sCalicoNetworkLayer(NetworkLayer):
             else:
                 conn_cube.update({"src_peers": non_captured, "dst_peers": base_peer_set_with_ip})
             non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
-            ExplTracker().add_default_policy(non_captured_conns.project_on_one_dimension('dst_peers'),
-                                             non_captured_conns.project_on_one_dimension('src_peers'),
+            src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
+            ExplTracker().add_default_policy(dst_peers,
+                                             src_peers,
                                              is_ingress
                                              )
             allowed_conn |= non_captured_conns
