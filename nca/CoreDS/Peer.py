@@ -583,10 +583,6 @@ class PeerSet(set):
                 res |= elem
         return res
 
-    def get_peer_names_list(self):
-        names = list(elem.full_name_str for elem in self if not isinstance(elem, IpBlock))
-        return names
-
     def filter_ipv6_blocks(self, ip_blocks_mask):
         """
         Update ip blocks in the peer set by keeping only parts overlapping with the given mask.
