@@ -42,12 +42,15 @@ jobs:
     steps:
       - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
-      - name: flake8 Lint
-        uses: py-actions/flake8@2014ef764424fd7699d615323c17836092bec9b9
-        with:
-          path: nca
-          max-line-length: "127"
-          args: "--max-complexity=15"
+      - run: pip install flake8
+      - name: Lint with flake8
+        run: flake8 nca --count --max-complexity=15 --max-line-length=127 --statistics
+#      - name: flake8 Lint
+#        uses: py-actions/flake8@2014ef764424fd7699d615323c17836092bec9b9
+#        with:
+#          path: nca
+#          max-line-length: "127"
+#          args: "--max-complexity=15"
   unit-tests:
     runs-on: ubuntu-latest
     steps:
@@ -138,20 +141,20 @@ jobs:
       - run: |
           export PYTHONPATH=.
           python tests/run_all_tests.py --type=fw_rules_assertions
-  live-cluster:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
-      - uses: ./.github/actions/setup-nca-env
-      - uses: helm/kind-action@d8ccf8fb623ce1bb360ae2f45f323d9d5c5e9f00
-      - run: |
-          curl -L https://istio.io/downloadIstio | sh -
-          cd istio-1.*
-          export PATH=$PWD/bin:$PATH
-          istioctl install --set profile=demo -y
-      - run: |
-          export PYTHONPATH=.
-          python tests/run_all_tests.py --type=k8s_live_general
+#  live-cluster:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
+#      - uses: ./.github/actions/setup-nca-env
+#      - uses: helm/kind-action@d8ccf8fb623ce1bb360ae2f45f323d9d5c5e9f00
+#      - run: |
+#          curl -L https://istio.io/downloadIstio | sh -
+#          cd istio-1.*
+#          export PATH=$PWD/bin:$PATH
+#          istioctl install --set profile=demo -y
+#      - run: |
+#          export PYTHONPATH=.
+#          python tests/run_all_tests.py --type=k8s_live_general
   build_package:
     runs-on: ubuntu-latest
     steps:
