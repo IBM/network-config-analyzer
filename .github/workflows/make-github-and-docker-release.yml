@@ -20,7 +20,7 @@ jobs:
       packages: write
     steps:
       - name: Check out the repo
-        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
 
       - name: Setup NCA environment
         uses: ./.github/actions/setup-nca-env
@@ -76,7 +76,7 @@ jobs:
           python -m build
 
       - name: Push version to PyPi
-        uses: pypa/gh-action-pypi-publish@c7f29f7adef1a245bd91520e94867e5c6eedddcc
+        uses: pypa/gh-action-pypi-publish@a3a3bafbb3e5a75a854ae1bc53ae128cf22c4af4
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}

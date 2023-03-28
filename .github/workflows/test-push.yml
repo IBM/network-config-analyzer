@@ -15,7 +15,7 @@ jobs:
   test-docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - name: Build Docker image
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         id: build_docker
@@ -27,7 +27,7 @@ jobs:
   test-docker-ubi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - name: Build Docker image
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
         id: build_docker
@@ -40,7 +40,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - name: flake8 Lint
         uses: py-actions/flake8@2014ef764424fd7699d615323c17836092bec9b9
@@ -51,7 +51,7 @@ jobs:
   unit-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - run: |
           export PYTHONPATH=.
@@ -59,7 +59,7 @@ jobs:
   k8s-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - name: install helm
         run: |
@@ -87,7 +87,7 @@ jobs:
   calico-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - name: Run calico tests
         env:
@@ -110,7 +110,7 @@ jobs:
   istio-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - name: Run istio tests
         env:
@@ -133,7 +133,7 @@ jobs:
   fw-rules-assertion-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - run: |
           export PYTHONPATH=.
@@ -141,7 +141,7 @@ jobs:
   live-cluster:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - uses: helm/kind-action@d8ccf8fb623ce1bb360ae2f45f323d9d5c5e9f00
       - run: |
@@ -155,7 +155,7 @@ jobs:
   build_package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - uses: actions/checkout@24cb9080177205b6e8c946b17badbe402adc938f
       - uses: ./.github/actions/setup-nca-env
       - name: Build package
         run: |
