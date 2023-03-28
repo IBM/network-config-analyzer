@@ -85,7 +85,7 @@ class ConnectivityGraph:
         protocols = conn_cube["protocols"]
         conn_cube.unset_dim("protocols")
 
-        if not protocols and not conn_cube.has_active_dim():
+        if protocols.is_whole_range() and not conn_cube.has_active_dim():
             conns = ConnectionSet(True)
         else:
             conns = ConnectionSet()

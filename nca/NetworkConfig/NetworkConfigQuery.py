@@ -839,6 +839,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             dot_full = self.dot_format_from_props(props, peers_to_compare, ip_blocks_mask)
             return dot_full, None
         # TODO - handle 'txt_no_fw_rules' output format
+        if self.output_config.outputFormat == 'txt_no_fw_rules':
+            conns_wo_fw_rules = self.txt_no_fw_rules_format_from_props(props, peers_to_compare, ip_blocks_mask)
+            return conns_wo_fw_rules, None
         # handle other formats
         formatted_rules, fw_rules = self.fw_rules_from_props(props, peers_to_compare, ip_blocks_mask)
         return formatted_rules, fw_rules
@@ -908,6 +911,14 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             res_str = dot_tcp + dot_non_tcp
             return res_str, None, None
         # TODO - handle 'txt_no_fw_rules' output format
+        if self.output_config.outputFormat in ['txt_no_fw_rules']:
+            txt_no_fw_rules_tcp = self.txt_no_fw_rules_format_from_props(props_tcp, peers_to_compare, ip_blocks_mask,
+                                                                         connectivity_tcp_str)
+            txt_no_fw_rules_non_tcp = self.txt_no_fw_rules_format_from_props(props_non_tcp, peers_to_compare, ip_blocks_mask,
+                                                                             connectivity_non_tcp_str)
+            # concatenate the two graphs into one dot file
+            res_str = txt_no_fw_rules_tcp + txt_no_fw_rules_non_tcp
+            return res_str, None, None
         # handle formats other than dot and txt_no_fw_rules
         formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, peers_to_compare, ip_blocks_mask,
                                                                      connectivity_tcp_str)
@@ -976,6 +987,22 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         for cube in props:
             conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), ip_blocks_mask)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
+
+    def txt_no_fw_rules_format_from_props(self, props, peers, ip_blocks_mask, connectivity_restriction=None):
+        """
+        :param ConnectivityProperties props: properties describing allowed connections
+        :param PeerSet peers: the peers to consider for dot output
+        :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
+         whereas all other values should be filtered out in the output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :rtype str
+        :return the connectivity map in dot-format, considering connectivity_restriction if required
+        """
+        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
+        for cube in props:
+            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), ip_blocks_mask)
+        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
         """
