@@ -102,6 +102,8 @@ class InteractiveConnectivityGraph:
         EDGE_CT = 'edge'
         CONNECTIVITY_CT = 'connectivity'
 
+        ELEMENTS_DIRECTORY = 'elements'
+
         def __init__(self, input_svg_file, output_directory):
             """
             Creates the InteractiveConnectivityGraph
@@ -182,7 +184,7 @@ class InteractiveConnectivityGraph:
             t_id = tag[self.ID_TA]
             t_class = tag[self.CLASS_TA]
             t_title = tag[self.TITLE_TA]
-            t_conn = tag.get(self.CONNECTIVITY_TA) if tag.get(self.CONNECTIVITY_TA) else ''
+            t_conn = tag.get(self.CONNECTIVITY_TA, '')
             return InteractiveConnectivityGraph.ElementInfo(t_id, t_class, str(t_title), t_conn)
 
         def get_elements_info(self):
@@ -211,7 +213,7 @@ class InteractiveConnectivityGraph:
                (t_class != self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT):
                 relative_path = '.'
             elif t_class == self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT:
-                relative_path = 'elements'
+                relative_path = self.ELEMENTS_DIRECTORY
             else:
                 relative_path = '..'
             related_tag['xlink:href'] = posixpath.join(relative_path, related_tag_info.t_id + '.svg')
@@ -244,7 +246,7 @@ class InteractiveConnectivityGraph:
             if tag_info.t_class == self.BACKGROUND_CT:
                 tag_file_name = os.path.join(self.output_directory, tag_info.t_id + '.svg')
             else:
-                tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.t_id + '.svg')
+                tag_file_name = os.path.join(self.output_directory, self.ELEMENTS_DIRECTORY, tag_info.t_id + '.svg')
             try:
                 with open(tag_file_name, 'wb') as tag_svg_file:
                     tag_svg_file.write(tag_soup.prettify(encoding='utf-8'))
@@ -270,8 +272,7 @@ class InteractiveConnectivityGraph:
             try:
                 if os.path.isdir(self.output_directory):
                     shutil.rmtree(self.output_directory)
-                os.mkdir(self.output_directory)
-                os.mkdir(os.path.join(self.output_directory, 'elements'))
+                os.makedirs(os.path.join(self.output_directory, self.ELEMENTS_DIRECTORY))
             except Exception as e:
                 print(f'Failed to create directory: {self.output_directory}\n{e} for writing', file=sys.stderr)
                 return
@@ -428,8 +429,8 @@ class InteractiveConnectivityGraph:
 
             # for each set build its clique, add its nodes and edges:
             for clique_set in clique_sets:
-                cliqut_conn = self.graph.nodes[list(clique_set)[0]].conn
-                clique = self.Clique(cliqut_conn)
+                clique_conn = self.graph.nodes[list(clique_set)[0]].conn
+                clique = self.Clique(clique_conn)
                 clique_set_names = clique_set
                 clique.edges = [edge for edge in self.graph.edges.values() if
                                 edge.src_name in clique_set_names or edge.dst_name in clique_set_names]
@@ -499,15 +500,16 @@ class InteractiveConnectivityGraph:
             # add edge and nodes to all clique elements (conns already inside)
             # highlights all clique core elements with each other
             for clique in self.graph.cliques:
+                clique_relations = set()
+                for e in clique.edges:
+                    clique_relations |= elements_relations[e.t_id].relations
                 for el in clique.nodes + clique.edges:
-                    for e in clique.edges:
-                        elements_relations[el.t_id].relations |= elements_relations[e.t_id].relations
-                        elements_relations[clique.conn.t_id].relations |= elements_relations[e.t_id].relations
+                    elements_relations[el.t_id].relations |= clique_relations
+                elements_relations[clique.conn.t_id].relations |= clique_relations
                 clq_core = [n for n in clique.nodes if not n.real_node()] + clique.edges
+                clique_highlights = set(cc.t_id for cc in clq_core) | set([clique.conn.t_id])
                 for cc in clq_core:
-                    elements_relations[cc.t_id].highlights.add(clique.conn.t_id)
-                for cc1, cc2 in itertools.product(clq_core, clq_core):
-                    elements_relations[cc1.t_id].highlights.add(cc2.t_id)
+                    elements_relations[cc.t_id].highlights |= clique_highlights
 
             self._set_bicliques_relations(elements_relations)
 
