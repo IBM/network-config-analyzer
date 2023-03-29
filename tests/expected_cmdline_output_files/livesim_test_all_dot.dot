@@ -3,7 +3,7 @@ digraph {
 	label="Connectivity Graph of **"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
-	dict_box [label="Connectivity legend\lTCP_0          TCP {'dst_ports': '5678', 'paths': '/foo(/*)?'}\lTCP_1          TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com', 'paths': '(/status(/*)?)|(/delay(/*)?)'}\lUDP            UDP 53\l" shape=box]
+	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="TCP {'dst_ports': '5678', 'paths': '/foo(/*)?'}" href="bogus">TCP_0     TCP {'dst_ports': '5678', 'pat...<br align="left" /></td></tr><tr><td align="text" tooltip="TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com', 'paths': '(/status(/*)?)|(/delay(/*)?)'}" href="bogus">TCP_1     TCP {'dst_ports': '80', 'hosts...<br align="left" /></td></tr><tr><td align="text" tooltip="UDP 53" href="bogus">UDP     UDP 53<br align="left" /></td></tr></table>> shape=box]
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_default_namespace{
 	label="default"

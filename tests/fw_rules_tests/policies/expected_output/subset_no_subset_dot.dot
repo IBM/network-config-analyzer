@@ -10,31 +10,31 @@ subgraph cluster_default_namespace{
 	fontcolor=blue
 	"default/Pod1" [label=<<table border="0" cellspacing="0"><tr><td>Pod1</td></tr></table>> shape=box fontcolor=blue]
 	"default/Pod4" [label=<<table border="0" cellspacing="0"><tr><td>Pod4</td></tr></table>> shape=box fontcolor=blue]
-	"default/Pod5" [label=<<table border="2" cellspacing="0"><tr><td>Pod5</td></tr><tr><td>deployment-Eb-1</td></tr><tr><td>deployment-Eb-2</td></tr></table>> shape=box color=blue4]
-	"default/deployment-E-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-E-1</td></tr><tr><td>deployment-E-2</td></tr></table>> shape=box color=blue4]
+	"default/Pod5" [label=<<table border="1" cellspacing="0"><tr><td>Pod5</td></tr><tr><td>deployment-Eb-1</td></tr><tr><td>deployment-Eb-2</td></tr></table>> shape=box color=blue4]
+	"default/deployment-E-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-E-1</td></tr><tr><td>deployment-E-2</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_ns1_namespace{
 	label="ns1"
 	fontsize=20
 	fontcolor=blue
 	"ns1/Pod2" [label=<<table border="0" cellspacing="0"><tr><td>Pod2</td></tr></table>> shape=box fontcolor=blue]
-	"ns1/deployment-A-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-A-1</td></tr><tr><td>deployment-A-2</td></tr></table>> shape=box color=blue4]
-	"ns1/deployment-B-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-B-1</td></tr><tr><td>deployment-B-2</td></tr></table>> shape=box color=blue4]
+	"ns1/deployment-A-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-A-1</td></tr><tr><td>deployment-A-2</td></tr></table>> shape=box color=blue4]
+	"ns1/deployment-B-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-B-1</td></tr><tr><td>deployment-B-2</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_ns2_namespace{
 	label="ns2"
 	fontsize=20
 	fontcolor=blue
 	"ns2/Pod3" [label=<<table border="0" cellspacing="0"><tr><td>Pod3</td></tr></table>> shape=box fontcolor=blue]
-	"ns2/Pod6" [label=<<table border="2" cellspacing="0"><tr><td>Pod6</td></tr><tr><td>deployment-F-1</td></tr><tr><td>deployment-F-2</td></tr></table>> shape=box color=blue4]
-	"ns2/deployment-C-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-C-1</td></tr><tr><td>deployment-C-2</td></tr></table>> shape=box color=blue4]
-	"ns2/deployment-D-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-D-1</td></tr><tr><td>deployment-D-2</td></tr></table>> shape=box color=blue4]
+	"ns2/Pod6" [label=<<table border="1" cellspacing="0"><tr><td>Pod6</td></tr><tr><td>deployment-F-1</td></tr><tr><td>deployment-F-2</td></tr></table>> shape=box color=blue4]
+	"ns2/deployment-C-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-C-1</td></tr><tr><td>deployment-C-2</td></tr></table>> shape=box color=blue4]
+	"ns2/deployment-D-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-D-1</td></tr><tr><td>deployment-D-2</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_ns3_namespace{
 	label="ns3"
 	fontsize=20
 	fontcolor=blue
-	"ns3/Pod7" [label=<<table border="2" cellspacing="0"><tr><td>Pod7</td></tr><tr><td>Pod8</td></tr></table>> shape=box color=blue4]
+	"ns3/Pod7" [label=<<table border="1" cellspacing="0"><tr><td>Pod7</td></tr><tr><td>Pod8</td></tr></table>> shape=box color=blue4]
 }
 	"default/Pod1" -> "ns2/Pod3"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/Pod1" -> "ns3/Pod7"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]

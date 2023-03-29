@@ -3,7 +3,7 @@ digraph {
 	label="Connectivity Graph of connectivity-bookinfo-demo-by-pods/bookinfo-demo, for TCP connections"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
-	dict_box [label="Connectivity legend\lTCP            TCP {'methods': 'GET'}\l" shape=box]
+	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="TCP {'methods': 'GET'}" href="bogus">TCP     TCP {'methods': 'GET'}<br align="left" /></td></tr></table>> shape=box]
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 	"biclique_All0" [shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0  xlabel="All"]
 subgraph cluster_default_namespace{
@@ -13,7 +13,7 @@ subgraph cluster_default_namespace{
 	"default/details-v1-79f774bdb9-tw7sj" [label=<<table border="0" cellspacing="0"><tr><td>details-v1-79f774bdb9-tw7sj</td></tr></table>> shape=box fontcolor=blue]
 	"default/productpage-v1-6b746f74dc-kkzzk" [label=<<table border="0" cellspacing="0"><tr><td>productpage-v1-6b746f74dc-kkzzk</td></tr></table>> shape=box fontcolor=blue]
 	"default/ratings-v1-b6994bb9-gl27w" [label=<<table border="0" cellspacing="0"><tr><td>ratings-v1-b6994bb9-gl27w</td></tr></table>> shape=box fontcolor=blue]
-	"default/reviews-v1-545db77b95-2ps7q" [label=<<table border="2" cellspacing="0"><tr><td>reviews-v1-545db77b95-2ps7q</td></tr><tr><td>reviews-v2-7bf8c9648f-7v7ps</td></tr><tr><td>reviews-v3-84779c7bbc-lfjvk</td></tr></table>> shape=box color=blue4]
+	"default/reviews-v1-545db77b95-2ps7q" [label=<<table border="1" cellspacing="0"><tr><td>reviews-v1-545db77b95-2ps7q</td></tr><tr><td>reviews-v2-7bf8c9648f-7v7ps</td></tr><tr><td>reviews-v3-84779c7bbc-lfjvk</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_istio_system_namespace{
 	label="istio-system"
@@ -43,7 +43,7 @@ subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/details-v1-79f774bdb9-tw7sj" [label=<<table border="2" cellspacing="0"><tr><td>details-v1-79f774bdb9-tw7sj</td></tr><tr><td>productpage-v1-6b746f74dc-kkzzk</td></tr><tr><td>ratings-v1-b6994bb9-gl27w</td></tr><tr><td>reviews-v1-545db77b95-2ps7q</td></tr><tr><td>reviews-v2-7bf8c9648f-7v7ps</td></tr><tr><td>reviews-v3-84779c7bbc-lfjvk</td></tr></table>> shape=box color=blue4]
+	"default/details-v1-79f774bdb9-tw7sj" [label=<<table border="1" cellspacing="0"><tr><td>details-v1-79f774bdb9-tw7sj</td></tr><tr><td>productpage-v1-6b746f74dc-kkzzk</td></tr><tr><td>ratings-v1-b6994bb9-gl27w</td></tr><tr><td>reviews-v1-545db77b95-2ps7q</td></tr><tr><td>reviews-v2-7bf8c9648f-7v7ps</td></tr><tr><td>reviews-v3-84779c7bbc-lfjvk</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_istio_system_namespace{
 	label="istio-system"
