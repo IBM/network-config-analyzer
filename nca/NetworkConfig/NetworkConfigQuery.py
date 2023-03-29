@@ -155,7 +155,7 @@ class NetworkConfigQuery(BaseNetworkQuery):
         if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
             return False
         if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
-            return False # connectivity between external peers is not relevant either
+            return False  # connectivity between external peers is not relevant either
         if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) \
                 and isinstance(peer2, DNSEntry):
             return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
