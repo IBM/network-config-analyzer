@@ -2,11 +2,8 @@
 digraph {
 	label="Connectivity Graph of **"	labelloc = "t"
 	fontsize=30
-	fontcolor=webmaroon
-{
+	fontcolor=maroon
 	dict_box [label="Connectivity legend\lTCP_0          TCP {'dst_ports': '5678', 'paths': '/foo(/*)?'}\lTCP_1          TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com', 'paths': '(/status(/*)?)|(/delay(/*)?)'}\lUDP            UDP 53\l" shape=box]
- rank=sink
-}
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_default_namespace{
 	label="default"
@@ -21,19 +18,19 @@ subgraph cluster_ingress_controller_ns_namespace{
 	label="ingress-controller-ns"
 	fontsize=20
 	fontcolor=blue
-	"ingress-controller-ns/ingress-controller-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>ingress-controller-livesim(Pod)</td></tr></table>> shape=box fontcolor=fuchsia]
+	"ingress-controller-ns/ingress-controller-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>ingress-controller-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta]
 }
 subgraph cluster_istio_ingressgateway_ns_namespace{
 	label="istio-ingressgateway-ns"
 	fontsize=20
 	fontcolor=blue
-	"istio-ingressgateway-ns/istio-ingressgateway-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway-livesim(Pod)</td></tr></table>> shape=box fontcolor=fuchsia]
+	"istio-ingressgateway-ns/istio-ingressgateway-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta]
 }
 subgraph cluster_kube_system_namespace{
 	label="kube-system"
 	fontsize=20
 	fontcolor=blue
-	"kube-system/kube-dns-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>kube-dns-livesim(Pod)</td></tr></table>> shape=box fontcolor=fuchsia]
+	"kube-system/kube-dns-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>kube-dns-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta]
 }
 	"0.0.0.0/0" -> "default/foo-app(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"0.0.0.0/0" -> "default/httpbin(Deployment)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]

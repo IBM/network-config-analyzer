@@ -20,7 +20,7 @@ istio_testcases/example_policies/complex-ingress-test/complex-k8s-ingress-test-s
 istio_testcases/example_policies/fly-istio-ingress-test/fly-istio-ingress-test-scheme.yaml,0.48
 istio_testcases/example_policies/istio-ingress-test/istio-ingress-test-scheme.yaml,1.91
 istio_testcases/example_policies/multi-layer-tests/onlineboutique-multi-layer-tests-scheme.yaml,32.84
-istio_testcases/example_policies/online_boutique/connectivity-scheme.yaml,20.04
+istio_testcases/example_policies/online_boutique/connectivity-scheme.yaml,27.69
 istio_testcases/example_policies/sidecar_examples_w_onlineboutique/frontend_tests/frontend-sidecar-test-scheme.yaml,0.16
 istio_testcases/example_policies/sidecar_examples_w_onlineboutique/sidecar_disables_egress/sidecars-disable-egress-scheme.yaml,0.32
 istio_testcases/example_policies/sidecar_examples_w_onlineboutique/sidecars-syntax-tests-scheme.yaml,0.19

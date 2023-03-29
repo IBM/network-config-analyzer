@@ -47,11 +47,11 @@ class DotGraph:
         self.node_styles = \
             {self.NodeType.IPBlock: 'shape=box fontcolor=red2',
              self.NodeType.Pod: 'shape=box fontcolor=blue',
-             self.NodeType.Livesim: 'shape=box fontcolor=fuchsia',
+             self.NodeType.Livesim: 'shape=box fontcolor=magenta',
              self.NodeType.Clique:
                  'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0',
              self.NodeType.BiClique: 'shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0',
-             self.NodeType.MultiPod: 'shape=box color=darkblue',
+             self.NodeType.MultiPod: 'shape=box color=blue4',
              }
 
     def add_node(self, subgraph, name, node_type, label):
@@ -96,7 +96,7 @@ class DotGraph:
         output_result += f'\tlabel=\"Connectivity Graph of {self.name}\"'
         output_result += '\tlabelloc = "t"\n'
         output_result += '\tfontsize=30\n'
-        output_result += '\tfontcolor=webmaroon\n'
+        output_result += '\tfontcolor=maroon\n'
         if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
         self.subgraphs = dict(sorted(self.subgraphs.items()))
@@ -116,7 +116,7 @@ class DotGraph:
         items_to_present.sort()
         dict_table = '\\l'.join([f'{short:<15}{label}' for short, label in items_to_present])
         dict_table = f'label=\"Connectivity legend\\l{dict_table}\\l\"'
-        return f'{{\n\tdict_box [{dict_table} shape=box]\n rank=sink\n}}\n'
+        return f'\tdict_box [{dict_table} shape=box]\n'
 
     def _subgraph_to_str(self, subgraph):
         """

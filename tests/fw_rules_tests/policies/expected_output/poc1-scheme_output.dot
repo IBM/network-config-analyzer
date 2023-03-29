@@ -2,7 +2,7 @@
 digraph {
 	label="Connectivity Graph of connectivity_map_dot/poc1"	labelloc = "t"
 	fontsize=30
-	fontcolor=webmaroon
+	fontcolor=maroon
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_default_namespace{
 	label="default"

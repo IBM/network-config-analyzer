@@ -2,11 +2,8 @@
 digraph {
 	label="Connectivity Graph of connectivity/complex-istio-and-k8s-ingress-test"	labelloc = "t"
 	fontsize=30
-	fontcolor=webmaroon
-{
+	fontcolor=maroon
 	dict_box [label="Connectivity legend\lTCP_0          TCP {'dst_ports': '3000', 'hosts': 'aaaa.y.z'},{'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/aaaa(/*)?'}\lTCP_1          TCP {'dst_ports': '3000', 'hosts': 'iiii.y.z'},{'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/iiii(/*)?'}\lTCP_2          TCP {'dst_ports': '3200', 'hosts': 'dddd.y.z'},{'dst_ports': '3200', 'hosts': 'ooo.y.z', 'paths': '/dddd(/*)?'}\lTCP_3          TCP {'dst_ports': '3456', 'hosts': 'bbbb.y.z'},{'dst_ports': '3456', 'hosts': 'ooo.y.z', 'paths': '/bbbb(/*)?'}\lTCP_4          TCP {'dst_ports': '3500', 'hosts': 'ffff.y.z'},{'dst_ports': '3500', 'hosts': 'ooo.y.z', 'paths': '/ffff(/*)?'}\lTCP_5          TCP {'dst_ports': '4000', 'hosts': 'gggg.y.z'},{'dst_ports': '4000', 'hosts': 'ooo.y.z', 'paths': '/gggg(/*)?'}\lTCP_6          TCP {'dst_ports': '9950', 'hosts': 'cccc.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/cccc(/*)?'}\lTCP_7          TCP {'dst_ports': '9950', 'hosts': 'hhhh.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/hhhh(/*)?'}\lTCP_8          TCP {'dst_ports': '9950', 'hosts': 'jjjj.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/jjjj(/*)?'}\l" shape=box]
- rank=sink
-}
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 	"biclique_All0" [shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0  xlabel="All"]
 subgraph cluster_example_namespace{
