@@ -17,29 +17,6 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
         super().__init__()
 
     @staticmethod
-    def _parse_export_to(namespaces, curr_ns):
-        """
-        parses the list in exportTo field of the ServiceEntry if found, and returns the namespaces list which
-        the ServiceEntry is exported to. If exportTo not found , by default, a service is exported to all namespaces.
-        :param list[str] namespaces: the list of namespaces names given in exportTo field
-        :param str curr_ns: the name of this serviceEntry's namespace name
-        :return list of namespaces or ['*'] if exported to all namespaces
-        :rtype: list[str]
-        """
-        if not namespaces:
-            return ['*']
-
-        ns_list = []
-        for ns in namespaces:
-            if ns == '*':
-                return ['*']
-            if ns == '.':
-                ns_list.append(str(curr_ns))
-            else:
-                ns_list.append(ns)
-        return ns_list
-
-    @staticmethod
     def _legal_host_name(host_name):
         """
         returns if the host name is a DNS name with wildcard prefix.
@@ -96,9 +73,9 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
 
         se_spec = service_entry_obj['spec']
 
-        allowed_keys = {'hosts': [1, list], 'addresses': [3, list], 'ports': [1, list], 'location': [0, str],
+        allowed_keys = {'hosts': [1, list], 'addresses': [3, list], 'ports': [3, list], 'location': [0, str],
                         'resolution': [0, str], 'endpoints': [2, list], 'workloadSelector': [2, dict],
-                        'exportTo': [0, list], 'subjectAltNames': [3, list]}
+                        'exportTo': [3, list], 'subjectAltNames': [3, list]}
         # Note: even though the resolution field appears as required in Istio ServiceEntry reference,
         # live cluster accepts service-entry yaml without this field (not required)
 
@@ -122,19 +99,5 @@ class IstioServiceEntryYamlParser(GenericYamlParser):
             self.syntax_error('ServiceEntry spec must have at least one host', se_spec)
         for host in hosts:
             dns_entry_peers.add(self._parse_host_and_get_dns_entry(host, se_spec, peer_set))
-
-        ports = se_spec.get('ports')
-        if not ports:
-            self.syntax_error('ServiceEntry spec must have at least one port', se_spec)
-        port_valid_keys = {'number': [1, int], 'protocol': [1, str], 'name': [1, str], 'targetPort': [3, int]}
-        port_allowed_values = {'protocol': ['HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS']}
-        ports_numbers = []  # for our dnsEntry peers connections, only port number interests us
-        for port in ports:
-            self.check_fields_validity(port, 'port', port_valid_keys, port_allowed_values)
-            ports_numbers.append(port.get('number'))
-
-        for dns_peer in dns_entry_peers:
-            # parse exportTo field and update the DNSEntry peers' namespaces_ports
-            dns_peer.update_namespaces_to_ports_dict(self._parse_export_to(se_spec.get('exportTo', []), se_ns), ports_numbers)
 
         return dns_entry_peers

@@ -39,14 +39,6 @@ class PoliciesContainer:
         # add policy to the corresponding layer's list (sorted) of policies
         self.layers.add_policy(policy, NetworkLayerName.policy_type_to_layer(policy_type))
 
-    def contains_istio_sidecar(self):
-        """
-        checks if the policies container contains any istio sidecar policy
-        :rtype: bool
-        """
-        return NetworkLayerName.Istio in self.layers and \
-            any(policy_key[1] == NetworkPolicy.PolicyType.IstioSidecar for policy_key in self.policies)
-
 
 class NetworkConfig:
     """

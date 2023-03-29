@@ -1,3 +1,0 @@
-Network configuration sidecar-with-selector-registery-only is a proper subset of sidecar-with-selector-allows-any but sidecar-with-selector-allows-any is not contained in sidecar-with-selector-registery-only
-Connections allowed in sidecar-with-selector-allows-any which are not a subset of those in sidecar-with-selector-registery-only:
-src: default/ratings-v1-1, dst: 0.0.0.0-255.255.255.255, conn: All connections

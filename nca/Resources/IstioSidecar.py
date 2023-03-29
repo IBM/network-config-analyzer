@@ -9,8 +9,6 @@ from nca.CoreDS.ConnectionSet import ConnectionSet
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
 from .IstioTrafficResources import istio_root_namespace
 from ..CoreDS.Peer import DNSEntry, IpBlock
-from ..CoreDS.PortSet import PortSet
-from ..CoreDS.TcpLikeProperties import TcpLikeProperties
 
 
 @dataclass
@@ -74,13 +72,10 @@ class IstioSidecar(NetworkPolicy):
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
             if to_peer in rule.egress_peer_set or \
-                    (to_peer in rule.special_egress_peer_set and self.check_peers_in_same_namespace(from_peer, to_peer)):
-                if isinstance(to_peer, DNSEntry):
-                    return \
-                        PolicyConnections(True, allowed_conns=self.update_ports_of_dns_entry_conns(to_peer,
-                                                                                                   str(from_peer.namespace)))
-                else:
-                    return PolicyConnections(True, allowed_conns=ConnectionSet(True))
+                    (to_peer in rule.special_egress_peer_set and (
+                        isinstance(to_peer, DNSEntry) or from_peer.namespace == to_peer.namespace)):
+                # a DNSEntry peer is exported to all namespaces
+                return PolicyConnections(True, allowed_conns=ConnectionSet(True))
 
         # egress from from_peer to to_peer is not allowed : if to_peer not been captured in the rules' egress_peer_set,
         # or if the sidecar is global and to_peer is not in same namespace of from_peer while rule host's ns is '.'
@@ -154,48 +149,3 @@ class IstioSidecar(NetworkPolicy):
                         self == self.namespace.prior_default_sidecar:
                     return True
         return False
-
-    @staticmethod
-    def check_peers_in_same_namespace(from_peer, to_peer):
-        """
-        checks if from_peer and to_peer are in the same namespace or if to_peer is exported to from_peer's namespace
-        (in case to_peer is DNSEntry)
-        :param Peer from_peer: the src peer
-        :param Peer to_peer: the dst peer
-        :rtype: bool
-        """
-        # a captured from_peer is always internal (having a specified namespace)
-        from_ns = from_peer.namespace
-        if to_peer.namespace:
-            return from_ns == to_peer.namespace
-        # else to_peer is a DNSEntry: it is exported to from_peer if it is exported to its namespace or to all namespaces
-        assert isinstance(to_peer, DNSEntry)
-        return '*' in to_peer.namespaces_ports or from_ns in to_peer.namespaces_ports
-
-    @staticmethod
-    def update_ports_of_dns_entry_conns(to_peer, from_ns):
-        """
-        computes the allowed connections to a DNSEntry peer considering its ports and the src namespace
-        :param DNSEntry to_peer: the dst DNSEntry peer
-        :param str from_ns : the namespace name of the src peer
-        :rtype: ConnectionSet
-        """
-        if not from_ns:
-            return ConnectionSet()  # if we get here means that the src peer is not internal (i.e. not ClusterEP),
-            # the connections will not be considered
-
-        dst_ports = PortSet()
-        res = ConnectionSet()
-        # the ports that this src can connect with to to_peer, are ports that are exported to all namespaces and the
-        # ports that are exported specifically to the src's namespace
-        if '*' in to_peer.namespaces_ports:
-            for port_num in to_peer.namespaces_ports['*']:
-                dst_ports.add_port(port_num)
-        if from_ns in to_peer.namespaces_ports:
-            for port_num in to_peer.namespaces_ports[from_ns]:
-                dst_ports.add_port(port_num)
-
-        # all allowed protocols of service-entry (source of dns-entries) are TCPLike
-        # the allowed protocols are: 'HTTP', 'HTTPS', 'GRPC', 'HTTP2', 'MONGO', 'TCP', 'TLS'
-        res.add_connections(protocol='TCP', properties=TcpLikeProperties(PortSet(True), dst_ports))
-        return res

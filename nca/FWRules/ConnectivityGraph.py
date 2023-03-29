@@ -6,7 +6,7 @@
 import itertools
 from collections import defaultdict
 import networkx
-from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, DNSEntry
+from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
 from .DotGraph import DotGraph
 from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
@@ -41,10 +41,6 @@ class ConnectivityGraph:
         :param ConnectionSet connections: The allowed connections from source_peer to dest_peer
         :return: None
         """
-        if isinstance(source_peer, DNSEntry):
-            return None  # connections from dns entries are not considered
-        if isinstance(source_peer, IpBlock) and isinstance(dest_peer, DNSEntry):
-            return None  # connections from ip-blocks to dns-entries are not considered
         self.connections_to_peers[connections].append((source_peer, dest_peer))
 
     def add_edges(self, connections):

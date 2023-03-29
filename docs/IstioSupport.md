@@ -45,7 +45,5 @@ In the ServiceEntry, the following is suported:
 | Field      | Supported (Sub)-Fields | Supported Values           |
 |------------|------------------------|----------------------------|
 | hosts      |                        |                            |
-| ports      | number, protocol, name |                            | 
 | location   |                        | MESH_EXTERNAL              |
 | resolution |                        | NONE, DNS, DNS_ROUND_ROBIN |
-| exportTo   |                        |                            |

@@ -1,3 +1,0 @@
-sidecar-with-local-and-dns-hosts interferes with sidecar-with-local-hosts-only
-Allowed connections from sidecar-with-local-hosts-only which are extended in sidecar-with-local-and-dns-hosts:
-src: default/ratings-v1-1, dst: www.slack.com, description: sidecar-with-local-and-dns-hosts allows communication using protocol TCP while sidecar-with-local-hosts-only does not.

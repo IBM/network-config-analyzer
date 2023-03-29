@@ -55,10 +55,6 @@ class Peer:
     def get_named_ports():
         return {}
 
-    def get_ports_exported_to_ns(self, src_namespace):
-        # implemented in DNSEntry
-        return []
-
 
 class ClusterEP(Peer):
     """
@@ -464,21 +460,45 @@ class IpBlock(Peer, CanonicalIntervalSet):
         return cnt == len(self.interval_set)
 
 
+"""
+The following class DNSEntry; represents another type of external peer which is produced from istio ServiceEntry objects.
+Note: connectivity of DNSEntry peers is considered only for NetworkLayerName.Istio
+each DNSEntry peer appears as a single host in the serviceEntry object
+
+example: from this ServiceEntry yaml object:
+    `
+    apiVersion: networking.istio.io/v1alpha3
+    kind: ServiceEntry
+    metadata:
+        name: external-svc-first-test
+    spec:
+        hosts:
+            - www.slack.com
+            - www.google.com
+        location: MESH_EXTERNAL
+        ports:
+            - name: https-443
+              number: 443
+              protocol: HTTPS
+        resolution: NONE
+    `
+two DNSEntry peers will be created :
+1.DNSEntry(name=www.slack.com)
+2.DNSEntry(name=www.google.com)
+"""
+
+
 class DNSEntry(Peer):
     """
-    represents DNS entries, produced by ServiceEntry objects.
-    A DNSEntry peer is created for each host in the service-entry hosts' list
+    represents DNS entries, produced by istio ServiceEntry objects.
+    A DNSEntry peer is created from single host in the service-entry hosts' list
     """
     def __init__(self, name=None, namespace=None):
         """
         Constructs a DNSEntry from the host name provided
+        currently: each DNSEntry peer is exported to all namespaces
         """
         Peer.__init__(self, name, namespace)
-        self.namespaces_ports = {}  # dict of namespaces which the peer is exported to with the ports its
-        # exported to on each namespace.
-        # if the peer appears in multiple service-entries, this set should include all namespaces that these
-        # service-entries are exported to and for each, the ports its exported to.
-        # '*' indicates that it is exported to all namespaces for at least one service-entry
 
     def __str__(self):
         return self.name
@@ -493,46 +513,6 @@ class DNSEntry(Peer):
         if isinstance(other, type(self)):
             return self.name == other.name
         return False
-
-    def update_namespaces_to_ports_dict(self, namespaces, ports):
-        """
-        updates self.namespaces_ports dict, updates the value with ports for each namespace in namespaces
-        :param list[str] namespaces: the namespaces list to add to the dict or update its value.
-        ['*'] indicates the peer is exported to all namespaces
-        :param list[int] ports: list of ports numbers that the peer is exported to for the given namespaces
-        """
-        for namespace in namespaces:
-            if namespace in self.namespaces_ports:
-                self.namespaces_ports[namespace].extend(ports)
-            else:
-                self.namespaces_ports[namespace] = ports
-
-    def same_namespaces_ports(self, other):
-        """
-        compares the namespaces and ports of self and other
-        :param DNSEntry other: the other peer to compare current exports with
-        :return: if both peers have same namespaces and ports exports
-        :rtype: bool
-        """
-        for namespace, ports in other.namespaces_ports.items():
-            other_ports = set(ports + other.namespaces_ports.get('*', []))
-            self_ports = self.get_ports_exported_to_ns(namespace)
-            if other_ports != self_ports:
-                return False
-        return True
-
-    def get_ports_exported_to_ns(self, src_namespace):
-        """
-        return a set of ports numbers that are exported to the given namespace,
-        this def will return the ports that are exported to the specified namespace and the ports that are exported
-        to all namespaces
-        :param str src_namespace: namespace name
-        :rtype: set[int] to get unique ports
-        """
-        res = []
-        res.extend(self.namespaces_ports.get('*', []))
-        res.extend(self.namespaces_ports.get(src_namespace, []))
-        return set(res)
 
 
 class PeerSet(set):

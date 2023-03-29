@@ -1,7 +1,0 @@
-sidecar-with-local-and-dns-hosts does not forbid connections specified in sidecar-with-local-hosts-only
-Both sidecar-with-local-hosts-only and sidecar-with-local-and-dns-hosts allow the following connection(s):
-src: default/ratings-v1-1, dst: 0.0.0.0-255.255.255.255, conn: All connections
-src: default/ratings-v1-1, dst: default/details-v1-1, conn: All connections
-src: default/ratings-v1-1, dst: default/reviews-v1-1, conn: All connections
-src: default/ratings-v1-1, dst: default/reviews-v2-1, conn: All connections
-src: default/ratings-v1-1, dst: default/reviews-v3-1, conn: All connections

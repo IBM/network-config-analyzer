@@ -1,1 +1,0 @@
-sidecar-with-selector-allows-any permits all connections specified in sidecar-with-selector-registery-only

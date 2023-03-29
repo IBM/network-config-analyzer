@@ -1,6 +1,0 @@
-allow-all-sidecar-multiple-service-entry interferes with sidecar-allows-any-one-service-entry
-Allowed connections from sidecar-allows-any-one-service-entry which are extended in allow-all-sidecar-multiple-service-entry:
-src: default/ratings-v1-1, dst: *.slack.com, description: TCP protocol - allow-all-sidecar-multiple-service-entry allows communication on [dst_ports=80] while sidecar-allows-any-one-service-entry does not
-src: default/ratings-v1-1, dst: api.dropboxapi.com, description: TCP protocol - allow-all-sidecar-multiple-service-entry allows communication on [dst_ports=80] while sidecar-allows-any-one-service-entry does not
-src: default/ratings-v1-1, dst: api.facebook.com, description: TCP protocol - allow-all-sidecar-multiple-service-entry allows communication on [dst_ports=80] while sidecar-allows-any-one-service-entry does not
-src: default/ratings-v1-1, dst: www.googleapis.com, description: TCP protocol - allow-all-sidecar-multiple-service-entry allows communication on [dst_ports=80] while sidecar-allows-any-one-service-entry does not

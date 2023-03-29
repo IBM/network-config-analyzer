@@ -1,1 +1,0 @@
-sidecar-with-selector-registery-only is contained in sidecar-with-selector-allows-any

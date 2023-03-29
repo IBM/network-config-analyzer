@@ -1,5 +1,0 @@
-sidecar-with-local-hosts-only and sidecar-with-local-and-dns-hosts are not semantically equivalent.
-
-New connections between persistent peers and added peers (based on topology from config: sidecar-with-local-and-dns-hosts) :
-src_ns: [default] src_pods: [*] dst: www.slack.com conn: TCP 443
-src_ns: [default] src_pods: [app!=ratings] dst: www.google.com conn: TCP 443
