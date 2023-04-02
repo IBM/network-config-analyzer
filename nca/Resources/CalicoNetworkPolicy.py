@@ -129,12 +129,14 @@ class CalicoNetworkPolicy(NetworkPolicy):
         """
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = self.optimized_ingress_props.copy()
-            res_conns.denied_conns = self.optimized_denied_ingress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props.copy()
+            res_conns.pass_conns = self.optimized_pass_ingress_props.copy()
             res_conns.captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_egress_props.copy()
-            res_conns.denied_conns = self.optimized_denied_egress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props.copy()
+            res_conns.pass_conns = self.optimized_pass_egress_props.copy()
             res_conns.captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
         return res_conns
 

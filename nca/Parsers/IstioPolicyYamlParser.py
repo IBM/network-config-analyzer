@@ -575,9 +575,11 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         for ingress_rule in policy_spec.get('rules', []):
             rule, optimized_props = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
             res_policy.add_ingress_rule(rule)
-            res_policy.add_optimized_ingress_props(optimized_props,
-                                                   res_policy.action == IstioNetworkPolicy.ActionType.Allow)
-        res_policy.add_optimized_egress_props(ConnectivityProperties.make_all_props())
+            if res_policy.action == IstioNetworkPolicy.ActionType.Allow:
+                res_policy.add_optimized_allow_props(optimized_props, True)
+            else:  # Deny
+                res_policy.add_optimized_deny_props(optimized_props, True)
+        res_policy.add_optimized_allow_props(ConnectivityProperties.make_all_props(), False)
         if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:
             self.syntax_error("DENY action without rules is meaningless as it will never be triggered")
 

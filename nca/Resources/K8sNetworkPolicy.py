@@ -74,10 +74,10 @@ class K8sNetworkPolicy(NetworkPolicy):
         """
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = self.optimized_ingress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
             res_conns.captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_egress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
             res_conns.captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
         return res_conns
 

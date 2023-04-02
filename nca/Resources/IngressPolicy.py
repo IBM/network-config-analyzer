@@ -100,7 +100,7 @@ class IngressPolicy(NetworkPolicy):
             res_conns.allowed_conns = ConnectivityProperties.make_empty_props()
             res_conns.captured = PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_egress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
             res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
         return res_conns
 

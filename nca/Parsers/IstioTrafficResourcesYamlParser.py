@@ -400,7 +400,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                     conn_cube = ConnectivityCube.make_from_dict({"protocols": protocols,
                                                                  "src_peers": res_policy.selected_peers})
                     allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)
-                    res_policy.add_optimized_egress_props(allowed_conns)
+                    res_policy.add_optimized_allow_props(allowed_conns, False)
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)
             if not vs_policies:

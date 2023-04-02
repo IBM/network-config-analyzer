@@ -459,14 +459,14 @@ class K8sPolicyYamlParser(GenericYamlParser):
             for ingress_rule in ingress_rules:
                 rule, optimized_props = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
                 res_policy.add_ingress_rule(rule)
-                res_policy.add_optimized_ingress_props(optimized_props)
+                res_policy.add_optimized_allow_props(optimized_props, True)
 
         egress_rules = policy_spec.get('egress', [])
         if egress_rules:
             for egress_rule in egress_rules:
                 rule, optimized_props = self.parse_egress_rule(egress_rule, res_policy.selected_peers)
                 res_policy.add_egress_rule(rule)
-                res_policy.add_optimized_egress_props(optimized_props)
+                res_policy.add_optimized_allow_props(optimized_props, False)
 
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels
