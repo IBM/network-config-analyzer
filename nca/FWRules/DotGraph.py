@@ -47,11 +47,11 @@ class DotGraph:
         self.node_styles = \
             {self.NodeType.IPBlock: 'shape=box fontcolor=red2',
              self.NodeType.Pod: 'shape=box fontcolor=blue',
-             self.NodeType.Livesim: 'shape=box fontcolor=fuchsia',
+             self.NodeType.Livesim: 'shape=box fontcolor=magenta',
              self.NodeType.Clique:
                  'shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0',
              self.NodeType.BiClique: 'shape=box fontcolor=red color=red width=0.3 height=0.1 label=biclq fontsize=10 margin=0',
-             self.NodeType.MultiPod: 'shape=box color=darkblue',
+             self.NodeType.MultiPod: 'shape=box color=blue4',
              }
 
     def add_node(self, subgraph, name, node_type, label):
@@ -96,7 +96,7 @@ class DotGraph:
         output_result += f'\tlabel=\"Connectivity Graph of {self.name}\"'
         output_result += '\tlabelloc = "t"\n'
         output_result += '\tfontsize=30\n'
-        output_result += '\tfontcolor=webmaroon\n'
+        output_result += '\tfontcolor=maroon\n'
         if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
         self.subgraphs = dict(sorted(self.subgraphs.items()))
@@ -112,11 +112,19 @@ class DotGraph:
         """
         if not self.labels_dict:
             return ''
-        items_to_present = [(short, label) for label, short in self.labels_dict.items() if label != short]
+        items_to_present = [(short, label) for label, short in self.labels_dict.items()]
         items_to_present.sort()
-        dict_table = '\\l'.join([f'{short:<15}{label}' for short, label in items_to_present])
-        dict_table = f'label=\"Connectivity legend\\l{dict_table}\\l\"'
-        return f'{{\n\tdict_box [{dict_table} shape=box]\n rank=sink\n}}\n'
+
+        dict_table = '<<table border="0" cellspacing="0">'
+        dict_table += '<tr><td  align="text">Connectivity legend<br align="left" /></td></tr>'
+        for short, label in items_to_present:
+            trimmed = f'{label[0:30]}...' if len(label) > 32 else label
+            line = f'{short}     {trimmed}'
+            dict_table += f'<tr><td align="text" tooltip="{label}" href="bogus">{line}<br align="left" /></td></tr>'
+        dict_table += '</table>>'
+
+        dict_table = f'label={dict_table}'
+        return f'\tdict_box [{dict_table} shape=box]\n'
 
     def _subgraph_to_str(self, subgraph):
         """
@@ -144,7 +152,7 @@ class DotGraph:
         return str: the string
         """
         if node.node_type not in {self.NodeType.Clique, self.NodeType.BiClique}:
-            border = '2' if node.node_type == self.NodeType.MultiPod else '0'
+            border = '1' if node.node_type == self.NodeType.MultiPod else '0'
             table = f'<<table border="{border}" cellspacing="0">'
             for line in node.label:
                 if line:
@@ -178,7 +186,7 @@ class DotGraph:
         """
         if not self.labels:
             return False
-        if len(max(self.labels, key=len)) <= 11:
+        if len(self.labels) == 1 and len(next(iter(self.labels))) <= 11:
             self.labels_dict = {label: label for label in self.labels}
             return False
 

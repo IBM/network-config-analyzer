@@ -2,7 +2,7 @@
 digraph {
 	label="Connectivity Graph of subset_labels4_endpoints_deployments_dot/np25"	labelloc = "t"
 	fontsize=30
-	fontcolor=webmaroon
+	fontcolor=maroon
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
