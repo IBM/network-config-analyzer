@@ -9,25 +9,25 @@ subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/cog-agents(DaemonSet)" [label=<<table border="2" cellspacing="0"><tr><td>cog-agents(DaemonSet)</td></tr><tr><td>cog-local-analyzer(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	"default/cog-agents(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>cog-agents(DaemonSet)</td></tr><tr><td>cog-local-analyzer(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_kube_system_namespace{
 	label="kube-system"
 	fontsize=20
 	fontcolor=blue
-	"kube-system/calico-node(DaemonSet)" [label=<<table border="2" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>file-plugin(Deployment-StatefulSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr><tr><td>keepalived-watcher(DaemonSet)</td></tr><tr><td>kube-fluentd(DaemonSet)</td></tr><tr><td>storage-watcher(Deployment-StatefulSet)</td></tr><tr><td>tiller-deploy(Deployment-StatefulSet)</td></tr><tr><td>vpn(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	"kube-system/calico-node(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>file-plugin(Deployment-StatefulSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr><tr><td>keepalived-watcher(DaemonSet)</td></tr><tr><td>kube-fluentd(DaemonSet)</td></tr><tr><td>storage-watcher(Deployment-StatefulSet)</td></tr><tr><td>tiller-deploy(Deployment-StatefulSet)</td></tr><tr><td>vpn(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_kube_system_dummy_to_ignore_namespace{
 	label="kube-system-dummy-to-ignore"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" [label=<<table border="2" cellspacing="0"><tr><td>calico-kube-controllers(Deployment-StatefulSet)</td></tr><tr><td>kube-dns-amd64(Deployment-StatefulSet)</td></tr><tr><td>kube-dns-autoscaler(Deployment-StatefulSet)</td></tr><tr><td>kubernetes-dashboard(Deployment-StatefulSet)</td></tr><tr><td>public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	"kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-kube-controllers(Deployment-StatefulSet)</td></tr><tr><td>kube-dns-amd64(Deployment-StatefulSet)</td></tr><tr><td>kube-dns-autoscaler(Deployment-StatefulSet)</td></tr><tr><td>kubernetes-dashboard(Deployment-StatefulSet)</td></tr><tr><td>public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_vendor_system_namespace{
 	label="vendor-system"
 	fontsize=20
 	fontcolor=blue
-	"vendor-system/barbar-app(ReplicaSet)" [label=<<table border="2" cellspacing="0"><tr><td>barbar-app(ReplicaSet)</td></tr><tr><td>foofoo-app(ReplicaSet)</td></tr></table>> shape=box color=blue4]
+	"vendor-system/barbar-app(ReplicaSet)" [label=<<table border="1" cellspacing="0"><tr><td>barbar-app(ReplicaSet)</td></tr><tr><td>foofoo-app(ReplicaSet)</td></tr></table>> shape=box color=blue4]
 }
 	"0.0.0.0/0" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"default/cog-agents(DaemonSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
