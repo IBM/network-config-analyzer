@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from enum import IntEnum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import PeerSet
