@@ -700,37 +700,13 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             rule, optimized_props = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
             res_policy.add_ingress_rule(rule)
             if self.optimized_run != 'false':
-                # handle the order of rules
-                if rule.action == CalicoPolicyRule.ActionType.Allow:
-                    optimized_props -= res_policy.optimized_deny_ingress_props
-                    optimized_props -= res_policy.optimized_pass_ingress_props
-                    res_policy.add_optimized_allow_props(optimized_props, True)
-                elif rule.action == CalicoPolicyRule.ActionType.Deny:
-                    optimized_props -= res_policy.optimized_allow_ingress_props
-                    optimized_props -= res_policy.optimized_pass_ingress_props
-                    res_policy.add_optimized_deny_props(optimized_props, True)
-                elif rule.action == CalicoPolicyRule.ActionType.Pass:
-                    optimized_props -= res_policy.optimized_allow_ingress_props
-                    optimized_props -= res_policy.optimized_deny_ingress_props
-                    res_policy.add_optimized_pass_props(optimized_props, True)
+                res_policy.update_and_add_optimized_props(optimized_props, rule.action, True)
 
         for egress_rule in policy_spec.get('egress', []):
             rule, optimized_props = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
             res_policy.add_egress_rule(rule)
             if self.optimized_run != 'false':
-                # handle the order of rules
-                if rule.action == CalicoPolicyRule.ActionType.Allow:
-                    optimized_props -= res_policy.optimized_deny_egress_props
-                    optimized_props -= res_policy.optimized_pass_egress_props
-                    res_policy.add_optimized_allow_props(optimized_props, False)
-                elif rule.action == CalicoPolicyRule.ActionType.Deny:
-                    optimized_props -= res_policy.optimized_allow_egress_props
-                    optimized_props -= res_policy.optimized_pass_egress_props
-                    res_policy.add_optimized_deny_props(optimized_props, False)
-                elif rule.action == CalicoPolicyRule.ActionType.Pass:
-                    optimized_props -= res_policy.optimized_allow_egress_props
-                    optimized_props -= res_policy.optimized_deny_egress_props
-                    res_policy.add_optimized_pass_props(optimized_props, False)
+                res_policy.update_and_add_optimized_props(optimized_props, rule.action, False)
 
         self._apply_extra_labels(policy_spec, is_profile, res_policy.name)
         res_policy.findings = self.warning_msgs

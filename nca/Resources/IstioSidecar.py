@@ -170,10 +170,10 @@ class IstioSidecar(NetworkPolicy):
             conn_cube = ConnectivityCube()
             if self.selected_peers and rule.egress_peer_set:
                 conn_cube.update({"src_peers": self.selected_peers, "dst_peers": rule.egress_peer_set})
-                self.optimized_egress_props = ConnectivityProperties.make_conn_props(conn_cube)
+                self.optimized_allow_egress_props = ConnectivityProperties.make_conn_props(conn_cube)
             peers_sets_by_ns = self.combine_peer_sets_by_ns(self.selected_peers, rule.special_egress_peer_set,
                                                             peer_container)
             for (from_peers, to_peers) in peers_sets_by_ns:
                 if from_peers and to_peers:
                     conn_cube.update({"src_peers": from_peers, "dst_peers": to_peers})
-                    self.optimized_egress_props |= ConnectivityProperties.make_conn_props(conn_cube)
+                    self.optimized_allow_egress_props |= ConnectivityProperties.make_conn_props(conn_cube)
