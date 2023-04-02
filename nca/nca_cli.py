@@ -10,6 +10,7 @@ import sys
 import traceback
 from sys import stderr
 from pathlib import Path
+from nca.CoreDS.Peer import BasePeerSet
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
@@ -245,6 +246,7 @@ def nca_main(argv=None):
     :rtype: int
     """
     os.environ['PATH'] = '.' + os.pathsep + os.environ.get('PATH', '.')  # for running kubectl and calicoctl
+    BasePeerSet.reset()  # to reset the singleton
 
     parser = argparse.ArgumentParser(description='An analyzer for network connectivity configuration')
     parser.add_argument('--period', type=int,

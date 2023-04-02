@@ -714,6 +714,10 @@ class BasePeerSet:
         if not BasePeerSet.instance:
             BasePeerSet.instance = BasePeerSet.__BasePeerSet()
 
+    @staticmethod
+    def reset():
+        BasePeerSet.instance = None
+
     def __getattr__(self, name):
         return getattr(self.instance, name)
 
