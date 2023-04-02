@@ -6,7 +6,7 @@
 from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS import Peer
-from .NetworkPolicy import PolicyConnections, NetworkPolicy
+from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
 class CalicoPolicyRule:
@@ -127,15 +127,16 @@ class CalicoNetworkPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
+        res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            allowed = self.optimized_ingress_props.copy()
-            denied = self.optimized_denied_ingress_props.copy()
-            captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
+            res_conns.allowed_conns = self.optimized_ingress_props.copy()
+            res_conns.denied_conns = self.optimized_denied_ingress_props.copy()
+            res_conns.captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
         else:
-            allowed = self.optimized_egress_props.copy()
-            denied = self.optimized_denied_egress_props.copy()
-            captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
-        return allowed, denied, captured
+            res_conns.allowed_conns = self.optimized_egress_props.copy()
+            res_conns.denied_conns = self.optimized_denied_egress_props.copy()
+            res_conns.captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
+        return res_conns
 
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """

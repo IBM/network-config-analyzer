@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, PeerSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
-from .NetworkPolicy import PolicyConnections, NetworkPolicy
+from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 from .IstioTrafficResources import istio_root_namespace
 
 
@@ -72,15 +72,16 @@ class IstioSidecar(NetworkPolicy):
         return PolicyConnections(True, allowed_conns=ConnectionSet())
 
     def allowed_connections_optimized(self, is_ingress):
+        res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            allowed = self.optimized_ingress_props.copy()
-            denied = self.optimized_denied_ingress_props.copy()
-            captured = PeerSet()
+            res_conns.allowed_conns = self.optimized_ingress_props.copy()
+            res_conns.denied_conns = self.optimized_denied_ingress_props.copy()
+            res_conns.captured = PeerSet()
         else:
-            allowed = self.optimized_egress_props.copy()
-            denied = self.optimized_denied_egress_props.copy()
-            captured = self.selected_peers if self.affects_egress else PeerSet()
-        return allowed, denied, captured
+            res_conns.allowed_conns = self.optimized_egress_props.copy()
+            res_conns.denied_conns = self.optimized_denied_egress_props.copy()
+            res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
+        return res_conns
 
     def has_empty_rules(self, config_name=''):
         """

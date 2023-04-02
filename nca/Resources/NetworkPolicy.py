@@ -305,3 +305,17 @@ class PolicyConnections:
     denied_conns: ConnectionSet = ConnectionSet()  # Connections denied by the policy(ies)
     pass_conns: ConnectionSet = ConnectionSet()  # Connections specified as PASS by the policy(ies)
     all_allowed_conns: ConnectionSet = ConnectionSet()  # all (captured+ non-captured) Connections allowed by the policy(ies)
+
+
+# TODO - making OptimizedPolicyConnections a dataclass does not work
+# (probably because PeerSet and ConnectivityProperties are mutable)
+class OptimizedPolicyConnections:
+    """
+    A class to contain the effect of applying policies to all src and dst peers
+    """
+    def __init__(self):
+        self.captured = PeerSet()
+        self.allowed_conns = ConnectivityProperties().make_empty_props()
+        self.denied_conns = ConnectivityProperties().make_empty_props()
+        self.pass_conns = ConnectivityProperties().make_empty_props()
+        self.all_allowed_conns = ConnectivityProperties().make_empty_props()
