@@ -463,7 +463,7 @@ class IpBlock(Peer, CanonicalIntervalSet):
 """
 The following class DNSEntry; represents another type of external peer which is produced from istio ServiceEntry objects.
 Note: connectivity of DNSEntry peers is considered only for NetworkLayerName.Istio
-each DNSEntry peer appears as a single host in the serviceEntry object
+a DNSEntry peer is created from a single host in the serviceEntry object
 
 example: from this ServiceEntry yaml object:
     `
