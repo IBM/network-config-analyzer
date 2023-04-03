@@ -252,7 +252,7 @@ class PeerContainer:
 
     def get_all_services_target_peers(self):
         """
-        Returns all pods that belong to services and all DNSEntry peers (if existed) as this type of peers
+        Returns all pods that belong to services and all DNSEntry peers (if exist) as this type of peers
         is produced by ServiceEntry objects
         :rtype: PeerSet
         """
