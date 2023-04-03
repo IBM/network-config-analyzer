@@ -269,6 +269,7 @@ class PeerContainer:
         Returns all peers that belong to services in/ exported to the given namespace
         (i.e. pods that belong to k8s services in the given namespace,
         or DNSEntry peers)
+        currently assuming DNSEntry peers are exported to all namespaces
         :param K8sNamespace namespace: namespace object
         :rtype: PeerSet
         """
