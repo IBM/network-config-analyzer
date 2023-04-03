@@ -493,6 +493,9 @@ class DNSEntry(Peer):
     represents DNS entries, produced by istio ServiceEntry objects.
     A DNSEntry peer is created from single host in the service-entry hosts' list
     """
+    # a dns entry pattern matches the following re-pattern
+    dns_pattern = r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?"
+
     def __init__(self, name=None, namespace=None):
         """
         Constructs a DNSEntry from the host name provided

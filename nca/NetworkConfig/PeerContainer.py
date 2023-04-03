@@ -216,7 +216,7 @@ class PeerContainer:
         """
         if host_name.startswith('*'):
             name_suffix = re.escape(host_name[1:])
-            return r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?" + name_suffix
+            return DNSEntry.dns_pattern + name_suffix
 
         return re.escape(host_name)
 
