@@ -104,7 +104,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             return host_peers & self.peer_container.get_target_pods_with_service_name(service_name)
 
         # dns entry case
-        return host_peers & self.peer_container.get_dns_entry_pods_matching_host_name(dns_name)
+        return host_peers & self.peer_container.get_dns_entry_peers_matching_host_name(dns_name)
 
     def _parse_egress_rule(self, egress_rule):
         """

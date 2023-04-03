@@ -220,7 +220,7 @@ class PeerContainer:
 
         return re.escape(host_name)
 
-    def get_dns_entry_pods_matching_host_name(self, host_name):
+    def get_dns_entry_peers_matching_host_name(self, host_name):
         """
         returns all DNSentry peers which are equal/contained in the host_name
         :param str host_name: the host name as it appears in the policy's hosts list
