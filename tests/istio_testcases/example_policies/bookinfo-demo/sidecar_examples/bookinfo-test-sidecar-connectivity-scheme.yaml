@@ -72,7 +72,7 @@ queries:
 
   - name: connectivity-sidecar-host-name-does-not-contain-service-entry-hosts
     connectivityMap:
-      - sidecar-w-specific-host-name  # if the sidecar's host is more specified than the service-entry host (does not contain it) it will not be considered in the connections of selected peers
+      - sidecar-w-specific-host-name  # if the sidecar's host is more specific than the service-entry host (does not contain it) it will not be considered in the connections of selected peers
     expectedOutput: ../../../expected_output/connectivity_sidecar_host_name_does_not_contain_se_hosts.txt
     expected: 0
 
