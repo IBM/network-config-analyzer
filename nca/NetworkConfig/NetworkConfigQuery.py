@@ -445,13 +445,11 @@ class SanityQuery(NetworkConfigQuery):
             if not other_policy.has_deny_rules():
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
-            pods_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
+            pods_to_compare = self.config.peer_container.get_all_peers_group()
             pods_to_compare |= TwoNetworkConfigsQuery(self.config,
                                                       config_with_other_policy).disjoint_referenced_ip_blocks()
             for pod1 in pods_to_compare:
                 for pod2 in pods_to_compare:
-                    if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pod1, pod2):
-                        continue
                     if pod1 == pod2:
                         continue  # no way to prevent a pod from communicating with itself
                     _, _, _, self_deny_conns = config_with_self_policy.allowed_connections(pod1, pod2, layer_name)
