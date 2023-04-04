@@ -759,7 +759,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             subset_conns = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
                 ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
             all_conns_opt &= subset_conns
-            ExplTracker().set_connections(all_conns_opt)
+            ExplTracker().set_connections_and_peers(all_conns_opt, subset_peers)
             ip_blocks_mask = IpBlock.get_all_ips_block()
             if exclude_ipv6:
                 ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6=True)

@@ -413,12 +413,6 @@ class ResourcesParser:
                             self.services_finder.namespaces_finder = self.ns_finder
                             self.services_finder.parse_yaml_code_for_service(res_code, yaml_file)
                         if ResourceType.Policies in resource_flags:
-                            if res_code:
-                                # Track filenames and content
-                                ExplTracker().add_item(yaml_file.path,
-                                                       res_code.get('metadata').get('name'),
-                                                       res_code.line_number
-                                                       )
                             self.policies_finder.parse_yaml_code_for_policy(res_code, yaml_file.path)
 
         self.policies_finder.parse_policies_in_parse_queue()

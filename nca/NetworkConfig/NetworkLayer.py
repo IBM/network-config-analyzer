@@ -251,7 +251,7 @@ class NetworkLayer:
             for peer in policy.selected_peers:
                 src_peers, _ = ExplTracker().extract_peers(policy.optimized_ingress_props)
                 _, dst_peers = ExplTracker().extract_peers(policy.optimized_egress_props)
-                ExplTracker().add_peer_policy(peer,
+                ExplTracker().add_peer_policy(peer.full_name(),
                                               policy.name,
                                               dst_peers,
                                               src_peers,
@@ -311,8 +311,8 @@ class K8sCalicoNetworkLayer(NetworkLayer):
                 conn_cube.update({"src_peers": non_captured, "dst_peers": base_peer_set_with_ip})
             non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
-            ExplTracker().add_default_policy(dst_peers,
-                                             src_peers,
+            ExplTracker().add_default_policy(src_peers,
+                                             dst_peers,
                                              is_ingress
                                              )
             allowed_conn |= non_captured_conns
@@ -353,6 +353,11 @@ class IstioNetworkLayer(NetworkLayer):
                 conn_cube.update({"src_peers": non_captured_peers, "dst_peers": base_peer_set_with_ip})
             non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
             allowed_conn |= (non_captured_conns - denied_conns)
+            src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
+            ExplTracker().add_default_policy(src_peers,
+                                             dst_peers,
+                                             is_ingress
+                                             )
         conn_cube.update({"src_peers": base_peer_set_with_ip, "dst_peers": base_peer_set_with_ip,
                           "protocols": ProtocolSet.get_non_tcp_protocols()})
         allowed_conn |= ConnectivityProperties.make_conn_props(conn_cube)
@@ -387,4 +392,10 @@ class IngressNetworkLayer(NetworkLayer):
                 conn_cube.update({"src_peers": non_captured_peers, "dst_peers": base_peer_set_with_ip})
                 non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
                 allowed_conn |= non_captured_conns
+        if non_captured_conns:
+            src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
+            ExplTracker().add_default_policy(src_peers,
+                                             dst_peers,
+                                             is_ingress
+                                             )
         return allowed_conn, denied_conns

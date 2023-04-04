@@ -62,7 +62,8 @@ class ExplTracker(metaclass=Singleton):
         self.ExplDescriptorContainer = {}
         self.ExplPeerToPolicyContainer = {}
         self._is_active = False
-        self.conns = {}
+        self.all_conns = {}
+        self.all_peers = {}
 
         self.add_item('', 'Default-Policy', 0)
 
@@ -92,15 +93,30 @@ class ExplTracker(metaclass=Singleton):
             NcaLogger().log_message(f'Explainability error: configuration-block name can not be empty',
                                     level='E')
 
-    def add_peer_policy(self, peer, policy_name, egress_dst, ingress_src):
+    def derive_item(self, new_name):
+        """
+        Handles resources that change their name after parsing, like virtual-service
+        that adds the service name and /allowed
+        :param str new_name: the name for the new derived element
+        """
+        name_parts = new_name.split('/')
+        name = name_parts[0]
+        if self.ExplDescriptorContainer.get(name):
+            self.ExplDescriptorContainer[new_name] = {'path': self.ExplDescriptorContainer[name].get('path'),
+                                                      'line': self.ExplDescriptorContainer[name].get('line')
+                                                      }
+        else:
+            NcaLogger().log_message(f'Explainability error: derived item {new_name} found no base item',
+                                    level='E')
+
+    def add_peer_policy(self, peer_name, policy_name, egress_dst, ingress_src):
         """
         Add a new policy to a peer
-        :param Peer peer: peer object
+        :param str peer_name: peer name to add the policy to
         :param srt policy_name: name of the policy
         :param egress_dst: a list of peers that the given policy affect, egress wise.
         :param ingress_src: a list of peers that the given policy affect, ingress wise.
         """
-        peer_name = peer.full_name()
         if self.ExplDescriptorContainer.get(peer_name):
             if not self.ExplPeerToPolicyContainer.get(peer_name):
                 self.ExplPeerToPolicyContainer[peer_name] = ExplPolicies()
@@ -124,12 +140,22 @@ class ExplTracker(metaclass=Singleton):
             dst_peers |= conn_cube["dst_peers"]
         return src_peers, dst_peers
 
-    def set_connections(self, conns):
+    def set_connections_and_peers(self, conns, peers):
         """
-        Update the calculated connections into ExplTracker
+        Update the calculated connections and topology peers into ExplTracker
         :param ConnectivityProperties conns: the connectivity mapping calculated by the query
+        :param PeerSet peers: all the peers in the container
         """
-        self.conns = conns
+        self.all_conns = conns
+        self.all_peers = peers
+        # add all missing 'special' peers with default policy.
+        for peer in self.all_peers:
+            peer_name = peer.full_name()
+            if not self.ExplPeerToPolicyContainer.get(peer_name):
+                if not self.ExplDescriptorContainer.get(peer_name):
+                    self.add_item('', peer_name, 0)
+                self.add_default_policy([peer], peers, False)
+                self.add_default_policy(peers, [peer], True)
 
     def are_peers_connected(self, src, dst):
         """
@@ -138,56 +164,71 @@ class ExplTracker(metaclass=Singleton):
         :param str dst: name of the destination peer
         :return: bool: True for connected, False for disconnected
         """
-        if not self.conns:
+        if not self.all_conns:
             NcaLogger().log_message(f'Explainability error: Connections were not set yet, but peer query was called',
                                     level='E')
-        for cube in self.conns:
-            conn = self.conns.get_cube_dict(cube)
+        for cube in self.all_conns:
+            conn = self.all_conns.get_cube_dict(cube)
             src_peers = conn['src_peers']
             dst_peers = conn['dst_peers']
             if src in src_peers and dst in dst_peers:
                 return True
         return False
 
-    def add_default_policy(self, currents, peers, is_ingress):
+    def add_default_policy(self, src, dst, is_ingress):
         """
         Add the default policy to the peers which were not affected by a specific policy.
-        :param PeerSet currents: the peers to add the policy too
-        :param PeerSet peers: the adjacent peers the default policy nakes a connection with
+        :param PeerSet src: the peer list for the source of the policy
+        :param PeerSet dst: the peer list for the destination of the policy
         :param is_ingress: is this an ingress or egress policy
         """
         if is_ingress:
-            ingress_src = peers
-            egress_dst = {}
+            nodes = dst
+            egress_list = {}
+            ingress_list = src
         else:
-            ingress_src = {}
-            egress_dst = peers
+            nodes = src
+            egress_list = dst
+            ingress_list = {}
 
-        for peer in currents:
-            self.add_peer_policy(peer,
+        for node in nodes:
+            self.add_peer_policy(node.full_name(),
                                  'Default-Policy',
-                                 egress_dst,
-                                 ingress_src,
+                                 egress_list,
+                                 ingress_list,
                                  )
 
-    def prepare_node_str(self, direction, node_name, results):
+    def prepare_node_str(self, node_name, results, direction=None):
         """
         A utility function to help format a node explainability description
-        :param str direction: src/dst
         :param str node_name: the name of the node currently described
         :param str results: the names of the configurations affecting this node
+        :param str direction: src/dst
         :return str: string with the description
         """
         out = []
         if direction:
             out = [f'\n({direction}){node_name}:']
         for name in results:
+            if not self.ExplDescriptorContainer.get(name):
+                out.append(f'{name} - explainability entry not found')
+                continue
             path = self.ExplDescriptorContainer.get(name).get("path")
             if path == '':  # special element (like Default Policy)
                 out.append(f'{name}')
             else:
                 out.append(f'{name}: line {self.ExplDescriptorContainer.get(name).get("line")} '
                            f'in file {path}')
+        return out
+
+    def explain_all(self):
+        out = []
+        for peer1 in self.all_peers:
+            for peer2 in self.all_peers:
+                if peer1 == peer2:
+                    out.extend(self.explain([peer1.full_name()]))
+                else:
+                    out.extend(self.explain([peer1.full_name(), peer2.full_name()]))
         return out
 
     def explain(self, nodes):
@@ -208,6 +249,12 @@ class ExplTracker(metaclass=Singleton):
             NcaLogger().log_message(f'Explainability error: only 1 or 2 nodes are allowed for explainability query,'
                                     f' found {len(nodes)} ', level='E')
             return out
+
+        src_node = nodes[0]
+        if src_node == 'ALL':
+            out = self.explain_all()
+            return out
+
         for node in nodes:
             if not self.ExplDescriptorContainer.get(node):
                 NcaLogger().log_message(f'Explainability error - {node} was not found in the connectivity results', level='E')
@@ -216,7 +263,6 @@ class ExplTracker(metaclass=Singleton):
                 NcaLogger().log_message(f'Explainability error - {node} has no explanability results', level='E')
                 return out
 
-        src_node = nodes[0]
         if len(nodes) == 2:
             # 2 nodes scenario
             dst_node = nodes[1]
@@ -232,11 +278,11 @@ class ExplTracker(metaclass=Singleton):
 
             src_results.add(src_node)
             dst_results.add(dst_node)
-            out.extend(self.prepare_node_str('src', src_node, src_results))
-            out.extend(self.prepare_node_str('dst', dst_node, dst_results))
+            out.extend(self.prepare_node_str(src_node, src_results, 'src'))
+            out.extend(self.prepare_node_str(dst_node, dst_results, 'dst'))
         else:  # only one node
             results = self.ExplPeerToPolicyContainer[src_node].all_policies
             out.append(f'\nConfigurations affecting {src_node}:')
-            out.extend(self.prepare_node_str(None, src_node, results))
+            out.extend(self.prepare_node_str(src_node, results))
 
         return out
