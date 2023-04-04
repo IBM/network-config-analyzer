@@ -699,24 +699,14 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         for ingress_rule in policy_spec.get('ingress', []):
             rule, optimized_props = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
             res_policy.add_ingress_rule(rule)
-            if self.optimized_run != 'false' and rule.action != CalicoPolicyRule.ActionType.Pass:
-                # handle the order of rules
-                if rule.action == CalicoPolicyRule.ActionType.Allow and res_policy.optimized_denied_ingress_props:
-                    optimized_props -= res_policy.optimized_denied_ingress_props
-                elif rule.action == CalicoPolicyRule.ActionType.Deny and res_policy.optimized_ingress_props:
-                    optimized_props -= res_policy.optimized_ingress_props
-                res_policy.add_optimized_ingress_props(optimized_props, rule.action == CalicoPolicyRule.ActionType.Allow)
+            if self.optimized_run != 'false':
+                res_policy.update_and_add_optimized_props(optimized_props, rule.action, True)
 
         for egress_rule in policy_spec.get('egress', []):
             rule, optimized_props = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
             res_policy.add_egress_rule(rule)
-            if self.optimized_run != 'false' and rule.action != CalicoPolicyRule.ActionType.Pass:
-                # handle the order of rules
-                if rule.action == CalicoPolicyRule.ActionType.Allow and res_policy.optimized_denied_egress_props:
-                    optimized_props -= res_policy.optimized_denied_egress_props
-                elif rule.action == CalicoPolicyRule.ActionType.Deny and res_policy.optimized_egress_props:
-                    optimized_props -= res_policy.optimized_egress_props
-                res_policy.add_optimized_egress_props(optimized_props, rule.action == CalicoPolicyRule.ActionType.Allow)
+            if self.optimized_run != 'false':
+                res_policy.update_and_add_optimized_props(optimized_props, rule.action, False)
 
         self._apply_extra_labels(policy_spec, is_profile, res_policy.name)
         res_policy.findings = self.warning_msgs

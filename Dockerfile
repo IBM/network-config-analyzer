@@ -9,7 +9,7 @@ FROM python@sha256:726098870bb14355cb12572764a3be191b42f8b15947d97affe3b8ec6a7a4
 COPY requirements.txt /nca/
 RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
 
-RUN apt-get update && apt-get install curl -y && rm -rf /var/lib/apt/lists
+RUN apt-get update && apt-get install -y curl graphviz && rm -rf /var/lib/apt/lists
 
 RUN curl -L "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" --output /usr/local/bin/kubectl \
     && chmod +x /usr/local/bin/kubectl

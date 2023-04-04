@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, PeerSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
-from .NetworkPolicy import PolicyConnections, NetworkPolicy
+from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 from .IstioTrafficResources import istio_root_namespace
 
 
@@ -72,15 +72,16 @@ class IstioSidecar(NetworkPolicy):
         return PolicyConnections(True, allowed_conns=ConnectionSet())
 
     def allowed_connections_optimized(self, is_ingress):
+        res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            allowed = self.optimized_ingress_props.copy()
-            denied = self.optimized_denied_ingress_props.copy()
-            captured = PeerSet()
+            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props.copy()
+            res_conns.captured = PeerSet()
         else:
-            allowed = self.optimized_egress_props.copy()
-            denied = self.optimized_denied_egress_props.copy()
-            captured = self.selected_peers if self.affects_egress else PeerSet()
-        return allowed, denied, captured
+            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props.copy()
+            res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
+        return res_conns
 
     def has_empty_rules(self, config_name=''):
         """
@@ -169,10 +170,10 @@ class IstioSidecar(NetworkPolicy):
             conn_cube = ConnectivityCube()
             if self.selected_peers and rule.egress_peer_set:
                 conn_cube.update({"src_peers": self.selected_peers, "dst_peers": rule.egress_peer_set})
-                self.optimized_egress_props = ConnectivityProperties.make_conn_props(conn_cube)
+                self.optimized_allow_egress_props = ConnectivityProperties.make_conn_props(conn_cube)
             peers_sets_by_ns = self.combine_peer_sets_by_ns(self.selected_peers, rule.special_egress_peer_set,
                                                             peer_container)
             for (from_peers, to_peers) in peers_sets_by_ns:
                 if from_peers and to_peers:
                     conn_cube.update({"src_peers": from_peers, "dst_peers": to_peers})
-                    self.optimized_egress_props |= ConnectivityProperties.make_conn_props(conn_cube)
+                    self.optimized_allow_egress_props |= ConnectivityProperties.make_conn_props(conn_cube)

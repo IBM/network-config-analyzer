@@ -250,7 +250,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             return None  # Not an Ingress object
 
         self.namespace = self.peer_container.get_namespace(policy_ns)
-        res_policy = IngressPolicy(policy_name + '/allow', self.namespace, IngressPolicy.ActionType.Allow)
+        res_policy = IngressPolicy(policy_name + '/allow', self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
 
         policy_spec = self.policy['spec']
@@ -289,6 +289,6 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
             conn_cube = ConnectivityCube.make_from_dict({"protocols": protocols, "src_peers": res_policy.selected_peers})
             allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)
-            res_policy.add_optimized_egress_props(allowed_conns)
+            res_policy.add_optimized_allow_props(allowed_conns, False)
         res_policy.findings = self.warning_msgs
         return res_policy

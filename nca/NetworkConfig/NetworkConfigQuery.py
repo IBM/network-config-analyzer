@@ -746,7 +746,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         all_conns_opt = ConnectivityProperties.make_empty_props()
         opt_start = time.time()
         if self.config.optimized_run != 'false':
-            all_conns_opt = self.config.allowed_connections_optimized()
+            opt_conns = self.config.allowed_connections_optimized()
+            all_conns_opt = opt_conns.all_allowed_conns
         if all_conns_opt:
             opt_peers_to_compare = self.config.peer_container.get_all_peers_group()
             # add all relevant IpBlocks, used in connections

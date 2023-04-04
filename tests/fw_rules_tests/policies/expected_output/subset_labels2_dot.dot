@@ -2,7 +2,7 @@
 digraph {
 	label="Connectivity Graph of subset_labels2_dot/np25"	labelloc = "t"
 	fontsize=30
-	fontcolor=webmaroon
+	fontcolor=maroon
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
@@ -20,13 +20,13 @@ subgraph cluster_ns2_namespace{
 	label="ns2"
 	fontsize=20
 	fontcolor=blue
-	"ns2/deployment-D-1" [label=<<table border="2" cellspacing="0"><tr><td>deployment-D-1</td></tr><tr><td>deployment-D-2</td></tr></table>> shape=box color=darkblue]
+	"ns2/deployment-D-1" [label=<<table border="1" cellspacing="0"><tr><td>deployment-D-1</td></tr><tr><td>deployment-D-2</td></tr></table>> shape=box color=blue4]
 }
 subgraph cluster_ns3_namespace{
 	label="ns3"
 	fontsize=20
 	fontcolor=blue
-	"ns3/Pod7" [label=<<table border="2" cellspacing="0"><tr><td>Pod7</td></tr><tr><td>Pod8</td></tr></table>> shape=box color=darkblue]
+	"ns3/Pod7" [label=<<table border="1" cellspacing="0"><tr><td>Pod7</td></tr><tr><td>Pod8</td></tr></table>> shape=box color=blue4]
 }
 	"default/Pod4" -> "ns1/Pod2"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/Pod4" -> "ns2/deployment-D-1"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]

@@ -642,7 +642,7 @@ class BasePeerSet:
             Adds a given peer to self peers.
             :param peer: the peer to add.
             """
-            if not isinstance(peer, IpBlock) and not peer in self.peer_to_index:
+            if not isinstance(peer, IpBlock) and peer not in self.peer_to_index:
                 assert len(self.ordered_peer_list) < self.max_num_of_pods
                 self.peer_to_index[peer] = len(self.ordered_peer_list)
                 self.ordered_peer_list.append(peer)
@@ -713,6 +713,10 @@ class BasePeerSet:
     def __init__(self):
         if not BasePeerSet.instance:
             BasePeerSet.instance = BasePeerSet.__BasePeerSet()
+
+    @staticmethod
+    def reset():
+        BasePeerSet.instance = None
 
     def __getattr__(self, name):
         return getattr(self.instance, name)

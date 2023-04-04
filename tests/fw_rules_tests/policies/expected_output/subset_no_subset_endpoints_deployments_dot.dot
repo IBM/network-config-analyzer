@@ -2,7 +2,7 @@
 digraph {
 	label="Connectivity Graph of subset_no_subset_endpoints_deployments_dot/np25"	labelloc = "t"
 	fontsize=30
-	fontcolor=webmaroon
+	fontcolor=maroon
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_default_namespace{
 	label="default"
@@ -10,7 +10,7 @@ subgraph cluster_default_namespace{
 	fontcolor=blue
 	"default/Pod1(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod1(Pod)</td></tr></table>> shape=box fontcolor=blue]
 	"default/Pod4(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod4(Pod)</td></tr></table>> shape=box fontcolor=blue]
-	"default/Pod5(Pod)" [label=<<table border="2" cellspacing="0"><tr><td>Pod5(Pod)</td></tr><tr><td>deployment-Eb(Deployment)</td></tr></table>> shape=box color=darkblue]
+	"default/Pod5(Pod)" [label=<<table border="1" cellspacing="0"><tr><td>Pod5(Pod)</td></tr><tr><td>deployment-Eb(Deployment)</td></tr></table>> shape=box color=blue4]
 	"default/deployment-E(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-E(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 }
 subgraph cluster_ns1_namespace{
@@ -26,7 +26,7 @@ subgraph cluster_ns2_namespace{
 	fontsize=20
 	fontcolor=blue
 	"ns2/Pod3(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>Pod3(Pod)</td></tr></table>> shape=box fontcolor=blue]
-	"ns2/Pod6(Pod)" [label=<<table border="2" cellspacing="0"><tr><td>Pod6(Pod)</td></tr><tr><td>deployment-F(Deployment)</td></tr></table>> shape=box color=darkblue]
+	"ns2/Pod6(Pod)" [label=<<table border="1" cellspacing="0"><tr><td>Pod6(Pod)</td></tr><tr><td>deployment-F(Deployment)</td></tr></table>> shape=box color=blue4]
 	"ns2/deployment-C(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-C(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"ns2/deployment-D(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deployment-D(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 }
@@ -34,7 +34,7 @@ subgraph cluster_ns3_namespace{
 	label="ns3"
 	fontsize=20
 	fontcolor=blue
-	"ns3/Pod7(Pod)" [label=<<table border="2" cellspacing="0"><tr><td>Pod7(Pod)</td></tr><tr><td>Pod8(Pod)</td></tr></table>> shape=box color=darkblue]
+	"ns3/Pod7(Pod)" [label=<<table border="1" cellspacing="0"><tr><td>Pod7(Pod)</td></tr><tr><td>Pod8(Pod)</td></tr></table>> shape=box color=blue4]
 }
 	"default/Pod1(Pod)" -> "ns2/Pod3(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/Pod1(Pod)" -> "ns3/Pod7(Pod)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]

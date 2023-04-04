@@ -2,7 +2,8 @@
 digraph {
 	label="Connectivity Graph of connectivity_map_dot/poc1"	labelloc = "t"
 	fontsize=30
-	fontcolor=webmaroon
+	fontcolor=maroon
+	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 3550" href="bogus">TCP_0     TCP 3550<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 50051" href="bogus">TCP_1     TCP 50051<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 5050" href="bogus">TCP_2     TCP 5050<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 6379" href="bogus">TCP_3     TCP 6379<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 7000" href="bogus">TCP_4     TCP 7000<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 7070" href="bogus">TCP_5     TCP 7070<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 8080" href="bogus">TCP_6     TCP 8080<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 9555" href="bogus">TCP_7     TCP 9555<br align="left" /></td></tr></table>> shape=box]
 	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
 subgraph cluster_default_namespace{
 	label="default"
@@ -21,21 +22,21 @@ subgraph cluster_default_namespace{
 	"default/redis-cart(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>redis-cart(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 	"default/shippingservice(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>shippingservice(Deployment)</td></tr></table>> shape=box fontcolor=blue]
 }
-	"0.0.0.0/0" -> "default/frontend(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/cartservice(Deployment)" -> "default/redis-cart(Deployment)"[label="TCP 6379" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/cartservice(Deployment)"[label="TCP 7070" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/currencyservice(Deployment)"[label="TCP 7000" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/emailservice(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/paymentservice(Deployment)"[label="TCP 50051" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP 3550" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/checkoutservice(Deployment)" -> "default/shippingservice(Deployment)"[label="TCP 50051" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/adservice(Deployment)"[label="TCP 9555" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/cartservice(Deployment)"[label="TCP 7070" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/checkoutservice(Deployment)"[label="TCP 5050" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/currencyservice(Deployment)"[label="TCP 7000" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP 3550" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/recommendationservice(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/frontend(Deployment)" -> "default/shippingservice(Deployment)"[label="TCP 50051" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/loadgenerator(Deployment)" -> "default/frontend(Deployment)"[label="TCP 8080" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"default/recommendationservice(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP 3550" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"0.0.0.0/0" -> "default/frontend(Deployment)"[label="TCP_6" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/cartservice(Deployment)" -> "default/redis-cart(Deployment)"[label="TCP_3" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/checkoutservice(Deployment)" -> "default/cartservice(Deployment)"[label="TCP_5" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/checkoutservice(Deployment)" -> "default/currencyservice(Deployment)"[label="TCP_4" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/checkoutservice(Deployment)" -> "default/emailservice(Deployment)"[label="TCP_6" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/checkoutservice(Deployment)" -> "default/paymentservice(Deployment)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/checkoutservice(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP_0" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/checkoutservice(Deployment)" -> "default/shippingservice(Deployment)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/frontend(Deployment)" -> "default/adservice(Deployment)"[label="TCP_7" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/frontend(Deployment)" -> "default/cartservice(Deployment)"[label="TCP_5" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/frontend(Deployment)" -> "default/checkoutservice(Deployment)"[label="TCP_2" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/frontend(Deployment)" -> "default/currencyservice(Deployment)"[label="TCP_4" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/frontend(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP_0" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/frontend(Deployment)" -> "default/recommendationservice(Deployment)"[label="TCP_6" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/frontend(Deployment)" -> "default/shippingservice(Deployment)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/loadgenerator(Deployment)" -> "default/frontend(Deployment)"[label="TCP_6" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/recommendationservice(Deployment)" -> "default/productcatalogservice(Deployment)"[label="TCP_0" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 }

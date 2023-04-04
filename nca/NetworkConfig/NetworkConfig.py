@@ -6,8 +6,8 @@
 from dataclasses import dataclass, field
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.Resources.NetworkPolicy import NetworkPolicy
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
+from nca.Resources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 
 
@@ -277,17 +277,38 @@ class NetworkConfig:
         """
         if layer_name is not None:
             if layer_name not in self.policies_container.layers:
-                conns_res = self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
-                                                                                                     layer_name)
-            else:
-                conns_res = self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
-        else:
-            conns_res = ConnectivityProperties.make_all_props()  # all connections
-            for layer, layer_obj in self.policies_container.layers.items():
-                conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
-                # all allowed connections: intersection of all allowed connections from all layers
-                conns_res &= conns_per_layer
+                return self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
+                                                                                                layer_name)
+            return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
 
+        all_peers = self.peer_container.get_all_peers_group()
+        host_eps = Peer.PeerSet(set([peer for peer in all_peers if isinstance(peer, Peer.HostEP)]))
+        src_peers_conn_cube = ConnectivityCube.make_from_dict({"src_peers": host_eps})
+        dst_peers_conn_cube = ConnectivityCube.make_from_dict({"dst_peers": host_eps})
+        # all possible connections involving hostEndpoints
+        conn_hep = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
+            ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
+        conns_res = OptimizedPolicyConnections()
+        conns_res.all_allowed_conns = ConnectivityProperties.make_all_props()
+        for layer, layer_obj in self.policies_container.layers.items():
+            conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
+            # only K8s_Calico layer handles host_eps
+            if layer != NetworkLayerName.K8s_Calico:
+                # connectivity of hostEndpoints is only determined by calico layer
+                conns_per_layer.allowed_conns -= conn_hep
+                conns_per_layer.denied_conns -= conn_hep
+                conns_per_layer.pass_conns -= conn_hep
+
+            # all allowed connections: intersection of all allowed connections from all layers
+            conns_res.all_allowed_conns &= conns_per_layer.all_allowed_conns
+            # all allowed captured connections: should be captured by at least one layer
+            conns_res.allowed_conns |= conns_per_layer.allowed_conns
+            conns_res.captured |= conns_per_layer.captured
+            # denied conns: should be denied by at least one layer
+            conns_res.denied_conns |= conns_per_layer.denied_conns
+
+        # allowed captured conn (by at least one layer) has to be allowed by all layers (either implicitly or explicitly)
+        conns_res.allowed_conns &= conns_res.all_allowed_conns
         return conns_res
 
     def append_policy_to_config(self, policy):

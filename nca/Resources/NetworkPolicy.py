@@ -53,10 +53,12 @@ class NetworkPolicy:
         self.selected_peers = PeerSet()  # The peers affected by this policy
         self.ingress_rules = []
         self.egress_rules = []
-        self.optimized_ingress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_denied_ingress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_egress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_denied_egress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_allow_ingress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_deny_ingress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_pass_ingress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_allow_egress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_deny_egress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_pass_egress_props = ConnectivityProperties.make_empty_props()
         self.affects_ingress = False  # whether the policy affects the ingress of the selected peers
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
         self.findings = []  # accumulated findings which are relevant only to this policy (emptiness and redundancy)
@@ -77,12 +79,23 @@ class NetworkPolicy:
                 self.affects_ingress == other.affects_ingress and \
                 self.selected_peers == other.selected_peers and \
                 self.ingress_rules == other.ingress_rules and \
-                self.egress_rules == other.egress_rules
+                self.egress_rules == other.egress_rules and \
+                self.optimized_allow_ingress_props == other.optimized_allow_ingress_props and \
+                self.optimized_deny_ingress_props == other.optimized_deny_ingress_props and \
+                self.optimized_pass_ingress_props == other.optimized_pass_ingress_props and \
+                self.optimized_allow_egress_props == other.optimized_allow_egress_props and \
+                self.optimized_deny_egress_props == other.optimized_deny_egress_props and \
+                self.optimized_pass_egress_props == other.optimized_pass_egress_props
         return False
 
     def __lt__(self, other):  # required so we can evaluate the policies according to their order
         if not isinstance(other, NetworkPolicy):
             return False
+        # TODO - should add the condition below to make the comparison stable.
+        # This makes some tests to fail because the order of output is different
+        # if self.get_order() is None and other.get_order() is None:
+        #     # to make the operator consistent
+        #     return self.full_name() < other.full_name()
         # If not specified "order" defaults to infinity, so policies with unspecified "order" will be applied last.
         if self.get_order() is None:
             return False
@@ -126,33 +139,47 @@ class NetworkPolicy:
         """
         self.egress_rules.append(rule)
 
-    def add_optimized_ingress_props(self, props, is_allow=True):
+    def add_optimized_allow_props(self, props, is_ingress):
         """
-        Adding properties to the CanonicalHyperCubeSet of optimized ingress properties
-        :param CanonicalHyperCubeSet props: The properties to add
-        :param Bool is_allow: whether these are an allow or deny properties
+        Adding allow properties to the ConnectivityProperties of optimized ingress/egress properties
+        :param ConnectivityProperties props: The properties to add
+        :param Bool is_ingress: whether these are ingress or egress properties
         :return: None
         """
         if not props:
             return
-        if is_allow:
-            self.optimized_ingress_props |= props
+        if is_ingress:
+            self.optimized_allow_ingress_props |= props
         else:
-            self.optimized_denied_ingress_props |= props
+            self.optimized_allow_egress_props |= props
 
-    def add_optimized_egress_props(self, props, is_allow=True):
+    def add_optimized_deny_props(self, props, is_ingress):
         """
-        Adding properties to the CanonicalHyperCubeSet of optimized egress properties
-        :param CanonicalHyperCubeSet props: The properties to add
-        :param Bool is_allow: whether these are an allow or deny properties
+        Adding deny properties to the ConnectivityProperties of optimized ingress/egress properties
+        :param ConnectivityProperties props: The properties to add
+        :param Bool is_ingress: whether these are ingress or egress properties
         :return: None
         """
         if not props:
             return
-        if is_allow:
-            self.optimized_egress_props |= props
+        if is_ingress:
+            self.optimized_deny_ingress_props |= props
         else:
-            self.optimized_denied_egress_props |= props
+            self.optimized_deny_egress_props |= props
+
+    def add_optimized_pass_props(self, props, is_ingress):
+        """
+        Adding pass properties to the ConnectivityProperties of optimized ingress/egress properties
+        :param ConnectivityProperties props: The properties to add
+        :param Bool is_ingress: whether these are ingress or egress properties
+        :return: None
+        """
+        if not props:
+            return
+        if is_ingress:
+            self.optimized_pass_ingress_props |= props
+        else:
+            self.optimized_pass_egress_props |= props
 
     @staticmethod
     def get_policy_type_from_dict(policy):  # noqa: C901
@@ -305,3 +332,17 @@ class PolicyConnections:
     denied_conns: ConnectionSet = ConnectionSet()  # Connections denied by the policy(ies)
     pass_conns: ConnectionSet = ConnectionSet()  # Connections specified as PASS by the policy(ies)
     all_allowed_conns: ConnectionSet = ConnectionSet()  # all (captured+ non-captured) Connections allowed by the policy(ies)
+
+
+# TODO - making OptimizedPolicyConnections a dataclass does not work
+# (probably because PeerSet and ConnectivityProperties are mutable)
+class OptimizedPolicyConnections:
+    """
+    A class to contain the effect of applying policies to all src and dst peers
+    """
+    def __init__(self):
+        self.captured = PeerSet()
+        self.allowed_conns = ConnectivityProperties().make_empty_props()
+        self.denied_conns = ConnectivityProperties().make_empty_props()
+        self.pass_conns = ConnectivityProperties().make_empty_props()
+        self.all_allowed_conns = ConnectivityProperties().make_empty_props()
