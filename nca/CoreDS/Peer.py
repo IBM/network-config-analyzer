@@ -4,6 +4,7 @@
 #
 import copy
 import ipaddress
+import re
 from ipaddress import ip_network
 from sys import stderr
 from string import hexdigits
@@ -516,6 +517,21 @@ class DNSEntry(Peer):
         if isinstance(other, type(self)):
             return self.name == other.name
         return False
+
+    @staticmethod
+    def compute_re_pattern_from_host_name(host_name):
+        """
+        translates the host name (dns) to a pattern that may be used with re library methods
+         - "*" at the beginning of the host name will be replaced with an FQDN pattern
+         - the "." in the host name may not be replaced by any other character
+         :param str host_name: the host name
+         :return: the re-pattern of the host name
+         :rtype: str
+        """
+        if host_name.startswith('*'):
+            name_suffix = re.escape(host_name[1:])
+            return DNSEntry.dns_pattern + name_suffix
+        return re.escape(host_name)
 
 
 class PeerSet(set):

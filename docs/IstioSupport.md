@@ -46,4 +46,3 @@ In the ServiceEntry, the following is suported:
 |------------|------------------------|----------------------------|
 | hosts      |                        |                            |
 | location   |                        | MESH_EXTERNAL              |
-| resolution |                        | NONE, DNS, DNS_ROUND_ROBIN |
