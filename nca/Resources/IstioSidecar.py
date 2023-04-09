@@ -71,10 +71,11 @@ class IstioSidecar(NetworkPolicy):
 
         # since sidecar rules include only peer sets for now, if a to_peer appears in any rule then connections allowed
         for rule in self.egress_rules:
+            if isinstance(to_peer, DNSEntry) and \
+                    (to_peer in rule.egress_peer_set or to_peer in rule.special_egress_peer_set):
+                return PolicyConnections(True, allowed_conns=ConnectionSet.get_all_tcp_connections())
             if to_peer in rule.egress_peer_set or \
-                    (to_peer in rule.special_egress_peer_set and (
-                        isinstance(to_peer, DNSEntry) or from_peer.namespace == to_peer.namespace)):
-                # a DNSEntry peer is exported to all namespaces
+                    (to_peer in rule.special_egress_peer_set and from_peer.namespace == to_peer.namespace):
                 return PolicyConnections(True, allowed_conns=ConnectionSet(True))
 
         # egress from from_peer to to_peer is not allowed : if to_peer not been captured in the rules' egress_peer_set,
