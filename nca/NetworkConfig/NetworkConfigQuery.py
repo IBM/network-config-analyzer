@@ -9,7 +9,7 @@ from collections import defaultdict
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, DNSEntry
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
@@ -141,6 +141,25 @@ class NetworkConfigQuery(BaseNetworkQuery):
     @abstractmethod
     def exec(self):
         raise NotImplementedError
+
+    # this def contains conditions that should be checked every time before computing
+    # allowed connections of two peers, so added it here to avoid duplications in the queries code
+    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
+        """
+        determines if to continue to compute allowed connections for the given
+        pair of peers based on their types
+        :param Peer peer1: the src peer
+        :param Peer peer2: the dst peer
+        :rtype: bool
+        """
+        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
+            return False
+        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
+            return False  # connectivity between external peers is not relevant either
+        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) \
+                and isinstance(peer2, DNSEntry):
+            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
+        return True
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -674,7 +693,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
-        peers_to_compare = self.config.peer_container.get_all_peers_group()
+        peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
 
         exclude_ipv6 = self.output_config.excludeIPv6Range
         ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
@@ -690,8 +709,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                     peers.add(peer1)
                 elif not self.is_in_subset(peer2):
                     continue  # skipping pairs if none of them are in the given subset
-                if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
-                    continue  # skipping pairs with ip-blocks for both src and dst
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+                    continue
                 if peer1 == peer2:
                     # cannot restrict pod's connection to itself
                     connections[ConnectionSet(True)].append((peer1, peer2))
@@ -1089,7 +1108,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     def get_conn_graph_changed_conns(self, key, ip_blocks, is_added):
         """
-        create a ConnectivityGraph for chnged (added/removed) connections per given key
+        create a ConnectivityGraph for changed (added/removed) connections per given key
         :param key: the key (category) of changed connections
         :param ip_blocks: a PeerSet of ip-blocks to be added for the topology peers
         :param is_added: a bool flag indicating if connections are added or removed

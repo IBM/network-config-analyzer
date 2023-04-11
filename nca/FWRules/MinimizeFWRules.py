@@ -4,8 +4,8 @@
 #
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP
-from .FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement
+from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod, HostEP, DNSEntry
+from .FWRule import FWRuleElement, FWRule, PodElement, LabelExpr, PodLabelsElement, IPBlockElement, DNSElement
 
 
 class MinimizeCsFwRules:
@@ -106,8 +106,9 @@ class MinimizeCsFwRules:
                     self.peer_pairs_without_ns_expr |= ns_product_pairs & self.peer_pairs
 
         # TODO: what about peer pairs with ip blocks from containing connections, not only peer_pairs for this connection?
-        pairs_with_elems_without_ns = set((src, dst) for (src, dst) in self.peer_pairs
-                                          if isinstance(src, (IpBlock, HostEP)) or isinstance(dst, (IpBlock, HostEP)))
+        pairs_with_elems_without_ns = \
+            set((src, dst) for (src, dst) in self.peer_pairs
+                if isinstance(src, (IpBlock, HostEP, DNSEntry)) or isinstance(dst, (IpBlock, HostEP, DNSEntry)))
         self.peer_pairs_without_ns_expr |= pairs_with_elems_without_ns
         # compute pairs with src as pod/ip-block and dest as namespace
         self._compute_ns_pairs_with_partial_ns_expr(False)
@@ -362,7 +363,7 @@ class MinimizeCsFwRules:
 
     def _create_all_initial_fw_rules(self):
         """
-        Creating initial fw-rules from base-elements pairs (pod/ns/ip-block)
+        Creating initial fw-rules from base-elements pairs (pod/ns/ip-block/dns-entry)
         :return: a list of initial fw-rules of type FWRule
         :rtype list[FWRule]
         """
@@ -430,7 +431,8 @@ class MinimizeCsFwRules:
         pod_and_pod_labels_elems = set(elem for elem in set_for_grouping_elems if
                                        isinstance(elem, (PodElement, PodLabelsElement)))
         ip_block_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, IPBlockElement))
-        ns_elems = set_for_grouping_elems - (pod_and_pod_labels_elems | ip_block_elems)
+        dns_elems = set(elem for elem in set_for_grouping_elems if isinstance(elem, DNSElement))
+        ns_elems = set_for_grouping_elems - (pod_and_pod_labels_elems | ip_block_elems | dns_elems)
 
         if ns_elems:
             # grouping of ns elements is straight-forward
@@ -475,6 +477,13 @@ class MinimizeCsFwRules:
             # currently no grouping for ip blocks
             for elem in ip_block_elems:
                 if src_first:
+                    res.append(FWRule(fixed_elem, elem, self.connections))
+                else:
+                    res.append(FWRule(elem, fixed_elem, self.connections))
+
+        if dns_elems:
+            for elem in dns_elems:
+                if src_first:  # do we need both if else? , dns_elem may be a dst always
                     res.append(FWRule(fixed_elem, elem, self.connections))
                 else:
                     res.append(FWRule(elem, fixed_elem, self.connections))
@@ -545,7 +554,8 @@ class MinimizeCsFwRules:
         src_dest_pairs = []
         for rule in rules:
             # compute set of pods derived from rule src and rule dest
-            if not isinstance(rule.src, IPBlockElement) and not isinstance(rule.dst, IPBlockElement):
+            if not isinstance(rule.src, (IPBlockElement, DNSElement)) and \
+                    not isinstance(rule.dst, (IPBlockElement, DNSElement)):
                 src_set = rule.src.get_pods_set(self.cluster_info)
                 dest_set = rule.dst.get_pods_set(self.cluster_info)
 
@@ -553,18 +563,21 @@ class MinimizeCsFwRules:
                     for dst in dest_set:
                         src_dest_pairs.append((src, dst))
 
-            elif isinstance(rule.src, IPBlockElement) and not isinstance(rule.dst, IPBlockElement):
+            elif isinstance(rule.src, IPBlockElement) and not isinstance(rule.dst, (IPBlockElement, DNSElement)):
                 dest_set = rule.dst.get_pods_set(self.cluster_info)
                 for dst in dest_set:
                     src_dest_pairs.append((rule.src.element, dst))
 
-            elif not isinstance(rule.src, IPBlockElement) and isinstance(rule.dst, IPBlockElement):
+            elif not isinstance(rule.src, (IPBlockElement, DNSElement)) and \
+                    isinstance(rule.dst, (IPBlockElement, DNSElement)):
                 src_set = rule.src.get_pods_set(self.cluster_info)
                 for src in src_set:
                     src_dest_pairs.append((src, rule.dst.element))
 
         for (src, dst) in src_dest_pairs:
             if isinstance(src, IpBlock) and isinstance(dst, IpBlock):
+                src_dest_pairs.remove((src, dst))
+            if isinstance(src, DNSEntry):  # we should not get here but if somehow the src is dns-entry it will be removed
                 src_dest_pairs.remove((src, dst))
 
         return set(src_dest_pairs)
