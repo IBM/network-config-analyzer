@@ -450,6 +450,8 @@ class SanityQuery(NetworkConfigQuery):
                                                       config_with_other_policy).disjoint_referenced_ip_blocks()
             for pod1 in pods_to_compare:
                 for pod2 in pods_to_compare:
+                    if isinstance(pod1, IpBlock) and isinstance(pod2, IpBlock):
+                        continue
                     if pod1 == pod2:
                         continue  # no way to prevent a pod from communicating with itself
                     _, _, _, self_deny_conns = config_with_self_policy.allowed_connections(pod1, pod2, layer_name)
