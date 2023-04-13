@@ -59,7 +59,8 @@ class DotGraph:
              self.NodeType.Pod: 'Workload',
              self.NodeType.Livesim: 'Automatically added workload',
              self.NodeType.Clique: 'Traffic allowed between any two workloads connected to the CLIQUE:\n',
-             self.NodeType.BiClique: 'Traffic allowed from any source workload of the BICLIQUE to any of its destination workloads:\n',
+             self.NodeType.BiClique:
+                 'Traffic allowed from any source workload of the BICLIQUE to any of its destination workloads:\n',
              self.NodeType.MultiPod: 'A set of workloads having exactly the same connectivity',
              }
 
