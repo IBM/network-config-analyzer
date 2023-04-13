@@ -14,6 +14,7 @@ istio_testcases/example_policies/bookinfo-demo/sidecar_examples/equivalence-with
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/forbids-and-interferes-with-sidecars-tests-scheme.yaml,0.08
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/global-sidecar-permits-test-scheme.yaml,0.08
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/sanity-vacuity-emptiness-redundancy-w-sidecar-scheme.yaml,0.11
+istio_testcases/example_policies/bookinfo-demo/sidecar_examples/semantic-diff-with-sidecars-and-service-entries-tests-scheme.yaml,0.14
 istio_testcases/example_policies/bookinfo-from-live-cluster/connectivity-map-by-deployments-scheme.yaml,0.45
 istio_testcases/example_policies/complex-ingress-test/complex-istio-and-k8s-ingress-test-scheme.yaml,3.14
 istio_testcases/example_policies/complex-ingress-test/complex-istio-ingress-test-scheme.yaml,0.93
