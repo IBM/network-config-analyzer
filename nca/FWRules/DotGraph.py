@@ -125,11 +125,9 @@ class DotGraph:
         """
         creates a string in dot format og the explanation label
         """
-        explanation = ['an explanation line',
-                       'a longer explanation line',
-                       'a very very very very very very very very very very very longed explanation line',
-                       'the forth explanation line',
-                       'the end explanation line',
+        explanation = ['Application connectivity graph',
+                       ' ',
+                       ' ',
                        ]
         explanation_table = '<<table border="0" cellspacing="0">'
         for line in explanation:

@@ -596,50 +596,44 @@ class InteractiveConnectivityGraph:
             set explanation of each element
             param:  elements_relations dict {str: ElementRelations}: to update the explanation
             """
-            all_items = list(self.graph.conn_legend.conns.values()) + list(self.graph.edges.values()) +\
-                list(self.graph.nodes.values()) + list(self.graph.namespaces.values()) + [self.graph]
-            for item in all_items:
-                elements_relations[item.t_id].explanation = [f'this is not a good explanation of {item.t_id}']*2
-
             for node in self.graph.nodes.values():
                 if len(node.short_names) == 1:
                     elements_relations[node.t_id].explanation = [
-                        f'This sub graph is a point of view of the pod \'{node.short_names[0]}\' (see highlighted)',
-                        'It shows all the connections of the pod']
-                    if node.namespace:
-                        elements_relations[node.t_id].explanation.append(f'{node.name} is at namespace {node.namespace.name}')
+                        f'Connectivity subgraph for \'{node.short_names[0]}\' (highlighted)'
+                        ]
                     if 'livesim' in node.name:
-                        elements_relations[node.t_id].explanation.append('A livesim pod is ...')
+                        elements_relations[node.t_id].explanation.append(f'{node.name} was automatically added')
                 else:
                     elements_relations[node.t_id].explanation = [
-                        f'This sub graph is a point of view of set of {len(node.short_names)}pods (see highlighted)',
-                        'All The pods in this set have the same connectivity rules']
-                    if node.namespace:
-                        elements_relations[node.t_id].explanation.append(f'All the pods at namespace {node.namespace.name}')
+                        'Connectivity subgraph for the highlighted set of workloads',
+                        'all having exactly the same connectivity']
 
             for edge in self.graph.edges.values():
                 elements_relations[edge.t_id].explanation = [
-                    f'This sub graph is a point of view of the connection between'
-                    f' \'{edge.src.short_names[0]}\' and  \'{edge.dst.short_names[0]}\'',
-                    f'with connectivity {edge.conn.full_description}']
+                    f'Connectivity subgraph between  \'{edge.src.short_names[0]}\' and  \'{edge.dst.short_names[0]}\'',
+                    f'({edge.conn.full_description})']
 
             for clique in self.graph.cliques:
                 clq_core = [n for n in clique.nodes if not n.real_node()] + clique.edges
                 for cc in clq_core:
                     elements_relations[cc.t_id].explanation = [
-                        f'This sub graph is a point of view of a Clique {clique.conn.full_description}']
+                        'Connectivity subgraph for a Clique',
+                        'Traffic allowed between any two workloads connected to the CLIQUE',
+                        f'.{clique.conn.full_description}']
 
             for biclique in self.graph.bicliques:
                 biclq_core = biclique.dst_edges + biclique.src_edges + [biclique.node]
                 for bcc in biclq_core:
                     elements_relations[bcc.t_id].explanation = [
-                        f'This sub graph is a point of view of a biClique {biclique.conn.full_description}']
+                        f'Connectivity subgraph for a biClique.',
+                        'Traffic allowed from any source workload of the BICLIQUE to any of its destination workloads',
+                        f'{biclique.conn.full_description}']
 
             for ns_name, namespace in self.graph.namespaces.items():
                 elements_relations[namespace.t_id].explanation = [
-                    f'This sub graph is a point of view of a namespace {ns_name}']
+                    f'Connectivity subgraph for Namespace {ns_name}']
 
             for conn in self.graph.conn_legend.conns.values():
                 elements_relations[conn.t_id].explanation = [
-                    f'This sub graph is a point of view of a connectivity {conn.name}:',
-                    f'{conn.full_description}']
+                    f'Connectivity subgraph showing only  {conn.name} connections.',
+                    f'({conn.full_description})']

@@ -7,7 +7,6 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:6910799b75ad41f008919785
 
 USER 0
 
-RUN INSTALL_PKGS="python39 python39-devel python39-pip openssl tar gzip graphviz" && \
 RUN INSTALL_PKGS="python39 python39-devel python39-pip graphviz" && \
     microdnf --nodocs -y upgrade && \
     microdnf -y --setopt=tsflags=nodocs --setopt=install_weak_deps=0 install $INSTALL_PKGS && \
