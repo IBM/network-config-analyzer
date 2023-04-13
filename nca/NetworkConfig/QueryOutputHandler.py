@@ -161,7 +161,7 @@ class PoliciesAndRulesExplanations(OutputExplanation):
         res = '\n' + self._get_xgress_description(prefix) + ':\n'
         for policy_title, rules_indexes_list in xgress_rules_dict.items():
             res += policy_title + ', ' + prefix + ' rules indexes: ' +\
-                   ', '.join(str(idx) for idx in rules_indexes_list) + '\n'
+                ', '.join(str(idx) for idx in rules_indexes_list) + '\n'
         return res
 
     def get_explanation_in_str(self):
@@ -172,7 +172,7 @@ class PoliciesAndRulesExplanations(OutputExplanation):
         result = ''
         if self.policies_list:
             result += self._get_policies_description() + ':\n' +\
-                      ', '.join(self.policies_list) + '\n'
+                ', '.join(self.policies_list) + '\n'
         if self.policies_to_ingress_rules_dict:
             result += self._add_rules_to_str_explanation(self.policies_to_ingress_rules_dict)
         if self.policies_to_egress_rules_dict:

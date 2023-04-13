@@ -8,6 +8,7 @@ FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:6910799b75ad41f008919785
 USER 0
 
 RUN INSTALL_PKGS="python39 python39-devel python39-pip openssl tar gzip graphviz" && \
+RUN INSTALL_PKGS="python39 python39-devel python39-pip graphviz" && \
     microdnf --nodocs -y upgrade && \
     microdnf -y --setopt=tsflags=nodocs --setopt=install_weak_deps=0 install $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
@@ -15,15 +16,6 @@ RUN INSTALL_PKGS="python39 python39-devel python39-pip openssl tar gzip graphviz
 
 COPY requirements.txt /nca/
 RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
-
-RUN curl -L "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" --output /usr/local/bin/kubectl \
-    && chmod +x /usr/local/bin/kubectl
-
-RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh \
-    && ./get_helm.sh
-
-RUN curl -L https://github.com/projectcalico/calicoctl/releases/download/v3.3.1/calicoctl --output /usr/local/bin/calicoctl \
-    && chmod +x /usr/local/bin/calicoctl
 
 COPY nca/ /nca/
 

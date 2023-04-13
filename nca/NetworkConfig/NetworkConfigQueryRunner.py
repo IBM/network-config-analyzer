@@ -11,7 +11,7 @@ from nca.Utils.OutputFilesFlags import OutputFilesFlags
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .NetworkConfig import NetworkConfig
 from . import NetworkConfigQuery
-
+import os
 
 @dataclass
 class QueryResult:
@@ -205,6 +205,7 @@ class NetworkConfigQueryRunner:
         try:
             with open(self.expected_output_file, 'r') as golden_file:
                 if OutputFilesFlags().update_expected_files:
+                #if os.path.basename(self.expected_output_file).endswith('.dot') or os.path.basename(self.expected_output_file) in ['basic_connectivity_dot_query_output.txt']:
                     self._create_or_update_query_output_file(query_output)
                     return 0
                 golden_file_line_num = 0

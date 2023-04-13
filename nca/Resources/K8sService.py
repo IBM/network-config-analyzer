@@ -2,8 +2,10 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+from dataclasses import dataclass
 from enum import Enum
+from typing import Union
+
 from nca.CoreDS.Peer import PeerSet
 
 
@@ -18,15 +20,15 @@ class K8sService:
         LoadBalancer = 2
         ExternalName = 3
 
+    @dataclass
     class ServicePort:
         """
         Represents a K8s Service port
         """
-        def __init__(self, port, target_port, protocol, name=''):
-            self.port = port
-            self.target_port = target_port  # a target port may be a number or a string (named port)
-            self.protocol = protocol
-            self.name = name
+        port_num: int
+        name: str
+        protocol: str
+        target_port: Union[str, int]
 
     def __init__(self, name, namespace_name):
         """
@@ -86,14 +88,14 @@ class K8sService:
 
     def get_port_by_number(self, number):
         for port in self.ports.values():
-            if port.port == number:
+            if port.port_num == number:
                 return port
         return None
 
     def add_port(self, service_port):
         """
         Add a service port
-        :param ServicePort service_port: The port to add by the key servicePort.port
+        :param ServicePort service_port: The port to add by the key servicePort.port_num
         :return: True iff successfully added the port, i.e. the port with this name did not exist
         """
         if self.ports.get(service_port.name):
