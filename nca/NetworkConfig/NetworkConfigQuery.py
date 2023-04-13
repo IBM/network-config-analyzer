@@ -974,7 +974,7 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
             query_answer.numerical_result = not query_answer.bool_result
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
+        peers_to_compare = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods(layer_name) | self.config2.get_captured_pods(layer_name)
         different_conns_list = []
@@ -982,6 +982,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
+                if isinstance(peer1, DNSEntry):
+                    continue  # connections from DNSEntry peers are not important
                 conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2, layer_name)
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2, layer_name)
                 if conns1 != conns2:
