@@ -118,8 +118,6 @@ class BaseNetworkQuery:
             return False
         if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
             return False  # connectivity between external peers is not relevant either
-        if not self.configs_contain_istio_layer() and isinstance(peer2, DNSEntry):
-            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
         return True
 
 
@@ -695,7 +693,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
-        peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
+        peers_to_compare = \
+            self.config.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
 
         exclude_ipv6 = self.output_config.excludeIPv6Range
         ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
@@ -980,7 +979,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
             query_answer.numerical_result = not query_answer.bool_result
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        peers_to_compare = \
+            self.config1.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods(layer_name) | self.config2.get_captured_pods(layer_name)
         different_conns_list = []
@@ -1122,8 +1122,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         :param is_added: a bool flag indicating if connections are added or removed
         :return: a ConnectivityGraph object
         """
-        old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
-        new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
+        old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
+        new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
         allowed_labels = (self.config1.get_allowed_labels()).union(self.config2.get_allowed_labels())
         topology_peers = new_peers | ip_blocks if is_added else old_peers | ip_blocks
         # following query_name update is for adding query line descriptions for csv and md formats
@@ -1160,8 +1160,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         explanation (list): list of diff explanations - one for each category
         :rtype: int, list[ComputedExplanation]
         """
-        old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
-        new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
+        old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
+        new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
         intersected_peers = old_peers & new_peers
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
@@ -1379,9 +1379,9 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     """
 
     def exec(self, cmd_line_flag=False, only_captured=False):
-        config1_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        config1_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
         peers_in_config1_not_in_config2 = config1_peers - \
-            self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
+            self.config2.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
         if peers_in_config1_not_in_config2:
             peers_list = [str(e) for e in peers_in_config1_not_in_config2]
             final_explanation = \
@@ -1514,7 +1514,8 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                 else not query_answer.bool_result
             return query_answer
 
-        peers_to_compare = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
+        peers_to_compare = \
+            self.config2.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config2.get_captured_pods() | self.config1.get_captured_pods()
         extended_conns_list = []
@@ -1570,7 +1571,8 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        peers_to_compare = \
+            self.config1.peer_container.get_all_peers_group(include_dns_entries=self.configs_contain_istio_layer())
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         intersect_connections_list = []
