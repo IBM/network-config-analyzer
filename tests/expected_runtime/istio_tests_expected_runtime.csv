@@ -9,6 +9,7 @@ istio_testcases/example_policies/bookinfo-demo/bookinfo-test-principals-scheme.y
 istio_testcases/example_policies/bookinfo-demo/bookinfo-test-request-attrs-scheme.yaml,5.68
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-sidecar-tests-scheme.yaml,0.92
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-test-sidecar-connectivity-scheme.yaml,0.54
+istio_testcases/example_policies/bookinfo-demo/sidecar_examples/containments-w-sidecar-and-service-entry-scheme.yaml,0.68
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/equivalence-with-sidecars-scheme.yaml,0.36
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/global-sidecar-permits-test-scheme.yaml,0.08
 istio_testcases/example_policies/bookinfo-demo/sidecar_examples/sanity-vacuity-emptiness-redundancy-w-sidecar-scheme.yaml,0.11

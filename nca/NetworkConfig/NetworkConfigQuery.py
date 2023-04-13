@@ -104,6 +104,24 @@ class BaseNetworkQuery:
     def get_configs(self):
         raise NotImplementedError
 
+    # this def contains conditions that should be checked every time before computing
+    # allowed connections of two peers, so added it here to avoid duplications in the queries code
+    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
+        """
+        determines if to continue to compute allowed connections for the given
+        pair of peers based on their types
+        :param Peer peer1: the src peer
+        :param Peer peer2: the dst peer
+        :rtype: bool
+        """
+        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
+            return False
+        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
+            return False  # connectivity between external peers is not relevant either
+        if not self.configs_contain_istio_layer() and isinstance(peer2, DNSEntry):
+            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
+        return True
+
 
 class NetworkConfigQuery(BaseNetworkQuery):
     """
@@ -142,24 +160,8 @@ class NetworkConfigQuery(BaseNetworkQuery):
     def exec(self):
         raise NotImplementedError
 
-    # this def contains conditions that should be checked every time before computing
-    # allowed connections of two peers, so added it here to avoid duplications in the queries code
-    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
-        """
-        determines if to continue to compute allowed connections for the given
-        pair of peers based on their types
-        :param Peer peer1: the src peer
-        :param Peer peer2: the dst peer
-        :rtype: bool
-        """
-        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
-            return False
-        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
-            return False  # connectivity between external peers is not relevant either
-        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) \
-                and isinstance(peer2, DNSEntry):
-            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
-        return True
+    def configs_contain_istio_layer(self):
+        return self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio)
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -958,6 +960,10 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
     def exec(self, cmd_line_flag):
         raise NotImplementedError
 
+    def configs_contain_istio_layer(self):
+        return self.config1.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) or \
+               self.config2.policies_container.layers.does_contain_layer(NetworkLayerName.Istio)
+
 
 class EquivalenceQuery(TwoNetworkConfigsQuery):
     """
@@ -982,8 +988,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-                if isinstance(peer1, DNSEntry):
-                    continue  # connections from DNSEntry peers are not important
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+                    continue
                 conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2, layer_name)
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2, layer_name)
                 if conns1 != conns2:
@@ -1349,12 +1355,13 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     """
 
     def exec(self, cmd_line_flag=False, only_captured=False):
-        config1_peers = self.config1.peer_container.get_all_peers_group()
-        peers_in_config1_not_in_config2 = config1_peers - self.config2.peer_container.get_all_peers_group()
+        config1_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        peers_in_config1_not_in_config2 = config1_peers - \
+                                          self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         if peers_in_config1_not_in_config2:
             peers_list = [str(e) for e in peers_in_config1_not_in_config2]
             final_explanation = \
-                PodsListsExplanations(explanation_description=f'Pods in {self.name1} which are not in {self.name2}',
+                PodsListsExplanations(explanation_description=f'Peers in {self.name1} which are not in {self.name2}',
                                       pods_list=sorted(peers_list))
             return QueryAnswer(False, f'{self.name1} is not contained in {self.name2} ',
                                output_explanation=[final_explanation], numerical_result=0 if not cmd_line_flag else 1)
@@ -1365,6 +1372,8 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
+                    continue
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
                     continue
                 conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1_flag:
