@@ -55,12 +55,12 @@ class DotGraph:
              }
 
         self.node_tooltip = \
-            {self.NodeType.IPBlock: 'IPblock',
-             self.NodeType.Pod: 'regular pod',
-             self.NodeType.Livesim: 'livesim - not a real pod',
-             self.NodeType.Clique: 'Every two pods connected to the CLIQUE has a connection between them\n. Connection:',
-             self.NodeType.BiClique: 'Every source pod of the BICLIQUE is connected to every destination pod.\nConnection:',
-             self.NodeType.MultiPod: 'A set of pods sharing the same connectivity',
+            {self.NodeType.IPBlock: 'IP Block',
+             self.NodeType.Pod: 'Workload',
+             self.NodeType.Livesim: 'Automatically added workload',
+             self.NodeType.Clique: 'Traffic allowed between any two workloads connected to the CLIQUE:\n',
+             self.NodeType.BiClique: 'Traffic allowed from any source workload of the BICLIQUE to any of its destination workloads:\n',
+             self.NodeType.MultiPod: 'A set of workloads having exactly the same connectivity',
              }
 
     def add_node(self, subgraph, name, node_type, label):
@@ -171,7 +171,7 @@ class DotGraph:
             output_result += f'\tlabel=\"{subgraph.name}\"\n'
             output_result += '\tfontsize=20\n'
             output_result += '\tfontcolor=blue\n'
-            output_result += '\ttooltip="Pods sharing the same namespace"\n'
+            output_result += '\ttooltip="Namespace"\n'
         nodes_lines = set()
         for node in subgraph.nodes:
             nodes_lines.add(self._node_to_str(node))
