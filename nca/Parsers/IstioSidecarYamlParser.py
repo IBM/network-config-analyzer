@@ -14,6 +14,15 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
     """
     A parser for Istio Sidecar objects
     """
+    def __init__(self, policy, peer_container, file_name=''):
+        IstioGenericYamlParser.__init__(self, policy, peer_container, file_name)
+        self.peers_referenced_by_labels = PeerSet()
+        self.specific_sidecars = []
+        self.default_sidecars = []
+        self.global_default_sidecars = []
+
+    def reset(self, policy, peer_container, file_name=''):
+        IstioGenericYamlParser.__init__(self, policy, peer_container, file_name)
 
     def _validate_and_partition_host_format(self, host):
         """
@@ -154,12 +163,13 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             self.namespace.prior_default_sidecar = curr_sidecar
             return
 
-        for peer in curr_sidecar.selected_peers:
-            if peer.prior_sidecar:  # this sidecar is not first one
-                self.warning(f'Peer "{peer.full_name()}" already has a Sidecar configuration selecting it. Sidecar: '
-                             f'"{curr_sidecar.full_name()}" will not be considered as connections for this workload')
-                continue
-            peer.prior_sidecar = curr_sidecar
+        prior_referenced_by_label = curr_sidecar.selected_peers & self.peers_referenced_by_labels
+        if prior_referenced_by_label:
+            self.warning(f'Peers {", ".join([peer.full_name() for peer in prior_referenced_by_label])}'
+                         f' already have a Sidecar configuration selecting them. Sidecar: '
+                         f'"{curr_sidecar.full_name()}" will not be considered as connections for these workloads')
+            curr_sidecar.selected_peers -= self.peers_referenced_by_labels
+        self.peers_referenced_by_labels |= curr_sidecar.selected_peers
 
     def _parse_outbound_traffic_policy(self, outbound_traffic_policy):
         """
@@ -180,9 +190,8 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
 
     def parse_policy(self):
         """
-        Parses the input object to create a IstioSidecar object
-        :return: a IstioSidecar object with proper PeerSets
-        :rtype: IstioSidecar
+        Parses the input object to create a IstioSidecar object and adds the resulting IstioSidecar object
+        to specific / default sidecar list
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['Sidecar'],
                                                                         ['networking.istio.io/v1alpha3',
@@ -220,5 +229,35 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         res_policy.outbound_mode = self._parse_outbound_traffic_policy(sidecar_spec.get('outboundTrafficPolicy'))
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels
+        if res_policy.default_sidecar:
+            if str(self.namespace) == istio_root_namespace:
+                self.global_default_sidecars.append(res_policy)
+            else:
+                self.default_sidecars.append(res_policy)
+        else:
+            self.specific_sidecars.append(res_policy)
 
-        return res_policy
+    def get_istio_sidecars(self):
+        # 1st priority: specific sidecars
+        # their selected_peers were already refined during parse_policy()
+        res = []
+        for sidecar in self.specific_sidecars:
+            res.append(sidecar)
+        referenced_peers = self.peers_referenced_by_labels.copy()
+        # 2nd priority: default sidecars
+        # refine their selected_peers according to sidecar order in the config and previously referenced peers
+        for sidecar in self.default_sidecars:
+            if sidecar.selected_peers & referenced_peers:
+                sidecar.selected_peers -= referenced_peers
+            referenced_peers |= sidecar.selected_peers
+            res.append(sidecar)
+
+        # the lowest priority - global default sidecars
+        # refine their selected_peers according to sidecar order in the config and previously referenced peers
+        for sidecar in self.global_default_sidecars:
+            if sidecar.selected_peers & referenced_peers:
+                sidecar.selected_peers -= referenced_peers
+            referenced_peers |= sidecar.selected_peers
+            res.append(sidecar)
+
+        return res

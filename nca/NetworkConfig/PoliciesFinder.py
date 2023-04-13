@@ -67,6 +67,7 @@ class PoliciesFinder:
 
     def parse_policies_in_parse_queue(self):
         istio_traffic_parser = None
+        istio_sidecar_parser = None
         for policy, file_name, policy_type in self._parse_queue:
             if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
@@ -81,8 +82,11 @@ class PoliciesFinder:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
             elif policy_type == NetworkPolicy.PolicyType.IstioSidecar:
-                parsed_element = IstioSidecarYamlParser(policy, self.peer_container, file_name)
-                self._add_policy(parsed_element.parse_policy())
+                if not istio_sidecar_parser:
+                    istio_sidecar_parser = IstioSidecarYamlParser(policy, self.peer_container, file_name)
+                else:
+                    istio_sidecar_parser.reset(policy, self.peer_container, file_name)
+                istio_sidecar_parser.parse_policy()
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 self._add_policy(parsed_element.parse_policy())
@@ -105,6 +109,10 @@ class PoliciesFinder:
             istio_traffic_policies = istio_traffic_parser.create_istio_traffic_policies()
             for istio_traffic_policy in istio_traffic_policies:
                 self._add_policy(istio_traffic_policy)
+        if istio_sidecar_parser:
+            istio_sidecars = istio_sidecar_parser.get_istio_sidecars()
+            for istio_sidecar in istio_sidecars:
+                self._add_policy(istio_sidecar)
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
         policy_type = NetworkPolicy.get_policy_type_from_dict(policy_object)
