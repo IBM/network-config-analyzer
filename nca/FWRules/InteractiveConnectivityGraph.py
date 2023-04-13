@@ -109,6 +109,8 @@ class InteractiveConnectivityGraph:
         EDGE_CT = 'edge'
         CONNECTIVITY_CT = 'connectivity'
 
+        ELEMENTS_DIRECTORY = 'elements'
+
         def __init__(self, input_svg_file, output_directory):
             """
             Creates the InteractiveConnectivityGraph
@@ -236,7 +238,7 @@ class InteractiveConnectivityGraph:
                (t_class != self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT):
                 relative_path = '.'
             elif t_class == self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT:
-                relative_path = 'elements'
+                relative_path = self.ELEMENTS_DIRECTORY
             else:
                 relative_path = '..'
             related_tag['xlink:href'] = posixpath.join(relative_path, related_tag_info.t_id + '.svg')
@@ -269,7 +271,7 @@ class InteractiveConnectivityGraph:
             if tag_info.t_class == self.BACKGROUND_CT:
                 tag_file_name = os.path.join(self.output_directory, tag_info.t_id + '.svg')
             else:
-                tag_file_name = os.path.join(self.output_directory, 'elements', tag_info.t_id + '.svg')
+                tag_file_name = os.path.join(self.output_directory, self.ELEMENTS_DIRECTORY, tag_info.t_id + '.svg')
             try:
                 with open(tag_file_name, 'wb') as tag_svg_file:
                     tag_svg_file.write(tag_soup.prettify(encoding='utf-8'))
@@ -306,8 +308,7 @@ class InteractiveConnectivityGraph:
             try:
                 if os.path.isdir(self.output_directory):
                     shutil.rmtree(self.output_directory)
-                os.mkdir(self.output_directory)
-                os.mkdir(os.path.join(self.output_directory, 'elements'))
+                os.makedirs(os.path.join(self.output_directory, self.ELEMENTS_DIRECTORY))
             except Exception as e:
                 print(f'Failed to create directory: {self.output_directory}\n{e} for writing', file=sys.stderr)
                 return
@@ -359,8 +360,8 @@ class InteractiveConnectivityGraph:
             t_id: str
             name: str
             conn: InteractiveConnectivityGraph.AbstractGraph.Conn
-            short_names: list
-            namespace: InteractiveConnectivityGraph.AbstractGraph.Namespace = None
+            # multipods has name per pod:
+            other_names: list
             edges: list = field(default_factory=list)
 
             def real_node(self):
@@ -453,7 +454,6 @@ class InteractiveConnectivityGraph:
                 namespace = self.graph.namespaces.get(namespace_name, None)
                 if namespace:
                     namespace.nodes.append(node)
-                    node.namespace = namespace
 
             for (src_name, dst_name), edge in self.graph.edges.items():
                 edge.src = self.graph.nodes[src_name]
@@ -473,8 +473,8 @@ class InteractiveConnectivityGraph:
 
             # for each set build its clique, add its nodes and edges:
             for clique_set in clique_sets:
-                cliqut_conn = self.graph.nodes[list(clique_set)[0]].conn
-                clique = self.Clique(cliqut_conn)
+                clique_conn = self.graph.nodes[list(clique_set)[0]].conn
+                clique = self.Clique(clique_conn)
                 clique_set_names = clique_set
                 clique.edges = [edge for edge in self.graph.edges.values() if
                                 edge.src_name in clique_set_names or edge.dst_name in clique_set_names]
@@ -544,15 +544,16 @@ class InteractiveConnectivityGraph:
             # add edge and nodes to all clique elements (conns already inside)
             # highlights all clique core elements with each other
             for clique in self.graph.cliques:
+                clique_relations = set()
+                for e in clique.edges:
+                    clique_relations |= elements_relations[e.t_id].relations
                 for el in clique.nodes + clique.edges:
-                    for e in clique.edges:
-                        elements_relations[el.t_id].relations |= elements_relations[e.t_id].relations
-                        elements_relations[clique.conn.t_id].relations |= elements_relations[e.t_id].relations
+                    elements_relations[el.t_id].relations |= clique_relations
+                elements_relations[clique.conn.t_id].relations |= clique_relations
                 clq_core = [n for n in clique.nodes if not n.real_node()] + clique.edges
+                clique_highlights = set(cc.t_id for cc in clq_core) | set([clique.conn.t_id])
                 for cc in clq_core:
-                    elements_relations[cc.t_id].highlights.add(clique.conn.t_id)
-                for cc1, cc2 in itertools.product(clq_core, clq_core):
-                    elements_relations[cc1.t_id].highlights.add(cc2.t_id)
+                    elements_relations[cc.t_id].highlights |= clique_highlights
 
             self._set_bicliques_relations(elements_relations)
 
@@ -597,9 +598,9 @@ class InteractiveConnectivityGraph:
             param:  elements_relations dict {str: ElementRelations}: to update the explanation
             """
             for node in self.graph.nodes.values():
-                if len(node.short_names) == 1:
+                if len(node.other_names) == 1:
                     elements_relations[node.t_id].explanation = [
-                        f'Connectivity subgraph for \'{node.short_names[0]}\' (highlighted)'
+                        f'Connectivity subgraph for \'{node.other_names[0]}\' (highlighted)'
                         ]
                     if 'livesim' in node.name:
                         elements_relations[node.t_id].explanation.append(f'{node.name} was automatically added')
@@ -610,7 +611,7 @@ class InteractiveConnectivityGraph:
 
             for edge in self.graph.edges.values():
                 elements_relations[edge.t_id].explanation = [
-                    f'Connectivity subgraph between  \'{edge.src.short_names[0]}\' and  \'{edge.dst.short_names[0]}\'',
+                    f'Connectivity subgraph between  \'{edge.src.other_names[0]}\' and  \'{edge.dst.other_names[0]}\'',
                     f'({edge.conn.full_description})']
 
             for clique in self.graph.cliques:
@@ -619,7 +620,7 @@ class InteractiveConnectivityGraph:
                     elements_relations[cc.t_id].explanation = [
                         'Connectivity subgraph for a Clique',
                         'Traffic allowed between any two workloads connected to the CLIQUE',
-                        f'.{clique.conn.full_description}']
+                        f'({clique.conn.full_description})']
 
             for biclique in self.graph.bicliques:
                 biclq_core = biclique.dst_edges + biclique.src_edges + [biclique.node]
@@ -627,7 +628,7 @@ class InteractiveConnectivityGraph:
                     elements_relations[bcc.t_id].explanation = [
                         f'Connectivity subgraph for a biClique.',
                         'Traffic allowed from any source workload of the BICLIQUE to any of its destination workloads',
-                        f'{biclique.conn.full_description}']
+                        f'({biclique.conn.full_description})']
 
             for ns_name, namespace in self.graph.namespaces.items():
                 elements_relations[namespace.t_id].explanation = [
