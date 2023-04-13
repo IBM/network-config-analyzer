@@ -1357,7 +1357,7 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     def exec(self, cmd_line_flag=False, only_captured=False):
         config1_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_in_config1_not_in_config2 = config1_peers - \
-                                          self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
+            self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         if peers_in_config1_not_in_config2:
             peers_list = [str(e) for e in peers_in_config1_not_in_config2]
             final_explanation = \
