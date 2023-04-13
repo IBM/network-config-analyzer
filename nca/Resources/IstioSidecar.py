@@ -7,7 +7,6 @@ from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from .NetworkPolicy import PolicyConnections, NetworkPolicy
-from .IstioTrafficResources import istio_root_namespace
 from ..CoreDS.Peer import DNSEntry, IpBlock
 
 
