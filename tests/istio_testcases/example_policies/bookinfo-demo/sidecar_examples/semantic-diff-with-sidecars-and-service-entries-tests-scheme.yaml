@@ -1,0 +1,40 @@
+resourceList:
+  - bookinfo-topology
+  - service_entry_resources/external-https-wildcard-services.yaml
+
+networkConfigList:
+  - name: sidecar-with-selector-allows-any
+    networkPolicyList:
+      - sidecar-allows-any.yaml
+
+  - name: sidecar-with-selector-registery-only
+    networkPolicyList:
+      - sidecar-allows-all-in-registery-only.yaml
+
+  - name: sidecar-with-local-hosts-only
+    resourceList:
+      - bookinfo-topology
+      - sidecar-with-local-hosts-only.yaml
+
+  - name: sidecar-with-local-and-dns-hosts
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/bookinfo-service-entry-1.yaml
+      - sidecar-w-internal-external-services.yaml
+
+queries:
+  - name: semantic-diff-lost-conns-test
+    # case of lost connections between an intersected peer (ratings) and ipBlocks due to changes in sidecars
+    semanticDiff:
+      - sidecar-with-selector-allows-any
+      - sidecar-with-selector-registery-only
+    expectedOutput: ../../../expected_output/semantic_diff_sidecars_lost_conns_test.txt
+    expected: 1
+
+  - name: semantic-diff-added-conns-test
+    # case of New connections between persistent peers and added peers - different sidecars (added DNSEntry peers to the second config)
+    semanticDiff:
+      - sidecar-with-local-hosts-only
+      - sidecar-with-local-and-dns-hosts
+    expectedOutput: ../../../expected_output/semantic_diff_sidecars_added_conns_test.txt
+    expected: 1
