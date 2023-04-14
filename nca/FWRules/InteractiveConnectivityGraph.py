@@ -626,7 +626,7 @@ class InteractiveConnectivityGraph:
                 biclq_core = biclique.dst_edges + biclique.src_edges + [biclique.node]
                 for bcc in biclq_core:
                     elements_relations[bcc.t_id].explanation = [
-                        f'Connectivity subgraph for a biClique.',
+                        'Connectivity subgraph for a biClique.',
                         'Traffic allowed from any source workload of the BICLIQUE to any of its destination workloads',
                         f'({biclique.conn.full_description})']
 
