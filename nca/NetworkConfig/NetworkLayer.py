@@ -362,7 +362,8 @@ class IstioNetworkLayer(NetworkLayer):
                 if non_captured_dns_entries:
                     # update allowed non-captured conns to DNSEntry dst with TCP only
                     conn_cube = ConnectivityCube.make_from_dict({"src_peers": all_peers_and_ips,
-                                                                 "dst_peers": non_captured_dns_entries, "protocols": protocols})
+                                                                 "dst_peers": non_captured_dns_entries,
+                                                                 "protocols": protocols})
                     res_conns.all_allowed_conns |= ConnectivityProperties.make_conn_props(conn_cube)
             else:
                 conn_cube = ConnectivityCube.make_from_dict({"src_peers": non_captured_peers, "dst_peers": all_peers_and_ips})
@@ -371,8 +372,6 @@ class IstioNetworkLayer(NetworkLayer):
                 conn_cube = ConnectivityCube.make_from_dict({"src_peers": non_captured_peers, "dst_peers": dns_entries,
                                                              "protocols": protocols})
                 res_conns.all_allowed_conns |= ConnectivityProperties.make_conn_props(conn_cube)
-
-
         return res_conns
 
 

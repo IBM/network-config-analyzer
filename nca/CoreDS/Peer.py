@@ -534,7 +534,6 @@ class DNSEntry(Peer):
         else:
             return self.namespace.name + '_' + self.name
 
-
     @staticmethod
     def compute_re_pattern_from_host_name(host_name):
         """
