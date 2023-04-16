@@ -10,7 +10,7 @@ from collections import defaultdict
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, DNSEntry
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
@@ -146,6 +146,25 @@ class NetworkConfigQuery(BaseNetworkQuery):
     @abstractmethod
     def exec(self):
         raise NotImplementedError
+
+    # this def contains conditions that should be checked every time before computing
+    # allowed connections of two peers, so added it here to avoid duplications in the queries code
+    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
+        """
+        determines if to continue to compute allowed connections for the given
+        pair of peers based on their types
+        :param Peer peer1: the src peer
+        :param Peer peer2: the dst peer
+        :rtype: bool
+        """
+        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
+            return False
+        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
+            return False  # connectivity between external peers is not relevant either
+        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) \
+                and isinstance(peer2, DNSEntry):
+            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
+        return True
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -703,7 +722,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         fw_rules_non_tcp = None
         exclude_ipv6 = self.output_config.excludeIPv6Range
         if self.config.optimized_run != 'true':
-            peers_to_compare = self.config.peer_container.get_all_peers_group()
+            peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
             ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
                                                        IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
                                                        exclude_ipv6)
@@ -716,8 +735,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                         peers.add(peer1)
                     elif not self.is_in_subset(peer2):
                         continue  # skipping pairs if none of them are in the given subset
-                    if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
-                        continue  # skipping pairs with ip-blocks for both src and dst
+                    if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+                        continue
                     if peer1 == peer2:
                         # cannot restrict pod's connection to itself
                         connections[ConnectionSet(True)].append((peer1, peer2))
@@ -748,7 +767,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             opt_conns = self.config.allowed_connections_optimized()
             all_conns_opt = opt_conns.all_allowed_conns
         if all_conns_opt:
-            opt_peers_to_compare = self.config.peer_container.get_all_peers_group()
+            opt_peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
             # add all relevant IpBlocks, used in connections
             opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
                 all_conns_opt.project_on_one_dimension('dst_peers')
@@ -1042,7 +1061,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         return tcp_conns, non_tcp_conns
 
-    def convert_props_to_split_by_tcp(self, props):
+    @staticmethod
+    def convert_props_to_split_by_tcp(props):
         """
         given the ConnectivityProperties properties set, convert it to two properties sets, one for TCP only, and the other
         for non-TCP only.
@@ -1284,7 +1304,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     def get_conn_graph_changed_conns(self, key, ip_blocks, is_added):
         """
-        create a ConnectivityGraph for chnged (added/removed) connections per given key
+        create a ConnectivityGraph for changed (added/removed) connections per given key
         :param key: the key (category) of changed connections
         :param ip_blocks: a PeerSet of ip-blocks to be added for the topology peers
         :param is_added: a bool flag indicating if connections are added or removed

@@ -1,0 +1,11 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: bookinfo-ratings-sidecar-specific-host
+spec:
+  workloadSelector:
+    labels:
+      app: ratings
+  egress:
+    - hosts:
+        - "*/*.facebook.com"

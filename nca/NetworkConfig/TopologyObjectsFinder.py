@@ -8,6 +8,7 @@ import yaml
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, HostEP, BasePeerSet
 from nca.Resources.K8sNamespace import K8sNamespace
+from nca.Parsers.IstioServiceEntryYamlParser import IstioServiceEntryYamlParser
 from nca.Parsers.K8sServiceYamlParser import K8sServiceYamlParser
 from nca.Utils.NcaLogger import NcaLogger
 
@@ -68,6 +69,8 @@ class PodsFinder:
             self._add_hep_from_yaml(yaml_obj)
         elif kind in ['NetworkSet', 'GlobalNetworkSet']:
             self._add_networkset_from_yaml(yaml_obj)
+        elif kind == 'ServiceEntry':
+            self._add_dns_entries_from_yaml(yaml_obj)
 
     def _add_pod_from_yaml(self, pod_object):
         """
@@ -241,6 +244,16 @@ class PodsFinder:
 
         self._add_peer(wep)
 
+    def _add_dns_entries_from_yaml(self, srv_entry_object):
+        """
+        Add DNSEntry peers to the container based on the given istio ServiceEntry resource instance
+        :param dict srv_entry_object: The service-entry object to parse for dns-entry peers
+        :return: None
+        """
+        parser = IstioServiceEntryYamlParser()
+        dns_entries = parser.parse_serviceentry(srv_entry_object, self.peer_set)
+        self.peer_set |= dns_entries
+
 
 class NamespacesFinder:
     """
@@ -311,7 +324,7 @@ class NamespacesFinder:
 
 class ServicesFinder:
     """
-    This class is responsible for populating the services in the relevant input resources
+    This class is responsible for populating the services in the relevant input resources.
     Resources that contain services, may be:
     - git path of yaml file or a directory with yamls
     - local file (yaml or json) or a local directory containing yamls
@@ -332,10 +345,7 @@ class ServicesFinder:
             return
         parser = K8sServiceYamlParser('k8s')
         for srv_code in srv_resources.get('items', []):
-            service = parser.parse_service(srv_code)
-            if service:
-                service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
-                self.services_list.append(service)
+            self._parse_and_update_services_list(srv_code, parser)
 
     def parse_yaml_code_for_service(self, res_code, yaml_file):
         parser = K8sServiceYamlParser(yaml_file)
@@ -344,13 +354,18 @@ class ServicesFinder:
         kind = res_code.get('kind')
         if kind in {'List'}:
             for srv_item in res_code.get('items', []):
-                if isinstance(srv_item, dict) and srv_item.get('kind') in {'Service'}:
-                    service = parser.parse_service(srv_item)
-                    if service:
-                        service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
-                        self.services_list.append(service)
-        elif kind in {'Service'}:
-            service = parser.parse_service(res_code)
-            if service:
-                service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
-                self.services_list.append(service)
+                if isinstance(srv_item, dict) and srv_item.get('kind') in ['Service']:
+                    self._parse_and_update_services_list(srv_item, parser)
+        elif kind in ['Service']:
+            self._parse_and_update_services_list(res_code, parser)
+
+    def _parse_and_update_services_list(self, srv_object, parser):
+        """
+        parses the service object using the given parser and updates the services_list accordingly
+        :param dict srv_object: the service object code from the yaml content
+        :param K8sServiceYamlParser parser: the service object parser
+        """
+        service = parser.parse_service(srv_object)
+        if service:
+            service.namespace = self.namespaces_finder.get_or_update_namespace(service.namespace_name)
+            self.services_list.append(service)

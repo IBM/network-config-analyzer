@@ -1,5 +1,6 @@
 For connections of type TCP, final fw rules for query: connectivity-map-bookinfo-ignoring-second-default-sidecar-in-same-namespace, config: bookinfo-two-selector-less-sidecars:
 src: 0.0.0.0/0 dst_ns: [default] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [details-v1] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [ratings-v1] conn: All connections
 src_ns: [default] src_pods: [*] dst_ns: [default] dst_pods: [reviews-v1] conn: All connections

@@ -6,7 +6,7 @@ from bisect import insort
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet
+from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet, DNSEntry
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
@@ -192,6 +192,7 @@ class NetworkLayer:
                                   (egress_conns.allowed_conns & ingress_conns.all_allowed_conns)
         # exclude IpBlock->IpBlock connections
         conn_cube.update({"src_peers": all_ips_peer_set, "dst_peers": all_ips_peer_set})
+        # TODO - update according to ConnectivityMapQuery.determine_whether_to_compute_allowed_conns_for_peer_types
         ip_to_ip_conns = ConnectivityProperties.make_conn_props(conn_cube)
         res_conns.allowed_conns -= ip_to_ip_conns
         res_conns.all_allowed_conns -= ip_to_ip_conns
@@ -343,6 +344,9 @@ class IstioNetworkLayer(NetworkLayer):
         if not captured_res:  # no allow policies for target
             # add connections allowed by default that are not captured
             allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
+            # exception: update allowed non-captured conns to DNSEntry dst with TCP only
+            if isinstance(to_peer, DNSEntry):
+                allowed_non_captured_conns = ConnectionSet.get_all_tcp_connections()
         return PolicyConnections(captured_res, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
