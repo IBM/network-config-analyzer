@@ -166,6 +166,25 @@ class NetworkConfigQuery(BaseNetworkQuery):
             return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
         return True
 
+    def filter_conns_by_peer_types(self, conns, all_peers):
+        res = conns
+        # avoid IpBlock -> {IpBlock, DNSEntry} connections
+        all_ips = IpBlock.get_all_ips_block_peer_set()
+        all_dns_entries = self.config.peer_container.get_all_dns_entries()
+        conn_cube = ConnectivityCube.make_from_dict({"src_peers": all_ips, "dst_peers": all_ips | all_dns_entries})
+        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props(conn_cube)
+        res -= ip_to_ip_or_dns_conns
+        # avoid DNSEntry->anything connections
+        conn_cube.update({"src_peers": all_dns_entries, "dst_peers": all_peers})
+        dns_to_any_conns = ConnectivityProperties.make_conn_props(conn_cube)
+        res -= dns_to_any_conns
+        # avoid anything->DNSEntry connections if Istio layer does not exist
+        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
+            conn_cube.update({"src_peers": all_peers, "dst_peers": all_dns_entries})
+            any_to_dns_conns = ConnectivityProperties.make_conn_props(conn_cube)
+            res -= any_to_dns_conns
+        return res
+
 
 class DisjointnessQuery(NetworkConfigQuery):
     """
@@ -778,6 +797,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             subset_conns = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
                 ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
             all_conns_opt &= subset_conns
+            all_conns_opt = self.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
             ip_blocks_mask = IpBlock.get_all_ips_block()
             if exclude_ipv6:
                 ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6=True)

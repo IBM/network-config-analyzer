@@ -528,6 +528,13 @@ class DNSEntry(Peer):
             return self.name == other.name
         return False
 
+    def canonical_form(self):
+        if self.namespace is None:
+            return self.name
+        else:
+            return self.namespace.name + '_' + self.name
+
+
     @staticmethod
     def compute_re_pattern_from_host_name(host_name):
         """

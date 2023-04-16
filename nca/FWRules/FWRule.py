@@ -558,6 +558,13 @@ class DNSElement(FWRuleElement):
         # an dns-entry element does not represent any pods
         return set()
 
+    def get_peer_set(self, cluster_info):
+        """
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :return: a PeerSet (pods and/or IpBlocks)  represented by this element
+        """
+        return PeerSet({self.element})
+
 
 class FWRule:
     """

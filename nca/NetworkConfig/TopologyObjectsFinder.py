@@ -252,7 +252,8 @@ class PodsFinder:
         """
         parser = IstioServiceEntryYamlParser()
         dns_entries = parser.parse_serviceentry(srv_entry_object, self.peer_set)
-        self.peer_set |= dns_entries
+        for dns_entry in dns_entries:
+            self._add_peer(dns_entry)
 
 
 class NamespacesFinder:
