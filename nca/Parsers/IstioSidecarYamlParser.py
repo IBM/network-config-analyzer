@@ -23,6 +23,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         # (other than istio_root_namespace), and not containing workload-selectors within
         self.global_default_sidecars = []  # list of selector-less sidecars in istio_root_namespace,
         # i.e. applied to all namespaces
+        self.referenced_namespaces = set() # set of namespaces that already have default sidecar
 
     def reset(self, policy, peer_container, file_name=''):
         """
@@ -166,12 +167,12 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         :param IstioSidecar curr_sidecar: the sidecar parsed in self
         """
         if curr_sidecar.default_sidecar:
-            if self.namespace.prior_default_sidecar:  # this sidecar is not first one
+            if self.namespace in self.referenced_namespaces:
                 self.warning(f'Namespace "{str(self.namespace)}" already has a Sidecar configuration '
                              f'without any workloadSelector. '
                              f'Connections in sidecar: "{curr_sidecar.full_name()}" will be ignored')
                 return
-            self.namespace.prior_default_sidecar = curr_sidecar
+            self.referenced_namespaces.add(self.namespace)
             return
 
         prior_referenced_by_label = curr_sidecar.selected_peers & self.peers_referenced_by_labels
