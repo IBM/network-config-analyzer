@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: external-svc-first-test
+spec:
+  hosts:
+  - www.slack.com
+  - www.google.com
+  location: MESH_EXTERNAL
+  ports:
+   - name: https-443
+     number: 443
+     protocol: HTTPS
+  resolution: NONE

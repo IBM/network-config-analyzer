@@ -3,13 +3,13 @@
 For Istio Authorization Policy (see [Istio Authorization Policy spec](https://istio.io/latest/docs/reference/config/security/authorization-policy/)), 
 the following is supported:
 
-| Field | Supported Fields |
-|-------|-------------|
-|selector| WorkloadSelector |
-|action| ALLOW, DENY|
-|source| principals, notPrincipals, namespaces, notNamespaces, ipBlocks, notIpBlocks|
-|operation| hosts, notHosts, ports, notPorts, methods, notMethods, paths, notPaths|
-|condition| source.ip, source.namespace, source.principal, destination.port|
+| Field     | Supported Fields                                                            |
+|-----------|-----------------------------------------------------------------------------|
+| selector  | WorkloadSelector                                                            |
+| action    | ALLOW, DENY                                                                 |
+| source    | principals, notPrincipals, namespaces, notNamespaces, ipBlocks, notIpBlocks |
+| operation | hosts, notHosts, ports, notPorts, methods, notMethods, paths, notPaths      |
+| condition | source.ip, source.namespace, source.principal, destination.port             |
 
 For Istio Ingress Traffic Management (see [Istio Traffic Management spec](https://istio.io/latest/docs/concepts/traffic-management/)), 
 VirtualServices, Gateways and Sidecars are supported. 
@@ -34,8 +34,15 @@ In the Gateway, the following is supported:
 
 In the Sidecar, the following is supported:
 
-| Field            | Supported (Sub)-Fields | 
-|------------------|------------------------|
-| workloadSelector | labels                 |
-| egress           | hosts                  |
+| Field                 | Supported (Sub)-Fields | 
+|-----------------------|------------------------|
+| workloadSelector      | labels                 |
+| egress                | hosts                  |
+| outboundTrafficPolicy | mode                   |
 
+In the ServiceEntry, the following is suported:
+
+| Field      | Supported (Sub)-Fields | Supported Values           |
+|------------|------------------------|----------------------------|
+| hosts      |                        |                            |
+| location   |                        | MESH_EXTERNAL              |

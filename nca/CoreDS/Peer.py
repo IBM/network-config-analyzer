@@ -4,6 +4,7 @@
 #
 import copy
 import ipaddress
+import re
 from ipaddress import ip_network
 from sys import stderr
 from string import hexdigits
@@ -20,7 +21,6 @@ class Peer:
         self.namespace = namespace
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
-        self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name
@@ -66,6 +66,7 @@ class ClusterEP(Peer):
         super().__init__(name, namespace)
         self.named_ports = {}  # A map from port name to the port number and its protocol
         self.profiles = []  # The set of attached profiles (Calico only)
+        self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
@@ -468,6 +469,85 @@ class IpBlock(Peer, CanonicalIntervalSet):
                     isinstance(ip_address, ipaddress.IPv4Address):
                 cnt += 1
         return cnt == len(self.interval_set)
+
+
+"""
+The following class DNSEntry; represents another type of external peer which is produced from istio ServiceEntry objects.
+Note: connectivity of DNSEntry peers is considered only for NetworkLayerName.Istio
+a DNSEntry peer is created from a single host in the serviceEntry object
+
+example: from this ServiceEntry yaml object:
+    `
+    apiVersion: networking.istio.io/v1alpha3
+    kind: ServiceEntry
+    metadata:
+        name: external-svc-first-test
+    spec:
+        hosts:
+            - www.slack.com
+            - www.google.com
+        location: MESH_EXTERNAL
+        ports:
+            - name: https-443
+              number: 443
+              protocol: HTTPS
+        resolution: NONE
+    `
+two DNSEntry peers will be created :
+1.DNSEntry(name=www.slack.com)
+2.DNSEntry(name=www.google.com)
+"""
+
+
+class DNSEntry(Peer):
+    """
+    represents DNS entries, produced by istio ServiceEntry objects.
+    A DNSEntry peer is created from single host in the service-entry hosts' list
+    """
+    # a dns entry pattern matches the following re-pattern
+    dns_pattern = r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?"
+
+    def __init__(self, name=None, namespace=None):
+        """
+        Constructs a DNSEntry from the host name provided
+        currently: each DNSEntry peer is exported to all namespaces
+        """
+        Peer.__init__(self, name, namespace)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.name == other.name
+        return False
+
+    def canonical_form(self):
+        if self.namespace is None:
+            return self.name
+        else:
+            return self.namespace.name + '_' + self.name
+
+    @staticmethod
+    def compute_re_pattern_from_host_name(host_name):
+        """
+        translates the host name (dns) to a pattern that may be used with re library methods
+         - "*" at the beginning of the host name will be replaced with an FQDN pattern
+         - the "." in the host name may not be replaced by any other character
+         :param str host_name: the host name
+         :return: the re-pattern of the host name
+         :rtype: str
+        """
+        if host_name.startswith('*'):
+            name_suffix = re.escape(host_name[1:])
+            return DNSEntry.dns_pattern + name_suffix
+        return re.escape(host_name)
 
 
 class PeerSet(set):

@@ -1,0 +1,12 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: bookinfo-ratings-sidecar-mixed
+spec:
+  workloadSelector:
+    labels:
+      app: ratings
+  egress:
+    - hosts:
+        - "./details.default.svc.cluster.local"
+        - "./reviews.default.svc.cluster.local"

@@ -10,7 +10,7 @@ from collections import defaultdict
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, DNSEntry
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
@@ -147,6 +147,44 @@ class NetworkConfigQuery(BaseNetworkQuery):
     @abstractmethod
     def exec(self):
         raise NotImplementedError
+
+    # this def contains conditions that should be checked every time before computing
+    # allowed connections of two peers, so added it here to avoid duplications in the queries code
+    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
+        """
+        determines if to continue to compute allowed connections for the given
+        pair of peers based on their types
+        :param Peer peer1: the src peer
+        :param Peer peer2: the dst peer
+        :rtype: bool
+        """
+        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
+            return False
+        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
+            return False  # connectivity between external peers is not relevant either
+        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) \
+                and isinstance(peer2, DNSEntry):
+            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
+        return True
+
+    def filter_conns_by_peer_types(self, conns, all_peers):
+        res = conns
+        # avoid IpBlock -> {IpBlock, DNSEntry} connections
+        all_ips = IpBlock.get_all_ips_block_peer_set()
+        all_dns_entries = self.config.peer_container.get_all_dns_entries()
+        conn_cube = ConnectivityCube.make_from_dict({"src_peers": all_ips, "dst_peers": all_ips | all_dns_entries})
+        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props(conn_cube)
+        res -= ip_to_ip_or_dns_conns
+        # avoid DNSEntry->anything connections
+        conn_cube.update({"src_peers": all_dns_entries, "dst_peers": all_peers})
+        dns_to_any_conns = ConnectivityProperties.make_conn_props(conn_cube)
+        res -= dns_to_any_conns
+        # avoid anything->DNSEntry connections if Istio layer does not exist
+        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
+            conn_cube.update({"src_peers": all_peers, "dst_peers": all_dns_entries})
+            any_to_dns_conns = ConnectivityProperties.make_conn_props(conn_cube)
+            res -= any_to_dns_conns
+        return res
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -704,7 +742,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         fw_rules_non_tcp = None
         exclude_ipv6 = self.output_config.excludeIPv6Range
         if self.config.optimized_run != 'true':
-            peers_to_compare = self.config.peer_container.get_all_peers_group()
+            peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
             ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
                                                        IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
                                                        exclude_ipv6)
@@ -717,8 +755,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                         peers.add(peer1)
                     elif not self.is_in_subset(peer2):
                         continue  # skipping pairs if none of them are in the given subset
-                    if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
-                        continue  # skipping pairs with ip-blocks for both src and dst
+                    if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+                        continue
                     if peer1 == peer2:
                         # cannot restrict pod's connection to itself
                         connections[ConnectionSet(True)].append((peer1, peer2))
@@ -749,7 +787,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             opt_conns = self.config.allowed_connections_optimized()
             all_conns_opt = opt_conns.all_allowed_conns
         if all_conns_opt:
-            opt_peers_to_compare = self.config.peer_container.get_all_peers_group()
+            opt_peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
             # add all relevant IpBlocks, used in connections
             opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
                 all_conns_opt.project_on_one_dimension('dst_peers')
@@ -760,6 +798,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             subset_conns = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
                 ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
             all_conns_opt &= subset_conns
+            all_conns_opt = self.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
             ExplTracker().set_connections_and_peers(all_conns_opt, subset_peers)
             ip_blocks_mask = IpBlock.get_all_ips_block()
             if exclude_ipv6:
@@ -839,7 +878,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_full = self.dot_format_from_props(props, peers_to_compare, ip_blocks_mask)
             return dot_full, None
-        # TODO - handle 'txt_no_fw_rules' output format
         if self.output_config.outputFormat == 'txt_no_fw_rules':
             conns_wo_fw_rules = self.txt_no_fw_rules_format_from_props(props, peers_to_compare, ip_blocks_mask)
             return conns_wo_fw_rules, None
@@ -911,7 +949,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # concatenate the two graphs into one dot file
             res_str = dot_tcp + dot_non_tcp
             return res_str, None, None
-        # TODO - handle 'txt_no_fw_rules' output format
         if self.output_config.outputFormat in ['txt_no_fw_rules']:
             txt_no_fw_rules_tcp = self.txt_no_fw_rules_format_from_props(props_tcp, peers_to_compare, ip_blocks_mask,
                                                                          connectivity_tcp_str)
@@ -1071,7 +1108,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         return tcp_conns, non_tcp_conns
 
-    def convert_props_to_split_by_tcp(self, props):
+    @staticmethod
+    def convert_props_to_split_by_tcp(props):
         """
         given the ConnectivityProperties properties set, convert it to two properties sets, one for TCP only, and the other
         for non-TCP only.
@@ -1313,7 +1351,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     def get_conn_graph_changed_conns(self, key, ip_blocks, is_added):
         """
-        create a ConnectivityGraph for chnged (added/removed) connections per given key
+        create a ConnectivityGraph for changed (added/removed) connections per given key
         :param key: the key (category) of changed connections
         :param ip_blocks: a PeerSet of ip-blocks to be added for the topology peers
         :param is_added: a bool flag indicating if connections are added or removed

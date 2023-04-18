@@ -1,0 +1,152 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2021-08-02T06:33:51Z",
+                "labels": {
+                    "istio-injection": "enabled"
+                },
+                "name": "default",
+                "resourceVersion": "2376",
+                "selfLink": "/api/v1/namespaces/default",
+                "uid": "442f000a-6613-4ee7-ab02-971e6dac0187"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2021-08-02T06:43:31Z",
+                "name": "istio-system",
+                "resourceVersion": "2019",
+                "selfLink": "/api/v1/namespaces/istio-system",
+                "uid": "60a7e1c1-56a8-462f-b3ab-65dd40c49089"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2021-08-02T06:33:50Z",
+                "name": "prod",
+                "resourceVersion": "35",
+                "selfLink": "/api/v1/namespaces/kube-node-lease",
+                "uid": "48bb310d-d54a-4961-b998-2c022923b446"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2021-08-02T06:33:50Z",
+                "name": "qa",
+                "resourceVersion": "14",
+                "selfLink": "/api/v1/namespaces/kube-public",
+                "uid": "63f1c389-b11b-4a86-884c-71a8c5e6a766"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "creationTimestamp": "2021-08-02T06:33:50Z",
+                "name": "kube-system",
+                "resourceVersion": "7",
+                "selfLink": "/api/v1/namespaces/kube-system",
+                "uid": "0d3cfffe-e2de-462b-9300-78caa3464b91"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"annotations\":{},\"name\":\"kubernetes-dashboard\"}}\n"
+                },
+                "creationTimestamp": "2021-08-02T06:35:33Z",
+                "name": "bookinfo-namespace",
+                "resourceVersion": "668",
+                "selfLink": "/api/v1/namespaces/kubernetes-dashboard",
+                "uid": "8167ec8b-2e32-4787-bb47-71a505a4fe3c"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Namespace",
+            "metadata": {
+                "annotations": {
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"annotations\":{},\"name\":\"local-path-storage\"}}\n"
+                },
+                "creationTimestamp": "2021-08-02T06:33:55Z",
+                "name": "local-path-storage",
+                "resourceVersion": "223",
+                "selfLink": "/api/v1/namespaces/local-path-storage",
+                "uid": "5dde2e12-1bff-408a-8e88-fdc2b3027a58"
+            },
+            "spec": {
+                "finalizers": [
+                    "kubernetes"
+                ]
+            },
+            "status": {
+                "phase": "Active"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": "",
+        "selfLink": ""
+    }
+}
