@@ -404,7 +404,7 @@ class ConnectionSet:
         Add connections to the set of connections
         :param int,str protocol: protocol number of the connections to add
         :param properties: an object with protocol properties (e.g., ports), if relevant
-        :type properties: Union[bool, ConnectivityProperties, ICMPDataSet]
+        :type properties: Union[bool, ConnectivityProperties]
         :return: None
         """
         if isinstance(protocol, str):
