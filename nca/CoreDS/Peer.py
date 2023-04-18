@@ -66,7 +66,6 @@ class ClusterEP(Peer):
         super().__init__(name, namespace)
         self.named_ports = {}  # A map from port name to the port number and its protocol
         self.profiles = []  # The set of attached profiles (Calico only)
-        self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
@@ -734,18 +733,9 @@ class BasePeerSet:
             :return: CanonicalIntervalSet for the peer_set
             """
             res = CanonicalIntervalSet()
-            covered_peers = peer_set.copy()  # for check that we covered all peers
-            for index, peer in enumerate(self.ordered_peer_list):
-                if peer in peer_set:
-                    covered_peers.add(peer)
-                    assert not isinstance(peer, IpBlock)
-                    res.add_interval(CanonicalIntervalSet.Interval(self.min_pod_index + index,
-                                                                   self.min_pod_index + index))
-            # Now pick IpBlocks
-            for ipb in peer_set:
-                if isinstance(ipb, IpBlock):
-                    covered_peers.add(ipb)
-                    for cidr in ipb:
+            for peer in peer_set:
+                if isinstance(peer, IpBlock):
+                    for cidr in peer:
                         if isinstance(cidr.start.address, ipaddress.IPv4Address):
                             res.add_interval(CanonicalIntervalSet.Interval(self.min_ipv4_index + int(cidr.start),
                                                                            self.min_ipv4_index + int(cidr.end)))
@@ -754,7 +744,11 @@ class BasePeerSet:
                                                                            self.min_ipv6_index + int(cidr.end)))
                         else:
                             assert False
-            assert covered_peers == peer_set
+                else:
+                    index = self.peer_to_index.get(peer)
+                    assert index is not None
+                    res.add_interval(CanonicalIntervalSet.Interval(self.min_pod_index + index,
+                                                                   self.min_pod_index + index))
             return res
 
         def get_peer_set_by_indices(self, peer_interval_set):
