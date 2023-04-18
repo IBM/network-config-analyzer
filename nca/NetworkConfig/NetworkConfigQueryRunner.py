@@ -56,7 +56,7 @@ class QueryResult:
                                sort_keys=False)
         else:
             output = '\n'.join(self.query_iterations_output)
-        expl_out = '\n'.join(ExplTracker().explain(expl_nodes))
+        expl_out = ExplTracker().explain(expl_nodes)
         return self.numerical_result, output+expl_out, self.num_not_executed
 
 

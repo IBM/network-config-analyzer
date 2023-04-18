@@ -6,6 +6,8 @@
 from nca.Utils.Utils import Singleton
 from nca.Utils.NcaLogger import NcaLogger
 from nca.CoreDS.Peer import PeerSet
+from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 
 class ExplPolicies:
@@ -31,6 +33,10 @@ class ExplPolicies:
             peer_name = peer.full_name()
             if not peer_list.get(peer_name):
                 peer_list[peer_name] = set()
+            # We don't want Default-Policy if we have any other policy,
+            # so we first remove it and then add the policy (even if we currently add
+            # the Default-Policy itself).
+            peer_list[peer_name].discard('Default-Policy')
             peer_list[peer_name].add(policy_name)
 
     def add_policy(self, policy_name, egress_dst, ingress_src):
@@ -192,11 +198,23 @@ class ExplTracker(metaclass=Singleton):
             ingress_list = {}
 
         for node in nodes:
-            self.add_peer_policy(node.full_name(),
-                                 'Default-Policy',
-                                 egress_list,
-                                 ingress_list,
-                                 )
+            # we dont add Default-Policy if there is already an explicit
+            # policy allowing the connectivity
+            if self.is_policy_list_empty(node.full_name(), is_ingress):
+                self.add_peer_policy(node.full_name(),
+                                     'Default-Policy',
+                                     egress_list,
+                                     ingress_list,
+                                     )
+
+    def is_policy_list_empty(self, node_name, check_ingress):
+        peer = self.ExplPeerToPolicyContainer.get(node_name)
+        if peer:
+            if check_ingress and peer.ingress_src:
+                return False
+            if not check_ingress and peer.egress_dst:
+                return False
+        return True
 
     def prepare_node_str(self, node_name, results, direction=None):
         """
@@ -222,14 +240,25 @@ class ExplTracker(metaclass=Singleton):
         return out
 
     def explain_all(self):
-        out = []
+        soup = BeautifulSoup(features='xml')
+        entry_id = 0
         for peer1 in self.all_peers:
             for peer2 in self.all_peers:
                 if peer1 == peer2:
-                    out.extend(self.explain([peer1.full_name()]))
+                    text = self.explain([peer1.full_name()])
                 else:
-                    out.extend(self.explain([peer1.full_name(), peer2.full_name()]))
-        return out
+                    text = self.explain([peer1.full_name(), peer2.full_name()])
+                # Create the XML entry element
+                entry = soup.new_tag('entry')
+                entry_id += 1
+                entry['id'] = str(entry_id)
+                entry['src'] = peer1.full_name()
+                entry['dst'] = peer2.full_name()
+                text_elem = Tag(soup, name='text')
+                text_elem.string = text
+                entry.append(text_elem)
+                soup.append(entry)
+        return soup.prettify()
 
     def explain(self, nodes):
         """
@@ -285,4 +314,6 @@ class ExplTracker(metaclass=Singleton):
             out.append(f'\nConfigurations affecting {src_node}:')
             out.extend(self.prepare_node_str(src_node, results))
 
+        # convert the list of expl' directives into string
+        out = '\n'.join(out)
         return out
