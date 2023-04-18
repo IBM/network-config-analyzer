@@ -8,9 +8,9 @@ from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, PeerSet, DNSEntry
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
+from nca.CoreDS.ConnectivityCube import ConnectivityCube
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
-from .IstioTrafficResources import istio_root_namespace
 
 
 @dataclass

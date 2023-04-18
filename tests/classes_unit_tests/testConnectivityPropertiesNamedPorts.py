@@ -1,8 +1,8 @@
 import unittest
 from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.PortSet import PortSet
-from nca.CoreDS.Peer import PeerSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
+from nca.CoreDS.ConnectivityCube import ConnectivityCube
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 
 
 class TestNamedPorts(unittest.TestCase):
