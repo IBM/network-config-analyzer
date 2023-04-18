@@ -274,7 +274,7 @@ class NetworkConfig:
         Computes the set of allowed connections between any relevant peers.
         :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
         :return: allowed_conns: all allowed connections for relevant peers.
-        :rtype: ConnectivityProperties
+        :rtype: OptimizedPolicyConnections
         """
         if layer_name is not None:
             if layer_name not in self.policies_container.layers:
