@@ -36,6 +36,15 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         The named ports are resolved during the construction, therefore in the optimized solution named_ports and
         excluded_named_ports fields are not used.
 
+        The src_peers and dst_peers dimensions are special dimensions,  they do not have constant domain. Their domain
+        depends on the current set of peers in the system (as appears in BasePeerSet singleton). This set grows when
+        adding more configurations. Thus, there is no unique 'all values' representation. In particular, those
+        dimensions are never reduced to inactive.
+        This might be a problem in comparison and inclusion operators of ConnectivityProperties. The possible solution
+        may be to keep 'reference full domain value' for these dimensions (as another member in the BasePeerSet),
+        and to set it to relevant values per query, and to make a special treatment of these dimensions
+        in the above operators.
+
     Also, including support for (included and excluded) named ports (relevant for dest ports only).
 
     The representation with named ports is considered a mid-representation, and is required due to the late binding
@@ -179,6 +188,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, ConnectivityProperties):
+            assert ("src_peers" in self.active_dimensions) == ("src_peers" in other.active_dimensions)
+            assert ("dst_peers" in self.active_dimensions) == ("dst_peers" in other.active_dimensions)
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
@@ -235,6 +246,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         assert not self.has_named_ports()
         assert not other.has_named_ports()
+        assert ("src_peers" in self.active_dimensions) == ("src_peers" in other.active_dimensions)
+        assert ("dst_peers" in self.active_dimensions) == ("dst_peers" in other.active_dimensions)
         return super().contained_in(other)
 
     def has_named_ports(self):
