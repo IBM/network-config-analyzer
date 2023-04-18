@@ -757,7 +757,7 @@ class BasePeerSet:
             :param peer_interval_set: the interval set of indices
             :return: the PeerSet of peers referenced by the indices in the interval set
             """
-            peer_list = []
+            peer_set = PeerSet()
             for interval in peer_interval_set:
                 if interval.end <= self.max_ipv4_index:
                     # this is IPv4Address
@@ -765,22 +765,22 @@ class BasePeerSet:
                     end = ipaddress.IPv4Address(interval.end - self.min_ipv4_index)
                     ipb = IpBlock(
                         interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
-                    peer_list.append(ipb)
+                    peer_set.add(ipb)
                 elif interval.end <= self.max_ipv6_index:
                     # this is IPv6Address
                     start = ipaddress.IPv6Address(interval.start - self.min_ipv6_index)
                     end = ipaddress.IPv6Address(interval.end - self.min_ipv6_index)
                     ipb = IpBlock(
                         interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
-                    peer_list.append(ipb)
+                    peer_set.add(ipb)
                 else:
                     # this is Pod
                     assert interval.end <= self.max_pod_index
                     curr_pods_max_ind = len(self.ordered_peer_list) - 1
                     for ind in range(min(interval.start - self.min_pod_index, curr_pods_max_ind),
-                                     min(interval.end - self.min_pod_index, curr_pods_max_ind) + 1):
-                        peer_list.append(self.ordered_peer_list[ind])
-            return PeerSet(set(peer_list))
+                                     min(interval.end - self.min_pod_index, curr_pods_max_ind) + 1):                        
+                        peer_set.add(self.ordered_peer_list[ind])
+            return peer_set
 
     instance = None
 
