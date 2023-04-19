@@ -5,6 +5,7 @@
 from dataclasses import dataclass
 from enum import Enum
 import string
+import ast
 
 
 class DotGraph:
@@ -122,9 +123,10 @@ class DotGraph:
         output_result += '}\n'
         return output_result
 
-    def _explanation_to_str(self):
+    @staticmethod
+    def _explanation_to_str():
         """
-        creates a string in dot format og the explanation label
+        creates a string in dot format of the explanation label
         """
         explanation = ['Application connectivity graph',
                        ' ',
@@ -235,7 +237,7 @@ class DotGraph:
             if label_port.startswith('{'):
                 # it is not a port, its a list of dict, a dict can have 'dst_ports'
                 # we will use only one 'dst_ports':
-                connections = eval(f'[{label_port}]')
+                connections = ast.literal_eval(f'[{label_port}]')
                 ports = [conn['dst_ports'] for conn in connections if 'dst_ports' in conn.keys()]
                 label_port = ports[0] if ports else ''
             # a 'dst_ports' can be too long (like 'port0,port1-port2' ) we trim it to the first port:
@@ -246,11 +248,16 @@ class DotGraph:
         # for labels sharing the same short, we will add a letter to the end of the short:
         for short in set(labels_short.values()):
             short_labels = [label for label, l_short in labels_short.items() if l_short == short]
+
+            # we want sort the labels before giving each label an extention:
+            short_labels.sort()
             if len(short_labels) == 1:
                 self.labels_dict[short_labels[0]] = short
-            else:
-                # we want sort the labels before giving each label its letter:
-                short_labels.sort()
+            elif len(short_labels) < len(string.ascii_lowercase):
                 for label in short_labels:
                     self.labels_dict[label] = f'{short}{string.ascii_lowercase[short_labels.index(label)]}'
+            else:
+                for label in short_labels:
+                    self.labels_dict[label] = f'{short}_{short_labels.index(label)}'
+
         return True
