@@ -5,7 +5,8 @@
 
 from collections import defaultdict
 from .CanonicalIntervalSet import CanonicalIntervalSet
-from .ConnectivityProperties import ConnectivityProperties, ConnectivityCube
+from .ConnectivityCube import ConnectivityCube
+from .ConnectivityProperties import ConnectivityProperties
 from .ProtocolNameResolver import ProtocolNameResolver
 from .ProtocolSet import ProtocolSet
 from .Peer import PeerSet, IpBlock
@@ -160,7 +161,7 @@ class ConnectionSet:
         """
         :param bool is_str: should get str representation (True) or list representation (False)
         :param str protocol_text: str description of protocol
-        :param Union[bool, ConnectivityProperties, ICMPDataSet] properties: properties object of the protocol
+        :param Union[bool, ConnectivityProperties] properties: properties object of the protocol
         :return: representation required for a given pair of protocol and its properties
         :rtype: Union[dict, str]
         """
@@ -403,7 +404,7 @@ class ConnectionSet:
         Add connections to the set of connections
         :param int,str protocol: protocol number of the connections to add
         :param properties: an object with protocol properties (e.g., ports), if relevant
-        :type properties: Union[bool, ConnectivityProperties, ICMPDataSet]
+        :type properties: Union[bool, ConnectivityProperties]
         :return: None
         """
         if isinstance(protocol, str):
@@ -542,7 +543,7 @@ class ConnectionSet:
 
         return 'No diff.'
 
-    def convert_to_connectivity_properties(self, peer_container):
+    def convert_to_connectivity_properties(self):
         if self.allow_all:
             return ConnectivityProperties.make_all_props()
 
@@ -665,11 +666,11 @@ class ConnectionSet:
         return res
 
     @staticmethod
-    def fw_rules_to_conn_props(fw_rules, peer_container):
+    def fw_rules_to_conn_props(fw_rules):
         res = ConnectivityProperties.make_empty_props()
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:
-                conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)
+                conn_props = fw_rule.conn.convert_to_connectivity_properties()
                 src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
                 dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
                 conn_cube = ConnectivityCube.make_from_dict({"src_peers": src_peers, "dst_peers": dst_peers})

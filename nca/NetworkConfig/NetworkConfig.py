@@ -6,7 +6,8 @@
 from dataclasses import dataclass, field
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
+from nca.CoreDS.ConnectivityCube import ConnectivityCube
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 
@@ -273,7 +274,7 @@ class NetworkConfig:
         Computes the set of allowed connections between any relevant peers.
         :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
         :return: allowed_conns: all allowed connections for relevant peers.
-        :rtype: ConnectivityProperties
+        :rtype: OptimizedPolicyConnections
         """
         if layer_name is not None:
             if layer_name not in self.policies_container.layers:

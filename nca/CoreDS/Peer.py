@@ -66,7 +66,6 @@ class ClusterEP(Peer):
         super().__init__(name, namespace)
         self.named_ports = {}  # A map from port name to the port number and its protocol
         self.profiles = []  # The set of attached profiles (Calico only)
-        self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
@@ -734,18 +733,9 @@ class BasePeerSet:
             :return: CanonicalIntervalSet for the peer_set
             """
             res = CanonicalIntervalSet()
-            covered_peers = peer_set.copy()  # for check that we covered all peers
-            for index, peer in enumerate(self.ordered_peer_list):
-                if peer in peer_set:
-                    covered_peers.add(peer)
-                    assert not isinstance(peer, IpBlock)
-                    res.add_interval(CanonicalIntervalSet.Interval(self.min_pod_index + index,
-                                                                   self.min_pod_index + index))
-            # Now pick IpBlocks
-            for ipb in peer_set:
-                if isinstance(ipb, IpBlock):
-                    covered_peers.add(ipb)
-                    for cidr in ipb:
+            for peer in peer_set:
+                if isinstance(peer, IpBlock):
+                    for cidr in peer:
                         if isinstance(cidr.start.address, ipaddress.IPv4Address):
                             res.add_interval(CanonicalIntervalSet.Interval(self.min_ipv4_index + int(cidr.start),
                                                                            self.min_ipv4_index + int(cidr.end)))
@@ -754,7 +744,11 @@ class BasePeerSet:
                                                                            self.min_ipv6_index + int(cidr.end)))
                         else:
                             assert False
-            assert covered_peers == peer_set
+                else:
+                    index = self.peer_to_index.get(peer)
+                    assert index is not None
+                    res.add_interval(CanonicalIntervalSet.Interval(self.min_pod_index + index,
+                                                                   self.min_pod_index + index))
             return res
 
         def get_peer_set_by_indices(self, peer_interval_set):
@@ -763,7 +757,7 @@ class BasePeerSet:
             :param peer_interval_set: the interval set of indices
             :return: the PeerSet of peers referenced by the indices in the interval set
             """
-            peer_list = []
+            peer_set = PeerSet()
             for interval in peer_interval_set:
                 if interval.end <= self.max_ipv4_index:
                     # this is IPv4Address
@@ -771,22 +765,22 @@ class BasePeerSet:
                     end = ipaddress.IPv4Address(interval.end - self.min_ipv4_index)
                     ipb = IpBlock(
                         interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
-                    peer_list.append(ipb)
+                    peer_set.add(ipb)
                 elif interval.end <= self.max_ipv6_index:
                     # this is IPv6Address
                     start = ipaddress.IPv6Address(interval.start - self.min_ipv6_index)
                     end = ipaddress.IPv6Address(interval.end - self.min_ipv6_index)
                     ipb = IpBlock(
                         interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
-                    peer_list.append(ipb)
+                    peer_set.add(ipb)
                 else:
                     # this is Pod
                     assert interval.end <= self.max_pod_index
                     curr_pods_max_ind = len(self.ordered_peer_list) - 1
                     for ind in range(min(interval.start - self.min_pod_index, curr_pods_max_ind),
-                                     min(interval.end - self.min_pod_index, curr_pods_max_ind) + 1):
-                        peer_list.append(self.ordered_peer_list[ind])
-            return PeerSet(set(peer_list))
+                                     min(interval.end - self.min_pod_index, curr_pods_max_ind) + 1):                        
+                        peer_set.add(self.ordered_peer_list[ind])
+            return peer_set
 
     instance = None
 

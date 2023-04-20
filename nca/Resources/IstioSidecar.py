@@ -8,9 +8,9 @@ from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, PeerSet, DNSEntry
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
+from nca.CoreDS.ConnectivityCube import ConnectivityCube
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
-from .IstioTrafficResources import istio_root_namespace
 
 
 @dataclass
@@ -135,36 +135,6 @@ class IstioSidecar(NetworkPolicy):
             if rule != rule_to_exclude:
                 res.add_egress_rule(rule)
         return res
-
-    def _is_sidecar_prior(self, from_peer):
-        """
-        Check if the current sidecar is in the top priority of the captured from_peer
-        to be considered in its connections or not
-        :param Peer.Peer from_peer: the source peer captured by the current sidecar
-        :return: True if the sidecar is in the peer's top priority to consider it in its connections, otherwise False
-        computing the return value is according to following:
-        1- for from_peer, preference will be given to the first injected sidecar with
-        a workloadSelector that selected the peer.
-        2- if the specific sidecar from (1) does not exist, preference will be given to the
-        first injected selector-less sidecar in the peer's namespace
-        3- if sidecars from (1) and (2) don't exist, the preference will be given to the first default
-        sidecar of the istio root namespace
-        :rtype: bool
-        """
-        if not self.default_sidecar:  # specific sidecar
-            if from_peer.prior_sidecar and self == from_peer.prior_sidecar:
-                return True
-        else:  # selector-less sidecar
-            if from_peer.prior_sidecar:
-                return False
-            if from_peer.namespace.prior_default_sidecar:
-                if self == from_peer.namespace.prior_default_sidecar:
-                    return True
-            else:
-                if str(self.namespace) == istio_root_namespace and \
-                        self == self.namespace.prior_default_sidecar:
-                    return True
-        return False
 
     @staticmethod
     def combine_peer_sets_by_ns(from_peer_set, to_peer_set, peer_container):
