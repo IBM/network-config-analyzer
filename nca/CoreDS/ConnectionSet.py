@@ -578,6 +578,35 @@ class ConnectionSet:
 
     # TODO - after moving to the optimized HC set implementation,
     #  get rid of ConnectionSet and move the code below to ConnectivityProperties.py
+
+    @staticmethod
+    def get_connection_set_and_peers_from_cube(conn_cube, peer_container, ip_blocks_mask,
+                                               relevant_protocols=ProtocolSet(True)):
+        src_peers = conn_cube["src_peers"] or peer_container.get_all_peers_group(True)
+        conn_cube.unset_dim("src_peers")
+        dst_peers = conn_cube["dst_peers"] or peer_container.get_all_peers_group(True)
+        conn_cube.unset_dim("dst_peers")
+        if IpBlock.get_all_ips_block() != ip_blocks_mask:
+            src_peers.filter_ipv6_blocks(ip_blocks_mask)
+            dst_peers.filter_ipv6_blocks(ip_blocks_mask)
+        protocols = conn_cube["protocols"]
+        conn_cube.unset_dim("protocols")
+        if not conn_cube.has_active_dim() and (protocols.is_whole_range() or protocols == relevant_protocols):
+            conns = ConnectionSet(True)
+        else:
+            conns = ConnectionSet()
+            assert protocols
+            protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols)
+            for protocol in protocol_names:
+                if conn_cube.has_active_dim():
+                    conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
+                else:
+                    if ConnectionSet.protocol_supports_ports(protocol) or ConnectionSet.protocol_is_icmp(protocol):
+                        conns.add_connections(protocol, ConnectivityProperties.make_all_props())
+                    else:
+                        conns.add_connections(protocol, True)
+        return conns, src_peers, dst_peers
+
     @staticmethod
     def conn_props_to_fw_rules(conn_props, cluster_info, peer_container, ip_blocks_mask,
                                connectivity_restriction):
@@ -592,44 +621,19 @@ class ConnectionSet:
                TCP / non-TCP , or not
         :return: FWRules map
         """
-        ignore_protocols = ProtocolSet()
+        relevant_protocols = ProtocolSet()
         if connectivity_restriction:
             if connectivity_restriction == 'TCP':
-                ignore_protocols.add_protocol('TCP')
+                relevant_protocols.add_protocol('TCP')
             else:  # connectivity_restriction == 'non-TCP'
-                ignore_protocols = ProtocolSet.get_non_tcp_protocols()
+                relevant_protocols = ProtocolSet.get_non_tcp_protocols()
 
         fw_rules_map = defaultdict(list)
         for cube in conn_props:
             conn_cube = conn_props.get_connectivity_cube(cube)
-            src_peers = conn_cube["src_peers"]
-            if not src_peers:
-                src_peers = peer_container.get_all_peers_group(True)
-            conn_cube.unset_dim("src_peers")
-            dst_peers = conn_cube["dst_peers"]
-            if not dst_peers:
-                dst_peers = peer_container.get_all_peers_group(True)
-            conn_cube.unset_dim("dst_peers")
-            if IpBlock.get_all_ips_block() != ip_blocks_mask:
-                src_peers.filter_ipv6_blocks(ip_blocks_mask)
-                dst_peers.filter_ipv6_blocks(ip_blocks_mask)
-            protocols = conn_cube["protocols"]
-            conn_cube.unset_dim("protocols")
-            if not conn_cube.has_active_dim() and (protocols.is_whole_range() or protocols == ignore_protocols):
-                conns = ConnectionSet(True)
-            else:
-                conns = ConnectionSet()
-                protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
-                for protocol in protocol_names:
-                    if conn_cube.has_active_dim():
-                        conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
-                    else:
-                        if ConnectionSet.protocol_supports_ports(protocol):
-                            conns.add_connections(protocol, ConnectivityProperties.make_all_props())
-                        elif ConnectionSet.protocol_is_icmp(protocol):
-                            conns.add_connections(protocol, ConnectivityProperties.make_all_props())
-                        else:
-                            conns.add_connections(protocol, True)
+            conns, src_peers, dst_peers = \
+                ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container, ip_blocks_mask,
+                                                                     relevant_protocols)
             # create FWRules for src_peers and dst_peers
             fw_rules_map[conns] += ConnectionSet.create_fw_rules_list_from_conns(conns, src_peers, dst_peers,
                                                                                  cluster_info)
@@ -671,6 +675,13 @@ class ConnectionSet:
 
     @staticmethod
     def fw_rules_to_conn_props(fw_rules):
+        """
+        Converting FWRules to ConnectivityProperties format.
+        This function is used for comparing FWRules output between original and optimized solutions,
+        when optimized_run == 'debug'
+        :param list[FWRule] fw_rules: the given FWRules.
+        :return: the resulting ConnectivityProperties.
+        """
         res = ConnectivityProperties.make_empty_props()
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:

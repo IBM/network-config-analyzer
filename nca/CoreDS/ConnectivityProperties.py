@@ -351,7 +351,12 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             return None  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
             return None
-        res = None
+        if dim_name == "src_peers" or dim_name == "dst_peers":
+            res = PeerSet()
+        elif dim_name == "src_ports" or dim_name == "dst_ports":
+            res = PortSet()
+        else:
+            res = DimensionsManager().get_empty_dimension_by_name(dim_name)
         for cube in self:
             conn_cube = self.get_connectivity_cube(cube)
             values = conn_cube[dim_name]

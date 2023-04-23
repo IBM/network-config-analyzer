@@ -36,20 +36,6 @@ class ConnectivityGraph:
         self.cluster_info = ClusterInfo(all_peers, allowed_labels)
         self.allowed_labels = allowed_labels
 
-    def _get_peer_name(self, peer):
-        """
-        Get the name of a peer object for connectivity graph + flag indicating if it is ip-block
-        :param Peer peer: the peer object
-        :return: tuple(str, bool)
-        str: the peer name
-        bool: flag to indicate if peer is ip-block (True) or not (False)
-        """
-        if isinstance(peer, IpBlock):
-            return peer.get_ip_range_or_cidr_str(), True
-        if self.output_config.outputEndpoints == 'deployments' and isinstance(peer, Pod):
-            return peer.workload_name, False
-        return str(peer), False
-
     def add_edge(self, source_peer, dest_peer, connections):
         """
         Adding a labeled edge to the graph
@@ -68,38 +54,15 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def add_edges_from_cube_dict(self, conn_cube, ip_blocks_mask):
+    def add_edges_from_cube_dict(self, conn_cube, peer_container, ip_blocks_mask):
         """
         Add edges to the graph according to the give cube
         :param ConnectivityCube conn_cube: the given cube
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
         """
-        src_peers = conn_cube["src_peers"]
-        conn_cube.unset_dim("src_peers")
-        dst_peers = conn_cube["dst_peers"]
-        conn_cube.unset_dim("dst_peers")
-        if IpBlock.get_all_ips_block() != ip_blocks_mask:
-            src_peers.filter_ipv6_blocks(ip_blocks_mask)
-            dst_peers.filter_ipv6_blocks(ip_blocks_mask)
-        protocols = conn_cube["protocols"]
-        conn_cube.unset_dim("protocols")
-
-        if protocols.is_whole_range() and not conn_cube.has_active_dim():
-            conns = ConnectionSet(True)
-        else:
-            conns = ConnectionSet()
-            protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols) if protocols else ['TCP']
-            for protocol in protocol_names:
-                if conn_cube.has_active_dim():
-                    conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
-                else:
-                    if ConnectionSet.protocol_supports_ports(protocol):
-                        conns.add_connections(protocol, ConnectivityProperties.make_all_props())
-                    elif ConnectionSet.protocol_is_icmp(protocol):
-                        conns.add_connections(protocol, ConnectivityProperties.make_all_props())
-                    else:
-                        conns.add_connections(protocol, True)
+        conns, src_peers, dst_peers = \
+            ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container, ip_blocks_mask)
         for src_peer in src_peers:
             for dst_peer in dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))

@@ -1026,7 +1026,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         for cube in props:
-            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), ip_blocks_mask)
+            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container,
+                                                ip_blocks_mask)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
