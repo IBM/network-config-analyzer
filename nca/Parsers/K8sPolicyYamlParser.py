@@ -350,8 +350,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         else:
             res_conns = ConnectionSet(True)
             if self.optimized_run != 'false':
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": src_pods, "dst_peers": dst_pods})
-                res_opt_props = ConnectivityProperties.make_conn_props(conn_cube)
+                res_opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_pods,
+                                                                                  "dst_peers": dst_pods})
         if not res_pods:
             self.warning('Rule selects no pods', rule)
 

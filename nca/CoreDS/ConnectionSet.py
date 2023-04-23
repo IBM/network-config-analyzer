@@ -544,14 +544,19 @@ class ConnectionSet:
         return 'No diff.'
 
     def convert_to_connectivity_properties(self):
+        """
+        Convert the current ConnectionSet to ConnectivityProperties format.
+        This function is used for comparing fw-rules output between original and optimized implementation,
+        when optimized_run == 'debug'
+        :return: the connection set in ConnectivityProperties format
+        """
         if self.allow_all:
             return ConnectivityProperties.make_all_props()
 
         res = ConnectivityProperties.make_empty_props()
         for protocol, properties in self.allowed_protocols.items():
             protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
-            conn_cube = ConnectivityCube.make_from_dict({"protocols": protocols})
-            this_prop = ConnectivityProperties.make_conn_props(conn_cube)
+            this_prop = ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols})
             if isinstance(properties, bool):
                 if properties:
                     res |= this_prop
@@ -673,7 +678,7 @@ class ConnectionSet:
                 conn_props = fw_rule.conn.convert_to_connectivity_properties()
                 src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
                 dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": src_peers, "dst_peers": dst_peers})
-                rule_props = ConnectivityProperties.make_conn_props(conn_cube) & conn_props
+                rule_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers,
+                                                                               "dst_peers": dst_peers}) & conn_props
                 res |= rule_props
         return res

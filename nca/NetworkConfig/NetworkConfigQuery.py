@@ -172,17 +172,17 @@ class NetworkConfigQuery(BaseNetworkQuery):
         # avoid IpBlock -> {IpBlock, DNSEntry} connections
         all_ips = IpBlock.get_all_ips_block_peer_set()
         all_dns_entries = self.config.peer_container.get_all_dns_entries()
-        conn_cube = ConnectivityCube.make_from_dict({"src_peers": all_ips, "dst_peers": all_ips | all_dns_entries})
-        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props(conn_cube)
+        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ips,
+                                                                                  "dst_peers": all_ips | all_dns_entries})
         res -= ip_to_ip_or_dns_conns
         # avoid DNSEntry->anything connections
-        conn_cube.update({"src_peers": all_dns_entries, "dst_peers": all_peers})
-        dns_to_any_conns = ConnectivityProperties.make_conn_props(conn_cube)
+        dns_to_any_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_dns_entries,
+                                                                             "dst_peers": all_peers})
         res -= dns_to_any_conns
         # avoid anything->DNSEntry connections if Istio layer does not exist
         if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
-            conn_cube.update({"src_peers": all_peers, "dst_peers": all_dns_entries})
-            any_to_dns_conns = ConnectivityProperties.make_conn_props(conn_cube)
+            any_to_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers,
+                                                                                 "dst_peers": all_dns_entries})
             res -= any_to_dns_conns
         return res
 
@@ -789,10 +789,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
             all_conns_opt.project_on_one_dimension('dst_peers')
         subset_peers = self.compute_subset(opt_peers_to_compare)
-        src_peers_conn_cube = ConnectivityCube.make_from_dict({"src_peers": subset_peers})
-        dst_peers_conn_cube = ConnectivityCube.make_from_dict({"dst_peers": subset_peers})
-        subset_conns = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
-            ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
+        subset_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": subset_peers}) | \
+            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": subset_peers})
         all_conns_opt &= subset_conns
         all_conns_opt = self.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
         ip_blocks_mask = IpBlock.get_all_ips_block()
@@ -1108,8 +1106,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :rtype: tuple(ConnectivityProperties, ConnectivityProperties)
         """
         tcp_protocol = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-        conn_cube = ConnectivityCube.make_from_dict({"protocols": tcp_protocol})
-        tcp_props = props & ConnectivityProperties.make_conn_props(conn_cube)
+        tcp_props = props & ConnectivityProperties.make_conn_props_from_dict({"protocols": tcp_protocol})
         non_tcp_props = props - tcp_props
         return tcp_props, non_tcp_props
 

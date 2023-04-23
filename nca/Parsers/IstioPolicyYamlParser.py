@@ -196,8 +196,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             return self.parse_principals(values, not_values)  # PeerSet
         elif key == 'destination.port':
             dst_ports = self.get_rule_ports(values, not_values)  # PortSet
-            conn_cube = ConnectivityCube.make_from_dict({"dst_ports": dst_ports})
-            return ConnectivityProperties.make_conn_props(conn_cube)  # ConnectivityProperties
+            return ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dst_ports})
         return NotImplemented, False
 
     def parse_condition(self, condition):
@@ -399,9 +398,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
                                                       operation)
         hosts_dfa = self.parse_regex_dimension_values("hosts", operation.get("hosts"), operation.get("notHosts"),
                                                       operation)
-        conn_cube = ConnectivityCube.make_from_dict({"dst_ports": dst_ports, "methods": methods_set, "paths": paths_dfa,
-                                                     'hosts': hosts_dfa})
-        return ConnectivityProperties.make_conn_props(conn_cube)
+        return ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dst_ports, "methods": methods_set,
+                                                                 "paths": paths_dfa, "hosts": hosts_dfa})
 
     def parse_source(self, source_dict):
         """
@@ -522,8 +520,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         if not res_peers or not selected_peers:
             condition_props = ConnectivityProperties.make_empty_props()
         else:
-            conn_cube = ConnectivityCube.make_from_dict({"src_peers": res_peers, "dst_peers": selected_peers})
-            condition_props &= ConnectivityProperties.make_conn_props(conn_cube)
+            condition_props &= ConnectivityProperties.make_conn_props_from_dict({"src_peers": res_peers,
+                                                                                 "dst_peers": selected_peers})
         connections &= condition_conns
         conn_props &= condition_props
         return IstioPolicyRule(res_peers, connections), conn_props

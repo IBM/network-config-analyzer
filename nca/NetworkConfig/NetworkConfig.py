@@ -284,11 +284,9 @@ class NetworkConfig:
 
         all_peers = self.peer_container.get_all_peers_group()
         host_eps = Peer.PeerSet(set([peer for peer in all_peers if isinstance(peer, Peer.HostEP)]))
-        src_peers_conn_cube = ConnectivityCube.make_from_dict({"src_peers": host_eps})
-        dst_peers_conn_cube = ConnectivityCube.make_from_dict({"dst_peers": host_eps})
         # all possible connections involving hostEndpoints
-        conn_hep = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
-            ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
+        conn_hep = ConnectivityProperties.make_conn_props_from_dict({"src_peers": host_eps}) | \
+            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": host_eps})
         conns_res = OptimizedPolicyConnections()
         conns_res.all_allowed_conns = ConnectivityProperties.make_all_props()
         for layer, layer_obj in self.policies_container.layers.items():

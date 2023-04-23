@@ -181,11 +181,13 @@ class NetworkLayer:
         all_pods_peer_set = peer_container.get_all_peers_group()
         all_ips_peer_set = IpBlock.get_all_ips_block_peer_set()
         # for ingress, all possible connections to IpBlocks are allowed
-        conn_cube = ConnectivityCube.make_from_dict({"src_peers": all_pods_peer_set, "dst_peers": all_ips_peer_set})
-        ingress_conns.all_allowed_conns |= ConnectivityProperties.make_conn_props(conn_cube)
+        ingress_conns.all_allowed_conns |= \
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_pods_peer_set,
+                                                              "dst_peers": all_ips_peer_set})
         # for egress, all possible connections from IpBlocks are allowed
-        conn_cube.update({"src_peers": all_ips_peer_set, "dst_peers": all_pods_peer_set})
-        egress_conns.all_allowed_conns |= ConnectivityProperties.make_conn_props(conn_cube)
+        egress_conns.all_allowed_conns |= \
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ips_peer_set,
+                                                              "dst_peers": all_pods_peer_set})
         res_conns.captured = ingress_conns.captured | egress_conns.captured
         res_conns.denied_conns = ingress_conns.denied_conns | egress_conns.denied_conns
         res_conns.all_allowed_conns = ingress_conns.all_allowed_conns & egress_conns.all_allowed_conns
@@ -350,29 +352,35 @@ class IstioNetworkLayer(NetworkLayer):
         all_peers_and_ips = peer_container.get_all_peers_group(True)
         dns_entries = peer_container.get_all_dns_entries()
         # for istio initialize non-captured conns with non-TCP connections
-        conn_cube = ConnectivityCube.make_from_dict({"src_peers": all_peers_and_ips, "dst_peers": all_peers_and_ips,
-                                                     "protocols": ProtocolSet.get_non_tcp_protocols()})
-        res_conns.all_allowed_conns |= res_conns.allowed_conns | ConnectivityProperties.make_conn_props(conn_cube)
+        all_all_conns = \
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
+                                                              "dst_peers": all_peers_and_ips,
+                                                              "protocols": ProtocolSet.get_non_tcp_protocols()})
+        res_conns.all_allowed_conns |= res_conns.allowed_conns | all_all_conns
         non_captured_peers = all_peers_and_ips - res_conns.captured
         if non_captured_peers:
             protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
             if is_ingress:
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": all_peers_and_ips, "dst_peers": non_captured_peers})
-                res_conns.all_allowed_conns |= ConnectivityProperties.make_conn_props(conn_cube) - res_conns.denied_conns
+                all_nc_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
+                                                                                 "dst_peers": non_captured_peers})
+                res_conns.all_allowed_conns |= all_nc_conns - res_conns.denied_conns
                 non_captured_dns_entries = dns_entries - res_conns.captured
                 if non_captured_dns_entries:
                     # update allowed non-captured conns to DNSEntry dst with TCP only
-                    conn_cube = ConnectivityCube.make_from_dict({"src_peers": all_peers_and_ips,
-                                                                 "dst_peers": non_captured_dns_entries,
-                                                                 "protocols": protocols})
-                    res_conns.all_allowed_conns |= ConnectivityProperties.make_conn_props(conn_cube)
+                    all_nc_dns_conns = \
+                        ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
+                                                                          "dst_peers": non_captured_dns_entries,
+                                                                          "protocols": protocols})
+                    res_conns.all_allowed_conns |= all_nc_dns_conns
             else:
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": non_captured_peers, "dst_peers": all_peers_and_ips})
-                res_conns.all_allowed_conns |= ConnectivityProperties.make_conn_props(conn_cube) - res_conns.denied_conns
+                nc_all_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
+                                                                                 "dst_peers": all_peers_and_ips})
+                res_conns.all_allowed_conns |= nc_all_conns - res_conns.denied_conns
                 # update allowed non-captured conns to DNSEntry dst with TCP only
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": non_captured_peers, "dst_peers": dns_entries,
-                                                             "protocols": protocols})
-                res_conns.all_allowed_conns |= ConnectivityProperties.make_conn_props(conn_cube)
+                nc_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
+                                                                                 "dst_peers": dns_entries,
+                                                                                 "protocols": protocols})
+                res_conns.all_allowed_conns |= nc_dns_conns
         return res_conns
 
 
@@ -392,17 +400,16 @@ class IngressNetworkLayer(NetworkLayer):
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
         res_conns = OptimizedPolicyConnections()
         all_peers_and_ips = peer_container.get_all_peers_group(True)
-        conn_cube = ConnectivityCube()
         if is_ingress:
             # everything is allowed and non captured
-            conn_cube.update({"src_peers": all_peers_and_ips, "dst_peers": all_peers_and_ips})
-            non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
+            non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
+                                                                                   "dst_peers": all_peers_and_ips})
             res_conns.all_allowed_conns = non_captured_conns
         else:
             res_conns = self.collect_policies_conns_optimized(is_ingress)
             non_captured_peers = all_peers_and_ips - res_conns.captured
             if non_captured_peers:
-                conn_cube.update({"src_peers": non_captured_peers, "dst_peers": all_peers_and_ips})
-                non_captured_conns = ConnectivityProperties.make_conn_props(conn_cube)
+                non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
+                                                                                       "dst_peers": all_peers_and_ips})
                 res_conns.all_allowed_conns = res_conns.allowed_conns | non_captured_conns
         return res_conns
