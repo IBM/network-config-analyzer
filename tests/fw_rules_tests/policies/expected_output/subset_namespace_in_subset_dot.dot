@@ -3,19 +3,28 @@ digraph {
 	label="Connectivity Graph of subset_namespace_in_subset_dot/np25"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
+	subgraph cluster_map_explanation {
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/Pod1" [label=<<table border="0" cellspacing="0"><tr><td>Pod1</td></tr></table>> shape=box fontcolor=blue]
-	"default/Pod4" [label=<<table border="0" cellspacing="0"><tr><td>Pod4</td></tr></table>> shape=box fontcolor=blue]
+	tooltip="Namespace"
+	"default/Pod1" [label=<<table border="0" cellspacing="0"><tr><td>Pod1</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"default/Pod4" [label=<<table border="0" cellspacing="0"><tr><td>Pod4</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
 subgraph cluster_ns3_namespace{
 	label="ns3"
 	fontsize=20
 	fontcolor=blue
-	"ns3/Pod7" [label=<<table border="1" cellspacing="0"><tr><td>Pod7</td></tr><tr><td>Pod8</td></tr></table>> shape=box color=blue4]
+	tooltip="Namespace"
+	"ns3/Pod7" [label=<<table border="1" cellspacing="0"><tr><td>Pod7</td></tr><tr><td>Pod8</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
-	"default/Pod1" -> "ns3/Pod7"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ns3/Pod7" -> "default/Pod4"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"default/Pod1" -> "ns3/Pod7"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ns3/Pod7" -> "default/Pod4"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	color=white
+	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
+	labelloc = "b"
+	fontsize=15
+	fontcolor=maroon
+	}
 }
