@@ -204,6 +204,7 @@ class NetworkLayer:
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
         """
         Implemented by derived classes to get ingress/egress connections between any relevant peers
+        :rtype: OptimizedPolicyConnections
         """
         return NotImplemented
 
