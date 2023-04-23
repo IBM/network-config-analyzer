@@ -110,7 +110,7 @@ class NetworkLayersContainer(dict):
         Get allowed connections between for all relevant peers for an empty layer (no policies).
         :param PeerContainer peer_container: holds all the peers
         :param NetworkLayerName layer_name: The empty layer name
-        :rtype: ConnectivityProperties
+        :rtype: OptimizedPolicyConnections
         """
         empty_layer_obj = layer_name.create_network_layer([])
         return empty_layer_obj.allowed_connections_optimized(peer_container)
@@ -204,6 +204,7 @@ class NetworkLayer:
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
         """
         Implemented by derived classes to get ingress/egress connections between any relevant peers
+        :rtype: OptimizedPolicyConnections
         """
         return NotImplemented
 
@@ -247,7 +248,7 @@ class NetworkLayer:
         :param captured_func: callable that returns True if the policy satisfies additional conditions required for
          considering captured pods instead of applying the default connections.
         :return: allowed_conns, denied_conns and set of peers to be added to captured peers
-        :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
+        :rtype: OptimizedPolicyConnections
         """
         res_conns = OptimizedPolicyConnections()
         for policy in self.policies_list:
@@ -292,6 +293,7 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         res_conns = self.collect_policies_conns_optimized(is_ingress)
         # Note: The below computation of non-captured conns cannot be done during the parse stage,
         # since before computing non-captured conns we should collect all policies conns
+
         # compute non-captured connections
         all_peers_and_ips = peer_container.get_all_peers_group(True)
         all_peers_no_ips = peer_container.get_all_peers_group()
