@@ -110,7 +110,7 @@ class NetworkLayersContainer(dict):
         Get allowed connections between for all relevant peers for an empty layer (no policies).
         :param PeerContainer peer_container: holds all the peers
         :param NetworkLayerName layer_name: The empty layer name
-        :rtype: ConnectivityProperties
+        :rtype: OptimizedPolicyConnections
         """
         empty_layer_obj = layer_name.create_network_layer([])
         return empty_layer_obj.allowed_connections_optimized(peer_container)
