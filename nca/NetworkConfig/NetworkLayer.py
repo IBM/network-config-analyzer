@@ -293,6 +293,7 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         res_conns = self.collect_policies_conns_optimized(is_ingress)
         # Note: The below computation of non-captured conns cannot be done during the parse stage,
         # since before computing non-captured conns we should collect all policies conns
+
         # compute non-captured connections
         all_peers_and_ips = peer_container.get_all_peers_group(True)
         all_peers_no_ips = peer_container.get_all_peers_group()
