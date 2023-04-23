@@ -203,7 +203,10 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         self.namespace = self.peer_container.get_namespace(policy_ns, warn_if_missing)
         res_policy = IstioSidecar(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
-        res_policy.add_optimized_allow_props(ConnectivityProperties.make_all_props(), True)
+        all_peers_and_ips_and_dns = self.peer_container.get_all_peers_group(True, True, True)
+        all_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips_and_dns,
+                                                                      "dst_peers": all_peers_and_ips_and_dns})
+        res_policy.add_optimized_allow_props(all_props, True)
 
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress

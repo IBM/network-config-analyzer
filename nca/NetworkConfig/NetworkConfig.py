@@ -287,7 +287,10 @@ class NetworkConfig:
         conn_hep = ConnectivityProperties.make_conn_props_from_dict({"src_peers": host_eps}) | \
             ConnectivityProperties.make_conn_props_from_dict({"dst_peers": host_eps})
         conns_res = OptimizedPolicyConnections()
-        conns_res.all_allowed_conns = ConnectivityProperties.make_all_props()
+        all_peers_and_ips_and_dns = self.peer_container.get_all_peers_group(True, True, True)
+        conns_res.all_allowed_conns = \
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips_and_dns,
+                                                              "dst_peers": all_peers_and_ips_and_dns})
         for layer, layer_obj in self.policies_container.layers.items():
             conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
             # only K8s_Calico layer handles host_eps
