@@ -161,7 +161,7 @@ class ConnectionSet:
         """
         :param bool is_str: should get str representation (True) or list representation (False)
         :param str protocol_text: str description of protocol
-        :param Union[bool, ConnectivityProperties, ICMPDataSet] properties: properties object of the protocol
+        :param Union[bool, ConnectivityProperties] properties: properties object of the protocol
         :return: representation required for a given pair of protocol and its properties
         :rtype: Union[dict, str]
         """
@@ -404,7 +404,7 @@ class ConnectionSet:
         Add connections to the set of connections
         :param int,str protocol: protocol number of the connections to add
         :param properties: an object with protocol properties (e.g., ports), if relevant
-        :type properties: Union[bool, ConnectivityProperties, ICMPDataSet]
+        :type properties: Union[bool, ConnectivityProperties]
         :return: None
         """
         if isinstance(protocol, str):
