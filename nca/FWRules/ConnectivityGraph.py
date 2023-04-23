@@ -8,8 +8,6 @@ from collections import defaultdict
 import networkx
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from .DotGraph import DotGraph
 from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo

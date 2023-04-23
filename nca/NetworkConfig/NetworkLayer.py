@@ -350,6 +350,7 @@ class IstioNetworkLayer(NetworkLayer):
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
         res_conns = self.collect_policies_conns_optimized(is_ingress, IstioNetworkLayer.captured_cond_func)
         all_peers_and_ips = peer_container.get_all_peers_group(True)
+        all_peers_no_ips = peer_container.get_all_peers_group()
         dns_entries = peer_container.get_all_dns_entries()
         # for istio initialize non-captured conns with non-TCP connections
         all_all_conns = \
@@ -357,9 +358,9 @@ class IstioNetworkLayer(NetworkLayer):
                                                               "dst_peers": all_peers_and_ips,
                                                               "protocols": ProtocolSet.get_non_tcp_protocols()})
         res_conns.all_allowed_conns |= res_conns.allowed_conns | all_all_conns
-        non_captured_peers = all_peers_and_ips - res_conns.captured
+        non_captured_peers = all_peers_no_ips - res_conns.captured
         if non_captured_peers:
-            protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
+            tcp_protocol = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
             if is_ingress:
                 all_nc_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                                                  "dst_peers": non_captured_peers})
@@ -370,7 +371,7 @@ class IstioNetworkLayer(NetworkLayer):
                     all_nc_dns_conns = \
                         ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                                           "dst_peers": non_captured_dns_entries,
-                                                                          "protocols": protocols})
+                                                                          "protocols": tcp_protocol})
                     res_conns.all_allowed_conns |= all_nc_dns_conns
             else:
                 nc_all_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
@@ -379,7 +380,7 @@ class IstioNetworkLayer(NetworkLayer):
                 # update allowed non-captured conns to DNSEntry dst with TCP only
                 nc_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                  "dst_peers": dns_entries,
-                                                                                 "protocols": protocols})
+                                                                                 "protocols": tcp_protocol})
                 res_conns.all_allowed_conns |= nc_dns_conns
         return res_conns
 
@@ -400,14 +401,15 @@ class IngressNetworkLayer(NetworkLayer):
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
         res_conns = OptimizedPolicyConnections()
         all_peers_and_ips = peer_container.get_all_peers_group(True)
+        all_peers_no_ips = peer_container.get_all_peers_group()
         if is_ingress:
             # everything is allowed and non captured
             non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
-                                                                                   "dst_peers": all_peers_and_ips})
+                                                                                   "dst_peers": all_peers_no_ips})
             res_conns.all_allowed_conns = non_captured_conns
         else:
             res_conns = self.collect_policies_conns_optimized(is_ingress)
-            non_captured_peers = all_peers_and_ips - res_conns.captured
+            non_captured_peers = all_peers_no_ips - res_conns.captured
             if non_captured_peers:
                 non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                        "dst_peers": all_peers_and_ips})
