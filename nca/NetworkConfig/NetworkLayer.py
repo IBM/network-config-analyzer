@@ -247,7 +247,7 @@ class NetworkLayer:
         :param captured_func: callable that returns True if the policy satisfies additional conditions required for
          considering captured pods instead of applying the default connections.
         :return: allowed_conns, denied_conns and set of peers to be added to captured peers
-        :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
+        :rtype: OptimizedPolicyConnections
         """
         res_conns = OptimizedPolicyConnections()
         for policy in self.policies_list:
