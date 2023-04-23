@@ -5,7 +5,6 @@
 
 from collections import defaultdict
 from .CanonicalIntervalSet import CanonicalIntervalSet
-from .ConnectivityCube import ConnectivityCube
 from .ConnectivityProperties import ConnectivityProperties
 from .ProtocolNameResolver import ProtocolNameResolver
 from .ProtocolSet import ProtocolSet

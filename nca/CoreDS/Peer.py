@@ -778,7 +778,7 @@ class BasePeerSet:
                     assert interval.end <= self.max_pod_index
                     curr_pods_max_ind = len(self.ordered_peer_list) - 1
                     for ind in range(min(interval.start - self.min_pod_index, curr_pods_max_ind),
-                                     min(interval.end - self.min_pod_index, curr_pods_max_ind) + 1):                        
+                                     min(interval.end - self.min_pod_index, curr_pods_max_ind) + 1):
                         peer_set.add(self.ordered_peer_list[ind])
             return peer_set
 

@@ -6,7 +6,6 @@
 from dataclasses import dataclass, field
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
