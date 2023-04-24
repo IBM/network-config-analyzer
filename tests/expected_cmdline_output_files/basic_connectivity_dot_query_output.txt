@@ -3,39 +3,51 @@ digraph {
 	label="Connectivity Graph of testcase8-networkpolicy1.yaml"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
-	"clique_All0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
+	subgraph cluster_map_explanation {
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
+	"clique_All0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All" tooltip="Traffic allowed between any two workloads connected to the CLIQUE:
+All"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/cog-agents(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>cog-agents(DaemonSet)</td></tr><tr><td>cog-local-analyzer(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	tooltip="Namespace"
+	"default/cog-agents(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>cog-agents(DaemonSet)</td></tr><tr><td>cog-local-analyzer(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 subgraph cluster_kube_system_namespace{
 	label="kube-system"
 	fontsize=20
 	fontcolor=blue
-	"kube-system/calico-node(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>file-plugin(Deployment-StatefulSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr><tr><td>keepalived-watcher(DaemonSet)</td></tr><tr><td>kube-fluentd(DaemonSet)</td></tr><tr><td>storage-watcher(Deployment-StatefulSet)</td></tr><tr><td>tiller-deploy(Deployment-StatefulSet)</td></tr><tr><td>vpn(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	tooltip="Namespace"
+	"kube-system/calico-node(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>file-plugin(Deployment-StatefulSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr><tr><td>keepalived-watcher(DaemonSet)</td></tr><tr><td>kube-fluentd(DaemonSet)</td></tr><tr><td>storage-watcher(Deployment-StatefulSet)</td></tr><tr><td>tiller-deploy(Deployment-StatefulSet)</td></tr><tr><td>vpn(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 subgraph cluster_kube_system_dummy_to_ignore_namespace{
 	label="kube-system-dummy-to-ignore"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-kube-controllers(Deployment-StatefulSet)</td></tr><tr><td>kube-dns-amd64(Deployment-StatefulSet)</td></tr><tr><td>kube-dns-autoscaler(Deployment-StatefulSet)</td></tr><tr><td>kubernetes-dashboard(Deployment-StatefulSet)</td></tr><tr><td>public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	tooltip="Namespace"
+	"kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-kube-controllers(Deployment-StatefulSet)</td></tr><tr><td>kube-dns-amd64(Deployment-StatefulSet)</td></tr><tr><td>kube-dns-autoscaler(Deployment-StatefulSet)</td></tr><tr><td>kubernetes-dashboard(Deployment-StatefulSet)</td></tr><tr><td>public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 subgraph cluster_vendor_system_namespace{
 	label="vendor-system"
 	fontsize=20
 	fontcolor=blue
-	"vendor-system/barbar-app(ReplicaSet)" [label=<<table border="1" cellspacing="0"><tr><td>barbar-app(ReplicaSet)</td></tr><tr><td>foofoo-app(ReplicaSet)</td></tr></table>> shape=box color=blue4]
+	tooltip="Namespace"
+	"vendor-system/barbar-app(ReplicaSet)" [label=<<table border="1" cellspacing="0"><tr><td>barbar-app(ReplicaSet)</td></tr><tr><td>foofoo-app(ReplicaSet)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
-	"0.0.0.0/0" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"default/cog-agents(DaemonSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"default/cog-agents(DaemonSet)" -> "default/cog-agents(DaemonSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
-	"kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
-	"kube-system/calico-node(DaemonSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"kube-system/calico-node(DaemonSet)" -> "kube-system/calico-node(DaemonSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
-	"vendor-system/barbar-app(ReplicaSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"vendor-system/barbar-app(ReplicaSet)" -> "vendor-system/barbar-app(ReplicaSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"0.0.0.0/0" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"default/cog-agents(DaemonSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"default/cog-agents(DaemonSet)" -> "default/cog-agents(DaemonSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"kube-system/calico-node(DaemonSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"kube-system/calico-node(DaemonSet)" -> "kube-system/calico-node(DaemonSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"vendor-system/barbar-app(ReplicaSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"vendor-system/barbar-app(ReplicaSet)" -> "vendor-system/barbar-app(ReplicaSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	color=white
+	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
+	labelloc = "b"
+	fontsize=15
+	fontcolor=maroon
+	}
 }
