@@ -2,9 +2,10 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-import re
 from dataclasses import dataclass
 from enum import Enum
+import string
+import ast
 
 
 class DotGraph:
@@ -54,6 +55,16 @@ class DotGraph:
              self.NodeType.MultiPod: 'shape=box color=blue4',
              }
 
+        self.node_tooltip = \
+            {self.NodeType.IPBlock: 'IP Block',
+             self.NodeType.Pod: 'Workload',
+             self.NodeType.Livesim: 'Automatically added workload',
+             self.NodeType.Clique: 'Traffic allowed between any two workloads connected to the CLIQUE:\n',
+             self.NodeType.BiClique:
+                 'Traffic allowed from any source workload of the BICLIQUE to any of its destination workloads:\n',
+             self.NodeType.MultiPod: 'A set of workloads having exactly the same connectivity',
+             }
+
     def add_node(self, subgraph, name, node_type, label):
         """
         add a node to the graph
@@ -97,13 +108,36 @@ class DotGraph:
         output_result += '\tlabelloc = "t"\n'
         output_result += '\tfontsize=30\n'
         output_result += '\tfontcolor=maroon\n'
+        output_result += '\tsubgraph cluster_map_explanation {\n'
         if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
         self.subgraphs = dict(sorted(self.subgraphs.items()))
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
         output_result += ''.join(sorted([self._edge_to_str(edge) for edge in self.edges]))
+        output_result += '\tcolor=white\n'
+        output_result += self._explanation_to_str()
+        output_result += '\tlabelloc = "b"\n'
+        output_result += '\tfontsize=15\n'
+        output_result += '\tfontcolor=maroon\n'
+        output_result += '\t}\n'
         output_result += '}\n'
         return output_result
+
+    @staticmethod
+    def _explanation_to_str():
+        """
+        creates a string in dot format of the explanation label
+        """
+        explanation = ['Application connectivity graph',
+                       ' ',
+                       ' ',
+                       ]
+        explanation_table = '<<table border="0" cellspacing="0">'
+        for line in explanation:
+            explanation_table += f'<tr><td align="text" >{line} <br align="left" /></td></tr>'
+        explanation_table += '</table>>\n'
+
+        return f'\tlabel={explanation_table}'
 
     def _labels_dict_to_str(self):
         """
@@ -138,6 +172,7 @@ class DotGraph:
             output_result += f'\tlabel=\"{subgraph.name}\"\n'
             output_result += '\tfontsize=20\n'
             output_result += '\tfontcolor=blue\n'
+            output_result += '\ttooltip="Namespace"\n'
         nodes_lines = set()
         for node in subgraph.nodes:
             nodes_lines.add(self._node_to_str(node))
@@ -159,9 +194,11 @@ class DotGraph:
                     table += f'<tr><td>{line}</td></tr>'
             table += '</table>>'
             label = f'label={table}'
-            return f'\t\"{node.name}\" [{label} {self.node_styles[node.node_type]}]\n'
+            node_desc = f'{label} {self.node_styles[node.node_type]} tooltip=\"{self.node_tooltip[node.node_type]}\"'
         else:
-            return f'\t\"{node.name}\" [{self.node_styles[node.node_type]}  xlabel=\"{self.labels_dict[node.label[0]]}\"]\n'
+            node_desc = f'{self.node_styles[node.node_type]}  xlabel=\"{self.labels_dict[node.label[0]]}\" ' \
+                   f'tooltip=\"{self.node_tooltip[node.node_type]}{node.label[0]}\"'
+        return f'\t\"{node.name}\" [{node_desc}]\n'
 
     def _edge_to_str(self, edge):
         """
@@ -173,10 +210,11 @@ class DotGraph:
         edge_color = 'indigo' if is_clq_edge else 'red' if is_biclq_edge else 'darkorange4'
         src_type = 'normal' if not is_clq_edge and not edge.is_dir else 'none'
         dst_type = 'normal' if not is_clq_edge else 'none'
+        arrow_type = f'dir=both arrowhead={dst_type} arrowtail={src_type}'
         label = f'label=\"{self.labels_dict[str(edge.label)]}\"' if not is_clq_edge and not is_biclq_edge else ''
-
+        tooltip = f'labeltooltip=\"{edge.label}\"' if not is_clq_edge and not is_biclq_edge else ''
         line = f'\t\"{edge.src.name}\" -> \"{edge.dst.name}\"'
-        line += f'[{label} color={edge_color} fontcolor=darkgreen dir=both arrowhead={dst_type} arrowtail={src_type}]\n'
+        line += f'[{label} {tooltip} color={edge_color} fontcolor=darkgreen {arrow_type}]\n'
         return line
 
     def _set_labels_dict(self):
@@ -190,26 +228,36 @@ class DotGraph:
             self.labels_dict = {label: label for label in self.labels}
             return False
 
-        labels_tokens = {}
+        labels_short = {}
+        # for each label, the short will look like "tcp<port>" if there is a port, or "TCP" if there is no port
         for label in self.labels:
-            # todo - we might need a better approach splitting the labels to tokens
-            # we should revisit this code after reformatting connections labels
-            labels_tokens[label] = re.findall(r"[\w']+", label)
-        first_tokens = set(t[0] for t in labels_tokens.values())
-        for first_token in first_tokens:
-            token_labels = [label for label, tokens in labels_tokens.items() if tokens[0] == first_token]
-            if len(token_labels) == 1:
-                self.labels_dict[token_labels[0]] = first_token
-            else:
-                one_token_labels = [label for label in token_labels if labels_tokens[label] == [first_token]]
-                if len(one_token_labels) == 1:
-                    self.labels_dict[one_token_labels[0]] = first_token
-                    token_labels.remove(one_token_labels[0])
+            splitted_label = label.split(' ', 1)
+            label_type = splitted_label.pop(0)
+            label_port = splitted_label[0] if splitted_label else ''
+            if label_port.startswith('{'):
+                # it is not a port, its a list of dict, a dict can have 'dst_ports'
+                # we will use only one 'dst_ports':
+                connections = ast.literal_eval(f'[{label_port}]')
+                ports = [conn['dst_ports'] for conn in connections if 'dst_ports' in conn.keys()]
+                label_port = ports[0] if ports else ''
+            # a 'dst_ports' can be too long (like 'port0,port1-port2' ) we trim it to the first port:
+            if len(label_port) > 6:
+                label_port = label_port.split(',')[0].split('-')[0]
+            labels_short[label] = f'{label_type.lower()}{label_port}' if label_port else label_type
 
-                # we want sort the labels before giving each label its index:
-                token_labels.sort()
-                for label in token_labels:
-                    self.labels_dict[label] = f'{first_token}_{token_labels.index(label)}'
-                    # todo - maybe put another token instead of the index
-                    # we should revisit this code after reformatting connections labels
+        # for labels sharing the same short, we will add a letter to the end of the short:
+        for short in set(labels_short.values()):
+            short_labels = [label for label, l_short in labels_short.items() if l_short == short]
+
+            # we want sort the labels before giving each label an extention:
+            short_labels.sort()
+            if len(short_labels) == 1:
+                self.labels_dict[short_labels[0]] = short
+            elif len(short_labels) < len(string.ascii_lowercase):
+                for label in short_labels:
+                    self.labels_dict[label] = f'{short}{string.ascii_lowercase[short_labels.index(label)]}'
+            else:
+                for label in short_labels:
+                    self.labels_dict[label] = f'{short}_{short_labels.index(label)}'
+
         return True

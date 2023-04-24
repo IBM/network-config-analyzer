@@ -14,11 +14,11 @@ class TestNamedPorts(unittest.TestCase):
         dst_res_ports = PortSet()
         dst_res_ports.add_port("x")
         conn_cube = ConnectivityCube.make_from_dict({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
-        tcp_properties1 = ConnectivityProperties.create_props_from_cube(conn_cube)
+        tcp_properties1 = ConnectivityProperties.make_conn_props(conn_cube)
         dst_res_ports2 = PortSet()
         dst_res_ports2.add_port("y")
         conn_cube["dst_ports"] = dst_res_ports2
-        tcp_properties2 = ConnectivityProperties.create_props_from_cube(conn_cube)
+        tcp_properties2 = ConnectivityProperties.make_conn_props(conn_cube)
         tcp_properties_res = tcp_properties1 | tcp_properties2
         named_ports_dict = {"x": (15, 6), "z": (20, 6), "y": (16, 6)}
         tcp_properties_res.convert_named_ports(named_ports_dict, 6)
@@ -39,7 +39,7 @@ class TestNamedPorts(unittest.TestCase):
         dst_res_ports.add_port("z")
         dst_res_ports.add_port("w")
         conn_cube = ConnectivityCube.make_from_dict({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
-        tcp_properties = ConnectivityProperties.create_props_from_cube(conn_cube)
+        tcp_properties = ConnectivityProperties.make_conn_props(conn_cube)
         tcp_properties_2 = tcp_properties.copy()
 
         self.assertTrue(tcp_properties.has_named_ports())
@@ -71,7 +71,7 @@ class TestNamedPorts(unittest.TestCase):
         dst_res_ports -= not_ports
         src_res_ports.add_port_range(1, 100)
         conn_cube = ConnectivityCube.make_from_dict({"src_ports": src_res_ports, "dst_ports": dst_res_ports})
-        tcp_properties = ConnectivityProperties.create_props_from_cube(conn_cube)
+        tcp_properties = ConnectivityProperties.make_conn_props(conn_cube)
         tcp_properties_2 = tcp_properties.copy()
 
         self.assertTrue(tcp_properties.has_named_ports())

@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-# Using python:3.8-slim
-FROM python@sha256:726098870bb14355cb12572764a3be191b42f8b15947d97affe3b8ec6a7a446e
+# Using python:3.9-slim
+FROM python@sha256:a321a8513911c55888b9c1cc981a5ba646271447a82ece1b62e4a6a8ff1d431b
 
 COPY requirements.txt /nca/
 RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt

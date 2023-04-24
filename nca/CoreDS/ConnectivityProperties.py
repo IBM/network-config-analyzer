@@ -76,7 +76,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             self.set_all()
 
     @staticmethod
-    def create_props_from_cube(conn_cube):
+    def _create_props_from_cube(conn_cube):
         """
         This will create connectivity properties made of the given connectivity cube.
         This includes tcp properties, non-tcp properties, icmp data properties.
@@ -295,7 +295,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         :rtype: ConnectivityProperties
         """
-        res = ConnectivityProperties.create_props_from_cube(ConnectivityCube())
+        res = ConnectivityProperties._create_props_from_cube(ConnectivityCube())
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
@@ -351,7 +351,12 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             return None  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
             return None
-        res = None
+        if dim_name == "src_peers" or dim_name == "dst_peers":
+            res = PeerSet()
+        elif dim_name == "src_ports" or dim_name == "dst_ports":
+            res = PortSet()
+        else:
+            res = DimensionsManager().get_empty_dimension_by_name(dim_name)
         for cube in self:
             conn_cube = self.get_connectivity_cube(cube)
             values = conn_cube[dim_name]
@@ -400,14 +405,14 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
         if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or not dst_peers:
             # Should not resolve named ports
-            return ConnectivityProperties.create_props_from_cube(conn_cube)
+            return ConnectivityProperties._create_props_from_cube(conn_cube)
 
         # Initialize conn_properties
         if dst_ports.port_set:
             dst_ports_no_named_ports = PortSet()
             dst_ports_no_named_ports.port_set = dst_ports.port_set.copy()
             conn_cube["dst_ports"] = dst_ports_no_named_ports
-            conn_properties = ConnectivityProperties.create_props_from_cube(conn_cube)
+            conn_properties = ConnectivityProperties._create_props_from_cube(conn_cube)
         else:
             conn_properties = ConnectivityProperties.make_empty_props()
 
@@ -418,12 +423,17 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             real_ports = ConnectivityProperties.resolve_named_ports(dst_ports.named_ports, peer, protocols)
             if real_ports:
                 conn_cube.update({"dst_ports": real_ports, "dst_peers": PeerSet({peer})})
-                conn_properties |= ConnectivityProperties.create_props_from_cube(conn_cube)
+                conn_properties |= ConnectivityProperties._create_props_from_cube(conn_cube)
             excluded_real_ports = ConnectivityProperties.resolve_named_ports(dst_ports.excluded_named_ports, peer, protocols)
             if excluded_real_ports:
                 conn_cube.update({"dst_ports": excluded_real_ports, "dst_peers": PeerSet({peer})})
-                conn_properties -= ConnectivityProperties.create_props_from_cube(conn_cube)
+                conn_properties -= ConnectivityProperties._create_props_from_cube(conn_cube)
         return conn_properties
+
+    @staticmethod
+    def make_conn_props_from_dict(the_dict):
+        cube = ConnectivityCube.make_from_dict(the_dict)
+        return ConnectivityProperties.make_conn_props(cube)
 
     @staticmethod
     def make_empty_props():

@@ -3,50 +3,63 @@ digraph {
 	label="Connectivity Graph of connectivity_map_4/np4"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
-	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 80-88" href="bogus">TCP_0     TCP 80-88<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 80-90" href="bogus">TCP_1     TCP 80-90<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 85-90" href="bogus">TCP_2     TCP 85-90<br align="left" /></td></tr></table>> shape=box]
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
-	"clique_All1" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
+	subgraph cluster_map_explanation {
+	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 80-88" href="bogus">tcp80-88     TCP 80-88<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 80-90" href="bogus">tcp80-90     TCP 80-90<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 85-90" href="bogus">tcp85-90     TCP 85-90<br align="left" /></td></tr></table>> shape=box]
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
+	"clique_All1" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All" tooltip="Traffic allowed between any two workloads connected to the CLIQUE:
+All"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/cognetive-agents(DaemonSet)" [label=<<table border="0" cellspacing="0"><tr><td>cognetive-agents(DaemonSet)</td></tr></table>> shape=box fontcolor=blue]
+	tooltip="Namespace"
+	"default/cognetive-agents(DaemonSet)" [label=<<table border="0" cellspacing="0"><tr><td>cognetive-agents(DaemonSet)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
 subgraph cluster_ibm_system_new_namespace{
 	label="ibm-system-new"
 	fontsize=20
 	fontcolor=blue
-	"clique_0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
+	tooltip="Namespace"
+	"clique_0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All" tooltip="Traffic allowed between any two workloads connected to the CLIQUE:
+All"]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
 subgraph cluster_kube_system_new_namespace{
 	label="kube-system-new"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	tooltip="Namespace"
+	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 subgraph cluster_kube_system_new_dummy_to_ignore_namespace{
 	label="kube-system-new-dummy-to-ignore"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>calico-kube-controllers(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
+	tooltip="Namespace"
+	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>calico-kube-controllers(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
-	"0.0.0.0/0" -> "clique_All1"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "clique_All1"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"clique_0" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"default/cognetive-agents(DaemonSet)" -> "clique_All1"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"default/cognetive-agents(DaemonSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="TCP_2" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="TCP_1" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "clique_All1"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="TCP_0" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "default/cognetive-agents(DaemonSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"0.0.0.0/0" -> "clique_All1"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"clique_0" -> "clique_All1"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"clique_0" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"clique_0" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"default/cognetive-agents(DaemonSet)" -> "clique_All1"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"default/cognetive-agents(DaemonSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="tcp85-90" labeltooltip="TCP 85-90" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="tcp80-90" labeltooltip="TCP 80-90" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="tcp80-90" labeltooltip="TCP 80-90" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "clique_All1"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="tcp80-88" labeltooltip="TCP 80-88" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "default/cognetive-agents(DaemonSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	color=white
+	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
+	labelloc = "b"
+	fontsize=15
+	fontcolor=maroon
+	}
 }
 
 // The Connectivity Graph of connectivity_map_4/np3
@@ -54,41 +67,53 @@ digraph {
 	label="Connectivity Graph of connectivity_map_4/np3"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
-	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 85-90" href="bogus">TCP     TCP 85-90<br align="left" /></td></tr></table>> shape=box]
-	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2]
-	"clique_All0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All"]
+	subgraph cluster_map_explanation {
+	dict_box [label=<<table border="0" cellspacing="0"><tr><td  align="text">Connectivity legend<br align="left" /></td></tr><tr><td align="text" tooltip="All" href="bogus">All     All<br align="left" /></td></tr><tr><td align="text" tooltip="TCP 85-90" href="bogus">tcp85-90     TCP 85-90<br align="left" /></td></tr></table>> shape=box]
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
+	"clique_All0" [shape=egg fontcolor=indigo color=indigo width=0.2 height=0.2 label=clq fontsize=10 margin=0  xlabel="All" tooltip="Traffic allowed between any two workloads connected to the CLIQUE:
+All"]
 subgraph cluster_default_namespace{
 	label="default"
 	fontsize=20
 	fontcolor=blue
-	"default/cognetive-agents(DaemonSet)" [label=<<table border="0" cellspacing="0"><tr><td>cognetive-agents(DaemonSet)</td></tr></table>> shape=box fontcolor=blue]
+	tooltip="Namespace"
+	"default/cognetive-agents(DaemonSet)" [label=<<table border="0" cellspacing="0"><tr><td>cognetive-agents(DaemonSet)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
 subgraph cluster_ibm_system_new_namespace{
 	label="ibm-system-new"
 	fontsize=20
 	fontcolor=blue
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" [label=<<table border="1" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)</td></tr><tr><td>ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	tooltip="Namespace"
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" [label=<<table border="1" cellspacing="0"><tr><td>ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)</td></tr><tr><td>ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 subgraph cluster_kube_system_new_namespace{
 	label="kube-system-new"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4]
+	tooltip="Namespace"
+	"kube-system-new/calico-node(DaemonSet)" [label=<<table border="1" cellspacing="0"><tr><td>calico-node(DaemonSet)</td></tr><tr><td>heapster(Deployment-StatefulSet)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
 }
 subgraph cluster_kube_system_new_dummy_to_ignore_namespace{
 	label="kube-system-new-dummy-to-ignore"
 	fontsize=20
 	fontcolor=blue
-	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>calico-kube-controllers(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue]
+	tooltip="Namespace"
+	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" [label=<<table border="0" cellspacing="0"><tr><td>calico-kube-controllers(Deployment-StatefulSet)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
 }
-	"0.0.0.0/0" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"default/cognetive-agents(DaemonSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"default/cognetive-agents(DaemonSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="TCP" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
-	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "clique_All0"[ color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "0.0.0.0/0"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "default/cognetive-agents(DaemonSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system-new/calico-node(DaemonSet)" -> "kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)"[label="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"0.0.0.0/0" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"default/cognetive-agents(DaemonSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"default/cognetive-agents(DaemonSet)" -> "kube-system-new/calico-node(DaemonSet)"[label="tcp85-90" labeltooltip="TCP 85-90" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "default/cognetive-agents(DaemonSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system-new/calico-node(DaemonSet)" -> "kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	color=white
+	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
+	labelloc = "b"
+	fontsize=15
+	fontcolor=maroon
+	}
 }

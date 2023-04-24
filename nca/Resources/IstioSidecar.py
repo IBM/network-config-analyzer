@@ -8,7 +8,6 @@ from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, PeerSet, DNSEntry
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
@@ -155,24 +154,27 @@ class IstioSidecar(NetworkPolicy):
             # connections to IP-block is enabled only if the outbound mode is allow-any (disabled for registry only)
             if self.outbound_mode == IstioSidecar.OutboundMode.ALLOW_ANY:
                 ip_blocks = IpBlock.get_all_ips_block_peer_set()
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": self.selected_peers, "dst_peers": ip_blocks})
-                self.optimized_allow_egress_props |= ConnectivityProperties.make_conn_props(conn_cube)
+                self.optimized_allow_egress_props |= \
+                    ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
+                                                                      "dst_peers": ip_blocks})
 
             dns_entries = peer_container.get_all_dns_entries()
             dst_dns_entries = dns_entries & (rule.egress_peer_set | rule.special_egress_peer_set)
             if self.selected_peers and dst_dns_entries:
                 protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": self.selected_peers,
-                                                             "dst_peers": dst_dns_entries, "protocols": protocols})
-                self.optimized_allow_egress_props |= ConnectivityProperties.make_conn_props(conn_cube)
+                self.optimized_allow_egress_props |= \
+                    ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
+                                                                      "dst_peers": dst_dns_entries,
+                                                                      "protocols": protocols})
 
             if self.selected_peers and rule.egress_peer_set:
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": self.selected_peers,
-                                                             "dst_peers": rule.egress_peer_set})
-                self.optimized_allow_egress_props |= ConnectivityProperties.make_conn_props(conn_cube)
+                self.optimized_allow_egress_props |= \
+                    ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
+                                                                      "dst_peers": rule.egress_peer_set})
             peers_sets_by_ns = self.combine_peer_sets_by_ns(self.selected_peers, rule.special_egress_peer_set,
                                                             peer_container)
             for (from_peers, to_peers) in peers_sets_by_ns:
                 if from_peers and to_peers:
-                    conn_cube = ConnectivityCube.make_from_dict({"src_peers": from_peers, "dst_peers": to_peers})
-                    self.optimized_allow_egress_props |= ConnectivityProperties.make_conn_props(conn_cube)
+                    self.optimized_allow_egress_props |= \
+                        ConnectivityProperties.make_conn_props_from_dict({"src_peers": from_peers,
+                                                                          "dst_peers": to_peers})

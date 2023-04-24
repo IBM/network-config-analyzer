@@ -534,23 +534,23 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 else:
                     connections.add_connections(protocol, True)
                     if self.optimized_run != 'false':
-                        conn_cube = ConnectivityCube.make_from_dict({"protocols": protocols, "src_peers": src_res_pods,
-                                                                     "dst_peers": dst_res_pods})
-                        conn_props = ConnectivityProperties.make_conn_props(conn_cube)
+                        conn_props = ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols,
+                                                                                       "src_peers": src_res_pods,
+                                                                                       "dst_peers": dst_res_pods})
         elif not_protocol is not None:
             connections.add_all_connections()
             connections.remove_protocol(not_protocol)
             if self.optimized_run != 'false' and src_res_pods and dst_res_pods:
                 protocols = ProtocolSet(True)
                 protocols.remove_protocol(not_protocol)
-                conn_cube = ConnectivityCube.make_from_dict({"protocols": protocols, "src_peers": src_res_pods,
-                                                             "dst_peers": dst_res_pods})
-                conn_props = ConnectivityProperties.make_conn_props(conn_cube)
+                conn_props = ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols,
+                                                                               "src_peers": src_res_pods,
+                                                                               "dst_peers": dst_res_pods})
         else:
             connections.allow_all = True
             if self.optimized_run != 'false':
-                conn_cube = ConnectivityCube.make_from_dict({"src_peers": src_res_pods, "dst_peers": dst_res_pods})
-                conn_props = ConnectivityProperties.make_conn_props(conn_cube)
+                conn_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_res_pods,
+                                                                               "dst_peers": dst_res_pods})
         self._verify_named_ports(rule, dst_res_pods, connections)
 
         if not src_res_pods and policy_selected_eps and (is_ingress or not is_profile):
