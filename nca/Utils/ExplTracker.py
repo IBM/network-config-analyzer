@@ -5,54 +5,9 @@
 
 from nca.Utils.Utils import Singleton
 from nca.Utils.NcaLogger import NcaLogger
-from nca.CoreDS.Peer import PeerSet
+from nca.CoreDS.Peer import PeerSet, Pod
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-
-
-class ExplPolicies:
-    """
-    ExplPolicies holds the policies affecting peers in relation to other peers.
-    That is, for each peer it holds all the peers in it's egress and ingress and the policies that has effect on the connection
-    to that peers.
-    """
-    def __init__(self):
-        self.egress_dst = {}
-        self.ingress_src = {}
-        self.all_policies = set()
-
-    @staticmethod
-    def _add_policy(peer_set, peer_list, policy_name):
-        """
-        Adds a policy to the list of affecting policies, for each peer in the peer_set
-        :param PeerSet peer_set: a set of peers to add the policy to
-        :param dict peer_list: a list of peers that holds the policies affecting them
-        :param str policy_name: the policy to add
-        """
-        for peer in peer_set:
-            peer_name = peer.full_name()
-            if not peer_list.get(peer_name):
-                peer_list[peer_name] = set()
-            # We don't want Default-Policy if we have any other policy,
-            # so we first remove it and then add the policy (even if we currently add
-            # the Default-Policy itself).
-            peer_list[peer_name].discard('Default-Policy')
-            peer_list[peer_name].add(policy_name)
-
-    def add_policy(self, policy_name, egress_dst, ingress_src):
-        """
-        Adds a given policy to the relevant peer lists (egress list, ingress list)
-        :param str policy_name: name of the policy
-        :param dict egress_dst: the set of egress destinations peers to add the policy too
-        :param dict ingress_src: the set of ingress source peers to add the policy too
-        """
-        self.all_policies.add(policy_name)
-
-        if egress_dst:
-            self._add_policy(egress_dst, self.egress_dst, policy_name)
-
-        if ingress_src:
-            self._add_policy(ingress_src, self.ingress_src, policy_name)
 
 
 class ExplTracker(metaclass=Singleton):
@@ -64,14 +19,60 @@ class ExplTracker(metaclass=Singleton):
     The ExplTracker is Singletone
     """
 
-    def __init__(self):
+    def __init__(self, ep=''):
         self.ExplDescriptorContainer = {}
         self.ExplPeerToPolicyContainer = {}
         self._is_active = False
         self.all_conns = {}
         self.all_peers = {}
+        self.ep = ep
 
         self.add_item('', 'Default-Policy', 0)
+
+    class ExplPolicies:
+        """
+        ExplPolicies holds the policies affecting peers in relation to other peers.
+        That is, for each peer it holds all the peers in it's egress and ingress and the policies
+        that has effect on the connection to that peers.
+        """
+
+        def __init__(self):
+            self.egress_dst = {}
+            self.ingress_src = {}
+            self.all_policies = set()
+
+        @staticmethod
+        def _add_policy(peer_set, peer_list, policy_name):
+            """
+            Adds a policy to the list of affecting policies, for each peer in the peer_set
+            :param PeerSet peer_set: a set of peers to add the policy to
+            :param dict peer_list: a list of peers that holds the policies affecting them
+            :param str policy_name: the policy to add
+            """
+            for peer in peer_set:
+                peer_name = ExplTracker().get_peer_ep_name(peer)
+                if not peer_list.get(peer_name):
+                    peer_list[peer_name] = set()
+                # We don't want Default-Policy if we have any other policy,
+                # so we first remove it and then add the policy (even if we currently add
+                # the Default-Policy itself).
+                peer_list[peer_name].discard('Default-Policy')
+                peer_list[peer_name].add(policy_name)
+
+        def add_policy(self, policy_name, egress_dst, ingress_src):
+            """
+            Adds a given policy to the relevant peer lists (egress list, ingress list)
+            :param str policy_name: name of the policy
+            :param PeerSet egress_dst: the set of egress destinations peers to add the policy too
+            :param PeerSet ingress_src: the set of ingress source peers to add the policy too
+            """
+            self.all_policies.add(policy_name)
+
+            if egress_dst:
+                self._add_policy(egress_dst, self.egress_dst, policy_name)
+
+            if ingress_src:
+                self._add_policy(ingress_src, self.ingress_src, policy_name)
 
     def activate(self):
         """
@@ -125,7 +126,7 @@ class ExplTracker(metaclass=Singleton):
         """
         if self.ExplDescriptorContainer.get(peer_name):
             if not self.ExplPeerToPolicyContainer.get(peer_name):
-                self.ExplPeerToPolicyContainer[peer_name] = ExplPolicies()
+                self.ExplPeerToPolicyContainer[peer_name] = self.ExplPolicies()
             self.ExplPeerToPolicyContainer[peer_name].add_policy(policy_name,
                                                                  egress_dst,
                                                                  ingress_src,
@@ -201,7 +202,8 @@ class ExplTracker(metaclass=Singleton):
             # we dont add Default-Policy if there is already an explicit
             # policy allowing the connectivity
             if self.is_policy_list_empty(node.full_name(), is_ingress):
-                self.add_peer_policy(node.full_name(),
+                node_name = self.get_peer_ep_name(node)
+                self.add_peer_policy(node_name,
                                      'Default-Policy',
                                      egress_list,
                                      ingress_list,
@@ -239,21 +241,33 @@ class ExplTracker(metaclass=Singleton):
                            f'in file {path}')
         return out
 
+    def get_peer_ep_name(self, peer):
+        if self.ep == 'deployments' and isinstance(peer, Pod):
+            return peer.workload_name
+        else:
+            return peer.full_name()
+
     def explain_all(self):
         soup = BeautifulSoup(features='xml')
         entry_id = 0
-        for peer1 in self.all_peers:
-            for peer2 in self.all_peers:
+        # use the peer names as defined in the endpoints configuration,
+        # also use one peer for each deployment
+        peer_names = set()
+        for peer in self.all_peers:
+            peer_names.add(self.get_peer_ep_name(peer))
+
+        for peer1 in peer_names:
+            for peer2 in peer_names:
                 if peer1 == peer2:
-                    text = self.explain([peer1.full_name()])
+                    text = self.explain([peer1])
                 else:
-                    text = self.explain([peer1.full_name(), peer2.full_name()])
+                    text = self.explain([peer1, peer2])
                 # Create the XML entry element
                 entry = soup.new_tag('entry')
                 entry_id += 1
                 entry['id'] = str(entry_id)
-                entry['src'] = peer1.full_name()
-                entry['dst'] = peer2.full_name()
+                entry['src'] = peer1
+                entry['dst'] = peer2
                 text_elem = Tag(soup, name='text')
                 text_elem.string = text
                 entry.append(text_elem)

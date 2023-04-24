@@ -183,7 +183,7 @@ def run_args(args):
 
     if args.explain is not None:
         output_config['expl'] = args.explain.split(',')
-        ExplTracker().activate()
+        ExplTracker(output_config.outputEndpoints).activate()
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None

@@ -6,7 +6,7 @@ from bisect import insort
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet, DNSEntry
+from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet, DNSEntry, Pod
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
@@ -254,7 +254,8 @@ class NetworkLayer:
             for peer in policy.selected_peers:
                 src_peers, _ = ExplTracker().extract_peers(policy.optimized_allow_ingress_props)
                 _, dst_peers = ExplTracker().extract_peers(policy.optimized_allow_egress_props)
-                ExplTracker().add_peer_policy(peer.full_name(),
+                peer_name = ExplTracker().get_peer_ep_name(peer)
+                ExplTracker().add_peer_policy(peer_name,
                                               policy.name,
                                               dst_peers,
                                               src_peers,
