@@ -577,9 +577,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
                 res_policy.add_optimized_allow_props(optimized_props, True)
             else:  # Deny
                 res_policy.add_optimized_deny_props(optimized_props, True)
-        all_peers_and_ips = self.peer_container.get_all_peers_group(True)
-        all_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
-                                                                      "dst_peers": all_peers_and_ips})
+        all_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
         res_policy.add_optimized_allow_props(all_props, False)
         if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:
             self.syntax_error("DENY action without rules is meaningless as it will never be triggered")

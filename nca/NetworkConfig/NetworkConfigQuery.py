@@ -167,6 +167,14 @@ class NetworkConfigQuery(BaseNetworkQuery):
         return True
 
     def filter_conns_by_peer_types(self, conns, all_peers):
+        """
+        Filter the given connections by removing several connection kinds that are never allowed
+        (such as IpBlock to IpBlock connections, connections from DNSEntries, and more).
+        :param ConnectivityProperties conns: the given connections.
+        :param PeerSet all_peers: all peers in the system.
+        :return The resulting connections.
+        :rtype ConnectivityProperties
+        """
         res = conns
         # avoid IpBlock -> {IpBlock, DNSEntry} connections
         all_ips = IpBlock.get_all_ips_block_peer_set()
@@ -734,6 +742,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         Compute connectivity output with original implementation (running for every pair of peers).
         :return: a tuple of output result (in a required format), FwRules, tcp FWRules and non-tcp FWRules.
+        :rtype ([Union[str, dict], MinimizeFWRules, MinimizeFWRules], MinimizeFWRules)
         """
         fw_rules = None
         fw_rules_tcp = None
@@ -776,6 +785,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         Compute connectivity output with optimized implementation.
         :return: a tuple of output result (in a required format), FwRules, tcp FWRules and non-tcp FWRules.
+        :rtype: ([Union[str, dict], MinimizeFWRules, MinimizeFWRules], MinimizeFWRules)
         """
         opt_fw_rules = None
         opt_fw_rules_tcp = None
@@ -866,7 +876,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param dict connections: the connections' dict (map from connection-set to peer pairs)
         :param PeerSet peers: the peers to consider for dot and txt_no_fw_rules output
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
-        :rtype Union[str,dict]
+        :rtype (Union[str,dict], MinimizeFWRules)
         """
         if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_full = self.dot_format_from_connections_dict(connections, peers)
@@ -885,7 +895,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
-        :rtype Union[str,dict]
+        :rtype ([Union[str, dict], MinimizeFWRules])
         """
         if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_full = self.dot_format_from_props(props, peers_to_compare, ip_blocks_mask)
@@ -901,7 +911,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param dict connections: the connections' dict (map from connection-set to peer pairs)
         :param PeerSet peers: the peers to consider for dot output
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
-        :rtype Union[str,dict]
+        :rtype ([Union[str, dict], MinimizeFWRules, MinimizeFWRules])
         """
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
@@ -946,7 +956,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers_to_compare: the peers to consider for dot/fw-rules output
         :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
-        :rtype Union[str,dict]
+        :rtype ([Union[str, dict], MinimizeFWRules, MinimizeFWRules])
         """
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
@@ -1037,7 +1047,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
         :return the connectivity map in fw-rules, considering connectivity_restriction if required
-        :rtype: Union[str, dict]
+        :rtype: (Union[str, dict], MinimizeFWRules)
         """
         conn_graph = self._get_conn_graph(connections, peers_to_compare)
         fw_rules = conn_graph.get_minimized_firewall_rules()
@@ -1053,7 +1063,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
         :return the connectivity map in fw-rules, considering connectivity_restriction if required
-        :rtype: Union[str, dict]
+        :rtype: (Union[str, dict], MinimizeFWRules)
         """
         cluster_info = ClusterInfo(peers_to_compare, self.config.get_allowed_labels())
         fw_rules_map = ConnectionSet.conn_props_to_fw_rules(props, cluster_info, self.config.peer_container,
