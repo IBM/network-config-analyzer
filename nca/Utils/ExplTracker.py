@@ -330,13 +330,12 @@ class ExplTracker(metaclass=Singleton):
         :param list(str) nodes: nodes to explain
         :return: str: the explanation out string
         """
-        out = []
         if len(nodes) < 1:
-            return out
+            return ''
         elif len(nodes) > 2:
             NcaLogger().log_message(f'Explainability error: only 1 or 2 nodes are allowed for explainability query,'
                                     f' found {len(nodes)} ', level='E')
-            return out
+            return ''
 
         src_node = nodes[0]
         if src_node == 'ALL':
@@ -346,21 +345,22 @@ class ExplTracker(metaclass=Singleton):
         for node in nodes:
             if not self.ExplDescriptorContainer.get(node):
                 NcaLogger().log_message(f'Explainability error - {node} was not found in the connectivity results', level='E')
-                return out
+                return ''
             if not self.ExplPeerToPolicyContainer.get(node):
                 NcaLogger().log_message(f'Explainability error - {node} has no explanability results', level='E')
-                return out
+                return ''
 
+        out = []
         if len(nodes) == 2:
             # 2 nodes scenario
             dst_node = nodes[1]
             if self.are_peers_connected(src_node, dst_node):
                 # connection valid
-                out.append(f'\nConfigurations affecting the connectivity between (src){src_node} and (dst){dst_node}:')
+                out.append(f'Configurations affecting the connectivity between (src){src_node} and (dst){dst_node}:')
                 src_results = self.ExplPeerToPolicyContainer[src_node].egress_dst.get(dst_node)
                 dst_results = self.ExplPeerToPolicyContainer[dst_node].ingress_src.get(src_node)
             else:
-                out.append(f'\nConfigurations affecting the LACK of connectivity between (src){src_node} and (dst){dst_node}:')
+                out.append(f'Configurations affecting the LACK of connectivity between (src){src_node} and (dst){dst_node}:')
                 src_results = self.ExplPeerToPolicyContainer[src_node].all_policies
                 dst_results = self.ExplPeerToPolicyContainer[dst_node].all_policies
 
@@ -370,7 +370,7 @@ class ExplTracker(metaclass=Singleton):
             out.extend(self.prepare_node_str(dst_node, dst_results, 'dst'))
         else:  # only one node
             results = self.ExplPeerToPolicyContainer[src_node].all_policies
-            out.append(f'\nConfigurations affecting {src_node}:')
+            out.append(f'Configurations affecting {src_node}:')
             out.extend(self.prepare_node_str(src_node, results))
 
         # convert the list of expl' directives into string
