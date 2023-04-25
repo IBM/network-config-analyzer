@@ -17,6 +17,28 @@ class ExplTracker(metaclass=Singleton):
     or lack of connection between them.
 
     The ExplTracker is Singletone
+    Members:
+            ExplDescriptorContainer - A container for all expl' items' in the system.
+            Each entry has a peer or a policy with their name, file and line number of the configurations.
+
+            ExplPeerToPolicyContainer - A container for finding the affecting policies from peers in egress and ingress
+            For each peer name it has a ExplPolicies class object with 3 items:
+                    all_policies - a set of all the policies affecting the current peer
+                    egress_dst - a dict of destination peers allowed in the current peer's egress and for each of them,
+                                 the policies that allows it
+                    ingress_src - a dict of source peers allowed in the current peer's ingress and for each of them,
+                                 the policies that allows it
+            That way, when given a src and dst peers we can extract which policies allow the connection in each side.
+            When there is no connection, we list all the policies that affect the peers, so the user may have all the info
+            to find problems.
+
+            _is_active - flag for checking if expl' was activated
+
+            all_conns - all the calculated connection. This is used to shortcut the check if 2 peers are connected or not
+
+            all_peers - all the peers. This is used for the explain-all feature.
+
+            ep - endpoints configurations (use either full_name for pod mode, or workload_name for deployments mode)
     """
 
     def __init__(self, ep=''):
@@ -32,7 +54,7 @@ class ExplTracker(metaclass=Singleton):
     class ExplPolicies:
         """
         ExplPolicies holds the policies affecting peers in relation to other peers.
-        That is, for each peer it holds all the peers in it's egress and ingress and the policies
+        That is, for each peer it holds all the peers in its egress and ingress and the policies
         that has effect on the connection to that peers.
         """
 
@@ -155,14 +177,14 @@ class ExplTracker(metaclass=Singleton):
         """
         self.all_conns = conns
         self.all_peers = peers
-        # add all missing 'special' peers with default policy.
+        # add all missing 'special' peers (like 0.0.0.0/0) with default policy.
         for peer in self.all_peers:
             peer_name = self.get_peer_ep_name(peer)
             if not self.ExplPeerToPolicyContainer.get(peer_name):
                 if not self.ExplDescriptorContainer.get(peer_name):
                     self.add_item('', peer_name, 0)
-                self.add_default_policy([peer], peers, False)
-                self.add_default_policy(peers, [peer], True)
+                self.add_default_policy(PeerSet([peer]), peers, False)
+                self.add_default_policy(peers, PeerSet([peer]), True)
 
     def are_peers_connected(self, src, dst):
         """
@@ -216,6 +238,12 @@ class ExplTracker(metaclass=Singleton):
                                      )
 
     def is_policy_list_empty(self, node_name, check_ingress):
+        """
+        A service function to check if the expl' list of ingress or egress is empty.
+        :param node_name: the node to check
+        :param check_ingress: list to check (ingress or egress)
+        :return:
+        """
         peer = self.ExplPeerToPolicyContainer.get(node_name)
         if peer:
             if check_ingress and peer.ingress_src:
@@ -248,12 +276,23 @@ class ExplTracker(metaclass=Singleton):
         return out
 
     def get_peer_ep_name(self, peer):
+        """
+        Get the name of the peer based on the endpoints configurations:
+        full_name for Pods mode
+        workload_name for Deployments mode
+        :param peer: the peer to query
+        :return: string: name of peer
+        """
         if self.ep == 'deployments' and isinstance(peer, Pod):
             return peer.workload_name
         else:
             return peer.full_name()
 
     def explain_all(self):
+        """
+        Get a full expl' description of all the peers in the connectivity map
+        :return: string: xml format of all the expl' entries for every 2 nodes.
+        """
         soup = BeautifulSoup(features='xml')
         entry_id = 0
         # use the peer names as defined in the endpoints configuration,
