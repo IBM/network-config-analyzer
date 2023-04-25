@@ -157,7 +157,7 @@ class ExplTracker(metaclass=Singleton):
         self.all_peers = peers
         # add all missing 'special' peers with default policy.
         for peer in self.all_peers:
-            peer_name = peer.full_name()
+            peer_name = self.get_peer_ep_name(peer)
             if not self.ExplPeerToPolicyContainer.get(peer_name):
                 if not self.ExplDescriptorContainer.get(peer_name):
                     self.add_item('', peer_name, 0)
@@ -175,10 +175,16 @@ class ExplTracker(metaclass=Singleton):
             NcaLogger().log_message(f'Explainability error: Connections were not set yet, but peer query was called',
                                     level='E')
         for cube in self.all_conns:
-            conn = self.all_conns.get_cube_dict(cube)
-            src_peers = conn['src_peers']
-            dst_peers = conn['dst_peers']
-            if src in src_peers and dst in dst_peers:
+            src_peers_names = []
+            dst_peers_names = []
+            conn_cube = self.all_conns.get_connectivity_cube(cube)
+            src_peers = conn_cube['src_peers']
+            dst_peers = conn_cube['dst_peers']
+            for peer in src_peers:
+                src_peers_names.append(self.get_peer_ep_name(peer))
+            for peer in dst_peers:
+                dst_peers_names.append(self.get_peer_ep_name(peer))
+            if src in src_peers_names and dst in dst_peers_names:
                 return True
         return False
 
@@ -201,7 +207,7 @@ class ExplTracker(metaclass=Singleton):
         for node in nodes:
             # we dont add Default-Policy if there is already an explicit
             # policy allowing the connectivity
-            if self.is_policy_list_empty(node.full_name(), is_ingress):
+            if self.is_policy_list_empty(self.get_peer_ep_name(node), is_ingress):
                 node_name = self.get_peer_ep_name(node)
                 self.add_peer_policy(node_name,
                                      'Default-Policy',
