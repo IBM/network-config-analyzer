@@ -119,8 +119,7 @@ class ExplTracker(metaclass=Singleton):
         if name:
             self.ExplDescriptorContainer[name] = {'path': path, 'line': ln}
         else:
-            NcaLogger().log_message(f'Explainability error: configuration-block name can not be empty',
-                                    level='E')
+            NcaLogger().log_message('Explainability error: configuration-block name can not be empty', level='E')
 
     def derive_item(self, new_name):
         """
@@ -194,8 +193,7 @@ class ExplTracker(metaclass=Singleton):
         :return: bool: True for connected, False for disconnected
         """
         if not self.all_conns:
-            NcaLogger().log_message(f'Explainability error: Connections were not set yet, but peer query was called',
-                                    level='E')
+            NcaLogger().log_message('Explainability error: Connections were not set yet, but peer query was called', level='E')
         for cube in self.all_conns:
             src_peers_names = []
             dst_peers_names = []
