@@ -254,15 +254,16 @@ class NetworkLayer:
         res_conns = OptimizedPolicyConnections()
         for policy in self.policies_list:
             # Track the peers that were affected by this policy
-            for peer in policy.selected_peers:
-                src_peers, _ = ExplTracker().extract_peers(policy.optimized_allow_ingress_props)
-                _, dst_peers = ExplTracker().extract_peers(policy.optimized_allow_egress_props)
-                peer_name = ExplTracker().get_peer_ep_name(peer)
-                ExplTracker().add_peer_policy(peer_name,
-                                              policy.name,
-                                              dst_peers,
-                                              src_peers,
-                                              )
+            if ExplTracker().is_active():
+                for peer in policy.selected_peers:
+                    src_peers, _ = ExplTracker().extract_peers(policy.optimized_allow_ingress_props)
+                    _, dst_peers = ExplTracker().extract_peers(policy.optimized_allow_egress_props)
+                    peer_name = ExplTracker().get_peer_ep_name(peer)
+                    ExplTracker().add_peer_policy(peer_name,
+                                                  policy.name,
+                                                  dst_peers,
+                                                  src_peers,
+                                                  )
             policy_conns = policy.allowed_connections_optimized(is_ingress)
             if policy_conns.captured:  # not empty
                 if captured_func(policy):
@@ -320,11 +321,12 @@ class K8sCalicoNetworkLayer(NetworkLayer):
             else:
                 conn_cube.update({"src_peers": not_captured_not_hep, "dst_peers": all_peers_and_ips})
             not_captured_not_hep_conns = ConnectivityProperties.make_conn_props(conn_cube)
-            src_peers, dst_peers = ExplTracker().extract_peers(not_captured_not_hep_conns)
-            ExplTracker().add_default_policy(src_peers,
-                                             dst_peers,
-                                             is_ingress
-                                             )
+            if ExplTracker().is_active():
+                src_peers, dst_peers = ExplTracker().extract_peers(not_captured_not_hep_conns)
+                ExplTracker().add_default_policy(src_peers,
+                                                 dst_peers,
+                                                 is_ingress
+                                                 )
             res_conns.all_allowed_conns |= not_captured_not_hep_conns
 
         captured_not_hep = base_peer_set_no_hep & res_conns.captured
@@ -403,8 +405,7 @@ class IstioNetworkLayer(NetworkLayer):
                                                                                  "protocols": tcp_protocol})
                 non_captured_conns = nc_dns_conns
                 res_conns.all_allowed_conns |= nc_dns_conns
-            if non_captured_conns:
-                # non_captured_conns = ConnectivityProperties.make_conn_props(nc_dns_conns)
+            if non_captured_conns and ExplTracker().is_active():
                 src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
                 ExplTracker().add_default_policy(src_peers,
                                                  dst_peers,
@@ -443,7 +444,7 @@ class IngressNetworkLayer(NetworkLayer):
                 non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                        "dst_peers": all_peers_and_ips})
                 res_conns.all_allowed_conns = res_conns.allowed_conns | non_captured_conns
-        if non_captured_conns:
+        if non_captured_conns and ExplTracker().is_active():
             src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
             ExplTracker().add_default_policy(src_peers,
                                              dst_peers,

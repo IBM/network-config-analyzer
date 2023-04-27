@@ -110,7 +110,8 @@ class PodsFinder:
             for port in container.get('ports') or []:
                 pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
         self._add_peer(pod)
-        ExplTracker().add_item(pod_object.path, ExplTracker().get_peer_ep_name(pod), pod_object.line_number)
+        if ExplTracker().is_active():
+            ExplTracker().add_item(pod_object.path, ExplTracker().get_peer_ep_name(pod), pod_object.line_number)
 
     def _add_peer(self, peer):
         """
@@ -166,7 +167,8 @@ class PodsFinder:
                 for port in container.get('ports') or []:
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
             self._add_peer(pod)
-            ExplTracker().add_item(workload_resource.path, ExplTracker().get_peer_ep_name(pod), workload_resource.line_number)
+            if ExplTracker().is_active():
+                ExplTracker().add_item(workload_resource.path, ExplTracker().get_peer_ep_name(pod), workload_resource.line_number)
 
     def _add_networkset_from_yaml(self, networkset_object):
         """
@@ -197,7 +199,8 @@ class PodsFinder:
         for cidr in cidrs:
             ipb.add_cidr(cidr)
         self._add_peer(ipb)
-        ExplTracker().add_item(networkset_object.path, ipb.full_name(), networkset_object.line_number)
+        if ExplTracker().is_active():
+            ExplTracker().add_item(networkset_object.path, ipb.full_name(), networkset_object.line_number)
 
     def _add_hep_from_yaml(self, hep_object):
         """
@@ -221,7 +224,8 @@ class PodsFinder:
             hep.add_profile(profile)
 
         self._add_peer(hep)
-        ExplTracker().add_item(hep_object.path, ExplTracker().get_peer_ep_name(hep), hep_object.line_number)
+        if ExplTracker().is_active():
+            ExplTracker().add_item(hep_object.path, ExplTracker().get_peer_ep_name(hep), hep_object.line_number)
 
     def _add_wep_from_yaml(self, wep_object):
         """
@@ -248,7 +252,8 @@ class PodsFinder:
             wep.add_profile(profile)
 
         self._add_peer(wep)
-        ExplTracker().add_item(wep_object.path, ExplTracker().get_peer_ep_name(wep), wep_object.line_number)
+        if ExplTracker().is_active():
+            ExplTracker().add_item(wep_object.path, ExplTracker().get_peer_ep_name(wep), wep_object.line_number)
 
     def _add_dns_entries_from_yaml(self, srv_entry_object):
         """

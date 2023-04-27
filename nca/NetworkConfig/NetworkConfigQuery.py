@@ -793,7 +793,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             ConnectivityProperties.make_conn_props_from_dict({"dst_peers": subset_peers})
         all_conns_opt &= subset_conns
         all_conns_opt = self.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
-        ExplTracker().set_connections_and_peers(all_conns_opt, subset_peers)
+        if ExplTracker().is_active():
+            ExplTracker().set_connections_and_peers(all_conns_opt, subset_peers)
         ip_blocks_mask = IpBlock.get_all_ips_block()
         if exclude_ipv6:
             ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6=True)
