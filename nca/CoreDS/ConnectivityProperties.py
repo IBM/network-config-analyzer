@@ -347,8 +347,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :return: the projection on the given dimension, having that dimension type.
          or None if the given dimension is not active
         """
-        if dim_name == "icmp_type" or dim_name == "icmp_code":
-            return None  # not supporting icmp dimensions
+        assert dim_name not in ["icmp_type", "icmp_code"] # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
             return None
         if dim_name == "src_peers" or dim_name == "dst_peers":
@@ -387,7 +386,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         This will create connectivity properties made of the given connectivity cube.
         This includes tcp properties, non-tcp properties, icmp data properties.
-        If possible (i.e., in original solution, when dst_peers are supported), the named ports will be resolved.
+        If possible (i.e., in the optimized solution, when dst_peers are supported in the given cube),
+        the named ports will be resolved.
 
         In the optimized solution, the resulting ConnectivityProperties should not contain named ports:
             they are substituted with corresponding port numbers, per peer
