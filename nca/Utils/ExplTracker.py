@@ -70,6 +70,7 @@ class ExplTracker(metaclass=Singleton):
         self._is_active = False
         self.all_conns = {}
         self.all_peers = {}
+        self.explain_all_results = ''
 
         self.add_item('', 'Default-Policy', 0)
 
@@ -258,7 +259,9 @@ class ExplTracker(metaclass=Singleton):
                 text_elem.string = text
                 entry.append(text_elem)
                 soup.append(entry)
-        return soup.prettify()
+
+        self.explain_all_results = soup.prettify()
+        return self.explain_all_results
 
     def explain(self, nodes):
         """

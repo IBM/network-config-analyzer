@@ -62,6 +62,21 @@ class OutputConfiguration(dict):
                     print(f'Command {dot_cmd_string}\n did not create {path}\n', file=sys.stderr)
                 if os.path.isfile(tmp_dot_file):
                     os.remove(tmp_dot_file)
+            elif self.outputFormat == 'html':
+                tmp_dot_file = f'{path}.nca_tmp.dot'
+                dot_cmd = ['dot', tmp_dot_file, '-Tjpg', f'-o{path}']
+                try:
+                    with open(tmp_dot_file, "w") as f:
+                        f.write(output)
+                    CmdlineRunner.run_and_get_output(dot_cmd)
+                except Exception as e:
+                    print(f'Failed to create a jpg file: {path}\n{e}', file=sys.stderr)
+                if not os.path.isfile(path):
+                    dot_cmd_string = ' '.join(dot_cmd)
+                    print(f'Command {dot_cmd_string}\n did not create {path}\n', file=sys.stderr)
+                if os.path.isfile(tmp_dot_file):
+                    os.remove(tmp_dot_file)
+
             else:
                 try:
                     with open(path, "a") as f:

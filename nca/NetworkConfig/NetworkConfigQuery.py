@@ -630,7 +630,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
     @staticmethod
     def get_supported_output_formats():
-        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json', 'jpg', 'txt_no_fw_rules'}
+        return {'txt', 'yaml', 'csv', 'md', 'dot', 'json', 'jpg', 'html', 'txt_no_fw_rules'}
 
     def is_in_subset(self, peer):
         """
@@ -817,7 +817,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers_to_compare: the peers to consider for fw-rules output
         :rtype Union[str,dict]
         """
-        if self.output_config.outputFormat in ['dot', 'jpg']:
+        if self.output_config.outputFormat in ['dot', 'jpg', 'html']:
             dot_full = self.dot_format_from_connections_dict(connections, peers)
             return dot_full, None
         if self.output_config.outputFormat == 'txt_no_fw_rules':
@@ -836,7 +836,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
          whereas all other values should be filtered out in the output
         :rtype Union[str,dict]
         """
-        if self.output_config.outputFormat in ['dot', 'jpg']:
+        if self.output_config.outputFormat in ['dot', 'jpg', 'html']:
             dot_full = self.dot_format_from_props(props, peers_to_compare, ip_blocks_mask)
             return dot_full, None
         # TODO - handle 'txt_no_fw_rules' output format
@@ -858,7 +858,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
         connections_tcp, connections_non_tcp = self.convert_connections_to_split_by_tcp(connections)
-        if self.output_config.outputFormat in ['dot', 'jpg']:
+        if self.output_config.outputFormat in ['dot', 'jpg', 'html']:
             dot_tcp = self.dot_format_from_connections_dict(connections_tcp, peers, connectivity_tcp_str)
             dot_non_tcp = self.dot_format_from_connections_dict(connections_non_tcp, peers, connectivity_non_tcp_str)
             # concatenate the two graphs into one dot file
@@ -903,7 +903,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         connectivity_tcp_str = 'TCP'
         connectivity_non_tcp_str = 'non-TCP'
         props_tcp, props_non_tcp = self.convert_props_to_split_by_tcp(props)
-        if self.output_config.outputFormat in ['dot', 'jpg']:
+        if self.output_config.outputFormat in ['dot', 'jpg', 'html']:
             dot_tcp = self.dot_format_from_props(props_tcp, peers_to_compare, ip_blocks_mask,
                                                  connectivity_tcp_str)
             dot_non_tcp = self.dot_format_from_props(props_non_tcp, peers_to_compare, ip_blocks_mask,
