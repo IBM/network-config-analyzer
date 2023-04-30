@@ -53,17 +53,17 @@ class TestArgs:
 
 
 class CliQuery:
-    def __init__(self, test_dict, cli_tests_base_dir, test_name):
+    def __init__(self, test_dict, cli_tests_base_dir, test_name, hc_opt):
         self.test_dict = test_dict
         self.query_name = self.test_dict['name']
         self.test_name = test_name
-        self.args_obj = TestArgs(test_dict['args'].split(), cli_tests_base_dir)
+        self.args_obj = TestArgs(test_dict['args'].split() + ['-opt='+hc_opt], cli_tests_base_dir)
 
 
 class SchemeFile:
-    def __init__(self, scheme_filename):
+    def __init__(self, scheme_filename, hc_opt):
         self.test_name = scheme_filename
-        test_args = ['--scheme', self.test_name, '-opt=false']
+        test_args = ['--scheme', self.test_name, '-opt='+hc_opt]
         self.args_obj = TestArgs(test_args)
 
     def update_arg_at_scheme_file_output_config(self, arg_name, arg_value):
@@ -207,7 +207,7 @@ class TestFilesSpec(dict):
 
 
 class TestsRunner:
-    def __init__(self, spec_file, tests_type, check_run_time, category):
+    def __init__(self, spec_file, tests_type, check_run_time, category, hc_opt):
         self.spec_file = spec_file
         self.all_results = {}
         self.global_res = 0
@@ -216,6 +216,7 @@ class TestsRunner:
         self.test_files_spec = None
         self.check_run_time = check_run_time
         self.category = category
+        self.hc_opt = hc_opt
         self.helm_path = shutil.which('helm')
 
     @staticmethod
@@ -374,8 +375,7 @@ class TestsRunner:
         if self.test_files_spec.type == 'scheme':
             if self.tests_type == 'general' and not TestsRunner._test_file_matches_category_general_tests(test_file, self.category):
                 return  # test file does not match the running category
-            self.create_and_run_test_obj(SchemeFile(test_file), 0)
-
+            self.create_and_run_test_obj(SchemeFile(test_file, self.hc_opt), 0)
         elif self.test_files_spec.type == 'cmdline':
             with open(test_file) as doc:
                 code = yaml.load_all(doc, Loader=yaml.CSafeLoader)
@@ -386,7 +386,7 @@ class TestsRunner:
                         print(f'Skipping {query_name} - HELM is not installed')
                         continue
                     cli_test_name = f'{os.path.basename(test_file)}, query name: {query_name}'
-                    cli_query = CliQuery(test, self.test_files_spec.root, cli_test_name)
+                    cli_query = CliQuery(test, self.test_files_spec.root, cli_test_name, self.hc_opt)
                     if self.category == '' or cli_test_name.startswith(self.category):
                         self.create_and_run_test_obj(cli_query, test.get('expected', 0))
 
@@ -399,6 +399,9 @@ def main(argv=None):
     parser.add_argument('--type', choices=['general', 'k8s_live_general', 'fw_rules_assertions'],
                         help='Choose test types to run',
                         default='general')
+    parser.add_argument('--hc_opt', choices=['false', 'true', 'debug'],
+                        help='Choose non-optimized/optimized/comparison run',
+                        default='false')
     parser.add_argument('--category', choices=['k8s', 'calico', 'istio'], help='Choose category of tests',
                         default='')
     parser.add_argument('--create_expected_output_files', action='store_true', help='Add missing expected output files')
@@ -410,6 +413,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     test_type = args.type
     category = args.category
+    hc_opt = args.hc_opt
     check_run_time = args.check_run_time
     OutputFilesFlags().create_expected_files = args.create_expected_output_files
     OutputFilesFlags().update_expected_files = args.override_expected_output_files
@@ -418,9 +422,15 @@ def main(argv=None):
     if check_run_time and test_type != 'general':
         print(f'check_run_time flag is not supported with test type: {test_type}')
         sys.exit(1)
+    if hc_opt == 'false':
+        print('Running original (non-optimized) implementation')
+    elif hc_opt == 'true':
+        print('Running optimized implementation')
+    elif hc_opt == 'debug':
+        print('Comparing original and optimized implementations')
 
     spec_file = 'all_tests_spec.yaml'
-    tests_runner = TestsRunner(spec_file, test_type, check_run_time, category)
+    tests_runner = TestsRunner(spec_file, test_type, check_run_time, category, hc_opt)
     tests_runner.run_tests()
     return tests_runner.global_res or tests_runner.new_tests_error
 
