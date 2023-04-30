@@ -10,9 +10,9 @@ from collections import defaultdict
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, DNSEntry
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.FWRules.MinimizeFWRules import MinimizeFWRules
 from nca.FWRules.ClusterInfo import ClusterInfo
@@ -147,6 +147,44 @@ class NetworkConfigQuery(BaseNetworkQuery):
     @abstractmethod
     def exec(self):
         raise NotImplementedError
+
+    # this def contains conditions that should be checked every time before computing
+    # allowed connections of two peers, so added it here to avoid duplications in the queries code
+    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
+        """
+        determines if to continue to compute allowed connections for the given
+        pair of peers based on their types
+        :param Peer peer1: the src peer
+        :param Peer peer2: the dst peer
+        :rtype: bool
+        """
+        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
+            return False
+        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
+            return False  # connectivity between external peers is not relevant either
+        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) \
+                and isinstance(peer2, DNSEntry):
+            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
+        return True
+
+    def filter_conns_by_peer_types(self, conns, all_peers):
+        res = conns
+        # avoid IpBlock -> {IpBlock, DNSEntry} connections
+        all_ips = IpBlock.get_all_ips_block_peer_set()
+        all_dns_entries = self.config.peer_container.get_all_dns_entries()
+        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ips,
+                                                                                  "dst_peers": all_ips | all_dns_entries})
+        res -= ip_to_ip_or_dns_conns
+        # avoid DNSEntry->anything connections
+        dns_to_any_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_dns_entries,
+                                                                             "dst_peers": all_peers})
+        res -= dns_to_any_conns
+        # avoid anything->DNSEntry connections if Istio layer does not exist
+        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
+            any_to_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers,
+                                                                                 "dst_peers": all_dns_entries})
+            res -= any_to_dns_conns
+        return res
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -693,103 +731,119 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                 return False
         return True
 
-    def exec(self):  # noqa: C901
-        self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
-        self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
-            self.config.name
-        connections = defaultdict(list)
-        res = QueryAnswer(True)
+    def compute_connectivity_output_original(self):
+        """
+        Compute connectivity output with original implementation (running for every pair of peers).
+        :return: a tuple of output result (in a required format), FwRules, tcp FWRules and non-tcp FWRules.
+        """
         fw_rules = None
         fw_rules_tcp = None
         fw_rules_non_tcp = None
         exclude_ipv6 = self.output_config.excludeIPv6Range
-        if self.config.optimized_run != 'true':
-            peers_to_compare = self.config.peer_container.get_all_peers_group()
-            ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
-                                                       IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
-                                                       exclude_ipv6)
-            peers_to_compare |= ref_ip_blocks
-            peers = PeerSet()
-            peers1_start = time.time()
-            for peer1_cnt, peer1 in enumerate(peers_to_compare):
-                for peer2 in peers_to_compare:
-                    if self.is_in_subset(peer1):
+        connections = defaultdict(list)
+        peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
+        ref_ip_blocks = IpBlock.disjoint_ip_blocks(self.config.get_referenced_ip_blocks(exclude_ipv6),
+                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6), exclude_ipv6)
+        peers_to_compare |= ref_ip_blocks
+        peers = PeerSet()
+        for peer1 in peers_to_compare:
+            for peer2 in peers_to_compare:
+                if self.is_in_subset(peer1):
+                    peers.add(peer1)
+                elif not self.is_in_subset(peer2):
+                    continue  # skipping pairs if none of them are in the given subset
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+                    continue
+                if peer1 == peer2:
+                    # cannot restrict pod's connection to itself
+                    connections[ConnectionSet(True)].append((peer1, peer2))
+                else:
+                    conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
+                    if conns:
+                        connections[conns].append((peer1, peer2))
+                        # collect both peers, even if one of them is not in the subset
                         peers.add(peer1)
-                    elif not self.is_in_subset(peer2):
-                        continue  # skipping pairs if none of them are in the given subset
-                    if isinstance(peer1, IpBlock) and isinstance(peer2, IpBlock):
-                        continue  # skipping pairs with ip-blocks for both src and dst
-                    if peer1 == peer2:
-                        # cannot restrict pod's connection to itself
-                        connections[ConnectionSet(True)].append((peer1, peer2))
-                    else:
-                        conns, _, _, _ = self.config.allowed_connections(peer1, peer2)
-                        if conns:
-                            connections[conns].append((peer1, peer2))
-                            # collect both peers, even if one of them is not in the subset
-                            peers.add(peer1)
-                            peers.add(peer2)
-            # if Istio is a layer in the network config - produce 2 maps, for TCP and for non-TCP
-            # because Istio policies can only capture TCP connectivity
-            if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
-                output_res, fw_rules_tcp, fw_rules_non_tcp = \
-                    self.get_connectivity_output_split_by_tcp(connections, peers, peers_to_compare)
-            else:
-                output_res, fw_rules = self.get_connectivity_output_full(connections, peers, peers_to_compare)
-            peers1_end = time.time()
-            print(f'Original loop: time: {(peers1_end - peers1_start):6.2f} seconds')
+                        peers.add(peer2)
+        # if Istio is a layer in the network config - produce 2 maps, for TCP and for non-TCP
+        # because Istio policies can only capture TCP connectivity
+        if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
+            output_res, fw_rules_tcp, fw_rules_non_tcp = \
+                self.get_connectivity_output_split_by_tcp(connections, peers, peers_to_compare)
+        else:
+            output_res, fw_rules = self.get_connectivity_output_full(connections, peers, peers_to_compare)
+        return output_res, fw_rules, fw_rules_tcp, fw_rules_non_tcp
+
+    def compute_connectivity_output_optimized(self):
+        """
+        Compute connectivity output with optimized implementation.
+        :return: a tuple of output result (in a required format), FwRules, tcp FWRules and non-tcp FWRules.
+        """
+        opt_fw_rules = None
+        opt_fw_rules_tcp = None
+        opt_fw_rules_non_tcp = None
+        exclude_ipv6 = self.output_config.excludeIPv6Range
+        opt_conns = self.config.allowed_connections_optimized()
+        all_conns_opt = opt_conns.all_allowed_conns
+        opt_peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
+        # add all relevant IpBlocks, used in connections
+        opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
+            all_conns_opt.project_on_one_dimension('dst_peers')
+        subset_peers = self.compute_subset(opt_peers_to_compare)
+        subset_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": subset_peers}) | \
+            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": subset_peers})
+        all_conns_opt &= subset_conns
+        all_conns_opt = self.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
+        if ExplTracker().is_active():
+            ExplTracker().set_connections_and_peers(all_conns_opt, subset_peers)
+        ip_blocks_mask = IpBlock.get_all_ips_block()
+        if exclude_ipv6:
+            ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6=True)
+            ref_ip_blocks = self.config.get_referenced_ip_blocks(exclude_ipv6)
+            for ip_block in ref_ip_blocks:
+                ip_blocks_mask |= ip_block
+            opt_peers_to_compare.filter_ipv6_blocks(ip_blocks_mask)
+        if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
+            output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
+                self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare, ip_blocks_mask)
+        else:
+            output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare,
+                                                                  ip_blocks_mask)
+        return output_res, opt_fw_rules, opt_fw_rules_tcp, opt_fw_rules_non_tcp
+
+    def exec(self):
+        self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
+        self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
+            self.config.name
+        res = QueryAnswer(True)
+        fw_rules = None
+        fw_rules_tcp = None
+        fw_rules_non_tcp = None
+        if self.config.optimized_run != 'true':
+            orig_start = time.time()
+            output_res, fw_rules, fw_rules_tcp, fw_rules_non_tcp = self.compute_connectivity_output_original()
+            orig_end = time.time()
+            print(f'Original loop: time: {(orig_end - orig_start):6.2f} seconds')
             if self.output_config.outputFormat in ['json', 'yaml']:
                 res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
             else:
                 res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
 
-        all_conns_opt = ConnectivityProperties.make_empty_props()
-        opt_start = time.time()
         if self.config.optimized_run != 'false':
-            opt_conns = self.config.allowed_connections_optimized()
-            all_conns_opt = opt_conns.all_allowed_conns
-        if all_conns_opt:
-            opt_peers_to_compare = self.config.peer_container.get_all_peers_group()
-            # add all relevant IpBlocks, used in connections
-            opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
-                all_conns_opt.project_on_one_dimension('dst_peers')
-
-            subset_peers = self.compute_subset(opt_peers_to_compare)
-            src_peers_conn_cube = ConnectivityCube.make_from_dict({"src_peers": subset_peers})
-            dst_peers_conn_cube = ConnectivityCube.make_from_dict({"dst_peers": subset_peers})
-            subset_conns = ConnectivityProperties.make_conn_props(src_peers_conn_cube) | \
-                ConnectivityProperties.make_conn_props(dst_peers_conn_cube)
-            all_conns_opt &= subset_conns
-            ExplTracker().set_connections_and_peers(all_conns_opt, subset_peers)
-            ip_blocks_mask = IpBlock.get_all_ips_block()
-            if exclude_ipv6:
-                ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6=True)
-                ref_ip_blocks = self.config.get_referenced_ip_blocks(exclude_ipv6)
-                for ip_block in ref_ip_blocks:
-                    ip_blocks_mask |= ip_block
-                opt_peers_to_compare.filter_ipv6_blocks(ip_blocks_mask)
-
-            if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
-                output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
-                    self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare, ip_blocks_mask)
-                opt_end = time.time()
-                print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
-                if self.config.optimized_run == 'debug':
-                    if fw_rules_tcp and fw_rules_tcp.fw_rules_map and \
-                            opt_fw_rules_tcp and opt_fw_rules_tcp.fw_rules_map:
-                        self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp)
-                    if fw_rules_non_tcp and fw_rules_non_tcp.fw_rules_map and \
-                            opt_fw_rules_non_tcp and opt_fw_rules_non_tcp.fw_rules_map:
-                        self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp)
-            else:
-                output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare,
-                                                                      ip_blocks_mask)
-                opt_end = time.time()
-                print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
-                if self.config.optimized_run == 'debug' and fw_rules and fw_rules.fw_rules_map and \
-                        opt_fw_rules and opt_fw_rules.fw_rules_map:
+            opt_start = time.time()
+            output_res, opt_fw_rules, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
+                self.compute_connectivity_output_optimized()
+            opt_end = time.time()
+            print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
+            if self.config.optimized_run == 'debug':
+                if fw_rules and fw_rules.fw_rules_map and opt_fw_rules and opt_fw_rules.fw_rules_map:
                     self.compare_fw_rules(fw_rules, opt_fw_rules)
-            if self.config.optimized_run == 'true':
+                if fw_rules_tcp and fw_rules_tcp.fw_rules_map and \
+                        opt_fw_rules_tcp and opt_fw_rules_tcp.fw_rules_map:
+                    self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp)
+                if fw_rules_non_tcp and fw_rules_non_tcp.fw_rules_map and \
+                        opt_fw_rules_non_tcp and opt_fw_rules_non_tcp.fw_rules_map:
+                    self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp)
+            else:  # self.config.optimized_run == 'true':
                 if self.output_config.outputFormat in ['json', 'yaml']:
                     res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
                 else:
@@ -797,8 +851,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         return res
 
     def compare_fw_rules(self, fw_rules1, fw_rules2):
-        conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, self.config.peer_container)
-        conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, self.config.peer_container)
+        conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1)
+        conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2)
         if conn_props1 == conn_props2:
             print("Original and optimized fw-rules are semantically equivalent")
         else:
@@ -839,7 +893,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         if self.output_config.outputFormat in ['dot', 'jpg', 'html']:
             dot_full = self.dot_format_from_props(props, peers_to_compare, ip_blocks_mask)
             return dot_full, None
-        # TODO - handle 'txt_no_fw_rules' output format
         if self.output_config.outputFormat == 'txt_no_fw_rules':
             conns_wo_fw_rules = self.txt_no_fw_rules_format_from_props(props, peers_to_compare, ip_blocks_mask)
             return conns_wo_fw_rules, None
@@ -911,7 +964,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # concatenate the two graphs into one dot file
             res_str = dot_tcp + dot_non_tcp
             return res_str, None, None
-        # TODO - handle 'txt_no_fw_rules' output format
         if self.output_config.outputFormat in ['txt_no_fw_rules']:
             txt_no_fw_rules_tcp = self.txt_no_fw_rules_format_from_props(props_tcp, peers_to_compare, ip_blocks_mask,
                                                                          connectivity_tcp_str)
@@ -986,7 +1038,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         for cube in props:
-            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), ip_blocks_mask)
+            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container,
+                                                ip_blocks_mask)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def txt_no_fw_rules_format_from_props(self, props, peers, ip_blocks_mask, connectivity_restriction=None):
@@ -1002,7 +1055,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         for cube in props:
-            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), ip_blocks_mask)
+            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container, ip_blocks_mask)
         return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
@@ -1071,7 +1124,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
 
         return tcp_conns, non_tcp_conns
 
-    def convert_props_to_split_by_tcp(self, props):
+    @staticmethod
+    def convert_props_to_split_by_tcp(props):
         """
         given the ConnectivityProperties properties set, convert it to two properties sets, one for TCP only, and the other
         for non-TCP only.
@@ -1080,8 +1134,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :rtype: tuple(ConnectivityProperties, ConnectivityProperties)
         """
         tcp_protocol = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-        conn_cube = ConnectivityCube.make_from_dict({"protocols": tcp_protocol})
-        tcp_props = props & ConnectivityProperties.make_conn_props(conn_cube)
+        tcp_props = props & ConnectivityProperties.make_conn_props_from_dict({"protocols": tcp_protocol})
         non_tcp_props = props - tcp_props
         return tcp_props, non_tcp_props
 
@@ -1313,7 +1366,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
 
     def get_conn_graph_changed_conns(self, key, ip_blocks, is_added):
         """
-        create a ConnectivityGraph for chnged (added/removed) connections per given key
+        create a ConnectivityGraph for changed (added/removed) connections per given key
         :param key: the key (category) of changed connections
         :param ip_blocks: a PeerSet of ip-blocks to be added for the topology peers
         :param is_added: a bool flag indicating if connections are added or removed

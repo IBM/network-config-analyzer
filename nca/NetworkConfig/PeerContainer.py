@@ -2,9 +2,9 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-
+import re
 from sys import stderr
-from nca.CoreDS.Peer import PeerSet, Pod, IpBlock
+from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, DNSEntry
 from nca.Resources.K8sNamespace import K8sNamespace
 from nca.Resources.K8sService import K8sService
 from nca.Parsers.GenericYamlParser import GenericYamlParser
@@ -204,6 +204,26 @@ class PeerContainer:
                 res |= service.target_pods
         return res
 
+    def get_dns_entry_peers_matching_host_name(self, host_name):
+        """
+        returns all DNSentry peers which are equal/contained in the host_name
+        :param str host_name: the host name as it appears in the policy's hosts list
+        :rtype: PeerSet
+        """
+        res = PeerSet()
+        # re.fullmatch behavior in accordance with live-cluster behaviour.
+        # only sidecar host should contain the service-entry host.
+        # the opposite containment direction is not considered for connections
+        # (detailed examples in:
+        # tests/istio_testcases/example_policies/bookinfo-demo/sidecar_examples/bookinfo-test-sidecar-connectivity-scheme.yaml)
+        # queries: - connectivity-sidecar-host-name-does-not-contain-service-entry-hosts
+        # - connectivity-sidecar-host-name-contains-service-entry-hosts
+        host_pattern = DNSEntry.compute_re_pattern_from_host_name(host_name)
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry) and (peer.name == host_name or re.fullmatch(host_pattern, peer.name)):
+                res.add(peer)
+        return res
+
     def get_pods_with_service_name_containing_given_string(self, name_substring):
         """
         Returns all pods that belong to services whose name contains the given substring
@@ -216,26 +236,36 @@ class PeerContainer:
                 res |= val.target_pods
         return res
 
-    def get_all_services_target_pods(self):
+    def get_all_services_target_peers(self):
         """
-        Returns all pods that belong to services
+        Returns all pods that belong to services and all DNSEntry peers (if exist) as this type of peers
+        is produced by ServiceEntry objects
         :rtype: PeerSet
         """
         res = PeerSet()
         for service in self.services.values():
             res |= service.target_pods
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry):
+                res.add(peer)
         return res
 
-    def get_services_target_pods_in_namespace(self, namespace):
+    def get_services_target_peers_in_namespace(self, namespace):
         """
-        Returns all pods that belong to services in the given namespace
-        :param K8sNamespace namespace:   namespace object
+        Returns all peers that belong to services in/ exported to the given namespace
+        (i.e. pods that belong to k8s services in the given namespace,
+        or DNSEntry peers)
+        currently assuming DNSEntry peers are exported to all namespaces
+        :param K8sNamespace namespace: namespace object
         :rtype: PeerSet
         """
         res = PeerSet()
         for service in self.services.values():
             if service.namespace == namespace:
                 res |= service.target_pods
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry):
+                res.add(peer)
         return res
 
     def get_pods_with_service_account_name(self, sa_name, namespace_str):
@@ -269,22 +299,29 @@ class PeerContainer:
                         res.add(peer)
         return res
 
-    def get_all_peers_group(self, add_external_ips=False, include_globals=True):
+    def get_all_peers_group(self, add_external_ips=False, include_globals=True, include_dns_entries=False):
         """
         Return all peers known in the system
         :param bool add_external_ips: Whether to also add the full range of ips
         :param bool include_globals: Whether to include global peers
+        :param bool include_dns_entries: Whether to include DNSEntry peers
         :return PeerSet: The required set of peers
         """
         res = PeerSet()
-        if include_globals:
-            res = self.peer_set.copy()
-        else:
-            for peer in self.peer_set:
-                if not peer.is_global_peer():
-                    res.add(peer)
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry) and not include_dns_entries:
+                continue
+            if include_globals or not peer.is_global_peer():
+                res.add(peer)
         if add_external_ips:
             res.add(IpBlock.get_all_ips_block())
+        return res
+
+    def get_all_dns_entries(self):
+        res = PeerSet()
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry):
+                res.add(peer)
         return res
 
     def get_all_global_peers(self):

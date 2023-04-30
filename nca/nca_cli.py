@@ -142,6 +142,9 @@ def run_args(args):
              the query result (if command-line queries are used)
     :rtype: int
     """
+    # reset the singleton before running a new shceme or cli query
+    # so that configs from certain run do not affect a potential following run.
+    BasePeerSet.reset()
     if args.scheme:
         return SchemeRunner(args.scheme, args.output_format, args.file_out, args.optimized_run).run_scheme()
     ns_list = args.ns_list
@@ -183,7 +186,7 @@ def run_args(args):
 
     if args.explain is not None:
         output_config['expl'] = args.explain.split(',')
-        ExplTracker().activate()
+        ExplTracker(output_config.outputEndpoints).activate()
 
     if args.output_format == 'html':
         output_config['expl'] = ['ALL']
@@ -256,7 +259,6 @@ def nca_main(argv=None):
     :rtype: int
     """
     os.environ['PATH'] = '.' + os.pathsep + os.environ.get('PATH', '.')  # for running kubectl and calicoctl
-    BasePeerSet.reset()  # to reset the singleton
 
     parser = argparse.ArgumentParser(description='An analyzer for network connectivity configuration')
     parser.add_argument('--period', type=int,

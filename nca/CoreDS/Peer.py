@@ -4,6 +4,7 @@
 #
 import copy
 import ipaddress
+import re
 from ipaddress import ip_network
 from sys import stderr
 from string import hexdigits
@@ -20,7 +21,6 @@ class Peer:
         self.namespace = namespace
         self.labels = {}  # Storing the endpoint's labels in a dict as key-value pairs
         self.extra_labels = {}  # for labels coming from 'labelsToApply' field in Profiles (Calico only)
-        self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
     def full_name(self):
         return self.namespace.name + '/' + self.name if self.namespace else self.name
@@ -470,6 +470,85 @@ class IpBlock(Peer, CanonicalIntervalSet):
         return cnt == len(self.interval_set)
 
 
+"""
+The following class DNSEntry; represents another type of external peer which is produced from istio ServiceEntry objects.
+Note: connectivity of DNSEntry peers is considered only for NetworkLayerName.Istio
+a DNSEntry peer is created from a single host in the serviceEntry object
+
+example: from this ServiceEntry yaml object:
+    `
+    apiVersion: networking.istio.io/v1alpha3
+    kind: ServiceEntry
+    metadata:
+        name: external-svc-first-test
+    spec:
+        hosts:
+            - www.slack.com
+            - www.google.com
+        location: MESH_EXTERNAL
+        ports:
+            - name: https-443
+              number: 443
+              protocol: HTTPS
+        resolution: NONE
+    `
+two DNSEntry peers will be created :
+1.DNSEntry(name=www.slack.com)
+2.DNSEntry(name=www.google.com)
+"""
+
+
+class DNSEntry(Peer):
+    """
+    represents DNS entries, produced by istio ServiceEntry objects.
+    A DNSEntry peer is created from single host in the service-entry hosts' list
+    """
+    # a dns entry pattern matches the following re-pattern
+    dns_pattern = r"(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?"
+
+    def __init__(self, name=None, namespace=None):
+        """
+        Constructs a DNSEntry from the host name provided
+        currently: each DNSEntry peer is exported to all namespaces
+        """
+        Peer.__init__(self, name, namespace)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if isinstance(other, type(self)):
+            return self.name == other.name
+        return False
+
+    def canonical_form(self):
+        if self.namespace is None:
+            return self.name
+        else:
+            return self.namespace.name + '_' + self.name
+
+    @staticmethod
+    def compute_re_pattern_from_host_name(host_name):
+        """
+        translates the host name (dns) to a pattern that may be used with re library methods
+         - "*" at the beginning of the host name will be replaced with an FQDN pattern
+         - the "." in the host name may not be replaced by any other character
+         :param str host_name: the host name
+         :return: the re-pattern of the host name
+         :rtype: str
+        """
+        if host_name.startswith('*'):
+            name_suffix = re.escape(host_name[1:])
+            return DNSEntry.dns_pattern + name_suffix
+        return re.escape(host_name)
+
+
 class PeerSet(set):
     """
     A container to hold a set of Peer objects
@@ -654,18 +733,9 @@ class BasePeerSet:
             :return: CanonicalIntervalSet for the peer_set
             """
             res = CanonicalIntervalSet()
-            covered_peers = peer_set.copy()  # for check that we covered all peers
-            for index, peer in enumerate(self.ordered_peer_list):
-                if peer in peer_set:
-                    covered_peers.add(peer)
-                    assert not isinstance(peer, IpBlock)
-                    res.add_interval(CanonicalIntervalSet.Interval(self.min_pod_index + index,
-                                                                   self.min_pod_index + index))
-            # Now pick IpBlocks
-            for ipb in peer_set:
-                if isinstance(ipb, IpBlock):
-                    covered_peers.add(ipb)
-                    for cidr in ipb:
+            for peer in peer_set:
+                if isinstance(peer, IpBlock):
+                    for cidr in peer:
                         if isinstance(cidr.start.address, ipaddress.IPv4Address):
                             res.add_interval(CanonicalIntervalSet.Interval(self.min_ipv4_index + int(cidr.start),
                                                                            self.min_ipv4_index + int(cidr.end)))
@@ -674,7 +744,11 @@ class BasePeerSet:
                                                                            self.min_ipv6_index + int(cidr.end)))
                         else:
                             assert False
-            assert covered_peers == peer_set
+                else:
+                    index = self.peer_to_index.get(peer)
+                    assert index is not None
+                    res.add_interval(CanonicalIntervalSet.Interval(self.min_pod_index + index,
+                                                                   self.min_pod_index + index))
             return res
 
         def get_peer_set_by_indices(self, peer_interval_set):
@@ -683,7 +757,7 @@ class BasePeerSet:
             :param peer_interval_set: the interval set of indices
             :return: the PeerSet of peers referenced by the indices in the interval set
             """
-            peer_list = []
+            peer_set = PeerSet()
             for interval in peer_interval_set:
                 if interval.end <= self.max_ipv4_index:
                     # this is IPv4Address
@@ -691,22 +765,22 @@ class BasePeerSet:
                     end = ipaddress.IPv4Address(interval.end - self.min_ipv4_index)
                     ipb = IpBlock(
                         interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
-                    peer_list.append(ipb)
+                    peer_set.add(ipb)
                 elif interval.end <= self.max_ipv6_index:
                     # this is IPv6Address
                     start = ipaddress.IPv6Address(interval.start - self.min_ipv6_index)
                     end = ipaddress.IPv6Address(interval.end - self.min_ipv6_index)
                     ipb = IpBlock(
                         interval=CanonicalIntervalSet.Interval(IPNetworkAddress(start), IPNetworkAddress(end)))
-                    peer_list.append(ipb)
+                    peer_set.add(ipb)
                 else:
                     # this is Pod
                     assert interval.end <= self.max_pod_index
                     curr_pods_max_ind = len(self.ordered_peer_list) - 1
                     for ind in range(min(interval.start - self.min_pod_index, curr_pods_max_ind),
                                      min(interval.end - self.min_pod_index, curr_pods_max_ind) + 1):
-                        peer_list.append(self.ordered_peer_list[ind])
-            return PeerSet(set(peer_list))
+                        peer_set.add(self.ordered_peer_list[ind])
+            return peer_set
 
     instance = None
 

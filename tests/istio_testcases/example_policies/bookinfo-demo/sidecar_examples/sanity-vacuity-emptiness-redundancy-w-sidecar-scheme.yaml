@@ -1,0 +1,37 @@
+
+networkConfigList:
+  - name: mixed-sidecar
+    resourceList:
+      - bookinfo-topology
+      - service_entry_resources/bookinfo-service-entry-1.yaml
+      - sidecar-w-internal-external-services.yaml
+
+  - name: sidecar-with-internal-pods
+    resourceList:
+      - bookinfo-topology
+      - sidecar-w-pods-only.yaml
+
+queries:
+  - name: sanity-sidecars
+    sanity:
+      - sidecar-with-internal-pods
+      - mixed-sidecar
+    expected: 0  # expecting both sidecars to pass sanity check
+
+  - name: vacuity-sidecars
+    vacuity:
+      - sidecar-with-internal-pods
+      - mixed-sidecar
+    expected: 0  # expecting both are not vacuous
+
+  - name: emptiness-sidecars
+    emptiness:
+      - sidecar-with-internal-pods
+      - mixed-sidecar
+    expected: 0  # expecting both are not empty
+
+  - name: redundancy-sidecars
+    redundancy:
+      - sidecar-with-internal-pods
+      - mixed-sidecar
+    expected: 0  # expecting both sidecars are not redundant

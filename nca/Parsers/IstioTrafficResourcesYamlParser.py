@@ -8,7 +8,8 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties, ConnectivityCube
+from nca.CoreDS.ConnectivityCube import ConnectivityCube
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -397,9 +398,9 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 if allowed_conns:
                     res_policy.add_rules(self._make_allow_rules(allowed_conns))
                     protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-                    conn_cube = ConnectivityCube.make_from_dict({"protocols": protocols,
-                                                                 "src_peers": res_policy.selected_peers})
-                    allowed_conns &= ConnectivityProperties.make_conn_props(conn_cube)
+                    allowed_conns &= \
+                        ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols,
+                                                                          "src_peers": res_policy.selected_peers})
                     res_policy.add_optimized_allow_props(allowed_conns, False)
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)

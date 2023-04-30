@@ -13,7 +13,7 @@ jobs:
     outputs:
       changed_tests: ${{ steps.changes.outputs.changed_tests}}
     steps:
-      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-nca-env
@@ -28,21 +28,21 @@ jobs:
     needs: changed-tests
     if: ${{needs.changed-tests.outputs.changed_tests}}
     steps:
-      - uses: actions/checkout@8f4b7f84864484a7bf31766abe9204da3cbe65b3
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
       - uses: ./.github/actions/setup-nca-env
-      - uses: dawidd6/action-download-artifact@5e780fc7bbd0cac69fc73271ed86edf5dcb72d67
+      - uses: dawidd6/action-download-artifact@7132ab516fba5f602fafae6fdd4822afa10db76f
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
           name: k8s-log
           path: tests/
-      - uses: dawidd6/action-download-artifact@5e780fc7bbd0cac69fc73271ed86edf5dcb72d67
+      - uses: dawidd6/action-download-artifact@7132ab516fba5f602fafae6fdd4822afa10db76f
         with:
           workflow: test-push.yml
           workflow_conclusion: completed
           name: calico-log
           path: tests/
-      - uses: dawidd6/action-download-artifact@5e780fc7bbd0cac69fc73271ed86edf5dcb72d67
+      - uses: dawidd6/action-download-artifact@7132ab516fba5f602fafae6fdd4822afa10db76f
         with:
           workflow: test-push.yml
           workflow_conclusion: completed

@@ -9,10 +9,10 @@ spec:
   egress:
   - hosts:
     #- "istio-system/*" - istio-system namespace is not configured in this example
-    - "./adservice.onlineboutique.svc.cluster.local"
-    - "./cartservice.onlineboutique.svc.cluster.local"
-    - "./checkoutservice.onlineboutique.svc.cluster.local"
-    - "./currencyservice.onlineboutique.svc.cluster.local"
-    - "./productcatalogservice.onlineboutique.svc.cluster.local"
-    - "./recommendationservice.onlineboutique.svc.cluster.local"
-    - "./shippingservice.onlineboutique.svc.cluster.local"
+    - "./adservice.default.svc.cluster.local"
+    - "./cartservice.default.svc.cluster.local"
+    - "./checkoutservice.default.svc.cluster.local"
+    - "./currencyservice.default.svc.cluster.local"
+    - "./productcatalogservice.default.svc.cluster.local"
+    - "./recommendationservice.default.svc.cluster.local"
+    - "./shippingservice.default.svc.cluster.local"

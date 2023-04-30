@@ -342,7 +342,7 @@ class OptimizedPolicyConnections:
     """
     def __init__(self):
         self.captured = PeerSet()
-        self.allowed_conns = ConnectivityProperties().make_empty_props()
-        self.denied_conns = ConnectivityProperties().make_empty_props()
-        self.pass_conns = ConnectivityProperties().make_empty_props()
-        self.all_allowed_conns = ConnectivityProperties().make_empty_props()
+        self.allowed_conns = ConnectivityProperties()
+        self.denied_conns = ConnectivityProperties()
+        self.pass_conns = ConnectivityProperties()
+        self.all_allowed_conns = ConnectivityProperties()
