@@ -190,6 +190,10 @@ def run_args(args):  # noqa: C901
         ExplTracker().activate()
         ExplTracker().set_endpoints(output_config.outputEndpoints)
 
+    if args.output_format == 'html':
+        output_config['expl'] = ['ALL']
+        ExplTracker().activate()
+
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
         query_name = 'twoWayContainment'
@@ -322,7 +326,7 @@ def nca_main(argv=None):
                         help='A list of labels to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
-                        help='Output format specification (txt, txt_no_fw_rules, csv, md, dot, jpg or yaml). '
+                        help='Output format specification (txt, txt_no_fw_rules, csv, md, dot, jpg, html or yaml). '
                              'The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--expected_output', type=str, help='A file path of the expected query output,'

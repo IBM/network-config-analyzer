@@ -107,6 +107,7 @@ class ExplTracker(metaclass=Singleton):
         self.all_conns = None
         self.all_peers = None
         self.ep = ''
+        self.explain_all_results = ''
 
         self.add_item('', 0, self.DEFAULT_POLICY)
 
@@ -405,7 +406,9 @@ class ExplTracker(metaclass=Singleton):
                 text_elem.string = text
                 entry.append(text_elem)
                 soup.append(entry)
-        return soup.prettify()
+
+        self.explain_all_results = soup.prettify()
+        return self.explain_all_results
 
     def get_working_ep_name(self, name):
         """
