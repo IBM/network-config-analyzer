@@ -253,7 +253,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         """
         returns list of all the sidecars that were parsed from the input resources, after refining the final
         selected peers of each.
-        Since that when determining the Sidecar configuration to be applied to a workload instance, preference will be given to
+        Since when determining the Sidecar configuration to be applied to a workload instance, preference will be given to
         the resource with a workloadSelector that selects this workload instance, over a Sidecar configuration
         without any workloadSelector, the refining will go as following:
         - peers that appear in specific sidecars will be taken as is (they were refined during parsing)
