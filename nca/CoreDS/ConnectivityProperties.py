@@ -347,7 +347,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :return: the projection on the given dimension, having that dimension type.
          or None if the given dimension is not active
         """
-        assert dim_name not in ["icmp_type", "icmp_code"] # not supporting icmp dimensions
+        assert dim_name not in ["icmp_type", "icmp_code"]  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
             return None
         if dim_name == "src_peers" or dim_name == "dst_peers":
