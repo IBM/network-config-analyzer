@@ -437,6 +437,11 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     @staticmethod
     def get_all_conns_props_per_config_peers(peer_container):
+        """
+        Return all possible between-peers connections.
+        This is a compact way to represent all peers connections, but it is an over-approximation also containing
+        IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
+        """
         all_peers_and_ips_and_dns = peer_container.get_all_peers_group(True, True, True)
         return ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips_and_dns,
                                                                  "dst_peers": all_peers_and_ips_and_dns})

@@ -354,7 +354,9 @@ class IstioNetworkLayer(NetworkLayer):
         all_peers_and_ips = peer_container.get_all_peers_group(True)
         all_peers_no_ips = peer_container.get_all_peers_group()
         dns_entries = peer_container.get_all_dns_entries()
-        # for istio initialize non-captured conns with non-TCP connections
+        # for istio initialize non-captured conns with all possible non-TCP connections
+        # This is a compact way to represent all peers connections, but it is an over-approximation also containing
+        # IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
         all_all_conns = \
             ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                               "dst_peers": all_peers_and_ips,
