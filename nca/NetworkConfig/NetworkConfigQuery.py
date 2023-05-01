@@ -106,7 +106,8 @@ class BaseNetworkQuery:
 
     # this def contains conditions that should be checked every time before computing
     # allowed connections of two peers, so added it here to avoid duplications in the queries code
-    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
+    @staticmethod
+    def determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
         """
         determines if to continue to compute allowed connections for the given
         pair of peers based on their types
@@ -157,9 +158,6 @@ class NetworkConfigQuery(BaseNetworkQuery):
     @abstractmethod
     def exec(self):
         raise NotImplementedError
-
-    def configs_contain_istio_layer(self):
-        return self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio)
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -445,6 +443,8 @@ class SanityQuery(NetworkConfigQuery):
             if not other_policy.has_deny_rules():
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
+            # calling get_all_peers_group does not require getting dnsEntry peers, since they are not relevant when computing
+            # deny connections
             pods_to_compare = self.config.peer_container.get_all_peers_group()
             pods_to_compare |= TwoNetworkConfigsQuery(self.config,
                                                       config_with_other_policy).disjoint_referenced_ip_blocks()
@@ -960,10 +960,6 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
     @abstractmethod
     def exec(self, cmd_line_flag):
         raise NotImplementedError
-
-    def configs_contain_istio_layer(self):
-        return self.config1.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) or \
-               self.config2.policies_container.layers.does_contain_layer(NetworkLayerName.Istio)
 
 
 class EquivalenceQuery(TwoNetworkConfigsQuery):
@@ -1660,6 +1656,7 @@ class AllCapturedQuery(NetworkConfigQuery):
                  - set of the uncaptured pods
         :rtype: (int,set[str])
         """
+        # get_all_peers_group() does not require getting dnsEntry peers, since they are not ClusterEP (pods)
         existing_pods = self.config.peer_container.get_all_peers_group()
         uncaptured_xgress_pods = existing_pods - self.config.get_affected_pods(is_ingress, layer_name)
         if not uncaptured_xgress_pods:
@@ -1700,6 +1697,7 @@ class AllCapturedQuery(NetworkConfigQuery):
 
     def exec(self):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
+        # get_all_peers_group() does not require getting dnsEntry peers, since they are not ClusterEP (pods)
         existing_pods = self.config.peer_container.get_all_peers_group()
         if not self.config:
             return QueryAnswer(bool_result=False,
