@@ -284,8 +284,10 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             else:
                 all_hosts_dfa = DimensionsManager().get_dimension_domain_by_name('hosts')
         # every host not captured by the ingress rules goes to the default backend
-        hosts_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('hosts') - all_hosts_dfa
-        default_conns = self._make_default_connections(hosts_remainder_dfa)
+        default_conns = None
+        if self.default_backend_peers:
+            hosts_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('hosts') - all_hosts_dfa
+            default_conns = self._make_default_connections(hosts_remainder_dfa)
         if allowed_conns and default_conns:
             allowed_conns |= default_conns
         elif default_conns:
