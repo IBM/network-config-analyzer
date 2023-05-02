@@ -542,15 +542,16 @@ class ConnectionSet:
 
         return 'No diff.'
 
-    def convert_to_connectivity_properties(self):
+    def convert_to_connectivity_properties(self, peer_container):
         """
         Convert the current ConnectionSet to ConnectivityProperties format.
         This function is used for comparing fw-rules output between original and optimized implementation,
         when optimized_run == 'debug'
+        :param PeerContainer peer_container: the peer container
         :return: the connection set in ConnectivityProperties format
         """
         if self.allow_all:
-            return ConnectivityProperties.make_all_props()
+            return ConnectivityProperties.get_all_conns_props_per_config_peers(peer_container)
 
         res = ConnectivityProperties.make_empty_props()
         for protocol, properties in self.allowed_protocols.items():
@@ -595,14 +596,14 @@ class ConnectionSet:
             conns = ConnectionSet(True)
         else:
             conns = ConnectionSet()
-            assert protocols
             protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols)
             for protocol in protocol_names:
                 if conn_cube.has_active_dim():
                     conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
                 else:
                     if ConnectionSet.protocol_supports_ports(protocol) or ConnectionSet.protocol_is_icmp(protocol):
-                        conns.add_connections(protocol, ConnectivityProperties.make_all_props())
+                        conns.add_connections(protocol,
+                                              ConnectivityProperties.get_all_conns_props_per_config_peers(peer_container))
                     else:
                         conns.add_connections(protocol, True)
         return conns, src_peers, dst_peers
@@ -674,18 +675,19 @@ class ConnectionSet:
         return res
 
     @staticmethod
-    def fw_rules_to_conn_props(fw_rules):
+    def fw_rules_to_conn_props(fw_rules, peer_container):
         """
         Converting FWRules to ConnectivityProperties format.
         This function is used for comparing FWRules output between original and optimized solutions,
         when optimized_run == 'debug'
-        :param list[FWRule] fw_rules: the given FWRules.
+        :param MinimizeFWRules fw_rules: the given FWRules.
+        :param PeerContainer peer_container: the peer container
         :return: the resulting ConnectivityProperties.
         """
         res = ConnectivityProperties.make_empty_props()
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:
-                conn_props = fw_rule.conn.convert_to_connectivity_properties()
+                conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)
                 src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
                 dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
                 rule_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers,

@@ -504,7 +504,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         condition_array = rule.get('when')  # this array can be empty (unlike 'to' and 'from')
         # the combined condition ("AND" of all conditions) should be applied
         condition_conns = ConnectionSet(True)
-        condition_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
+        condition_props = ConnectivityProperties.make_all_props()
         if condition_array is not None:
             for condition in condition_array:
                 condition_res = self.parse_condition(condition)

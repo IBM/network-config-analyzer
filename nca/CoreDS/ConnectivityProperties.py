@@ -188,8 +188,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, ConnectivityProperties):
-            assert ("src_peers" in self.active_dimensions) == ("src_peers" in other.active_dimensions)
-            assert ("dst_peers" in self.active_dimensions) == ("dst_peers" in other.active_dimensions)
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
@@ -246,8 +244,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         assert not self.has_named_ports()
         assert not other.has_named_ports()
-        assert ("src_peers" in self.active_dimensions) == ("src_peers" in other.active_dimensions)
-        assert ("dst_peers" in self.active_dimensions) == ("dst_peers" in other.active_dimensions)
         return super().contained_in(other)
 
     def has_named_ports(self):

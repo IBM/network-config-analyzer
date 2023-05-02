@@ -858,8 +858,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         return res
 
     def compare_fw_rules(self, fw_rules1, fw_rules2):
-        conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1)
-        conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2)
+        conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, self.config.peer_container)
+        conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, self.config.peer_container)
         if conn_props1 == conn_props2:
             print("Original and optimized fw-rules are semantically equivalent")
         else:
