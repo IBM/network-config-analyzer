@@ -785,7 +785,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         """
         Compute connectivity output with optimized implementation.
         :return: a tuple of output result (in a required format), FwRules, tcp FWRules and non-tcp FWRules.
-        :rtype: ([Union[str, dict], MinimizeFWRules, MinimizeFWRules], MinimizeFWRules)
+        :rtype: ([Union[str, dict], MinimizeFWRules, MinimizeFWRules, MinimizeFWRules)
         """
         opt_fw_rules = None
         opt_fw_rules_tcp = None
