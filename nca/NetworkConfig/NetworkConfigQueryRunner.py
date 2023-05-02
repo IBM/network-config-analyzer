@@ -57,7 +57,7 @@ class QueryResult:
         else:
             output = '\n'.join(self.query_iterations_output)
         expl_out = ''
-        if ExplTracker().is_active():
+        if ExplTracker().is_active() and not expl_nodes[0] == 'ALL':
             expl_out = ExplTracker().explain(expl_nodes)
         return self.numerical_result, output+expl_out, self.num_not_executed
 
