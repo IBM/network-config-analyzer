@@ -496,7 +496,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             connections.add_connections('TCP', conn_props)
         else:  # no 'to' in the rule => all connections allowed
             connections = ConnectionSet(True)
-            conn_props = ConnectivityProperties.make_all_props()
+            conn_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
 
         # condition possible result value:
         #         source-ip (from) , source-namespace (from) [Peerset], destination.port (to) [ConnectivityProperties]
@@ -504,7 +504,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         condition_array = rule.get('when')  # this array can be empty (unlike 'to' and 'from')
         # the combined condition ("AND" of all conditions) should be applied
         condition_conns = ConnectionSet(True)
-        condition_props = ConnectivityProperties.make_all_props()
+        condition_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
         if condition_array is not None:
             for condition in condition_array:
                 condition_res = self.parse_condition(condition)
