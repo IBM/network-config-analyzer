@@ -59,13 +59,13 @@ class InteractiveConnectivityGraph:
         highlights: set = field(default_factory=set)
         explanation: list = field(default_factory=set)
 
-    def __init__(self, svg_file_name, output_directory):
+    def __init__(self, svg_file_name, output_directory, expl_xml=None):
         """
         Creates the InteractiveConnectivityGraph
         param: svg_file_name: str
         param: output_directory: str
         """
-        self.svg_graph = self.SvgGraph(svg_file_name, output_directory)
+        self.svg_graph = self.SvgGraph(svg_file_name, output_directory, expl_xml)
         self.abstract_graph = self.AbstractGraph()
 
     def create_interactive_graph(self):
@@ -86,7 +86,7 @@ class InteractiveConnectivityGraph:
         # (5b) from the abstract graph, for each element, set the explanation of its connectivity graph:
         self.abstract_graph.set_tags_explanation(elements_relations)
         # (6) for each element, create an svg file containing these related elements:
-        self.svg_graph.create_output(elements_relations)
+        self.svg_graph.create_html()
 
     class SvgGraph:
         """
@@ -111,7 +111,7 @@ class InteractiveConnectivityGraph:
 
         ELEMENTS_DIRECTORY = 'elements'
 
-        def __init__(self, input_svg_file, output_directory):
+        def __init__(self, input_svg_file, output_directory, expl_xml=None):
             """
             Creates the InteractiveConnectivityGraph
             param: svg_file_name: str
@@ -120,6 +120,7 @@ class InteractiveConnectivityGraph:
             self.input_svg_file = input_svg_file
             self.output_directory = output_directory
             self.soup = None
+            self.expl_xml = expl_xml
 
         def read_input_file(self):
             """
@@ -289,6 +290,56 @@ class InteractiveConnectivityGraph:
             for holder, line in zip(place_holders, explanation + ['']*(len(place_holders) - len(explanation))):
                 holder.string = line
 
+        def create_html(self):
+            # make a node element for each table entry
+            node_elements = self.soup.find_all(class_='node')
+            for node in node_elements:
+                # Find all text elements within the current node
+                text_elements = node.find_all('text')
+                # Check if the current node has more than one text element
+                if len(text_elements) > 1:
+                    namespace = node.find('title').string
+                    namespace = namespace.split('/')[0]
+                    # group each text element with the polygon before it
+                    for text in text_elements:
+                        # Find the previous polygon element
+                        polygon = text.find_previous('polygon')
+                        text['fill'] = 'blue'
+                        # Create a new 'g' element
+                        full_name = namespace + '/' + text.string
+                        group = self.soup.new_tag('g', attrs={'class': 'node', 'title': full_name})
+                        # Move the polygon and text elements inside the new 'g' element
+                        polygon.insert_before(group)
+                        group.append(polygon.extract())
+                        group.append(text.extract())
+                    del node['class']
+
+            xml_soup_str = str(self.soup)
+            lxml_soup = BeautifulSoup(xml_soup_str, 'lxml')
+
+            # add the expl' xml block to the svg graph
+            svg_root = lxml_soup.find('svg')
+            script = lxml_soup.new_tag('script')
+            script['type'] = "text/xml"  # You can use a custom MIME type if needed
+            # prepare the expl' buffer for js:
+            self.expl_xml = '\n'.join(self.expl_xml.splitlines()[1:])
+
+            # cdata_section = etree.CDATA(self.expl_xml)
+            cdata_section = f'<![CDATA[<data>{self.expl_xml}</data>]]>'
+            script.append(cdata_section)
+            svg_root.append(script)
+
+            # add js code
+            html_soup = BeautifulSoup(self.HTML_TEMPLATE, 'html.parser')
+            graph_container = html_soup.find(id='graph-container')
+            graph_container.insert(0, BeautifulSoup(str(lxml_soup), 'html.parser'))
+
+            # write to file
+            tag_file_name = self.output_directory
+            with open(tag_file_name, 'wb') as tag_svg_file:
+                tag_svg_file.write(html_soup.prettify(encoding='utf-8'))
+            return
+
         def create_output(self, elements_relations):
             """
             Creates the set of svg files as an interactive graph
@@ -326,6 +377,109 @@ class InteractiveConnectivityGraph:
                     if related_tag_info.t_id in elements_relations[tag_info.t_id].highlights:
                         self._highlight_tag(related_tag, related_tag_info.t_class)
                 self._save_tag_file(tag_soup, tag_info)
+
+        HTML_TEMPLATE = '''
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="ncegraph" content="width=device-width, initial-scale=1.0">
+            <title>NCA Graph</title>
+            <style>
+              /* .hidden {
+                display: none;
+              } */
+              .node.highlight {
+              background-color: yellow; /* Set desired background color for highlighting */
+              border: 2px solid red; /* Set desired border style for highlighting */
+              /* Add any other styles you want for highlighting */
+              }
+              .visible {
+                display: block;
+              }
+              .node.selected {
+                fill: yellow;
+              }
+              button {
+                margin: 10px;
+                padding: 5px;
+              }
+              #selectionBox {
+                width: 1400px;
+                height: 300px;
+                border: 1px solid black;
+                margin: 10px;
+                padding: 5px;
+              }
+            </style>
+        </head>
+        <body>
+            <div id="graph-container"></div>
+            <pre id="selectionBox">Please select the SOURCE node</pre>
+        <script>
+            var selectableElems = document.querySelectorAll('.node');
+            var selectedElems = [];
+            var resetBtn = document.getElementById('resetBtn');
+            var selectionBox = document.getElementById('selectionBox');
+          
+            const xmlData = document.querySelector('script[type="text/xml"]').textContent;
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
+          
+            for (var i = 0; i < selectableElems.length; i++) {
+              selectableElems[i].addEventListener('click', function(event) {
+                const selectedElement = event.target;
+                const parentElement = selectedElement.parentNode;
+                const polygonElement = parentElement.querySelector('polygon');
+                clickFlag = true;
+                elm = this
+                setTimeout(function() {
+                  // If clickFlag is still true after the timer, trigger single-click action
+                  if (clickFlag) {
+                    console.log('Single-click'); // Replace with your single-click action
+        
+                    if (elm.classList.contains('selected')) {
+                      // If the clicked element is already selected, deselect it
+                      elm.classList.remove('selected');
+                      polygonElement.setAttribute('fill', 'none');
+                      selectedElems.splice(selectedElems.indexOf(elm), 1);
+                    } else if (selectedElems.length < 2) {
+                      // If less than 2 elements are selected, select the clicked element
+                      elm.classList.add('selected');
+                      polygonElement.setAttribute('fill', 'yellow');
+                      selectedElems.push(elm);
+                    } 
+                    // Update the selection box with the names of the selected circles
+                    if (selectedElems.length == 0) {
+                      selectionBox.innerHTML = 'Please select the SOURCE node';
+                    } else if (selectedElems.length == 1) {
+                      selectionBox.innerHTML = 'Please select the DESTINATION node';
+                    }  else {
+                      const src = selectedElems[0].getAttribute('title');
+                      const dst = selectedElems[1].getAttribute('title');
+                      const entry = xmlDoc.querySelector(`entry[src="${src}"][dst="${dst}"]`);
+                      if (entry) {
+                        const expl_text = entry.textContent;
+                        selectionBox.innerHTML = expl_text; 
+                      }
+                    }
+                  }
+                  clickFlag = false; // Reset clickFlag
+                }, 250); // Set timer duration to be slightly greater than typical double-click time
+              });
+              selectableElems[i].addEventListener("dblclick", function(event) {
+                clickFlag = false; // Reset clickFlag
+                // Add highlight class to double-clicked element
+                this.style.strokeWidth = '2px';
+                this.classList.add("highlight");
+              });
+        
+             };
+          
+            </script>
+        </body>
+        </html>
+        '''
 
     class AbstractGraph:
         """

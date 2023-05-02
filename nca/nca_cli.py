@@ -192,7 +192,7 @@ def run_args(args):  # noqa: C901
 
     if args.output_format == 'html':
         output_config['expl'] = ['ALL']
-        ExplTracker().activate()
+        ExplTracker(output_config.outputEndpoints).activate()
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
