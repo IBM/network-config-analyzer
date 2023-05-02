@@ -295,7 +295,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         :rtype: ConnectivityProperties
         """
-        res = ConnectivityProperties._make_conn_props_no_named_ports_resolution(ConnectivityCube())
+        res = ConnectivityProperties()
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
@@ -366,7 +366,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         return res
 
     @staticmethod
-    def resolve_named_ports(named_ports, peer, protocols):
+    def _resolve_named_ports(named_ports, peer, protocols):
         peer_named_ports = peer.get_named_ports()
         real_ports = PortSet()
         for named_port in named_ports:
@@ -420,11 +420,11 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         protocols = conn_cube["protocols"]
         assert dst_peers
         for peer in dst_peers:
-            real_ports = ConnectivityProperties.resolve_named_ports(dst_ports.named_ports, peer, protocols)
+            real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols)
             if real_ports:
                 conn_cube.update({"dst_ports": real_ports, "dst_peers": PeerSet({peer})})
                 conn_properties |= ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
-            excluded_real_ports = ConnectivityProperties.resolve_named_ports(dst_ports.excluded_named_ports, peer, protocols)
+            excluded_real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.excluded_named_ports, peer, protocols)
             if excluded_real_ports:
                 conn_cube.update({"dst_ports": excluded_real_ports, "dst_peers": PeerSet({peer})})
                 conn_properties -= ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
