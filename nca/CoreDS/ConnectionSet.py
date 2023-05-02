@@ -581,15 +581,12 @@ class ConnectionSet:
     #  get rid of ConnectionSet and move the code below to ConnectivityProperties.py
 
     @staticmethod
-    def get_connection_set_and_peers_from_cube(conn_cube, peer_container, ip_blocks_mask,
+    def get_connection_set_and_peers_from_cube(conn_cube, peer_container,
                                                relevant_protocols=ProtocolSet(True)):
         src_peers = conn_cube["src_peers"] or peer_container.get_all_peers_group(True)
         conn_cube.unset_dim("src_peers")
         dst_peers = conn_cube["dst_peers"] or peer_container.get_all_peers_group(True)
         conn_cube.unset_dim("dst_peers")
-        if IpBlock.get_all_ips_block() != ip_blocks_mask:
-            src_peers.filter_ipv6_blocks(ip_blocks_mask)
-            dst_peers.filter_ipv6_blocks(ip_blocks_mask)
         protocols = conn_cube["protocols"]
         conn_cube.unset_dim("protocols")
         if not conn_cube.has_active_dim() and (protocols.is_whole_range() or protocols == relevant_protocols):
@@ -609,14 +606,13 @@ class ConnectionSet:
         return conns, src_peers, dst_peers
 
     @staticmethod
-    def conn_props_to_fw_rules(conn_props, cluster_info, peer_container, ip_blocks_mask,
+    def conn_props_to_fw_rules(conn_props, cluster_info, peer_container,
                                connectivity_restriction):
         """
         Build FWRules from the given ConnectivityProperties
         :param ConnectivityProperties conn_props: properties describing allowed connections
         :param ClusterInfo cluster_info: the cluster info
         :param PeerContainer peer_container: the peer container
-        :param IpBlock ip_blocks_mask: IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
@@ -633,8 +629,7 @@ class ConnectionSet:
         for cube in conn_props:
             conn_cube = conn_props.get_connectivity_cube(cube)
             conns, src_peers, dst_peers = \
-                ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container, ip_blocks_mask,
-                                                                     relevant_protocols)
+                ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container, relevant_protocols)
             # create FWRules for src_peers and dst_peers
             fw_rules_map[conns] += ConnectionSet.create_fw_rules_list_from_conns(conns, src_peers, dst_peers,
                                                                                  cluster_info)

@@ -52,15 +52,14 @@ class ConnectivityGraph:
         """
         self.connections_to_peers.update(connections)
 
-    def add_edges_from_cube_dict(self, conn_cube, peer_container, ip_blocks_mask):
+    def add_edges_from_cube_dict(self, conn_cube, peer_container):
         """
         Add edges to the graph according to the give cube
         :param ConnectivityCube conn_cube: the given cube
-        :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
          whereas all other values should be filtered out in the output
         """
         conns, src_peers, dst_peers = \
-            ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container, ip_blocks_mask)
+            ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container)
         for src_peer in src_peers:
             for dst_peer in dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))
