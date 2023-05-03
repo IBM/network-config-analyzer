@@ -104,6 +104,23 @@ class BaseNetworkQuery:
     def get_configs(self):
         raise NotImplementedError
 
+    # this def contains conditions that should be checked every time before computing
+    # allowed connections of two peers, so added it here to avoid duplications in the queries code
+    @staticmethod
+    def determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+        """
+        determines if to continue to compute allowed connections for the given
+        pair of peers based on their types
+        :param Peer peer1: the src peer
+        :param Peer peer2: the dst peer
+        :rtype: bool
+        """
+        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
+            return False
+        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
+            return False  # connectivity between external peers is not relevant either
+        return True
+
 
 class NetworkConfigQuery(BaseNetworkQuery):
     """
@@ -141,25 +158,6 @@ class NetworkConfigQuery(BaseNetworkQuery):
     @abstractmethod
     def exec(self):
         raise NotImplementedError
-
-    # this def contains conditions that should be checked every time before computing
-    # allowed connections of two peers, so added it here to avoid duplications in the queries code
-    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
-        """
-        determines if to continue to compute allowed connections for the given
-        pair of peers based on their types
-        :param Peer peer1: the src peer
-        :param Peer peer2: the dst peer
-        :rtype: bool
-        """
-        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
-            return False
-        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
-            return False  # connectivity between external peers is not relevant either
-        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) \
-                and isinstance(peer2, DNSEntry):
-            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
-        return True
 
 
 class DisjointnessQuery(NetworkConfigQuery):
@@ -445,6 +443,8 @@ class SanityQuery(NetworkConfigQuery):
             if not other_policy.has_deny_rules():
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
+            # calling get_all_peers_group does not require getting dnsEntry peers, since they are not relevant when computing
+            # deny connections
             pods_to_compare = self.config.peer_container.get_all_peers_group()
             pods_to_compare |= TwoNetworkConfigsQuery(self.config,
                                                       config_with_other_policy).disjoint_referenced_ip_blocks()
@@ -693,6 +693,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         self.output_config.configName = os.path.basename(self.config.name) if self.config.name.startswith('./') else \
             self.config.name
+        # if dns entry peers exist but no istio policies are configured,
+        # then actually istio layer exists implicitly, connections to these peers will be considered with the
+        # default Istio outbound traffic mode - allow any
         peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
 
         exclude_ipv6 = self.output_config.excludeIPv6Range
@@ -974,13 +977,16 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
             query_answer.numerical_result = not query_answer.bool_result
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
+        peers_to_compare = \
+            self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods(layer_name) | self.config2.get_captured_pods(layer_name)
         different_conns_list = []
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
+                    continue
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
                     continue
                 conns1, _, _, _ = self.config1.allowed_connections(peer1, peer2, layer_name)
                 conns2, _, _, _ = self.config2.allowed_connections(peer1, peer2, layer_name)
@@ -1114,8 +1120,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         :param is_added: a bool flag indicating if connections are added or removed
         :return: a ConnectivityGraph object
         """
-        old_peers = self.config1.peer_container.get_all_peers_group()
-        new_peers = self.config2.peer_container.get_all_peers_group()
+        old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         allowed_labels = (self.config1.get_allowed_labels()).union(self.config2.get_allowed_labels())
         topology_peers = new_peers | ip_blocks if is_added else old_peers | ip_blocks
         # following query_name update is for adding query line descriptions for csv and md formats
@@ -1152,8 +1158,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         explanation (list): list of diff explanations - one for each category
         :rtype: int, list[ComputedExplanation]
         """
-        old_peers = self.config1.peer_container.get_all_peers_group()
-        new_peers = self.config2.peer_container.get_all_peers_group()
+        old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         intersected_peers = old_peers & new_peers
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
@@ -1176,6 +1182,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
         conn_graph_added_per_key[key] = None
         for pair in itertools.permutations(removed_peers, 2):
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                continue
             lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
@@ -1186,10 +1194,14 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, old_ip_blocks, False)
         conn_graph_added_per_key[key] = None
         for pair in itertools.product(removed_peers, old_ip_blocks):
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                continue
             lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
+                continue
             lost_conns, _, _, _ = self.config1.allowed_connections(pair[1], pair[0])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
@@ -1200,10 +1212,14 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
         conn_graph_added_per_key[key] = None
         for pair in itertools.product(removed_peers, intersected_peers):
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                continue
             lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
+                continue
             lost_conns, _, _, _ = self.config1.allowed_connections(pair[1], pair[0])
             if lost_conns:
                 conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
@@ -1213,15 +1229,17 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         keys_list.append(key)
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
-        for pod1 in intersected_peers:
-            for pod2 in intersected_peers if pod1 in captured_pods else captured_pods:
-                if pod1 == pod2:
+        for peer1 in intersected_peers:
+            for peer2 in intersected_peers if peer1 in captured_pods else captured_pods:
+                if peer1 == peer2:
                     continue
-                old_conns, _, _, _ = self.config1.allowed_connections(pod1, pod2)
-                new_conns, _, _, _ = self.config2.allowed_connections(pod1, pod2)
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+                    continue
+                old_conns, _, _, _ = self.config1.allowed_connections(peer1, peer2)
+                new_conns, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if new_conns != old_conns:
-                    conn_graph_removed_per_key[key].add_edge(pod1, pod2, old_conns - new_conns)
-                    conn_graph_added_per_key[key].add_edge(pod1, pod2, new_conns - old_conns)
+                    conn_graph_removed_per_key[key].add_edge(peer1, peer2, old_conns - new_conns)
+                    conn_graph_added_per_key[key].add_edge(peer1, peer2, new_conns - old_conns)
 
         # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
         key = 'Changed connections between persistent peers and ipBlocks'
@@ -1230,13 +1248,15 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         keys_list.append(key)
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, False)
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, True)
-        for pod1 in peers:
-            for pod2 in disjoint_ip_blocks if pod1 in captured_pods else captured_pods:
-                old_conns, _, _, _ = self.config1.allowed_connections(pod1, pod2)
-                new_conns, _, _, _ = self.config2.allowed_connections(pod1, pod2)
+        for peer1 in peers:
+            for peer2 in disjoint_ip_blocks if peer1 in captured_pods else captured_pods:
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+                    continue
+                old_conns, _, _, _ = self.config1.allowed_connections(peer1, peer2)
+                new_conns, _, _, _ = self.config2.allowed_connections(peer1, peer2)
                 if new_conns != old_conns:
-                    conn_graph_removed_per_key[key].add_edge(pod1, pod2, old_conns - new_conns)
-                    conn_graph_added_per_key[key].add_edge(pod1, pod2, new_conns - old_conns)
+                    conn_graph_removed_per_key[key].add_edge(peer1, peer2, old_conns - new_conns)
+                    conn_graph_added_per_key[key].add_edge(peer1, peer2, new_conns - old_conns)
 
         # 4.1. new connections between intersected peers and added peers
         key = 'New connections between persistent peers and added peers'
@@ -1244,10 +1264,14 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = None
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         for pair in itertools.product(intersected_peers, added_peers):
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                continue
             new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
+                continue
             new_conns, _, _, _ = self.config2.allowed_connections(pair[1], pair[0])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
@@ -1258,6 +1282,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = None
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         for pair in itertools.permutations(added_peers, 2):
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                continue
             new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
@@ -1269,10 +1295,14 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, new_ip_blocks, True)
 
         for pair in itertools.product(added_peers, new_ip_blocks):
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                continue
             new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
+            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
+                continue
             new_conns, _, _, _ = self.config2.allowed_connections(pair[1], pair[0])
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
@@ -1347,12 +1377,13 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
     """
 
     def exec(self, cmd_line_flag=False, only_captured=False):
-        config1_peers = self.config1.peer_container.get_all_peers_group()
-        peers_in_config1_not_in_config2 = config1_peers - self.config2.peer_container.get_all_peers_group()
+        config1_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        peers_in_config1_not_in_config2 = config1_peers - \
+            self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         if peers_in_config1_not_in_config2:
             peers_list = [str(e) for e in peers_in_config1_not_in_config2]
             final_explanation = \
-                PodsListsExplanations(explanation_description=f'Pods in {self.name1} which are not in {self.name2}',
+                PodsListsExplanations(explanation_description=f'Peers in {self.name1} which are not in {self.name2}',
                                       pods_list=sorted(peers_list))
             return QueryAnswer(False, f'{self.name1} is not contained in {self.name2} ',
                                output_explanation=[final_explanation], numerical_result=0 if not cmd_line_flag else 1)
@@ -1363,6 +1394,8 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
+                    continue
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
                     continue
                 conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1_flag:
@@ -1479,7 +1512,8 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                 else not query_answer.bool_result
             return query_answer
 
-        peers_to_compare = self.config2.peer_container.get_all_peers_group()
+        peers_to_compare = \
+            self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config2.get_captured_pods() | self.config1.get_captured_pods()
         extended_conns_list = []
@@ -1487,7 +1521,8 @@ class InterferesQuery(TwoNetworkConfigsQuery):
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
                     continue
-
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
+                    continue
                 _, captured2_flag, conns2_captured, _ = self.config2.allowed_connections(peer1, peer2)
                 if not captured2_flag:
                     continue
@@ -1534,13 +1569,16 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer
 
-        peers_to_compare = self.config1.peer_container.get_all_peers_group()
+        peers_to_compare = \
+            self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         intersect_connections_list = []
         for peer1 in peers_to_compare:
             for peer2 in peers_to_compare if peer1 in captured_pods else captured_pods:
                 if peer1 == peer2:
+                    continue
+                if not self.determine_whether_to_compute_allowed_conns_for_peer_types(peer1, peer2):
                     continue
                 conns1_all, captured1_flag, conns1_captured, _ = self.config1.allowed_connections(peer1, peer2)
                 if only_captured and not captured1_flag:
@@ -1618,6 +1656,7 @@ class AllCapturedQuery(NetworkConfigQuery):
                  - set of the uncaptured pods
         :rtype: (int,set[str])
         """
+        # get_all_peers_group() does not require getting dnsEntry peers, since they are not ClusterEP (pods)
         existing_pods = self.config.peer_container.get_all_peers_group()
         uncaptured_xgress_pods = existing_pods - self.config.get_affected_pods(is_ingress, layer_name)
         if not uncaptured_xgress_pods:
@@ -1658,6 +1697,7 @@ class AllCapturedQuery(NetworkConfigQuery):
 
     def exec(self):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
+        # get_all_peers_group() does not require getting dnsEntry peers, since they are not ClusterEP (pods)
         existing_pods = self.config.peer_container.get_all_peers_group()
         if not self.config:
             return QueryAnswer(bool_result=False,

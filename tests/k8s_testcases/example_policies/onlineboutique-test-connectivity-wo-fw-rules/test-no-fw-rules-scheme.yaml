@@ -1,9 +1,9 @@
 networkConfigList:
   - name: onlineboutique-config
     resourceList:
-    - ./ns.yaml
-    - ./kubernetes-manifests.yaml
-    - ./netpols.yaml
+      - ./ns.yaml
+      - ./kubernetes-manifests.yaml
+      - ./netpols.yaml
     expectedWarnings: 0
 
 queries:

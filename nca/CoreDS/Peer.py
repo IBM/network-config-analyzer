@@ -66,7 +66,6 @@ class ClusterEP(Peer):
         super().__init__(name, namespace)
         self.named_ports = {}  # A map from port name to the port number and its protocol
         self.profiles = []  # The set of attached profiles (Calico only)
-        self.prior_sidecar = None  # the first injected sidecar with workloadSelector selecting current peer
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
