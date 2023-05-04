@@ -315,10 +315,14 @@ class InteractiveConnectivityGraph:
                         group.append(text.extract())
                     del node['class']
 
-            xml_soup_str = str(self.soup)
-            lxml_soup = BeautifulSoup(xml_soup_str, 'lxml')
+            # remove all links
+            elements_with_href = self.soup.find_all(attrs={'xlink:href': True})
+            for element in elements_with_href:
+                del element['xlink:href']
 
             # add the expl' xml block to the svg graph
+            xml_soup_str = str(self.soup)
+            lxml_soup = BeautifulSoup(xml_soup_str, 'lxml')
             svg_root = lxml_soup.find('svg')
             script = lxml_soup.new_tag('script')
             script['type'] = "text/xml"  # You can use a custom MIME type if needed
@@ -422,6 +426,7 @@ class InteractiveConnectivityGraph:
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
               
+                let clickFlag = false;
     
                 function selectExplPeer(event) {
                   const selectedElement = event.target;
@@ -491,6 +496,9 @@ class InteractiveConnectivityGraph:
                         if (highlightIds.includes(el.id)) {
                           el.style.strokeWidth = '2px'; // ighlight the element
                         }
+                        else {
+                          el.style.strokeWidth = '1px'; // ighlight the element
+                        }
                     });
                 }
     
@@ -513,6 +521,7 @@ class InteractiveConnectivityGraph:
                       else {
                         el.addEventListener('dblclick', function() {
                             hideWithoutRelation(el);
+                            clickFlag = false
                             clearSelection();
                           });
                       }
