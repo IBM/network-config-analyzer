@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from collections import defaultdict
 import posixpath
 import networkx
+import json
 from bs4 import BeautifulSoup
 
 
@@ -86,7 +87,7 @@ class InteractiveConnectivityGraph:
         # (5b) from the abstract graph, for each element, set the explanation of its connectivity graph:
         self.abstract_graph.set_tags_explanation(elements_relations)
         # (6) for each element, create an svg file containing these related elements:
-        self.svg_graph.create_html()
+        self.svg_graph.create_html(elements_relations)
 
     class SvgGraph:
         """
@@ -290,7 +291,7 @@ class InteractiveConnectivityGraph:
             for holder, line in zip(place_holders, explanation + ['']*(len(place_holders) - len(explanation))):
                 holder.string = line
 
-        def create_html(self):
+        def create_html(self, elements_relations):
             # make a node element for each table entry
             node_elements = self.soup.find_all(class_='node')
             for node in node_elements:
@@ -333,6 +334,19 @@ class InteractiveConnectivityGraph:
             html_soup = BeautifulSoup(self.HTML_TEMPLATE, 'html.parser')
             graph_container = html_soup.find(id='graph-container')
             graph_container.insert(0, BeautifulSoup(str(lxml_soup), 'html.parser'))
+            # add elements_relations to the js as a json parameter
+            # convert elements_relations to Json serializable
+            er_dict = {}
+            for key, value in elements_relations.items():
+                er_dict[key] = {'relations': list(elements_relations[key].relations),
+                                'highlights': list(elements_relations[key].highlights),
+                                'explanation': list(elements_relations[key].explanation)
+                                }
+            json_string = json.dumps(er_dict)
+            head = html_soup.head
+            script_tag = html_soup.new_tag('script')
+            script_tag.string = f'const jsObject = {json_string};'
+            head.append(script_tag)
 
             # write to file
             tag_file_name = self.output_directory
@@ -386,24 +400,6 @@ class InteractiveConnectivityGraph:
             <meta name="ncegraph" content="width=device-width, initial-scale=1.0">
             <title>NCA Graph</title>
             <style>
-              /* .hidden {
-                display: none;
-              } */
-              .node.highlight {
-              background-color: yellow; /* Set desired background color for highlighting */
-              border: 2px solid red; /* Set desired border style for highlighting */
-              /* Add any other styles you want for highlighting */
-              }
-              .visible {
-                display: block;
-              }
-              .node.selected {
-                fill: yellow;
-              }
-              button {
-                margin: 10px;
-                padding: 5px;
-              }
               #selectionBox {
                 width: 1400px;
                 height: 300px;
@@ -416,66 +412,126 @@ class InteractiveConnectivityGraph:
         <body>
             <div id="graph-container"></div>
             <pre id="selectionBox">Please select the SOURCE node</pre>
-        <script>
-            var selectableElems = document.querySelectorAll('.node');
-            var selectedElems = [];
-            var resetBtn = document.getElementById('resetBtn');
-            var selectionBox = document.getElementById('selectionBox');
-          
-            const xmlData = document.querySelector('script[type="text/xml"]').textContent;
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
-          
-            for (var i = 0; i < selectableElems.length; i++) {
-              selectableElems[i].addEventListener('click', function(event) {
-                const selectedElement = event.target;
-                const parentElement = selectedElement.parentNode;
-                const polygonElement = parentElement.querySelector('polygon');
-                clickFlag = true;
-                elm = this
-                setTimeout(function() {
-                  // If clickFlag is still true after the timer, trigger single-click action
-                  if (clickFlag) {
-                    console.log('Single-click'); // Replace with your single-click action
-        
-                    if (elm.classList.contains('selected')) {
-                      // If the clicked element is already selected, deselect it
-                      elm.classList.remove('selected');
-                      polygonElement.setAttribute('fill', 'none');
-                      selectedElems.splice(selectedElems.indexOf(elm), 1);
-                    } else if (selectedElems.length < 2) {
-                      // If less than 2 elements are selected, select the clicked element
-                      elm.classList.add('selected');
-                      polygonElement.setAttribute('fill', 'yellow');
-                      selectedElems.push(elm);
-                    } 
-                    // Update the selection box with the names of the selected circles
-                    if (selectedElems.length == 0) {
-                      selectionBox.innerHTML = 'Please select the SOURCE node';
-                    } else if (selectedElems.length == 1) {
-                      selectionBox.innerHTML = 'Please select the DESTINATION node';
-                    }  else {
-                      const src = selectedElems[0].getAttribute('title');
-                      const dst = selectedElems[1].getAttribute('title');
-                      const entry = xmlDoc.querySelector(`entry[src="${src}"][dst="${dst}"]`);
-                      if (entry) {
-                        const expl_text = entry.textContent;
-                        selectionBox.innerHTML = expl_text; 
+            <script>
+                const selectableElems = document.querySelectorAll('.node');
+                var selectedElems = [];
+                const selectionBox = document.getElementById('selectionBox');
+                const clickableElements = document.querySelectorAll('[clickable="true"]');
+              
+                const xmlData = document.querySelector('script[type="text/xml"]').textContent;
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
+              
+    
+                function selectExplPeer(event) {
+                  const selectedElement = event.target;
+                  const parentElement = selectedElement.parentNode;
+                  const polygonElement = parentElement.querySelector('polygon');
+                  // find the parent node element
+                  let nodeElement = parentElement;
+                  while (nodeElement && !nodeElement.classList.contains('node')) {
+                    nodeElement = nodeElement.parentNode;
+                  }
+                  clickFlag = true;
+                  setTimeout(function() {
+                    // If clickFlag is still true after the timer, trigger single-click action
+                    if (clickFlag) {
+                      if (nodeElement.classList.contains('selected')) {
+                              // If the clicked element is already selected, deselect it
+                              nodeElement.classList.remove('selected');
+                              polygonElement.setAttribute('fill', 'none');
+                              selectedElems.splice(selectedElems.indexOf(nodeElement), 1);
+                      } 
+                      else if (selectedElems.length < 2) {
+                        // If less than 2 elements are selected, select the clicked element
+                        nodeElement.classList.add('selected');
+                        polygonElement.setAttribute('fill', 'yellow');
+                        selectedElems.push(nodeElement);
+                      } 
+                      // Update the selection box with the names of the selected circles
+                      if (selectedElems.length == 0) {
+                        selectionBox.innerHTML = 'Please select the SOURCE node';
+                      } 
+                      else if (selectedElems.length == 1) {
+                        selectionBox.innerHTML = 'Please select the DESTINATION node';
+                      }  
+                      else {
+                        const src = selectedElems[0].getAttribute('title');
+                        const dst = selectedElems[1].getAttribute('title');
+                        const entry = xmlDoc.querySelector(`entry[src="${src}"][dst="${dst}"]`);
+                        if (entry) {
+                          const expl_text = entry.textContent;
+                          selectionBox.innerHTML = expl_text; 
+                        }
                       }
                     }
+                    clickFlag = false; // Reset clickFlag
+                  }, 250);
+                }
+                
+                
+                function addSelectedListeners() {
+                    selectableElems.forEach(el => {
+                      el.addEventListener('click', (event) => selectExplPeer(event));
+                    });
                   }
-                  clickFlag = false; // Reset clickFlag
-                }, 250); // Set timer duration to be slightly greater than typical double-click time
-              });
-              selectableElems[i].addEventListener("dblclick", function(event) {
-                clickFlag = false; // Reset clickFlag
-                // Add highlight class to double-clicked element
-                this.style.strokeWidth = '2px';
-                this.classList.add("highlight");
-              });
-        
-             };
-          
+    
+    
+                function hideWithoutRelation(element) {
+                    const clickedId = element.id 
+                    const relatedIds = jsObject[clickedId].relations;
+                    const highlightIds = jsObject[clickedId].highlights;
+                    clickableElements.forEach(el => {
+                        if (relatedIds.includes(el.id)) {
+                          el.style.display = ''; // Show the element
+                        }
+                        if (!relatedIds.includes(el.id) && el.id !== clickedId) {
+                          el.style.display = 'none'; // Hide the element
+                        }
+                        if (highlightIds.includes(el.id)) {
+                          el.style.strokeWidth = '2px'; // ighlight the element
+                        }
+                    });
+                }
+    
+                function showAllElements() {
+                    clickableElements.forEach(el => {
+                      el.style.strokeWidth = '1px'; // highlight the element
+                      el.style.display = ''; // Show the element
+                    });
+                }
+    
+                function addDbClickListeners() {
+                    // const clickableElements = document.querySelectorAll('[clickable="true"]');
+                    clickableElements.forEach(el => {
+                      if (el.classList.contains('background')) { // Check if the event target is the SVG background
+                        el.addEventListener('dblclick', function() {
+                          showAllElements();
+                          clearSelection(); // dbclick sellects the text it was clicked on, its annoying...
+                        });
+                      }
+                      else {
+                        el.addEventListener('dblclick', function() {
+                            hideWithoutRelation(el);
+                            clearSelection();
+                          });
+                      }
+                    });
+                }
+    
+                function clearSelection() {
+                  if (window.getSelection) {
+                    window.getSelection().removeAllRanges(); // For most modern browsers
+                  } else if (document.selection && document.selection.empty) {
+                    document.selection.empty(); // For older IE versions (<= IE 9)
+                  }
+                }
+    
+                document.addEventListener('DOMContentLoaded', function() {
+                    addDbClickListeners();
+                    addSelectedListeners();
+                });
+
             </script>
         </body>
         </html>
