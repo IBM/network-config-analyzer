@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from enum import IntEnum
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from .NetworkPolicy import PolicyConnections, NetworkPolicy
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.Peer import PeerSet
+from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
 class IngressPolicyRule:
@@ -39,23 +40,14 @@ class IngressPolicy(NetworkPolicy):
     and the rules are egress_rules.
     """
 
-    class ActionType(IntEnum):
-        """
-        Everything that is not defined in Ingress rule's backend or in the default backend is denied
-        """
-        Deny = 0
-        Allow = 1
-
-    def __init__(self, name, namespace, action):
+    def __init__(self, name, namespace):
         """
         :param str name: Ingress name
         :param K8sNamespace namespace: the namespace containing this ingress
-        :param ActionType action: Allow/Deny
         """
         super().__init__(name, namespace)
         self.affects_ingress = False
         self.affects_egress = True
-        self.action = action
 
     def __eq__(self, other):
         return super().__eq__(other)
@@ -86,14 +78,31 @@ class IngressPolicy(NetworkPolicy):
             return PolicyConnections(False)
 
         allowed_conns = ConnectionSet()
-        denied_conns = ConnectionSet()
-        conns = allowed_conns if self.action == IngressPolicy.ActionType.Allow else denied_conns
         for rule in self.egress_rules:
             if to_peer in rule.peer_set:
                 assert not rule.connections.has_named_ports()
-                conns |= rule.connections
+                allowed_conns |= rule.connections
 
-        return PolicyConnections(True, allowed_conns, denied_conns)
+        return PolicyConnections(True, allowed_conns)
+
+    def allowed_connections_optimized(self, is_ingress):
+        """
+        Evaluate the set of connections this ingress resource allows between any two peers
+        :param bool is_ingress: For compatibility with other policies.
+         Will return the set of allowed connections only for is_ingress being False.
+        :return: A ConnectivityProperties object containing all allowed connections for any peers,
+        ConnectivityProperties object containing all denied connections,
+        and the peer set of captured peers by this policy.
+        :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
+        """
+        res_conns = OptimizedPolicyConnections()
+        if is_ingress:
+            res_conns.allowed_conns = ConnectivityProperties.make_empty_props()
+            res_conns.captured = PeerSet()
+        else:
+            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
+            res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
+        return res_conns
 
     def has_empty_rules(self, _config_name=''):
         """
@@ -123,7 +132,7 @@ class IngressPolicy(NetworkPolicy):
         :rtype: IngressPolicy
         """
         assert not ingress_rule
-        res = IngressPolicy(self.name, self.namespace, self.action)
+        res = IngressPolicy(self.name, self.namespace)
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress
@@ -138,19 +147,7 @@ class IngressPolicy(NetworkPolicy):
         :return: Whether the policy has rules that allow connections.
         :rtype: bool
         """
-        if self.action == IngressPolicy.ActionType.Allow:
-            for rule in self.egress_rules:
-                if rule.peer_set:
-                    return True
-        return False
-
-    def has_deny_rules(self):
-        """
-        :return: Whether the policy has deny rules
-        :rtype: bool
-        """
-        if self.action == IngressPolicy.ActionType.Deny:
-            for rule in self.egress_rules:
-                if rule.peer_set:
-                    return True
+        for rule in self.egress_rules:
+            if rule.peer_set:
+                return True
         return False

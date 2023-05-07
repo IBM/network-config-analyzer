@@ -13,6 +13,18 @@ networkConfigList:
     expectedWarnings: 0
 
 queries:
+  - name: connectivity_map
+    connectivityMap:
+      - np-pod-based-policies
+      - np-ports-based
+
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+      fwRulesGroupByLabelSinglePod: true
+      excludeIPv6Range: false
+    expectedOutput: ../../expected_output/testcase18_connectivity_map.txt
+
   - name: policies_not_vacuous
     vacuity:
     - np-pod-based-policies

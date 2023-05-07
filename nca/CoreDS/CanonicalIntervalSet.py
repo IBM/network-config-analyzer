@@ -220,6 +220,12 @@ class CanonicalIntervalSet:
             """
             return other.start <= self.start and other.end >= self.end
 
+        def is_single_value(self):
+            """
+            :return: Whether the interval contains a single value
+            """
+            return self.start == self.end
+
     def find_interval_left(self, interval):
         """
         find from left to right the last interval which is lower than the input interval,
@@ -354,3 +360,13 @@ class CanonicalIntervalSet:
             else:
                 res.append(f'{interval.start}-{interval.end}')
         return res
+
+    def is_single_value(self):
+        """
+        :return: Whether the interval set contains a single value
+        """
+        return len(self) == 1 and list(self)[0].is_single_value()
+
+    def validate_and_get_single_value(self):
+        assert self.is_single_value()
+        return list(self)[0].start

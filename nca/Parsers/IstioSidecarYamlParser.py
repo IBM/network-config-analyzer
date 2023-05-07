@@ -4,6 +4,7 @@
 #
 import re
 from nca.CoreDS.Peer import PeerSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from nca.Resources.IstioSidecar import IstioSidecar, IstioSidecarRule
 from nca.Resources.IstioTrafficResources import istio_root_namespace
@@ -14,6 +15,22 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
     """
     A parser for Istio Sidecar objects
     """
+    def __init__(self, policy, peer_container, file_name=''):
+        IstioGenericYamlParser.__init__(self, policy, peer_container, file_name)
+        self.peers_referenced_by_labels = PeerSet()  # set of the peers which were selected specifically in the sidecars
+        # (with workloadSelector)
+        self.specific_sidecars = []  # list of sidecars with workload-selectors within
+        self.default_sidecars = []   # list of selector-less sidecars, i.e. that belong to specific namespaces
+        # (other than istio_root_namespace), and not containing workload-selectors within
+        self.global_default_sidecars = []  # list of selector-less sidecars in istio_root_namespace,
+        # i.e. applied to all namespaces
+        self.referenced_namespaces = set()  # set of namespaces that already have default sidecar
+
+    def reset(self, policy, peer_container, file_name=''):
+        """
+        starts a new parser with a new sidecar policy, keeping the private attributes of self
+        """
+        IstioGenericYamlParser.__init__(self, policy, peer_container, file_name)
 
     def _validate_and_partition_host_format(self, host):
         """
@@ -138,28 +155,34 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
 
     def _check_and_save_sidecar_if_top_priority(self, curr_sidecar):
         """
-        check if current sidecar is top priority for its namespace or workloads.
-        if the sidecar is selector less, and is the first default sidecar for current namespace, save it
-        otherwise, save it for any peer if this is the first sidecar selecting it
+        Istio sidecar rules:
+        1- Each Workload may be selected by one sidecar only. (the first sidecar that was injected selecting it)
+        2- Each namespace can have only one Sidecar configuration without any workloadSelector.
+        (the first sidecar that was injected in the namespace)
+        this def checks if current sidecar is top priority for its namespace or workloads.
+        - If the sidecar is selector-less, i.e. default sidecar, it will be considered only if it is the first default sidecar
+         in the current namespace, otherwise will be ignored and a warning message is printed
+        - if the sidecar with workloadSelector:
+        for each selected peer, if this is not the first sidecar selecting this peer, then warn and remove it from the
+        current sidecar's selected peers
         :param IstioSidecar curr_sidecar: the sidecar parsed in self
-        a warning message will be printed if current sidecar is not the first for its relevant object,
-        indicating that this sidecar will be ignored in the sidecar's connections
         """
         if curr_sidecar.default_sidecar:
-            if self.namespace.prior_default_sidecar:  # this sidecar is not first one
+            if self.namespace in self.referenced_namespaces:
                 self.warning(f'Namespace "{str(self.namespace)}" already has a Sidecar configuration '
                              f'without any workloadSelector. '
                              f'Connections in sidecar: "{curr_sidecar.full_name()}" will be ignored')
                 return
-            self.namespace.prior_default_sidecar = curr_sidecar
+            self.referenced_namespaces.add(self.namespace)
             return
 
-        for peer in curr_sidecar.selected_peers:
-            if peer.prior_sidecar:  # this sidecar is not first one
-                self.warning(f'Peer "{peer.full_name()}" already has a Sidecar configuration selecting it. Sidecar: '
-                             f'"{curr_sidecar.full_name()}" will not be considered as connections for this workload')
-                continue
-            peer.prior_sidecar = curr_sidecar
+        prior_referenced_by_label = curr_sidecar.selected_peers & self.peers_referenced_by_labels
+        if prior_referenced_by_label:
+            self.warning(f'Peers {", ".join([peer.full_name() for peer in prior_referenced_by_label])}'
+                         f' already have a Sidecar configuration selecting them. Sidecar: '
+                         f'"{curr_sidecar.full_name()}" will not be considered as connections for these workloads')
+            curr_sidecar.selected_peers -= self.peers_referenced_by_labels
+        self.peers_referenced_by_labels |= curr_sidecar.selected_peers
 
     def _parse_outbound_traffic_policy(self, outbound_traffic_policy):
         """
@@ -180,9 +203,8 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
 
     def parse_policy(self):
         """
-        Parses the input object to create a IstioSidecar object
-        :return: a IstioSidecar object with proper PeerSets
-        :rtype: IstioSidecar
+        Parses the input object to create a IstioSidecar object and adds the resulting IstioSidecar object
+        to specific / default sidecar list
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['Sidecar'],
                                                                         ['networking.istio.io/v1alpha3',
@@ -193,6 +215,8 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         self.namespace = self.peer_container.get_namespace(policy_ns, warn_if_missing)
         res_policy = IstioSidecar(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
+        all_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
+        res_policy.add_optimized_allow_props(all_props, True)
 
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress
@@ -220,5 +244,49 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         res_policy.outbound_mode = self._parse_outbound_traffic_policy(sidecar_spec.get('outboundTrafficPolicy'))
         res_policy.findings = self.warning_msgs
         res_policy.referenced_labels = self.referenced_labels
+        if res_policy.default_sidecar:
+            if str(self.namespace) == istio_root_namespace:
+                self.global_default_sidecars.append(res_policy)
+            else:
+                self.default_sidecars.append(res_policy)
+        else:
+            self.specific_sidecars.append(res_policy)
 
-        return res_policy
+    def get_istio_sidecars(self):
+        """
+        returns list of all the sidecars that were parsed from the input resources, after refining the final
+        selected peers of each.
+        Since when determining the Sidecar configuration to be applied to a workload instance, preference will be given to
+        the resource with a workloadSelector that selects this workload instance, over a Sidecar configuration
+        without any workloadSelector, the refining will go as following:
+        - peers that appear in specific sidecars will be taken as is (they were refined during parsing)
+        - for remaining peers, preference will be given to default sidecars over global ones
+        :rtype: list[IstioSidecar]
+        """
+
+        # 1st priority: specific sidecars
+        # their selected_peers were already refined during parse_policy()
+        res = []
+        for sidecar in self.specific_sidecars:
+            sidecar.create_opt_egress_props(self.peer_container)
+            res.append(sidecar)
+        referenced_peers = self.peers_referenced_by_labels.copy()
+        # 2nd priority: default sidecars
+        # refine their selected_peers according to sidecar order in the config and previously referenced peers
+        for sidecar in self.default_sidecars:
+            if sidecar.selected_peers & referenced_peers:
+                sidecar.selected_peers -= referenced_peers
+            referenced_peers |= sidecar.selected_peers
+            sidecar.create_opt_egress_props(self.peer_container)
+            res.append(sidecar)
+
+        # the lowest priority - global default sidecars
+        # refine their selected_peers according to sidecar order in the config and previously referenced peers
+        for sidecar in self.global_default_sidecars:
+            if sidecar.selected_peers & referenced_peers:
+                sidecar.selected_peers -= referenced_peers
+            referenced_peers |= sidecar.selected_peers
+            sidecar.create_opt_egress_props(self.peer_container)
+            res.append(sidecar)
+
+        return res

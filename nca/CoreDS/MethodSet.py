@@ -27,10 +27,7 @@ class MethodSet(CanonicalIntervalSet):
         otherwise raises ValueError exception
         :param str method: the method to add
         """
-        try:
-            index = self.all_methods_list.index(method)
-        except ValueError:
-            assert False
+        index = self.all_methods_list.index(method)
         self.add_interval(self.Interval(index, index))
 
     def add_methods_from_regex(self, methods_regex):

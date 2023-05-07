@@ -48,6 +48,17 @@ networkConfigList:
     expectedWarnings: 0
 
 queries:
+  - name: connectivity
+    connectivityMap:
+      - np1
+      - np2
+      - np2-ipv6
+      - np3
+      - np4
+      - np5
+      - np5-ipv6
+    expected: 0
+
   - name: no_emptiness
     emptiness:
       - np1

@@ -1,0 +1,41 @@
+resourceList:
+  - bookinfo-topology
+  - service_entry_resources/bookinfo-service-entry-1.yaml
+
+
+networkConfigList:
+  - name: sidecar-with-local-hosts-only
+    networkPolicyList:
+      - sidecar-with-local-hosts-only.yaml
+
+  - name: sidecar-with-local-and-dns-hosts
+    networkPolicyList:
+      - sidecar-w-internal-external-services.yaml
+
+queries:
+  - name: forbids-on-configs-one-with-dns-entry
+    forbids:
+      - sidecar-with-local-and-dns-hosts
+      - sidecar-with-local-hosts-only
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/forbids_configs_w_sidecars_different_hosts_types.txt
+    expected: 1 # first config extends second - connections intersect - no forbid
+
+  - name: interferes-on-configs-one-with-dns-entry
+    interferes:
+      - sidecar-with-local-hosts-only
+      - sidecar-with-local-and-dns-hosts
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/interferes_configs_w_sidecars_different_hosts_types.txt
+    expected: 1 # second config extends first one
+
+  - name: pair-wise-interferes-on-configs-one-with-dns-entry
+    pairwiseInterferes:
+      - sidecar-with-local-and-dns-hosts
+      - sidecar-with-local-hosts-only
+    outputConfiguration:
+      fullExplanation: True
+    expectedOutput: ../../../expected_output/pair_wise_interferes_configs_w_sidecars_different_hosts_types.txt
+    expected: 1 # only first config extends second

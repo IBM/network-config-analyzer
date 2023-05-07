@@ -6,7 +6,8 @@
 from dataclasses import dataclass, field
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.Resources.NetworkPolicy import NetworkPolicy
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.Resources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 
 
@@ -47,7 +48,7 @@ class NetworkConfig:
     The class also contains the core algorithm of computing allowed connections between two endpoints.
     """
 
-    def __init__(self, name, peer_container, policies_container):
+    def __init__(self, name, peer_container, policies_container, optimized_run='false'):
         """
         :param str name: A name for this config
         :param PeerContainer peer_container: The set of endpoints and their namespaces
@@ -55,6 +56,7 @@ class NetworkConfig:
         self.name = name
         self.peer_container = peer_container
         self.policies_container = policies_container
+        self.optimized_run = optimized_run
         self.allowed_labels = None
         self.referenced_ip_blocks = None
 
@@ -104,7 +106,8 @@ class NetworkConfig:
         :rtype: NetworkConfig
         """
         policies_container = PoliciesContainer()
-        res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container)
+        res = NetworkConfig(name, peer_container=self.peer_container, policies_container=policies_container,
+                            optimized_run=self.optimized_run)
         return res
 
     def clone_without_policy(self, policy_to_exclude):
@@ -264,6 +267,47 @@ class NetworkConfig:
         allowed_captured_conns_res &= allowed_conns_res
 
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
+
+    def allowed_connections_optimized(self, layer_name=None):
+        """
+        Computes the set of allowed connections between any relevant peers.
+        :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
+        :return: allowed_conns: all allowed connections for relevant peers.
+        :rtype: OptimizedPolicyConnections
+        """
+        if layer_name is not None:
+            if layer_name not in self.policies_container.layers:
+                return self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
+                                                                                                layer_name)
+            return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
+
+        all_peers = self.peer_container.get_all_peers_group()
+        host_eps = Peer.PeerSet(set([peer for peer in all_peers if isinstance(peer, Peer.HostEP)]))
+        # all possible connections involving hostEndpoints
+        conn_hep = ConnectivityProperties.make_conn_props_from_dict({"src_peers": host_eps}) | \
+            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": host_eps})
+        conns_res = OptimizedPolicyConnections()
+        conns_res.all_allowed_conns = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
+        for layer, layer_obj in self.policies_container.layers.items():
+            conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
+            # only K8s_Calico layer handles host_eps
+            if layer != NetworkLayerName.K8s_Calico:
+                # connectivity of hostEndpoints is only determined by calico layer
+                conns_per_layer.allowed_conns -= conn_hep
+                conns_per_layer.denied_conns -= conn_hep
+                conns_per_layer.pass_conns -= conn_hep
+
+            # all allowed connections: intersection of all allowed connections from all layers
+            conns_res.all_allowed_conns &= conns_per_layer.all_allowed_conns
+            # all allowed captured connections: should be captured by at least one layer
+            conns_res.allowed_conns |= conns_per_layer.allowed_conns
+            conns_res.captured |= conns_per_layer.captured
+            # denied conns: should be denied by at least one layer
+            conns_res.denied_conns |= conns_per_layer.denied_conns
+
+        # allowed captured conn (by at least one layer) has to be allowed by all layers (either implicitly or explicitly)
+        conns_res.allowed_conns &= conns_res.all_allowed_conns
+        return conns_res
 
     def append_policy_to_config(self, policy):
         """

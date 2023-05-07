@@ -13,6 +13,15 @@ networkConfigList:
     expectedWarnings: 0
 
 queries:
+  - name: connectivity_map
+    connectivityMap:
+    - np1
+    - np2
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+
   - name: not_vacuous
     vacuity:
       - np1

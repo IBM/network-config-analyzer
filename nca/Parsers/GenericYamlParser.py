@@ -6,10 +6,6 @@
 from sys import stderr
 from enum import Enum
 from nca.CoreDS.DimensionsManager import DimensionsManager
-from nca.CoreDS.TcpLikeProperties import TcpLikeProperties
-from nca.CoreDS.MethodSet import MethodSet
-from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.Peer import IpBlock
 from nca.Utils.NcaLogger import NcaLogger
 from nca.FileScanners.GenericTreeScanner import ObjectWithLocation
@@ -225,22 +221,6 @@ class GenericYamlParser:
         is_valid, err_message = DimensionsManager().validate_value_by_domain(value, dim_name, value_name)
         if not is_valid:
             self.syntax_error(err_message, array)
-
-    @staticmethod
-    def _get_connection_set_from_properties(dest_ports, method_set=MethodSet(True), paths_dfa=None, hosts_dfa=None):
-        """
-        get ConnectionSet with TCP allowed connections, corresponding to input properties cube
-        :param PortSet dest_ports: ports set for dset_ports dimension
-        :param MethodSet method_set: methods set for methods dimension
-        :param MinDFA paths_dfa: MinDFA obj for paths dimension
-        :param MinDFA hosts_dfa: MinDFA obj for hosts dimension
-        :return: ConnectionSet with TCP allowed connections , corresponding to input properties cube
-        """
-        tcp_properties = TcpLikeProperties(source_ports=PortSet(True), dest_ports=dest_ports, methods=method_set,
-                                           paths=paths_dfa, hosts=hosts_dfa)
-        res = ConnectionSet()
-        res.add_connections('TCP', tcp_properties)
-        return res
 
     def check_and_update_has_ipv6_addresses(self, peers):
         """

@@ -7,6 +7,9 @@ from functools import reduce
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.MethodSet import MethodSet
+from nca.CoreDS.ProtocolSet import ProtocolSet
+from nca.CoreDS.ConnectivityCube import ConnectivityCube
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -263,6 +266,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             methods = self.parse_istio_regex_string(item, 'method', vs.full_name())
             if methods:
                 parsed_route.add_methods(methods)
+            else:
+                parsed_route.add_methods(MethodSet(True))
 
     def parse_http_route_destinations(self, route, parsed_route, vs):
         """
@@ -332,17 +337,17 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         Create allowed connections of the given VirtualService
         :param VirtualService vs: the given VirtualService and the given hosts
         :param MinDFA host_dfa: the hosts attribute
-        :return: TcpLikeProperties with TCP allowed connections
+        :return: ConnectivityProperties with allowed connections
         """
-        allowed_conns = None
+        allowed_conns = ConnectivityProperties.make_empty_props()
         for http_route in vs.http_routes:
+            conn_cube = ConnectivityCube.make_from_dict({"paths": http_route.uri_dfa, "hosts": host_dfa,
+                                                         "methods": http_route.methods})
             for dest in http_route.destinations:
-                conns = self._make_tcp_like_properties(dest.port, dest.service.target_pods, http_route.uri_dfa,
-                                                       host_dfa, http_route.methods)
-                if not allowed_conns:
-                    allowed_conns = conns
-                else:
-                    allowed_conns |= conns
+                conn_cube.update({"dst_ports": dest.port, "dst_peers": dest.service.target_pods})
+                conns = \
+                    ConnectivityProperties.make_conn_props(conn_cube)
+                allowed_conns |= conns
         return allowed_conns
 
     def create_istio_traffic_policies(self):
@@ -386,13 +391,17 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                         peers_to_hosts[peers] = host_dfa
 
             for peer_set, host_dfa in peers_to_hosts.items():
-                res_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace,
-                                           IngressPolicy.ActionType.Allow)
+                res_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
                 res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
                 res_policy.selected_peers = peer_set
                 allowed_conns = self.make_allowed_connections(vs, host_dfa)
                 if allowed_conns:
                     res_policy.add_rules(self._make_allow_rules(allowed_conns))
+                    protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
+                    allowed_conns &= \
+                        ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols,
+                                                                          "src_peers": res_policy.selected_peers})
+                    res_policy.add_optimized_allow_props(allowed_conns, False)
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)
             if not vs_policies:

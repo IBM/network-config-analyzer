@@ -1,2 +1,0 @@
-test_name,expected_run_time (seconds),actual_run_time (seconds)
-C:\Users\TATYANAVEKSLER\Documents\Formal\Network Policies\NCA\GitHub\network-config-analyzer\tests\fw_rules_tests\policies\istio-bookinfo-test-request-attrs-scheme.yaml,0.68,3.64
