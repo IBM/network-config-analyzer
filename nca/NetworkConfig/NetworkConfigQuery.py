@@ -164,25 +164,6 @@ class NetworkConfigQuery(BaseNetworkQuery):
     def exec(self):
         raise NotImplementedError
 
-    # this def contains conditions that should be checked every time before computing
-    # allowed connections of two peers, so added it here to avoid duplications in the queries code
-    def determine_whether_to_compute_allowed_conns_for_peer_types(self, peer1, peer2):
-        """
-        determines if to continue to compute allowed connections for the given
-        pair of peers based on their types
-        :param Peer peer1: the src peer
-        :param Peer peer2: the dst peer
-        :rtype: bool
-        """
-        if isinstance(peer1, DNSEntry):  # connections from DNSEntry are not relevant
-            return False
-        if isinstance(peer1, IpBlock) and isinstance(peer2, (IpBlock, DNSEntry)):
-            return False  # connectivity between external peers is not relevant either
-        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio) \
-                and isinstance(peer2, DNSEntry):
-            return False  # connectivity to DNSEntry peers is only relevant if istio layer exists
-        return True
-
     def filter_conns_by_peer_types(self, conns, all_peers):
         """
         Filter the given connections by removing several connection kinds that are never allowed
