@@ -168,18 +168,18 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         """
         if curr_sidecar.default_sidecar:
             if self.namespace in self.referenced_namespaces:
-                self.warning(f'Namespace "{str(self.namespace)}" already has a Sidecar configuration '
-                             f'without any workloadSelector. '
-                             f'Connections in sidecar: "{curr_sidecar.full_name()}" will be ignored')
+                self.syntax_error(f'Namespace "{str(self.namespace)}" already has a Sidecar configuration '
+                                  f'without any workloadSelector. \n'
+                                  f'"{curr_sidecar.full_name()}" leads to an ambiguous system behaviour.', curr_sidecar)
                 return
             self.referenced_namespaces.add(self.namespace)
             return
 
         prior_referenced_by_label = curr_sidecar.selected_peers & self.peers_referenced_by_labels
         if prior_referenced_by_label:
-            self.warning(f'Peers {", ".join([peer.full_name() for peer in prior_referenced_by_label])}'
-                         f' already have a Sidecar configuration selecting them. Sidecar: '
-                         f'"{curr_sidecar.full_name()}" will not be considered as connections for these workloads')
+            self.syntax_error(f'Peers {", ".join([peer.full_name() for peer in prior_referenced_by_label])} '
+                              f'already have a Sidecar configuration selecting them. \n '
+                              f'Sidecar: "{curr_sidecar.full_name()}" leads to an ambiguous system behaviour.', curr_sidecar)
             curr_sidecar.selected_peers -= self.peers_referenced_by_labels
         self.peers_referenced_by_labels |= curr_sidecar.selected_peers
 
