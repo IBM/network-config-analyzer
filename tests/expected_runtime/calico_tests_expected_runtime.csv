@@ -11,7 +11,7 @@ calico_testcases/example_policies/testcase10/testcase10-scheme.yaml,1.44
 calico_testcases/example_policies/testcase11/testcase11-scheme.yaml,4.06
 calico_testcases/example_policies/testcase12-interference/testcase12-interference-scheme.yaml,0.99
 calico_testcases/example_policies/testcase13-protocol/testcase13-scheme.yaml,1.14
-calico_testcases/example_policies/testcase14-icmp/testcase14-scheme.yaml,1.06
+calico_testcases/example_policies/testcase14-icmp/testcase14-scheme.yaml,2.95
 calico_testcases/example_policies/testcase15-ports/testcase15-scheme.yaml,37.82
 calico_testcases/example_policies/testcase15-ports/testcase15-with-ingress-scheme.yaml,18.08
 calico_testcases/example_policies/testcase16-nets/testcase16-scheme.yaml,6.41
@@ -38,7 +38,7 @@ calico_testcases/example_policies/testcase26-multi-layer-policies/testcase26-mul
 calico_testcases/example_policies/testcase2tag/testcase2tag-scheme.yaml,0.69
 calico_testcases/example_policies/testcase3/testcase3-scheme.yaml,0.55
 calico_testcases/example_policies/testcase4/testcase4-scheme.yaml,0.16
-calico_testcases/example_policies/testcase5/testcase5-scheme.yaml,0.26
+calico_testcases/example_policies/testcase5/testcase5-scheme.yaml,0.69
 calico_testcases/example_policies/testcase6/testcase6-scheme.yaml,1.39
 calico_testcases/example_policies/testcase7/testcase7-combined-peercontainer-scheme.yaml,1.07
 calico_testcases/example_policies/testcase7/testcase7-scheme.yaml,1.05
