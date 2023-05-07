@@ -295,8 +295,8 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         # since before computing non-captured conns we should collect all policies conns
 
         # compute non-captured connections
-        all_peers_and_ips = peer_container.get_all_peers_group(True)
-        all_peers_no_ips = peer_container.get_all_peers_group()
+        all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
+        all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False, include_dns_entries=True)
         base_peer_set_no_hep = PeerSet(set([peer for peer in all_peers_no_ips if not isinstance(peer, HostEP)]))
         not_captured_not_hep = base_peer_set_no_hep - res_conns.captured
         if not_captured_not_hep:

@@ -184,11 +184,6 @@ class NetworkConfigQuery(BaseNetworkQuery):
         dns_to_any_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_dns_entries,
                                                                              "dst_peers": all_peers})
         res -= dns_to_any_conns
-        # avoid anything->DNSEntry connections if Istio layer does not exist
-        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
-            any_to_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers,
-                                                                                 "dst_peers": all_dns_entries})
-            res -= any_to_dns_conns
         return res
 
 
