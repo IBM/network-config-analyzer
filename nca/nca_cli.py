@@ -10,6 +10,7 @@ import sys
 import traceback
 from sys import stderr
 from pathlib import Path
+from nca.CoreDS.Peer import BasePeerSet
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
@@ -140,8 +141,11 @@ def run_args(args):
              the query result (if command-line queries are used)
     :rtype: int
     """
+    # reset the singleton before running a new shceme or cli query
+    # so that configs from certain run do not affect a potential following run.
+    BasePeerSet.reset()
     if args.scheme:
-        return SchemeRunner(args.scheme, args.output_format, args.file_out).run_scheme()
+        return SchemeRunner(args.scheme, args.output_format, args.file_out, args.optimized_run).run_scheme()
     ns_list = args.ns_list
     pod_list = args.pod_list
     resource_list = args.resource_list
@@ -215,7 +219,7 @@ def run_args(args):
     resources_handler = ResourcesHandler()
     network_config = resources_handler.get_network_config(_make_recursive(np_list), _make_recursive(ns_list),
                                                           _make_recursive(pod_list), _make_recursive(resource_list),
-                                                          save_flag=pair_query_flag)
+                                                          save_flag=pair_query_flag, optimized_run=args.optimized_run)
     if pair_query_flag:
         base_np_list = args.base_np_list
         base_resource_list = args.base_resource_list
@@ -224,7 +228,8 @@ def run_args(args):
         base_network_config = resources_handler.get_network_config(_make_recursive(base_np_list),
                                                                    _make_recursive(base_ns_list),
                                                                    _make_recursive(base_pod_list),
-                                                                   _make_recursive(base_resource_list))
+                                                                   _make_recursive(base_resource_list),
+                                                                   optimized_run=args.optimized_run)
         if base_as_second:
             network_configs_array = [network_config, base_network_config]
         else:
@@ -312,6 +317,9 @@ def nca_main(argv=None):
     parser.add_argument('--debug', '-d', action='store_true', help='Print debug information')
     parser.add_argument('--output_endpoints', choices=['pods', 'deployments'],
                         help='Choose endpoints type in output (pods/deployments)', default='deployments')
+    parser.add_argument('--optimized_run', '-opt', type=str,
+                        help='Whether to run optimized run (-opt=true), original run (-opt=false) - the default '
+                             'or the comparison of the both (debug)', default='false')
     parser.add_argument('--print_ipv6', action='store_true', help='Display IPv6 addresses connections too. '
                                                                   'If the policy reference IPv6 addresses, '
                                                                   'their connections will be printed anyway')

@@ -87,6 +87,27 @@ jobs:
           name: k8s-failed-run-time-check-file
           path: ./tests/k8s_tests_failed_runtime_check.csv
           if-no-files-found: ignore
+  k8s-tests-orig-vs-opt-comparison:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - uses: ./.github/actions/setup-nca-env
+      - name: install helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          sudo ./get_helm.sh
+      - name: Run k8s tests
+        env:
+          GHE_TOKEN: ${{ github.token }}
+          PYTHONPATH: .
+        run: python tests/run_all_tests.py --type=general --category=k8s --hc_opt=debug | tee tests/k8s_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
+      - name: upload run_k8s_tests log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          name: k8s-log
+          path: tests/k8s_cmp_log.txt
   calico-tests:
     runs-on: ubuntu-latest
     steps:
@@ -110,6 +131,22 @@ jobs:
           name: calico-failed-run-time-check-file
           path: ./tests/calico_tests_failed_runtime_check.csv
           if-no-files-found: ignore
+  calico-tests-orig-vs-opt-comparison:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - uses: ./.github/actions/setup-nca-env
+      - name: Run calico tests
+        env:
+          GHE_TOKEN: ${{ github.token }}
+          PYTHONPATH: .
+        run: python tests/run_all_tests.py --type=general --category=calico --hc_opt=debug | tee tests/calico_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
+      - name: upload run_calico_tests log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          name: calico-log
+          path: tests/calico_cmp_log.txt
   istio-tests:
     runs-on: ubuntu-latest
     steps:
@@ -133,6 +170,22 @@ jobs:
           name: istio-failed-run-time-check-file
           path: ./tests/istio_tests_failed_runtime_check.csv
           if-no-files-found: ignore
+  istio-tests-orig-vs-opt-comparison:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+      - uses: ./.github/actions/setup-nca-env
+      - name: Run istio tests
+        env:
+          GHE_TOKEN: ${{ github.token }}
+          PYTHONPATH: .
+        run: python tests/run_all_tests.py --type=general --category=istio --hc_opt=debug | tee tests/istio_cmp_log.txt ; test ${PIPESTATUS[0]} -eq 0
+      - name: upload run_istio_tests log
+        if: ${{ always() }}
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          name: istio-log
+          path: tests/istio_cmp_log.txt
   fw-rules-assertion-tests:
     runs-on: ubuntu-latest
     steps:

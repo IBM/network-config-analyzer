@@ -14,5 +14,8 @@
       - app=keepalived-watcher
       connection:
       - Protocol: ICMP
-        Type/Code:
-        - 100/230
+        properties:
+        - icmp_type:
+          - 100
+          icmp_code:
+          - 230

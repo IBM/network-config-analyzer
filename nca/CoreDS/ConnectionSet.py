@@ -2,11 +2,14 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
+
+from collections import defaultdict
 from .CanonicalIntervalSet import CanonicalIntervalSet
-from .PortSet import PortSet
-from .TcpLikeProperties import TcpLikeProperties
-from .ICMPDataSet import ICMPDataSet
+from .ConnectivityProperties import ConnectivityProperties
 from .ProtocolNameResolver import ProtocolNameResolver
+from .ProtocolSet import ProtocolSet
+from .Peer import PeerSet, IpBlock
+from nca.FWRules import FWRule
 
 
 class ConnectionSet:
@@ -16,10 +19,10 @@ class ConnectionSet:
     _icmp_protocols = {1, 58}
     port_supporting_protocols = {6, 17, 132}
     _max_protocol_num = 255
-    _min_protocol_num = 1
+    _min_protocol_num = 0
 
     def __init__(self, allow_all=False):
-        self.allowed_protocols = {}  # a map from protocol number (1-255) to allowed properties (ports, icmp)
+        self.allowed_protocols = {}  # a map from protocol number (0-255) to allowed properties (ports, icmp)
         self.allow_all = allow_all  # Shortcut to represent all connections, and then allowed_protocols is to be ignored
 
     def __bool__(self):
@@ -157,7 +160,7 @@ class ConnectionSet:
         """
         :param bool is_str: should get str representation (True) or list representation (False)
         :param str protocol_text: str description of protocol
-        :param Union[bool, TcpLikeProperties, ICMPDataSet] properties: properties object of the protocol
+        :param Union[bool, ConnectivityProperties] properties: properties object of the protocol
         :return: representation required for a given pair of protocol and its properties
         :rtype: Union[dict, str]
         """
@@ -201,9 +204,6 @@ class ConnectionSet:
 
         protocol_text = 'Protocols: '
         for idx, protocol in enumerate(self.allowed_protocols.keys()):
-            if idx > 5:
-                protocol_text += ', ...'
-                break
             if idx > 0:
                 protocol_text += ', '
             protocol_text += ProtocolNameResolver.get_protocol_name(protocol)
@@ -377,39 +377,45 @@ class ConnectionSet:
     @staticmethod
     def protocol_supports_ports(protocol):
         """
-        :param protocol: Protocol number
+        :param protocol: Protocol number or name
         :return: Whether the given protocol has ports
         :rtype: bool
         """
-        return protocol in ConnectionSet.port_supporting_protocols
+        prot = protocol
+        if isinstance(protocol, str):
+            prot = ProtocolNameResolver.get_protocol_number(protocol)
+        return prot in ConnectionSet.port_supporting_protocols
 
     @staticmethod
     def protocol_is_icmp(protocol):
         """
-        :param protocol: Protocol number
+        :param protocol: Protocol number or name
         :return: Whether the protocol is icmp or icmpv6
         :rtype: bool
         """
-        return protocol in ConnectionSet._icmp_protocols
+        prot = protocol
+        if isinstance(protocol, str):
+            prot = ProtocolNameResolver.get_protocol_number(protocol)
+        return prot in ConnectionSet._icmp_protocols
 
     def add_connections(self, protocol, properties=True):
         """
         Add connections to the set of connections
         :param int,str protocol: protocol number of the connections to add
         :param properties: an object with protocol properties (e.g., ports), if relevant
-        :type properties: Union[bool, TcpLikeProperties, ICMPDataSet]
+        :type properties: Union[bool, ConnectivityProperties]
         :return: None
         """
         if isinstance(protocol, str):
             protocol = ProtocolNameResolver.get_protocol_number(protocol)
-        if protocol < 1 or protocol > 255:
-            raise Exception('Protocol must be in the range 1-255')
+        if not ProtocolNameResolver.is_valid_protocol(protocol):
+            raise Exception('Protocol must be in the range 0-255')
         if not bool(properties):  # if properties are empty, there is nothing to add
             return
         if protocol in self.allowed_protocols:
             self.allowed_protocols[protocol] |= properties
         else:
-            self.allowed_protocols[protocol] = properties
+            self.allowed_protocols[protocol] = properties if isinstance(properties, bool) else properties.copy()
 
     def remove_protocol(self, protocol):
         """
@@ -419,8 +425,8 @@ class ConnectionSet:
         """
         if isinstance(protocol, str):
             protocol = ProtocolNameResolver.get_protocol_number(protocol)
-        if protocol < 1 or protocol > 255:
-            raise Exception('Protocol must be in the range 1-255')
+        if not ProtocolNameResolver.is_valid_protocol(protocol):
+            raise Exception('Protocol must be in the range 0-255')
         if protocol not in self.allowed_protocols:
             return
         del self.allowed_protocols[protocol]
@@ -431,10 +437,8 @@ class ConnectionSet:
         :param protocol: the given protocol number
         :return: None
         """
-        if self.protocol_supports_ports(protocol):
-            self.allowed_protocols[protocol] = TcpLikeProperties(PortSet(True), PortSet(True))
-        elif self.protocol_is_icmp(protocol):
-            self.allowed_protocols[protocol] = ICMPDataSet(add_all=True)
+        if self.protocol_supports_ports(protocol) or self.protocol_is_icmp(protocol):
+            self.allowed_protocols[protocol] = ConnectivityProperties.make_all_props()
         else:
             self.allowed_protocols[protocol] = True
 
@@ -538,10 +542,32 @@ class ConnectionSet:
 
         return 'No diff.'
 
+    def convert_to_connectivity_properties(self, peer_container):
+        """
+        Convert the current ConnectionSet to ConnectivityProperties format.
+        This function is used for comparing fw-rules output between original and optimized implementation,
+        when optimized_run == 'debug'
+        :param PeerContainer peer_container: the peer container
+        :return: the connection set in ConnectivityProperties format
+        """
+        if self.allow_all:
+            return ConnectivityProperties.get_all_conns_props_per_config_peers(peer_container)
+
+        res = ConnectivityProperties.make_empty_props()
+        for protocol, properties in self.allowed_protocols.items():
+            protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol)
+            this_prop = ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols})
+            if isinstance(properties, bool):
+                if properties:
+                    res |= this_prop
+            else:
+                res |= (this_prop & properties)
+        return res
+
     @staticmethod
     def get_all_tcp_connections():
         tcp_conns = ConnectionSet()
-        tcp_conns.add_connections('TCP', TcpLikeProperties(PortSet(True), PortSet(True)))
+        tcp_conns.add_connections('TCP', ConnectivityProperties.make_all_props())
         return tcp_conns
 
     @staticmethod
@@ -550,3 +576,116 @@ class ConnectionSet:
         res.add_all_connections([ProtocolNameResolver.get_protocol_number('TCP')])
         return res
         # return ConnectionSet(True) - ConnectionSet.get_all_TCP_connections()
+
+    # TODO - after moving to the optimized HC set implementation,
+    #  get rid of ConnectionSet and move the code below to ConnectivityProperties.py
+
+    @staticmethod
+    def get_connection_set_and_peers_from_cube(conn_cube, peer_container,
+                                               relevant_protocols=ProtocolSet(True)):
+        src_peers = conn_cube["src_peers"] or peer_container.get_all_peers_group(True)
+        conn_cube.unset_dim("src_peers")
+        dst_peers = conn_cube["dst_peers"] or peer_container.get_all_peers_group(True)
+        conn_cube.unset_dim("dst_peers")
+        protocols = conn_cube["protocols"]
+        conn_cube.unset_dim("protocols")
+        if not conn_cube.has_active_dim() and (protocols.is_whole_range() or protocols == relevant_protocols):
+            conns = ConnectionSet(True)
+        else:
+            conns = ConnectionSet()
+            protocol_names = ProtocolSet.get_protocol_names_from_interval_set(protocols)
+            for protocol in protocol_names:
+                if conn_cube.has_active_dim():
+                    conns.add_connections(protocol, ConnectivityProperties.make_conn_props(conn_cube))
+                else:
+                    if ConnectionSet.protocol_supports_ports(protocol) or ConnectionSet.protocol_is_icmp(protocol):
+                        conns.add_connections(protocol,
+                                              ConnectivityProperties.get_all_conns_props_per_config_peers(peer_container))
+                    else:
+                        conns.add_connections(protocol, True)
+        return conns, src_peers, dst_peers
+
+    @staticmethod
+    def conn_props_to_fw_rules(conn_props, cluster_info, peer_container,
+                               connectivity_restriction):
+        """
+        Build FWRules from the given ConnectivityProperties
+        :param ConnectivityProperties conn_props: properties describing allowed connections
+        :param ClusterInfo cluster_info: the cluster info
+        :param PeerContainer peer_container: the peer container
+         whereas all other values should be filtered out in the output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :return: FWRules map
+        """
+        relevant_protocols = ProtocolSet()
+        if connectivity_restriction:
+            if connectivity_restriction == 'TCP':
+                relevant_protocols.add_protocol('TCP')
+            else:  # connectivity_restriction == 'non-TCP'
+                relevant_protocols = ProtocolSet.get_non_tcp_protocols()
+
+        fw_rules_map = defaultdict(list)
+        for cube in conn_props:
+            conn_cube = conn_props.get_connectivity_cube(cube)
+            conns, src_peers, dst_peers = \
+                ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container, relevant_protocols)
+            # create FWRules for src_peers and dst_peers
+            fw_rules_map[conns] += ConnectionSet.create_fw_rules_list_from_conns(conns, src_peers, dst_peers,
+                                                                                 cluster_info)
+        return fw_rules_map
+
+    @staticmethod
+    def create_fw_rules_list_from_conns(conns, src_peers, dst_peers, cluster_info):
+        src_fw_elements = ConnectionSet.split_peer_set_to_fw_rule_elements(src_peers, cluster_info)
+        dst_fw_elements = ConnectionSet.split_peer_set_to_fw_rule_elements(dst_peers, cluster_info)
+        fw_rules_list = []
+        for src_elem in src_fw_elements:
+            for dst_elem in dst_fw_elements:
+                fw_rules_list.append(FWRule.FWRule(src_elem, dst_elem, conns))
+        return fw_rules_list
+
+    @staticmethod
+    def split_peer_set_to_fw_rule_elements(peer_set, cluster_info):
+        res = []
+        peer_set_copy = peer_set.copy()
+        ns_set = set()
+        # first, split by namespaces
+        while peer_set_copy:
+            peer = list(peer_set_copy)[0]
+            if isinstance(peer, IpBlock):
+                res.append(FWRule.IPBlockElement(peer))
+                peer_set_copy.remove(peer)
+                continue
+            ns_peers = PeerSet(cluster_info.ns_dict[peer.namespace])
+            if ns_peers.issubset(peer_set_copy):
+                ns_set.add(peer.namespace)
+            else:
+                # TODO try to split the element below by labels
+                res.append(FWRule.PeerSetElement(ns_peers & peer_set_copy))
+            peer_set_copy -= ns_peers
+        if ns_set:
+            res.append(FWRule.FWRuleElement(ns_set))
+
+        return res
+
+    @staticmethod
+    def fw_rules_to_conn_props(fw_rules, peer_container):
+        """
+        Converting FWRules to ConnectivityProperties format.
+        This function is used for comparing FWRules output between original and optimized solutions,
+        when optimized_run == 'debug'
+        :param MinimizeFWRules fw_rules: the given FWRules.
+        :param PeerContainer peer_container: the peer container
+        :return: the resulting ConnectivityProperties.
+        """
+        res = ConnectivityProperties.make_empty_props()
+        for fw_rules_list in fw_rules.fw_rules_map.values():
+            for fw_rule in fw_rules_list:
+                conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)
+                src_peers = PeerSet(fw_rule.src.get_peer_set(fw_rules.cluster_info))
+                dst_peers = PeerSet(fw_rule.dst.get_peer_set(fw_rules.cluster_info))
+                rule_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers,
+                                                                               "dst_peers": dst_peers}) & conn_props
+                res |= rule_props
+        return res

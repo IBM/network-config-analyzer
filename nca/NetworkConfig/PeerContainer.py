@@ -317,6 +317,13 @@ class PeerContainer:
             res.add(IpBlock.get_all_ips_block())
         return res
 
+    def get_all_dns_entries(self):
+        res = PeerSet()
+        for peer in self.peer_set:
+            if isinstance(peer, DNSEntry):
+                res.add(peer)
+        return res
+
     def get_all_global_peers(self):
         """
         Return all global peers known in the system

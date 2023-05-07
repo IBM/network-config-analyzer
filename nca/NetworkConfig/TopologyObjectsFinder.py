@@ -6,7 +6,7 @@
 from sys import stderr
 import yaml
 from nca.Utils.CmdlineRunner import CmdlineRunner
-from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, HostEP
+from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, HostEP, BasePeerSet
 from nca.Resources.K8sNamespace import K8sNamespace
 from nca.Parsers.IstioServiceEntryYamlParser import IstioServiceEntryYamlParser
 from nca.Parsers.K8sServiceYamlParser import K8sServiceYamlParser
@@ -123,6 +123,7 @@ class PodsFinder:
             return
         self.representative_peers[canonical_form] = peers_with_same_canonical_form + 1
         self.peer_set.add(peer)
+        BasePeerSet().add_peer(peer)
 
     def _add_pod_from_workload_yaml(self, workload_resource):
         """
@@ -251,7 +252,8 @@ class PodsFinder:
         """
         parser = IstioServiceEntryYamlParser()
         dns_entries = parser.parse_serviceentry(srv_entry_object, self.peer_set)
-        self.peer_set |= dns_entries
+        for dns_entry in dns_entries:
+            self._add_peer(dns_entry)
 
 
 class NamespacesFinder:

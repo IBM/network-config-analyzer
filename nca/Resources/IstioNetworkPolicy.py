@@ -6,7 +6,7 @@
 from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import PeerSet, IpBlock
-from .NetworkPolicy import PolicyConnections, NetworkPolicy
+from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
 class IstioPolicyRule:
@@ -91,6 +91,26 @@ class IstioNetworkPolicy(NetworkPolicy):
                 collected_conns |= rule.connections
 
         return PolicyConnections(True, allowed_conns, denied_conns)
+
+    def allowed_connections_optimized(self, is_ingress):
+        """
+        Evaluate the set of connections this policy allows/denied/passed between any two peers
+        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
+        :return: A ConnectivityProperties object containing all allowed connections for relevant peers,
+        ConnectivityProperties object containing all denied connections,
+        and the peer set of captured peers by this policy.
+        :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
+        """
+        res_conns = OptimizedPolicyConnections()
+        if is_ingress:
+            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props.copy()
+            res_conns.captured = self.selected_peers
+        else:
+            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props.copy()
+            res_conns.captured = PeerSet()
+        return res_conns
 
     def referenced_ip_blocks(self, exclude_ipv6=False):
         """

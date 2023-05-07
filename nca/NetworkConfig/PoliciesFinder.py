@@ -21,10 +21,11 @@ class PoliciesFinder:
     This class is responsible for finding the network policies in the relevant input resources
     The class contains several ways to build the set of policies (from cluster, from file-system, from GitHub).
     """
-    def __init__(self):
+    def __init__(self, optimized_run='false'):
         self.policies_container = PoliciesContainer()
         self._parse_queue = deque()
         self.peer_container = None
+        self.optimized_run = optimized_run
         # following missing resources fields are relevant for "livesim" mode,
         # where certain resources are added to enable the analysis
         self.missing_istio_gw_pods_with_labels = {}
@@ -70,11 +71,11 @@ class PoliciesFinder:
         istio_sidecar_parser = None
         for policy, file_name, policy_type in self._parse_queue:
             if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
-                parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
+                parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name, self.optimized_run)
                 # only during parsing adding extra labels from profiles (not supporting profiles with rules)
                 parsed_element.parse_policy()
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
-                parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name)
+                parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name, self.optimized_run)
                 self._add_policy(parsed_element.parse_policy())
                 # add info about missing resources
                 self.missing_dns_pods_with_labels.update(parsed_element.missing_pods_with_labels)
@@ -103,7 +104,7 @@ class PoliciesFinder:
                     istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)
                 istio_traffic_parser.parse_virtual_service(policy, file_name)
             else:
-                parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name)
+                parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name, self.optimized_run)
                 self._add_policy(parsed_element.parse_policy())
         if istio_traffic_parser:
             istio_traffic_policies = istio_traffic_parser.create_istio_traffic_policies()

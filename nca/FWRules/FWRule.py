@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from nca.CoreDS.Peer import ClusterEP, IpBlock, Pod, DNSEntry
+from nca.CoreDS.Peer import ClusterEP, IpBlock, Pod, PeerSet, DNSEntry
 from nca.Resources.K8sNamespace import K8sNamespace
 from .ClusterInfo import ClusterInfo
 
@@ -203,6 +203,13 @@ class FWRuleElement:
             res |= cluster_info.ns_dict[ns]
         return res
 
+    def get_peer_set(self, cluster_info):
+        """
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :return: a PeerSet (pods and/or IpBlocks)  represented by this element
+        """
+        return PeerSet(self.get_pods_set(cluster_info))
+
     @staticmethod
     def create_fw_elements_from_base_element(base_elem):
         """
@@ -352,6 +359,81 @@ class PodLabelsElement(FWRuleElement):
         return res
 
 
+class PeerSetElement(FWRuleElement):
+    """
+    This is the class for PeerSet element in fw rule
+    """
+
+    def __init__(self, element, output_as_deployment=True):
+        """
+        Create an object of type PeerSetElement
+        :param element: an element of type PeerSet
+        """
+        super().__init__({list(element)[0].namespace})
+        self.element = element
+        self.output_as_deployment = output_as_deployment
+
+    def get_elem_list_obj(self):
+        """
+        :return: list[string] for the field src_pods or dst_pods in representation for yaml/json object
+        """
+        return [str(self._get_pods_names())]
+
+    def get_pod_str(self):
+        """
+        :return: string for the field src_pods or dst_pods in representation for txt rule format
+        """
+        return f'[{self._get_pods_names()}]'
+
+    def _get_pods_names(self):
+        res = ''
+        unique_names = set()
+        for peer in self.element:
+            if self.output_as_deployment and isinstance(peer, Pod) and peer.owner_name:
+                if peer.owner_name not in unique_names:
+                    res += (', ' if res else '') + peer.owner_name
+                    unique_names.add(peer.owner_name)
+            else:
+                res += (', ' if res else '') + peer.name
+        return res
+
+    def __str__(self):
+        """
+        :return: string of the represented element
+        """
+        return f'ns: {self.get_ns_str()}, pods: {self.get_pod_str()}'
+
+    def get_elem_str(self, is_src):
+        """
+        :param is_src: bool flag to indicate if element is src (True) or dst (False)
+        :return: string of the represented element with src or dst description of fields
+        """
+        ns_prefix = 'src_ns: ' if is_src else 'dst_ns: '
+        pods_prefix = ' src_pods: ' if is_src else ' dst_pods: '
+        suffix = ' ' if is_src else ''
+        return ns_prefix + self.get_ns_str() + pods_prefix + self.get_pod_str() + suffix
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __eq__(self, other):
+        return isinstance(other, PeerSetElement) and self.element == other.element and super().__eq__(other)
+
+    def get_pods_set(self, cluster_info):
+        """
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :return: a set of pods in the cluster represented by this element
+        """
+        return self.element
+
+    def get_peer_set(self, cluster_info):
+        """
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :return: a PeerSet (pods and/or IpBlocks)  represented by this element
+        """
+        return self.get_pods_set(cluster_info)
+
+
 # TODO: should it be a sub-type of FWRuleElement?
 class IPBlockElement(FWRuleElement):
     """
@@ -409,6 +491,13 @@ class IPBlockElement(FWRuleElement):
         """
         # an ip block element does not represent any pods
         return set()
+
+    def get_peer_set(self, cluster_info):
+        """
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :return: a PeerSet (pods and/or IpBlocks)  represented by this element
+        """
+        return PeerSet({self.element})
 
 
 class DNSElement(FWRuleElement):
@@ -468,6 +557,13 @@ class DNSElement(FWRuleElement):
         """
         # an dns-entry element does not represent any pods
         return set()
+
+    def get_peer_set(self, cluster_info):
+        """
+        :param cluster_info: an object of type ClusterInfo, with relevant cluster topology info
+        :return: a PeerSet (pods and/or IpBlocks)  represented by this element
+        """
+        return PeerSet({self.element})
 
 
 class FWRule:
