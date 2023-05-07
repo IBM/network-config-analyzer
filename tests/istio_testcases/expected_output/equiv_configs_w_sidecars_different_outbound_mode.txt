@@ -1,0 +1,3 @@
+sidecar-with-selector-allows-any and sidecar-with-selector-registery-only are not semantically equivalent.
+Connections allowed in sidecar-with-selector-allows-any which are different in sidecar-with-selector-registery-only:
+src: default/ratings-v1-1, dst: 0.0.0.0-255.255.255.255, description: sidecar-with-selector-allows-any allows all connections while sidecar-with-selector-registery-only does not.

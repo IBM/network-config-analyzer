@@ -18,7 +18,7 @@ class IstioSidecarRule:
     A class representing a single egress rule (IstioEgressListener) in an Istio Sidecar object
     """
 
-    def __init__(self, peer_set=None, peers_for_ns_compare=None):
+    def __init__(self, peer_set, peers_for_ns_compare):
         """
         Init the Egress rule of an Istio Sidecar
         :param Peer.PeerSet peer_set: The set of mesh internal peers this rule allows connection to
@@ -63,7 +63,6 @@ class IstioSidecar(NetworkPolicy):
 
         captured = from_peer in self.selected_peers
         # if not captured, or captured but the sidecar is not in from_peer top priority, don't consider connections
-        # if not captured or (captured and not self._is_sidecar_prior(from_peer)):
         if not captured:
             return PolicyConnections(False)
 
