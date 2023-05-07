@@ -10,6 +10,7 @@ from nca.CoreDS.Peer import IpBlock, PeerSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.MethodSet import MethodSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
 from nca.Resources.IstioTrafficResources import istio_root_namespace
 from nca.Resources.NetworkPolicy import NetworkPolicy
@@ -184,7 +185,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         :param str key: the specified key str
         :param list values: a list of strings with values for this key
         :param list not_values: a list of strings with negative values for this key
-        :return: PeerSet or ConnectionSet (depends on the key) with allowed values
+        :return: PeerSet or ConnectivityProperties (depends on the key) with allowed values
         """
         if key == 'source.ip':
             return self.parse_ip_block(values, not_values)  # PeerSet
@@ -194,14 +195,14 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
             return self.parse_principals(values, not_values)  # PeerSet
         elif key == 'destination.port':
             dst_ports = self.get_rule_ports(values, not_values)  # PortSet
-            return self._get_connection_set_from_properties(dst_ports)  # ConnectionSet
+            return ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dst_ports})
         return NotImplemented, False
 
     def parse_condition(self, condition):
         """
         parse a condition component in a rule
         :param dict condition: the condition to parse
-        :return: PeerSet or ConnectionSet (depends on the key) with allowed values
+        :return: PeerSet or ConnectivityProperties (depends on the key) with allowed values
         """
         allowed_elements = {'key': [1, str], 'values': [0, list], 'notValues': [0, list]}
         allowed_key_values = {'key': ['source.ip', 'source.namespace', 'source.principal', 'destination.port']}
@@ -218,7 +219,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         if not values and not not_values:
             self.syntax_error('error parsing condition: at least one of values or not_values must be set. ', condition)
 
-        return self.parse_key_values(key, values, not_values)  # PeerSet or ConnectionSet
+        return self.parse_key_values(key, values, not_values)  # PeerSet or ConnectivityProperties
 
     # TODO: avoid code duplication with Calico version...
     def _parse_port(self, port, array):
@@ -371,7 +372,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         """
         parse an operation component in a rule
         :param dict operation_dict: the operation to parse
-        :return: ConnectionSet object with allowed connections
+        :return: ConnectivityProperties object with allowed connections
         """
 
         to_allowed_elements = {'operation': [1, dict]}
@@ -396,8 +397,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
                                                       operation)
         hosts_dfa = self.parse_regex_dimension_values("hosts", operation.get("hosts"), operation.get("notHosts"),
                                                       operation)
-
-        return self._get_connection_set_from_properties(dst_ports, methods_set, paths_dfa, hosts_dfa)
+        return ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dst_ports, "methods": methods_set,
+                                                                 "paths": paths_dfa, "hosts": hosts_dfa})
 
     def parse_source(self, source_dict):
         """
@@ -458,12 +459,14 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
 
     #  A match occurs when at least one source, one operation and all conditions matches the request
     # https://istio.io/latest/docs/reference/config/security/authorization-policy/#Rule
-    def parse_ingress_rule(self, rule):
+    def parse_ingress_rule(self, rule, selected_peers):
         """
         Parse a single ingress rule, producing a IstioPolicyRule.
         :param dict rule: The dict with the rule fields
-        :return: A IstioPolicyRule with the proper PeerSet and ConnectionSet
-        :rtype: IstioPolicyRule
+        :param PeerSet selected_peers: The selected peers of the policy
+        :return: A tuple (IstioPolicyRule, ConnectivityProperties) with the proper PeerSet and ConnectionSet,
+        where ConnectivityProperties is an optimized rule format in a HyperCubeSet format
+        :rtype: tuple(IstioPolicyRule, ConnectivityProperties)
         """
         if rule is None:
             self.syntax_error('Authorization policy rule cannot be null. ')
@@ -485,30 +488,42 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         to_array = self.get_key_array_and_validate_not_empty(rule, 'to')
         # currently parsing only ports
         # TODO: extend operations parsing to include other attributes
+        conn_props = ConnectivityProperties.make_empty_props()
         if to_array is not None:
-            connections = ConnectionSet()
             for operation_dict in to_array:
-                connections |= self.parse_operation(operation_dict)
+                conn_props |= self.parse_operation(operation_dict)
+            connections = ConnectionSet()
+            connections.add_connections('TCP', conn_props)
         else:  # no 'to' in the rule => all connections allowed
             connections = ConnectionSet(True)
+            conn_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
 
         # condition possible result value:
-        #         source-ip (from) , source-namespace (from) [Peerset], destination.port (to) [ConnectionSet]
-        # should update either res_pods or connections according to the condition
+        #         source-ip (from) , source-namespace (from) [Peerset], destination.port (to) [ConnectivityProperties]
+        # should update either res_pods or condition_props according to the condition
         condition_array = rule.get('when')  # this array can be empty (unlike 'to' and 'from')
         # the combined condition ("AND" of all conditions) should be applied
+        condition_conns = ConnectionSet(True)
+        condition_props = ConnectivityProperties.make_all_props()
         if condition_array is not None:
             for condition in condition_array:
                 condition_res = self.parse_condition(condition)
                 if isinstance(condition_res, PeerSet):
                     res_peers &= condition_res
-                elif isinstance(condition_res, ConnectionSet):
-                    connections &= condition_res
-
+                elif isinstance(condition_res, ConnectivityProperties):
+                    condition_props &= condition_res
+            condition_conns = ConnectionSet()
+            condition_conns.add_connections('TCP', condition_props)
         if not res_peers:
             self.warning('Rule selects no pods', rule)
-
-        return IstioPolicyRule(res_peers, connections)
+        if not res_peers or not selected_peers:
+            condition_props = ConnectivityProperties.make_empty_props()
+        else:
+            condition_props &= ConnectivityProperties.make_conn_props_from_dict({"src_peers": res_peers,
+                                                                                 "dst_peers": selected_peers})
+        connections &= condition_conns
+        conn_props &= condition_props
+        return IstioPolicyRule(res_peers, connections), conn_props
 
     @staticmethod
     def parse_policy_action(action):
@@ -556,7 +571,14 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         pod_selector = policy_spec.get('selector')
         res_policy.selected_peers = self.update_policy_peers(pod_selector, 'matchLabels')
         for ingress_rule in policy_spec.get('rules', []):
-            res_policy.add_ingress_rule(self.parse_ingress_rule(ingress_rule))
+            rule, optimized_props = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
+            res_policy.add_ingress_rule(rule)
+            if res_policy.action == IstioNetworkPolicy.ActionType.Allow:
+                res_policy.add_optimized_allow_props(optimized_props, True)
+            else:  # Deny
+                res_policy.add_optimized_deny_props(optimized_props, True)
+        all_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
+        res_policy.add_optimized_allow_props(all_props, False)
         if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:
             self.syntax_error("DENY action without rules is meaningless as it will never be triggered")
 

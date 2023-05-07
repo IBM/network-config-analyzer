@@ -8,6 +8,9 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.ConnectivityCube import ConnectivityCube
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
@@ -181,23 +184,24 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         Creates default backend connections for given hosts and paths
         :param MinDFA hosts_dfa: the hosts for the default connections
         :param MinDFA paths_dfa: the paths for the default connections
-        :return: TcpLikeProperties containing default connections or None (when no default backend exists)
+        :return: ConnectivityProperties containing default connections or None (when no default backend exists)
         """
-        default_conns = None
+        default_conns = ConnectivityProperties.make_empty_props()
         if self.default_backend_peers:
+            conn_cube = ConnectivityCube.make_from_dict({"dst_ports": self.default_backend_ports,
+                                                         "dst_peers": self.default_backend_peers})
+            if hosts_dfa:
+                conn_cube["hosts"] = hosts_dfa
             if paths_dfa:
-                default_conns = self._make_tcp_like_properties(self.default_backend_ports, self.default_backend_peers,
-                                                               paths_dfa, hosts_dfa)
-            else:
-                default_conns = self._make_tcp_like_properties(self.default_backend_ports, self.default_backend_peers,
-                                                               hosts_dfa=hosts_dfa)
+                conn_cube["paths"] = paths_dfa
+            default_conns = ConnectivityProperties.make_conn_props(conn_cube)
         return default_conns
 
     def parse_rule(self, rule):
         """
         Parses a single ingress rule, producing a number of IngressPolicyRules (per path).
         :param dict rule: The rule resource
-        :return: A tuple containing TcpLikeProperties including allowed connections for the given rule,
+        :return: A tuple containing ConnectivityProperties including allowed connections for the given rule,
         and a dfa for hosts
         """
         if rule is None:
@@ -207,8 +211,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.check_fields_validity(rule, 'ingress rule', allowed_elements)
         hosts_dfa = self.parse_regex_host_value(rule.get("host"), rule)
         paths_array = self.get_key_array_and_validate_not_empty(rule.get('http'), 'paths')
-        allowed_conns = None
-        default_conns = None
+        allowed_conns = ConnectivityProperties.make_empty_props()
+        default_conns = ConnectivityProperties.make_empty_props()
         if paths_array is not None:
             all_paths_dfa = None
             parsed_paths = []
@@ -218,13 +222,12 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                     parsed_paths.append(path_resources)
             if parsed_paths:
                 parsed_paths_with_dfa = self.segregate_longest_paths_and_make_dfa(parsed_paths)
+                conn_cube = ConnectivityCube.make_from_dict({"hosts": hosts_dfa})
                 for (_, paths_dfa, _, peers, ports) in parsed_paths_with_dfa:
                     # every path is converted to allowed connections
-                    conns = self._make_tcp_like_properties(ports, peers, paths_dfa, hosts_dfa)
-                    if not allowed_conns:
-                        allowed_conns = conns
-                    else:
-                        allowed_conns |= conns
+                    conn_cube.update({"dst_ports": ports, "dst_peers": peers, "paths": paths_dfa})
+                    conns = ConnectivityProperties.make_conn_props(conn_cube)
+                    allowed_conns |= conns
                     if not all_paths_dfa:
                         all_paths_dfa = paths_dfa
                     else:
@@ -234,10 +237,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                 default_conns = self._make_default_connections(hosts_dfa, paths_remainder_dfa)
         else:  # no paths --> everything for this host goes to the default backend or is denied
             default_conns = self._make_default_connections(hosts_dfa)
-        if allowed_conns and default_conns:
-            allowed_conns |= default_conns
-        elif default_conns:
-            allowed_conns = default_conns
+        allowed_conns |= default_conns
         return allowed_conns, hosts_dfa
 
     def parse_policy(self):
@@ -251,7 +251,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             return None  # Not an Ingress object
 
         self.namespace = self.peer_container.get_namespace(policy_ns)
-        res_policy = IngressPolicy(policy_name + '/allow', self.namespace, IngressPolicy.ActionType.Allow)
+        res_policy = IngressPolicy(policy_name + '/allow', self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
 
         policy_spec = self.policy['spec']
@@ -267,15 +267,11 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         if not res_policy.selected_peers:
             self.missing_k8s_ingress_peers = True
             self.warning("No ingress-nginx pods found, the Ingress policy will have no effect")
-        allowed_conns = None
+        allowed_conns = ConnectivityProperties.make_empty_props()
         all_hosts_dfa = None
         for ingress_rule in policy_spec.get('rules', []):
             conns, hosts_dfa = self.parse_rule(ingress_rule)
-            if conns:
-                if not allowed_conns:
-                    allowed_conns = conns
-                else:
-                    allowed_conns |= conns
+            allowed_conns |= conns
             if hosts_dfa:
                 if not all_hosts_dfa:
                     all_hosts_dfa = hosts_dfa
@@ -284,18 +280,17 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             else:
                 all_hosts_dfa = DimensionsManager().get_dimension_domain_by_name('hosts')
         # every host not captured by the ingress rules goes to the default backend
-        default_conns = None
         if self.default_backend_peers:
             hosts_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('hosts') - all_hosts_dfa
             default_conns = self._make_default_connections(hosts_remainder_dfa)
-        if allowed_conns and default_conns:
             allowed_conns |= default_conns
-        elif default_conns:
-            allowed_conns = default_conns
-
         # allowed_conns = none means that services referenced by this Ingress policy are not found,
         # then no connections rules to add (Ingress policy has no effect)
         if allowed_conns:
             res_policy.add_rules(self._make_allow_rules(allowed_conns))
+            protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
+            allowed_conns &= ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols,
+                                                                               "src_peers": res_policy.selected_peers})
+            res_policy.add_optimized_allow_props(allowed_conns, False)
         res_policy.findings = self.warning_msgs
         return res_policy

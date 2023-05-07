@@ -6,7 +6,7 @@
 from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS import Peer
-from .NetworkPolicy import PolicyConnections, NetworkPolicy
+from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
 class CalicoPolicyRule:
@@ -78,6 +78,29 @@ class CalicoNetworkPolicy(NetworkPolicy):
         return isinstance(other, CalicoNetworkPolicy) and super().__eq__(other) and \
             self.order == other.order
 
+    def update_and_add_optimized_props(self, props, action, is_ingress):
+        """
+        Updates properties according to earlier added properties
+        and adds them to the policy according to action and ingress/egress flag
+        :param props: the given properties
+        :param action: the action (Allow/Deny/Pass)
+        :param is_ingress: True for ingress, False for egress
+        :return: None
+        """
+        # handle the order of rules
+        if action == CalicoPolicyRule.ActionType.Allow:
+            props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
+            props -= self.optimized_pass_ingress_props if is_ingress else self.optimized_pass_egress_props
+            self.add_optimized_allow_props(props, is_ingress)
+        elif action == CalicoPolicyRule.ActionType.Deny:
+            props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
+            props -= self.optimized_pass_ingress_props if is_ingress else self.optimized_pass_egress_props
+            self.add_optimized_deny_props(props, is_ingress)
+        elif action == CalicoPolicyRule.ActionType.Pass:
+            props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
+            props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
+            self.add_optimized_pass_props(props, is_ingress)
+
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
         Evaluate the set of connections this policy allows/denies/passes between two peers
@@ -117,6 +140,28 @@ class CalicoNetworkPolicy(NetworkPolicy):
                     pass  # Nothing to do for Log action - does not affect connectivity
 
         return PolicyConnections(True, allowed_conns, denied_conns, pass_conns)
+
+    def allowed_connections_optimized(self, is_ingress):
+        """
+        Evaluate the set of connections this policy allows/denies/passes between any two peers
+        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only
+        :return: A ConnectivityProperties object containing all allowed connections for relevant peers,
+        ConnectivityProperties object containing all denied connections,
+        and the peer set of captured peers by this policy.
+        :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
+        """
+        res_conns = OptimizedPolicyConnections()
+        if is_ingress:
+            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props.copy()
+            res_conns.pass_conns = self.optimized_pass_ingress_props.copy()
+            res_conns.captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
+        else:
+            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props.copy()
+            res_conns.pass_conns = self.optimized_pass_egress_props.copy()
+            res_conns.captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
+        return res_conns
 
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """

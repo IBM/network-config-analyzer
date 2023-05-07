@@ -4,6 +4,7 @@
 #
 import re
 from nca.CoreDS.Peer import PeerSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from nca.Resources.IstioSidecar import IstioSidecar, IstioSidecarRule
 from nca.Resources.IstioTrafficResources import istio_root_namespace
@@ -214,6 +215,8 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         self.namespace = self.peer_container.get_namespace(policy_ns, warn_if_missing)
         res_policy = IstioSidecar(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
+        all_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
+        res_policy.add_optimized_allow_props(all_props, True)
 
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress
@@ -260,10 +263,12 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         - for remaining peers, preference will be given to default sidecars over global ones
         :rtype: list[IstioSidecar]
         """
+
         # 1st priority: specific sidecars
         # their selected_peers were already refined during parse_policy()
         res = []
         for sidecar in self.specific_sidecars:
+            sidecar.create_opt_egress_props(self.peer_container)
             res.append(sidecar)
         referenced_peers = self.peers_referenced_by_labels.copy()
         # 2nd priority: default sidecars
@@ -272,6 +277,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             if sidecar.selected_peers & referenced_peers:
                 sidecar.selected_peers -= referenced_peers
             referenced_peers |= sidecar.selected_peers
+            sidecar.create_opt_egress_props(self.peer_container)
             res.append(sidecar)
 
         # the lowest priority - global default sidecars
@@ -280,6 +286,7 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
             if sidecar.selected_peers & referenced_peers:
                 sidecar.selected_peers -= referenced_peers
             referenced_peers |= sidecar.selected_peers
+            sidecar.create_opt_egress_props(self.peer_container)
             res.append(sidecar)
 
         return res

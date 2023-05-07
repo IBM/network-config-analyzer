@@ -35,6 +35,14 @@ networkConfigList:
     expectedWarnings: 0
 
 queries:
+  - name: connectivity_map
+    connectivityMap:
+      - Eran_gnps
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+
   - name: sanity_Eran_gnps
     sanity:
       - Eran_gnps

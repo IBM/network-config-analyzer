@@ -6,8 +6,10 @@ from dataclasses import dataclass
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from .NetworkPolicy import PolicyConnections, NetworkPolicy
-from ..CoreDS.Peer import DNSEntry, IpBlock
+from nca.CoreDS.Peer import IpBlock, PeerSet, DNSEntry
+from nca.CoreDS.ProtocolSet import ProtocolSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
 @dataclass
@@ -81,6 +83,18 @@ class IstioSidecar(NetworkPolicy):
         # or if the sidecar is global and to_peer is not in same namespace of from_peer while rule host's ns is '.'
         return PolicyConnections(True, allowed_conns=ConnectionSet())
 
+    def allowed_connections_optimized(self, is_ingress):
+        res_conns = OptimizedPolicyConnections()
+        if is_ingress:
+            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props.copy()
+            res_conns.captured = PeerSet()
+        else:
+            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props.copy()
+            res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
+        return res_conns
+
     def has_empty_rules(self, config_name=''):
         """
         Checks whether the sidecar contains empty rules (rules that do not select any peers)
@@ -119,3 +133,47 @@ class IstioSidecar(NetworkPolicy):
             if rule != rule_to_exclude:
                 res.add_egress_rule(rule)
         return res
+
+    @staticmethod
+    def combine_peer_sets_by_ns(from_peer_set, to_peer_set, peer_container):
+        res = []
+        from_peer_set_copy = from_peer_set.copy()
+        while from_peer_set_copy:
+            peer = list(from_peer_set_copy)[0]
+            if isinstance(peer, IpBlock):
+                from_peer_set_copy.remove(peer)
+                continue
+            peers_in_curr_ns = peer_container.get_namespace_pods(peer.namespace)
+            res.append((from_peer_set_copy & peers_in_curr_ns, to_peer_set & peers_in_curr_ns))
+            from_peer_set_copy -= peers_in_curr_ns
+        return res
+
+    def create_opt_egress_props(self, peer_container):
+        for rule in self.egress_rules:
+            # connections to IP-block is enabled only if the outbound mode is allow-any (disabled for registry only)
+            if self.outbound_mode == IstioSidecar.OutboundMode.ALLOW_ANY:
+                ip_blocks = IpBlock.get_all_ips_block_peer_set()
+                self.optimized_allow_egress_props |= \
+                    ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
+                                                                      "dst_peers": ip_blocks})
+
+            dns_entries = peer_container.get_all_dns_entries()
+            dst_dns_entries = dns_entries & (rule.egress_peer_set | rule.special_egress_peer_set)
+            if self.selected_peers and dst_dns_entries:
+                protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
+                self.optimized_allow_egress_props |= \
+                    ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
+                                                                      "dst_peers": dst_dns_entries,
+                                                                      "protocols": protocols})
+
+            if self.selected_peers and rule.egress_peer_set:
+                self.optimized_allow_egress_props |= \
+                    ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
+                                                                      "dst_peers": rule.egress_peer_set})
+            peers_sets_by_ns = self.combine_peer_sets_by_ns(self.selected_peers, rule.special_egress_peer_set,
+                                                            peer_container)
+            for (from_peers, to_peers) in peers_sets_by_ns:
+                if from_peers and to_peers:
+                    self.optimized_allow_egress_props |= \
+                        ConnectivityProperties.make_conn_props_from_dict({"src_peers": from_peers,
+                                                                          "dst_peers": to_peers})

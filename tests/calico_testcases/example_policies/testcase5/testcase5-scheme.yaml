@@ -13,6 +13,15 @@ networkConfigList:
     expectedWarnings: 0
 
 queries:
+  - name: connectivity_map
+    connectivityMap:
+      - np_allowFirst
+      - np_denyFirst
+    expected: 0
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+
   - name: policies_not_vacuous
     vacuity:
     - np_denyFirst

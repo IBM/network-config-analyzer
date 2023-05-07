@@ -7,6 +7,7 @@ import itertools
 from collections import defaultdict
 import networkx
 from nca.CoreDS.Peer import IpBlock, ClusterEP, Pod
+from nca.CoreDS.ConnectionSet import ConnectionSet
 from .DotGraph import DotGraph
 from .MinimizeFWRules import MinimizeCsFwRules, MinimizeFWRules
 from .ClusterInfo import ClusterInfo
@@ -26,8 +27,8 @@ class ConnectivityGraph:
         :param output_config: OutputConfiguration object
         """
         # connections_to_peers holds the connectivity graph
-        self.connections_to_peers = defaultdict(list)
         self.output_config = output_config
+        self.connections_to_peers = defaultdict(list)
         if self.output_config.fwRulesOverrideAllowedLabels:
             allowed_labels = set(label for label in self.output_config.fwRulesOverrideAllowedLabels.split(','))
         self.cluster_info = ClusterInfo(all_peers, allowed_labels)
@@ -50,6 +51,18 @@ class ConnectivityGraph:
         :return: None
         """
         self.connections_to_peers.update(connections)
+
+    def add_edges_from_cube_dict(self, conn_cube, peer_container):
+        """
+        Add edges to the graph according to the give cube
+        :param ConnectivityCube conn_cube: the given cube
+         whereas all other values should be filtered out in the output
+        """
+        conns, src_peers, dst_peers = \
+            ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container)
+        for src_peer in src_peers:
+            for dst_peer in dst_peers:
+                self.connections_to_peers[conns].append((src_peer, dst_peer))
 
     def _get_peer_details(self, peer, format_requirement=False):
         """
