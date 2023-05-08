@@ -174,7 +174,10 @@ class NetworkConfigQueryRunner:
         query_result = QueryResult()
         for config in self.configs_array:
             query_result.update(self._execute_one_config_query(self.query_name, self._get_config(config)))
-        return query_result.compute_final_results(self.output_configuration.outputFormat, self.output_configuration.expl)
+        if ExplTracker().is_active():
+            return query_result.compute_final_results(self.output_configuration.outputFormat, self.output_configuration.expl)
+        else:
+            return query_result.compute_final_results(self.output_configuration.outputFormat)
 
     def _run_query_on_configs_vs_base_config(self, cmd_line_flag):
         query_result = QueryResult()
