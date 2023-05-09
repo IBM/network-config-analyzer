@@ -194,6 +194,12 @@ class SchemeRunner(GenericYamlParser):
             not_executed = 0
             self.check_fields_validity(query, 'query', allowed_elements)
             query_name = query['name']
+            if self.optimized_run == 'debug':
+                # TODO - update/remove the optimization below when all queries are supported in optimized implementation
+                # optimization - currently only connectivityMap query has optimized implementation and can be compared
+                if not query.get('connectivityMap'):
+                    print(f'Skipping query {query_name} since it does not have optimized implementation yet')
+                    continue
             print('Running query', query_name)
             output_config_obj = self.get_query_output_config_obj(query)
             expected_output = self._get_input_file(query.get('expectedOutput', None), True)

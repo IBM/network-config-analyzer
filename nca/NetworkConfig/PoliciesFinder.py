@@ -110,7 +110,7 @@ class PoliciesFinder:
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name, self.optimized_run)
                 parsed_policy = parsed_element.parse_policy()
-                self._add_policy(parsed_policy)
+                self._add_policy(parsed_element.parse_policy())
             # the name is sometimes modified when parsed, like in the ingress case, when "allowed" is added
             if ExplTracker().is_active():
                 if parsed_policy:

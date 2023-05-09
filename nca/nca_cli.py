@@ -343,9 +343,12 @@ def nca_main(argv=None):
     if args.ghe_token:
         os.environ['GHE_TOKEN'] = args.ghe_token
 
+    start = time.time()
     try:
         if args.period <= 0:
             ret_val = run_args(args)
+            end = time.time()
+            print(f'Total run time: {(end - start):6.2f} seconds')
             return 0 if args.return_0 else ret_val
 
         _do_every(args.period * 60, run_args, args)

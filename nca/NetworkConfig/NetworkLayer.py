@@ -307,8 +307,8 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         # since before computing non-captured conns we should collect all policies conns
 
         # compute non-captured connections
-        all_peers_and_ips = peer_container.get_all_peers_group(True)
-        all_peers_no_ips = peer_container.get_all_peers_group()
+        all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
+        all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False, include_dns_entries=True)
         base_peer_set_no_hep = PeerSet(set([peer for peer in all_peers_no_ips if not isinstance(peer, HostEP)]))
         not_captured_not_hep = base_peer_set_no_hep - res_conns.captured
         if not_captured_not_hep:
@@ -372,7 +372,9 @@ class IstioNetworkLayer(NetworkLayer):
         all_peers_and_ips = peer_container.get_all_peers_group(True)
         all_peers_no_ips = peer_container.get_all_peers_group()
         dns_entries = peer_container.get_all_dns_entries()
-        # for istio initialize non-captured conns with non-TCP connections
+        # for istio initialize non-captured conns with all possible non-TCP connections
+        # This is a compact way to represent all peers connections, but it is an over-approximation also containing
+        # IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
         all_all_conns = \
             ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                               "dst_peers": all_peers_and_ips,
