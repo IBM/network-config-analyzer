@@ -40,9 +40,8 @@ class CanonicalHyperCubeSet:
     # TODO: should move dimensions order to DimensionsManager?
     def __init__(self, dimensions, allow_all=False):
         self.layers = dict()  # layers are w.r.t active dimensions
-        self.dimensions_manager = DimensionsManager()
         self.all_dimensions_list = dimensions  # ordered list of all dimensions
-        self.all_dim_types = [self.dimensions_manager.get_dimension_type_by_name(dim_name) for dim_name in dimensions]
+        self.all_dim_types = [DimensionsManager().get_dimension_type_by_name(dim_name) for dim_name in dimensions]
         # init ordered list of active dimensions:
         if allow_all:
             self.active_dimensions = []  # names (for non-active dimensions everything is allowed)
@@ -174,7 +173,7 @@ class CanonicalHyperCubeSet:
         dimensions_list_ordered = self._get_dimensions_subset_by_order(dimensions_list_restriction)
         cube_res = []
         for dim_name in dimensions_list_ordered:
-            cube_res.append(self.dimensions_manager.get_dimension_domain_by_name(dim_name))
+            cube_res.append(DimensionsManager().get_dimension_domain_by_name(dim_name))
         return cube_res
 
     def __len__(self):
@@ -524,7 +523,7 @@ class CanonicalHyperCubeSet:
                 else:
                     covered_elem_res |= elem
             # since the current dim is inactive for self, the covered_elem_res should equal the entire dim's domain
-            return covered_elem_res == self.dimensions_manager.get_dimension_domain_by_name(current_dim)
+            return covered_elem_res == DimensionsManager().get_dimension_domain_by_name(current_dim)
 
         # case 3: current_dim is common to both self and other
         assert current_dim in self.active_dimensions and current_dim in other.active_dimensions
@@ -604,7 +603,7 @@ class CanonicalHyperCubeSet:
         res = ""
         for dim_index, dim_values in enumerate(cube):
             dim_name = self.active_dimensions[dim_index]
-            res += self.dimensions_manager.get_dim_values_str(dim_values, dim_name) + ", "
+            res += DimensionsManager().get_dim_values_str(dim_values, dim_name) + ", "
         return f"({res})"
 
     def _is_last_dimension(self):
@@ -718,7 +717,7 @@ class CanonicalHyperCubeSet:
                 self.active_dimensions = new_active_dimensions
                 new_sub_elem = CanonicalHyperCubeSet(self.all_dimensions_list)
                 new_sub_elem.active_dimensions = [new_active_dimensions[1]]
-                dim_all_values = self.dimensions_manager.get_dimension_domain_by_name(new_active_dimensions[1])
+                dim_all_values = DimensionsManager().get_dimension_domain_by_name(new_active_dimensions[1])
                 new_sub_elem.layers[dim_all_values] = CanonicalHyperCubeSet.empty_interval
                 new_sub_elem.build_new_active_dimensions(new_active_dimensions[1:])
                 for layer_elem in self.layers:
@@ -727,7 +726,7 @@ class CanonicalHyperCubeSet:
         # build new layer for new dimension: new_active_dimensions[0]
         new_layers = dict()
         new_dim = new_active_dimensions[0]
-        dim_all_values = self.dimensions_manager.get_dimension_domain_by_name(new_dim)
+        dim_all_values = DimensionsManager().get_dimension_domain_by_name(new_dim)
         new_layers[dim_all_values] = self.copy()
         self.active_dimensions = new_active_dimensions
         new_layers[dim_all_values].build_new_active_dimensions(new_active_dimensions[1:])
@@ -827,7 +826,7 @@ class CanonicalHyperCubeSet:
         dimensions_to_reduce = []
         values_per_dimension = self._get_values_sets_per_active_dimension()
         for dim_name, values_set in values_per_dimension.items():
-            dim_domain = self.dimensions_manager.get_dimension_domain_by_name(dim_name)
+            dim_domain = DimensionsManager().get_dimension_domain_by_name(dim_name)
             if {dim_domain} == values_set:
                 dimensions_to_reduce.append(dim_name)
         dimensions_to_reduce = self._get_dimensions_subset_by_order(dimensions_to_reduce)
