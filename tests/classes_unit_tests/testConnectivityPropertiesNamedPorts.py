@@ -128,24 +128,25 @@ class TestNamedPorts(unittest.TestCase):
                                                      "protocols": ProtocolSet.get_protocol_set_with_single_protocol("TCP")})
         props_with_tcp = ConnectivityProperties.make_conn_props(conn_cube)
         self.assertFalse(props_with_tcp.has_named_ports())
-        udp_ports_for_pod_a = PortSet.make_port_set_with_range(200, 300)
-        udp_ports_for_pod_a.add_port_range(600, 600)
-        udp_ports_for_pod_b = PortSet.make_port_set_with_range(200, 300)
-        udp_ports_for_pod_b.add_port_range(700, 700)
+        tcp_ports_for_pod_a = PortSet.make_port_set_with_range(200, 300)
+        tcp_ports_for_pod_a.add_port_range(600, 600)
+        tcp_ports_for_pod_b = PortSet.make_port_set_with_range(200, 300)
+        tcp_ports_for_pod_b.add_port_range(700, 700)
 
-        reference_props_with_udp = \
+        reference_props_with_tcp = \
             ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": PeerSet({pod_a}),
-                                                              "src_ports": src_ports, "dst_ports": udp_ports_for_pod_a})
-        reference_props_with_udp |= \
+                                                              "src_ports": src_ports, "dst_ports": tcp_ports_for_pod_a})
+        reference_props_with_tcp |= \
             ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": PeerSet({pod_b}),
-                                                              "src_ports": src_ports, "dst_ports": udp_ports_for_pod_b})
-        reference_props_with_udp |= \
+                                                              "src_ports": src_ports, "dst_ports": tcp_ports_for_pod_b})
+        reference_props_with_tcp |= \
             ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": PeerSet({pod_c, pod_d}),
                                                               "src_ports": src_ports,
                                                               "dst_ports": PortSet.make_port_set_with_range(200, 300)})
-        reference_props_with_udp &= \
+        reference_props_with_tcp &= \
             ConnectivityProperties.make_conn_props_from_dict({"protocols": ProtocolSet.get_protocol_set_with_single_protocol("TCP")})
-        self.assertEqual(props_with_tcp, reference_props_with_udp)
+
+        self.assertEqual(props_with_tcp, reference_props_with_tcp)
         '''
         {'src_peers': 'default/D,default/A,default/C', 'dst_peers': 'default/A', 'protocols': 'TCP', 'src_ports': '1-100', 'dst_ports': '200-300,600'},
         {'src_peers': 'default/D,default/A,default/C', 'dst_peers': 'default/B', 'protocols': 'TCP', 'src_ports': '1-100', 'dst_ports': '200-300,700'},
