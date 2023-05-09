@@ -34,6 +34,7 @@ networkConfigList:
     networkPolicyList:
       - bookinfo-default-sidecar-1.yaml
       - bookinfo-default-sidecar-2.yaml
+    expectedError: 1
 
   - name: sidecar-with-workload-selector-overrides-default-sidecar
     networkPolicyList:
@@ -49,6 +50,7 @@ networkConfigList:
     networkPolicyList:
       - bookinfo-productpage-sidecar-1.yaml
       - bookinfo-productpage-sidecar-2.yaml
+    expectedError: 1
 
   - name: multiple-sidecar-overrides
     networkPolicyList:
@@ -106,12 +108,6 @@ queries:
       - bookinfo-default-sidecar-overrides-istio-global-sidecar
     expected: 0
 
-  - name: connectivity-map-bookinfo-ignoring-second-default-sidecar-in-same-namespace
-    connectivityMap:
-      - bookinfo-two-selector-less-sidecars
-    expected: 0
-    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_ignoring_second_default_sidecar.txt
-
   - name: connectivity-map-bookinfo-specific-sidecar-overrides-default-sidecar # for relevant pods
     connectivityMap:
       - sidecar-with-workload-selector-overrides-default-sidecar
@@ -123,12 +119,6 @@ queries:
       - sidecar-with-workload-selector-overrides-istio-global-sidecar
     expected: 0
     expectedOutput: ../../../expected_output/connectivity_map_bookinfo_specific_sidecar_overrides_global_sidecar.txt
-
-  - name: connectivity-map-bookinfo-two-sidecars-with-same-workload-selector
-    connectivityMap:
-      - two-sidecars-with-same-workload-selector
-    expected: 0
-    expectedOutput: ../../../expected_output/connectivity_map_bookinfo_two_sidecars_with_same_workload_selector.txt
 
   - name: connectivity-map-bookinfo-multiple-sidecar-overrides
     connectivityMap:
