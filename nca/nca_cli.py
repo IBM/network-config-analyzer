@@ -134,7 +134,7 @@ def _make_recursive(path_list):
     return path_list
 
 
-def run_args(args):
+def run_args(args):   # noqa: C901
     """
     Given the parsed cmdline, decide what to run
     :param Namespace args: argparse-style parsed cmdline

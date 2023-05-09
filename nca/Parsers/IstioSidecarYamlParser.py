@@ -31,15 +31,6 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         starts a new parser with a new sidecar policy, keeping the private attributes of self
         """
         IstioGenericYamlParser.__init__(self, policy, peer_container, file_name)
-    def __init__(self, policy, peer_container, file_name=''):
-        IstioGenericYamlParser.__init__(self, policy, peer_container, file_name)
-        self.peers_referenced_by_labels = PeerSet()
-        self.specific_sidecars = []
-        self.default_sidecars = []
-        self.global_default_sidecars = []
-
-    def reset(self, policy, peer_container, file_name=''):
-        IstioGenericYamlParser.__init__(self, policy, peer_container, file_name)
 
     def _validate_and_partition_host_format(self, host):
         """

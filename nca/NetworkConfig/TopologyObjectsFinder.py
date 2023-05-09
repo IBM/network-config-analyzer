@@ -204,7 +204,7 @@ class PodsFinder:
             ipb.add_cidr(cidr)
         self._add_peer(ipb)
         if ExplTracker().is_active():
-            ExplTracker().add_item(networkset_object.path, networkset_object.line_number, ipb.full_name() )
+            ExplTracker().add_item(networkset_object.path, networkset_object.line_number, ipb.full_name())
 
     def _add_hep_from_yaml(self, hep_object):
         """

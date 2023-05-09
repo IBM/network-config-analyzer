@@ -5,7 +5,7 @@
 
 from nca.Utils.Utils import Singleton
 from nca.Utils.NcaLogger import NcaLogger
-from nca.CoreDS.Peer import PeerSet, Pod
+from nca.CoreDS.Peer import PeerSet
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 

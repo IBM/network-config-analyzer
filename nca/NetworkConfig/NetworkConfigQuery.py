@@ -187,25 +187,6 @@ class NetworkConfigQuery(BaseNetworkQuery):
         res -= dns_to_any_conns
         return res
 
-    def filter_conns_by_peer_types(self, conns, all_peers):
-        res = conns
-        # avoid IpBlock -> {IpBlock, DNSEntry} connections
-        all_ips = IpBlock.get_all_ips_block_peer_set()
-        all_dns_entries = self.config.peer_container.get_all_dns_entries()
-        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ips,
-                                                                                  "dst_peers": all_ips | all_dns_entries})
-        res -= ip_to_ip_or_dns_conns
-        # avoid DNSEntry->anything connections
-        dns_to_any_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_dns_entries,
-                                                                             "dst_peers": all_peers})
-        res -= dns_to_any_conns
-        # avoid anything->DNSEntry connections if Istio layer does not exist
-        if not self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
-            any_to_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers,
-                                                                                 "dst_peers": all_dns_entries})
-            res -= any_to_dns_conns
-        return res
-
 
 class DisjointnessQuery(NetworkConfigQuery):
     """
@@ -1066,23 +1047,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         for cube in props:
             conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container)
-        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
-
-    def dot_format_from_props(self, props, peers, ip_blocks_mask, connectivity_restriction=None):
-        """
-        :param ConnectivityProperties props: properties describing allowed connections
-        :param PeerSet peers: the peers to consider for dot output
-        :param IpBlock ip_blocks_mask:  IpBlock containing all allowed ip values,
-         whereas all other values should be filtered out in the output
-        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
-               TCP / non-TCP , or not
-        :rtype str
-        :return the connectivity map in dot-format, considering connectivity_restriction if required
-        """
-        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-        for cube in props:
-            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container,
-                                                ip_blocks_mask)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def txt_no_fw_rules_format_from_props(self, props, peers, ip_blocks_mask, connectivity_restriction=None):
