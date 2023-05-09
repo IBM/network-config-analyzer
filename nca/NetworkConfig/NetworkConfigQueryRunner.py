@@ -57,7 +57,7 @@ class QueryResult:
         else:
             output = '\n'.join(self.query_iterations_output)
         expl_out = ''
-        if ExplTracker().is_active():
+        if ExplTracker().is_active() and (output_format == 'txt' or output_format == 'txt_no_fw_rules'):
             expl_out = ExplTracker().explain(expl_nodes.split(','))
         return self.numerical_result, output+expl_out, self.num_not_executed
 

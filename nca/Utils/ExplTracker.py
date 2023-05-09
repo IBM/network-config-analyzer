@@ -335,6 +335,9 @@ class ExplTracker(metaclass=Singleton):
         :return: str: full name of the element
         """
 
+        # Replace '[' with '(' and ']' with ')'
+        name = name.replace('[', '(').replace(']', ')')
+
         if self.ep == 'deployments':
             # convert from workload name to fullname
             for fullname, data in self.ExplDescriptorContainer.items():
