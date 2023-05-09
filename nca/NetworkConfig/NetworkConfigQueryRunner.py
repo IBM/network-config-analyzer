@@ -58,7 +58,7 @@ class QueryResult:
             output = '\n'.join(self.query_iterations_output)
         expl_out = ''
         if ExplTracker().is_active():
-            expl_out = ExplTracker().explain(expl_nodes)
+            expl_out = ExplTracker().explain(expl_nodes.split(','))
         return self.numerical_result, output+expl_out, self.num_not_executed
 
 
@@ -174,7 +174,7 @@ class NetworkConfigQueryRunner:
         query_result = QueryResult()
         for config in self.configs_array:
             query_result.update(self._execute_one_config_query(self.query_name, self._get_config(config)))
-        return query_result.compute_final_results(self.output_configuration.outputFormat, self.output_configuration.expl)
+        return query_result.compute_final_results(self.output_configuration.outputFormat, self.output_configuration.explain)
 
     def _run_query_on_configs_vs_base_config(self, cmd_line_flag):
         query_result = QueryResult()

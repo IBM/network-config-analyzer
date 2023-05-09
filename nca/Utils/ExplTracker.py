@@ -49,7 +49,7 @@ class ExplTracker(metaclass=Singleton):
         self.all_peers = {}
         self.ep = ep
 
-        self.add_item('', 'Default-Policy', 0)
+        self.add_item('', 0, 'Default-Policy')
 
     class ExplPolicies:
         """
@@ -72,7 +72,7 @@ class ExplTracker(metaclass=Singleton):
             :param str policy_name: the policy to add
             """
             for peer in peer_set:
-                peer_name = ExplTracker().get_peer_ep_name(peer)
+                peer_name = peer.full_name()
                 if not peer_list.get(peer_name):
                     peer_list[peer_name] = set()
                 # We don't want Default-Policy if we have any other policy,
@@ -109,15 +109,16 @@ class ExplTracker(metaclass=Singleton):
         """
         return self._is_active
 
-    def add_item(self, path, name, ln):
+    def add_item(self, path, ln, full_name, workload_name=''):
         """
         Adds an item describing a configuration block
         :param str path: the path to the configuration file
-        :param str name: the name of the configuration block (doc)
-        :param int ln: the line starting the configuration block in it's file
+        :param int ln: the line starting the configuration block in its file
+        :param str full_name: the full name of the configuration block (doc)
+        :param str workload_name: the workload name of the configuration block (doc)
         """
-        if name:
-            self.ExplDescriptorContainer[name] = {'path': path, 'line': ln}
+        if full_name:
+            self.ExplDescriptorContainer[full_name] = {'path': path, 'line': ln, 'workload_name': workload_name}
         else:
             NcaLogger().log_message('Explainability error: configuration-block name can not be empty', level='E')
 
@@ -178,10 +179,10 @@ class ExplTracker(metaclass=Singleton):
         self.all_peers = peers
         # add all missing 'special' peers (like 0.0.0.0/0) with default policy.
         for peer in self.all_peers:
-            peer_name = self.get_peer_ep_name(peer)
+            peer_name = peer.full_name()
             if not self.ExplPeerToPolicyContainer.get(peer_name):
                 if not self.ExplDescriptorContainer.get(peer_name):
-                    self.add_item('', peer_name, 0)
+                    self.add_item('', 0, peer_name)
                 self.add_default_policy(PeerSet([peer]), peers, False)
                 self.add_default_policy(peers, PeerSet([peer]), True)
 
@@ -201,9 +202,9 @@ class ExplTracker(metaclass=Singleton):
             src_peers = conn_cube['src_peers']
             dst_peers = conn_cube['dst_peers']
             for peer in src_peers:
-                src_peers_names.append(self.get_peer_ep_name(peer))
+                src_peers_names.append(peer.full_name())
             for peer in dst_peers:
-                dst_peers_names.append(self.get_peer_ep_name(peer))
+                dst_peers_names.append(peer.full_name())
             if src in src_peers_names and dst in dst_peers_names:
                 return True
         return False
@@ -227,8 +228,8 @@ class ExplTracker(metaclass=Singleton):
         for node in nodes:
             # we dont add Default-Policy if there is already an explicit
             # policy allowing the connectivity
-            if self.is_policy_list_empty(self.get_peer_ep_name(node), is_ingress):
-                node_name = self.get_peer_ep_name(node)
+            if self.is_policy_list_empty(node.full_name(), is_ingress):
+                node_name = node.full_name()
                 self.add_peer_policy(node_name,
                                      'Default-Policy',
                                      egress_list,
@@ -260,20 +261,27 @@ class ExplTracker(metaclass=Singleton):
         """
         out = []
         if direction:
-            out = [f'\n({direction}){node_name}:']
-        for name in results:
+            out = [f'\n({direction}){self.get_printout_ep_name(node_name)}:']
+        for index, name in enumerate(results):
+            if index == 0:
+                # results always starts with the policy configurations - make a headline
+                out.append('Policy Configurations:')
+            if index > 0 and index == len(results)-1:
+                # the last one is always the resource configuration - make a headline
+                out.append('Resource Configurations:')
+            ep_name = self.get_printout_ep_name(name)
             if not self.ExplDescriptorContainer.get(name):
-                out.append(f'{name} - explainability entry not found')
+                out.append(f'{ep_name} - explainability entry not found')
                 continue
             path = self.ExplDescriptorContainer.get(name).get("path")
             if path == '':  # special element (like Default Policy)
-                out.append(f'{name}')
+                out.append(f'{ep_name}')
             else:
-                out.append(f'{name}: line {self.ExplDescriptorContainer.get(name).get("line")} '
+                out.append(f'{ep_name}: line {self.ExplDescriptorContainer.get(name).get("line")} '
                            f'in file {path}')
         return out
 
-    def get_peer_ep_name(self, peer):
+    def get_printout_ep_name(self, peer):
         """
         Get the name of the peer based on the endpoints configurations:
         full_name for Pods mode
@@ -281,10 +289,13 @@ class ExplTracker(metaclass=Singleton):
         :param peer: the peer to query
         :return: string: name of peer
         """
-        if self.ep == 'deployments' and isinstance(peer, Pod):
-            return peer.workload_name
+        if self.ep == 'deployments':
+            printout_name = self.ExplDescriptorContainer.get(peer).get('workload_name')
+            if printout_name == '':
+                printout_name = peer
+            return printout_name
         else:
-            return peer.full_name()
+            return peer
 
     def explain_all(self):
         """
@@ -297,7 +308,7 @@ class ExplTracker(metaclass=Singleton):
         # also use one peer for each deployment
         peer_names = set()
         for peer in self.all_peers:
-            peer_names.add(self.get_peer_ep_name(peer))
+            peer_names.add(peer.full_name())
 
         for peer1 in peer_names:
             for peer2 in peer_names:
@@ -309,13 +320,33 @@ class ExplTracker(metaclass=Singleton):
                 entry = soup.new_tag('entry')
                 entry_id += 1
                 entry['id'] = str(entry_id)
-                entry['src'] = peer1
-                entry['dst'] = peer2
+                entry['src'] = self.get_printout_ep_name(peer1)
+                entry['dst'] = self.get_printout_ep_name(peer2)
                 text_elem = Tag(soup, name='text')
                 text_elem.string = text
                 entry.append(text_elem)
                 soup.append(entry)
         return soup.prettify()
+
+    def get_working_ep_name(self, name):
+        """
+        if ep is in 'deployments' mode, the given name will be the workload name but the full name is always used as index
+        :param name: str: the name to convert to full_name (it it is not already the full name)
+        :return: str: full name of the element
+        """
+
+        if self.ep == 'deployments':
+            # convert from workload name to fullname
+            for fullname, data in self.ExplDescriptorContainer.items():
+                workload_name = data.get('workload_name')
+                if name == workload_name or name == fullname:
+                    # found the workload name, return its fullname
+                    # or, it has no workload name
+                    return fullname
+            return ''
+        else:
+            # we are in 'pods' mode so the name is already the fullname
+            return name
 
     def explain(self, nodes):
         """
@@ -335,40 +366,49 @@ class ExplTracker(metaclass=Singleton):
                                     f' found {len(nodes)} ', level='E')
             return ''
 
-        src_node = nodes[0]
-        if src_node == 'ALL':
+        if nodes[0] == 'ALL':
             out = self.explain_all()
             return out
 
+        src_node = self.get_working_ep_name(nodes[0])
         for node in nodes:
+            node = self.get_working_ep_name(node)
             if not self.ExplDescriptorContainer.get(node):
-                NcaLogger().log_message(f'Explainability error - {node} was not found in the connectivity results', level='E')
+                NcaLogger().log_message(f'Explainability error - {self.get_printout_ep_name(node)} '
+                                        f'was not found in the connectivity results', level='E')
                 return ''
             if not self.ExplPeerToPolicyContainer.get(node):
-                NcaLogger().log_message(f'Explainability error - {node} has no explanability results', level='E')
+                NcaLogger().log_message(f'Explainability error - {self.get_printout_ep_name(node)} '
+                                        f'has no explanability results', level='E')
                 return ''
 
         out = []
         if len(nodes) == 2:
             # 2 nodes scenario
-            dst_node = nodes[1]
+            dst_node = self.get_working_ep_name(nodes[1])
             if self.are_peers_connected(src_node, dst_node):
                 # connection valid
-                out.append(f'Configurations affecting the connectivity between (src){src_node} and (dst){dst_node}:')
+                out.append(f'\nConfigurations affecting the connectivity between '
+                           f'(src){self.get_printout_ep_name(src_node)} and (dst){self.get_printout_ep_name(dst_node)}:')
                 src_results = self.ExplPeerToPolicyContainer[src_node].egress_dst.get(dst_node)
                 dst_results = self.ExplPeerToPolicyContainer[dst_node].ingress_src.get(src_node)
             else:
-                out.append(f'Configurations affecting the LACK of connectivity between (src){src_node} and (dst){dst_node}:')
+                out.append(f'Configurations affecting the LACK of connectivity between '
+                           f'(src){self.get_printout_ep_name(src_node)} and (dst){self.get_printout_ep_name(dst_node)}:')
                 src_results = self.ExplPeerToPolicyContainer[src_node].all_policies
                 dst_results = self.ExplPeerToPolicyContainer[dst_node].all_policies
 
-            src_results.add(src_node)
-            dst_results.add(dst_node)
+            src_results = list(src_results)
+            src_results.append(src_node)
+            dst_results = list(dst_results)
+            dst_results.append(dst_node)
             out.extend(self.prepare_node_str(src_node, src_results, 'src'))
             out.extend(self.prepare_node_str(dst_node, dst_results, 'dst'))
         else:  # only one node
             results = self.ExplPeerToPolicyContainer[src_node].all_policies
-            out.append(f'Configurations affecting {src_node}:')
+            results = list(results)
+            results.append(src_node)
+            out.append(f'Configurations affecting {self.get_printout_ep_name(src_node)}:')
             out.extend(self.prepare_node_str(src_node, results))
 
         # convert the list of expl' directives into string

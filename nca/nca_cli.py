@@ -156,7 +156,7 @@ def run_args(args):
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
                                          'subset': {},
-                                         'expl': [],
+                                         'explain': [],
                                          'excludeIPv6Range': not args.print_ipv6})
     expected_output = None
     # default values are for sanity query
@@ -185,7 +185,7 @@ def run_args(args):
         output_config['subset'].update({'label_subset': all_labels})
 
     if args.explain is not None:
-        output_config['expl'] = args.explain.split(',')
+        output_config['explain'] = args.explain
         ExplTracker(output_config.outputEndpoints).activate()
 
     if args.equiv is not None:

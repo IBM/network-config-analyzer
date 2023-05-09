@@ -258,7 +258,7 @@ class NetworkLayer:
                 for peer in policy.selected_peers:
                     src_peers, _ = ExplTracker().extract_peers(policy.optimized_allow_ingress_props)
                     _, dst_peers = ExplTracker().extract_peers(policy.optimized_allow_egress_props)
-                    peer_name = ExplTracker().get_peer_ep_name(peer)
+                    peer_name = peer.full_name()
                     ExplTracker().add_peer_policy(peer_name,
                                                   policy.name,
                                                   dst_peers,
