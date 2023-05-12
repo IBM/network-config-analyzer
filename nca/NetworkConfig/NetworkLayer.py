@@ -395,7 +395,7 @@ class IstioNetworkLayer(NetworkLayer):
                         ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                                           "dst_peers": non_captured_dns_entries,
                                                                           "protocols": tcp_protocol})
-                    non_captured_conns = all_nc_dns_conns
+                    non_captured_conns |= all_nc_dns_conns
                     res_conns.all_allowed_conns |= all_nc_dns_conns
             else:
                 nc_all_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
@@ -405,7 +405,8 @@ class IstioNetworkLayer(NetworkLayer):
                 nc_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                  "dst_peers": dns_entries,
                                                                                  "protocols": tcp_protocol})
-                non_captured_conns = nc_dns_conns
+                non_captured_conns = nc_all_conns - res_conns.denied_conns
+                non_captured_conns |= nc_dns_conns
                 res_conns.all_allowed_conns |= nc_dns_conns
             if non_captured_conns and ExplTracker().is_active():
                 src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
