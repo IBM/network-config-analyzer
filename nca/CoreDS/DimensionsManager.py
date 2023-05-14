@@ -91,6 +91,11 @@ class DimensionsManager:
         if not DimensionsManager.instance:
             DimensionsManager.instance = DimensionsManager.__DimensionsManager()
 
+    @staticmethod
+    def reset():
+        # used by unit tests to clean their local changes to DimensionsManager singleton
+        DimensionsManager.instance = None
+
     def __getattr__(self, name):
         return getattr(self.instance, name)
 
