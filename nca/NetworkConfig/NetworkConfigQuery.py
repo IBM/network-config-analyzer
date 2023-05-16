@@ -814,13 +814,15 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": subset_peers})
             all_conns_opt &= subset_conns
         all_conns_opt = self.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
-        if ExplTracker().is_active():
-            ExplTracker().set_connections_and_peers(all_conns_opt, subset_peers)
+        expl_conns = all_conns_opt
         if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
             output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
                 self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare)
+            expl_conns, _ = self.convert_props_to_split_by_tcp(all_conns_opt)
         else:
             output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare)
+        if ExplTracker().is_active():
+            ExplTracker().set_connections_and_peers(expl_conns, subset_peers)
         return output_res, opt_fw_rules, opt_fw_rules_tcp, opt_fw_rules_non_tcp
 
     def exec(self):
