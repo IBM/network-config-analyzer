@@ -255,7 +255,7 @@ class ExplTracker(metaclass=Singleton):
         """
         A utility function to help format a node explainability description
         :param str node_name: the name of the node currently described
-        :param str results: the names of the configurations affecting this node
+        :param list results: the names of the configurations affecting this node
         :param str direction: src/dst
         :return str: string with the description
         """

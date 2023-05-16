@@ -408,7 +408,7 @@ class IstioNetworkLayer(NetworkLayer):
                 non_captured_conns = nc_all_conns - res_conns.denied_conns
                 non_captured_conns |= nc_dns_conns
                 res_conns.all_allowed_conns |= nc_dns_conns
-            if non_captured_conns and ExplTracker().is_active():
+            if ExplTracker().is_active():
                 src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
                 ExplTracker().add_default_policy(src_peers,
                                                  dst_peers,
