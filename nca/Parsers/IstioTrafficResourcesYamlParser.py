@@ -197,8 +197,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         for route in http or []:
             self.check_fields_validity(route, f'HTTPRroute in the VirtualService {vs.full_name()}',
                                        {'name': [0, str], 'match': 0, 'route': 0, 'redirect': 3, 'delegate': 3,
-                                        'rewrite': 3, 'timeout': 3, 'retries': 3, 'fault': 3, 'mirror': 3,
-                                        'mirrorPercentage': 3, 'corsPolicy': 3, 'headers': 3})
+                                        'rewrite': 0, 'timeout': 0, 'retries': 0, 'fault': 0, 'mirror': 3,
+                                        'mirrorPercentage': 0, 'corsPolicy': 3, 'headers': 3})
             http_route = VirtualService.HTTPRoute()
             self.parse_http_match_request(route, http_route, vs)
             self.parse_http_route_destinations(route, http_route, vs)
