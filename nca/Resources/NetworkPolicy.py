@@ -59,6 +59,13 @@ class NetworkPolicy:
         self.optimized_allow_egress_props = ConnectivityProperties.make_empty_props()
         self.optimized_deny_egress_props = ConnectivityProperties.make_empty_props()
         self.optimized_pass_egress_props = ConnectivityProperties.make_empty_props()
+        # copies of optimized props (used by src_peers/dst_peers domain-updating mechanism)
+        self.optimized_allow_ingress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_deny_ingress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_pass_ingress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_allow_egress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_deny_egress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_pass_egress_props_copy = ConnectivityProperties.make_empty_props()
         self.affects_ingress = False  # whether the policy affects the ingress of the selected peers
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
         self.findings = []  # accumulated findings which are relevant only to this policy (emptiness and redundancy)
@@ -180,6 +187,34 @@ class NetworkPolicy:
             self.optimized_pass_ingress_props |= props
         else:
             self.optimized_pass_egress_props |= props
+
+    def reorganize_opt_props_by_new_domains(self):
+        self.optimized_allow_ingress_props_copy = self.optimized_allow_ingress_props.copy()
+        self.optimized_allow_ingress_props._reduce_active_dimensions()
+        self.optimized_deny_ingress_props_copy = self.optimized_deny_ingress_props.copy()
+        self.optimized_deny_ingress_props._reduce_active_dimensions()
+        self.optimized_pass_ingress_props_copy = self.optimized_pass_ingress_props.copy()
+        self.optimized_pass_ingress_props._reduce_active_dimensions()
+        self.optimized_allow_egress_props_copy = self.optimized_allow_egress_props.copy()
+        self.optimized_allow_egress_props._reduce_active_dimensions()
+        self.optimized_deny_egress_props_copy = self.optimized_deny_egress_props.copy()
+        self.optimized_deny_egress_props._reduce_active_dimensions()
+        self.optimized_pass_egress_props_copy = self.optimized_pass_egress_props.copy()
+        self.optimized_pass_egress_props._reduce_active_dimensions()
+
+    def restore_opt_props(self):
+        self.optimized_allow_ingress_props = self.optimized_allow_ingress_props_copy
+        self.optimized_deny_ingress_props = self.optimized_deny_ingress_props_copy
+        self.optimized_pass_ingress_props = self.optimized_pass_ingress_props_copy
+        self.optimized_allow_egress_props = self.optimized_allow_egress_props_copy
+        self.optimized_deny_egress_props = self.optimized_deny_egress_props_copy
+        self.optimized_pass_egress_props = self.optimized_pass_egress_props_copy
+        self.optimized_allow_ingress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_deny_ingress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_pass_ingress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_allow_egress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_deny_egress_props_copy = ConnectivityProperties.make_empty_props()
+        self.optimized_pass_egress_props_copy = ConnectivityProperties.make_empty_props()
 
     @staticmethod
     def get_policy_type_from_dict(policy):  # noqa: C901

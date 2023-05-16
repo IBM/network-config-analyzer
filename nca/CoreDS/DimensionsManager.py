@@ -107,13 +107,18 @@ class DimensionsManager:
         """
         return self.dim_dict[dim_name][0]
 
-    def get_dimension_domain_by_name(self, dim_name):
+    def get_dimension_domain_by_name(self, dim_name, make_copy=False):
         """
         get dimensions domain from its name
         :param str dim_name: dimension name
+        :param bool make_copy: whether to copy the domain value
         :return: CanonicalIntervalSet object or MinDFA object  (depends on dimension type)
         """
-        return self.dim_dict[dim_name][1]
+        res = self.dim_dict[dim_name][1]
+        if make_copy and not isinstance(res, MinDFA):
+            return res.copy()
+        else:
+            return res
 
     def get_empty_dimension_by_name(self, dim_name):
         """
@@ -123,17 +128,20 @@ class DimensionsManager:
         """
         return self.dim_dict[dim_name][2]
 
-    def set_domain(self, dim_name, dim_type, interval_tuple=None, alphabet_str=None):
+    def set_domain(self, dim_name, dim_type, interval_tuple_or_set=None, alphabet_str=None):
         """
         set a new dimension, or change an existing dimension
         :param str dim_name: dimension name
         :param DimensionsManager.DimensionType dim_type: dimension type
-        :param tuple(int,int) interval_tuple:  for interval domain value
+        :param tuple(int,int) interval_tuple_or_set:  for interval domain value
         :param str alphabet_str: regex in greenery format to express the str dimension domain
         """
         if dim_type == DimensionsManager.DimensionType.IntervalSet:
-            interval = interval_tuple if interval_tuple is not None else self.default_interval_domain_tuple
-            domain = CanonicalIntervalSet.get_interval_set(interval[0], interval[1])
+            if isinstance(interval_tuple_or_set, CanonicalIntervalSet):
+                domain = interval_tuple_or_set
+            else:
+                interval = interval_tuple_or_set if interval_tuple_or_set is not None else self.default_interval_domain_tuple
+                domain = CanonicalIntervalSet.get_interval_set(interval[0], interval[1])
             empty_val = CanonicalIntervalSet()
         else:
             alphabet = alphabet_str if alphabet_str is not None else MinDFA.default_alphabet_regex

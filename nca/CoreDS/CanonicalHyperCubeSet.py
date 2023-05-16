@@ -173,7 +173,7 @@ class CanonicalHyperCubeSet:
         dimensions_list_ordered = self._get_dimensions_subset_by_order(dimensions_list_restriction)
         cube_res = []
         for dim_name in dimensions_list_ordered:
-            cube_res.append(DimensionsManager().get_dimension_domain_by_name(dim_name))
+            cube_res.append(DimensionsManager().get_dimension_domain_by_name(dim_name, True))
         return cube_res
 
     def __len__(self):
@@ -667,7 +667,7 @@ class CanonicalHyperCubeSet:
             if active_dim_name in current_active_dimensions_dict:
                 aligned_cube_values.append(cube[current_active_dimensions_dict[active_dim_name]])
             else:
-                aligned_cube_values.append(DimensionsManager().get_dimension_domain_by_name(active_dim_name))
+                aligned_cube_values.append(DimensionsManager().get_dimension_domain_by_name(active_dim_name, True))
         return aligned_cube_values
 
     def _set_active_dimensions(self, dim_names_set):
@@ -717,7 +717,7 @@ class CanonicalHyperCubeSet:
                 self.active_dimensions = new_active_dimensions
                 new_sub_elem = CanonicalHyperCubeSet(self.all_dimensions_list)
                 new_sub_elem.active_dimensions = [new_active_dimensions[1]]
-                dim_all_values = DimensionsManager().get_dimension_domain_by_name(new_active_dimensions[1])
+                dim_all_values = DimensionsManager().get_dimension_domain_by_name(new_active_dimensions[1], True)
                 new_sub_elem.layers[dim_all_values] = CanonicalHyperCubeSet.empty_interval
                 new_sub_elem.build_new_active_dimensions(new_active_dimensions[1:])
                 for layer_elem in self.layers:
@@ -726,7 +726,7 @@ class CanonicalHyperCubeSet:
         # build new layer for new dimension: new_active_dimensions[0]
         new_layers = dict()
         new_dim = new_active_dimensions[0]
-        dim_all_values = DimensionsManager().get_dimension_domain_by_name(new_dim)
+        dim_all_values = DimensionsManager().get_dimension_domain_by_name(new_dim, True)
         new_layers[dim_all_values] = self.copy()
         self.active_dimensions = new_active_dimensions
         new_layers[dim_all_values].build_new_active_dimensions(new_active_dimensions[1:])
