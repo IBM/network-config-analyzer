@@ -8,13 +8,6 @@ from nca.CoreDS.DimensionsManager import DimensionsManager
 dimensions = ["src_ports", "ports", "methods", "paths"]
 dimensions2 = ["ports", "src_ports", "methods", "paths"]
 dimensions3 = ["src_ports", "ports", "methods", "paths", "hosts"]
-dim_manager = DimensionsManager()
-dim_manager.set_domain("ports", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
-# overriding domain of paths dimension to be [\w]* instead of /[\w]*
-# currently the tests assume a path value does not have to start with '/'.
-# when using the domain /[\w]* with current tests, some will fail.
-# some detailed explanation at commented out test test_basic_or_2
-dim_manager.set_domain("paths", DimensionsManager.DimensionType.DFA)
 
 
 def get_str_dfa(s):
@@ -32,9 +25,21 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
     """
     unit tests for CanonicalHyperCubeSet with methods dimension of type IntervalSet.
     """
+    def setUp(self):
+        dim_manager = DimensionsManager()
+        dim_manager.set_domain("ports", DimensionsManager.DimensionType.IntervalSet, (1, 65535))
+        # overriding domain of paths dimension to be [\w]* instead of /[\w]*
+        # currently the tests assume a path value does not have to start with '/'.
+        # when using the domain /[\w]* with current tests, some will fail.
+        # some detailed explanation at commented out test test_basic_or_2
+        dim_manager.set_domain("paths", DimensionsManager.DimensionType.DFA)
+
+    def tearDown(self):
+        # undo changes this test did to DimensionsManager singleton
+        DimensionsManager.reset()
 
     def test_dfa_equality(self):
-        dfa_all = dim_manager.get_dimension_domain_by_name("paths")
+        dfa_all = DimensionsManager().get_dimension_domain_by_name("paths")
         dfa_all.is_all_words = MinDFA.Ternary.UNKNOWN
         dfa_put = get_str_dfa("PUT")
         dfa_put_2 = dfa_put & dfa_all
@@ -232,7 +237,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         x = CanonicalHyperCubeSet(dimensions)
         y = CanonicalHyperCubeSet(dimensions)
         z = CanonicalHyperCubeSet(dimensions, True)
-        paths_dfa1 = dim_manager.get_dimension_domain_by_name("paths") - get_str_dfa("a")
+        paths_dfa1 = DimensionsManager().get_dimension_domain_by_name("paths") - get_str_dfa("a")
         paths_dfa2 = get_str_dfa("a")
         x.add_cube([paths_dfa1], ["paths"])
         y.add_cube([paths_dfa2], ["paths"])
@@ -566,10 +571,10 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         methods_intervals = get_method_interval("PUT")
         x.add_cube([ports_range3, methods_intervals], ["ports", "methods"])
         x_expected_cubes = [
-            [range1, ports_range2, dim_manager.get_dimension_domain_by_name("methods")],
+            [range1, ports_range2, DimensionsManager().get_dimension_domain_by_name("methods")],
             [range1, ports_range3, methods_intervals],
             [ports_range, CanonicalIntervalSet.get_interval_set(10, 40),
-             dim_manager.get_dimension_domain_by_name("methods")],
+             DimensionsManager().get_dimension_domain_by_name("methods")],
             [ports_range, ports_range3, methods_intervals]
         ]
         self.assertEqual(sorted(x._get_cubes_list_from_layers()), sorted(x_expected_cubes))
@@ -578,7 +583,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         x._set_active_dimensions({"paths"})
         # self.assertEqual(str(x), x_str_expected_new)
         for cube in x_expected_cubes:
-            cube.append(dim_manager.get_dimension_domain_by_name("paths"))
+            cube.append(DimensionsManager().get_dimension_domain_by_name("paths"))
         self.assertEqual(sorted(x._get_cubes_list_from_layers()), sorted(x_expected_cubes))
         # print(x)
         # print(ports_range)
@@ -600,7 +605,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         # print(x)
 
         # TODO: test union for resulting cubes, by adding the missing sub-cube
-        methods_dfa_all_but_put = dim_manager.get_dimension_domain_by_name("methods") - methods_intervals
+        methods_dfa_all_but_put = DimensionsManager().get_dimension_domain_by_name("methods") - methods_intervals
         new_cube = [methods_dfa_all_but_put]
         x.add_cube(new_cube, ["methods"])
         # x_str_expected_new_3 = "src_ports,ports,methods,paths: ([1-9], [1-14], all but {'PUT'}, *, ),([1-9], [15-40], *, *, ),([1-9], [41-99], all but {'PUT'}, *, ),([1-9], [100-200], *, *, ),([1-9], [201-3999], all but {'PUT'}, *, ),([1-9], [4000-4000], {'PUT'}, {'abc'}, ),([1-9], [4000-4000], all but {'PUT'}, *, ),([1-9], [4001-65535], all but {'PUT'}, *, ),([10-20], [1-9], all but {'PUT'}, *, ),([10-20], [10-40], *, *, ),([10-20], [41-99], all but {'PUT'}, *, ),([10-20], [100-200], *, *, ),([10-20], [201-3999], all but {'PUT'}, *, ),([10-20], [4000-4000], {'PUT'}, {'abc'}, ),([10-20], [4000-4000], all but {'PUT'}, *, ),([10-20], [4001-65535], all but {'PUT'}, *, ),([21-65535], [1-14], all but {'PUT'}, *, ),([21-65535], [15-40], *, *, ),([21-65535], [41-99], all but {'PUT'}, *, ),([21-65535], [100-200], *, *, ),([21-65535], [201-3999], all but {'PUT'}, *, ),([21-65535], [4000-4000], {'PUT'}, {'abc'}, ),([21-65535], [4000-4000], all but {'PUT'}, *, ),([21-65535], [4001-65535], all but {'PUT'}, *, )"
@@ -624,15 +629,15 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         '''
         x_expected_cubes = {
             tuple([range1, range2, methods_intervals, paths_dfa]),
-            tuple([range1, range2, methods_dfa_all_but_put, dim_manager.get_dimension_domain_by_name("paths")]),
-            tuple([range1, range3, dim_manager.get_dimension_domain_by_name("methods"),
-                   dim_manager.get_dimension_domain_by_name("paths")]),
-            tuple([range1, range4, methods_dfa_all_but_put, dim_manager.get_dimension_domain_by_name("paths")]),
-            tuple([ports_range, range5, dim_manager.get_dimension_domain_by_name("methods"),
-                   dim_manager.get_dimension_domain_by_name("paths")]),
+            tuple([range1, range2, methods_dfa_all_but_put, DimensionsManager().get_dimension_domain_by_name("paths")]),
+            tuple([range1, range3, DimensionsManager().get_dimension_domain_by_name("methods"),
+                   DimensionsManager().get_dimension_domain_by_name("paths")]),
+            tuple([range1, range4, methods_dfa_all_but_put, DimensionsManager().get_dimension_domain_by_name("paths")]),
+            tuple([ports_range, range5, DimensionsManager().get_dimension_domain_by_name("methods"),
+                   DimensionsManager().get_dimension_domain_by_name("paths")]),
             tuple([ports_range, ports_range4, methods_dfa_all_but_put,
-                   dim_manager.get_dimension_domain_by_name("paths")]),
-            tuple([ports_range, range4, methods_dfa_all_but_put, dim_manager.get_dimension_domain_by_name("paths")]),
+                   DimensionsManager().get_dimension_domain_by_name("paths")]),
+            tuple([ports_range, range4, methods_dfa_all_but_put, DimensionsManager().get_dimension_domain_by_name("paths")]),
             tuple([ports_range, ports_range4, get_method_interval("PUT"), paths_dfa])
         }
         # print(x)
@@ -760,7 +765,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
             print(','.join(str(x) for x in cube))
 
         w = CanonicalHyperCubeSet.create_from_cube(dimensions3, [
-            dim_manager.get_dimension_domain_by_name("paths") - get_str_dfa("a")], ["paths"])
+            DimensionsManager().get_dimension_domain_by_name("paths") - get_str_dfa("a")], ["paths"])
         for cube in iter(w):
             print(w.get_cube_str(cube))
 
@@ -977,20 +982,20 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         # print(x)
         # print(y)
         # print(z)
-        z_cube_expected = [ports_range, dim_manager.get_dimension_domain_by_name("paths") - paths_dfa]
+        z_cube_expected = [ports_range, DimensionsManager().get_dimension_domain_by_name("paths") - paths_dfa]
         self.assertEqual(z._get_cubes_list_from_layers(), [z_cube_expected])
 
     def test_subtract_new(self):
         all = CanonicalHyperCubeSet(dimensions3, True)
         paths_dfa = get_str_dfa("abc")
         methods_intervals = get_method_interval("PUT")
-        hosts = dim_manager.get_dimension_domain_by_name("hosts")
+        hosts = DimensionsManager().get_dimension_domain_by_name("hosts")
         hole_cube = [methods_intervals, paths_dfa, hosts]
         all.add_hole(hole_cube, ["methods", "paths", "hosts"])
         # print(all)
-        res_cube_1 = (methods_intervals, dim_manager.get_dimension_domain_by_name("paths") - paths_dfa)
-        res_cube_2 = (dim_manager.get_dimension_domain_by_name("methods") - methods_intervals,
-                      dim_manager.get_dimension_domain_by_name("paths"))
+        res_cube_1 = (methods_intervals, DimensionsManager().get_dimension_domain_by_name("paths") - paths_dfa)
+        res_cube_2 = (DimensionsManager().get_dimension_domain_by_name("methods") - methods_intervals,
+                      DimensionsManager().get_dimension_domain_by_name("paths"))
         expected_cubes = {res_cube_1, res_cube_2}
         self.assertEqual(expected_cubes, all._get_cubes_set())
 
@@ -1006,7 +1011,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         z_cube_expected_1 = (
             CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65535), paths_dfa)
         z_cube_expected_2 = (
-            CanonicalIntervalSet.get_interval_set(10, 20), dim_manager.get_dimension_domain_by_name("paths"))
+            CanonicalIntervalSet.get_interval_set(10, 20), DimensionsManager().get_dimension_domain_by_name("paths"))
         z = x | y
         # print(z)
         self.assertEqual({z_cube_expected_1, z_cube_expected_2}, z._get_cubes_set())
@@ -1024,7 +1029,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
     #     z_cube_expected_1 = (
     #         CanonicalIntervalSet.get_interval_set(1, 9) | CanonicalIntervalSet.get_interval_set(21, 65535), paths_dfa)
     #     z_cube_expected_2 = (
-    #         CanonicalIntervalSet.get_interval_set(10, 20), dim_manager.get_dimension_domain_by_name("paths"))
+    #         CanonicalIntervalSet.get_interval_set(10, 20), DimensionsManager().get_dimension_domain_by_name("paths"))
     #     z = x | y
     #     # print(z)
     #     w = str(z)
@@ -1127,7 +1132,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         self.assertEqual(x._get_cubes_set(), res1)
         x.add_cube([paths_dfa_2, hosts_dfa2], ["paths", "hosts"])  # (y, abcd)
         res2 = {(get_str_dfa("y"), get_str_dfa("abc|abcd")),
-                (dim_manager.get_dimension_domain_by_name("paths") - get_str_dfa("y"), get_str_dfa("abc"))}
+                (DimensionsManager().get_dimension_domain_by_name("paths") - get_str_dfa("y"), get_str_dfa("abc"))}
         self.assertEqual(x._get_cubes_set(), res2)
         # print(x)
         # TODO: test: update_layers_from_cubes_list  (sorting issue with MinDFA)
@@ -1250,7 +1255,7 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         b.add_cube([get_str_dfa("bad1")], ["paths"])
         a -= b
         self.assertEqual(a._get_cubes_list_from_layers(),
-                         [[dim_manager.get_dimension_domain_by_name("paths") - get_str_dfa("bad1")]])
+                         [[DimensionsManager().get_dimension_domain_by_name("paths") - get_str_dfa("bad1")]])
 
         a = CanonicalHyperCubeSet(dimensions)
         b = CanonicalHyperCubeSet(dimensions)

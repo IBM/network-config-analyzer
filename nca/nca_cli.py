@@ -134,7 +134,7 @@ def _make_recursive(path_list):
     return path_list
 
 
-def run_args(args):
+def run_args(args):   # noqa: C901
     """
     Given the parsed cmdline, decide what to run
     :param Namespace args: argparse-style parsed cmdline
@@ -156,7 +156,7 @@ def run_args(args):
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
                                          'subset': {},
-                                         'expl': [],
+                                         'explain': [],
                                          'excludeIPv6Range': not args.print_ipv6})
     expected_output = None
     # default values are for sanity query
@@ -185,7 +185,7 @@ def run_args(args):
         output_config['subset'].update({'label_subset': all_labels})
 
     if args.explain is not None:
-        output_config['expl'] = args.explain.split(',')
+        output_config['explain'] = args.explain
         ExplTracker(output_config.outputEndpoints).activate()
 
     if args.output_format == 'html':
@@ -347,9 +347,12 @@ def nca_main(argv=None):
     if args.ghe_token:
         os.environ['GHE_TOKEN'] = args.ghe_token
 
+    start = time.time()
     try:
         if args.period <= 0:
             ret_val = run_args(args)
+            end = time.time()
+            print(f'Total run time: {(end - start):6.2f} seconds')
             return 0 if args.return_0 else ret_val
 
         _do_every(args.period * 60, run_args, args)

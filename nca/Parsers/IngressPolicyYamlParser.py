@@ -280,9 +280,10 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             else:
                 all_hosts_dfa = DimensionsManager().get_dimension_domain_by_name('hosts')
         # every host not captured by the ingress rules goes to the default backend
-        hosts_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('hosts') - all_hosts_dfa
-        default_conns = self._make_default_connections(hosts_remainder_dfa)
-        allowed_conns |= default_conns
+        if self.default_backend_peers:
+            hosts_remainder_dfa = DimensionsManager().get_dimension_domain_by_name('hosts') - all_hosts_dfa
+            default_conns = self._make_default_connections(hosts_remainder_dfa)
+            allowed_conns |= default_conns
         # allowed_conns = none means that services referenced by this Ingress policy are not found,
         # then no connections rules to add (Ingress policy has no effect)
         if allowed_conns:

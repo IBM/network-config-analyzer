@@ -61,19 +61,6 @@ spec:
           ports:
             - containerPort: 80
 ---
-apiVersion: apps/v1
-kind: Pod
-metadata:
-  name: pod-alone
-  labels:
-    pod: alone
-spec:
-    containers:
-      - name: my-test-nginx
-        image: nginx
-        ports:
-          - containerPort: 80
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -95,28 +82,6 @@ spec:
         - podSelector:
             matchLabels:
               dep: B
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-dep-a2
-spec:
-  podSelector:
-    matchLabels:
-      dep: A
-  policyTypes:
-    - Ingress
-    - Egress
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              dep: BB
-  egress:
-    - to:
-        - podSelector:
-            matchLabels:
-              dep: BB
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

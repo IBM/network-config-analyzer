@@ -118,8 +118,8 @@ class PoliciesFinder:
                 else:  # the istio policy is parsed later
                     policy_name = policy.get('metadata').get('name')
                 ExplTracker().add_item(policy.path,
-                                       policy_name,
-                                       policy.line_number
+                                       policy.line_number,
+                                       policy_name
                                        )
         if istio_traffic_parser:
             istio_traffic_policies = istio_traffic_parser.create_istio_traffic_policies()

@@ -258,7 +258,7 @@ class NetworkLayer:
                 for peer in policy.selected_peers:
                     src_peers, _ = ExplTracker().extract_peers(policy.optimized_allow_ingress_props)
                     _, dst_peers = ExplTracker().extract_peers(policy.optimized_allow_egress_props)
-                    peer_name = ExplTracker().get_peer_ep_name(peer)
+                    peer_name = peer.full_name()
                     ExplTracker().add_peer_policy(peer_name,
                                                   policy.name,
                                                   dst_peers,
@@ -307,8 +307,8 @@ class K8sCalicoNetworkLayer(NetworkLayer):
         # since before computing non-captured conns we should collect all policies conns
 
         # compute non-captured connections
-        all_peers_and_ips = peer_container.get_all_peers_group(True)
-        all_peers_no_ips = peer_container.get_all_peers_group()
+        all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
+        all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False, include_dns_entries=True)
         base_peer_set_no_hep = PeerSet(set([peer for peer in all_peers_no_ips if not isinstance(peer, HostEP)]))
         not_captured_not_hep = base_peer_set_no_hep - res_conns.captured
         if not_captured_not_hep:
@@ -372,7 +372,9 @@ class IstioNetworkLayer(NetworkLayer):
         all_peers_and_ips = peer_container.get_all_peers_group(True)
         all_peers_no_ips = peer_container.get_all_peers_group()
         dns_entries = peer_container.get_all_dns_entries()
-        # for istio initialize non-captured conns with non-TCP connections
+        # for istio initialize non-captured conns with all possible non-TCP connections
+        # This is a compact way to represent all peers connections, but it is an over-approximation also containing
+        # IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
         all_all_conns = \
             ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                               "dst_peers": all_peers_and_ips,
@@ -393,7 +395,7 @@ class IstioNetworkLayer(NetworkLayer):
                         ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                                           "dst_peers": non_captured_dns_entries,
                                                                           "protocols": tcp_protocol})
-                    non_captured_conns = all_nc_dns_conns
+                    non_captured_conns |= all_nc_dns_conns
                     res_conns.all_allowed_conns |= all_nc_dns_conns
             else:
                 nc_all_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
@@ -403,9 +405,10 @@ class IstioNetworkLayer(NetworkLayer):
                 nc_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                  "dst_peers": dns_entries,
                                                                                  "protocols": tcp_protocol})
-                non_captured_conns = nc_dns_conns
+                non_captured_conns = nc_all_conns - res_conns.denied_conns
+                non_captured_conns |= nc_dns_conns
                 res_conns.all_allowed_conns |= nc_dns_conns
-            if non_captured_conns and ExplTracker().is_active():
+            if ExplTracker().is_active():
                 src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
                 ExplTracker().add_default_policy(src_peers,
                                                  dst_peers,

@@ -88,3 +88,9 @@ class PortSet:
 
     def is_empty(self):
         return not self.port_set and not self.named_ports
+
+    @staticmethod
+    def make_port_set_with_range(min_port, max_port):
+        res = PortSet()
+        res.add_port_range(min_port, max_port)
+        return res

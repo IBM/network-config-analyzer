@@ -13,7 +13,6 @@ class K8sNamespace:
         # Every namespace gets a fixed-key label with its name.
         # See https://kubernetes.io/docs/concepts/services-networking/network-policies/#targeting-a-namespace-by-its-name
         self.labels = {'kubernetes.io/metadata.name': name}
-        self.prior_default_sidecar = None  # the first injected default sidecar of the current namespace
 
     def __eq__(self, other):
         if isinstance(other, K8sNamespace):

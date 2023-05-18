@@ -76,7 +76,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             self.set_all()
 
     @staticmethod
-    def _create_props_from_cube(conn_cube):
+    def _make_conn_props_no_named_ports_resolution(conn_cube):
         """
         This will create connectivity properties made of the given connectivity cube.
         This includes tcp properties, non-tcp properties, icmp data properties.
@@ -188,8 +188,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
     def __eq__(self, other):
         if isinstance(other, ConnectivityProperties):
-            assert ("src_peers" in self.active_dimensions) == ("src_peers" in other.active_dimensions)
-            assert ("dst_peers" in self.active_dimensions) == ("dst_peers" in other.active_dimensions)
             res = super().__eq__(other) and self.named_ports == other.named_ports and \
                 self.excluded_named_ports == other.excluded_named_ports
             return res
@@ -246,8 +244,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         assert not self.has_named_ports()
         assert not other.has_named_ports()
-        assert ("src_peers" in self.active_dimensions) == ("src_peers" in other.active_dimensions)
-        assert ("dst_peers" in self.active_dimensions) == ("dst_peers" in other.active_dimensions)
         return super().contained_in(other)
 
     def has_named_ports(self):
@@ -295,7 +291,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         :rtype: ConnectivityProperties
         """
-        res = ConnectivityProperties._create_props_from_cube(ConnectivityCube())
+        res = ConnectivityProperties()
         for layer in self.layers:
             res.layers[self._copy_layer_elem(layer)] = self.layers[layer].copy()
         res.active_dimensions = self.active_dimensions.copy()
@@ -347,8 +343,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         :return: the projection on the given dimension, having that dimension type.
          or None if the given dimension is not active
         """
-        if dim_name == "icmp_type" or dim_name == "icmp_code":
-            return None  # not supporting icmp dimensions
+        assert dim_name not in ["icmp_type", "icmp_code"]  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
             return None
         if dim_name == "src_peers" or dim_name == "dst_peers":
@@ -367,7 +362,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         return res
 
     @staticmethod
-    def resolve_named_ports(named_ports, peer, protocols):
+    def _resolve_named_ports(named_ports, peer, protocols):
         peer_named_ports = peer.get_named_ports()
         real_ports = PortSet()
         for named_port in named_ports:
@@ -387,7 +382,8 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         This will create connectivity properties made of the given connectivity cube.
         This includes tcp properties, non-tcp properties, icmp data properties.
-        If possible (i.e., in original solution, when dst_peers are supported), the named ports will be resolved.
+        If possible (i.e., in the optimized solution, when dst_peers are supported in the given cube),
+        the named ports will be resolved.
 
         In the optimized solution, the resulting ConnectivityProperties should not contain named ports:
             they are substituted with corresponding port numbers, per peer
@@ -405,14 +401,14 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
         if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or not dst_peers:
             # Should not resolve named ports
-            return ConnectivityProperties._create_props_from_cube(conn_cube)
+            return ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
 
         # Initialize conn_properties
         if dst_ports.port_set:
             dst_ports_no_named_ports = PortSet()
             dst_ports_no_named_ports.port_set = dst_ports.port_set.copy()
             conn_cube["dst_ports"] = dst_ports_no_named_ports
-            conn_properties = ConnectivityProperties._create_props_from_cube(conn_cube)
+            conn_properties = ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
         else:
             conn_properties = ConnectivityProperties.make_empty_props()
 
@@ -420,20 +416,31 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         protocols = conn_cube["protocols"]
         assert dst_peers
         for peer in dst_peers:
-            real_ports = ConnectivityProperties.resolve_named_ports(dst_ports.named_ports, peer, protocols)
+            real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols)
             if real_ports:
                 conn_cube.update({"dst_ports": real_ports, "dst_peers": PeerSet({peer})})
-                conn_properties |= ConnectivityProperties._create_props_from_cube(conn_cube)
-            excluded_real_ports = ConnectivityProperties.resolve_named_ports(dst_ports.excluded_named_ports, peer, protocols)
+                conn_properties |= ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
+            excluded_real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.excluded_named_ports, peer, protocols)
             if excluded_real_ports:
                 conn_cube.update({"dst_ports": excluded_real_ports, "dst_peers": PeerSet({peer})})
-                conn_properties -= ConnectivityProperties._create_props_from_cube(conn_cube)
+                conn_properties -= ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
         return conn_properties
 
     @staticmethod
     def make_conn_props_from_dict(the_dict):
         cube = ConnectivityCube.make_from_dict(the_dict)
         return ConnectivityProperties.make_conn_props(cube)
+
+    @staticmethod
+    def get_all_conns_props_per_config_peers(peer_container):
+        """
+        Return all possible between-peers connections.
+        This is a compact way to represent all peers connections, but it is an over-approximation also containing
+        IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
+        """
+        all_peers_and_ips_and_dns = peer_container.get_all_peers_group(True, True, True)
+        return ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips_and_dns,
+                                                                 "dst_peers": all_peers_and_ips_and_dns})
 
     @staticmethod
     def make_empty_props():
