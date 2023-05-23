@@ -157,9 +157,6 @@ class InteractiveConnectivityGraph:
                 for conn in conn_legend.find_all('g'):
                     conn[self.CLASS_TA] = self.LEGEND_MISC_CT
 
-            # setting class to explanation tag:
-            explanation_cluster = self.soup.svg.find('title', string='cluster_map_explanation').find_parent('g')
-            explanation_cluster[self.CLASS_TA] = self.EXPLANATION_CT
             # for element that we want to add a link, we replace <g> with <a>, and mark as clickable:
             for tag in self.soup.svg.find_all(True):
                 if tag.get(self.CLASS_TA):
@@ -426,6 +423,14 @@ class InteractiveConnectivityGraph:
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlData, 'text/xml');
               
+                // find title text element
+                let svg = document.querySelector('svg');
+                // Find the element with id="index"
+                let indexElement = svg.querySelector('#index');
+                // Find the text element inside the "index" element
+                let titleTextElements = indexElement.querySelectorAll('text');
+                const mainTitleText = titleTextElements[0].textContent
+
                 let clickFlag = false;
     
                 function selectExplPeer(event) {
@@ -524,9 +529,17 @@ class InteractiveConnectivityGraph:
                   }
                   return false;
                 }
-    
+  
+                function updateTitleText(element) {
+                  const clickedId = element.id;
+                  const explanation = jsObject[clickedId].explanation;
+                  explanation.forEach((el, index) => {
+                    titleTextElements[index].textContent = el
+                  });
+                }
+  
                 function hideWithoutRelation(element) {
-                    const clickedId = element.id 
+                    const clickedId = element.id; 
                     const relatedIds = jsObject[clickedId].relations;
                     const highlightIds = jsObject[clickedId].highlights;
                     clickableElements.forEach(el => {
@@ -559,12 +572,16 @@ class InteractiveConnectivityGraph:
                         el.addEventListener('dblclick', function() {
                           showAllElements();
                           clearSelection(); // dbclick sellects the text it was clicked on, its annoying...
+                          titleTextElements[0].textContent = mainTitleText;
+                          titleTextElements[1].textContent = '';
+                          titleTextElements[2].textContent = '';
                         });
                       }
                       else {
                         el.addEventListener('dblclick', function() {
-                            hideWithoutRelation(el);
                             clickFlag = false
+                            hideWithoutRelation(el);
+                            updateTitleText(el)
                             clearSelection();
                           });
                       }

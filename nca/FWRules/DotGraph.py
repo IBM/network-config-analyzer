@@ -108,11 +108,7 @@ class DotGraph:
         output_result = f'// The Connectivity Graph of {self.name}\n'
         output_result += 'digraph ' + '{\n'
 
-        output_result += f'\tlabel=\"Connectivity Graph of {self.name}\"'
         output_result += '\tlabelloc = "t"\n'
-        output_result += '\tfontsize=30\n'
-        output_result += '\tfontcolor=maroon\n'
-        output_result += '\tsubgraph cluster_map_explanation {\n'
         if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
         self.subgraphs = dict(sorted(self.subgraphs.items()))
@@ -120,10 +116,8 @@ class DotGraph:
         output_result += ''.join(sorted([self._edge_to_str(edge) for edge in self.edges]))
         output_result += '\tcolor=white\n'
         output_result += self._explanation_to_str()
-        output_result += '\tlabelloc = "b"\n'
         output_result += '\tfontsize=15\n'
         output_result += '\tfontcolor=maroon\n'
-        output_result += '\t}\n'
         output_result += '}\n'
         return output_result
 
