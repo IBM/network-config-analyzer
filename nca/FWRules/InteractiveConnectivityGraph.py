@@ -441,6 +441,15 @@ class InteractiveConnectivityGraph:
                   setTimeout(function() {
                     // If clickFlag is still true after the timer, trigger single-click action
                     if (clickFlag) {
+                      if (selectedElems.length > 1) {// reset selection
+                        selectedElems.forEach((item) => {
+                          item.classList.remove('selected');
+                          let itemParentElement = item.parentNode;
+                          let itemPolygonElement = item.querySelector('polygon');
+                          itemPolygonElement.setAttribute('fill', 'none');
+                        });
+                        selectedElems.length = 0;
+                      }
                       if (nodeElement.classList.contains('selected')) {
                               // If the clicked element is already selected, deselect it
                               nodeElement.classList.remove('selected');
@@ -450,8 +459,13 @@ class InteractiveConnectivityGraph:
                       else if (selectedElems.length < 2) {
                         // If less than 2 elements are selected, select the clicked element
                         nodeElement.classList.add('selected');
-                        polygonElement.setAttribute('fill', 'yellow');
-                        selectedElems.push(nodeElement);
+                        if (selectedElems.length === 0) {  // src
+                          polygonElement.setAttribute('fill', 'yellow');
+                        }
+                        else { // dst
+                          polygonElement.setAttribute('fill', '#ADD8E6');
+                        }
+                        selectedElems.push(nodeElement);  
                       } 
                       // Update the selection box with the names of the selected circles
                       if (selectedElems.length == 0) {
@@ -465,7 +479,22 @@ class InteractiveConnectivityGraph:
                         const dst = selectedElems[1].getAttribute('title');
                         const entry = xmlDoc.querySelector(`entry[src="${src}"][dst="${dst}"]`);
                         if (entry) {
-                          const expl_text = entry.textContent;
+                          // color the src and dst names
+                          let expl_text = entry.textContent;
+                          let srcMatch = expl_text.match(/\(src\)([^\s]+)/);
+                          let dstMatch = expl_text.match(/\(dst\)([^\s]+)/);
+                          if (srcMatch) {
+                            let srcText = srcMatch[1]
+                            let srcReplacement = '<span style="background-color: yellow;">'+srcText+'</span>';
+                            expl_text = expl_text.replace(srcText, srcReplacement);
+                          }
+                          if (dstMatch) {
+                            dstMatch = dstMatch[1]
+                            let dstReplacement = '<span style="background-color: #ADD8E6;">'+dstMatch+'</span>';
+                            expl_text = expl_text.replace(dstMatch, dstReplacement);
+                          }
+
+                          // const out_text = '<span style="background-color: yellow;">' + src + '</span>'+'->'+'<span style="background-color: #ADD8E6;">'+dst+'</span>';
                           selectionBox.innerHTML = expl_text; 
                         }
                       }
@@ -474,30 +503,44 @@ class InteractiveConnectivityGraph:
                   }, 250);
                 }
                 
-                
                 function addSelectedListeners() {
                     selectableElems.forEach(el => {
                       el.addEventListener('click', (event) => selectExplPeer(event));
                     });
                   }
     
+                  function findSelected(element){
+                  console.log(element);
+                  if (element.classList.contains('selected')) { 
+                    return true
+                  } 
+                  let nodes = element.querySelectorAll('.node');
+                  // Iterate over nodes
+                  for(let i = 0; i < nodes.length; i++) {
+                    // Check if "selected" attribute is present
+                    if(nodes[i].classList.contains('selected')) {
+                      return true;
+                    }
+                  }
+                  return false;
+                }
     
                 function hideWithoutRelation(element) {
                     const clickedId = element.id 
                     const relatedIds = jsObject[clickedId].relations;
                     const highlightIds = jsObject[clickedId].highlights;
                     clickableElements.forEach(el => {
-                        if (relatedIds.includes(el.id)) {
+                        if (relatedIds.includes(el.id) || findSelected(el)) {
                           el.style.display = ''; // Show the element
                         }
-                        if (!relatedIds.includes(el.id) && el.id !== clickedId) {
+                        if (!relatedIds.includes(el.id) && el.id !== clickedId && !findSelected(el)) {
                           el.style.display = 'none'; // Hide the element
                         }
                         if (highlightIds.includes(el.id)) {
-                          el.style.strokeWidth = '2px'; // ighlight the element
+                          el.style.strokeWidth = '2px'; // highlight the element
                         }
                         else {
-                          el.style.strokeWidth = '1px'; // ighlight the element
+                          el.style.strokeWidth = '1px'; // dont highlight the element
                         }
                     });
                 }
