@@ -979,7 +979,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             txt_no_fw_rules_tcp = self.txt_no_fw_rules_format_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
             txt_no_fw_rules_non_tcp = self.txt_no_fw_rules_format_from_props(props_non_tcp, peers_to_compare,
                                                                              connectivity_non_tcp_str)
-            # concatenate the two graphs into one dot file
             res_str = txt_no_fw_rules_tcp + txt_no_fw_rules_non_tcp
             return res_str, None, None
         # handle formats other than dot and txt_no_fw_rules
@@ -1055,7 +1054,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
         :rtype str
-        :return the connectivity map in dot-format, considering connectivity_restriction if required
+        :return the connectivity map in txt_no_fw_rules format, considering connectivity_restriction if required
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         for cube in props:

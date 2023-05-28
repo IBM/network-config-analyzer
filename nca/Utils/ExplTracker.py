@@ -8,7 +8,7 @@ from nca.Utils.NcaLogger import NcaLogger
 from nca.CoreDS.Peer import PeerSet
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 
 class ExplTracker(metaclass=Singleton):
     """
@@ -45,8 +45,8 @@ class ExplTracker(metaclass=Singleton):
         self.ExplDescriptorContainer = {}
         self.ExplPeerToPolicyContainer = {}
         self._is_active = False
-        self.all_conns = {}
-        self.all_peers = {}
+        self.all_conns = None
+        self.all_peers = None
         self.ep = ep
 
         self.add_item('', 0, 'Default-Policy')
@@ -186,6 +186,17 @@ class ExplTracker(metaclass=Singleton):
                 self.add_default_policy(PeerSet([peer]), peers, False)
                 self.add_default_policy(peers, PeerSet([peer]), True)
 
+    def _get_peer_by_name(self, peer_name):
+        """
+        Get Peer objects from all_peers by peer name.
+        :param str peer_name: the name of the peer to retrieve
+        :return: peer object
+        """
+        for peer in self.all_peers:
+            if peer.full_name() == peer_name:
+                return peer
+        return None
+
     def are_peers_connected(self, src, dst):
         """
         Check if a given pair of peers are connected
@@ -195,19 +206,12 @@ class ExplTracker(metaclass=Singleton):
         """
         if not self.all_conns:
             NcaLogger().log_message('Explainability error: Connections were not set yet, but peer query was called', level='E')
-        for cube in self.all_conns:
-            src_peers_names = []
-            dst_peers_names = []
-            conn_cube = self.all_conns.get_connectivity_cube(cube)
-            src_peers = conn_cube['src_peers']
-            dst_peers = conn_cube['dst_peers']
-            for peer in src_peers:
-                src_peers_names.append(peer.full_name())
-            for peer in dst_peers:
-                dst_peers_names.append(peer.full_name())
-            if src in src_peers_names and dst in dst_peers_names:
-                return True
-        return False
+
+        src_peer = self._get_peer_by_name(src)
+        dst_peer = self._get_peer_by_name(dst)
+
+        return True if self.all_conns & ConnectivityProperties.make_conn_props_from_dict(
+            {"src_peers": PeerSet({src_peer}), "dst_peers": PeerSet({dst_peer})}) else False
 
     def add_default_policy(self, src, dst, is_ingress):
         """
@@ -359,6 +363,7 @@ class ExplTracker(metaclass=Singleton):
             two nodes - if 2 nodes are given, either they hava a connection between them and the configurations responsible for
                         the connection are displayed. or, they lack a connection, in which case, all affecting configurations
                         on those 2 nodes are displayed.
+            All nodes - if the single node get the value 'ALL', all the topology will be explained.
         :param list(str) nodes: nodes to explain
         :return: str: the explanation out string
         """

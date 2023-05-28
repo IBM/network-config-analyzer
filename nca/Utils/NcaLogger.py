@@ -77,7 +77,7 @@ class NcaLogger(metaclass=Singleton):
         Log a message
         :param sting msg: message to log
         :param a file-like-object file: output stream
-        :param str level: the level of the message: (I)nfo, (W)arning
+        :param str level: the level of the message: (I)nfo, (W)arning, (E)rror
         """
         if level == 'I':
             msg = f'Info: {msg}'

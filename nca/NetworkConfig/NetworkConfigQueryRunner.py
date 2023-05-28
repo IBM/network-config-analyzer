@@ -41,11 +41,10 @@ class QueryResult:
         extracts the final query results from self variables
         from self.query_iterations_output computes the final str output of the query,
         other results returned as is from query_result.
-        :param expl_nodes: nodes to explain the connectivity between them
-        :param str output_format: the output format to form the final output
-        :param list str: expl_nodes: the nodes for explaining the connectivity
-        if output format is json, dumps the output list into one-top-leveled string
-        if output format is yaml, dumps the output list into str of a list of yaml objects
+        :param str output_format: the output format to form the final output.
+        :param list str expl_nodes: the nodes for explaining the connectivity.
+        if output format is json, dumps the output list into one-top-leveled string.
+        if output format is yaml, dumps the output list into str of a list of yaml objects.
         otherwise, writes the output list items split by \n
         :return the results: numerical result, output - str , num of not executed
         :rtype: int, str, int
@@ -176,10 +175,7 @@ class NetworkConfigQueryRunner:
         query_result = QueryResult()
         for config in self.configs_array:
             query_result.update(self._execute_one_config_query(self.query_name, self._get_config(config)))
-        expl = ''
-        if self.output_configuration.explain:
-            expl = self.output_configuration.explain
-        return query_result.compute_final_results(self.output_configuration.outputFormat, expl)
+        return query_result.compute_final_results(self.output_configuration.outputFormat, self.output_configuration.explain)
 
     def _run_query_on_configs_vs_base_config(self, cmd_line_flag):
         query_result = QueryResult()
