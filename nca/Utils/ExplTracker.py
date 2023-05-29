@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 
+
 class ExplTracker(metaclass=Singleton):
     """
     The Explainability Tracker is used for tracking the elements and their configuration
