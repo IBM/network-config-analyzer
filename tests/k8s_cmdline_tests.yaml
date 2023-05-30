@@ -422,3 +422,12 @@
     --pod_list helm_tests/helm_test6/
     --expected_output expected_cmdline_output_files/helm_test_resolved_yaml_next_to_multi_charts.txt
   expected: 0
+
+- name: basic_connectivity-expl
+  args: >
+    --connectivity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+    --ns_list k8s_testcases/example_podlist/ns_list.json
+    --pod_list k8s_testcases/example_podlist/pods_list.json
+    --explain ALL
+    -opt=true
+  expected: 0
