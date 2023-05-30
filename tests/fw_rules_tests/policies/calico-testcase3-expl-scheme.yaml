@@ -1,0 +1,66 @@
+namespaceList: ../podlist/ns_list_orig.json
+podList: ../podlist/pods_list_orig.json
+networkConfigList:
+- name: np_onlyAllow
+  networkPolicyList:
+  - calico-testcase3-networkpolicy-onlyAllow.yaml
+  - calico-policy-deny-all.yaml
+  expectedWarnings: 0
+- name: np_FirstDenySubset
+  networkPolicyList:
+  - calico-testcase3-networkpolicy-FirstDenySubset.yaml
+  - calico-policy-deny-all.yaml
+  expectedWarnings: 0
+- name: np_firstAllowSuperSet
+  networkPolicyList:
+  - calico-testcase3-networkpolicy-firstAllowSuperSet.yaml
+  - calico-policy-deny-all.yaml
+  expectedWarnings: 0
+queries:
+- name: connectivity_map
+  connectivityMap:
+  - np_onlyAllow
+  expected: 0
+  outputConfiguration:
+    explain: ALL
+    optimized_run: true
+    fwRulesRunInTestMode: false
+#  expectedOutput: expected_output/calico-testcase3_connectivity_map_onlyAllow_query_output.txt
+#- name: connectivity_map_yaml
+#  connectivityMap:
+#  - np_onlyAllow
+#  expected: 0
+#  outputConfiguration:
+#    fwRulesRunInTestMode: false
+#    outputFormat: yaml
+#  expectedOutput: expected_output/calico-testcase3_connectivity_map_onlyAllow_query_output.yaml
+#- name: connectivity_map_yaml
+#  connectivityMap:
+#  - np_FirstDenySubset
+#  expected: 0
+#  outputConfiguration:
+#    fwRulesRunInTestMode: false
+#    outputFormat: yaml
+#  expectedOutput: expected_output/calico-testcase3_connectivity_map_FirstDenySubset_query_output.yaml
+#- name: connectivity_map
+#  connectivityMap:
+#  - np_FirstDenySubset
+#  expected: 0
+#  outputConfiguration:
+#    fwRulesRunInTestMode: false
+#  expectedOutput: expected_output/calico-testcase3_connectivity_map_FirstDenySubset_query_output.txt
+#- name: connectivity_map
+#  connectivityMap:
+#  - np_firstAllowSuperSet
+#  expected: 0
+#  outputConfiguration:
+#    fwRulesRunInTestMode: false
+#  expectedOutput: expected_output/calico-testcase3_connectivity_map_firstAllowSuperSet_query_output.txt
+#- name: connectivity_map_yaml
+#  connectivityMap:
+#  - np_firstAllowSuperSet
+#  expected: 0
+#  outputConfiguration:
+#    fwRulesRunInTestMode: false
+#    outputFormat: yaml
+#  expectedOutput: expected_output/calico-testcase3_connectivity_map_firstAllowSuperSet_query_output.yaml
