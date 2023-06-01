@@ -430,5 +430,5 @@
     --pod_list k8s_testcases/example_podlist/pods_list.json
     --explain ALL
     -opt=true
-    --expected_output expected_cmdline_output_files/basic_connectivity_expl.txt
+    --expected_output expected_cmdline_output_files/basic_connectivity_expl_output.txt
   expected: 0
