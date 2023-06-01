@@ -307,7 +307,7 @@ class ExplTracker(metaclass=Singleton):
         Get a full expl' description of all the peers in the connectivity map
         :return: string: xml format of all the expl' entries for every 2 nodes.
         """
-        soup = BeautifulSoup(features='xml')
+        soup = BeautifulSoup(features='html')
         entry_id = 0
         # use the peer names as defined in the endpoints configuration,
         # also use one peer for each deployment
