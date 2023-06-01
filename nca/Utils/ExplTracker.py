@@ -314,6 +314,7 @@ class ExplTracker(metaclass=Singleton):
         peer_names = set()
         for peer in self.all_peers:
             peer_names.add(peer.full_name())
+        peer_names = sorted(list(peer_names))
 
         for peer1 in peer_names:
             for peer2 in peer_names:
