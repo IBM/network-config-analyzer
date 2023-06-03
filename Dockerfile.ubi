@@ -14,11 +14,11 @@ RUN INSTALL_PKGS="python39 python39-devel python39-pip graphviz" && \
     microdnf -y clean all --enablerepo='*'
 
 COPY requirements.txt /nca/
-RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
+RUN python3 -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
 
 COPY nca/ /nca/
 
 USER 9000
 
 WORKDIR "/"
-ENTRYPOINT ["python", "-m", "nca"]
+ENTRYPOINT ["python3", "-m", "nca"]
