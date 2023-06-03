@@ -314,10 +314,12 @@ class ConnectivityGraph:
                 if src_peer != dst_peer:
                     src_peer_name = self._get_peer_details(src_peer, True)[0]
                     dst_peer_name = self._get_peer_details(dst_peer, True)[0]
+                    # no self-loops: if a peer has different replicas or copies, a connection from it to itself will
+                    # not be added either
+                    if src_peer_name == dst_peer_name:
+                        continue
                     conn_str = connections.get_simplified_connections_representation(True)
                     conn_str = conn_str.title() if not conn_str.isupper() else conn_str
-                    # if a peer has different replicas or copies, a connection from it to itself will be added automatically
-                    # if there are connections between the replicas too
                     lines.add(f'{src_peer_name} => {dst_peer_name} : {conn_str}')
 
         lines_list = []
