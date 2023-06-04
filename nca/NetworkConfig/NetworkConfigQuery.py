@@ -68,6 +68,7 @@ class BaseNetworkQuery:
         and bool indicator if the query was not executed
         :rtype: int, Union[dict, str], bool
         """
+        # peer_set collects the set of peers from the config(s) related to current query
         peer_set = PeerSet()
         for config in self.get_configs():
             if not config.peer_container.get_num_peers():
@@ -78,6 +79,7 @@ class BaseNetworkQuery:
         if self.output_config.outputFormat not in self.get_supported_output_formats():
             query_answer = QueryAnswer(query_not_executed=True)
             return query_answer.numerical_result, '', query_answer.query_not_executed
+        # update domains src_peers/dst_peers with domains specific to current peer_set of current query
         DimensionsManager().set_domain("src_peers", DimensionsManager.DimensionType.IntervalSet,
                                        BasePeerSet().get_peer_interval_of(peer_set))
         DimensionsManager().set_domain("dst_peers", DimensionsManager.DimensionType.IntervalSet,
@@ -87,6 +89,7 @@ class BaseNetworkQuery:
         for config in self.get_configs():
             for policy in config.policies_container.policies.values():
                 policy.reorganize_opt_props_by_new_domains()
+        # run the query
         query_answer = self.execute(cmd_line_flag)
         # restore peers domains and optimized connectivity properties original values
         DimensionsManager.reset()

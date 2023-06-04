@@ -265,7 +265,7 @@ class CanonicalHyperCubeSet:
         res = self._and_aux(other_copy)
         self.layers = res.layers
         self.active_dimensions = res.active_dimensions
-        self._reduce_active_dimensions()
+        self.reduce_active_dimensions()
         return self
 
     def _and_aux(self, other):
@@ -316,7 +316,7 @@ class CanonicalHyperCubeSet:
         res = self.or_aux(other_copy)
         self.layers = res.layers
         self.active_dimensions = res.active_dimensions
-        self._reduce_active_dimensions()
+        self.reduce_active_dimensions()
         return self
 
     def or_aux(self, other):
@@ -369,7 +369,7 @@ class CanonicalHyperCubeSet:
         res = self.sub_aux(other_copy)
         self.layers = res.layers
         self.active_dimensions = res.active_dimensions
-        self._reduce_active_dimensions()
+        self.reduce_active_dimensions()
         return self
 
     def sub_aux(self, other):
@@ -815,7 +815,7 @@ class CanonicalHyperCubeSet:
                     res[dim] |= dim_values
         return res
 
-    def _reduce_active_dimensions(self):
+    def reduce_active_dimensions(self):
         """
         Change self so that its active dimensions are as minimal as possible:
         Inactivate dimensions for which every cube in self allows all its domain.

@@ -13,8 +13,20 @@ from .MinDFA import MinDFA
 class DimensionsManager:
     """
     A singleton class to manage dimensions names and their association to type and domain.
-    The dimensions are related to certain protocol's properties in ConnectionSet.
+    The dimensions are related to certain protocol's properties in ConnectionSet / ConnectivityProperties.
     They are used for allowed connection representation, as protocols properties, within CanonicalHyperCubeSet objects.
+
+    The src_peers and dst_peers are special dimensions, they do not have constant domain.
+    Their domain depends on the current set of peers in the system (as appears in BasePeerSet singleton).
+    This set grows when adding more configurations.
+    Thus, there is no unique 'all values' representation. In particular, those dimensions are never reduced to inactive.
+    A mechanism to allow such reduction to `inactive`: per query context, set these dimensions domains to the set of
+    peers from the query's config(s) only.
+    The goal is to avoid having potential two representations of the same object (one with inactive domain and one with
+    an active domain containing all possible relevant peers, that was not reduced to inactive).
+    This mechanism is implemented at the execute_and_compute_output_in_required_format() method of the BaseNetworkQuery
+    class.
+
     """
 
     class DimensionType(Enum):
@@ -94,6 +106,9 @@ class DimensionsManager:
     @staticmethod
     def reset():
         # used by unit tests to clean their local changes to DimensionsManager singleton
+        # also used by execute_and_compute_output_in_required_format to restore "src_peers"/"dst_peers"
+        # domains to a general domain value (after setting to a query-related specific domain value before
+        # the query computation)
         DimensionsManager.instance = None
 
     def __getattr__(self, name):
