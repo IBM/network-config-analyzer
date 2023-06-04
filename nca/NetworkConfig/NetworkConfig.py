@@ -316,3 +316,25 @@ class NetworkConfig:
         :return: None
         """
         self.policies_container.append_policy(policy)
+
+    def filter_conns_by_peer_types(self, conns, all_peers):
+        """
+        Filter the given connections by removing several connection kinds that are never allowed
+        (such as IpBlock to IpBlock connections, connections from DNSEntries, and more).
+        :param ConnectivityProperties conns: the given connections.
+        :param PeerSet all_peers: all peers in the system.
+        :return The resulting connections.
+        :rtype ConnectivityProperties
+        """
+        res = conns
+        # avoid IpBlock -> {IpBlock, DNSEntry} connections
+        all_ips = Peer.IpBlock.get_all_ips_block_peer_set()
+        all_dns_entries = self.peer_container.get_all_dns_entries()
+        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ips,
+                                                                                  "dst_peers": all_ips | all_dns_entries})
+        res -= ip_to_ip_or_dns_conns
+        # avoid DNSEntry->anything connections
+        dns_to_any_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_dns_entries,
+                                                                             "dst_peers": all_peers})
+        res -= dns_to_any_conns
+        return res

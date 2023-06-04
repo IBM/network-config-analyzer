@@ -164,28 +164,6 @@ class NetworkConfigQuery(BaseNetworkQuery):
     def exec(self):
         raise NotImplementedError
 
-    def filter_conns_by_peer_types(self, conns, all_peers):
-        """
-        Filter the given connections by removing several connection kinds that are never allowed
-        (such as IpBlock to IpBlock connections, connections from DNSEntries, and more).
-        :param ConnectivityProperties conns: the given connections.
-        :param PeerSet all_peers: all peers in the system.
-        :return The resulting connections.
-        :rtype ConnectivityProperties
-        """
-        res = conns
-        # avoid IpBlock -> {IpBlock, DNSEntry} connections
-        all_ips = IpBlock.get_all_ips_block_peer_set()
-        all_dns_entries = self.config.peer_container.get_all_dns_entries()
-        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ips,
-                                                                                  "dst_peers": all_ips | all_dns_entries})
-        res -= ip_to_ip_or_dns_conns
-        # avoid DNSEntry->anything connections
-        dns_to_any_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_dns_entries,
-                                                                             "dst_peers": all_peers})
-        res -= dns_to_any_conns
-        return res
-
 
 class DisjointnessQuery(NetworkConfigQuery):
     """
@@ -812,7 +790,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             subset_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": subset_peers}) | \
                            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": subset_peers})
             all_conns_opt &= subset_conns
-        all_conns_opt = self.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
+        all_conns_opt = self.config.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
         if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
             output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
                 self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare)
@@ -1168,6 +1146,33 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         return IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
                                           self.config2.get_referenced_ip_blocks(exclude_ipv6), exclude_ipv6)
 
+    def filter_conns_by_input_or_internal_constraints(self, conns1, conns2):
+        """
+        Given two allowed connections (in config1 and in config2 respectively), filter those connections
+        according to required IP blocks (external constrain - excludeIPv6Range option) and
+        peer types (internal constraints).
+        :param conns1: the first config allowed connections
+        :param conns2: the second config allowed connections
+        :rtype: [ConnectivityProperties, ConnectivityProperties]
+        :return: two resulting allowed connections
+        """
+        peers_to_compare = conns1.project_on_one_dimension('src_peers') | \
+                           conns1.project_on_one_dimension('dst_peers') | \
+                           conns2.project_on_one_dimension('src_peers') | \
+                           conns2.project_on_one_dimension('dst_peers')
+        exclude_ipv6 = self.output_config.excludeIPv6Range
+        ref_ip_blocks = self.config1.get_referenced_ip_blocks(exclude_ipv6) | \
+                        self.config2.get_referenced_ip_blocks(exclude_ipv6)
+        ip_blocks_mask = IpBlock()
+        for ip_block in ref_ip_blocks:
+            ip_blocks_mask |= ip_block
+        peers_to_compare.filter_ipv6_blocks(ip_blocks_mask)
+        conns_filter = ConnectivityProperties.make_conn_props_from_dict({"src_peers": peers_to_compare,
+                                                                         "dst_peers": peers_to_compare})
+        res_conns1 = self.config1.filter_conns_by_peer_types(conns1, peers_to_compare) & conns_filter
+        res_conns2 = self.config2.filter_conns_by_peer_types(conns2, peers_to_compare) & conns_filter
+        return res_conns1, res_conns2
+
     @staticmethod
     def clone_without_ingress(config):
         """
@@ -1207,7 +1212,12 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             query_answer.numerical_result = not query_answer.bool_result
             return query_answer
+        if self.config1.optimized_run == 'false':
+            return self.check_equivalence_original(layer_name)
+        else:
+            return self.check_equivalence_optimized(layer_name)
 
+    def check_equivalence_original(self, layer_name=None):
         peers_to_compare = \
             self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
@@ -1227,6 +1237,40 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                         return self._query_answer_with_relevant_explanation(different_conns_list)
 
         if different_conns_list:
+            return self._query_answer_with_relevant_explanation(sorted(different_conns_list))
+
+        return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
+                           numerical_result=0)
+
+    def check_equivalence_optimized(self, layer_name=None):
+        conn_props1 = self.config1.allowed_connections_optimized()
+        conn_props2 = self.config2.allowed_connections_optimized()
+        all_conns1, all_conns2 = self.filter_conns_by_input_or_internal_constraints(conn_props1.all_allowed_conns,
+                                                                                    conn_props2.all_allowed_conns)
+        if all_conns1 != all_conns2:
+            conns1_not_in_conns2 = all_conns1 - all_conns2
+            conns2_not_in_conns1 = all_conns2 - all_conns1
+            different_conns_list = []
+            no_conns = ConnectionSet()
+            for cube in conns1_not_in_conns2:
+                conn_cube = conns1_not_in_conns2.get_connectivity_cube(cube)
+                conns, src_peers, dst_peers = \
+                    ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
+                if self.output_config.fullExplanation:
+                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns, no_conns))
+                else:
+                    different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns, no_conns))
+                    return self._query_answer_with_relevant_explanation(different_conns_list)
+            for cube in conns2_not_in_conns1:
+                conn_cube = conns2_not_in_conns1.get_connectivity_cube(cube)
+                conns, src_peers, dst_peers = \
+                    ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config2.peer_container)
+                if self.output_config.fullExplanation:
+                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), no_conns, conns))
+                else:
+                    different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), no_conns, conns))
+                    return self._query_answer_with_relevant_explanation(different_conns_list)
+
             return self._query_answer_with_relevant_explanation(sorted(different_conns_list))
 
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
