@@ -646,6 +646,21 @@ class PeerSet(set):
         for peer in self:
             return str(peer)
 
+    def __str__(self):
+        res = ''
+        if len(self) > 1:
+            res += '{'
+        first = True
+        for peer in self:
+            if first:
+                first = False
+            else:
+                res += ', '
+            res += str(peer)
+        if len(self) > 1:
+            res += '}'
+        return res
+
     def get_set_without_ip_block(self):
         """
         :return: a set with all elements from self which are not IpBlock
