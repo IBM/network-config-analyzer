@@ -304,7 +304,8 @@ class ConnectivityGraph:
             for connectivity-map output with connectivity restriction,
             or the type of connectivity changes for semantic-diff query output
         :rtype: str
-        :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
+        :return: a string of the original peers connectivity graph content, excluding connections between workload to itself
+        (without minimization of fw-rules)
         """
         lines = set()
         for connections, peer_pairs in self.connections_to_peers.items():
