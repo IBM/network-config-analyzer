@@ -298,14 +298,15 @@ class ConnectivityGraph:
         # returning [(group, list of self edges)]
         return connected_groups + [(nc_group, None) for nc_group in not_connected_groups] + [([p], None) for p in left_out]
 
-    def get_connections_without_fw_rules_txt_format(self, connectivity_msg=None):
+    def get_connections_without_fw_rules_txt_format(self, connectivity_msg=None, exclude_self_loop_conns=True):
         """
         :param Union[str,None] connectivity_msg: a msg header describing either the type of connectivity (TCP/non-TCP)
             for connectivity-map output with connectivity restriction,
             or the type of connectivity changes for semantic-diff query output
+        :param bool exclude_self_loop_conns: indicates if to exclude/ include connections from workload to itself
+        - always true for connectivity-map query output
         :rtype: str
-        :return: a string of the original peers connectivity graph content, excluding connections between workload to itself
-        (without minimization of fw-rules)
+        :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
         """
         lines = set()
         for connections, peer_pairs in self.connections_to_peers.items():
@@ -317,7 +318,7 @@ class ConnectivityGraph:
                     dst_peer_name = self._get_peer_details(dst_peer, True)[0]
                     # no self-loops: if a peer has different replicas or copies, a connection from it to itself will
                     # not be added either
-                    if src_peer_name == dst_peer_name:
+                    if exclude_self_loop_conns and src_peer_name == dst_peer_name:
                         continue
                     conn_str = connections.get_simplified_connections_representation(True)
                     conn_str = conn_str.title() if not conn_str.isupper() else conn_str
