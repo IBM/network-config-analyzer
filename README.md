@@ -87,8 +87,7 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--output_format <format>`\
   Output format specification (txt/yaml/csv/md/dot/jpg/txt_no_fw_rules).\
   For jpg format, Graphviz executables must be installed and on user systems' PATH.\
-  txt_no_fw_rules: supported for ConnectivityMap and SemanticDiff queries, printing connectivity rules for each pair of peers - excluding 
-  connections between workload to itself -; without minimization and grouping of rules.\
+`txt_no_fw_rules`: supported for ConnectivityMap and SemanticDiff queries, printing connectivity rules for each pair of peers, without minimization and grouping of rules. (excluding  connections between workload to itself).
   *default:* txt\
   *shorthand:* `-o`
 - `--file_out <file name>`\
