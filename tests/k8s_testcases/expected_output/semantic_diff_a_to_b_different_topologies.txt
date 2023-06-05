@@ -1,0 +1,27 @@
+Lost connections between removed peers (based on topology from config: config_a) :
+default/cog-agents[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet] : All Connections
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => default/cog-agents[DaemonSet] : All Connections
+Lost connections between removed peers and ipBlocks (based on topology from config: config_a) :
+0.0.0.0-255.255.255.255 => default/cog-agents[DaemonSet] : All Connections
+0.0.0.0-255.255.255.255 => default/cog-local-analyzer-7d77fb55cc[ReplicaSet] : All Connections
+default/cog-agents[DaemonSet] => 0.0.0.0-255.255.255.255 : All Connections
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => 0.0.0.0-255.255.255.255 : All Connections
+Lost connections between removed peers and persistent peers (based on topology from config: config_a) :
+default/cog-agents[DaemonSet] => default/cog-agents[DaemonSet] : All Connections
+default/cog-agents[DaemonSet] => default/cog-local-analyzer-7d77fb55cc[ReplicaSet] : All Connections
+default/cog-local-analyzer-7d77fb55cc[ReplicaSet] => default/cog-agents[DaemonSet] : All Connections
+Added connections between persistent peers (based on topology from config: config_b) :
+default/cog-agents[DaemonSet] => default/cog-agents[DaemonSet] : All Connections
+Removed connections between persistent peers (based on topology from config: config_a) :
+default/cog-agents[DaemonSet] => default/cog-agents[DaemonSet] : All Connections
+Added connections between persistent peers and ipBlocks (based on topology from config: config_b) :
+0.0.0.0-255.255.255.255 => default/cog-agents[DaemonSet] : All Connections
+Removed connections between persistent peers and ipBlocks (based on topology from config: config_a) :
+0.0.0.0-255.255.255.255 => default/cog-agents[DaemonSet] : All Connections
+New connections between persistent peers and added peers (based on topology from config: config_b) :
+default/cog-agents[DaemonSet] => default/cog-agents[DaemonSet] : All Connections
+New connections between added peers (based on topology from config: config_b) :
+default/cog-agents[DaemonSet] => default/cog-agents[DaemonSet] : All Connections
+New connections between added peers and ipBlocks (based on topology from config: config_b) :
+0.0.0.0-255.255.255.255 => default/cog-agents[DaemonSet] : All Connections
+default/cog-agents[DaemonSet] => 0.0.0.0-255.255.255.255 : All Connections
