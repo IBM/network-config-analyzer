@@ -1022,9 +1022,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers: the peers to consider for dot output
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP , or not
         :rtype:  str
-        :return the connectivity map in txt_no_fw_rules format, the connections between peers, excluding :
-         - fw-rules
-         - connections between workload to itself
+        :return the connectivity map in txt_no_fw_rules format: the connections between peers excluding connections between workload to itself (without grouping as fw-rules).
         """
         conn_graph = self._get_conn_graph(connections, peers)
         return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
