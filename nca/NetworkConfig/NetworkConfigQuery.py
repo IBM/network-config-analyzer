@@ -1022,8 +1022,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers: the peers to consider for dot output
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP , or not
         :rtype:  str
-        :return the connectivity map in txt_no_fw_rules format, the connections between peers, excluding fw-rules
-        and connections involving livesim peers
+        :return the connectivity map in txt_no_fw_rules format: the connections between peers excluding connections between
+        workload to itself (without grouping as fw-rules).
         """
         conn_graph = self._get_conn_graph(connections, peers)
         return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
@@ -1317,7 +1317,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         topology_config_name = self.name2 if is_added else self.name1
         connectivity_changes_header = f'{updated_key} (based on topology from config: {topology_config_name}) :'
         if self.output_config.outputFormat == 'txt_no_fw_rules':
-            conn_graph_explanation = conn_graph.get_connections_without_fw_rules_txt_format(connectivity_changes_header) + '\n'
+            conn_graph_explanation = conn_graph.get_connections_without_fw_rules_txt_format(
+                connectivity_changes_header, exclude_self_loop_conns=False) + '\n'
         else:
             conn_graph_explanation = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
 
