@@ -1158,13 +1158,11 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :rtype: [ConnectivityProperties, ConnectivityProperties]
         :return: two resulting allowed connections
         """
-        peers_to_compare = conns1.project_on_one_dimension('src_peers') | \
-                           conns1.project_on_one_dimension('dst_peers') | \
-                           conns2.project_on_one_dimension('src_peers') | \
-                           conns2.project_on_one_dimension('dst_peers')
+        peers_to_compare = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
+            conns2.project_on_one_dimension('src_peers') | conns2.project_on_one_dimension('dst_peers')
         exclude_ipv6 = self.output_config.excludeIPv6Range
         ref_ip_blocks = self.config1.get_referenced_ip_blocks(exclude_ipv6) | \
-                        self.config2.get_referenced_ip_blocks(exclude_ipv6)
+            self.config2.get_referenced_ip_blocks(exclude_ipv6)
         ip_blocks_mask = IpBlock() if ref_ip_blocks else IpBlock.get_all_ips_block(exclude_ipv6)
         for ip_block in ref_ip_blocks:
             ip_blocks_mask |= ip_block
@@ -1245,8 +1243,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                            numerical_result=0)
 
     def check_equivalence_optimized(self, layer_name=None):
-        conn_props1 = self.config1.allowed_connections_optimized()
-        conn_props2 = self.config2.allowed_connections_optimized()
+        conn_props1 = self.config1.allowed_connections_optimized(layer_name)
+        conn_props2 = self.config2.allowed_connections_optimized(layer_name)
         all_conns1, all_conns2 = self.filter_conns_by_input_or_internal_constraints(conn_props1.all_allowed_conns,
                                                                                     conn_props2.all_allowed_conns)
         if all_conns1 != all_conns2:
