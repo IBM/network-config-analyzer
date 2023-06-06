@@ -345,7 +345,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         assert dim_name not in ["icmp_type", "icmp_code"]  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
-            return None
+            return BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name(dim_name))
         if dim_name == "src_peers" or dim_name == "dst_peers":
             res = PeerSet()
         elif dim_name == "src_ports" or dim_name == "dst_ports":
