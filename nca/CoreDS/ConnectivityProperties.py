@@ -400,7 +400,6 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         src_ports = conn_cube["src_ports"]
         dst_ports = conn_cube["dst_ports"]
-        dst_peers = conn_cube["dst_peers"]
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
         if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or \
                 not conn_cube.is_active_dim("dst_peers"):
@@ -418,6 +417,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         # Resolving dst named ports
         protocols = conn_cube["protocols"]
+        dst_peers = conn_cube["dst_peers"]
         for peer in dst_peers:
             real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols)
             if real_ports:
