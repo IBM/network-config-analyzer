@@ -63,56 +63,56 @@
 - name: basic_subset_label
   args: >
     --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
-    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
-    --label_subset app:appA --label_subset dep:F 
+    --label_subset app:appA --label_subset dep:F
     --expected_output expected_cmdline_output_files/basic_subset_label_query_output.txt
   expected: 0
 
 - name: subset_label
   args: >
     --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
-    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
-    --label_subset app:appA,release:v22b --label_subset dep:F,release:v22b 
+    --label_subset app:appA,release:v22b --label_subset dep:F,release:v22b
     --expected_output expected_cmdline_output_files/subset_label_query_output.txt
   expected: 0
 
 - name: subset_label2
   args: >
     --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
-    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
-    --label_subset app:appA,release:v22bc --label_subset dep:F,release:v22b 
+    --label_subset app:appA,release:v22bc --label_subset dep:F,release:v22b
     --expected_output expected_cmdline_output_files/subset_label2_query_output.txt
   expected: 0
 
 - name: basic_subset_deployment
   args: >
     --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
-    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
-    --deployment_subset deployment-A,deployment-D 
+    --deployment_subset deployment-A,deployment-D
     --expected_output expected_cmdline_output_files/basic_subset_deployment_query_output.txt
   expected: 0
 
 - name: basic_subset_namespace
   args: >
     --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
-    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
-    --namespace_subset ns1,ns3 
+    --namespace_subset ns1,ns3
     --expected_output expected_cmdline_output_files/basic_subset_namespace_query_output.txt
   expected: 0
 
 - name: all_subset_mix
   args: >
     --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
-    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml 
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
-    --namespace_subset ns3 
-    --deployment_subset deployment-D 
-    --label_subset app:appA --label_subset dep:F 
+    --namespace_subset ns3
+    --deployment_subset deployment-D
+    --label_subset app:appA --label_subset dep:F
     --expected_output expected_cmdline_output_files/all_subset_mix_query_output.txt
   expected: 0
 
@@ -430,5 +430,61 @@
     --pod_list k8s_testcases/example_podlist/pods_list.json
     --explain ALL
     -opt=true
+    -d
     --expected_output expected_cmdline_output_files/basic_connectivity_expl_output.txt
+  expected: 0
+
+- name: poc1-expl
+  args: >
+    --connectivity fw_rules_tests/policies/microservices-netpols.yaml
+    --ns_list fw_rules_tests/podlist/poc_ns_list.json
+    --pod_list fw_rules_tests/podlist/kubernetes-manifests.yaml
+    --explain ALL
+    -opt=true
+    -d
+    --expected_output expected_cmdline_output_files/poc1_expl_output.txt
+  expected: 0
+
+- name: subset-deployment-expl
+  args: >
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --explain ALL
+    -opt=true
+    -d
+    --expected_output expected_cmdline_output_files/subset_deployment_expl_output.txt
+  expected: 0
+
+- name: test25-expl
+  args: >
+    --connectivity fw_rules_tests/policies/test25-networkpolicy.yaml
+    --ns_list fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
+    --pod_list fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
+    --explain ALL
+    -opt=true
+    -d
+    --expected_output expected_cmdline_output_files/test25_expl_output.txt
+  expected: 0
+
+- name: test4-expl
+  args: >
+    --connectivity fw_rules_tests/policies/test4-networkpolicy.yaml
+    --ns_list fw_rules_tests/podlist/ns_list.json
+    --pod_list fw_rules_tests/podlist/pods_list_4.json
+    --explain ALL
+    -opt=true
+    -d
+    --expected_output expected_cmdline_output_files/test4_expl_output.txt
+  expected: 0
+
+- name: istio-ingress-expl
+  args: >
+    --connectivity istio_testcases/example_policies/istio-ingress-test/resources/
+    --ns_list istio_testcases/example_policies/istio-ingress-test
+    --pod_list istio_testcases/example_policies/istio-ingress-test
+    --explain ALL
+    -opt=true
+    -d
+    --expected_output expected_cmdline_output_files/istio-ingress_expl_output.txt
   expected: 0

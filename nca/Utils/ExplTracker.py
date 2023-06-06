@@ -50,8 +50,6 @@ class ExplTracker(metaclass=Singleton):
         self.all_peers = None
         self.ep = ep
 
-        self.add_item('', 0, 'Default-Policy')
-
     class ExplPolicies:
         """
         ExplPolicies holds the policies affecting peers in relation to other peers.
@@ -97,11 +95,28 @@ class ExplTracker(metaclass=Singleton):
             if ingress_src:
                 self._add_policy(ingress_src, self.ingress_src, policy_name)
 
+    def _reset(self):
+        self.ExplDescriptorContainer = {}
+        self.ExplPeerToPolicyContainer = {}
+        self._is_active = False
+        self.all_conns = None
+        self.all_peers = None
+        self.ep = ''
+
+        self.add_item('', 0, 'Default-Policy')
+
     def activate(self):
         """
         Make the ExplTracker active
         """
+        self._reset()
         self._is_active = True
+
+    def set_endpoints(self, ep):
+        """
+        Set the endpoints configuration
+        """
+        self.ep = ep
 
     def is_active(self):
         """
@@ -205,7 +220,7 @@ class ExplTracker(metaclass=Singleton):
         :param str dst: name of the destination peer
         :return: bool: True for connected, False for disconnected
         """
-        if not self.all_conns:
+        if not self.all_conns and not self.all_peers:
             NcaLogger().log_message('Explainability error: Connections were not set yet, but peer query was called', level='E')
 
         src_peer = self._get_peer_by_name(src)
@@ -408,15 +423,15 @@ class ExplTracker(metaclass=Singleton):
                 src_results = self.ExplPeerToPolicyContainer[src_node].all_policies
                 dst_results = self.ExplPeerToPolicyContainer[dst_node].all_policies
 
-            src_results = list(src_results)
+            src_results = sorted(list(src_results))
             src_results.append(src_node)
-            dst_results = list(dst_results)
+            dst_results = sorted(list(dst_results))
             dst_results.append(dst_node)
             out.extend(self.prepare_node_str(src_node, src_results, 'src'))
             out.extend(self.prepare_node_str(dst_node, dst_results, 'dst'))
         else:  # only one node
             results = self.ExplPeerToPolicyContainer[src_node].all_policies
-            results = list(results)
+            results = sorted(list(results))
             results.append(src_node)
             out.append(f'Configurations affecting {self.get_printout_ep_name(src_node)}:')
             out.extend(self.prepare_node_str(src_node, results))

@@ -86,7 +86,7 @@ The supported entries in the outputConfiguration object are as follows:
 | subset           | A dict object with the defined subset elements to display in the output                                         | [subset](#subset) object                                     |
 | fullExplanation  | Choose if to print all counterexamples causing the query result in the output                                   | bool                                                         |
 | excludeIPv6Range | If the policies of the config do not contain any IPv6 addresses, do not include IPv6 range in the query results | bool  [default: True]                                        |
-
+| explain          |A pair of node names to explain the policies affecting their connection or lack of it. When 'ALL' is supplied, all the pairs in the topology are explained.| string [ ns/node1,ns/node2 / ALL ]                           |
 
 #### <a name="subset"></a>Subset object
 The supported entries in the subset object are as follows:
