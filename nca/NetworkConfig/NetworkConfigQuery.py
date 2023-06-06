@@ -1143,6 +1143,8 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :rtype: PeerSet
         """
         exclude_ipv6 = self.output_config.excludeIPv6Range
+        # TODO - consider including also non referenced IPBlocks, as in ConnectivityMapQuery
+        #  (see issue https://github.com/IBM/network-config-analyzer/issues/522)
         return IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
                                           self.config2.get_referenced_ip_blocks(exclude_ipv6), exclude_ipv6)
 
@@ -1163,7 +1165,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         exclude_ipv6 = self.output_config.excludeIPv6Range
         ref_ip_blocks = self.config1.get_referenced_ip_blocks(exclude_ipv6) | \
                         self.config2.get_referenced_ip_blocks(exclude_ipv6)
-        ip_blocks_mask = IpBlock()
+        ip_blocks_mask = IpBlock() if ref_ip_blocks else IpBlock.get_all_ips_block(exclude_ipv6)
         for ip_block in ref_ip_blocks:
             ip_blocks_mask |= ip_block
         peers_to_compare.filter_ipv6_blocks(ip_blocks_mask)
@@ -1257,7 +1259,14 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 conns, src_peers, dst_peers = \
                     ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
                 if self.output_config.fullExplanation:
-                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns, no_conns))
+                    if self.config1.optimized_run == 'true':
+                        different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns, no_conns))
+                    else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
+                        for src_peer in src_peers:
+                            for dst_peer in dst_peers:
+                                if src_peer != dst_peer:
+                                    different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
+                                                                                    conns, no_conns))
                 else:
                     different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns, no_conns))
                     return self._query_answer_with_relevant_explanation(different_conns_list)
@@ -1266,7 +1275,15 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                 conns, src_peers, dst_peers = \
                     ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config2.peer_container)
                 if self.output_config.fullExplanation:
-                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), no_conns, conns))
+                    if self.config1.optimized_run == 'true':
+                        different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), no_conns, conns))
+                    else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
+                        for src_peer in src_peers:
+                            for dst_peer in dst_peers:
+                                if src_peer != dst_peer:
+                                    different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
+                                                                                    no_conns, conns))
+
                 else:
                     different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), no_conns, conns))
                     return self._query_answer_with_relevant_explanation(different_conns_list)
