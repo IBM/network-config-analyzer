@@ -48,6 +48,12 @@ test,run_time(seconds)
 "k8s_cmdline_tests.yaml, query name: subset_label",0.24
 "k8s_cmdline_tests.yaml, query name: subset_label2",0.22
 "k8s_cmdline_tests.yaml, query name: two_way_containment_policies",0.08
+"k8s_cmdline_tests.yaml, query name: basic_connectivity-expl",0.08
+"k8s_cmdline_tests.yaml, query name: poc1-expl",0.08
+"k8s_cmdline_tests.yaml, query name: subset-deployment-expl",0.08
+"k8s_cmdline_tests.yaml, query name: test25-expl",0.08
+"k8s_cmdline_tests.yaml, query name: test4-expl",0.08
+"k8s_cmdline_tests.yaml, query name: istio-ingress-expl",0.08
 fw_rules_tests/policies/cyclonus-simple-example-scheme.yaml,0.08
 fw_rules_tests/policies/label_expr_test_1-scheme.yaml,0.38
 fw_rules_tests/policies/poc1-scheme.yaml,0.64
