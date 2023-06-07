@@ -42,6 +42,8 @@ class ExplTracker(metaclass=Singleton):
             ep - endpoints configurations (use either full_name for pod mode, or workload_name for deployments mode)
     """
 
+    DEFAULT_POLICY = 'Default-Policy'
+
     def __init__(self, ep=''):
         self.ExplDescriptorContainer = {}
         self.ExplPeerToPolicyContainer = {}
@@ -77,7 +79,7 @@ class ExplTracker(metaclass=Singleton):
                 # We don't want Default-Policy if we have any other policy,
                 # so we first remove it and then add the policy (even if we currently add
                 # the Default-Policy itself).
-                peer_list[peer_name].discard('Default-Policy')
+                peer_list[peer_name].discard(ExplTracker.DEFAULT_POLICY)
                 peer_list[peer_name].add(policy_name)
 
         def add_policy(self, policy_name, egress_dst, ingress_src):
@@ -103,7 +105,7 @@ class ExplTracker(metaclass=Singleton):
         self.all_peers = None
         self.ep = ''
 
-        self.add_item('', 0, 'Default-Policy')
+        self.add_item('', 0, self.DEFAULT_POLICY)
 
     def activate(self):
         """
@@ -169,9 +171,11 @@ class ExplTracker(metaclass=Singleton):
                                                                  egress_dst,
                                                                  ingress_src,
                                                                  )
+        else:
+            NcaLogger().log_message(f'Explainability error: Trying to add policy {policy_name} to peer {peer_name},'
+                                    f' but peer not found in Expl Database', level='E')
 
-    @staticmethod
-    def extract_peers(conns):
+    def extract_peers(self, conns):
         """
         Utility function to extract the peer names held in a connectivity element
         :param ConnectivityProperties conns:
@@ -181,9 +185,16 @@ class ExplTracker(metaclass=Singleton):
         dst_peers = PeerSet()
         for cube in conns:
             conn_cube = conns.get_connectivity_cube(cube)
-            src_peers |= conn_cube["src_peers"]
-            dst_peers |= conn_cube["dst_peers"]
+            src_peers |= conn_cube["src_peers"] if conn_cube["src_peers"] else self.all_peers
+            dst_peers |= conn_cube["dst_peers"] if conn_cube["dst_peers"] else self.all_peers
         return src_peers, dst_peers
+
+    def set_peers(self, peers):
+        """
+        Update the peers into ExplTracker
+        :param PeerSet peers: all the peers in the container
+        """
+        self.all_peers = peers
 
     def set_connections_and_peers(self, conns, peers):
         """
@@ -192,7 +203,7 @@ class ExplTracker(metaclass=Singleton):
         :param PeerSet peers: all the peers in the container
         """
         self.all_conns = conns
-        self.all_peers = peers
+        # self.all_peers = peers
         # add all missing 'special' peers (like 0.0.0.0/0) with default policy.
         for peer in self.all_peers:
             peer_name = peer.full_name()
@@ -251,7 +262,7 @@ class ExplTracker(metaclass=Singleton):
             if self.is_policy_list_empty(node.full_name(), is_ingress):
                 node_name = node.full_name()
                 self.add_peer_policy(node_name,
-                                     'Default-Policy',
+                                     ExplTracker.DEFAULT_POLICY,
                                      egress_list,
                                      ingress_list,
                                      )

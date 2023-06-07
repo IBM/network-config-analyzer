@@ -9,7 +9,7 @@ from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
-
+from nca.Utils.ExplTracker import ExplTracker
 
 @dataclass
 class PoliciesContainer:
@@ -275,6 +275,8 @@ class NetworkConfig:
         :return: allowed_conns: all allowed connections for relevant peers.
         :rtype: OptimizedPolicyConnections
         """
+        if ExplTracker().is_active():
+            ExplTracker().set_peers(self.peer_container.peer_set)
         if layer_name is not None:
             if layer_name not in self.policies_container.layers:
                 return self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
