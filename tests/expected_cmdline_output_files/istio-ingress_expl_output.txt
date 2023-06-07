@@ -1,0 +1,789 @@
+final fw rules for query: , config: **:
+src: 0.0.0.0/0 dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [istio-ingressgateway] dst_ns: [prod] dst_pods: [ratings-v1-857bb87c57] conn: TCP {'dst_ports': '9080', 'hosts': 'eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local', 'paths': '/reviews(/*)?'}
+src_ns: [default] src_pods: [istio-ingressgateway] dst_ns: [qa] dst_pods: [*] conn: TCP {'dst_ports': '7777', 'hosts': 'eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local'}
+src_ns: [default] src_pods: [productpage-v1-6f9df695b7, reviews-v3-869ff44845] dst: 0.0.0.0/0 conn: All connections
+src_ns: [default] src_pods: [productpage-v1-6f9df695b7, reviews-v3-869ff44845] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
+src_ns: [prod,qa] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [prod,qa] src_pods: [*] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
+<entry dst="default/istio-ingressgateway(Deployment)" id="1" src="default/istio-ingressgateway(Deployment)">
+ <text>
+  Configurations affecting default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+ </text>
+</entry>
+<entry dst="default/productpage-v1(Deployment-StatefulSet)" id="2" src="default/istio-ingressgateway(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/istio-ingressgateway(Deployment) and (dst)default/productpage-v1(Deployment-StatefulSet):
+
+(src)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+
+(dst)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/reviews-v3(Deployment-StatefulSet)" id="3" src="default/istio-ingressgateway(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/istio-ingressgateway(Deployment) and (dst)default/reviews-v3(Deployment-StatefulSet):
+
+(src)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+
+(dst)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/details-v1(Deployment-StatefulSet)" id="4" src="default/istio-ingressgateway(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/istio-ingressgateway(Deployment) and (dst)prod/details-v1(Deployment-StatefulSet):
+
+(src)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+
+(dst)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="5" src="default/istio-ingressgateway(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/istio-ingressgateway(Deployment) and (dst)prod/ratings-v1(Deployment-StatefulSet):
+
+(src)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+
+(dst)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="6" src="default/istio-ingressgateway(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/istio-ingressgateway(Deployment) and (dst)qa/reviews-v1(Deployment-StatefulSet):
+
+(src)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+
+(dst)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="7" src="default/istio-ingressgateway(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/istio-ingressgateway(Deployment) and (dst)qa/reviews-v2(Deployment-StatefulSet):
+
+(src)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+
+(dst)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/istio-ingressgateway(Deployment)" id="8" src="default/productpage-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/productpage-v1(Deployment-StatefulSet) and (dst)default/istio-ingressgateway(Deployment):
+
+(src)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+ </text>
+</entry>
+<entry dst="default/productpage-v1(Deployment-StatefulSet)" id="9" src="default/productpage-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/reviews-v3(Deployment-StatefulSet)" id="10" src="default/productpage-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/productpage-v1(Deployment-StatefulSet) and (dst)default/reviews-v3(Deployment-StatefulSet):
+
+(src)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/details-v1(Deployment-StatefulSet)" id="11" src="default/productpage-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/productpage-v1(Deployment-StatefulSet) and (dst)prod/details-v1(Deployment-StatefulSet):
+
+(src)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="12" src="default/productpage-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/productpage-v1(Deployment-StatefulSet) and (dst)prod/ratings-v1(Deployment-StatefulSet):
+
+(src)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="13" src="default/productpage-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/productpage-v1(Deployment-StatefulSet) and (dst)qa/reviews-v1(Deployment-StatefulSet):
+
+(src)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="14" src="default/productpage-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/productpage-v1(Deployment-StatefulSet) and (dst)qa/reviews-v2(Deployment-StatefulSet):
+
+(src)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/istio-ingressgateway(Deployment)" id="15" src="default/reviews-v3(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/reviews-v3(Deployment-StatefulSet) and (dst)default/istio-ingressgateway(Deployment):
+
+(src)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+ </text>
+</entry>
+<entry dst="default/productpage-v1(Deployment-StatefulSet)" id="16" src="default/reviews-v3(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/reviews-v3(Deployment-StatefulSet) and (dst)default/productpage-v1(Deployment-StatefulSet):
+
+(src)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/reviews-v3(Deployment-StatefulSet)" id="17" src="default/reviews-v3(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/details-v1(Deployment-StatefulSet)" id="18" src="default/reviews-v3(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/reviews-v3(Deployment-StatefulSet) and (dst)prod/details-v1(Deployment-StatefulSet):
+
+(src)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="19" src="default/reviews-v3(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/reviews-v3(Deployment-StatefulSet) and (dst)prod/ratings-v1(Deployment-StatefulSet):
+
+(src)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="20" src="default/reviews-v3(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/reviews-v3(Deployment-StatefulSet) and (dst)qa/reviews-v1(Deployment-StatefulSet):
+
+(src)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="21" src="default/reviews-v3(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/reviews-v3(Deployment-StatefulSet) and (dst)qa/reviews-v2(Deployment-StatefulSet):
+
+(src)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/istio-ingressgateway(Deployment)" id="22" src="prod/details-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/details-v1(Deployment-StatefulSet) and (dst)default/istio-ingressgateway(Deployment):
+
+(src)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+ </text>
+</entry>
+<entry dst="default/productpage-v1(Deployment-StatefulSet)" id="23" src="prod/details-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/details-v1(Deployment-StatefulSet) and (dst)default/productpage-v1(Deployment-StatefulSet):
+
+(src)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/reviews-v3(Deployment-StatefulSet)" id="24" src="prod/details-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/details-v1(Deployment-StatefulSet) and (dst)default/reviews-v3(Deployment-StatefulSet):
+
+(src)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/details-v1(Deployment-StatefulSet)" id="25" src="prod/details-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="26" src="prod/details-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/details-v1(Deployment-StatefulSet) and (dst)prod/ratings-v1(Deployment-StatefulSet):
+
+(src)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="27" src="prod/details-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/details-v1(Deployment-StatefulSet) and (dst)qa/reviews-v1(Deployment-StatefulSet):
+
+(src)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="28" src="prod/details-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/details-v1(Deployment-StatefulSet) and (dst)qa/reviews-v2(Deployment-StatefulSet):
+
+(src)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/istio-ingressgateway(Deployment)" id="29" src="prod/ratings-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/ratings-v1(Deployment-StatefulSet) and (dst)default/istio-ingressgateway(Deployment):
+
+(src)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+ </text>
+</entry>
+<entry dst="default/productpage-v1(Deployment-StatefulSet)" id="30" src="prod/ratings-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/ratings-v1(Deployment-StatefulSet) and (dst)default/productpage-v1(Deployment-StatefulSet):
+
+(src)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/reviews-v3(Deployment-StatefulSet)" id="31" src="prod/ratings-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/ratings-v1(Deployment-StatefulSet) and (dst)default/reviews-v3(Deployment-StatefulSet):
+
+(src)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/details-v1(Deployment-StatefulSet)" id="32" src="prod/ratings-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/ratings-v1(Deployment-StatefulSet) and (dst)prod/details-v1(Deployment-StatefulSet):
+
+(src)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="33" src="prod/ratings-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="34" src="prod/ratings-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/ratings-v1(Deployment-StatefulSet) and (dst)qa/reviews-v1(Deployment-StatefulSet):
+
+(src)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="35" src="prod/ratings-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)prod/ratings-v1(Deployment-StatefulSet) and (dst)qa/reviews-v2(Deployment-StatefulSet):
+
+(src)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/istio-ingressgateway(Deployment)" id="36" src="qa/reviews-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v1(Deployment-StatefulSet) and (dst)default/istio-ingressgateway(Deployment):
+
+(src)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+ </text>
+</entry>
+<entry dst="default/productpage-v1(Deployment-StatefulSet)" id="37" src="qa/reviews-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v1(Deployment-StatefulSet) and (dst)default/productpage-v1(Deployment-StatefulSet):
+
+(src)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/reviews-v3(Deployment-StatefulSet)" id="38" src="qa/reviews-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v1(Deployment-StatefulSet) and (dst)default/reviews-v3(Deployment-StatefulSet):
+
+(src)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/details-v1(Deployment-StatefulSet)" id="39" src="qa/reviews-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v1(Deployment-StatefulSet) and (dst)prod/details-v1(Deployment-StatefulSet):
+
+(src)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="40" src="qa/reviews-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v1(Deployment-StatefulSet) and (dst)prod/ratings-v1(Deployment-StatefulSet):
+
+(src)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="41" src="qa/reviews-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="42" src="qa/reviews-v1(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v1(Deployment-StatefulSet) and (dst)qa/reviews-v2(Deployment-StatefulSet):
+
+(src)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/istio-ingressgateway(Deployment)" id="43" src="qa/reviews-v2(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v2(Deployment-StatefulSet) and (dst)default/istio-ingressgateway(Deployment):
+
+(src)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/istio-ingressgateway(Deployment):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+ </text>
+</entry>
+<entry dst="default/productpage-v1(Deployment-StatefulSet)" id="44" src="qa/reviews-v2(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v2(Deployment-StatefulSet) and (dst)default/productpage-v1(Deployment-StatefulSet):
+
+(src)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/productpage-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="default/reviews-v3(Deployment-StatefulSet)" id="45" src="qa/reviews-v2(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v2(Deployment-StatefulSet) and (dst)default/reviews-v3(Deployment-StatefulSet):
+
+(src)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)default/reviews-v3(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/details-v1(Deployment-StatefulSet)" id="46" src="qa/reviews-v2(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v2(Deployment-StatefulSet) and (dst)prod/details-v1(Deployment-StatefulSet):
+
+(src)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/details-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="47" src="qa/reviews-v2(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v2(Deployment-StatefulSet) and (dst)prod/ratings-v1(Deployment-StatefulSet):
+
+(src)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)prod/ratings-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="48" src="qa/reviews-v2(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)qa/reviews-v2(Deployment-StatefulSet) and (dst)qa/reviews-v1(Deployment-StatefulSet):
+
+(src)qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+
+(dst)qa/reviews-v1(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>
+<entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="49" src="qa/reviews-v2(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting qa/reviews-v2(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+ </text>
+</entry>

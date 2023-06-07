@@ -1,0 +1,2795 @@
+final fw rules for query: , config: microservices-netpols.yaml:
+src: 0.0.0.0/0 dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src: 0.0.0.0/0 dst_ns: [kube-system] dst_pods: [*] conn: All connections
+src_ns: [default] src_pods: [cartservice] dst_ns: [default] dst_pods: [redis-cart] conn: TCP 6379
+src_ns: [default] src_pods: [cartservice] dst_ns: [kube-system] dst_pods: [*] conn: UDP 53
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [emailservice] conn: TCP 8080
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [paymentservice, shippingservice] conn: TCP 50051
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP 3550
+src_ns: [default] src_pods: [checkoutservice] dst_ns: [kube-system] dst_pods: [*] conn: UDP 53
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [adservice] conn: TCP 9555
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [cartservice] conn: TCP 7070
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [checkoutservice] conn: TCP 5050
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [currencyservice] conn: TCP 7000
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP 3550
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [recommendationservice] conn: TCP 8080
+src_ns: [default] src_pods: [frontend] dst_ns: [default] dst_pods: [shippingservice] conn: TCP 50051
+src_ns: [default] src_pods: [frontend] dst_ns: [kube-system] dst_pods: [*] conn: UDP 53
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src_ns: [default] src_pods: [loadgenerator] dst_ns: [kube-system] dst_pods: [*] conn: UDP 53
+src_ns: [default] src_pods: [recommendationservice] dst_ns: [default] dst_pods: [productcatalogservice] conn: TCP 3550
+src_ns: [default] src_pods: [recommendationservice] dst_ns: [kube-system] dst_pods: [*] conn: UDP 53
+src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
+src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
+<entry dst="default/adservice(Deployment)" id="1" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="2" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="3" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="4" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="5" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="6" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="7" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="8" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="9" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="10" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="11" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="12" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="13" src="default/adservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/adservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="14" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="15" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="16" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="17" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="18" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="19" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="20" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="21" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="22" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="23" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="24" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cartservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="25" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/cartservice(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="26" src="default/cartservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cartservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="27" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/checkoutservice(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="28" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/checkoutservice(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="29" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="30" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/checkoutservice(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="31" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/checkoutservice(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="32" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/checkoutservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="33" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/checkoutservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="34" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/checkoutservice(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="35" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/checkoutservice(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="36" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/checkoutservice(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="37" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/checkoutservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="38" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/checkoutservice(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="39" src="default/checkoutservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/checkoutservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="40" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="41" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="42" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="43" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="44" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="45" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="46" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="47" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="48" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="49" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="50" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="51" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="52" src="default/currencyservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/currencyservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="53" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="54" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="55" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="56" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="57" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="58" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="59" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="60" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="61" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="62" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="63" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="64" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="65" src="default/emailservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/emailservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="66" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/frontend(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="67" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/frontend(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="68" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/frontend(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="69" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/frontend(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="70" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/frontend(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="71" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="72" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/frontend(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="73" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/frontend(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="74" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/frontend(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="75" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/frontend(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="76" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/frontend(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="77" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/frontend(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="78" src="default/frontend(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/frontend(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="79" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="80" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="81" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="82" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="83" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="84" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/loadgenerator(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="85" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="86" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="87" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="88" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="89" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="90" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/loadgenerator(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="91" src="default/loadgenerator(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/loadgenerator(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="92" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="93" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="94" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="95" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="96" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="97" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="98" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="99" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="100" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="101" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="102" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="103" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="104" src="default/paymentservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/paymentservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="105" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="106" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="107" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="108" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="109" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="110" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="111" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="112" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="113" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="114" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="115" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="116" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="117" src="default/productcatalogservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/productcatalogservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="118" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="119" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="120" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="121" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="122" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="123" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="124" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="125" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="126" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/recommendationservice(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="127" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="128" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="129" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/recommendationservice(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="130" src="default/recommendationservice(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)default/recommendationservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="131" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="132" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="133" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="134" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="135" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="136" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="137" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="138" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="139" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="140" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="141" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="142" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)default/shippingservice(Deployment):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="143" src="default/redis-cart(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/redis-cart(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="144" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/adservice(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="145" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/cartservice(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="146" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/checkoutservice(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="147" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/currencyservice(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="148" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/emailservice(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="149" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/frontend(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="150" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/loadgenerator(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="151" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/paymentservice(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="152" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/productcatalogservice(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="153" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/recommendationservice(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="154" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)default/redis-cart(Deployment):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="155" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="156" src="default/shippingservice(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/shippingservice(Deployment) and (dst)kube-system/kube-dns-livesim(Pod):
+
+(src)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+
+(dst)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
+<entry dst="default/adservice(Deployment)" id="157" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/adservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/adservice(Deployment):
+Policy Configurations:
+adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/cartservice(Deployment)" id="158" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/cartservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/cartservice(Deployment):
+Policy Configurations:
+cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/checkoutservice(Deployment)" id="159" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/checkoutservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/checkoutservice(Deployment):
+Policy Configurations:
+checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/currencyservice(Deployment)" id="160" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/currencyservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/currencyservice(Deployment):
+Policy Configurations:
+currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/emailservice(Deployment)" id="161" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/emailservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/emailservice(Deployment):
+Policy Configurations:
+emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/frontend(Deployment)" id="162" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/frontend(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/frontend(Deployment):
+Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/loadgenerator(Deployment)" id="163" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/loadgenerator(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/loadgenerator(Deployment):
+Policy Configurations:
+loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/paymentservice(Deployment)" id="164" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/paymentservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/paymentservice(Deployment):
+Policy Configurations:
+paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/productcatalogservice(Deployment)" id="165" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/productcatalogservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/productcatalogservice(Deployment):
+Policy Configurations:
+productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/recommendationservice(Deployment)" id="166" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/recommendationservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/recommendationservice(Deployment):
+Policy Configurations:
+recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/redis-cart(Deployment)" id="167" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/redis-cart(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/redis-cart(Deployment):
+Policy Configurations:
+redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="default/shippingservice(Deployment)" id="168" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system/kube-dns-livesim(Pod) and (dst)default/shippingservice(Deployment):
+
+(src)kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+
+(dst)default/shippingservice(Deployment):
+Policy Configurations:
+shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
+default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
+ </text>
+</entry>
+<entry dst="kube-system/kube-dns-livesim(Pod)" id="169" src="kube-system/kube-dns-livesim(Pod)">
+ <text>
+  Configurations affecting kube-system/kube-dns-livesim(Pod):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+ </text>
+</entry>
