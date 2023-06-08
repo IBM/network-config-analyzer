@@ -234,7 +234,7 @@ default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kuberne
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="14" src="default/cartservice(Deployment)">
@@ -447,7 +447,7 @@ default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kuber
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="27" src="default/checkoutservice(Deployment)">
@@ -660,7 +660,7 @@ default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/ku
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="40" src="default/currencyservice(Deployment)">
@@ -873,7 +873,7 @@ default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/k
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="53" src="default/emailservice(Deployment)">
@@ -1086,7 +1086,7 @@ default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kuber
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="66" src="default/frontend(Deployment)">
@@ -1299,7 +1299,7 @@ default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernet
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="79" src="default/loadgenerator(Deployment)">
@@ -1512,7 +1512,7 @@ default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kub
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="92" src="default/paymentservice(Deployment)">
@@ -1725,7 +1725,7 @@ default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/ku
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="105" src="default/productcatalogservice(Deployment)">
@@ -1938,7 +1938,7 @@ default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/pod
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="118" src="default/recommendationservice(Deployment)">
@@ -2151,7 +2151,7 @@ default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/pod
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="131" src="default/redis-cart(Deployment)">
@@ -2364,7 +2364,7 @@ default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubern
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="144" src="default/shippingservice(Deployment)">
@@ -2577,7 +2577,7 @@ default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/k
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="157" src="kube-system/kube-dns-livesim(Pod)">
@@ -2588,7 +2588,7 @@ kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/adservice(Deployment):
 Policy Configurations:
@@ -2605,7 +2605,7 @@ default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kuberne
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/cartservice(Deployment):
 Policy Configurations:
@@ -2622,7 +2622,7 @@ default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kuber
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/checkoutservice(Deployment):
 Policy Configurations:
@@ -2639,7 +2639,7 @@ default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/ku
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/currencyservice(Deployment):
 Policy Configurations:
@@ -2656,7 +2656,7 @@ default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/k
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/emailservice(Deployment):
 Policy Configurations:
@@ -2673,7 +2673,7 @@ default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kuber
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/frontend(Deployment):
 Policy Configurations:
@@ -2690,7 +2690,7 @@ default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernet
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/loadgenerator(Deployment):
 Policy Configurations:
@@ -2707,7 +2707,7 @@ default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kub
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/paymentservice(Deployment):
 Policy Configurations:
@@ -2724,7 +2724,7 @@ default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/ku
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/productcatalogservice(Deployment):
 Policy Configurations:
@@ -2741,7 +2741,7 @@ default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/pod
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/recommendationservice(Deployment):
 Policy Configurations:
@@ -2758,7 +2758,7 @@ default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/pod
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/redis-cart(Deployment):
 Policy Configurations:
@@ -2775,7 +2775,7 @@ default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubern
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
 
 (dst)default/shippingservice(Deployment):
 Policy Configurations:
@@ -2790,6 +2790,6 @@ default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/k
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-kube-system/kube-dns-livesim(Pod): line 9 in file C:\workplace\Projects\network-config-analyzer\nca\NetworkConfig\LiveSim/dns/dns_pods.yaml
+kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>

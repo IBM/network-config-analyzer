@@ -136,6 +136,14 @@ class ExplTracker(metaclass=Singleton):
         :param str workload_name: the workload name of the configuration block (doc)
         """
         if full_name:
+            # When DirScanner iterates over a directory it fetches files with Windows path.
+            # We need to convert it to Linux path.
+            path = path.replace('\\', '/')
+            # handle Livesim special case, where we need the full path to access the file,
+            # but for testing we need it to be environment agnostic.
+            _, middle, relative_path = path.rpartition("network-config-analyzer")
+            if middle:
+                path = "network-config-analyzer" + relative_path
             self.ExplDescriptorContainer[full_name] = {'path': path, 'line': ln, 'workload_name': workload_name}
         else:
             NcaLogger().log_message('Explainability error: configuration-block name can not be empty', level='E')

@@ -13,7 +13,7 @@ Policy Configurations:
 Default-Policy
 None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
 </entry>
 <entry dst="default/productpage-v1(Deployment-StatefulSet)" id="2" src="default/istio-ingressgateway(Deployment)">
@@ -25,13 +25,13 @@ Policy Configurations:
 Default-Policy
 None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
 (dst)default/productpage-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/reviews-v3(Deployment-StatefulSet)" id="3" src="default/istio-ingressgateway(Deployment)">
@@ -43,13 +43,13 @@ Policy Configurations:
 Default-Policy
 None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
 (dst)default/reviews-v3(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/details-v1(Deployment-StatefulSet)" id="4" src="default/istio-ingressgateway(Deployment)">
@@ -61,13 +61,13 @@ Policy Configurations:
 Default-Policy
 None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
 (dst)prod/details-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="5" src="default/istio-ingressgateway(Deployment)">
@@ -78,13 +78,13 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 Policy Configurations:
 None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
 (dst)prod/ratings-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="6" src="default/istio-ingressgateway(Deployment)">
@@ -95,13 +95,13 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 Policy Configurations:
 None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
 (dst)qa/reviews-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="7" src="default/istio-ingressgateway(Deployment)">
@@ -112,13 +112,13 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 Policy Configurations:
 None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
 (dst)qa/reviews-v2(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="8" src="default/productpage-v1(Deployment-StatefulSet)">
@@ -129,13 +129,13 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
 </entry>
 <entry dst="default/productpage-v1(Deployment-StatefulSet)" id="9" src="default/productpage-v1(Deployment-StatefulSet)">
@@ -144,7 +144,7 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/reviews-v3(Deployment-StatefulSet)" id="10" src="default/productpage-v1(Deployment-StatefulSet)">
@@ -155,13 +155,13 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/reviews-v3(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/details-v1(Deployment-StatefulSet)" id="11" src="default/productpage-v1(Deployment-StatefulSet)">
@@ -172,13 +172,13 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/details-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="12" src="default/productpage-v1(Deployment-StatefulSet)">
@@ -189,13 +189,13 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/ratings-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="13" src="default/productpage-v1(Deployment-StatefulSet)">
@@ -206,13 +206,13 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="14" src="default/productpage-v1(Deployment-StatefulSet)">
@@ -223,13 +223,13 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v2(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="15" src="default/reviews-v3(Deployment-StatefulSet)">
@@ -240,13 +240,13 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
 </entry>
 <entry dst="default/productpage-v1(Deployment-StatefulSet)" id="16" src="default/reviews-v3(Deployment-StatefulSet)">
@@ -257,13 +257,13 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/productpage-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/reviews-v3(Deployment-StatefulSet)" id="17" src="default/reviews-v3(Deployment-StatefulSet)">
@@ -272,7 +272,7 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/details-v1(Deployment-StatefulSet)" id="18" src="default/reviews-v3(Deployment-StatefulSet)">
@@ -283,13 +283,13 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/details-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="19" src="default/reviews-v3(Deployment-StatefulSet)">
@@ -300,13 +300,13 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/ratings-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="20" src="default/reviews-v3(Deployment-StatefulSet)">
@@ -317,13 +317,13 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="21" src="default/reviews-v3(Deployment-StatefulSet)">
@@ -334,13 +334,13 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v2(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="22" src="prod/details-v1(Deployment-StatefulSet)">
@@ -351,13 +351,13 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
 </entry>
 <entry dst="default/productpage-v1(Deployment-StatefulSet)" id="23" src="prod/details-v1(Deployment-StatefulSet)">
@@ -368,13 +368,13 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/productpage-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/reviews-v3(Deployment-StatefulSet)" id="24" src="prod/details-v1(Deployment-StatefulSet)">
@@ -385,13 +385,13 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/reviews-v3(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/details-v1(Deployment-StatefulSet)" id="25" src="prod/details-v1(Deployment-StatefulSet)">
@@ -400,7 +400,7 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="26" src="prod/details-v1(Deployment-StatefulSet)">
@@ -411,13 +411,13 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/ratings-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="27" src="prod/details-v1(Deployment-StatefulSet)">
@@ -428,13 +428,13 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="28" src="prod/details-v1(Deployment-StatefulSet)">
@@ -445,13 +445,13 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v2(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="29" src="prod/ratings-v1(Deployment-StatefulSet)">
@@ -462,13 +462,13 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
 </entry>
 <entry dst="default/productpage-v1(Deployment-StatefulSet)" id="30" src="prod/ratings-v1(Deployment-StatefulSet)">
@@ -479,13 +479,13 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/productpage-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/reviews-v3(Deployment-StatefulSet)" id="31" src="prod/ratings-v1(Deployment-StatefulSet)">
@@ -496,13 +496,13 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/reviews-v3(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/details-v1(Deployment-StatefulSet)" id="32" src="prod/ratings-v1(Deployment-StatefulSet)">
@@ -513,13 +513,13 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/details-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="33" src="prod/ratings-v1(Deployment-StatefulSet)">
@@ -528,7 +528,7 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="34" src="prod/ratings-v1(Deployment-StatefulSet)">
@@ -539,13 +539,13 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="35" src="prod/ratings-v1(Deployment-StatefulSet)">
@@ -556,13 +556,13 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v2(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="36" src="qa/reviews-v1(Deployment-StatefulSet)">
@@ -573,13 +573,13 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
 </entry>
 <entry dst="default/productpage-v1(Deployment-StatefulSet)" id="37" src="qa/reviews-v1(Deployment-StatefulSet)">
@@ -590,13 +590,13 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/productpage-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/reviews-v3(Deployment-StatefulSet)" id="38" src="qa/reviews-v1(Deployment-StatefulSet)">
@@ -607,13 +607,13 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/reviews-v3(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/details-v1(Deployment-StatefulSet)" id="39" src="qa/reviews-v1(Deployment-StatefulSet)">
@@ -624,13 +624,13 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/details-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="40" src="qa/reviews-v1(Deployment-StatefulSet)">
@@ -641,13 +641,13 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/ratings-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="41" src="qa/reviews-v1(Deployment-StatefulSet)">
@@ -656,7 +656,7 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="42" src="qa/reviews-v1(Deployment-StatefulSet)">
@@ -667,13 +667,13 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v2(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="43" src="qa/reviews-v2(Deployment-StatefulSet)">
@@ -684,13 +684,13 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test\resources\istio-ingress-gateway-deployment.yaml
+default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
 </entry>
 <entry dst="default/productpage-v1(Deployment-StatefulSet)" id="44" src="qa/reviews-v2(Deployment-StatefulSet)">
@@ -701,13 +701,13 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/productpage-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="default/reviews-v3(Deployment-StatefulSet)" id="45" src="qa/reviews-v2(Deployment-StatefulSet)">
@@ -718,13 +718,13 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)default/reviews-v3(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/details-v1(Deployment-StatefulSet)" id="46" src="qa/reviews-v2(Deployment-StatefulSet)">
@@ -735,13 +735,13 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/details-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="prod/ratings-v1(Deployment-StatefulSet)" id="47" src="qa/reviews-v2(Deployment-StatefulSet)">
@@ -752,13 +752,13 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)prod/ratings-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v1(Deployment-StatefulSet)" id="48" src="qa/reviews-v2(Deployment-StatefulSet)">
@@ -769,13 +769,13 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
 
 (dst)qa/reviews-v1(Deployment-StatefulSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
 <entry dst="qa/reviews-v2(Deployment-StatefulSet)" id="49" src="qa/reviews-v2(Deployment-StatefulSet)">
@@ -784,6 +784,6 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 Policy Configurations:
 Default-Policy
 Resource Configurations:
-qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test\resources\bookinfo_pods_list.json
+qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
