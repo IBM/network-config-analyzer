@@ -11,6 +11,7 @@ from nca.Resources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnection
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 from nca.Utils.ExplTracker import ExplTracker
 
+
 @dataclass
 class PoliciesContainer:
     """
