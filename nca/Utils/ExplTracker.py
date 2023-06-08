@@ -13,11 +13,11 @@ from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 
 class ExplTracker(metaclass=Singleton):
     """
-    The Explainability Tracker is used for tracking the elements and their configuration
+    The Explainability Tracker is used for tracking the elements and their configuration,
     so it will be able to specify which configurations are responsible for each peer and each connection
     or lack of connection between them.
 
-    The ExplTracker is Singletone
+    The ExplTracker is Singleton
     Members:
             ExplDescriptorContainer - A container for all expl' items' in the system.
             Each entry has a peer or a policy with their name, file and line number of the configurations.
@@ -43,10 +43,13 @@ class ExplTracker(metaclass=Singleton):
     """
 
     DEFAULT_POLICY = 'Default-Policy'
+    SUPPORTED_OUTPUT_FORMATS = ['txt', 'txt_no_fw_rules']
 
     def __init__(self, ep=''):
-        self.ExplDescriptorContainer = {}
-        self.ExplPeerToPolicyContainer = {}
+
+        self.ExplDescriptorContainer = dict()  # a map from str (resource/policy name) to a dict object with entries:
+        # 'path','line','workload_name'
+        self.ExplPeerToPolicyContainer = dict()  # a map from str (peer name) to ExplPolicies object
         self._is_active = False
         self.all_conns = None
         self.all_peers = None
@@ -60,31 +63,31 @@ class ExplTracker(metaclass=Singleton):
         """
 
         def __init__(self):
-            self.egress_dst = {}
-            self.ingress_src = {}
+            self.egress_dst = dict()  # a map from str (peer name) to a set of str (policy names)
+            self.ingress_src = dict()  # a map from str (peer name) to a set of str (policy names)
             self.all_policies = set()
 
         @staticmethod
-        def _add_policy(peer_set, peer_list, policy_name):
+        def _add_policy_to_map(peer_set, peer_map, policy_name):
             """
-            Adds a policy to the list of affecting policies, for each peer in the peer_set
+            Adds a policy to the map of affecting policies, for each peer in the peer_set
             :param PeerSet peer_set: a set of peers to add the policy to
-            :param dict peer_list: a list of peers that holds the policies affecting them
+            :param dict peer_map: a map of peer-to-policies that holds the policies affecting each peer
             :param str policy_name: the policy to add
             """
             for peer in peer_set:
                 peer_name = peer.full_name()
-                if not peer_list.get(peer_name):
-                    peer_list[peer_name] = set()
+                if not peer_map.get(peer_name):
+                    peer_map[peer_name] = set()
                 # We don't want Default-Policy if we have any other policy,
                 # so we first remove it and then add the policy (even if we currently add
                 # the Default-Policy itself).
-                peer_list[peer_name].discard(ExplTracker.DEFAULT_POLICY)
-                peer_list[peer_name].add(policy_name)
+                peer_map[peer_name].discard(ExplTracker.DEFAULT_POLICY)
+                peer_map[peer_name].add(policy_name)
 
         def add_policy(self, policy_name, egress_dst, ingress_src):
             """
-            Adds a given policy to the relevant peer lists (egress list, ingress list)
+            Adds a given policy to the relevant peer-to-policies map (egress map, ingress map)
             :param str policy_name: name of the policy
             :param PeerSet egress_dst: the set of egress destinations peers to add the policy too
             :param PeerSet ingress_src: the set of ingress source peers to add the policy too
@@ -92,10 +95,10 @@ class ExplTracker(metaclass=Singleton):
             self.all_policies.add(policy_name)
 
             if egress_dst:
-                self._add_policy(egress_dst, self.egress_dst, policy_name)
+                self._add_policy_to_map(egress_dst, self.egress_dst, policy_name)
 
             if ingress_src:
-                self._add_policy(ingress_src, self.ingress_src, policy_name)
+                self._add_policy_to_map(ingress_src, self.ingress_src, policy_name)
 
     def _reset(self):
         self.ExplDescriptorContainer = {}
@@ -127,6 +130,14 @@ class ExplTracker(metaclass=Singleton):
         """
         return self._is_active
 
+    def is_output_format_supported(self, output_format):
+        """
+        Checks if the given output format is supported
+        :param string output_format: the output format to check
+        :return: True/False
+        """
+        return output_format in self.SUPPORTED_OUTPUT_FORMATS
+
     def add_item(self, path, ln, full_name, workload_name=''):
         """
         Adds an item describing a configuration block
@@ -151,7 +162,9 @@ class ExplTracker(metaclass=Singleton):
     def derive_item(self, new_name):
         """
         Handles resources that change their name after parsing, like virtual-service
-        that adds the service name and /allowed
+        that adds the service name and suffix "/allowed"
+        Expecting the original name to be before the "/" character.
+        :param str new_name: the name for the new derived element
         :param str new_name: the name for the new derived element
         """
         name_parts = new_name.split('/')
@@ -211,7 +224,7 @@ class ExplTracker(metaclass=Singleton):
         :param PeerSet peers: all the peers in the container
         """
         self.all_conns = conns
-        # self.all_peers = peers
+        self.all_peers = peers
         # add all missing 'special' peers (like 0.0.0.0/0) with default policy.
         for peer in self.all_peers:
             peer_name = peer.full_name()
@@ -265,7 +278,7 @@ class ExplTracker(metaclass=Singleton):
             ingress_list = {}
 
         for node in nodes:
-            # we dont add Default-Policy if there is already an explicit
+            # we don't add Default-Policy if there is already an explicit
             # policy allowing the connectivity
             if self.is_policy_list_empty(node.full_name(), is_ingress):
                 node_name = node.full_name()
@@ -278,8 +291,8 @@ class ExplTracker(metaclass=Singleton):
     def is_policy_list_empty(self, node_name, check_ingress):
         """
         A service function to check if the expl' list of ingress or egress is empty.
-        :param node_name: the node to check
-        :param check_ingress: list to check (ingress or egress)
+        :param str node_name: the node to check
+        :param bool check_ingress: list to check (ingress or egress)
         :return:
         """
         peer = self.ExplPeerToPolicyContainer.get(node_name)
@@ -301,6 +314,9 @@ class ExplTracker(metaclass=Singleton):
         out = []
         if direction:
             out = [f'\n({direction}){self.get_printout_ep_name(node_name)}:']
+        if self.ExplDescriptorContainer.get(node_name).get("path") == '':
+            out.append('IP blocks have no configurations')
+            return out
         for index, name in enumerate(results):
             if index == 0:
                 # results always starts with the policy configurations - make a headline
@@ -343,7 +359,7 @@ class ExplTracker(metaclass=Singleton):
         """
         soup = BeautifulSoup(features='html')
         entry_id = 0
-        # use the peer names as defined in the endpoints configuration,
+        # use the peer names as defined in the end-points configuration,
         # also use one peer for each deployment
         peer_names = set()
         for peer in self.all_peers:
@@ -371,7 +387,7 @@ class ExplTracker(metaclass=Singleton):
     def get_working_ep_name(self, name):
         """
         if ep is in 'deployments' mode, the given name will be the workload name but the full name is always used as index
-        :param name: str: the name to convert to full_name (it it is not already the full name)
+        :param name: str: the name to convert to full_name (it is not already the full name)
         :return: str: full name of the element
         """
 
@@ -442,9 +458,9 @@ class ExplTracker(metaclass=Singleton):
                 src_results = self.ExplPeerToPolicyContainer[src_node].all_policies
                 dst_results = self.ExplPeerToPolicyContainer[dst_node].all_policies
 
-            src_results = sorted(list(src_results))
+            src_results = sorted(list(src_results)) if src_results else []
             src_results.append(src_node)
-            dst_results = sorted(list(dst_results))
+            dst_results = sorted(list(dst_results)) if dst_results else []
             dst_results.append(dst_node)
             out.extend(self.prepare_node_str(src_node, src_results, 'src'))
             out.extend(self.prepare_node_str(dst_node, dst_results, 'dst'))
