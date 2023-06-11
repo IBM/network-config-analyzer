@@ -1262,54 +1262,40 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
                            numerical_result=0)
 
+    def _append_different_conns_to_list(self, conns, different_conns_list):
+        no_conns = ConnectionSet()
+        for cube in conns:
+            conn_cube = conns.get_connectivity_cube(cube)
+            conns, src_peers, dst_peers = \
+                ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
+            if self.output_config.fullExplanation:
+                if self.config1.optimized_run == 'true':
+                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns, no_conns))
+                else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
+                    for src_peer in src_peers:
+                        for dst_peer in dst_peers:
+                            if src_peer != dst_peer:
+                                different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
+                                                                                conns, no_conns))
+            else:
+                different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns, no_conns))
+                return self._query_answer_with_relevant_explanation(different_conns_list)
+
     def check_equivalence_optimized(self, layer_name=None):
         conn_props1 = self.config1.allowed_connections_optimized(layer_name)
         conn_props2 = self.config2.allowed_connections_optimized(layer_name)
         all_conns1, all_conns2 = self.filter_conns_by_input_or_internal_constraints(conn_props1.all_allowed_conns,
                                                                                     conn_props2.all_allowed_conns)
-        if all_conns1 != all_conns2:
-            conns1_not_in_conns2 = all_conns1 - all_conns2
-            conns2_not_in_conns1 = all_conns2 - all_conns1
-            different_conns_list = []
-            no_conns = ConnectionSet()
-            for cube in conns1_not_in_conns2:
-                conn_cube = conns1_not_in_conns2.get_connectivity_cube(cube)
-                conns, src_peers, dst_peers = \
-                    ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
-                if self.output_config.fullExplanation:
-                    if self.config1.optimized_run == 'true':
-                        different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns, no_conns))
-                    else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
-                        for src_peer in src_peers:
-                            for dst_peer in dst_peers:
-                                if src_peer != dst_peer:
-                                    different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
-                                                                                    conns, no_conns))
-                else:
-                    different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns, no_conns))
-                    return self._query_answer_with_relevant_explanation(different_conns_list)
-            for cube in conns2_not_in_conns1:
-                conn_cube = conns2_not_in_conns1.get_connectivity_cube(cube)
-                conns, src_peers, dst_peers = \
-                    ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config2.peer_container)
-                if self.output_config.fullExplanation:
-                    if self.config1.optimized_run == 'true':
-                        different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), no_conns, conns))
-                    else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
-                        for src_peer in src_peers:
-                            for dst_peer in dst_peers:
-                                if src_peer != dst_peer:
-                                    different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
-                                                                                    no_conns, conns))
+        if all_conns1 == all_conns2:
+            return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
+                               numerical_result=0)
 
-                else:
-                    different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), no_conns, conns))
-                    return self._query_answer_with_relevant_explanation(different_conns_list)
-
-            return self._query_answer_with_relevant_explanation(sorted(different_conns_list))
-
-        return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
-                           numerical_result=0)
+        conns1_not_in_conns2 = all_conns1 - all_conns2
+        conns2_not_in_conns1 = all_conns2 - all_conns1
+        different_conns_list = []
+        self._append_different_conns_to_list(conns1_not_in_conns2, different_conns_list)
+        self._append_different_conns_to_list(conns2_not_in_conns1, different_conns_list)
+        return self._query_answer_with_relevant_explanation(sorted(different_conns_list))
 
     def _query_answer_with_relevant_explanation(self, explanation_list):
         output_result = self.name1 + ' and ' + self.name2 + ' are not semantically equivalent.'

@@ -348,7 +348,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             if dim_name == "src_peers" or dim_name == "dst_peers":
                 return BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name(dim_name))
             else:
-                return None
+                return DimensionsManager().get_dimension_domain_by_name(dim_name)
         if dim_name == "src_peers" or dim_name == "dst_peers":
             res = PeerSet()
         elif dim_name == "src_ports" or dim_name == "dst_ports":
