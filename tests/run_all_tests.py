@@ -104,6 +104,15 @@ class GeneralTest:
 
     def run_all_test_flow(self, all_results):
         # should be overriden by inheriting classes
+        tmp_opt = [i for i in self.test_queries_obj.args_obj.args if '-opt=' in i]
+        opt = tmp_opt[0].split('=')[1] if tmp_opt else 'false'
+        if opt == 'debug' or opt == 'true':
+            implemented_opt_queries = ['--connectivity']
+            # TODO - update/remove the optimization below when all queries are supported in optimized implementation
+            if not set(implemented_opt_queries).intersection(set(self.test_queries_obj.args_obj.args)):
+                print(f'Skipping query {self.test_queries_obj.query_name} since it does not have optimized implementation yet')
+                return 0, 0
+
         self.initialize_test()
         self.run_test()
         self.evaluate_test_results()

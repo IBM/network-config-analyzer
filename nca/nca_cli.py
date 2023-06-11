@@ -221,7 +221,7 @@ def run_args(args):  # noqa: C901
         # TODO - update/remove the optimization below when all queries are supported in optimized implementation
         if query_name not in implemented_opt_queries:
             print(f'Not running query {query_name} since it does not have optimized implementation yet')
-            return _compute_return_value(0, 0, 0)
+            return _compute_return_value(0, 0, 1)
 
     resources_handler = ResourcesHandler()
     network_config = resources_handler.get_network_config(_make_recursive(np_list), _make_recursive(ns_list),
