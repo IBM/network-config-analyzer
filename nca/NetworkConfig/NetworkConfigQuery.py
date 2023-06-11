@@ -1262,24 +1262,32 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
                            numerical_result=0)
 
-    def _append_different_conns_to_list(self, conns, different_conns_list):
+    def _append_different_conns_to_list(self, conn_props, different_conns_list, props_based_on_config1):
+        """
+        Adds difference between config1 and config2 connectivities into the list of differences
+        :param conn_props: connectivity properties representing a difference between config1 and config2
+        :param different_conns_list: the list to add differences to
+        :param props_based_on_config1: whether conn_props represent connections present in config1 but not in config2
+        (the value True) or connections present in config2 but not in config1 (the value False)
+        """
         no_conns = ConnectionSet()
-        for cube in conns:
-            conn_cube = conns.get_connectivity_cube(cube)
+        for cube in conn_props:
+            conn_cube = conn_props.get_connectivity_cube(cube)
             conns, src_peers, dst_peers = \
                 ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
+            conns1 = conns if props_based_on_config1 else no_conns
+            conns2 = no_conns if props_based_on_config1 else conns
             if self.output_config.fullExplanation:
                 if self.config1.optimized_run == 'true':
-                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns, no_conns))
+                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns1, conns2))
                 else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
                     for src_peer in src_peers:
                         for dst_peer in dst_peers:
                             if src_peer != dst_peer:
                                 different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
-                                                                                conns, no_conns))
+                                                                                conns1, conns2))
             else:
-                different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns, no_conns))
-                return self._query_answer_with_relevant_explanation(different_conns_list)
+                different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns1, conns2))
 
     def check_equivalence_optimized(self, layer_name=None):
         conn_props1 = self.config1.allowed_connections_optimized(layer_name)
@@ -1293,8 +1301,8 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
         conns1_not_in_conns2 = all_conns1 - all_conns2
         conns2_not_in_conns1 = all_conns2 - all_conns1
         different_conns_list = []
-        self._append_different_conns_to_list(conns1_not_in_conns2, different_conns_list)
-        self._append_different_conns_to_list(conns2_not_in_conns1, different_conns_list)
+        self._append_different_conns_to_list(conns1_not_in_conns2, different_conns_list, True)
+        self._append_different_conns_to_list(conns2_not_in_conns1, different_conns_list, False)
         return self._query_answer_with_relevant_explanation(sorted(different_conns_list))
 
     def _query_answer_with_relevant_explanation(self, explanation_list):
