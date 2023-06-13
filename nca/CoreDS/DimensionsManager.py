@@ -13,8 +13,20 @@ from .MinDFA import MinDFA
 class DimensionsManager:
     """
     A singleton class to manage dimensions names and their association to type and domain.
-    The dimensions are related to certain protocol's properties in ConnectionSet.
+    The dimensions are related to certain protocol's properties in ConnectionSet / ConnectivityProperties.
     They are used for allowed connection representation, as protocols properties, within CanonicalHyperCubeSet objects.
+
+    The src_peers and dst_peers are special dimensions, they do not have constant domain.
+    Their domain depends on the current set of peers in the system (as appears in BasePeerSet singleton).
+    This set grows when adding more configurations.
+    Thus, there is no unique 'all values' representation. In particular, those dimensions are never reduced to inactive.
+    A mechanism to allow such reduction to `inactive`: per query context, set these dimensions domains to the set of
+    peers from the query's config(s) only.
+    The goal is to avoid having potential two representations of the same object (one with inactive domain and one with
+    an active domain containing all possible relevant peers, that was not reduced to inactive).
+    This mechanism is implemented at the execute_and_compute_output_in_required_format() method of the BaseNetworkQuery
+    class.
+
     """
 
     class DimensionType(Enum):
@@ -94,6 +106,9 @@ class DimensionsManager:
     @staticmethod
     def reset():
         # used by unit tests to clean their local changes to DimensionsManager singleton
+        # also used by execute_and_compute_output_in_required_format to restore "src_peers"/"dst_peers"
+        # domains to a general domain value (after setting to a query-related specific domain value before
+        # the query computation)
         DimensionsManager.instance = None
 
     def __getattr__(self, name):
@@ -107,13 +122,18 @@ class DimensionsManager:
         """
         return self.dim_dict[dim_name][0]
 
-    def get_dimension_domain_by_name(self, dim_name):
+    def get_dimension_domain_by_name(self, dim_name, make_copy=False):
         """
         get dimensions domain from its name
         :param str dim_name: dimension name
+        :param bool make_copy: whether to copy the domain value
         :return: CanonicalIntervalSet object or MinDFA object  (depends on dimension type)
         """
-        return self.dim_dict[dim_name][1]
+        res = self.dim_dict[dim_name][1]
+        if make_copy and not isinstance(res, MinDFA):
+            return res.copy()
+        else:
+            return res
 
     def get_empty_dimension_by_name(self, dim_name):
         """
@@ -123,17 +143,20 @@ class DimensionsManager:
         """
         return self.dim_dict[dim_name][2]
 
-    def set_domain(self, dim_name, dim_type, interval_tuple=None, alphabet_str=None):
+    def set_domain(self, dim_name, dim_type, interval_tuple_or_set=None, alphabet_str=None):
         """
         set a new dimension, or change an existing dimension
         :param str dim_name: dimension name
         :param DimensionsManager.DimensionType dim_type: dimension type
-        :param tuple(int,int) interval_tuple:  for interval domain value
+        :param tuple(int,int) interval_tuple_or_set:  for interval domain value
         :param str alphabet_str: regex in greenery format to express the str dimension domain
         """
         if dim_type == DimensionsManager.DimensionType.IntervalSet:
-            interval = interval_tuple if interval_tuple is not None else self.default_interval_domain_tuple
-            domain = CanonicalIntervalSet.get_interval_set(interval[0], interval[1])
+            if isinstance(interval_tuple_or_set, CanonicalIntervalSet):
+                domain = interval_tuple_or_set
+            else:
+                interval = interval_tuple_or_set if interval_tuple_or_set is not None else self.default_interval_domain_tuple
+                domain = CanonicalIntervalSet.get_interval_set(interval[0], interval[1])
             empty_val = CanonicalIntervalSet()
         else:
             alphabet = alphabet_str if alphabet_str is not None else MinDFA.default_alphabet_regex

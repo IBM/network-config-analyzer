@@ -72,6 +72,15 @@ queries:
       - config_b
     expected: 10
 
+  - name: semantic_diff_a_to_b_txt_no_fw_rules
+    semanticDiff:
+      - config_a
+      - config_b
+    outputConfiguration:
+      outputFormat: txt_no_fw_rules
+    expectedOutput: ../../expected_output/semantic_diff_a_to_b_different_topologies.txt
+    expected: 10
+
   - name: semantic_diff_b_to_a
     semanticDiff:
       - config_b

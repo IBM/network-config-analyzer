@@ -10,9 +10,10 @@ from collections import defaultdict
 from enum import Enum
 
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, DNSEntry
+from nca.CoreDS.Peer import PeerSet, IpBlock, Pod, Peer, DNSEntry, BasePeerSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
+from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.FWRules.MinimizeFWRules import MinimizeFWRules
 from nca.FWRules.ClusterInfo import ClusterInfo
@@ -68,15 +69,34 @@ class BaseNetworkQuery:
         and bool indicator if the query was not executed
         :rtype: int, Union[dict, str], bool
         """
+        # peer_set collects the set of peers from the config(s) related to current query
+        peer_set = PeerSet()
         for config in self.get_configs():
             if not config.peer_container.get_num_peers():
                 error_msg = f'Error: Network configuration \'{config.name}\' does not have any peers. Can not run Query'
                 query_answer = QueryAnswer(output_result=error_msg, query_not_executed=True)
                 return query_answer.numerical_result, self._handle_output(query_answer), query_answer.query_not_executed
+            peer_set |= config.peer_container.get_all_peers_group(True, True, True)
         if self.output_config.outputFormat not in self.get_supported_output_formats():
             query_answer = QueryAnswer(query_not_executed=True)
             return query_answer.numerical_result, '', query_answer.query_not_executed
+        # update domains src_peers/dst_peers with domains specific to current peer_set of current query
+        DimensionsManager().set_domain("src_peers", DimensionsManager.DimensionType.IntervalSet,
+                                       BasePeerSet().get_peer_interval_of(peer_set))
+        DimensionsManager().set_domain("dst_peers", DimensionsManager.DimensionType.IntervalSet,
+                                       BasePeerSet().get_peer_interval_of(peer_set))
+        # update all optimized connectivity properties by reducing full src_peers/dst_peers dimensions
+        # according to their updated domains (above)
+        for config in self.get_configs():
+            for policy in config.policies_container.policies.values():
+                policy.reorganize_opt_props_by_new_domains()
+        # run the query
         query_answer = self.execute(cmd_line_flag)
+        # restore peers domains and optimized connectivity properties original values
+        DimensionsManager.reset()
+        for config in self.get_configs():
+            for policy in config.policies_container.policies.values():
+                policy.restore_opt_props()
         return query_answer.numerical_result, self._handle_output(query_answer), query_answer.query_not_executed
 
     def _handle_output(self, query_answer):
@@ -979,7 +999,6 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             txt_no_fw_rules_tcp = self.txt_no_fw_rules_format_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
             txt_no_fw_rules_non_tcp = self.txt_no_fw_rules_format_from_props(props_non_tcp, peers_to_compare,
                                                                              connectivity_non_tcp_str)
-            # concatenate the two graphs into one dot file
             res_str = txt_no_fw_rules_tcp + txt_no_fw_rules_non_tcp
             return res_str, None, None
         # handle formats other than dot and txt_no_fw_rules
@@ -1015,8 +1034,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers: the peers to consider for dot output
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP , or not
         :rtype:  str
-        :return the connectivity map in txt_no_fw_rules format, the connections between peers, excluding fw-rules
-        and connections involving livesim peers
+        :return the connectivity map in txt_no_fw_rules format: the connections between peers excluding connections between
+        workload to itself (without grouping as fw-rules).
         """
         conn_graph = self._get_conn_graph(connections, peers)
         return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
@@ -1055,7 +1074,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
         :rtype str
-        :return the connectivity map in dot-format, considering connectivity_restriction if required
+        :return the connectivity map in txt_no_fw_rules format, considering connectivity_restriction if required
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
         for cube in props:
@@ -1324,7 +1343,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         topology_config_name = self.name2 if is_added else self.name1
         connectivity_changes_header = f'{updated_key} (based on topology from config: {topology_config_name}) :'
         if self.output_config.outputFormat == 'txt_no_fw_rules':
-            conn_graph_explanation = conn_graph.get_connections_without_fw_rules_txt_format(connectivity_changes_header) + '\n'
+            conn_graph_explanation = conn_graph.get_connections_without_fw_rules_txt_format(
+                connectivity_changes_header, exclude_self_loop_conns=False) + '\n'
         else:
             conn_graph_explanation = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
 

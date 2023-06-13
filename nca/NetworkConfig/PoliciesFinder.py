@@ -115,7 +115,7 @@ class PoliciesFinder:
             if ExplTracker().is_active():
                 if parsed_policy:
                     policy_name = parsed_policy.name
-                else:  # the istio policy is parsed later
+                else:  # certain istio policies are parsed later (sidecar / virtual-service)
                     policy_name = policy.get('metadata').get('name')
                 ExplTracker().add_item(policy.path,
                                        policy.line_number,

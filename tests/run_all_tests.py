@@ -57,7 +57,7 @@ class CliQuery:
         self.test_dict = test_dict
         self.query_name = self.test_dict['name']
         self.test_name = test_name
-        self.args_obj = TestArgs(test_dict['args'].split() + ['-opt='+hc_opt], cli_tests_base_dir)
+        self.args_obj = TestArgs(['-opt='+hc_opt] + test_dict['args'].split(), cli_tests_base_dir)
 
 
 class SchemeFile:

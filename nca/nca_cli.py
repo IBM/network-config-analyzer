@@ -184,9 +184,10 @@ def run_args(args):   # noqa: C901
             all_labels.append(lbl_dict)
         output_config['subset'].update({'label_subset': all_labels})
 
-    if args.explain is not None:
+    if args.explain is not None and args.optimized_run == 'true':
         output_config['explain'] = args.explain
-        ExplTracker(output_config.outputEndpoints).activate()
+        ExplTracker().activate()
+        ExplTracker().set_endpoints(output_config.outputEndpoints)
 
     if args.output_format == 'html':
         output_config['expl'] = ['ALL']
