@@ -141,7 +141,7 @@ class ConnectivityCube(dict):
                 # translate CanonicalIntervalSet back to PeerSet
                 return BasePeerSet().get_peer_set_by_indices(dim_value)
             else:
-                return None
+                return BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name(dim_name))
         elif dim_name in ["src_ports", "dst_ports"]:
             res = PortSet()
             res.add_ports(dim_value)

@@ -17,6 +17,8 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
+    implemented_opt_queries = set(['connectivityMap', 'equivalence'])
+
     def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
@@ -34,6 +36,10 @@ class SchemeRunner(GenericYamlParser):
                 self.scheme = yaml_doc
                 if not isinstance(self.scheme, dict):
                     self.syntax_error("The scheme's top-level object must be a map")
+
+    @staticmethod
+    def has_implemented_opt_queries(queries):
+        return SchemeRunner.implemented_opt_queries.intersection(queries)
 
     def _get_input_file(self, given_path, out_flag=False):
         """
@@ -190,10 +196,9 @@ class SchemeRunner(GenericYamlParser):
             not_executed = 0
             self.check_fields_validity(query, 'query', allowed_elements)
             query_name = query['name']
-            if self.optimized_run == 'debug':
+            if self.optimized_run == 'debug' or self.optimized_run == 'true':
                 # TODO - update/remove the optimization below when all queries are supported in optimized implementation
-                # optimization - currently only connectivityMap query has optimized implementation and can be compared
-                if not query.get('connectivityMap'):
+                if not self.has_implemented_opt_queries(set(query.keys())):
                     print(f'Skipping query {query_name} since it does not have optimized implementation yet')
                     continue
             print('Running query', query_name)

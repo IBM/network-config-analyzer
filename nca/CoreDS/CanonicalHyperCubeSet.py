@@ -850,3 +850,6 @@ class CanonicalHyperCubeSet:
                 layer_0_new_elem |= elem
             new_layers[layer_0_new_elem] = layer_1_elem
         self.layers = new_layers
+
+    def is_active_dimension(self, dim_name):
+        return dim_name in self.active_dimensions
