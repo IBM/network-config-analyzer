@@ -217,9 +217,8 @@ def run_args(args):  # noqa: C901
         expected_output = args.expected_output or None
 
     if args.optimized_run == 'debug' or args.optimized_run == 'true':
-        implemented_opt_queries = ['connectivityMap', 'equivalence']
         # TODO - update/remove the optimization below when all queries are supported in optimized implementation
-        if query_name not in implemented_opt_queries:
+        if SchemeRunner.has_implemented_opt_queries({query_name}):
             print(f'Not running query {query_name} since it does not have optimized implementation yet')
             return _compute_return_value(0, 0, 1)
 
