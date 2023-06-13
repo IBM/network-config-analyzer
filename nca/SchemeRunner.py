@@ -198,7 +198,7 @@ class SchemeRunner(GenericYamlParser):
             query_name = query['name']
             if self.optimized_run == 'debug' or self.optimized_run == 'true':
                 # TODO - update/remove the optimization below when all queries are supported in optimized implementation
-                if self.has_implemented_opt_queries(set(query.keys())):
+                if not self.has_implemented_opt_queries(set(query.keys())):
                     print(f'Skipping query {query_name} since it does not have optimized implementation yet')
                     continue
             print('Running query', query_name)
