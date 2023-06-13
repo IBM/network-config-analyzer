@@ -1265,9 +1265,9 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
     def _append_different_conns_to_list(self, conn_props, different_conns_list, props_based_on_config1):
         """
         Adds difference between config1 and config2 connectivities into the list of differences
-        :param conn_props: connectivity properties representing a difference between config1 and config2
-        :param different_conns_list: the list to add differences to
-        :param props_based_on_config1: whether conn_props represent connections present in config1 but not in config2
+        :param ConnectivityProperties conn_props: connectivity properties representing a difference between config1 and config2
+        :param list different_conns_list: the list to add differences to
+        :param bool props_based_on_config1: whether conn_props represent connections present in config1 but not in config2
         (the value True) or connections present in config2 but not in config1 (the value False)
         """
         no_conns = ConnectionSet()
