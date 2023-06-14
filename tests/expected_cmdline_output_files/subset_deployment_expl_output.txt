@@ -8,6 +8,7 @@ src_ns: [ns1] src_pods: [deployment-A] dst_ns: [default] dst_pods: [deployment-E
 src_ns: [ns1] src_pods: [deployment-B] dst_ns: [ns1] dst_pods: [deployment-A] conn: All connections
 src_ns: [ns2] src_pods: [deployment-C] dst_ns: [ns1] dst_pods: [deployment-A] conn: All connections
 src_ns: [ns3] src_pods: [*] dst_ns: [default] dst_pods: [Pod4] conn: All connections
+<?xml version="1.0" encoding="utf-8"?>
 <entry dst="default/Pod1(Pod)" id="1" src="default/Pod1(Pod)">
  <text>
   Configurations affecting default/Pod1(Pod):

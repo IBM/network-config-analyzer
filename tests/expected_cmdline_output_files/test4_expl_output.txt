@@ -11,6 +11,7 @@ src_ns: [kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-sys
 src_ns: [kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 80-88
 src_ns: [kube-system-new] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system-new] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
+<?xml version="1.0" encoding="utf-8"?>
 <entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
  <text>
   Configurations affecting 0.0.0.0/0:

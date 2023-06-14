@@ -1,5 +1,6 @@
 final fw rules for query: , config: test25-networkpolicy.yaml:
 src_ns: [default] src_pods: [my-test-deployment-C] dst_ns: [default] dst_pods: [my-test-deployment-B] conn: All connections
+<?xml version="1.0" encoding="utf-8"?>
 <entry dst="default/my-test-deployment-A(Deployment)" id="1" src="default/my-test-deployment-A(Deployment)">
  <text>
   Configurations affecting default/my-test-deployment-A(Deployment):

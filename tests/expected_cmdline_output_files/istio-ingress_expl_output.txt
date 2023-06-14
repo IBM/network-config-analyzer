@@ -6,6 +6,7 @@ src_ns: [default] src_pods: [productpage-v1-6f9df695b7, reviews-v3-869ff44845] d
 src_ns: [default] src_pods: [productpage-v1-6f9df695b7, reviews-v3-869ff44845] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
 src_ns: [prod,qa] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [prod,qa] src_pods: [*] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
+<?xml version="1.0" encoding="utf-8"?>
 <entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
  <text>
   Configurations affecting 0.0.0.0/0:
