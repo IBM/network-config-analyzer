@@ -499,8 +499,7 @@ class InteractiveConnectivityGraph:
                             expl_text = expl_text.replace(dstMatch, dstReplacement);
                           }
 
-                          // const out_text = '<span style="background-color: yellow;">' + src + '</span>'+'->'+'<span style="background-color: #ADD8E6;">'+dst+'</span>';
-                          selectionBox.innerHTML = expl_text; 
+                          selectionBox.innerHTML = expl_text;
                         }
                       }
                     }
@@ -604,7 +603,7 @@ class InteractiveConnectivityGraph:
             </script>
         </body>
         </html>
-        '''
+        '''   # noqa
 
     class AbstractGraph:
         """
