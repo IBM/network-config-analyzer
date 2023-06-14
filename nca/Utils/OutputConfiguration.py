@@ -35,7 +35,7 @@ class OutputConfiguration(dict):
     def __getattr__(self, name):
         return super().__getitem__(name)
 
-    def print_query_output(self, output, supported_output_formats=None):
+    def print_query_output(self, output, supported_output_formats=None):  # noqa: C901
         """
         print accumulated query's output according to query's output config (in required format, to file or stdout)
         :param output: string
@@ -48,7 +48,6 @@ class OutputConfiguration(dict):
             print(f'{self.outputFormat} output format is not supported for this query')
             return
         path = self.outputPath
-        results = ''
         if path is not None:
             # print output to a file
             if self.outputFormat == 'jpg':
