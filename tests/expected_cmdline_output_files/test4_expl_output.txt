@@ -11,14 +11,983 @@ src_ns: [kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [default,ibm-sys
 src_ns: [kube-system-new-dummy-to-ignore] src_pods: [*] dst_ns: [kube-system-new] dst_pods: [*] conn: TCP 80-88
 src_ns: [kube-system-new] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system-new] src_pods: [*] dst_ns: [default,ibm-system-new,kube-system-new-dummy-to-ignore] dst_pods: [*] conn: All connections
+<?xml version="1.0" encoding="utf-8"?>
+<entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
+ <text>
+  Configurations affecting 0.0.0.0/0:
+IP blocks have no configurations
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="2" src="0.0.0.0/0">
+ <text>
+  Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/cognetive-agents(DaemonSet):
 
+(src)0.0.0.0/0:
+IP blocks have no configurations
 
-Explainability results:
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="3" src="0.0.0.0/0">
+ <text>
+  Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/cognetive-agents(DaemonSet):
 
-Configurations affecting the connectivity between (src)kube-system-new/calico-node(DaemonSet) and (dst)0.0.0.0/0:
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" id="4" src="0.0.0.0/0">
+ <text>
+  Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" id="5" src="0.0.0.0/0">
+ <text>
+  Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="6" src="0.0.0.0/0">
+ <text>
+  Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
+(dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/calico-node(DaemonSet)" id="7" src="0.0.0.0/0">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)kube-system-new/calico-node(DaemonSet):
+
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
+(dst)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+Default-Policy
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="8" src="0.0.0.0/0">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)kube-system-new/heapster(Deployment-StatefulSet):
+
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
+(dst)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="0.0.0.0/0" id="9" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)0.0.0.0/0:
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="10" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="11" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" id="12" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" id="13" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="14" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/calico-node(DaemonSet)" id="15" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)kube-system-new/calico-node(DaemonSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="16" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)kube-system-new/heapster(Deployment-StatefulSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="0.0.0.0/0" id="17" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)0.0.0.0/0:
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="18" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="19" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" id="20" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" id="21" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="22" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/calico-node(DaemonSet)" id="23" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)kube-system-new/calico-node(DaemonSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="24" src="default/cognetive-agents(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)default/cognetive-agents(DaemonSet) and (dst)kube-system-new/heapster(Deployment-StatefulSet):
+
+(src)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="0.0.0.0/0" id="25" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet) and (dst)0.0.0.0/0:
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="26" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="27" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" id="28" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" id="29" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="30" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet) and (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/calico-node(DaemonSet)" id="31" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet) and (dst)kube-system-new/calico-node(DaemonSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="32" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet) and (dst)kube-system-new/heapster(Deployment-StatefulSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="0.0.0.0/0" id="33" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet) and (dst)0.0.0.0/0:
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="34" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="35" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" id="36" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" id="37" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="38" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet) and (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/calico-node(DaemonSet)" id="39" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet) and (dst)kube-system-new/calico-node(DaemonSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="40" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet) and (dst)kube-system-new/heapster(Deployment-StatefulSet):
+
+(src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="0.0.0.0/0" id="41" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet) and (dst)0.0.0.0/0:
+
+(src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="42" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="43" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" id="44" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+
+(src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" id="45" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+
+(src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="46" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/calico-node(DaemonSet)" id="47" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet) and (dst)kube-system-new/calico-node(DaemonSet):
+
+(src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="48" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet) and (dst)kube-system-new/heapster(Deployment-StatefulSet):
+
+(src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="0.0.0.0/0" id="49" src="kube-system-new/calico-node(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/calico-node(DaemonSet) and (dst)0.0.0.0/0:
+
+(src)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="50" src="kube-system-new/calico-node(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/calico-node(DaemonSet) and (dst)default/cognetive-agents(DaemonSet):
 
 (src)kube-system-new/calico-node(DaemonSet):
 Policy Configurations:
 Default-Policy
 Resource Configurations:
 kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="51" src="kube-system-new/calico-node(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/calico-node(DaemonSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" id="52" src="kube-system-new/calico-node(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/calico-node(DaemonSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+
+(src)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" id="53" src="kube-system-new/calico-node(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/calico-node(DaemonSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+
+(src)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="54" src="kube-system-new/calico-node(DaemonSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/calico-node(DaemonSet) and (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+
+(src)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/calico-node(DaemonSet)" id="55" src="kube-system-new/calico-node(DaemonSet)">
+ <text>
+  Configurations affecting kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+Default-Policy
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="56" src="kube-system-new/calico-node(DaemonSet)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system-new/calico-node(DaemonSet) and (dst)kube-system-new/heapster(Deployment-StatefulSet):
+
+(src)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+Default-Policy
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="0.0.0.0/0" id="57" src="kube-system-new/heapster(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/heapster(Deployment-StatefulSet) and (dst)0.0.0.0/0:
+
+(src)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="58" src="kube-system-new/heapster(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/heapster(Deployment-StatefulSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="default/cognetive-agents(DaemonSet)" id="59" src="kube-system-new/heapster(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/heapster(Deployment-StatefulSet) and (dst)default/cognetive-agents(DaemonSet):
+
+(src)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)default/cognetive-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)" id="60" src="kube-system-new/heapster(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/heapster(Deployment-StatefulSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+
+(src)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)" id="61" src="kube-system-new/heapster(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/heapster(Deployment-StatefulSet) and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+
+(src)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="62" src="kube-system-new/heapster(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the connectivity between (src)kube-system-new/heapster(Deployment-StatefulSet) and (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+
+(src)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/calico-node(DaemonSet)" id="63" src="kube-system-new/heapster(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)kube-system-new/heapster(Deployment-StatefulSet) and (dst)kube-system-new/calico-node(DaemonSet):
+
+(src)kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+
+(dst)kube-system-new/calico-node(DaemonSet):
+Policy Configurations:
+Default-Policy
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>
+<entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="64" src="kube-system-new/heapster(Deployment-StatefulSet)">
+ <text>
+  Configurations affecting kube-system-new/heapster(Deployment-StatefulSet):
+Policy Configurations:
+Default-Policy
+allow-traffic-new: line 3 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-1: line 37 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+allow-traffic-new-2: line 79 in file ./fw_rules_tests/policies/test4-networkpolicy.yaml
+Resource Configurations:
+kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
+ </text>
+</entry>

@@ -6,22 +6,22 @@ src_ns: [default] src_pods: [productpage-v1-6f9df695b7, reviews-v3-869ff44845] d
 src_ns: [default] src_pods: [productpage-v1-6f9df695b7, reviews-v3-869ff44845] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
 src_ns: [prod,qa] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [prod,qa] src_pods: [*] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
-
-
-Explainability results:
+<?xml version="1.0" encoding="utf-8"?>
 <entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
  <text>
   Configurations affecting 0.0.0.0/0:
+IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="2" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/istio-ingressgateway(Deployment):
 
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
 (dst)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
 </entry>
@@ -29,10 +29,11 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/productpage-v1(Deployment-StatefulSet):
 
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
 (dst)default/productpage-v1(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
@@ -40,10 +41,11 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/reviews-v3(Deployment-StatefulSet):
 
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
 (dst)default/reviews-v3(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
@@ -51,10 +53,11 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)prod/details-v1(Deployment-StatefulSet):
 
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
 (dst)prod/details-v1(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
@@ -62,10 +65,11 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)prod/ratings-v1(Deployment-StatefulSet):
 
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
 (dst)prod/ratings-v1(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
@@ -73,10 +77,11 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)qa/reviews-v1(Deployment-StatefulSet):
 
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
 (dst)qa/reviews-v1(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
@@ -84,10 +89,11 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)qa/reviews-v2(Deployment-StatefulSet):
 
+(src)0.0.0.0/0:
+IP blocks have no configurations
+
 (dst)qa/reviews-v2(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
  </text>
 </entry>
@@ -98,9 +104,12 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="10" src="default/istio-ingressgateway(Deployment)">
@@ -108,7 +117,7 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
   Configurations affecting default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
@@ -120,7 +129,7 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -138,7 +147,7 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -156,7 +165,7 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -173,7 +182,7 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -190,7 +199,7 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -207,7 +216,7 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -224,9 +233,10 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 
 (src)default/productpage-v1(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="18" src="default/productpage-v1(Deployment-StatefulSet)">
@@ -346,9 +356,10 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 
 (src)default/reviews-v3(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="26" src="default/reviews-v3(Deployment-StatefulSet)">
@@ -468,9 +479,10 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 
 (src)prod/details-v1(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="34" src="prod/details-v1(Deployment-StatefulSet)">
@@ -590,9 +602,10 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 
 (src)prod/ratings-v1(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="42" src="prod/ratings-v1(Deployment-StatefulSet)">
@@ -712,9 +725,10 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 
 (src)qa/reviews-v1(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="50" src="qa/reviews-v1(Deployment-StatefulSet)">
@@ -834,9 +848,10 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 
 (src)qa/reviews-v2(Deployment-StatefulSet):
 Policy Configurations:
-Default-Policy
-Resource Configurations:
 qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/example_policies/istio-ingress-test/resources/bookinfo_pods_list.json
+
+(dst)0.0.0.0/0:
+IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/istio-ingressgateway(Deployment)" id="58" src="qa/reviews-v2(Deployment-StatefulSet)">
