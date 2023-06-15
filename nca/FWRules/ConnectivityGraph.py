@@ -387,7 +387,7 @@ class ConnectivityGraph:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=True)
             for edge in undirected_edges | cliques_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=False)
-        return dot_graph.to_str()
+        return dot_graph.to_str(self.output_config.outputFormat == 'dot')
 
     def get_minimized_firewall_rules(self):
         """
