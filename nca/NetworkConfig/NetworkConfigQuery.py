@@ -1183,7 +1183,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         exclude_ipv6 = self.output_config.excludeIPv6Range
         ref_ip_blocks = self.config1.get_referenced_ip_blocks(exclude_ipv6) | \
             self.config2.get_referenced_ip_blocks(exclude_ipv6)
-        ip_blocks_mask = IpBlock()
+        ip_blocks_mask = IpBlock() if ref_ip_blocks else IpBlock.get_all_ips_block(exclude_ipv6)
         for ip_block in ref_ip_blocks:
             ip_blocks_mask |= ip_block
         peers_to_compare.filter_ipv6_blocks(ip_blocks_mask)
