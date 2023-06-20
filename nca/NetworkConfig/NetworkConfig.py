@@ -286,8 +286,13 @@ class NetworkConfig:
         # all possible connections involving hostEndpoints
         conn_hep = ConnectivityProperties.make_conn_props_from_dict({"src_peers": host_eps}) | \
             ConnectivityProperties.make_conn_props_from_dict({"dst_peers": host_eps})
-        conns_res = OptimizedPolicyConnections()
-        conns_res.all_allowed_conns = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
+        if host_eps and NetworkLayerName.K8s_Calico not in self.policies_container.layers:
+            # maintain K8s_Calico layer as active if peer container has hostEndpoint
+            conns_res = self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
+                                                                                                NetworkLayerName.K8s_Calico)
+        else:
+            conns_res = OptimizedPolicyConnections()
+            conns_res.all_allowed_conns = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
         for layer, layer_obj in self.policies_container.layers.items():
             conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
             # only K8s_Calico layer handles host_eps
