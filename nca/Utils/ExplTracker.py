@@ -316,7 +316,7 @@ class ExplTracker(metaclass=Singleton):
             out = [f'\n({direction}){self.get_printout_ep_name(node_name)}:']
         if self.ExplDescriptorContainer.get(node_name).get("path") == '':
             out.append('IP blocks have no configurations')
-            return out
+            return ""
         for index, name in enumerate(results):
             if index == 0:
                 # results always starts with the policy configurations - make a headline
