@@ -5,18 +5,16 @@ src_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] src_pods
 <entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
  <text>
   Configurations affecting 0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="2" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/cog-agents(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/cog-agents(DaemonSet):
 Policy Configurations:
+allow-traffic-from-vendor-system-to-default-on-all-ports-typo: line 6 in file ./k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+Resource Configurations:
 default/cog-agents(DaemonSet): line 5 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -24,11 +22,10 @@ default/cog-agents(DaemonSet): line 5 in file ./k8s_testcases/example_podlist/po
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/cog-agents(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/cog-agents(DaemonSet):
 Policy Configurations:
+allow-traffic-from-vendor-system-to-default-on-all-ports-typo: line 6 in file ./k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+Resource Configurations:
 default/cog-agents(DaemonSet): line 36 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -36,11 +33,10 @@ default/cog-agents(DaemonSet): line 36 in file ./k8s_testcases/example_podlist/p
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/cog-agents(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/cog-agents(DaemonSet):
 Policy Configurations:
+allow-traffic-from-vendor-system-to-default-on-all-ports-typo: line 6 in file ./k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+Resource Configurations:
 default/cog-agents(DaemonSet): line 67 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -48,20 +44,16 @@ default/cog-agents(DaemonSet): line 67 in file ./k8s_testcases/example_podlist/p
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/cog-local-analyzer(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/cog-local-analyzer(Deployment-StatefulSet):
 Policy Configurations:
+allow-traffic-from-vendor-system-to-default-on-all-ports-typo: line 6 in file ./k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+Resource Configurations:
 default/cog-local-analyzer(Deployment-StatefulSet): line 98 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
 <entry dst="kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)" id="6" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 Policy Configurations:
@@ -72,9 +64,6 @@ kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): lin
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 658 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -83,9 +72,6 @@ kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 658 in 
 <entry dst="kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet)" id="8" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 Policy Configurations:
@@ -96,9 +82,6 @@ kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 721 in 
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet): line 784 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -107,9 +90,6 @@ kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet): line 78
 <entry dst="kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet)" id="10" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet):
 Policy Configurations:
@@ -120,9 +100,6 @@ kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet): line 8
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet): line 847 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -131,9 +108,6 @@ kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deplo
 <entry dst="kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet)" id="12" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 Policy Configurations:
@@ -144,9 +118,6 @@ kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deplo
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/calico-node(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system/calico-node(DaemonSet):
 Policy Configurations:
 kube-system/calico-node(DaemonSet): line 281 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -155,9 +126,6 @@ kube-system/calico-node(DaemonSet): line 281 in file ./k8s_testcases/example_pod
 <entry dst="kube-system/calico-node(DaemonSet)" id="14" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/calico-node(DaemonSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system/calico-node(DaemonSet):
 Policy Configurations:
@@ -168,9 +136,6 @@ kube-system/calico-node(DaemonSet): line 315 in file ./k8s_testcases/example_pod
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/calico-node(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system/calico-node(DaemonSet):
 Policy Configurations:
 kube-system/calico-node(DaemonSet): line 348 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -179,9 +144,6 @@ kube-system/calico-node(DaemonSet): line 348 in file ./k8s_testcases/example_pod
 <entry dst="kube-system/file-plugin(Deployment-StatefulSet)" id="16" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/file-plugin(Deployment-StatefulSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system/file-plugin(Deployment-StatefulSet):
 Policy Configurations:
@@ -192,9 +154,6 @@ kube-system/file-plugin(Deployment-StatefulSet): line 414 in file ./k8s_testcase
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/heapster(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system/heapster(Deployment-StatefulSet):
 Policy Configurations:
 kube-system/heapster(Deployment-StatefulSet): line 381 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -203,9 +162,6 @@ kube-system/heapster(Deployment-StatefulSet): line 381 in file ./k8s_testcases/e
 <entry dst="kube-system/keepalived-watcher(DaemonSet)" id="18" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/keepalived-watcher(DaemonSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
@@ -216,9 +172,6 @@ kube-system/keepalived-watcher(DaemonSet): line 444 in file ./k8s_testcases/exam
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/keepalived-watcher(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 475 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -227,9 +180,6 @@ kube-system/keepalived-watcher(DaemonSet): line 475 in file ./k8s_testcases/exam
 <entry dst="kube-system/keepalived-watcher(DaemonSet)" id="20" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/keepalived-watcher(DaemonSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
@@ -240,9 +190,6 @@ kube-system/keepalived-watcher(DaemonSet): line 506 in file ./k8s_testcases/exam
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/kube-fluentd(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
 kube-system/kube-fluentd(DaemonSet): line 537 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -251,9 +198,6 @@ kube-system/kube-fluentd(DaemonSet): line 537 in file ./k8s_testcases/example_po
 <entry dst="kube-system/kube-fluentd(DaemonSet)" id="22" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/kube-fluentd(DaemonSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
@@ -264,9 +208,6 @@ kube-system/kube-fluentd(DaemonSet): line 567 in file ./k8s_testcases/example_po
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/kube-fluentd(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
 kube-system/kube-fluentd(DaemonSet): line 598 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -275,9 +216,6 @@ kube-system/kube-fluentd(DaemonSet): line 598 in file ./k8s_testcases/example_po
 <entry dst="kube-system/storage-watcher(Deployment-StatefulSet)" id="24" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/storage-watcher(Deployment-StatefulSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system/storage-watcher(Deployment-StatefulSet):
 Policy Configurations:
@@ -288,9 +226,6 @@ kube-system/storage-watcher(Deployment-StatefulSet): line 628 in file ./k8s_test
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/tiller-deploy(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system/tiller-deploy(Deployment-StatefulSet):
 Policy Configurations:
 kube-system/tiller-deploy(Deployment-StatefulSet): line 939 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -299,9 +234,6 @@ kube-system/tiller-deploy(Deployment-StatefulSet): line 939 in file ./k8s_testca
 <entry dst="kube-system/vpn(Deployment-StatefulSet)" id="26" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/vpn(Deployment-StatefulSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system/vpn(Deployment-StatefulSet):
 Policy Configurations:
@@ -312,9 +244,6 @@ kube-system/vpn(Deployment-StatefulSet): line 976 in file ./k8s_testcases/exampl
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)vendor-system/barbar-app(ReplicaSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)vendor-system/barbar-app(ReplicaSet):
 Policy Configurations:
 vendor-system/barbar-app(ReplicaSet): line 128 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -323,9 +252,6 @@ vendor-system/barbar-app(ReplicaSet): line 128 in file ./k8s_testcases/example_p
 <entry dst="vendor-system/barbar-app(ReplicaSet)" id="28" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)vendor-system/barbar-app(ReplicaSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)vendor-system/barbar-app(ReplicaSet):
 Policy Configurations:
@@ -336,9 +262,6 @@ vendor-system/barbar-app(ReplicaSet): line 159 in file ./k8s_testcases/example_p
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)vendor-system/foofoo-app(ReplicaSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)vendor-system/foofoo-app(ReplicaSet):
 Policy Configurations:
 vendor-system/foofoo-app(ReplicaSet): line 190 in file ./k8s_testcases/example_podlist/pods_list.json
@@ -347,9 +270,6 @@ vendor-system/foofoo-app(ReplicaSet): line 190 in file ./k8s_testcases/example_p
 <entry dst="vendor-system/foofoo-app(ReplicaSet)" id="30" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)vendor-system/foofoo-app(ReplicaSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)vendor-system/foofoo-app(ReplicaSet):
 Policy Configurations:
@@ -363,9 +283,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)default/cog-agents(DaemonSet):
 Policy Configurations:
 default/cog-agents(DaemonSet): line 5 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="32" src="default/cog-agents(DaemonSet)">
@@ -861,9 +778,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)default/cog-agents(DaemonSet):
 Policy Configurations:
 default/cog-agents(DaemonSet): line 36 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="62" src="default/cog-agents(DaemonSet)">
@@ -1359,9 +1273,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)default/cog-agents(DaemonSet):
 Policy Configurations:
 default/cog-agents(DaemonSet): line 67 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="92" src="default/cog-agents(DaemonSet)">
@@ -1857,9 +1768,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)default/cog-local-analyzer(Deployment-StatefulSet):
 Policy Configurations:
 default/cog-local-analyzer(Deployment-StatefulSet): line 98 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="122" src="default/cog-local-analyzer(Deployment-StatefulSet)">
@@ -2355,9 +2263,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 252 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="152" src="kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
@@ -2852,9 +2757,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 658 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="182" src="kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet)">
@@ -3349,9 +3251,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 721 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="212" src="kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet)">
@@ -3846,9 +3745,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet): line 784 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="242" src="kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet)">
@@ -4343,9 +4239,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet): line 813 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="272" src="kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet)">
@@ -4840,9 +4733,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet): line 847 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="302" src="kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet)">
@@ -5337,9 +5227,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 Policy Configurations:
 kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet): line 893 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="332" src="kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet)">
@@ -5834,9 +5721,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/calico-node(DaemonSet):
 Policy Configurations:
 kube-system/calico-node(DaemonSet): line 281 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="362" src="kube-system/calico-node(DaemonSet)">
@@ -6331,9 +6215,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/calico-node(DaemonSet):
 Policy Configurations:
 kube-system/calico-node(DaemonSet): line 315 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="392" src="kube-system/calico-node(DaemonSet)">
@@ -6828,9 +6709,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/calico-node(DaemonSet):
 Policy Configurations:
 kube-system/calico-node(DaemonSet): line 348 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="422" src="kube-system/calico-node(DaemonSet)">
@@ -7325,9 +7203,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/file-plugin(Deployment-StatefulSet):
 Policy Configurations:
 kube-system/file-plugin(Deployment-StatefulSet): line 414 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="452" src="kube-system/file-plugin(Deployment-StatefulSet)">
@@ -7822,9 +7697,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/heapster(Deployment-StatefulSet):
 Policy Configurations:
 kube-system/heapster(Deployment-StatefulSet): line 381 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="482" src="kube-system/heapster(Deployment-StatefulSet)">
@@ -8319,9 +8191,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 444 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="512" src="kube-system/keepalived-watcher(DaemonSet)">
@@ -8816,9 +8685,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 475 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="542" src="kube-system/keepalived-watcher(DaemonSet)">
@@ -9313,9 +9179,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 506 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="572" src="kube-system/keepalived-watcher(DaemonSet)">
@@ -9810,9 +9673,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
 kube-system/kube-fluentd(DaemonSet): line 537 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="602" src="kube-system/kube-fluentd(DaemonSet)">
@@ -10307,9 +10167,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
 kube-system/kube-fluentd(DaemonSet): line 567 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="632" src="kube-system/kube-fluentd(DaemonSet)">
@@ -10804,9 +10661,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
 kube-system/kube-fluentd(DaemonSet): line 598 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="662" src="kube-system/kube-fluentd(DaemonSet)">
@@ -11301,9 +11155,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/storage-watcher(Deployment-StatefulSet):
 Policy Configurations:
 kube-system/storage-watcher(Deployment-StatefulSet): line 628 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="692" src="kube-system/storage-watcher(Deployment-StatefulSet)">
@@ -11798,9 +11649,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/tiller-deploy(Deployment-StatefulSet):
 Policy Configurations:
 kube-system/tiller-deploy(Deployment-StatefulSet): line 939 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="722" src="kube-system/tiller-deploy(Deployment-StatefulSet)">
@@ -12295,9 +12143,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)kube-system/vpn(Deployment-StatefulSet):
 Policy Configurations:
 kube-system/vpn(Deployment-StatefulSet): line 976 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="752" src="kube-system/vpn(Deployment-StatefulSet)">
@@ -12792,9 +12637,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)vendor-system/barbar-app(ReplicaSet):
 Policy Configurations:
 vendor-system/barbar-app(ReplicaSet): line 128 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="782" src="vendor-system/barbar-app(ReplicaSet)">
@@ -13289,9 +13131,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)vendor-system/barbar-app(ReplicaSet):
 Policy Configurations:
 vendor-system/barbar-app(ReplicaSet): line 159 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="812" src="vendor-system/barbar-app(ReplicaSet)">
@@ -13786,9 +13625,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)vendor-system/foofoo-app(ReplicaSet):
 Policy Configurations:
 vendor-system/foofoo-app(ReplicaSet): line 190 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="842" src="vendor-system/foofoo-app(ReplicaSet)">
@@ -14283,9 +14119,6 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 (src)vendor-system/foofoo-app(ReplicaSet):
 Policy Configurations:
 vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_podlist/pods_list.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cog-agents(DaemonSet)" id="872" src="vendor-system/foofoo-app(ReplicaSet)">
