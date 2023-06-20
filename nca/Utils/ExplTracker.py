@@ -261,6 +261,13 @@ class ExplTracker(metaclass=Singleton):
         return True if self.all_conns & ConnectivityProperties.make_conn_props_from_dict(
             {"src_peers": PeerSet({src_peer}), "dst_peers": PeerSet({dst_peer})}) else False
 
+    def add_policy_to_peers(self, policy):
+        for peer in policy.selected_peers:
+            src_peers, _ = self.extract_peers(policy.optimized_allow_ingress_props)
+            _, dst_peers = self.extract_peers(policy.optimized_allow_egress_props)
+            peer_name = peer.full_name()
+            self.add_peer_policy(peer_name, policy.name, dst_peers, src_peers)
+
     def add_default_policy(self, src, dst, is_ingress):
         """
         Add the default policy to the peers which were not affected by a specific policy.
