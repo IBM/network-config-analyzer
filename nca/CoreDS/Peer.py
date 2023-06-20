@@ -647,9 +647,7 @@ class PeerSet(set):
             return str(peer)
 
     def __str__(self):
-        res = ''
-        if len(self) > 1:
-            res += '{'
+        res = '{'
         first = True
         for peer in self:
             if first:
@@ -657,8 +655,7 @@ class PeerSet(set):
             else:
                 res += ', '
             res += str(peer)
-        if len(self) > 1:
-            res += '}'
+        res += '}'
         return res
 
     def get_set_without_ip_block(self):
