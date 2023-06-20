@@ -157,8 +157,10 @@ class NetworkPolicy:
         optimized_props and optimized_props_copy members
         """
         for rule in self.ingress_rules + self.egress_rules:
-            rule.optimized_props_copy = rule.optimized_props.copy()
-            rule.optimized_props.reduce_active_dimensions()
+            if not rule.optimized_props_copy:
+                # to avoid calling with the same rule multiple times
+                rule.optimized_props_copy = rule.optimized_props.copy()
+                rule.optimized_props.reduce_active_dimensions()
         self.optimized_props_in_sync = False
 
     def restore_opt_props(self):
@@ -170,8 +172,10 @@ class NetworkPolicy:
         optimized_props and optimized_props_copy members
         """
         for rule in self.ingress_rules + self.egress_rules:
-            rule.optimized_props = rule.optimized_props_copy
-            rule.optimized_props_copy = ConnectivityProperties()
+            if rule.optimized_props_copy:
+                # to avoid calling with the same rule multiple times
+                rule.optimized_props = rule.optimized_props_copy
+                rule.optimized_props_copy = ConnectivityProperties()
         self.optimized_props_in_sync = False
 
     @staticmethod
