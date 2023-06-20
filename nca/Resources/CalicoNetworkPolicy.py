@@ -104,7 +104,7 @@ class CalicoNetworkPolicy(NetworkPolicy):
                 props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
                 props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
                 if is_ingress:
-                    self.optimized_pass_ingress_props |=props
+                    self.optimized_pass_ingress_props |= props
                 else:
                     self.optimized_pass_egress_props |= props
 

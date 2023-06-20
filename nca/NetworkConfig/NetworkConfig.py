@@ -289,7 +289,7 @@ class NetworkConfig:
         if host_eps and NetworkLayerName.K8s_Calico not in self.policies_container.layers:
             # maintain K8s_Calico layer as active if peer container has hostEndpoint
             conns_res = self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
-                                                                                                NetworkLayerName.K8s_Calico)
+                                                                                                 NetworkLayerName.K8s_Calico)
         else:
             conns_res = OptimizedPolicyConnections()
             conns_res.all_allowed_conns = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
