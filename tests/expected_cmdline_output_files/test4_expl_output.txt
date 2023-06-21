@@ -22,6 +22,8 @@ src_ns: [kube-system-new] src_pods: [*] dst_ns: [default,ibm-system-new,kube-sys
 
 (dst)default/cognetive-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -31,6 +33,8 @@ default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pod
 
 (dst)default/cognetive-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -40,6 +44,8 @@ default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/p
 
 (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -49,6 +55,8 @@ ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line
 
 (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -58,6 +66,8 @@ ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line
 
 (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -95,6 +105,8 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)default/cognetive-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -215,6 +227,8 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)default/cognetive-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -335,6 +349,8 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -455,6 +471,8 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -575,6 +593,8 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -695,6 +715,8 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)kube-system-new/calico-node(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -824,6 +846,8 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)kube-system-new/heapster(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>

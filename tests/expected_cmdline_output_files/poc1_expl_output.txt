@@ -167,6 +167,8 @@ default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/k
 
 (dst)kube-system/kube-dns-livesim(Pod):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
@@ -2864,6 +2866,8 @@ kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/Ne
 
 (src)kube-system/kube-dns-livesim(Pod):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>

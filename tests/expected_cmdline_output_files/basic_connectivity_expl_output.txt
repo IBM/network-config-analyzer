@@ -57,6 +57,8 @@ default/cog-local-analyzer(Deployment-StatefulSet): line 98 in file ./k8s_testca
 
 (dst)kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 252 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -66,6 +68,8 @@ kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): lin
 
 (dst)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 658 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -75,6 +79,8 @@ kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 658 in 
 
 (dst)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 721 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -84,6 +90,8 @@ kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 721 in 
 
 (dst)kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet): line 784 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -93,6 +101,8 @@ kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet): line 78
 
 (dst)kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet): line 813 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -102,6 +112,8 @@ kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet): line 8
 
 (dst)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet): line 847 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -111,6 +123,8 @@ kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deplo
 
 (dst)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet): line 893 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -120,6 +134,8 @@ kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deplo
 
 (dst)kube-system/calico-node(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/calico-node(DaemonSet): line 281 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -129,6 +145,8 @@ kube-system/calico-node(DaemonSet): line 281 in file ./k8s_testcases/example_pod
 
 (dst)kube-system/calico-node(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/calico-node(DaemonSet): line 315 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -138,6 +156,8 @@ kube-system/calico-node(DaemonSet): line 315 in file ./k8s_testcases/example_pod
 
 (dst)kube-system/calico-node(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/calico-node(DaemonSet): line 348 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -147,6 +167,8 @@ kube-system/calico-node(DaemonSet): line 348 in file ./k8s_testcases/example_pod
 
 (dst)kube-system/file-plugin(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/file-plugin(Deployment-StatefulSet): line 414 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -156,6 +178,8 @@ kube-system/file-plugin(Deployment-StatefulSet): line 414 in file ./k8s_testcase
 
 (dst)kube-system/heapster(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/heapster(Deployment-StatefulSet): line 381 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -165,6 +189,8 @@ kube-system/heapster(Deployment-StatefulSet): line 381 in file ./k8s_testcases/e
 
 (dst)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 444 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -174,6 +200,8 @@ kube-system/keepalived-watcher(DaemonSet): line 444 in file ./k8s_testcases/exam
 
 (dst)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 475 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -183,6 +211,8 @@ kube-system/keepalived-watcher(DaemonSet): line 475 in file ./k8s_testcases/exam
 
 (dst)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 506 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -192,6 +222,8 @@ kube-system/keepalived-watcher(DaemonSet): line 506 in file ./k8s_testcases/exam
 
 (dst)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-fluentd(DaemonSet): line 537 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -201,6 +233,8 @@ kube-system/kube-fluentd(DaemonSet): line 537 in file ./k8s_testcases/example_po
 
 (dst)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-fluentd(DaemonSet): line 567 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -210,6 +244,8 @@ kube-system/kube-fluentd(DaemonSet): line 567 in file ./k8s_testcases/example_po
 
 (dst)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-fluentd(DaemonSet): line 598 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -219,6 +255,8 @@ kube-system/kube-fluentd(DaemonSet): line 598 in file ./k8s_testcases/example_po
 
 (dst)kube-system/storage-watcher(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/storage-watcher(Deployment-StatefulSet): line 628 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -228,6 +266,8 @@ kube-system/storage-watcher(Deployment-StatefulSet): line 628 in file ./k8s_test
 
 (dst)kube-system/tiller-deploy(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/tiller-deploy(Deployment-StatefulSet): line 939 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -237,6 +277,8 @@ kube-system/tiller-deploy(Deployment-StatefulSet): line 939 in file ./k8s_testca
 
 (dst)kube-system/vpn(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/vpn(Deployment-StatefulSet): line 976 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -246,6 +288,8 @@ kube-system/vpn(Deployment-StatefulSet): line 976 in file ./k8s_testcases/exampl
 
 (dst)vendor-system/barbar-app(ReplicaSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 vendor-system/barbar-app(ReplicaSet): line 128 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -255,6 +299,8 @@ vendor-system/barbar-app(ReplicaSet): line 128 in file ./k8s_testcases/example_p
 
 (dst)vendor-system/barbar-app(ReplicaSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 vendor-system/barbar-app(ReplicaSet): line 159 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -264,6 +310,8 @@ vendor-system/barbar-app(ReplicaSet): line 159 in file ./k8s_testcases/example_p
 
 (dst)vendor-system/foofoo-app(ReplicaSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 vendor-system/foofoo-app(ReplicaSet): line 190 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -273,6 +321,8 @@ vendor-system/foofoo-app(ReplicaSet): line 190 in file ./k8s_testcases/example_p
 
 (dst)vendor-system/foofoo-app(ReplicaSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -282,6 +332,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)default/cog-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cog-agents(DaemonSet): line 5 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -777,6 +829,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)default/cog-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cog-agents(DaemonSet): line 36 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -1272,6 +1326,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)default/cog-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cog-agents(DaemonSet): line 67 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -1767,6 +1823,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)default/cog-local-analyzer(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cog-local-analyzer(Deployment-StatefulSet): line 98 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -2262,6 +2320,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 252 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -2756,6 +2816,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 658 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -3250,6 +3312,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/kube-dns-amd64(Deployment-StatefulSet): line 721 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -3744,6 +3808,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/kube-dns-autoscaler(Deployment-StatefulSet): line 784 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -4238,6 +4304,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/kubernetes-dashboard(Deployment-StatefulSet): line 813 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -4732,6 +4800,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet): line 847 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -5226,6 +5296,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-dummy-to-ignore/public-cre08b89c167414305a1afb205d0bd346f-alb1(Deployment-StatefulSet): line 893 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -5720,6 +5792,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/calico-node(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/calico-node(DaemonSet): line 281 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -6214,6 +6288,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/calico-node(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/calico-node(DaemonSet): line 315 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -6708,6 +6784,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/calico-node(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/calico-node(DaemonSet): line 348 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -7202,6 +7280,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/file-plugin(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/file-plugin(Deployment-StatefulSet): line 414 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -7696,6 +7776,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/heapster(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/heapster(Deployment-StatefulSet): line 381 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -8190,6 +8272,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 444 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -8684,6 +8768,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 475 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -9178,6 +9264,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/keepalived-watcher(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/keepalived-watcher(DaemonSet): line 506 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -9672,6 +9760,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-fluentd(DaemonSet): line 537 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -10166,6 +10256,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-fluentd(DaemonSet): line 567 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -10660,6 +10752,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/kube-fluentd(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-fluentd(DaemonSet): line 598 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -11154,6 +11248,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/storage-watcher(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/storage-watcher(Deployment-StatefulSet): line 628 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -11648,6 +11744,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/tiller-deploy(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/tiller-deploy(Deployment-StatefulSet): line 939 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -12142,6 +12240,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)kube-system/vpn(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/vpn(Deployment-StatefulSet): line 976 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -12636,6 +12736,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)vendor-system/barbar-app(ReplicaSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 vendor-system/barbar-app(ReplicaSet): line 128 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -13130,6 +13232,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)vendor-system/barbar-app(ReplicaSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 vendor-system/barbar-app(ReplicaSet): line 159 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -13624,6 +13728,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)vendor-system/foofoo-app(ReplicaSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 vendor-system/foofoo-app(ReplicaSet): line 190 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
@@ -14118,6 +14224,8 @@ vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_p
 
 (src)vendor-system/foofoo-app(ReplicaSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 vendor-system/foofoo-app(ReplicaSet): line 221 in file ./k8s_testcases/example_podlist/pods_list.json
  </text>
 </entry>
