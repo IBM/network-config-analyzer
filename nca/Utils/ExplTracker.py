@@ -165,7 +165,6 @@ class ExplTracker(metaclass=Singleton):
         that adds the service name and suffix "/allowed"
         Expecting the original name to be before the "/" character.
         :param str new_name: the name for the new derived element
-        :param str new_name: the name for the new derived element
         """
         name_parts = new_name.split('/')
         name = name_parts[0]
