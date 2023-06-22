@@ -42,7 +42,12 @@ class TestArgs:
     def _fix_path_args_with_base_dir(self, base_dir):
         for idx, arg in enumerate(self.args):
             if '/' in arg and not arg.startswith(('https://github', 'https://raw.githubusercontent')):
-                self.args[idx] = os.path.join(base_dir, arg)
+                # exclude cases where the arg is not a path
+                if self.args[idx - 1] in ['--explain', '-expl']:
+                    continue
+                full_path = os.path.join(base_dir, arg)
+                self.args[idx] = full_path
+
 
     def get_arg_value(self, arg_str_list):
         for index, arg in enumerate(self.args):

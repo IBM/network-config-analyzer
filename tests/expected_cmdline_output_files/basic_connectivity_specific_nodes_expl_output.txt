@@ -1,0 +1,18 @@
+final fw rules for query: , config: testcase8-networkpolicy1.yaml:
+src: 0.0.0.0/0 dst_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] dst_pods: [*] conn: All connections
+src_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] src_pods: [*] dst_ns: [default,kube-system,kube-system-dummy-to-ignore,vendor-system] dst_pods: [*] conn: All connections
+
+Configurations affecting the connectivity between (src)default/cog-agents(DaemonSet) and (dst)default/cog-agents(DaemonSet):
+
+(src)default/cog-agents(DaemonSet):
+Policy Configurations:
+Default-Policy
+Resource Configurations:
+default/cog-agents(DaemonSet): line 5 in file ./k8s_testcases/example_podlist/pods_list.json
+
+(dst)default/cog-agents(DaemonSet):
+Policy Configurations:
+allow-traffic-from-vendor-system-to-default-on-all-ports-typo: line 6 in file ./k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
+Resource Configurations:
+default/cog-agents(DaemonSet): line 67 in file ./k8s_testcases/example_podlist/pods_list.json
