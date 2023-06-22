@@ -253,17 +253,6 @@ class NetworkLayer:
         """
         res_conns = OptimizedPolicyConnections()
         for policy in self.policies_list:
-            # Track the peers that were affected by this policy
-            if ExplTracker().is_active():
-                for peer in policy.selected_peers:
-                    src_peers, _ = ExplTracker().extract_peers(policy.optimized_allow_ingress_props)
-                    _, dst_peers = ExplTracker().extract_peers(policy.optimized_allow_egress_props)
-                    peer_name = peer.full_name()
-                    ExplTracker().add_peer_policy(peer_name,
-                                                  policy.name,
-                                                  dst_peers,
-                                                  src_peers,
-                                                  )
             policy_conns = policy.allowed_connections_optimized(is_ingress)
             if policy_conns.captured:  # not empty
                 if captured_func(policy):

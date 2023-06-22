@@ -101,6 +101,11 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--output_endpoints`\
   Choose endpoints type in output (pods/deployments).\
   *default:* deployments
+  - `--explain`\
+  A pair of node names to explain the policies affecting their connection or lack of it. Relevant only for connectivity query.\
+  Connections including IP-Blocks will show only the configurations of the node in that connection (since, IP-Blocks does
+  not have configurations).\
+  e.g. default/deployment-A1,default/deployment-B1.
   - `--print_ipv6`\
   include IPv6 range in the query results even when the policies of the config do not contain any IPv6 addresses.
   

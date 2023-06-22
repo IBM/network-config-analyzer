@@ -1,4 +1,4 @@
-ghapi==1.0.3
+ghapi==1.0.4
 PyYAML==6.0
 greenery==4.0.0
 networkx==3.1

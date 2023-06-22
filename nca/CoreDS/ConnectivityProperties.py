@@ -345,7 +345,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         assert dim_name not in ["icmp_type", "icmp_code"]  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
-            return None
+            if dim_name == "src_peers" or dim_name == "dst_peers":
+                return BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name(dim_name))
+            else:
+                return DimensionsManager().get_dimension_domain_by_name(dim_name)
         if dim_name == "src_peers" or dim_name == "dst_peers":
             res = PeerSet()
         elif dim_name == "src_ports" or dim_name == "dst_ports":
@@ -397,9 +400,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         src_ports = conn_cube["src_ports"]
         dst_ports = conn_cube["dst_ports"]
-        dst_peers = conn_cube["dst_peers"]
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
-        if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or not dst_peers:
+        if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or \
+                not conn_cube.is_active_dim("dst_peers"):
             # Should not resolve named ports
             return ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
 
@@ -414,7 +417,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         # Resolving dst named ports
         protocols = conn_cube["protocols"]
-        assert dst_peers
+        dst_peers = conn_cube["dst_peers"]
         for peer in dst_peers:
             real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols)
             if real_ports:

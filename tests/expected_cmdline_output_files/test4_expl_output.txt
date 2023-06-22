@@ -15,18 +15,16 @@ src_ns: [kube-system-new] src_pods: [*] dst_ns: [default,ibm-system-new,kube-sys
 <entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
  <text>
   Configurations affecting 0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cognetive-agents(DaemonSet)" id="2" src="0.0.0.0/0">
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/cognetive-agents(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/cognetive-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -34,11 +32,10 @@ default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pod
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/cognetive-agents(DaemonSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/cognetive-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -46,11 +43,10 @@ default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/p
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -58,11 +54,10 @@ ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
@@ -70,20 +65,16 @@ ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
  </text>
 </entry>
 <entry dst="kube-system-new/calico-node(DaemonSet)" id="7" src="0.0.0.0/0">
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)kube-system-new/calico-node(DaemonSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system-new/calico-node(DaemonSet):
 Policy Configurations:
@@ -98,9 +89,6 @@ kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podli
 <entry dst="kube-system-new/heapster(Deployment-StatefulSet)" id="8" src="0.0.0.0/0">
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)kube-system-new/heapster(Deployment-StatefulSet):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)kube-system-new/heapster(Deployment-StatefulSet):
 Policy Configurations:
@@ -118,10 +106,9 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)default/cognetive-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cognetive-agents(DaemonSet): line 9 in file ./fw_rules_tests/podlist/pods_list_4.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cognetive-agents(DaemonSet)" id="10" src="default/cognetive-agents(DaemonSet)">
@@ -241,10 +228,9 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)default/cognetive-agents(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 default/cognetive-agents(DaemonSet): line 212 in file ./fw_rules_tests/podlist/pods_list_4.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cognetive-agents(DaemonSet)" id="18" src="default/cognetive-agents(DaemonSet)">
@@ -364,10 +350,9 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet): line 415 in file ./fw_rules_tests/podlist/pods_list_4.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cognetive-agents(DaemonSet)" id="26" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-10(Deployment-StatefulSet)">
@@ -487,10 +472,9 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet): line 618 in file ./fw_rules_tests/podlist/pods_list_4.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cognetive-agents(DaemonSet)" id="34" src="ibm-system-new/ibm-cloud-provider-ip-169-60-164-14(Deployment-StatefulSet)">
@@ -610,10 +594,9 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet): line 821 in file ./fw_rules_tests/podlist/pods_list_4.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cognetive-agents(DaemonSet)" id="42" src="kube-system-new-dummy-to-ignore/calico-kube-controllers(Deployment-StatefulSet)">
@@ -733,10 +716,9 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)kube-system-new/calico-node(DaemonSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-new/calico-node(DaemonSet): line 1007 in file ./fw_rules_tests/podlist/pods_list_4.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cognetive-agents(DaemonSet)" id="50" src="kube-system-new/calico-node(DaemonSet)">
@@ -865,10 +847,9 @@ kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_t
 
 (src)kube-system-new/heapster(Deployment-StatefulSet):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system-new/heapster(Deployment-StatefulSet): line 1426 in file ./fw_rules_tests/podlist/pods_list_4.json
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/cognetive-agents(DaemonSet)" id="58" src="kube-system-new/heapster(Deployment-StatefulSet)">

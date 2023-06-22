@@ -115,6 +115,7 @@ class PoliciesFinder:
             if ExplTracker().is_active():
                 if parsed_policy:
                     policy_name = parsed_policy.name
+                    ExplTracker().add_policy_to_peers(parsed_policy)
                 else:  # certain istio policies are parsed later (sidecar / virtual-service)
                     policy_name = policy.get('metadata').get('name')
                 ExplTracker().add_item(policy.path,
@@ -127,12 +128,14 @@ class PoliciesFinder:
                 self._add_policy(istio_traffic_policy)
                 if ExplTracker().is_active():
                     ExplTracker().derive_item(istio_traffic_policy.name)
+                    ExplTracker().add_policy_to_peers(istio_traffic_policy)
         if istio_sidecar_parser:
             istio_sidecars = istio_sidecar_parser.get_istio_sidecars()
             for istio_sidecar in istio_sidecars:
                 self._add_policy(istio_sidecar)
                 if ExplTracker().is_active():
                     ExplTracker().derive_item(istio_sidecar.name)
+                    ExplTracker().add_policy_to_peers(istio_sidecar)
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
         policy_type = NetworkPolicy.get_policy_type_from_dict(policy_object)
