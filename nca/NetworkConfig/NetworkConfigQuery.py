@@ -1000,8 +1000,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :param PeerSet peers: the peers to consider for dot output
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to TCP / non-TCP , or not
         :rtype:  str
-        :return the connectivity map in txt_no_fw_rules format: the connections between peers excluding connections between
-        workload to itself (without grouping as fw-rules).
+        :return the connectivity map in txt_no_fw_rules format: the connections between peers excluding connections
+        between workload to itself (without grouping as fw-rules).
         """
         conn_graph = self._get_conn_graph(connections, peers)
         return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
@@ -1101,8 +1101,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
     @staticmethod
     def convert_props_to_split_by_tcp(props):
         """
-        given the ConnectivityProperties properties set, convert it to two properties sets, one for TCP only, and the other
-        for non-TCP only.
+        given the ConnectivityProperties properties set, convert it to two properties sets, one for TCP only,
+        and the other for non-TCP only.
         :param ConnectivityProperties props: properties describing allowed connections
         :return: a tuple of the two properties sets: first for TCP, second for non-TCP
         :rtype: tuple(ConnectivityProperties, ConnectivityProperties)
@@ -1193,6 +1193,35 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         res_conns2 = self.config2.filter_conns_by_peer_types(conns2, peers_to_compare) & conns_filter
         return res_conns1, res_conns2
 
+    def _append_different_conns_to_list(self, conn_diff_props, different_conns_list, props_based_on_config1=True):
+        """
+        Adds difference between config1 and config2 connectivities into the list of differences
+        :param ConnectivityProperties conn_diff_props: connectivity properties representing a difference
+         between config1 and config2 connections (or between config2 and config1 connections)
+        :param list different_conns_list: the list to add differences to
+        :param bool props_based_on_config1: whether conn_diff_props represent connections present in config1 but not in config2
+        (the value True) or connections present in config2 but not in config1 (the value False)
+        """
+        no_conns = ConnectionSet()
+        for cube in conn_diff_props:
+            conn_cube = conn_diff_props.get_connectivity_cube(cube)
+            conns, src_peers, dst_peers = \
+                ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
+            conns1 = conns if props_based_on_config1 else no_conns
+            conns2 = no_conns if props_based_on_config1 else conns
+            if self.output_config.fullExplanation:
+                if self.config1.optimized_run == 'true':
+                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns1, conns2))
+                else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
+                    for src_peer in src_peers:
+                        for dst_peer in dst_peers:
+                            if src_peer != dst_peer:
+                                different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
+                                                                                conns1, conns2))
+            else:
+                different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns1, conns2))
+                return
+
     @staticmethod
     def clone_without_ingress(config):
         """
@@ -1261,33 +1290,6 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
 
         return QueryAnswer(True, self.name1 + ' and ' + self.name2 + ' are semantically equivalent.',
                            numerical_result=0)
-
-    def _append_different_conns_to_list(self, conn_props, different_conns_list, props_based_on_config1):
-        """
-        Adds difference between config1 and config2 connectivities into the list of differences
-        :param ConnectivityProperties conn_props: connectivity properties representing a difference between config1 and config2
-        :param list different_conns_list: the list to add differences to
-        :param bool props_based_on_config1: whether conn_props represent connections present in config1 but not in config2
-        (the value True) or connections present in config2 but not in config1 (the value False)
-        """
-        no_conns = ConnectionSet()
-        for cube in conn_props:
-            conn_cube = conn_props.get_connectivity_cube(cube)
-            conns, src_peers, dst_peers = \
-                ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
-            conns1 = conns if props_based_on_config1 else no_conns
-            conns2 = no_conns if props_based_on_config1 else conns
-            if self.output_config.fullExplanation:
-                if self.config1.optimized_run == 'true':
-                    different_conns_list.append(PeersAndConnections(str(src_peers), str(dst_peers), conns1, conns2))
-                else:  # 'debug': produce the same output format as in the original implementation (per peer pairs)
-                    for src_peer in src_peers:
-                        for dst_peer in dst_peers:
-                            if src_peer != dst_peer:
-                                different_conns_list.append(PeersAndConnections(str(src_peer), str(dst_peer),
-                                                                                conns1, conns2))
-            else:
-                different_conns_list.append(PeersAndConnections(src_peers.rep(), dst_peers.rep(), conns1, conns2))
 
     def check_equivalence_optimized(self, layer_name=None):
         conn_props1 = self.config1.allowed_connections_optimized(layer_name)
@@ -1693,6 +1695,13 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
             return QueryAnswer(False, f'{self.name1} is not contained in {self.name2} ',
                                output_explanation=[final_explanation], numerical_result=0 if not cmd_line_flag else 1)
 
+        if self.config1.optimized_run == 'false':
+            return self.check_containment_original(cmd_line_flag, only_captured)
+        else:
+            return self.check_containment_optimized(cmd_line_flag, only_captured)
+
+    def check_containment_original(self, cmd_line_flag=False, only_captured=False):
+        config1_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare = config1_peers | self.disjoint_referenced_ip_blocks()
         captured_pods = self.config1.get_captured_pods() | self.config2.get_captured_pods()
         not_contained_list = []
@@ -1715,6 +1724,21 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
             return self._query_answer_with_relevant_explanation(sorted(not_contained_list), cmd_line_flag)
         return QueryAnswer(True, self.name1 + ' is contained in ' + self.name2,
                            numerical_result=1 if not cmd_line_flag else 0)
+
+    def check_containment_optimized(self, cmd_line_flag=False, only_captured=False):
+        conn_props1 = self.config1.allowed_connections_optimized()
+        conn_props2 = self.config2.allowed_connections_optimized()
+        conns1, conns2 = self.filter_conns_by_input_or_internal_constraints(
+            conn_props1.allowed_conns if only_captured else conn_props1.all_allowed_conns,
+            conn_props2.all_allowed_conns)
+        if conns1.contained_in(conns2):
+            return QueryAnswer(True, self.name1 + ' is contained in ' + self.name2,
+                               numerical_result=1 if not cmd_line_flag else 0)
+
+        conns1_not_in_conns2 = conns1 - conns2
+        different_conns_list = []
+        self._append_different_conns_to_list(conns1_not_in_conns2, different_conns_list)
+        return self._query_answer_with_relevant_explanation(sorted(different_conns_list), cmd_line_flag)
 
     def _query_answer_with_relevant_explanation(self, explanation_list, cmd_line_flag):
         output_result = f'{self.name1} is not contained in {self.name2}'
