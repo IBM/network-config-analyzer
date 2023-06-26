@@ -425,10 +425,10 @@
 
 - name: basic_connectivity_specific_nodes-expl
   args: >
-    --connectivity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
-    --explain default/cog-agents-d54st,default/cog-agents-qr8gp 
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --explain default/Pod1[Pod],ns2/deployment-D[Deployment] 
     -opt=true
     -d
     --expected_output expected_cmdline_output_files/basic_connectivity_specific_nodes_expl_output.txt
@@ -436,9 +436,9 @@
 
 - name: basic_connectivity-expl
   args: >
-    --connectivity k8s_testcases/example_policies/testcase8/testcase8-networkpolicy1.yaml
-    --ns_list k8s_testcases/example_podlist/ns_list.json
-    --pod_list k8s_testcases/example_podlist/pods_list.json
+    --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
+    --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
     --explain ALL
     -opt=true
     -d
@@ -461,6 +461,7 @@
     --connectivity fw_rules_tests/podlist/test_subset_topology.yaml
     --ns_list fw_rules_tests/podlist/test_subset_topology.yaml
     --pod_list fw_rules_tests/podlist/test_subset_topology.yaml
+    --deployment_subset deployment-A,deployment-D
     --explain ALL
     -opt=true
     -d

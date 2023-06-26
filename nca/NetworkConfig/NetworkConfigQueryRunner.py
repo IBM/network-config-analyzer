@@ -173,7 +173,7 @@ class NetworkConfigQueryRunner:
         expl_out = ''
         if ExplTracker().is_active() and self.output_configuration.explain and \
                 ExplTracker().is_output_format_supported(self.output_configuration.outputFormat):
-            expl_out = ExplTracker().explain(self.output_configuration.explain.split(','))
+            expl_out = '\n\nExplainability results:\n'+ExplTracker().explain(self.output_configuration.explain.split(','))
         numerical_result, output, num_not_executed = query_result.compute_final_results(self.output_configuration.outputFormat)
         return numerical_result, output + expl_out, num_not_executed
 

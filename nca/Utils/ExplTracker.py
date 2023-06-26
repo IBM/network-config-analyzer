@@ -5,7 +5,7 @@
 
 from nca.Utils.Utils import Singleton
 from nca.Utils.NcaLogger import NcaLogger
-from nca.CoreDS.Peer import PeerSet
+from nca.CoreDS.Peer import PeerSet, IpBlock
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
@@ -368,7 +368,15 @@ class ExplTracker(metaclass=Singleton):
         # use the peer names as defined in the end-points configuration,
         # also use one peer for each deployment
         peer_names = set()
+        deployment_names = set()
         for peer in self.all_peers:
+            # if in deployments mode, use one pod from each deployment
+            deployment_name = self.get_printout_ep_name(peer.full_name())
+            if isinstance(peer, IpBlock):
+                deployment_name = peer.name
+            if self.ep == 'deployments' and deployment_name in deployment_names:
+                continue
+            deployment_names.add(deployment_name)
             peer_names.add(peer.full_name())
         peer_names = sorted(list(peer_names))
 
@@ -438,13 +446,13 @@ class ExplTracker(metaclass=Singleton):
 
         src_node = self.get_working_ep_name(nodes[0])
         for node in nodes:
-            node = self.get_working_ep_name(node)
-            if not self.ExplDescriptorContainer.get(node):
-                NcaLogger().log_message(f'Explainability error - {self.get_printout_ep_name(node)} '
+            ep_node = self.get_working_ep_name(node)
+            if not self.ExplDescriptorContainer.get(ep_node):
+                NcaLogger().log_message(f'Explainability error - {node} '
                                         f'was not found in the connectivity results', level='E')
                 return ''
-            if not self.ExplPeerToPolicyContainer.get(node):
-                NcaLogger().log_message(f'Explainability error - {self.get_printout_ep_name(node)} '
+            if not self.ExplPeerToPolicyContainer.get(ep_node):
+                NcaLogger().log_message(f'Explainability error - {self.node} '
                                         f'has no explanability results', level='E')
                 return ''
 

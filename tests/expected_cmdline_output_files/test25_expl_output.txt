@@ -1,5 +1,8 @@
 final fw rules for query: , config: test25-networkpolicy.yaml:
 src_ns: [default] src_pods: [my-test-deployment-C] dst_ns: [default] dst_pods: [my-test-deployment-B] conn: All connections
+
+
+Explainability results:
 <entry dst="default/my-test-deployment-A(Deployment)" id="1" src="default/my-test-deployment-A(Deployment)">
  <text>
   Configurations affecting default/my-test-deployment-A(Deployment):
@@ -9,24 +12,7 @@ Resource Configurations:
 default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="2" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="3" src="default/my-test-deployment-A(Deployment)">
+<entry dst="default/my-test-deployment-B(Deployment)" id="2" src="default/my-test-deployment-A(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-B(Deployment):
 
@@ -44,25 +30,7 @@ Resource Configurations:
 default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="4" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="5" src="default/my-test-deployment-A(Deployment)">
+<entry dst="default/my-test-deployment-C(Deployment)" id="3" src="default/my-test-deployment-A(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-C(Deployment):
 
@@ -80,25 +48,7 @@ Resource Configurations:
 default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="6" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="7" src="default/my-test-deployment-A(Deployment)">
+<entry dst="default/my-test-deployment-D(Deployment)" id="4" src="default/my-test-deployment-A(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-D(Deployment):
 
@@ -116,159 +66,7 @@ Resource Configurations:
 default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="8" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="9" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="10" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="11" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="12" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="13" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="14" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="15" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="16" src="default/my-test-deployment-A(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-A(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="17" src="default/my-test-deployment-B(Deployment)">
+<entry dst="default/my-test-deployment-A(Deployment)" id="5" src="default/my-test-deployment-B(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-A(Deployment):
 
@@ -286,25 +84,7 @@ Resource Configurations:
 default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="18" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="19" src="default/my-test-deployment-B(Deployment)">
+<entry dst="default/my-test-deployment-B(Deployment)" id="6" src="default/my-test-deployment-B(Deployment)">
  <text>
   Configurations affecting default/my-test-deployment-B(Deployment):
 Policy Configurations:
@@ -314,26 +94,7 @@ Resource Configurations:
 default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="20" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="21" src="default/my-test-deployment-B(Deployment)">
+<entry dst="default/my-test-deployment-C(Deployment)" id="7" src="default/my-test-deployment-B(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-C(Deployment):
 
@@ -352,26 +113,7 @@ Resource Configurations:
 default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="22" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="23" src="default/my-test-deployment-B(Deployment)">
+<entry dst="default/my-test-deployment-D(Deployment)" id="8" src="default/my-test-deployment-B(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-D(Deployment):
 
@@ -390,167 +132,7 @@ Resource Configurations:
 default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="24" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="25" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="26" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="27" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="28" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="29" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="30" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="31" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="32" src="default/my-test-deployment-B(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-B(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="33" src="default/my-test-deployment-C(Deployment)">
+<entry dst="default/my-test-deployment-A(Deployment)" id="9" src="default/my-test-deployment-C(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-A(Deployment):
 
@@ -568,25 +150,7 @@ Resource Configurations:
 default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="34" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="35" src="default/my-test-deployment-C(Deployment)">
+<entry dst="default/my-test-deployment-B(Deployment)" id="10" src="default/my-test-deployment-C(Deployment)">
  <text>
   Configurations affecting the connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-B(Deployment):
 
@@ -603,24 +167,7 @@ Resource Configurations:
 default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="36" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="37" src="default/my-test-deployment-C(Deployment)">
+<entry dst="default/my-test-deployment-C(Deployment)" id="11" src="default/my-test-deployment-C(Deployment)">
  <text>
   Configurations affecting default/my-test-deployment-C(Deployment):
 Policy Configurations:
@@ -630,26 +177,7 @@ Resource Configurations:
 default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="38" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="39" src="default/my-test-deployment-C(Deployment)">
+<entry dst="default/my-test-deployment-D(Deployment)" id="12" src="default/my-test-deployment-C(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-D(Deployment):
 
@@ -668,163 +196,7 @@ Resource Configurations:
 default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="40" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="41" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="42" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="43" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="44" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="45" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="46" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="47" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="48" src="default/my-test-deployment-C(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-C(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="49" src="default/my-test-deployment-D(Deployment)">
+<entry dst="default/my-test-deployment-A(Deployment)" id="13" src="default/my-test-deployment-D(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-A(Deployment):
 
@@ -842,25 +214,7 @@ Resource Configurations:
 default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="50" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="51" src="default/my-test-deployment-D(Deployment)">
+<entry dst="default/my-test-deployment-B(Deployment)" id="14" src="default/my-test-deployment-D(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-B(Deployment):
 
@@ -879,26 +233,7 @@ Resource Configurations:
 default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="52" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="53" src="default/my-test-deployment-D(Deployment)">
+<entry dst="default/my-test-deployment-C(Deployment)" id="15" src="default/my-test-deployment-D(Deployment)">
  <text>
   Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-C(Deployment):
 
@@ -917,186 +252,7 @@ Resource Configurations:
 default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
  </text>
 </entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="54" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="55" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="56" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="57" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-A(Deployment)" id="58" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-A(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-A(Deployment):
-Policy Configurations:
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-A(Deployment): line 1 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="59" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-B(Deployment)" id="60" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-B(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-B(Deployment):
-Policy Configurations:
-allow-ingress-to-b: line 12 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-B(Deployment): line 104 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="61" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-C(Deployment)" id="62" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-C(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-C(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-C(Deployment): line 34 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="63" src="default/my-test-deployment-D(Deployment)">
- <text>
-  Configurations affecting the LACK of connectivity between (src)default/my-test-deployment-D(Deployment) and (dst)default/my-test-deployment-D(Deployment):
-
-(src)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
-
-(dst)default/my-test-deployment-D(Deployment):
-Policy Configurations:
-allow-egress-to-b: line 35 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-deny-all-default: line 1 in file ./fw_rules_tests/policies/test25-networkpolicy.yaml
-Resource Configurations:
-default/my-test-deployment-D(Deployment): line 69 in file ./fw_rules_tests/podlist/test_fw_rules_pod_list.yaml
- </text>
-</entry>
-<entry dst="default/my-test-deployment-D(Deployment)" id="64" src="default/my-test-deployment-D(Deployment)">
+<entry dst="default/my-test-deployment-D(Deployment)" id="16" src="default/my-test-deployment-D(Deployment)">
  <text>
   Configurations affecting default/my-test-deployment-D(Deployment):
 Policy Configurations:
