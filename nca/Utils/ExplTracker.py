@@ -324,13 +324,14 @@ class ExplTracker(metaclass=Singleton):
             out.append('IP blocks have no configurations')
             return ""
         for index, name in enumerate(results):
+            ep_name = name
             if index == 0:
                 # results always starts with the policy configurations - make a headline
                 out.append('Policy Configurations:')
             if index > 0 and index == len(results)-1:
                 # the last one is always the resource configuration - make a headline
                 out.append('Resource Configurations:')
-            ep_name = self.get_printout_ep_name(name)
+                ep_name = self.get_printout_ep_name(name)
             if not self.ExplDescriptorContainer.get(name):
                 out.append(f'{ep_name} - explainability entry not found')
                 continue
