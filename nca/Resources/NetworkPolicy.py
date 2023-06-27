@@ -54,7 +54,10 @@ class NetworkPolicy:
         self.ingress_rules = []
         self.egress_rules = []
 
-        # optimized connectivity properties
+        # The flag below is used for lazy calculation of optimized policy connections (as a union of rules connections)
+        # The flag is set to False for new policies (including in redundancy query, when removing a rule from policy by
+        # creating a new policy with a subset of rules), or after changing peers domains (per query).
+        # When this flag is False, the sync_opt_props function will (re)calculate optimized policy connections.
         self.optimized_props_in_sync = False
         self._init_opt_props()
 
@@ -67,6 +70,9 @@ class NetworkPolicy:
         # if this flag is False, excluding ipv6 addresses from the query results will be enabled
 
     def _init_opt_props(self):
+        """
+        The members below are used for lazy evaluation of policy connectivity properties.
+        """
         self.optimized_allow_ingress_props = ConnectivityProperties.make_empty_props()
         self.optimized_deny_ingress_props = ConnectivityProperties.make_empty_props()
         self.optimized_pass_ingress_props = ConnectivityProperties.make_empty_props()
