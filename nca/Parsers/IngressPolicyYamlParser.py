@@ -10,7 +10,6 @@ from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
@@ -287,10 +286,6 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         # allowed_conns = none means that services referenced by this Ingress policy are not found,
         # then no connections rules to add (Ingress policy has no effect)
         if allowed_conns:
-            res_policy.add_rules(self._make_allow_rules(allowed_conns))
-            protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-            allowed_conns &= ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols,
-                                                                               "src_peers": res_policy.selected_peers})
-            res_policy.add_optimized_allow_props(allowed_conns, False)
+            res_policy.add_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
         res_policy.findings = self.warning_msgs
         return res_policy

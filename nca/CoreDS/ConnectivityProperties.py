@@ -446,6 +446,17 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                                                                  "dst_peers": all_peers_and_ips_and_dns})
 
     @staticmethod
+    def get_all_conns_props_per_domain_peers():
+        """
+        Return all possible between-peers connections.
+        This is a compact way to represent all peers connections, but it is an over-approximation also containing
+        IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
+        """
+        src_peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("src_peers"))
+        dst_peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("dst_peers"))
+        return ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": dst_peers})
+
+    @staticmethod
     def make_empty_props():
         """
         Returns empty connectivity properties, representing logical False

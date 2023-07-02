@@ -523,7 +523,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
                                                                                  "dst_peers": selected_peers})
         connections &= condition_conns
         conn_props &= condition_props
-        return IstioPolicyRule(res_peers, connections), conn_props
+        return IstioPolicyRule(res_peers, connections, conn_props)
 
     @staticmethod
     def parse_policy_action(action):
@@ -571,14 +571,8 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         pod_selector = policy_spec.get('selector')
         res_policy.selected_peers = self.update_policy_peers(pod_selector, 'matchLabels')
         for ingress_rule in policy_spec.get('rules', []):
-            rule, optimized_props = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
+            rule = self.parse_ingress_rule(ingress_rule, res_policy.selected_peers)
             res_policy.add_ingress_rule(rule)
-            if res_policy.action == IstioNetworkPolicy.ActionType.Allow:
-                res_policy.add_optimized_allow_props(optimized_props, True)
-            else:  # Deny
-                res_policy.add_optimized_deny_props(optimized_props, True)
-        all_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
-        res_policy.add_optimized_allow_props(all_props, False)
         if not res_policy.ingress_rules and res_policy.action == IstioNetworkPolicy.ActionType.Deny:
             self.syntax_error("DENY action without rules is meaningless as it will never be triggered")
 
