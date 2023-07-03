@@ -104,7 +104,7 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
   - `--explain`\
   A pair of node names (comma separated) to explain the policies affecting their connection or lack of it. Relevant only for connectivity query.\
   Connections including IP-Blocks will show only the configurations of the node in that connection (since, IP-Blocks does
-  not have configurations).\
+  not have configurations). IP-Blocks should be places in CIDR format as seen in the query results (run the connectivity query first, to see the nodes there).\
   e.g. default/pod-A1,default/deployment-B1.
   - `--print_ipv6`\
   include IPv6 range in the query results even when the policies of the config do not contain any IPv6 addresses.
