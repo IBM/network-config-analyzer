@@ -98,7 +98,7 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule/eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local/allow: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
@@ -108,7 +108,7 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
   Configurations affecting default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule/eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local/allow: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
@@ -120,7 +120,7 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule/eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local/allow: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -138,7 +138,7 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule/eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local/allow: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -156,7 +156,7 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-bookinfo-rule/eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local/allow: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -173,7 +173,7 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-bookinfo-rule/eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local/allow: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -190,7 +190,7 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-bookinfo-rule/eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local/allow: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -207,7 +207,7 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-bookinfo-rule/eu.bookinfo.com, uk.bookinfo.com, reviews.prod.svc.cluster.local/allow: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 

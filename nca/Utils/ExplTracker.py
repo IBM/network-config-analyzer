@@ -170,7 +170,8 @@ class ExplTracker(metaclass=Singleton):
         name = name_parts[0]
         if self.ExplDescriptorContainer.get(name):
             self.ExplDescriptorContainer[new_name] = {'path': self.ExplDescriptorContainer[name].get('path'),
-                                                      'line': self.ExplDescriptorContainer[name].get('line')
+                                                      'line': self.ExplDescriptorContainer[name].get('line'),
+                                                      'base_name': name
                                                       }
         else:
             NcaLogger().log_message(f'Explainability error: derived item {new_name} found no base item',
@@ -335,6 +336,9 @@ class ExplTracker(metaclass=Singleton):
             if not self.ExplDescriptorContainer.get(name):
                 out.append(f'{ep_name} - explainability entry not found')
                 continue
+            base_name = self.ExplDescriptorContainer.get(name).get("base_name")
+            if base_name:
+                ep_name = base_name
             path = self.ExplDescriptorContainer.get(name).get("path")
             if path == '':  # special element (like Default Policy)
                 out.append(f'{ep_name}')
