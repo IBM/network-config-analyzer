@@ -484,7 +484,7 @@
     --connectivity fw_rules_tests/policies/test4-networkpolicy.yaml
     --ns_list fw_rules_tests/podlist/ns_list.json
     --pod_list fw_rules_tests/podlist/pods_list_4.json
-    --explain ALL
+    --explain kube-system-new/calico-node(DaemonSet),0.0.0.0/0
     -opt=true
     -d
     --expected_output expected_cmdline_output_files/test4_expl_output.txt
