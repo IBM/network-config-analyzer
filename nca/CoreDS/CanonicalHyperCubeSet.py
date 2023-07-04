@@ -544,6 +544,9 @@ class CanonicalHyperCubeSet:
                     if not self._is_last_dimension() and not other._is_last_dimension() and \
                             not (self.layers[layer])._contained_in_aux(other_sub_elem, all_active_dims[1:]):
                         return False
+                    if self._is_last_dimension() and not other._is_last_dimension() and \
+                            not other_sub_elem._is_sub_elem_entire_sub_space():
+                        return False
                     remaining = current_layer_0 - common_part
                     if remaining:
                         # continue exploring other's cubes for containment of the remaining part from self
