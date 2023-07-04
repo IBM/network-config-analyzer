@@ -8,6 +8,7 @@ from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.Resources.IngressPolicy import IngressPolicyRule
@@ -56,40 +57,31 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
             regex_value = regex_value.replace("*", allowed_chars + '*')
         return MinDFA.dfa_from_regex(regex_value)
 
-    def _make_allow_rules(self, allowed_conns):
-        """
-        Make deny rules from the given connections
-        :param ConnectivityProperties allowed_conns: the given allowed connections
-        :return: the list of deny IngressPolicyRules
-        """
-        return self._make_rules_from_conns(allowed_conns)
-
     @staticmethod
-    def _make_rules_from_conns(conn_props):
+    def _make_allow_rules(conn_props, src_peers):
         """
         Make IngressPolicyRules from the given connections
         :param ConnectivityProperties conn_props: the given connections
+        :param PeerSet src_peers: the source peers to add to optimized props
         :return: the list of IngressPolicyRules
         """
         assert not conn_props.named_ports
         assert not conn_props.excluded_named_ports
-        peers_to_conns = {}
         res = []
-        # extract peers dimension from cubes
         assert not conn_props.is_active_dimension("src_peers")
+        # extract dst_peers dimension from cubes
+        tcp_protocol = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
         for cube in conn_props:
             conn_cube = conn_props.get_connectivity_cube(cube)
-            dst_peer_set = conn_cube["dst_peers"]
-            conn_cube.unset_dim("dst_peers")
-            new_props = ConnectivityProperties.make_conn_props(conn_cube)
+            new_conn_cube = conn_cube.copy()
+            conn_cube.update({"src_peers": src_peers, "protocols": tcp_protocol})
+            rule_opt_props = ConnectivityProperties.make_conn_props(conn_cube)
+            dst_peer_set = new_conn_cube["dst_peers"]
+            new_conn_cube.unset_dim("dst_peers")
+            new_props = ConnectivityProperties.make_conn_props(new_conn_cube)
             new_conns = ConnectionSet()
             new_conns.add_connections('TCP', new_props)
-            if dst_peer_set in peers_to_conns:
-                peers_to_conns[dst_peer_set] |= new_conns  # optimize conns for the same peers
-            else:
-                peers_to_conns[dst_peer_set] = new_conns
-        for peer_set, conns in peers_to_conns.items():
-            res.append(IngressPolicyRule(peer_set, conns))
+            res.append(IngressPolicyRule(dst_peer_set, new_conns, rule_opt_props))
         return res
 
     @staticmethod

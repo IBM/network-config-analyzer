@@ -558,7 +558,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if not dst_res_pods and policy_selected_eps and (not is_ingress or not is_profile):
             self.warning('Rule selects no destination endpoints', rule)
 
-        return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action), conn_props
+        return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action, conn_props)
 
     def _verify_named_ports(self, rule, rule_eps, rule_conns):
         """
@@ -698,16 +698,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.syntax_error('order is not allowed in the spec of a Profile', policy_spec)
 
         for ingress_rule in policy_spec.get('ingress', []):
-            rule, optimized_props = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
+            rule = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
             res_policy.add_ingress_rule(rule)
-            if self.optimized_run != 'false':
-                res_policy.update_and_add_optimized_props(optimized_props, rule.action, True)
 
         for egress_rule in policy_spec.get('egress', []):
-            rule, optimized_props = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
+            rule = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
             res_policy.add_egress_rule(rule)
-            if self.optimized_run != 'false':
-                res_policy.update_and_add_optimized_props(optimized_props, rule.action, False)
 
         self._apply_extra_labels(policy_spec, is_profile, res_policy.name)
         res_policy.findings = self.warning_msgs

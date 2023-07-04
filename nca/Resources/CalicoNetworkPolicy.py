@@ -5,6 +5,7 @@
 
 from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS import Peer
 from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
@@ -22,7 +23,7 @@ class CalicoPolicyRule:
         Log = 2
         Pass = 3
 
-    def __init__(self, src_peers, dst_peers, connections, action):
+    def __init__(self, src_peers, dst_peers, connections, action, opt_props):
         """
         :param Peer.PeerSet src_peers: The source peers this rule refers to
         :param Peer.PeerSet dst_peers:  The destination peers this rule refers to
@@ -33,6 +34,9 @@ class CalicoPolicyRule:
         self.dst_peers = dst_peers
         self.connections = connections
         self.action = action
+        self.optimized_props = opt_props
+        # copy of optimized props (used by src_peers/dst_peers domain-updating mechanism)
+        self.optimized_props_copy = ConnectivityProperties()
 
     def __eq__(self, other):
         return self.src_peers == other.src_peers and self.dst_peers == other.dst_peers and \
@@ -78,28 +82,43 @@ class CalicoNetworkPolicy(NetworkPolicy):
         return isinstance(other, CalicoNetworkPolicy) and super().__eq__(other) and \
             self.order == other.order
 
-    def update_and_add_optimized_props(self, props, action, is_ingress):
-        """
-        Updates properties according to earlier added properties
-        and adds them to the policy according to action and ingress/egress flag
-        :param props: the given properties
-        :param action: the action (Allow/Deny/Pass)
-        :param is_ingress: True for ingress, False for egress
-        :return: None
-        """
+    def _update_opt_props_by_order(self, is_ingress):
         # handle the order of rules
-        if action == CalicoPolicyRule.ActionType.Allow:
-            props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
-            props -= self.optimized_pass_ingress_props if is_ingress else self.optimized_pass_egress_props
-            self.add_optimized_allow_props(props, is_ingress)
-        elif action == CalicoPolicyRule.ActionType.Deny:
-            props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
-            props -= self.optimized_pass_ingress_props if is_ingress else self.optimized_pass_egress_props
-            self.add_optimized_deny_props(props, is_ingress)
-        elif action == CalicoPolicyRule.ActionType.Pass:
-            props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
-            props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
-            self.add_optimized_pass_props(props, is_ingress)
+        for rule in self.ingress_rules if is_ingress else self.egress_rules:
+            props = rule.optimized_props.copy()
+            if rule.action == CalicoPolicyRule.ActionType.Allow:
+                props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
+                props -= self.optimized_pass_ingress_props if is_ingress else self.optimized_pass_egress_props
+                if is_ingress:
+                    self.optimized_allow_ingress_props |= props
+                else:
+                    self.optimized_allow_egress_props |= props
+            elif rule.action == CalicoPolicyRule.ActionType.Deny:
+                props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
+                props -= self.optimized_pass_ingress_props if is_ingress else self.optimized_pass_egress_props
+                if is_ingress:
+                    self.optimized_deny_ingress_props |= props
+                else:
+                    self.optimized_deny_egress_props |= props
+            elif rule.action == CalicoPolicyRule.ActionType.Pass:
+                props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
+                props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
+                if is_ingress:
+                    self.optimized_pass_ingress_props |= props
+                else:
+                    self.optimized_pass_egress_props |= props
+
+    def sync_opt_props(self):
+        """
+        If optimized props of the policy are not synchronized (self.optimized_props_in_sync is False),
+        compute optimized props of the policy according to the optimized props of its rules
+        """
+        if self.optimized_props_in_sync:
+            return
+        self._init_opt_props()
+        self._update_opt_props_by_order(True)
+        self._update_opt_props_by_order(False)
+        self.optimized_props_in_sync = True
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
@@ -150,6 +169,7 @@ class CalicoNetworkPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
+        self.sync_opt_props()
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
             res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
