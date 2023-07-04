@@ -170,8 +170,8 @@ class ExplTracker(metaclass=Singleton):
         name = name_parts[0]
         if self.ExplDescriptorContainer.get(name):
             self.ExplDescriptorContainer[new_name] = {'path': self.ExplDescriptorContainer[name].get('path'),
-                                                      'line': self.ExplDescriptorContainer[name].get('line')
-                                                      # 'base_name': name
+                                                      'line': self.ExplDescriptorContainer[name].get('line'),
+                                                      'base_name': name
                                                       }
         else:
             NcaLogger().log_message(f'Explainability error: derived item {new_name} found no base item',
@@ -262,6 +262,7 @@ class ExplTracker(metaclass=Singleton):
             {"src_peers": PeerSet({src_peer}), "dst_peers": PeerSet({dst_peer})}) else False
 
     def add_policy_to_peers(self, policy):
+        policy.sync_opt_props()
         for peer in policy.selected_peers:
             src_peers, _ = self.extract_peers(policy.optimized_allow_ingress_props)
             _, dst_peers = self.extract_peers(policy.optimized_allow_egress_props)
@@ -318,6 +319,10 @@ class ExplTracker(metaclass=Singleton):
         :param str direction: src/dst
         :return str: string with the description
         """
+        if len(results) < 2:
+            NcaLogger().log_message(f'Explainability error: There are no Policy or Node configurations. got only'
+                                    f' {len(results)} results,')
+
         out = []
         if direction:
             out = [f'\n({direction}){self.get_printout_ep_name(node_name)}:']
@@ -336,9 +341,9 @@ class ExplTracker(metaclass=Singleton):
             if not self.ExplDescriptorContainer.get(name):
                 out.append(f'{ep_name} - explainability entry not found')
                 continue
-            # base_name = self.ExplDescriptorContainer.get(name).get("base_name")
-            # if base_name:
-            #     ep_name = base_name
+            base_name = self.ExplDescriptorContainer.get(name).get("base_name")
+            if base_name:
+                ep_name = base_name
             path = self.ExplDescriptorContainer.get(name).get("path")
             if path == '':  # special element (like Default Policy)
                 out.append(f'{ep_name}')
