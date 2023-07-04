@@ -170,8 +170,8 @@ class ExplTracker(metaclass=Singleton):
         name = name_parts[0]
         if self.ExplDescriptorContainer.get(name):
             self.ExplDescriptorContainer[new_name] = {'path': self.ExplDescriptorContainer[name].get('path'),
-                                                      'line': self.ExplDescriptorContainer[name].get('line'),
-                                                      'base_name': name
+                                                      'line': self.ExplDescriptorContainer[name].get('line')
+                                                      # 'base_name': name
                                                       }
         else:
             NcaLogger().log_message(f'Explainability error: derived item {new_name} found no base item',
