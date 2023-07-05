@@ -127,7 +127,7 @@ class InteractiveConnectivityGraph:
             """
             try:
                 with open(self.input_svg_file) as svg_file:
-                    self.soup = BeautifulSoup(svg_file.read(), 'xml')
+                    self.soup = BeautifulSoup(svg_file.read(), 'html')
             except Exception as e:
                 print(f'Failed to open file: {self.input_svg_file}\n{e} for reading', file=sys.stderr)
 
