@@ -5,6 +5,7 @@
 
 from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
+from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import PeerSet, IpBlock
 from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
@@ -14,7 +15,7 @@ class IstioPolicyRule:
     A class representing a single ingress rule in a Istio AuthorizationPolicy object
     """
 
-    def __init__(self, peer_set, connections):
+    def __init__(self, peer_set, connections, opt_props):
         """
         :param Peer.PeerSet peer_set: The set of peers this rule allows connection from
         :param ConnectionSet connections: The set of connections allowed/denied by this rule (the action resides in the policy)
@@ -22,6 +23,9 @@ class IstioPolicyRule:
         # TODO: extend connections (ConnectionSet) to represent HTTP/grpc requests attributes
         self.peer_set = peer_set
         self.connections = connections
+        self.optimized_props = opt_props
+        # copy of optimized props (used by src_peers/dst_peers domain-updating mechanism)
+        self.optimized_props_copy = ConnectivityProperties()
 
     def __eq__(self, other):
         return self.peer_set == other.peer_set and self.connections == other.connections
@@ -64,6 +68,23 @@ class IstioNetworkPolicy(NetworkPolicy):
             return self.action == IstioNetworkPolicy.ActionType.Deny
         return False
 
+    def sync_opt_props(self):
+        """
+        If optimized props of the policy are not synchronized (self.optimized_props_in_sync is False),
+        compute optimized props of the policy according to the optimized props of its rules
+        """
+        if self.optimized_props_in_sync:
+            return
+        self._init_opt_props()
+        for rule in self.ingress_rules:
+            if self.action == IstioNetworkPolicy.ActionType.Allow:
+                self.optimized_allow_ingress_props |= rule.optimized_props
+            elif self.action == IstioNetworkPolicy.ActionType.Deny:
+                self.optimized_deny_ingress_props |= rule.optimized_props
+
+        self.optimized_allow_egress_props = ConnectivityProperties.get_all_conns_props_per_domain_peers()
+        self.optimized_props_in_sync = True
+
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
         Evaluate the set of connections this policy allows/denies/passes between two peers
@@ -101,6 +122,7 @@ class IstioNetworkPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
+        self.sync_opt_props()
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
             res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()

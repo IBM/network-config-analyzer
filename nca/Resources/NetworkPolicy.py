@@ -54,21 +54,12 @@ class NetworkPolicy:
         self.ingress_rules = []
         self.egress_rules = []
 
-        # optimized connectivity properties
-        self.optimized_allow_ingress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_deny_ingress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_pass_ingress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_allow_egress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_deny_egress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_pass_egress_props = ConnectivityProperties.make_empty_props()
-
-        # copies of optimized props (used by src_peers/dst_peers domain-updating mechanism)
-        self.optimized_allow_ingress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_deny_ingress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_pass_ingress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_allow_egress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_deny_egress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_pass_egress_props_copy = ConnectivityProperties.make_empty_props()
+        # The flag below is used for lazy calculation of optimized policy connections (as a union of rules connections)
+        # The flag is set to False for new policies (including in redundancy query, when removing a rule from policy by
+        # creating a new policy with a subset of rules), or after changing peers domains (per query).
+        # When this flag is False, the sync_opt_props function will (re)calculate optimized policy connections.
+        self.optimized_props_in_sync = False
+        self._init_opt_props()
 
         self.affects_ingress = False  # whether the policy affects the ingress of the selected peers
         self.affects_egress = False  # whether the policy affects the egress of the selected peers
@@ -77,6 +68,17 @@ class NetworkPolicy:
         self.policy_kind = NetworkPolicy.PolicyType.Unknown
         self.has_ipv6_addresses = False  # whether the policy referenced ip addresses (by user)
         # if this flag is False, excluding ipv6 addresses from the query results will be enabled
+
+    def _init_opt_props(self):
+        """
+        The members below are used for lazy evaluation of policy connectivity properties.
+        """
+        self.optimized_allow_ingress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_deny_ingress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_pass_ingress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_allow_egress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_deny_egress_props = ConnectivityProperties.make_empty_props()
+        self.optimized_pass_egress_props = ConnectivityProperties.make_empty_props()
 
     def __str__(self):
         return self.full_name()
@@ -150,86 +152,37 @@ class NetworkPolicy:
         """
         self.egress_rules.append(rule)
 
-    def add_optimized_allow_props(self, props, is_ingress):
-        """
-        Adding allow properties to the ConnectivityProperties of optimized ingress/egress properties
-        :param ConnectivityProperties props: The properties to add
-        :param Bool is_ingress: whether these are ingress or egress properties
-        :return: None
-        """
-        if not props:
-            return
-        if is_ingress:
-            self.optimized_allow_ingress_props |= props
-        else:
-            self.optimized_allow_egress_props |= props
-
-    def add_optimized_deny_props(self, props, is_ingress):
-        """
-        Adding deny properties to the ConnectivityProperties of optimized ingress/egress properties
-        :param ConnectivityProperties props: The properties to add
-        :param Bool is_ingress: whether these are ingress or egress properties
-        :return: None
-        """
-        if not props:
-            return
-        if is_ingress:
-            self.optimized_deny_ingress_props |= props
-        else:
-            self.optimized_deny_egress_props |= props
-
-    def add_optimized_pass_props(self, props, is_ingress):
-        """
-        Adding pass properties to the ConnectivityProperties of optimized ingress/egress properties
-        :param ConnectivityProperties props: The properties to add
-        :param Bool is_ingress: whether these are ingress or egress properties
-        :return: None
-        """
-        if not props:
-            return
-        if is_ingress:
-            self.optimized_pass_ingress_props |= props
-        else:
-            self.optimized_pass_egress_props |= props
-
     def reorganize_opt_props_by_new_domains(self):
         """
-        This method is called to allow reduction of src_peers/dst_peers to inactive dimensions,
-        when running in a context of a certain query and after updating the domain accordingly in DimensionsManager.
+        This method is called to allow reduction of src_peers/dst_peers to inactive dimensions
+        in optimized properties of every rule. It is called when running in a context of a certain query
+        and after updating the domain accordingly in DimensionsManager.
         It also saves a copy of the optimized connectivity properties before reduction, to allow restoring to
         these values after the query's run.
+        Note: there is an assumption that rules of all derived policies have
+        optimized_props and optimized_props_copy members
         """
-        self.optimized_allow_ingress_props_copy = self.optimized_allow_ingress_props.copy()
-        self.optimized_allow_ingress_props.reduce_active_dimensions()
-        self.optimized_deny_ingress_props_copy = self.optimized_deny_ingress_props.copy()
-        self.optimized_deny_ingress_props.reduce_active_dimensions()
-        self.optimized_pass_ingress_props_copy = self.optimized_pass_ingress_props.copy()
-        self.optimized_pass_ingress_props.reduce_active_dimensions()
-        self.optimized_allow_egress_props_copy = self.optimized_allow_egress_props.copy()
-        self.optimized_allow_egress_props.reduce_active_dimensions()
-        self.optimized_deny_egress_props_copy = self.optimized_deny_egress_props.copy()
-        self.optimized_deny_egress_props.reduce_active_dimensions()
-        self.optimized_pass_egress_props_copy = self.optimized_pass_egress_props.copy()
-        self.optimized_pass_egress_props.reduce_active_dimensions()
+        for rule in self.ingress_rules + self.egress_rules:
+            if not rule.optimized_props_copy:
+                # to avoid calling with the same rule multiple times
+                rule.optimized_props_copy = rule.optimized_props.copy()
+                rule.optimized_props.reduce_active_dimensions()
+        self.optimized_props_in_sync = False
 
     def restore_opt_props(self):
         """
-        This method is called to restore connectivity properties to their values before reduction of src_peers/dst_peers
-        dimensions, so their values are with respect to the "full" default domain of these dimensions.
-        :return:
+        This method is called to restore optimized connectivity properties of every rule to their original values,
+        before the reduction of src_peers/dst_peers dimensions, s.t. the values of those dimensions will be
+        with respect to the "full" default domain of these dimensions.
+        Note: there is an assumption that rules of all derived policies have
+        optimized_props and optimized_props_copy members
         """
-        self.optimized_allow_ingress_props = self.optimized_allow_ingress_props_copy
-        self.optimized_deny_ingress_props = self.optimized_deny_ingress_props_copy
-        self.optimized_pass_ingress_props = self.optimized_pass_ingress_props_copy
-        self.optimized_allow_egress_props = self.optimized_allow_egress_props_copy
-        self.optimized_deny_egress_props = self.optimized_deny_egress_props_copy
-        self.optimized_pass_egress_props = self.optimized_pass_egress_props_copy
-        self.optimized_allow_ingress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_deny_ingress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_pass_ingress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_allow_egress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_deny_egress_props_copy = ConnectivityProperties.make_empty_props()
-        self.optimized_pass_egress_props_copy = ConnectivityProperties.make_empty_props()
+        for rule in self.ingress_rules + self.egress_rules:
+            if rule.optimized_props_copy:
+                # to avoid calling with the same rule multiple times
+                rule.optimized_props = rule.optimized_props_copy
+                rule.optimized_props_copy = ConnectivityProperties()
+        self.optimized_props_in_sync = False
 
     @staticmethod
     def get_policy_type_from_dict(policy):  # noqa: C901

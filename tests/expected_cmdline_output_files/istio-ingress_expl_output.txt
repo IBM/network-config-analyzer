@@ -6,6 +6,9 @@ src_ns: [default] src_pods: [productpage-v1-6f9df695b7, reviews-v3-869ff44845] d
 src_ns: [default] src_pods: [productpage-v1-6f9df695b7, reviews-v3-869ff44845] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
 src_ns: [prod,qa] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [prod,qa] src_pods: [*] dst_ns: [default,prod,qa] dst_pods: [*] conn: All connections
+
+
+Explainability results:
 <?xml version="1.0" encoding="utf-8"?>
 <entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
  <text>
@@ -96,7 +99,7 @@ qa/reviews-v2(Deployment-StatefulSet): line 2066 in file ./istio_testcases/examp
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
@@ -106,7 +109,7 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
   Configurations affecting default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
  </text>
@@ -118,7 +121,7 @@ default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/examp
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -136,7 +139,7 @@ default/productpage-v1(Deployment-StatefulSet): line 512 in file ./istio_testcas
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -154,7 +157,7 @@ default/reviews-v3(Deployment-StatefulSet): line 2596 in file ./istio_testcases/
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
 Default-Policy
-None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -171,7 +174,7 @@ prod/details-v1(Deployment-StatefulSet): line 4 in file ./istio_testcases/exampl
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -188,7 +191,7 @@ prod/ratings-v1(Deployment-StatefulSet): line 1028 in file ./istio_testcases/exa
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 
@@ -205,7 +208,7 @@ qa/reviews-v1(Deployment-StatefulSet): line 1536 in file ./istio_testcases/examp
 
 (src)default/istio-ingressgateway(Deployment):
 Policy Configurations:
-None: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
+bookinfo-rule: line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/virtual_services.yaml
 Resource Configurations:
 default/istio-ingressgateway(Deployment): line 1 in file ./istio_testcases/example_policies/istio-ingress-test/resources/istio-ingress-gateway-deployment.yaml
 

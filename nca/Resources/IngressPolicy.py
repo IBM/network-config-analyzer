@@ -13,13 +13,16 @@ class IngressPolicyRule:
     """
     A class representing a single ingress rule in an Ingress object
     """
-    def __init__(self, peer_set, connections):
+    def __init__(self, peer_set, connections, opt_props):
         """
         :param Peer.PeerSet peer_set: The set of peers this rule allows connection to
         :param ConnectionSet connections: The set of connections allowed by this rule
         """
         self.peer_set = peer_set
         self.connections = connections
+        self.optimized_props = opt_props
+        # copy of optimized props (used by src_peers/dst_peers domain-updating mechanism)
+        self.optimized_props_copy = ConnectivityProperties()
 
     def __eq__(self, other):
         return self.peer_set == other.peer_set and self.connections == other.connections
@@ -60,6 +63,18 @@ class IngressPolicy(NetworkPolicy):
         """
         self.egress_rules.extend(rules)
 
+    def sync_opt_props(self):
+        """
+        If optimized props of the policy are not synchronized (self.optimized_props_in_sync is False),
+        compute optimized props of the policy according to the optimized props of its rules
+        """
+        if self.optimized_props_in_sync:
+            return
+        self._init_opt_props()
+        for rule in self.egress_rules:
+            self.optimized_allow_egress_props |= rule.optimized_props
+        self.optimized_props_in_sync = True
+
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
         Evaluate the set of connections this ingress resource allows between two peers
@@ -95,6 +110,7 @@ class IngressPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
+        self.sync_opt_props()
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
             res_conns.allowed_conns = ConnectivityProperties.make_empty_props()

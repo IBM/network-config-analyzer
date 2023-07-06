@@ -5,7 +5,7 @@
 
 from nca.Utils.Utils import Singleton
 from nca.Utils.NcaLogger import NcaLogger
-from nca.CoreDS.Peer import PeerSet
+from nca.CoreDS.Peer import PeerSet, IpBlock
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
@@ -171,7 +171,8 @@ class ExplTracker(metaclass=Singleton):
         name = name_parts[0]
         if self.ExplDescriptorContainer.get(name):
             self.ExplDescriptorContainer[new_name] = {'path': self.ExplDescriptorContainer[name].get('path'),
-                                                      'line': self.ExplDescriptorContainer[name].get('line')
+                                                      'line': self.ExplDescriptorContainer[name].get('line'),
+                                                      'base_name': name
                                                       }
         else:
             NcaLogger().log_message(f'Explainability error: derived item {new_name} found no base item',
@@ -262,6 +263,7 @@ class ExplTracker(metaclass=Singleton):
             {"src_peers": PeerSet({src_peer}), "dst_peers": PeerSet({dst_peer})}) else False
 
     def add_policy_to_peers(self, policy):
+        policy.sync_opt_props()
         for peer in policy.selected_peers:
             src_peers, _ = self.extract_peers(policy.optimized_allow_ingress_props)
             _, dst_peers = self.extract_peers(policy.optimized_allow_egress_props)
@@ -318,6 +320,10 @@ class ExplTracker(metaclass=Singleton):
         :param str direction: src/dst
         :return str: string with the description
         """
+        if len(results) < 2:
+            NcaLogger().log_message(f'Explainability error: There are no Policy or Node configurations. got only'
+                                    f' {len(results)} results,')
+
         out = []
         if direction:
             out = [f'\n({direction}){self.get_printout_ep_name(node_name)}:']
@@ -325,16 +331,20 @@ class ExplTracker(metaclass=Singleton):
             out.append('IP blocks have no configurations')
             return ""
         for index, name in enumerate(results):
+            ep_name = name
             if index == 0:
                 # results always starts with the policy configurations - make a headline
                 out.append('Policy Configurations:')
             if index > 0 and index == len(results)-1:
                 # the last one is always the resource configuration - make a headline
                 out.append('Resource Configurations:')
-            ep_name = self.get_printout_ep_name(name)
+                ep_name = self.get_printout_ep_name(name)
             if not self.ExplDescriptorContainer.get(name):
                 out.append(f'{ep_name} - explainability entry not found')
                 continue
+            base_name = self.ExplDescriptorContainer.get(name).get("base_name")
+            if base_name:
+                ep_name = base_name
             path = self.ExplDescriptorContainer.get(name).get("path")
             if path == '':  # special element (like Default Policy)
                 out.append(f'{ep_name}')
@@ -369,7 +379,15 @@ class ExplTracker(metaclass=Singleton):
         # use the peer names as defined in the end-points configuration,
         # also use one peer for each deployment
         peer_names = set()
+        deployment_names = set()
         for peer in self.all_peers:
+            # if in deployments mode, use one pod from each deployment
+            deployment_name = self.get_printout_ep_name(peer.full_name())
+            if isinstance(peer, IpBlock):
+                deployment_name = peer.name
+            if self.ep == 'deployments' and deployment_name in deployment_names:
+                continue
+            deployment_names.add(deployment_name)
             peer_names.add(peer.full_name())
         peer_names = sorted(list(peer_names))
 
@@ -441,13 +459,13 @@ class ExplTracker(metaclass=Singleton):
 
         src_node = self.get_working_ep_name(nodes[0])
         for node in nodes:
-            node = self.get_working_ep_name(node)
-            if not self.ExplDescriptorContainer.get(node):
-                NcaLogger().log_message(f'Explainability error - {self.get_printout_ep_name(node)} '
+            ep_node = self.get_working_ep_name(node)
+            if not self.ExplDescriptorContainer.get(ep_node):
+                NcaLogger().log_message(f'Explainability error - {node} '
                                         f'was not found in the connectivity results', level='E')
                 return ''
-            if not self.ExplPeerToPolicyContainer.get(node):
-                NcaLogger().log_message(f'Explainability error - {self.get_printout_ep_name(node)} '
+            if not self.ExplPeerToPolicyContainer.get(ep_node):
+                NcaLogger().log_message(f'Explainability error - {self.node} '
                                         f'has no explanability results', level='E')
                 return ''
 
