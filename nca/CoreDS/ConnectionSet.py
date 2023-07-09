@@ -528,8 +528,12 @@ class ConnectionSet:
             return other_name + ' allows all connections while ' + self_name + ' does not.'
         for protocol, properties in self.allowed_protocols.items():
             if protocol not in other.allowed_protocols:
-                return self_name + ' allows communication using protocol ' + ProtocolNameResolver.get_protocol_name(protocol) \
-                    + ' while ' + other_name + ' does not.'
+                res = self_name + ' allows communication using protocol ' + \
+                      ProtocolNameResolver.get_protocol_name(protocol)
+                if not isinstance(properties, bool) and not properties.is_all():
+                    res += ' on ' + properties._get_first_item_str()
+                res += ' while ' + other_name + ' does not.'
+                return res
             other_properties = other.allowed_protocols[protocol]
             if properties != other_properties:
                 return ProtocolNameResolver.get_protocol_name(protocol) + ' protocol - ' + \
