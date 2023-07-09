@@ -12,6 +12,7 @@ from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
 from nca.Resources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
+from nca.Utils.ExplTracker import ExplTracker
 
 
 # TODO: add a layer for connectivity based on service type (culsterIP / LB / NodePort)? / containers ports?
@@ -309,6 +310,12 @@ class K8sCalicoNetworkLayer(NetworkLayer):
             else:
                 conn_cube.update({"src_peers": not_captured_not_hep, "dst_peers": all_peers_and_ips})
             not_captured_not_hep_conns = ConnectivityProperties.make_conn_props(conn_cube)
+            if ExplTracker().is_active():
+                src_peers, dst_peers = ExplTracker().extract_peers(not_captured_not_hep_conns)
+                ExplTracker().add_default_policy(src_peers,
+                                                 dst_peers,
+                                                 is_ingress
+                                                 )
             res_conns.all_allowed_conns |= not_captured_not_hep_conns
 
         captured_not_hep = base_peer_set_no_hep & res_conns.captured
@@ -370,12 +377,14 @@ class IstioNetworkLayer(NetworkLayer):
                                                                                  "dst_peers": non_captured_peers})
                 res_conns.all_allowed_conns |= all_nc_conns - res_conns.denied_conns
                 non_captured_dns_entries = dns_entries - res_conns.captured
+                non_captured_conns = all_nc_conns - res_conns.denied_conns
                 if non_captured_dns_entries:
                     # update allowed non-captured conns to DNSEntry dst with TCP only
                     all_nc_dns_conns = \
                         ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                                           "dst_peers": non_captured_dns_entries,
                                                                           "protocols": tcp_protocol})
+                    non_captured_conns |= all_nc_dns_conns
                     res_conns.all_allowed_conns |= all_nc_dns_conns
             else:
                 nc_all_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
@@ -385,7 +394,15 @@ class IstioNetworkLayer(NetworkLayer):
                 nc_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                  "dst_peers": dns_entries,
                                                                                  "protocols": tcp_protocol})
+                non_captured_conns = nc_all_conns - res_conns.denied_conns
+                non_captured_conns |= nc_dns_conns
                 res_conns.all_allowed_conns |= nc_dns_conns
+            if ExplTracker().is_active():
+                src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
+                ExplTracker().add_default_policy(src_peers,
+                                                 dst_peers,
+                                                 is_ingress
+                                                 )
         return res_conns
 
 
@@ -406,6 +423,7 @@ class IngressNetworkLayer(NetworkLayer):
         res_conns = OptimizedPolicyConnections()
         all_peers_and_ips = peer_container.get_all_peers_group(True)
         all_peers_no_ips = peer_container.get_all_peers_group()
+        non_captured_conns = None
         if is_ingress:
             # everything is allowed and non captured
             non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
@@ -418,4 +436,10 @@ class IngressNetworkLayer(NetworkLayer):
                 non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                        "dst_peers": all_peers_and_ips})
                 res_conns.all_allowed_conns = res_conns.allowed_conns | non_captured_conns
+        if non_captured_conns and ExplTracker().is_active():
+            src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
+            ExplTracker().add_default_policy(src_peers,
+                                             dst_peers,
+                                             is_ingress
+                                             )
         return res_conns

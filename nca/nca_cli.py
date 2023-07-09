@@ -15,6 +15,7 @@ from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
 from nca.SchemeRunner import SchemeRunner
+from nca.Utils.ExplTracker import ExplTracker
 
 
 def _valid_path(path_location, allow_ghe=False, allowed_platforms=None):
@@ -155,6 +156,7 @@ def run_args(args):  # noqa: C901
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
                                          'subset': {},
+                                         'explain': [],
                                          'excludeIPv6Range': not args.print_ipv6})
     expected_output = None
     # default values are for sanity query
@@ -181,6 +183,11 @@ def run_args(args):  # noqa: C901
                 lbl_dict[key] = value
             all_labels.append(lbl_dict)
         output_config['subset'].update({'label_subset': all_labels})
+
+    if args.explain is not None and args.optimized_run == 'true':
+        output_config['explain'] = args.explain
+        ExplTracker().activate()
+        ExplTracker().set_endpoints(output_config.outputEndpoints)
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
@@ -304,6 +311,8 @@ def nca_main(argv=None):
                         help='A file/GHE url/cluster-type to read pod list from (may be specified multiple times)')
     parser.add_argument('--resource_list', '-r', type=_resource_list_valid_path, action='append',
                         help='Network policies entries or Filesystem or GHE location of base network resources ')
+    parser.add_argument('--explain', '-expl', type=str,
+                        help='A node or 2 nodes (a connection), to explain the configurations affecting them')
     parser.add_argument('--deployment_subset', '-ds', type=str,
                         help='A list of deployment names to subset the query by')
     parser.add_argument('--namespace_subset', '-nss', type=str,

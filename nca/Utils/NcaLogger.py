@@ -3,18 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import sys
-
-
-class Singleton(type):
-    """
-    A metaclass implementing singleton for NcaLogger
-    """
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+from nca.Utils.Utils import Singleton
 
 
 class NcaLogger(metaclass=Singleton):
@@ -88,12 +77,16 @@ class NcaLogger(metaclass=Singleton):
         Log a message
         :param sting msg: message to log
         :param a file-like-object file: output stream
-        :param str level: the level of the message: (I)nfo, (W)arning
+        :param str level: the level of the message: (I)nfo, (W)arning, (E)rror
         """
         if level == 'I':
             msg = f'Info: {msg}'
         elif level == 'W':
             msg = f'Warning: {msg}'
+            if not file:
+                file = sys.stderr
+        elif level == 'E':
+            msg = f'Error: {msg}'
             if not file:
                 file = sys.stderr
 

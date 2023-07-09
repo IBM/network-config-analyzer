@@ -10,6 +10,7 @@ from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class SchemeRunner(GenericYamlParser):
@@ -148,6 +149,9 @@ class SchemeRunner(GenericYamlParser):
         global_ns_list = self._handle_resources_list(self.scheme.get('namespaceList', None))
         global_resource_list = self._handle_resources_list(self.scheme.get('resourceList', None))
         resources_handler = ResourcesHandler()
+        if self.optimized_run == 'true':
+            # we need to track configurations for the queries to use later-on
+            ExplTracker().activate()
         resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                                     self.optimized_run)
 

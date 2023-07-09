@@ -21,6 +21,7 @@ class YamlFile:
 
 class ObjectWithLocation:
     line_number = 0
+    path = ''
     column_number = 0
 
 
@@ -36,6 +37,7 @@ def to_yaml_objects(yaml_node):
     if isinstance(yaml_node, yaml.SequenceNode):
         res = YamlList()
         res.line_number = yaml_node.start_mark.line
+        res.path = yaml_node.start_mark.name
         res.column_number = yaml_node.start_mark.column
         for obj in yaml_node.value:
             res.append(to_yaml_objects(obj))
@@ -43,6 +45,7 @@ def to_yaml_objects(yaml_node):
     if isinstance(yaml_node, yaml.MappingNode):
         res = YamlDict()
         res.line_number = yaml_node.start_mark.line + 1
+        res.path = yaml_node.start_mark.name
         res.column_number = yaml_node.start_mark.column + 1
         for obj in yaml_node.value:
             res[obj[0].value] = to_yaml_objects(obj[1])
