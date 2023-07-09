@@ -12,6 +12,7 @@ from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from .PeerContainer import PeerContainer
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class ResourceType(Enum):
@@ -396,7 +397,7 @@ class ResourcesParser:
             elif resource_item == 'istio':
                 self._handle_istio_inputs(resource_flags)
             else:
-                fast_load = ResourceType.Policies not in resource_flags
+                fast_load = (ResourceType.Policies not in resource_flags) and not ExplTracker().is_active()
                 resource_scanner = TreeScannerFactory.get_scanner(resource_item, fast_load=fast_load)
                 if resource_scanner is None:
                     continue

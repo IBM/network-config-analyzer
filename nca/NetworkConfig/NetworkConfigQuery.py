@@ -24,6 +24,7 @@ from .QueryOutputHandler import QueryAnswer, DictOutputHandler, StringOutputHand
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, \
     PoliciesWithCommonPods, PeersAndConnections, ComputedExplanation
 from .NetworkLayer import NetworkLayerName
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class QueryType(Enum):
@@ -805,17 +806,24 @@ class ConnectivityMapQuery(NetworkConfigQuery):
                                                                                "dst_peers": opt_peers_to_compare})
         base_peers_num = len(opt_peers_to_compare)
         subset_peers = self.compute_subset(opt_peers_to_compare)
+        all_peers = subset_peers
         if len(subset_peers) != base_peers_num:
             # remove connections where both of src_peers and dst_peers are out of the subset
             subset_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": subset_peers}) | \
                            ConnectivityProperties.make_conn_props_from_dict({"dst_peers": subset_peers})
             all_conns_opt &= subset_conns
+            src_peers, dst_peers = ExplTracker().extract_peers(all_conns_opt)
+            all_peers = src_peers | dst_peers
         all_conns_opt = self.config.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
+        expl_conns = all_conns_opt
         if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
             output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
                 self.get_props_output_split_by_tcp(all_conns_opt, opt_peers_to_compare)
+            expl_conns, _ = self.convert_props_to_split_by_tcp(all_conns_opt)
         else:
             output_res, opt_fw_rules = self.get_props_output_full(all_conns_opt, opt_peers_to_compare)
+        if ExplTracker().is_active():
+            ExplTracker().set_connections_and_peers(expl_conns, all_peers)
         return output_res, opt_fw_rules, opt_fw_rules_tcp, opt_fw_rules_non_tcp
 
     def exec(self):
@@ -900,7 +908,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         if self.output_config.outputFormat in ['dot', 'jpg']:
             dot_full = self.dot_format_from_props(props, peers_to_compare)
             return dot_full, None
-        # TODO - handle 'txt_no_fw_rules' output format
+        if self.output_config.outputFormat == 'txt_no_fw_rules':
+            conns_wo_fw_rules = self.txt_no_fw_rules_format_from_props(props, peers_to_compare)
+            return conns_wo_fw_rules, None
         # handle other formats
         formatted_rules, fw_rules = self.fw_rules_from_props(props, peers_to_compare)
         return formatted_rules, fw_rules
@@ -966,7 +976,12 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             # concatenate the two graphs into one dot file
             res_str = dot_tcp + dot_non_tcp
             return res_str, None, None
-        # TODO - handle 'txt_no_fw_rules' output format
+        if self.output_config.outputFormat in ['txt_no_fw_rules']:
+            txt_no_fw_rules_tcp = self.txt_no_fw_rules_format_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
+            txt_no_fw_rules_non_tcp = self.txt_no_fw_rules_format_from_props(props_non_tcp, peers_to_compare,
+                                                                             connectivity_non_tcp_str)
+            res_str = txt_no_fw_rules_tcp + txt_no_fw_rules_non_tcp
+            return res_str, None, None
         # handle formats other than dot and txt_no_fw_rules
         formatted_rules_tcp, fw_rules_tcp = self.fw_rules_from_props(props_tcp, peers_to_compare, connectivity_tcp_str)
         formatted_rules_non_tcp, fw_rules_non_tcp = self.fw_rules_from_props(props_non_tcp, peers_to_compare,
@@ -1032,6 +1047,20 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         for cube in props:
             conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
+
+    def txt_no_fw_rules_format_from_props(self, props, peers, connectivity_restriction=None):
+        """
+        :param ConnectivityProperties props: properties describing allowed connections
+        :param PeerSet peers: the peers to consider for dot output
+        :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
+               TCP / non-TCP , or not
+        :rtype str
+        :return the connectivity map in txt_no_fw_rules format, considering connectivity_restriction if required
+        """
+        conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
+        for cube in props:
+            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container)
+        return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
         """

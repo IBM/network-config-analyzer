@@ -343,7 +343,7 @@ class ConnectivityGraph:
 
         dot_graph = DotGraph(name)
         peers_groups = self._get_equals_groups()
-        # we are going to treat a a peers_group as one peer.
+        # we are going to treat a peers_group as one peer.
         # the first peer in the peers_group is representing the group
         # we will add the text of all the peers in the group to this peer
         for peers_group, group_connection in peers_groups:
