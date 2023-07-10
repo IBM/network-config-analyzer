@@ -1,0 +1,10 @@
+resourceList: []
+networkConfigList:
+  - name: sample
+    resourceList:
+      - ./sample-app/**
+    expectedWarnings: 1  #  Warning: Ingress rule redirects traffic to my-service:8080,  but port 8080 is not exposed by Service my-service
+queries:
+  - name: connectivity_map
+    connectivityMap:
+      - sample
