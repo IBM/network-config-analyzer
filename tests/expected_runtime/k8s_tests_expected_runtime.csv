@@ -140,3 +140,4 @@ k8s_testcases/example_policies/workload-resources-test/file-system-resource-test
 k8s_testcases/example_policies/workload-resources-test/git-resource-test-scheme.yaml,7.66
 k8s_testcases/network-policy-checks-bad-path/network-policy-check-bad-path-scheme.yaml,0.80
 k8s_testcases/ingress-bad-path-test/test-ingress-bad-port-scheme.yaml,0.06
+k8s_testcases/example_policies/sample-app/sample-all-captured-scheme.yaml,0.08
