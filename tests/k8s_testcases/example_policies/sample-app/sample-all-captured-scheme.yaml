@@ -1,0 +1,10 @@
+resourceList: []
+networkConfigList:
+  - name: sample
+    resourceList:
+      - ./**
+queries:
+  - name: sample-all-captured
+    allCaptured:
+      - sample
+    expected: 2
