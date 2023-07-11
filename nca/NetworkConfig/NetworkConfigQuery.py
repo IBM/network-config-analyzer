@@ -2057,16 +2057,11 @@ class AllCapturedQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         # get_all_peers_group() does not require getting dnsEntry peers, since they are not ClusterEP (pods)
         existing_pods = self.config.peer_container.get_all_peers_group()
-        if not self.config:
+        if not self.config or self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
             return QueryAnswer(bool_result=False,
                                output_result=f'There are no network policies in {self.config.name}. '
                                              f'All workload resources are non captured',
                                numerical_result=len(existing_pods))
-
-        if self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Ingress):
-            return QueryAnswer(bool_result=False,
-                               output_result='AllCapturedQuery cannot be applied using Ingress resources only',
-                               query_not_executed=True)
 
         k8s_calico_pods_list_explanation, k8s_calico_res = self._compute_uncaptured_pods_by_layer(NetworkLayerName.K8s_Calico)
         istio_pods_list_explanation, istio_res = self._compute_uncaptured_pods_by_layer(NetworkLayerName.Istio, True)
