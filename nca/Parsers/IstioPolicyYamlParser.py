@@ -9,6 +9,7 @@ from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.Peer import IpBlock, PeerSet
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.PortSet import PortSet
+from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
@@ -489,11 +490,14 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
         # currently parsing only ports
         # TODO: extend operations parsing to include other attributes
         conn_props = ConnectivityProperties.make_empty_props()
+        tcp_props = ConnectivityProperties.make_conn_props_from_dict(
+            {"protocols": ProtocolSet.get_protocol_set_with_single_protocol('TCP')})
         if to_array is not None:
             for operation_dict in to_array:
                 conn_props |= self.parse_operation(operation_dict)
             connections = ConnectionSet()
             connections.add_connections('TCP', conn_props)
+            conn_props &= tcp_props
         else:  # no 'to' in the rule => all connections allowed
             connections = ConnectionSet(True)
             conn_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
@@ -514,6 +518,7 @@ class IstioPolicyYamlParser(IstioGenericYamlParser):
                     condition_props &= condition_res
             condition_conns = ConnectionSet()
             condition_conns.add_connections('TCP', condition_props)
+            condition_props &= tcp_props
         if not res_peers:
             self.warning('Rule selects no pods', rule)
         if not res_peers or not selected_peers:
