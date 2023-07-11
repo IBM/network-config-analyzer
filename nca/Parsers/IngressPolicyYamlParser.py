@@ -94,7 +94,11 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
         service_port = srv.get_port_by_name(port_name) if port_name else srv.get_port_by_number(port_number)
         if not service_port:
-            self.syntax_error(f'Missing port {port_name if port_name else port_number} in the service', service)
+            port_str = f'{port_name if port_name else port_number}'
+            warning_msg = f'Ingress rule redirects traffic to {service_name}:{port_str}, '
+            warning_msg += f' but port {port_str} is not exposed by Service {service_name}'
+            self.warning(warning_msg, service)
+            return None, None, False
 
         rule_ports = PortSet()
         rule_ports.add_port(service_port.target_port)  # may be either a number or a named port
