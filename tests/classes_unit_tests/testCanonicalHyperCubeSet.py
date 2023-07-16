@@ -1434,6 +1434,50 @@ class TestCanonicalHyperCubeSetMethodsIntervals(unittest.TestCase):
         # undo changes this test did to DimensionsManager singleton
         DimensionsManager.reset()
 
+    def test_contained_in_issue(self):
+        my_dimensions1 = ["x", "y"]
+        my_dimensions2 = ["x", "y", "z"]
+        cube_values_1 = [CanonicalIntervalSet.get_interval_set(2, 2),
+                         CanonicalIntervalSet.get_interval_set(1, 3)]
+        conns1 = CanonicalHyperCubeSet.create_from_cube(my_dimensions2, cube_values_1, my_dimensions1)
+        cube_values_2 = [
+            CanonicalIntervalSet.get_interval_set(3, 3),
+            CanonicalIntervalSet.get_interval_set(1, 1)
+        ]
+        conns1.add_cube(cube_values_2, my_dimensions1)
+
+        cube_values_3 = [
+            CanonicalIntervalSet.get_interval_set(2, 2),
+            CanonicalIntervalSet.get_interval_set(2, 3),
+            CanonicalIntervalSet.get_interval_set(1, 100),
+        ]
+        conns2 = CanonicalHyperCubeSet.create_from_cube(my_dimensions2, cube_values_3, my_dimensions2)
+        conns3 = CanonicalHyperCubeSet.create_from_cube(my_dimensions2, cube_values_3, my_dimensions2)
+
+        cube_values_4 = [
+            CanonicalIntervalSet.get_interval_set(2, 2),
+            CanonicalIntervalSet.get_interval_set(1, 1)
+        ]
+        cube_values_5 = [
+            CanonicalIntervalSet.get_interval_set(3, 3),
+            CanonicalIntervalSet.get_interval_set(1, 1)
+        ]
+        cube_values_6 = [
+            CanonicalIntervalSet.get_interval_set(2, 3),
+            CanonicalIntervalSet.get_interval_set(1, 1)
+        ]
+        conns2.add_cube(cube_values_4, my_dimensions1)
+        conns2.add_cube(cube_values_5, my_dimensions1)
+        conns3.add_cube(cube_values_6, my_dimensions1)
+
+        # conns2 should be contained in conns1
+        self.assertFalse(conns1.contained_in(conns2))
+        self.assertTrue(conns2.contained_in(conns1))
+
+        self.assertEqual(conns2, conns3)
+
+
+
     def test_basic(self):
         a = CanonicalHyperCubeSet(dimensions4)
         a.add_cube([CanonicalIntervalSet.get_interval_set(1, 2)], ["x"])
