@@ -117,6 +117,8 @@ class NetworkPolicy:
 
     def __eq__(self, other):
         if type(self) == type(other):
+            self.sync_opt_props()
+            other.sync_opt_props()
             return \
                 self.name == other.name and \
                 self.namespace == other.namespace and \
