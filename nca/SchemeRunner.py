@@ -18,7 +18,8 @@ class SchemeRunner(GenericYamlParser):
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
 
-    implemented_opt_queries = {'connectivityMap', 'equivalence', 'vacuity', 'redundancy', 'strongEquivalence'}
+    implemented_opt_queries = {'connectivityMap', 'equivalence', 'vacuity', 'redundancy',
+                               'strongEquivalence', 'containment', 'twoWayContainment', 'permits'}
 
     def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
         GenericYamlParser.__init__(self, scheme_file_name)
