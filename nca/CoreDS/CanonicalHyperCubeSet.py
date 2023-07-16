@@ -541,23 +541,23 @@ class CanonicalHyperCubeSet:
                 common_part = current_layer_0 & other_layer
                 has_common_part = bool(common_part)
                 if has_common_part:
+                    # if it's not last dim for both self and other, determine containment recursively
                     if not self._is_last_dimension() and not other._is_last_dimension() and \
                             not (self.layers[layer])._contained_in_aux(other_sub_elem, all_active_dims[1:]):
                         return False
+                    # if it's last dim for self but not for other: the remaining of other should be entire cube
                     if self._is_last_dimension() and not other._is_last_dimension() and \
                             not other_sub_elem._is_sub_elem_entire_sub_space():
                         return False
+                    # if it's the last dim for other but not for self -> containment is satisfied on this part
+                    # at this point, sub-object from common_part is contained
                     remaining = current_layer_0 - common_part
                     if remaining:
                         # continue exploring other's cubes for containment of the remaining part from self
                         current_layer_0 = remaining
                     else:
-                        if self._is_last_dimension() and not other._is_last_dimension():
-                            # if it's last dim for self but not for other: the remaining of other should be entire cube
-                            if other_sub_elem._is_sub_elem_entire_sub_space():
-                                is_subset_count += 1
-                        else:
-                            is_subset_count += 1
+                        # count current cube (from current_layer_0) as contained in other
+                        is_subset_count += 1
                         break
         return is_subset_count == len(self.layers)
 

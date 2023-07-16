@@ -262,10 +262,9 @@ class ExplTracker(metaclass=Singleton):
             {"src_peers": PeerSet({src_peer}), "dst_peers": PeerSet({dst_peer})}) else False
 
     def add_policy_to_peers(self, policy):
-        policy.sync_opt_props()
         for peer in policy.selected_peers:
-            src_peers, _ = self.extract_peers(policy.optimized_allow_ingress_props)
-            _, dst_peers = self.extract_peers(policy.optimized_allow_egress_props)
+            src_peers, _ = self.extract_peers(policy.optimized_allow_ingress_props())
+            _, dst_peers = self.extract_peers(policy.optimized_allow_egress_props())
             peer_name = peer.full_name()
             self.add_peer_policy(peer_name, policy.name, dst_peers, src_peers)
 

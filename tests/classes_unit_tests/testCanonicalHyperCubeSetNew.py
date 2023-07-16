@@ -4,6 +4,8 @@ from nca.CoreDS.CanonicalIntervalSet import CanonicalIntervalSet
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.CanonicalHyperCubeSet import CanonicalHyperCubeSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
+from nca.CoreDS.Peer import BasePeerSet, IpBlock
+from nca.CoreDS.ProtocolSet import ProtocolSet
 
 dimensions = ["src_ports", "ports", "methods", "paths"]
 dimensions2 = ["ports", "src_ports", "methods", "paths"]
@@ -970,6 +972,32 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         c.add_cube([CanonicalIntervalSet.get_interval_set(5, 5), get_str_dfa("y")], ["ports", "paths"])
         d = CanonicalHyperCubeSet.create_from_cube(dimensions, [get_str_dfa("x|y|z")], ["paths"])
         self.assertTrue(c.contained_in(d))
+
+    def test_bug_in_contained(self):
+        BasePeerSet.reset()
+        BasePeerSet().add_peer("A")
+        BasePeerSet().add_peer("B")
+        BasePeerSet().add_peer("C")
+        my_dimensions1 = ["src_peers", "dst_peers"]
+        my_dimensions2 = ["src_peers", "dst_peers", "protocols"]
+        conns1 = CanonicalHyperCubeSet.create_from_cube(my_dimensions2,
+                                                        [BasePeerSet().get_peer_interval_of({"B"}),
+                                                         BasePeerSet().get_peer_interval_of({"A", "B", "C"})],
+                                                        my_dimensions1)
+        conns1.add_cube([BasePeerSet().get_peer_interval_of({"C"}),
+                        BasePeerSet().get_peer_interval_of({"A"})], my_dimensions1)
+
+        conns2 = CanonicalHyperCubeSet.create_from_cube(my_dimensions2,
+                                                        [BasePeerSet().get_peer_interval_of({"B"}),
+                                                         BasePeerSet().get_peer_interval_of({"B", "C"}),
+                                                         ProtocolSet.get_non_tcp_protocols()],
+                                                        my_dimensions2)
+        conns2.add_cube([BasePeerSet().get_peer_interval_of({"B"}),
+                        BasePeerSet().get_peer_interval_of({"A"})], my_dimensions1)
+        conns2.add_cube([BasePeerSet().get_peer_interval_of({"C"}),
+                        BasePeerSet().get_peer_interval_of({"A"})], my_dimensions1)
+        self.assertFalse(conns1.contained_in(conns2))
+        self.assertTrue(conns2.contained_in(conns1))
 
     def test_subtract_basic(self):
         x = CanonicalHyperCubeSet(dimensions)

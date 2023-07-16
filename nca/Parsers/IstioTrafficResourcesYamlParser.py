@@ -155,7 +155,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         vs_spec = vs_resource['spec']
         self.check_fields_validity(vs_spec, f'VirtualService {vs.full_name()}',
                                    {'hosts': [0, list], 'gateways': [0, list], 'http': 0, 'tls': 3, 'tcp': 3,
-                                    'exportTo': [3, str]})
+                                    'exportTo': [3, list]})
         hosts = vs_spec.get('hosts')
         for host in hosts or []:
             host_dfa = self.parse_host_value(host, vs_resource)
