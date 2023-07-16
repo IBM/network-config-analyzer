@@ -978,15 +978,14 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
         BasePeerSet().add_peer("A")
         BasePeerSet().add_peer("B")
         BasePeerSet().add_peer("C")
-        ipv4_block = IpBlock.get_all_ips_block(True)
         my_dimensions1 = ["src_peers", "dst_peers"]
         my_dimensions2 = ["src_peers", "dst_peers", "protocols"]
-        conns1 = CanonicalHyperCubeSet.create_from_cube(my_dimensions1,
+        conns1 = CanonicalHyperCubeSet.create_from_cube(my_dimensions2,
                                                         [BasePeerSet().get_peer_interval_of({"B"}),
-                                                         BasePeerSet().get_peer_interval_of({"A", "B", "C", ipv4_block})],
+                                                         BasePeerSet().get_peer_interval_of({"A", "B", "C"})],
                                                         my_dimensions1)
         conns1.add_cube([BasePeerSet().get_peer_interval_of({"C"}),
-                        BasePeerSet().get_peer_interval_of({"A", ipv4_block})], my_dimensions1)
+                        BasePeerSet().get_peer_interval_of({"A"})], my_dimensions1)
 
         conns2 = CanonicalHyperCubeSet.create_from_cube(my_dimensions2,
                                                         [BasePeerSet().get_peer_interval_of({"B"}),
@@ -994,9 +993,9 @@ class TestCanonicalHyperCubeSetMethodsNew(unittest.TestCase):
                                                          ProtocolSet.get_non_tcp_protocols()],
                                                         my_dimensions2)
         conns2.add_cube([BasePeerSet().get_peer_interval_of({"B"}),
-                        BasePeerSet().get_peer_interval_of({"A", ipv4_block})], my_dimensions1)
+                        BasePeerSet().get_peer_interval_of({"A"})], my_dimensions1)
         conns2.add_cube([BasePeerSet().get_peer_interval_of({"C"}),
-                        BasePeerSet().get_peer_interval_of({"A", ipv4_block})], my_dimensions1)
+                        BasePeerSet().get_peer_interval_of({"A"})], my_dimensions1)
         self.assertFalse(conns1.contained_in(conns2))
         self.assertTrue(conns2.contained_in(conns1))
 
