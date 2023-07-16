@@ -72,19 +72,53 @@ class NetworkPolicy:
     def _init_opt_props(self):
         """
         The members below are used for lazy evaluation of policy connectivity properties.
+        NOTE: THEY CANNOT BE ACCESSED DIRECTLY, ONLY BY 'GETTER' METHODS BELOW!
         """
-        self.optimized_allow_ingress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_deny_ingress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_pass_ingress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_allow_egress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_deny_egress_props = ConnectivityProperties.make_empty_props()
-        self.optimized_pass_egress_props = ConnectivityProperties.make_empty_props()
+        self._optimized_allow_ingress_props = ConnectivityProperties.make_empty_props()
+        self._optimized_deny_ingress_props = ConnectivityProperties.make_empty_props()
+        self._optimized_pass_ingress_props = ConnectivityProperties.make_empty_props()
+        self._optimized_allow_egress_props = ConnectivityProperties.make_empty_props()
+        self._optimized_deny_egress_props = ConnectivityProperties.make_empty_props()
+        self._optimized_pass_egress_props = ConnectivityProperties.make_empty_props()
+
+    def optimized_allow_ingress_props(self):
+        self.sync_opt_props()
+        return self._optimized_allow_ingress_props
+
+    def optimized_deny_ingress_props(self):
+        self.sync_opt_props()
+        return self._optimized_deny_ingress_props
+
+    def optimized_pass_ingress_props(self):
+        self.sync_opt_props()
+        return self._optimized_pass_ingress_props
+
+    def optimized_allow_egress_props(self):
+        self.sync_opt_props()
+        return self._optimized_allow_egress_props
+
+    def optimized_deny_egress_props(self):
+        self.sync_opt_props()
+        return self._optimized_deny_egress_props
+
+    def optimized_pass_egress_props(self):
+        self.sync_opt_props()
+        return self._optimized_pass_egress_props
+
+    def sync_opt_props(self):
+        """
+        Implemented by derived policies to compute optimized props of the policy according to the optimized props
+        of its rules, in case optimized props are not currently synchronized.
+        """
+        return NotImplemented
 
     def __str__(self):
         return self.full_name()
 
     def __eq__(self, other):
         if type(self) == type(other):
+            self.sync_opt_props()
+            other.sync_opt_props()
             return \
                 self.name == other.name and \
                 self.namespace == other.namespace and \
@@ -93,12 +127,12 @@ class NetworkPolicy:
                 self.selected_peers == other.selected_peers and \
                 self.ingress_rules == other.ingress_rules and \
                 self.egress_rules == other.egress_rules and \
-                self.optimized_allow_ingress_props == other.optimized_allow_ingress_props and \
-                self.optimized_deny_ingress_props == other.optimized_deny_ingress_props and \
-                self.optimized_pass_ingress_props == other.optimized_pass_ingress_props and \
-                self.optimized_allow_egress_props == other.optimized_allow_egress_props and \
-                self.optimized_deny_egress_props == other.optimized_deny_egress_props and \
-                self.optimized_pass_egress_props == other.optimized_pass_egress_props
+                self._optimized_allow_ingress_props == other._optimized_allow_ingress_props and \
+                self._optimized_deny_ingress_props == other._optimized_deny_ingress_props and \
+                self._optimized_pass_ingress_props == other._optimized_pass_ingress_props and \
+                self._optimized_allow_egress_props == other._optimized_allow_egress_props and \
+                self._optimized_deny_egress_props == other._optimized_deny_egress_props and \
+                self._optimized_pass_egress_props == other._optimized_pass_egress_props
         return False
 
     def __lt__(self, other):  # required so we can evaluate the policies according to their order

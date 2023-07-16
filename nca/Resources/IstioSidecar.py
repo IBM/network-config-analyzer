@@ -59,9 +59,9 @@ class IstioSidecar(NetworkPolicy):
         if self.optimized_props_in_sync:
             return
         self._init_opt_props()
-        self.optimized_allow_ingress_props = ConnectivityProperties.get_all_conns_props_per_domain_peers()
+        self._optimized_allow_ingress_props = ConnectivityProperties.get_all_conns_props_per_domain_peers()
         for rule in self.egress_rules:
-            self.optimized_allow_egress_props |= rule.optimized_props
+            self._optimized_allow_egress_props |= rule.optimized_props
         self.optimized_props_in_sync = True
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
@@ -100,15 +100,14 @@ class IstioSidecar(NetworkPolicy):
         return PolicyConnections(True, allowed_conns=ConnectionSet())
 
     def allowed_connections_optimized(self, is_ingress):
-        self.sync_opt_props()
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
-            res_conns.denied_conns = self.optimized_deny_ingress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_ingress_props().copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props().copy()
             res_conns.captured = PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
-            res_conns.denied_conns = self.optimized_deny_egress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
         return res_conns
 

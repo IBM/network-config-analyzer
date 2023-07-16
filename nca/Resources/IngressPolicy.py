@@ -72,7 +72,7 @@ class IngressPolicy(NetworkPolicy):
             return
         self._init_opt_props()
         for rule in self.egress_rules:
-            self.optimized_allow_egress_props |= rule.optimized_props
+            self._optimized_allow_egress_props |= rule.optimized_props
         self.optimized_props_in_sync = True
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
@@ -110,13 +110,12 @@ class IngressPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
-        self.sync_opt_props()
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
             res_conns.allowed_conns = ConnectivityProperties.make_empty_props()
             res_conns.captured = PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
         return res_conns
 

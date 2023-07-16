@@ -87,26 +87,26 @@ class CalicoNetworkPolicy(NetworkPolicy):
         for rule in self.ingress_rules if is_ingress else self.egress_rules:
             props = rule.optimized_props.copy()
             if rule.action == CalicoPolicyRule.ActionType.Allow:
-                props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
-                props -= self.optimized_pass_ingress_props if is_ingress else self.optimized_pass_egress_props
+                props -= self._optimized_deny_ingress_props if is_ingress else self._optimized_deny_egress_props
+                props -= self._optimized_pass_ingress_props if is_ingress else self._optimized_pass_egress_props
                 if is_ingress:
-                    self.optimized_allow_ingress_props |= props
+                    self._optimized_allow_ingress_props |= props
                 else:
-                    self.optimized_allow_egress_props |= props
+                    self._optimized_allow_egress_props |= props
             elif rule.action == CalicoPolicyRule.ActionType.Deny:
-                props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
-                props -= self.optimized_pass_ingress_props if is_ingress else self.optimized_pass_egress_props
+                props -= self._optimized_allow_ingress_props if is_ingress else self._optimized_allow_egress_props
+                props -= self._optimized_pass_ingress_props if is_ingress else self._optimized_pass_egress_props
                 if is_ingress:
-                    self.optimized_deny_ingress_props |= props
+                    self._optimized_deny_ingress_props |= props
                 else:
-                    self.optimized_deny_egress_props |= props
+                    self._optimized_deny_egress_props |= props
             elif rule.action == CalicoPolicyRule.ActionType.Pass:
-                props -= self.optimized_allow_ingress_props if is_ingress else self.optimized_allow_egress_props
-                props -= self.optimized_deny_ingress_props if is_ingress else self.optimized_deny_egress_props
+                props -= self._optimized_allow_ingress_props if is_ingress else self._optimized_allow_egress_props
+                props -= self._optimized_deny_ingress_props if is_ingress else self._optimized_deny_egress_props
                 if is_ingress:
-                    self.optimized_pass_ingress_props |= props
+                    self._optimized_pass_ingress_props |= props
                 else:
-                    self.optimized_pass_egress_props |= props
+                    self._optimized_pass_egress_props |= props
 
     def sync_opt_props(self):
         """
@@ -169,17 +169,16 @@ class CalicoNetworkPolicy(NetworkPolicy):
         and the peer set of captured peers by this policy.
         :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
         """
-        self.sync_opt_props()
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
-            res_conns.denied_conns = self.optimized_deny_ingress_props.copy()
-            res_conns.pass_conns = self.optimized_pass_ingress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_ingress_props().copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props().copy()
+            res_conns.pass_conns = self.optimized_pass_ingress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_ingress else Peer.PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
-            res_conns.denied_conns = self.optimized_deny_egress_props.copy()
-            res_conns.pass_conns = self.optimized_pass_egress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props().copy()
+            res_conns.pass_conns = self.optimized_pass_egress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_egress else Peer.PeerSet()
         return res_conns
 
