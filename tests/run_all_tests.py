@@ -112,7 +112,7 @@ class GeneralTest:
         tmp_opt = [i for i in self.test_queries_obj.args_obj.args if '-opt=' in i]
         opt = tmp_opt[0].split('=')[1] if tmp_opt else 'false'
         if isinstance(self.test_queries_obj, CliQuery) and (opt == 'debug' or opt == 'true'):
-            implemented_opt_queries = {'--connectivity', '--equiv', 'permits', 'interferes', 'forbids'}
+            implemented_opt_queries = {'--connectivity', '--equiv', '--permits', '--interferes', '--forbids'}
             # TODO - update/remove the optimization below when all queries are supported in optimized implementation
             if not implemented_opt_queries.intersection(set(self.test_queries_obj.args_obj.args)):
                 print(f'Skipping {self.test_queries_obj.test_name} since it does not have optimized implementation yet')
