@@ -491,3 +491,14 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             if cube[src_peers_index] != cube[dst_peers_index] or not cube[src_peers_index].is_single_value():
                 return False
         return True
+
+    def props_without_auto_conns(self):
+        """
+        Return the properties after removing all connections from peer to itself
+        """
+        peers = self.project_on_one_dimension("src_peers") | self.project_on_one_dimension("dst_peers")
+        auto_conns = ConnectivityProperties()
+        for peer in peers:
+            auto_conns |= ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet({peer}),
+                                                                            "dst_peers": PeerSet({peer})})
+        return self - auto_conns

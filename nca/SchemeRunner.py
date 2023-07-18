@@ -20,9 +20,7 @@ class SchemeRunner(GenericYamlParser):
 
     implemented_opt_queries = {'connectivityMap', 'equivalence', 'vacuity', 'redundancy', 'strongEquivalence',
                                'containment', 'twoWayContainment', 'permits', 'interferes', 'pairwiseInterferes',
-                               'forbids', 'emptiness', 'disjointness', 'allCaptured', 'sanity'}
-
-    not_implemented_opt_queries = {'semanticDiff'}
+                               'forbids', 'emptiness', 'disjointness', 'allCaptured', 'sanity', 'semanticDiff'}
 
     def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
         GenericYamlParser.__init__(self, scheme_file_name)

@@ -1057,8 +1057,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return the connectivity map in dot-format, considering connectivity_restriction if required
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-        for cube in props:
-            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container)
+        conn_graph.add_props_to_graph(props, self.config.peer_container)
         return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
 
     def txt_no_fw_rules_format_from_props(self, props, peers, connectivity_restriction=None):
@@ -1071,8 +1070,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return the connectivity map in txt_no_fw_rules format, considering connectivity_restriction if required
         """
         conn_graph = ConnectivityGraph(peers, self.config.get_allowed_labels(), self.output_config)
-        for cube in props:
-            conn_graph.add_edges_from_cube_dict(props.get_connectivity_cube(cube), self.config.peer_container)
+        conn_graph.add_props_to_graph(props, self.config.peer_container)
         return conn_graph.get_connections_without_fw_rules_txt_format(connectivity_restriction)
 
     def fw_rules_from_connections_dict(self, connections, peers_to_compare, connectivity_restriction=None):
@@ -1483,7 +1481,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         output_config = OutputConfiguration(self.output_config, query_name)
         return ConnectivityGraph(topology_peers, allowed_labels, output_config)
 
-    def compute_diff(self):  # noqa: C901
+    def compute_diff_original(self):  # noqa: C901
         """
         Compute changed connections as following:
 
@@ -1659,12 +1657,169 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         return self.get_results_for_computed_fw_rules(keys_list, conn_graph_removed_per_key,
                                                       conn_graph_added_per_key)
 
+    def compute_diff_optimized(self):  # noqa: C901
+        """
+        Compute changed connections (by optimized implementation) as following:
+
+        1.1. lost connections between removed peers
+        1.2. lost connections between removed peers and ipBlocks
+
+        2.1. lost connections between removed peers and intersected peers
+
+        3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
+        3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
+
+        4.1. new connections between intersected peers and added peers
+
+        5.1. new connections between added peers
+        5.2. new connections between added peers and ipBlocks
+
+        Some sections might be empty and can be dropped.
+
+        :return:
+        res (int): number of categories with diffs
+        explanation (list): list of diff explanations - one for each category
+        :rtype: int, list[ComputedExplanation]
+        """
+
+        old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
+        new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
+        intersected_peers = old_peers & new_peers
+        removed_peers = old_peers - intersected_peers
+        added_peers = new_peers - intersected_peers
+        captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
+        exclude_ipv6 = self.output_config.excludeIPv6Range
+        old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
+                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
+                                                   exclude_ipv6)
+        new_ip_blocks = IpBlock.disjoint_ip_blocks(self.config2.get_referenced_ip_blocks(exclude_ipv6),
+                                                   IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
+                                                   exclude_ipv6)
+
+        conn_graph_removed_per_key = dict()
+        conn_graph_added_per_key = dict()
+        keys_list = []
+        old_conns = self.config1.allowed_connections_optimized()
+        new_conns = self.config2.allowed_connections_optimized()
+        old_props, new_props = self.filter_conns_by_input_or_internal_constraints(old_conns.all_allowed_conns,
+                                                                                  new_conns.all_allowed_conns)
+
+        # 1.1. lost connections between removed peers
+        key = 'Lost connections between removed peers'
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
+        conn_graph_added_per_key[key] = None
+        props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": removed_peers,
+                                                                  "dst_peers": removed_peers})
+        props &= old_props
+        props = props.props_without_auto_conns()
+        conn_graph_removed_per_key[key].add_props_to_graph(props, self.config1.peer_container)
+
+        # 1.2. lost connections between removed peers and ipBlocks
+        key = 'Lost connections between removed peers and ipBlocks'
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, old_ip_blocks, False)
+        conn_graph_added_per_key[key] = None
+        props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": removed_peers,
+                                                                  "dst_peers": old_ip_blocks}) | \
+                ConnectivityProperties.make_conn_props_from_dict({"src_peers": old_ip_blocks,
+                                                                  "dst_peers": removed_peers})
+        props &= old_props
+        conn_graph_removed_per_key[key].add_props_to_graph(props, self.config1.peer_container)
+
+        # 2.1. lost connections between removed peers and intersected peers
+        key = 'Lost connections between removed peers and persistent peers'
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
+        conn_graph_added_per_key[key] = None
+        props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": removed_peers,
+                                                                  "dst_peers": intersected_peers}) | \
+                ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
+                                                                  "dst_peers": removed_peers})
+        props &= old_props
+        props = props.props_without_auto_conns()
+        conn_graph_removed_per_key[key].add_props_to_graph(props, self.config1.peer_container)
+
+        # 3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
+        key = 'Changed connections between persistent peers'
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
+        props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": captured_pods,
+                                                                  "dst_peers": intersected_peers}) | \
+                ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
+                                                                  "dst_peers": captured_pods})
+        props1 = old_props & props
+        props1 = props1.props_without_auto_conns()
+        props2 = new_props & props
+        props2 = props2.props_without_auto_conns()
+        conn_graph_removed_per_key[key].add_props_to_graph(props1 - props2, self.config1.peer_container)
+        conn_graph_added_per_key[key].add_props_to_graph(props2 - props1, self.config2.peer_container)
+
+        # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
+        key = 'Changed connections between persistent peers and ipBlocks'
+        disjoint_ip_blocks = IpBlock.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks, exclude_ipv6)
+        peers = captured_pods | disjoint_ip_blocks
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, False)
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, True)
+        props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": captured_pods,
+                                                                  "dst_peers": disjoint_ip_blocks}) | \
+                ConnectivityProperties.make_conn_props_from_dict({"src_peers": disjoint_ip_blocks,
+                                                                  "dst_peers": captured_pods})
+        props1 = old_props & props
+        props2 = new_props & props
+        conn_graph_removed_per_key[key].add_props_to_graph(props1 - props2, self.config1.peer_container)
+        conn_graph_added_per_key[key].add_props_to_graph(props2 - props1, self.config2.peer_container)
+
+        # 4.1. new connections between intersected peers and added peers
+        key = 'New connections between persistent peers and added peers'
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = None
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
+        props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
+                                                                  "dst_peers": added_peers}) | \
+                ConnectivityProperties.make_conn_props_from_dict({"src_peers": added_peers,
+                                                                  "dst_peers": intersected_peers})
+        props &= new_props
+        props = props.props_without_auto_conns()
+        conn_graph_added_per_key[key].add_props_to_graph(props, self.config2.peer_container)
+
+        # 5.1. new connections between added peers
+        key = 'New connections between added peers'
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = None
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
+        props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": added_peers,
+                                                                  "dst_peers": added_peers})
+        props &= new_props
+        props = props.props_without_auto_conns()
+        conn_graph_added_per_key[key].add_props_to_graph(props, self.config2.peer_container)
+
+        # 5.2. new connections between added peers and ipBlocks
+        key = 'New connections between added peers and ipBlocks'
+        keys_list.append(key)
+        conn_graph_removed_per_key[key] = None
+        conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, new_ip_blocks, True)
+        props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": added_peers,
+                                                                  "dst_peers": new_ip_blocks}) | \
+                ConnectivityProperties.make_conn_props_from_dict({"src_peers": new_ip_blocks,
+                                                                  "dst_peers": added_peers})
+        props &= new_props
+        conn_graph_added_per_key[key].add_props_to_graph(props, self.config2.peer_container)
+
+        return self.get_results_for_computed_fw_rules(keys_list, conn_graph_removed_per_key,
+                                                      conn_graph_added_per_key)
+
     def exec(self, cmd_line_flag):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
             return query_answer
-        res, explanation = self.compute_diff()
+        if self.config1.optimized_run == 'false':
+            res, explanation = self.compute_diff_original()
+        else:
+            res, explanation = self.compute_diff_optimized()
         if res > 0:
             return QueryAnswer(bool_result=False,
                                output_result=f'{self.name1} and {self.name2} are not semantically equivalent.',
