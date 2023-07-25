@@ -147,6 +147,22 @@ class BaseNetworkQuery:
             return False  # connectivity between external peers is not relevant either
         return True
 
+    @staticmethod
+    def compare_fw_rules(fw_rules1, fw_rules2, peer_container):
+        if fw_rules1.fw_rules_map == fw_rules2.fw_rules_map:
+            return
+        conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, peer_container)
+        conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, peer_container)
+        if conn_props1 == conn_props2:
+            print("Original and optimized fw-rules are semantically equivalent")
+        else:
+            diff_prop = (conn_props1 - conn_props2) | (conn_props2 - conn_props1)
+            if diff_prop.are_auto_conns():
+                print("Original and optimized fw-rules differ only in auto-connections")
+            else:
+                print("Error: original and optimized fw-rules are different")
+                assert False
+
 
 class NetworkConfigQuery(BaseNetworkQuery):
     """
@@ -865,32 +881,19 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
             if self.config.optimized_run == 'debug':
                 if fw_rules and fw_rules.fw_rules_map and opt_fw_rules and opt_fw_rules.fw_rules_map:
-                    self.compare_fw_rules(fw_rules, opt_fw_rules)
+                    self.compare_fw_rules(fw_rules, opt_fw_rules, self.config.peer_container)
                 if fw_rules_tcp and fw_rules_tcp.fw_rules_map and \
                         opt_fw_rules_tcp and opt_fw_rules_tcp.fw_rules_map:
-                    self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp)
+                    self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp, self.config.peer_container)
                 if fw_rules_non_tcp and fw_rules_non_tcp.fw_rules_map and \
                         opt_fw_rules_non_tcp and opt_fw_rules_non_tcp.fw_rules_map:
-                    self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp)
+                    self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp, self.config.peer_container)
             else:  # self.config.optimized_run == 'true':
                 if self.output_config.outputFormat in ['json', 'yaml']:
                     res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
                 else:
                     res.output_explanation = [ComputedExplanation(str_explanation=output_res)]
         return res
-
-    def compare_fw_rules(self, fw_rules1, fw_rules2):
-        conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, self.config.peer_container)
-        conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, self.config.peer_container)
-        if conn_props1 == conn_props2:
-            print("Original and optimized fw-rules are semantically equivalent")
-        else:
-            diff_prop = (conn_props1 - conn_props2) | (conn_props2 - conn_props1)
-            if diff_prop.are_auto_conns():
-                print("Original and optimized fw-rules differ only in auto-connections")
-            else:
-                print("Error: original and optimized fw-rules are different")
-                assert False
 
     def get_connectivity_output_full(self, connections, peers, peers_to_compare):
         """
@@ -1386,13 +1389,13 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         :param conn_graph:  a ConnectivityGraph with added/removed connections
         :param is_first_connectivity_result: bool flag indicating if this is the first connectivity fw-rules computation
                for the current semantic-diff query
-        :return: fw-rules summarizing added/removed connections
-        :rtype: Union[str, dict] - dict if required format is yaml/json , str otherwise
+        :return: fw-rules summarizing added/removed connections (in required format and as MinimizeFWRules)
+        :rtype: Union[str, dict], MinimizeFWRules (dict if required format is yaml/json , str otherwise)
         """
         fw_rules = conn_graph.get_minimized_firewall_rules()
         # for csv format, adding the csv header only for the first connectivity fw-rules computation
         fw_rules_output = fw_rules.get_fw_rules_in_required_format(False, is_first_connectivity_result)
-        return fw_rules_output
+        return fw_rules_output, fw_rules
 
     def compute_explanation_for_key(self, key, is_added, conn_graph, is_first_connectivity_result):
         """
@@ -1405,17 +1408,19 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         :param ConnectivityGraph conn_graph: a ConnectivityGraph with added/removed connections
         :param bool is_first_connectivity_result: flag indicating if this is the first connectivity fw-rules computation
                for the current semantic-diff query
-        :return the computedExplanation of the current key and conn_graph considering the outputFormat
-        :rtype: ComputedExplanation
+        :return the computedExplanation of the current key and conn_graph considering the outputFormat,
+        and fw_rules from which the explanation was computed
+        :rtype: ComputedExplanation, Union[None, MinimizeFWRules]
         """
         updated_key = self._get_updated_key(key, is_added)
         topology_config_name = self.name2 if is_added else self.name1
         connectivity_changes_header = f'{updated_key} (based on topology from config: {topology_config_name}) :'
+        fw_rules = None
         if self.output_config.outputFormat == 'txt_no_fw_rules':
             conn_graph_explanation = conn_graph.get_connections_without_fw_rules_txt_format(
                 connectivity_changes_header, exclude_self_loop_conns=False) + '\n'
         else:
-            conn_graph_explanation = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
+            conn_graph_explanation, fw_rules = self.get_explanation_from_conn_graph(conn_graph, is_first_connectivity_result)
 
         if self.output_config.outputFormat in ['json', 'yaml']:
             explanation_dict = {'description': updated_key}
@@ -1426,7 +1431,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             str_explanation += conn_graph_explanation
             key_explanation = ComputedExplanation(str_explanation=str_explanation)
 
-        return key_explanation
+        return key_explanation, fw_rules
 
     def get_results_for_computed_fw_rules(self, keys_list, conn_graph_removed_per_key, conn_graph_added_per_key):
         """
@@ -1449,12 +1454,63 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             is_removed = conn_graph_removed_conns is not None and conn_graph_removed_conns.conn_graph_has_fw_rules()
             if is_added:
                 if add_explanation:
-                    explanation.append(self.compute_explanation_for_key(key, True, conn_graph_added_conns, res == 0))
+                    key_explanation, _ = self.compute_explanation_for_key(key, True, conn_graph_added_conns, res == 0)
+                    explanation.append(key_explanation)
                 res += 1
 
             if is_removed:
                 if add_explanation:
-                    explanation.append(self.compute_explanation_for_key(key, False, conn_graph_removed_conns, res == 0))
+                    key_explanation, _ = self.compute_explanation_for_key(key, False, conn_graph_removed_conns, res == 0)
+                    explanation.append(key_explanation)
+                res += 1
+
+        return res, explanation
+
+    def get_results_for_computed_fw_rules_and_compare_orig_to_opt(self, keys_list, orig_conn_graph_removed_per_key,
+                                                                  orig_conn_graph_added_per_key,
+                                                                  opt_conn_graph_removed_per_key,
+                                                                  opt_conn_graph_added_per_key):
+        """
+        Compute accumulated explanation and res for all keys of changed connections categories.
+        Also, compare original and optimized results.
+        :param keys_list: the list of keys
+        :param orig_conn_graph_removed_per_key: map from key to ConnectivityGraph of original removed connections
+        :param orig_conn_graph_added_per_key: map from key to ConnectivityGraph of original added connections
+        :param opt_conn_graph_removed_per_key: map from key to ConnectivityGraph of optimized removed connections
+        :param opt_conn_graph_added_per_key: map from key to ConnectivityGraph of optimized added connections
+        :return:
+        res (int): number of categories with diffs
+        explanation (list): list of ComputedExplanation, the diffs' explanations, one for each category
+        :rtype: int, list[ComputedExplanation]
+        """
+        explanation = []
+        add_explanation = self.output_config.outputFormat in SemanticDiffQuery.get_supported_output_formats()
+        res = 0
+        for key in keys_list:
+            orig_conn_graph_added_conns = orig_conn_graph_added_per_key[key]
+            orig_conn_graph_removed_conns = orig_conn_graph_removed_per_key[key]
+            is_added = orig_conn_graph_added_conns is not None and orig_conn_graph_added_conns.conn_graph_has_fw_rules()
+            is_removed = orig_conn_graph_removed_conns is not None and orig_conn_graph_removed_conns.conn_graph_has_fw_rules()
+            if is_added:
+                if add_explanation:
+                    key_explanation, orig_fw_rules = self.compute_explanation_for_key(
+                        key, True, orig_conn_graph_added_conns, res == 0)
+                    opt_conn_graph_added_conns = opt_conn_graph_added_per_key[key]
+                    assert opt_conn_graph_added_conns and opt_conn_graph_added_conns.conn_graph_has_fw_rules()
+                    opt_fw_rules = opt_conn_graph_added_conns.get_minimized_firewall_rules()
+                    self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config2.peer_container)
+                    explanation.append(key_explanation)
+                res += 1
+
+            if is_removed:
+                if add_explanation:
+                    key_explanation, orig_fw_rules = self.compute_explanation_for_key(
+                        key, False, orig_conn_graph_removed_conns, res == 0)
+                    opt_conn_graph_removed_conns = opt_conn_graph_removed_per_key[key]
+                    assert opt_conn_graph_removed_conns and opt_conn_graph_removed_conns.conn_graph_has_fw_rules()
+                    opt_fw_rules = opt_conn_graph_removed_conns.get_minimized_firewall_rules()
+                    self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config1.peer_container)
+                    explanation.append(key_explanation)
                 res += 1
 
         return res, explanation
@@ -1501,9 +1557,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         Some sections might be empty and can be dropped.
 
         :return:
-        res (int): number of categories with diffs
-        explanation (list): list of diff explanations - one for each category
-        :rtype: int, list[ComputedExplanation]
+        keys_list (list[str]): list of names of connection categories,
+        being the keys in conn_graph_removed_per_key/conn_graph_added_per_key
+        conn_graph_removed_per_key (dict): a dictionary of removed connections connectivity graphs per category
+        conn_graph_added_per_key (dict): a dictionary of added connections connectivity graphs per category
+        :rtype: list[str], dict, dict
         """
         old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         new_peers = self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
@@ -1654,8 +1712,7 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
             if new_conns:
                 conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
 
-        return self.get_results_for_computed_fw_rules(keys_list, conn_graph_removed_per_key,
-                                                      conn_graph_added_per_key)
+        return keys_list, conn_graph_removed_per_key, conn_graph_added_per_key
 
     def compute_diff_optimized(self):  # noqa: C901
         """
@@ -1677,9 +1734,11 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         Some sections might be empty and can be dropped.
 
         :return:
-        res (int): number of categories with diffs
-        explanation (list): list of diff explanations - one for each category
-        :rtype: int, list[ComputedExplanation]
+        keys_list (list[str]): list of names of connection categories,
+        being the keys in conn_graph_removed_per_key/conn_graph_added_per_key
+        conn_graph_removed_per_key (dict): a dictionary of removed connections connectivity graphs per category
+        conn_graph_added_per_key (dict): a dictionary of added connections connectivity graphs per category
+        :rtype: list[str], dict, dict
         """
 
         old_peers = self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
@@ -1808,18 +1867,33 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         props &= new_props
         conn_graph_added_per_key[key].add_props_to_graph(props, self.config2.peer_container)
 
-        return self.get_results_for_computed_fw_rules(keys_list, conn_graph_removed_per_key,
-                                                      conn_graph_added_per_key)
+        return keys_list, conn_graph_removed_per_key, conn_graph_added_per_key
 
     def exec(self, cmd_line_flag):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
             return query_answer
-        if self.config1.optimized_run == 'false':
-            res, explanation = self.compute_diff_original()
-        else:
-            res, explanation = self.compute_diff_optimized()
+        keys_list = []
+        orig_conn_graph_removed_per_key = dict()
+        orig_conn_graph_added_per_key = dict()
+        opt_conn_graph_removed_per_key = dict()
+        opt_conn_graph_added_per_key = dict()
+        if self.config1.optimized_run != 'true':
+            keys_list, orig_conn_graph_removed_per_key, orig_conn_graph_added_per_key = self.compute_diff_original()
+            if self.config1.optimized_run == 'false':
+                res, explanation = self.get_results_for_computed_fw_rules(keys_list, orig_conn_graph_removed_per_key,
+                                                                          orig_conn_graph_added_per_key)
+        if self.config1.optimized_run != 'false':
+            keys_list, opt_conn_graph_removed_per_key, opt_conn_graph_added_per_key = self.compute_diff_optimized()
+            if self.config1.optimized_run == 'true':
+                res, explanation = self.get_results_for_computed_fw_rules(keys_list, opt_conn_graph_removed_per_key,
+                                                                          opt_conn_graph_added_per_key)
+            else:
+                res, explanation = self.get_results_for_computed_fw_rules_and_compare_orig_to_opt(
+                    keys_list, orig_conn_graph_removed_per_key, orig_conn_graph_added_per_key,
+                    opt_conn_graph_removed_per_key, opt_conn_graph_added_per_key)
+
         if res > 0:
             return QueryAnswer(bool_result=False,
                                output_result=f'{self.name1} and {self.name2} are not semantically equivalent.',
