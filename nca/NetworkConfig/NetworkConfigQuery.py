@@ -1495,6 +1495,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 if add_explanation:
                     key_explanation, orig_fw_rules = self.compute_explanation_for_key(
                         key, True, orig_conn_graph_added_conns, res == 0)
+                    if not orig_fw_rules:
+                        orig_fw_rules = orig_conn_graph_added_conns.get_minimized_firewall_rules()
                     opt_conn_graph_added_conns = opt_conn_graph_added_per_key[key]
                     assert opt_conn_graph_added_conns and opt_conn_graph_added_conns.conn_graph_has_fw_rules()
                     opt_fw_rules = opt_conn_graph_added_conns.get_minimized_firewall_rules()
@@ -1506,6 +1508,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                 if add_explanation:
                     key_explanation, orig_fw_rules = self.compute_explanation_for_key(
                         key, False, orig_conn_graph_removed_conns, res == 0)
+                    if not orig_fw_rules:
+                        orig_fw_rules = orig_conn_graph_removed_conns.get_minimized_firewall_rules()
                     opt_conn_graph_removed_conns = opt_conn_graph_removed_per_key[key]
                     assert opt_conn_graph_removed_conns and opt_conn_graph_removed_conns.conn_graph_has_fw_rules()
                     opt_fw_rules = opt_conn_graph_removed_conns.get_minimized_firewall_rules()
