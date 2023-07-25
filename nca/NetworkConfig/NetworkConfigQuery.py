@@ -1862,6 +1862,12 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                 else not query_answer.bool_result
             return query_answer
 
+        if self.config1.optimized_run == 'false':
+            return self.check_interferes_original(cmd_line_flag)
+        else:
+            return self.check_interferes_optimized(cmd_line_flag)
+
+    def check_interferes_original(self, cmd_line_flag):
         peers_to_compare = \
             self.config2.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
@@ -1886,6 +1892,20 @@ class InterferesQuery(TwoNetworkConfigsQuery):
             return self._query_answer_with_relevant_explanation(sorted(extended_conns_list), cmd_line_flag)
         return QueryAnswer(False, self.name1 + ' does not interfere with ' + self.name2,
                            numerical_result=0 if not cmd_line_flag else 1)
+
+    def check_interferes_optimized(self, cmd_line_flag=False):
+        conn_props1 = self.config1.allowed_connections_optimized()
+        conn_props2 = self.config2.allowed_connections_optimized()
+        conns1, conns2 = self.filter_conns_by_input_or_internal_constraints(conn_props1.allowed_conns,
+                                                                            conn_props2.allowed_conns)
+        if conns1.contained_in(conns2):
+            return QueryAnswer(False, self.name1 + ' does not interfere with ' + self.name2,
+                               numerical_result=0 if not cmd_line_flag else 1)
+
+        conns1_not_in_conns2 = conns1 - conns2
+        extended_conns_list = []
+        self._append_different_conns_to_list(conns1_not_in_conns2, extended_conns_list, True)
+        return self._query_answer_with_relevant_explanation(sorted(extended_conns_list), cmd_line_flag)
 
     def _query_answer_with_relevant_explanation(self, explanation_list, cmd_line_flag):
         interfere_result_msg = self.name1 + ' interferes with ' + self.name2
