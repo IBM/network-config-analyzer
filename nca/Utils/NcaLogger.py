@@ -92,7 +92,7 @@ class NcaLogger(metaclass=Singleton):
 
         if self._is_collecting_msgs:
             if self.is_mute():
-                self._collected_messages.append(msg)
+                self._collected_messages.append((msg, file))
             else:
                 print(msg, file=file)
 
@@ -102,5 +102,6 @@ class NcaLogger(metaclass=Singleton):
         :param bool silent: if silent is True don't print out the messages
         """
         if not silent and len(self._collected_messages) > 0:
-            print(*self._collected_messages, sep="\n")
+            for msg in self._collected_messages:
+                print(msg[0], sep="\n", file=msg[1])
         self._collected_messages.clear()
