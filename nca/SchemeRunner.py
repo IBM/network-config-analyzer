@@ -22,8 +22,6 @@ class SchemeRunner(GenericYamlParser):
                                'containment', 'twoWayContainment', 'permits', 'interferes', 'pairwiseInterferes',
                                'forbids', 'emptiness', 'disjointness', 'allCaptured'}
 
-    not_implemented_opt_queries = {'semanticDiff', 'sanity'}
-
     def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
