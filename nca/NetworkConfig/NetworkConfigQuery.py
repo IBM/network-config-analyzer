@@ -1603,17 +1603,15 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, old_ip_blocks, False)
         conn_graph_added_per_key[key] = None
         for pair in itertools.product(removed_peers, old_ip_blocks):
-            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
-                continue
-            lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
-            if lost_conns:
-                conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
+            if self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
+                if lost_conns:
+                    conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
-            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
-                continue
-            lost_conns, _, _, _ = self.config1.allowed_connections(pair[1], pair[0])
-            if lost_conns:
-                conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
+            if self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
+                lost_conns, _, _, _ = self.config1.allowed_connections(pair[1], pair[0])
+                if lost_conns:
+                    conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
 
         # 2.1. lost connections between removed peers and intersected peers
         key = 'Lost connections between removed peers and persistent peers'
@@ -1621,17 +1619,15 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), False)
         conn_graph_added_per_key[key] = None
         for pair in itertools.product(removed_peers, intersected_peers):
-            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
-                continue
-            lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
-            if lost_conns:
-                conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
+            if self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                lost_conns, _, _, _ = self.config1.allowed_connections(pair[0], pair[1])
+                if lost_conns:
+                    conn_graph_removed_per_key[key].add_edge(pair[0], pair[1], lost_conns)
 
-            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
-                continue
-            lost_conns, _, _, _ = self.config1.allowed_connections(pair[1], pair[0])
-            if lost_conns:
-                conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
+            if self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
+                lost_conns, _, _, _ = self.config1.allowed_connections(pair[1], pair[0])
+                if lost_conns:
+                    conn_graph_removed_per_key[key].add_edge(pair[1], pair[0], lost_conns)
 
         # 3.1. lost/new connections between intersected peers due to changes in policies and labels of pods/namespaces
         key = 'Changed connections between persistent peers'
@@ -1673,17 +1669,15 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key[key] = None
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         for pair in itertools.product(intersected_peers, added_peers):
-            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
-                continue
-            new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
-            if new_conns:
-                conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
+            if self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
+                if new_conns:
+                    conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
-            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
-                continue
-            new_conns, _, _, _ = self.config2.allowed_connections(pair[1], pair[0])
-            if new_conns:
-                conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
+            if self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
+                new_conns, _, _, _ = self.config2.allowed_connections(pair[1], pair[0])
+                if new_conns:
+                    conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
 
         # 5.1. new connections between added peers
         key = 'New connections between added peers'
@@ -1704,17 +1698,15 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, new_ip_blocks, True)
 
         for pair in itertools.product(added_peers, new_ip_blocks):
-            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
-                continue
-            new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
-            if new_conns:
-                conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
+            if self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[0], pair[1]):
+                new_conns, _, _, _ = self.config2.allowed_connections(pair[0], pair[1])
+                if new_conns:
+                    conn_graph_added_per_key[key].add_edge(pair[0], pair[1], new_conns)
 
-            if not self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
-                continue
-            new_conns, _, _, _ = self.config2.allowed_connections(pair[1], pair[0])
-            if new_conns:
-                conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
+            if self.determine_whether_to_compute_allowed_conns_for_peer_types(pair[1], pair[0]):
+                new_conns, _, _, _ = self.config2.allowed_connections(pair[1], pair[0])
+                if new_conns:
+                    conn_graph_added_per_key[key].add_edge(pair[1], pair[0], new_conns)
 
         return keys_list, conn_graph_removed_per_key, conn_graph_added_per_key
 
