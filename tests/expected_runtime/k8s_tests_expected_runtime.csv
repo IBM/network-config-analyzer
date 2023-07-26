@@ -55,7 +55,7 @@ test,run_time(seconds)
 "k8s_cmdline_tests.yaml, query name: test25-expl",1.08
 "k8s_cmdline_tests.yaml, query name: test4-expl",1.08
 "k8s_cmdline_tests.yaml, query name: istio-ingress-expl",4.1
-"k8s_cmdline_tests.yaml, query name: bad-yamls",0.02
+"k8s_cmdline_tests.yaml, query name: bad-yamls",0.05
 fw_rules_tests/policies/cyclonus-simple-example-scheme.yaml,0.08
 fw_rules_tests/policies/label_expr_test_1-scheme.yaml,0.38
 fw_rules_tests/policies/poc1-scheme.yaml,0.64
