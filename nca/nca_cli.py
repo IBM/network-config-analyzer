@@ -153,6 +153,7 @@ def run_args(args):  # noqa: C901
 
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
                                          'outputPath': args.file_out or None,
+                                         'simplifyOutput': args.simplify_output or False,
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
                                          'subset': {},
@@ -326,6 +327,9 @@ def nca_main(argv=None):
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--expected_output', type=str, help='A file path of the expected query output,'
                                                             'relevant only with --connectivity and --semantic_diff')
+    parser.add_argument('--simplify_output', action='store_true',
+                        help='simplify the connectivity graph,'
+                             'relevant only when output_format is dot or jpg')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
     parser.add_argument('--version', '-v', action='store_true', help='Print version and exit')

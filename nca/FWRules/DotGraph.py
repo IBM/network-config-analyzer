@@ -30,6 +30,7 @@ class DotGraph:
         name: str
         node_type: int
         label: str
+        title: str
 
     @dataclass
     class Edge:
@@ -38,13 +39,14 @@ class DotGraph:
         label: str
         is_dir: bool
 
-    def __init__(self, name):
+    def __init__(self, name, do_not_subgraph):
         self.subgraphs = {}
         self.name = name
         self.edges = []
         self.all_nodes = {}
         self.labels = set()
         self.labels_dict = {}
+        self.do_not_subgraph = do_not_subgraph
         self.node_styles = \
             {self.NodeType.IPBlock: 'shape=box fontcolor=red2',
              self.NodeType.Pod: 'shape=box fontcolor=blue',
@@ -74,9 +76,11 @@ class DotGraph:
         param label: node label
         """
         label = [tok.strip() for tok in label if tok != '']
+        title = subgraph if self.do_not_subgraph else ''
+        subgraph = '' if self.do_not_subgraph else subgraph
         if subgraph not in self.subgraphs:
             self.subgraphs[subgraph] = self.Subgraph(subgraph)
-        node = self.Node(name, node_type, label)
+        node = self.Node(name, node_type, label, title)
         self.subgraphs[subgraph].nodes.append(node)
         self.all_nodes[name] = node
         if node_type in {self.NodeType.Clique, self.NodeType.BiClique}:
@@ -191,7 +195,11 @@ class DotGraph:
             table = f'<<table border="{border}" cellspacing="0">'
             for line in node.label:
                 if line:
-                    table += f'<tr><td>{line}</td></tr>'
+                    if node.title:
+                        table += f'<tr><td>{node.title}/{line}</td></tr>'
+                    else:
+                        table += f'<tr><td>{line}</td></tr>'
+
             table += '</table>>'
             label = f'label={table}'
             node_desc = f'{label} {self.node_styles[node.node_type]} tooltip=\"{self.node_tooltip[node.node_type]}\"'
