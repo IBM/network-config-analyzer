@@ -500,3 +500,9 @@
     -d
     --expected_output expected_cmdline_output_files/istio-ingress_expl_output.txt
   expected: 0
+
+- name: bad-yamls
+  args: >
+    --connectivity
+    -r bad_yamls
+  expected: 4
