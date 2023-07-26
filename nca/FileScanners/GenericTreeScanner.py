@@ -77,11 +77,9 @@ def convert_documents(documents):
 
 def leave_documents_as_is(documents):
     """
-    Doesn't really do anything - just forces the parser to yield all documents and throw parse errors (if any)
+    Forces the parser to yield all documents and throw parse errors (if any) at this point of time
     """
-    for _ in documents:
-        pass
-    return documents
+    return [document for document in documents]
 
 
 class GenericTreeScanner(abc.ABC):
