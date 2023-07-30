@@ -75,6 +75,13 @@ def convert_documents(documents):
     return [to_yaml_objects(document) for document in documents]
 
 
+def leave_documents_as_is(documents):
+    """
+    Forces the parser to yield all documents and throw parse errors (if any) at this point of time
+    """
+    return [document for document in documents]
+
+
 class GenericTreeScanner(abc.ABC):
     """
     A base class for reading yaml files
@@ -107,7 +114,7 @@ class GenericTreeScanner(abc.ABC):
         """
         try:
             if self.fast_load:
-                documents = yaml.load_all(stream, Loader=yaml.CSafeLoader)
+                documents = leave_documents_as_is(yaml.load_all(stream, Loader=yaml.CSafeLoader))
             else:
                 documents = convert_documents(yaml.compose_all(stream, Loader=yaml.CSafeLoader))
             yield YamlFile(documents, path)
