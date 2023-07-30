@@ -148,19 +148,23 @@ class BaseNetworkQuery:
         return True
 
     @staticmethod
-    def compare_fw_rules(fw_rules1, fw_rules2, peer_container):
+    def compare_fw_rules(fw_rules1, fw_rules2, peer_container, rules_descr=""):
+        text_prefix = "Original and optimized fw-rules"
+        if rules_descr:
+            text_prefix += " for " + rules_descr
         if fw_rules1.fw_rules_map == fw_rules2.fw_rules_map:
+            print(f"{text_prefix} are semantically equivalent")
             return
         conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, peer_container)
         conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, peer_container)
         if conn_props1 == conn_props2:
-            print("Original and optimized fw-rules are semantically equivalent")
+            print(f"{text_prefix} are semantically equivalent")
         else:
             diff_prop = (conn_props1 - conn_props2) | (conn_props2 - conn_props1)
             if diff_prop.are_auto_conns():
-                print("Original and optimized fw-rules differ only in auto-connections")
+                print(f"{text_prefix} differ only in auto-connections")
             else:
-                print("Error: original and optimized fw-rules are different")
+                print(f"Error: {text_prefix} are different")
                 assert False
 
 
@@ -828,7 +832,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             ref_ip_blocks = self.config.get_referenced_ip_blocks(exclude_ipv6)
             for ip_block in ref_ip_blocks:
                 ip_blocks_mask |= ip_block
-            opt_peers_to_compare.filter_ipv6_blocks(ip_blocks_mask)
+            opt_peers_to_compare.filter_ip_blocks_by_mask(ip_blocks_mask)
             # remove connections where any of src_peers or dst_peers contains automatically-added IPv6 blocks,
             # while keeping connections with IPv6 blocks directly referenced in policies
             all_conns_opt &= ConnectivityProperties.make_conn_props_from_dict({"src_peers": opt_peers_to_compare,
@@ -881,13 +885,15 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
             if self.config.optimized_run == 'debug':
                 if fw_rules and fw_rules.fw_rules_map and opt_fw_rules and opt_fw_rules.fw_rules_map:
-                    self.compare_fw_rules(fw_rules, opt_fw_rules, self.config.peer_container)
+                    self.compare_fw_rules(fw_rules, opt_fw_rules, self.config.peer_container, "connectivity")
                 if fw_rules_tcp and fw_rules_tcp.fw_rules_map and \
                         opt_fw_rules_tcp and opt_fw_rules_tcp.fw_rules_map:
-                    self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp, self.config.peer_container)
+                    self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp, self.config.peer_container,
+                                          "connectivity - tcp only")
                 if fw_rules_non_tcp and fw_rules_non_tcp.fw_rules_map and \
                         opt_fw_rules_non_tcp and opt_fw_rules_non_tcp.fw_rules_map:
-                    self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp, self.config.peer_container)
+                    self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp, self.config.peer_container,
+                                          "connectivity - non-tcp only")
             else:  # self.config.optimized_run == 'true':
                 if self.output_config.outputFormat in ['json', 'yaml']:
                     res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
@@ -1224,12 +1230,14 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         peers_to_compare = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
             conns2.project_on_one_dimension('src_peers') | conns2.project_on_one_dimension('dst_peers')
         exclude_ipv6 = self.output_config.excludeIPv6Range
-        ref_ip_blocks = self.config1.get_referenced_ip_blocks(exclude_ipv6) | \
-            self.config2.get_referenced_ip_blocks(exclude_ipv6)
-        ip_blocks_mask = IpBlock() if ref_ip_blocks else IpBlock.get_all_ips_block(exclude_ipv6)
-        for ip_block in ref_ip_blocks:
-            ip_blocks_mask |= ip_block
-        peers_to_compare.filter_ipv6_blocks(ip_blocks_mask)
+        ip_blocks_mask = IpBlock()
+        ipv6_full_block = IpBlock.get_all_ips_block(exclude_ipv4=True)
+        for ip_block in peers_to_compare:
+            if isinstance(ip_block, IpBlock) and ip_block != ipv6_full_block:
+                ip_blocks_mask |= ip_block
+        if not ip_blocks_mask:
+            ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6)
+        peers_to_compare.filter_ip_blocks_by_mask(ip_blocks_mask)
         conns_filter = ConnectivityProperties.make_conn_props_from_dict({"src_peers": peers_to_compare,
                                                                          "dst_peers": peers_to_compare})
         res_conns1 = self.config1.filter_conns_by_peer_types(conns1, peers_to_compare) & conns_filter
@@ -1500,7 +1508,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                     opt_conn_graph_added_conns = opt_conn_graph_added_per_key[key]
                     assert opt_conn_graph_added_conns and opt_conn_graph_added_conns.conn_graph_has_fw_rules()
                     opt_fw_rules = opt_conn_graph_added_conns.get_minimized_firewall_rules()
-                    self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config2.peer_container)
+                    self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config2.peer_container,
+                                          self._get_updated_key(key, True))
                     explanation.append(key_explanation)
                 res += 1
 
@@ -1513,7 +1522,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                     opt_conn_graph_removed_conns = opt_conn_graph_removed_per_key[key]
                     assert opt_conn_graph_removed_conns and opt_conn_graph_removed_conns.conn_graph_has_fw_rules()
                     opt_fw_rules = opt_conn_graph_removed_conns.get_minimized_firewall_rules()
-                    self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config1.peer_container)
+                    self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config1.peer_container,
+                                          self._get_updated_key(key, False))
                     explanation.append(key_explanation)
                 res += 1
 
@@ -1814,7 +1824,6 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         # 3.2. lost/new connections between intersected peers and ipBlocks due to changes in policies and labels
         key = 'Changed connections between persistent peers and ipBlocks'
         disjoint_ip_blocks = IpBlock.disjoint_ip_blocks(old_ip_blocks, new_ip_blocks, exclude_ipv6)
-        peers = captured_pods | disjoint_ip_blocks
         keys_list.append(key)
         conn_graph_removed_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, False)
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, True)
@@ -1873,8 +1882,6 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         keys_list = []
         orig_conn_graph_removed_per_key = dict()
         orig_conn_graph_added_per_key = dict()
-        opt_conn_graph_removed_per_key = dict()
-        opt_conn_graph_added_per_key = dict()
         if self.config1.optimized_run != 'true':
             keys_list, orig_conn_graph_removed_per_key, orig_conn_graph_added_per_key = self.compute_diff_original()
             if self.config1.optimized_run == 'false':
