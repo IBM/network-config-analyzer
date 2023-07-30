@@ -1229,11 +1229,13 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         """
         peers_to_compare = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
             conns2.project_on_one_dimension('src_peers') | conns2.project_on_one_dimension('dst_peers')
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config1._check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
+            self.config2._check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
+
         ip_blocks_mask = IpBlock()
         ipv6_full_block = IpBlock.get_all_ips_block(exclude_ipv4=True)
         for ip_block in peers_to_compare:
-            if isinstance(ip_block, IpBlock) and ip_block != ipv6_full_block:
+            if isinstance(ip_block, IpBlock) and (not exclude_ipv6 or ip_block != ipv6_full_block):
                 ip_blocks_mask |= ip_block
         if not ip_blocks_mask:
             ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6)
