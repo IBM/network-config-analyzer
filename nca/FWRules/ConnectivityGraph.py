@@ -74,7 +74,6 @@ class ConnectivityGraph:
         for cube in props:
             self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container)
 
-
     def _get_peer_details(self, peer, format_requirement=False):
         """
         Get the name of a peer object for connectivity graph, the type and the namespace

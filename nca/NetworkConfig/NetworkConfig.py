@@ -176,7 +176,7 @@ class NetworkConfig:
 
         return affected_pods
 
-    def _check_for_excluding_ipv6_addresses(self, exclude_ipv6):
+    def check_for_excluding_ipv6_addresses(self, exclude_ipv6):
         """
         checks and returns if to exclude non-referenced IPv6 addresses from the config
         Excluding the IPv6 addresses will be enabled if the exclude_ipv6 param is True and
@@ -202,7 +202,7 @@ class NetworkConfig:
         if self.referenced_ip_blocks is not None:
             return self.referenced_ip_blocks
 
-        exclude_non_ref_ipv6_from_policies = self._check_for_excluding_ipv6_addresses(exclude_non_ref_ipv6)
+        exclude_non_ref_ipv6_from_policies = self.check_for_excluding_ipv6_addresses(exclude_non_ref_ipv6)
         self.referenced_ip_blocks = Peer.PeerSet()
         for policy in self.policies_container.policies.values():
             self.referenced_ip_blocks |= policy.referenced_ip_blocks(exclude_non_ref_ipv6_from_policies)

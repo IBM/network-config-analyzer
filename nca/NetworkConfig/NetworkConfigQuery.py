@@ -1229,8 +1229,8 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         """
         peers_to_compare = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
             conns2.project_on_one_dimension('src_peers') | conns2.project_on_one_dimension('dst_peers')
-        exclude_ipv6 = self.config1._check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
-            self.config2._check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
+        exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
+            self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
 
         ip_blocks_mask = IpBlock()
         ipv6_full_block = IpBlock.get_all_ips_block(exclude_ipv4=True)
@@ -1789,8 +1789,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = None
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": removed_peers,
                                                                   "dst_peers": old_ip_blocks}) | \
-                ConnectivityProperties.make_conn_props_from_dict({"src_peers": old_ip_blocks,
-                                                                  "dst_peers": removed_peers})
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": old_ip_blocks,
+                                                              "dst_peers": removed_peers})
         props &= old_props
         conn_graph_removed_per_key[key].add_props_to_graph(props, self.config1.peer_container)
 
@@ -1801,8 +1801,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = None
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": removed_peers,
                                                                   "dst_peers": intersected_peers}) | \
-                ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
-                                                                  "dst_peers": removed_peers})
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
+                                                              "dst_peers": removed_peers})
         props &= old_props
         props = props.props_without_auto_conns()
         conn_graph_removed_per_key[key].add_props_to_graph(props, self.config1.peer_container)
@@ -1814,8 +1814,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": captured_pods,
                                                                   "dst_peers": intersected_peers}) | \
-                ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
-                                                                  "dst_peers": captured_pods})
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
+                                                              "dst_peers": captured_pods})
         props1 = old_props & props
         props1 = props1.props_without_auto_conns()
         props2 = new_props & props
@@ -1831,8 +1831,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, disjoint_ip_blocks, True)
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": captured_pods,
                                                                   "dst_peers": disjoint_ip_blocks}) | \
-                ConnectivityProperties.make_conn_props_from_dict({"src_peers": disjoint_ip_blocks,
-                                                                  "dst_peers": captured_pods})
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": disjoint_ip_blocks,
+                                                              "dst_peers": captured_pods})
         props1 = old_props & props
         props2 = new_props & props
         conn_graph_removed_per_key[key].add_props_to_graph(props1 - props2, self.config1.peer_container)
@@ -1845,8 +1845,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, PeerSet(), True)
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": intersected_peers,
                                                                   "dst_peers": added_peers}) | \
-                ConnectivityProperties.make_conn_props_from_dict({"src_peers": added_peers,
-                                                                  "dst_peers": intersected_peers})
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": added_peers,
+                                                              "dst_peers": intersected_peers})
         props &= new_props
         props = props.props_without_auto_conns()
         conn_graph_added_per_key[key].add_props_to_graph(props, self.config2.peer_container)
@@ -1869,8 +1869,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_added_per_key[key] = self.get_conn_graph_changed_conns(key, new_ip_blocks, True)
         props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": added_peers,
                                                                   "dst_peers": new_ip_blocks}) | \
-                ConnectivityProperties.make_conn_props_from_dict({"src_peers": new_ip_blocks,
-                                                                  "dst_peers": added_peers})
+            ConnectivityProperties.make_conn_props_from_dict({"src_peers": new_ip_blocks,
+                                                              "dst_peers": added_peers})
         props &= new_props
         conn_graph_added_per_key[key].add_props_to_graph(props, self.config2.peer_container)
 
