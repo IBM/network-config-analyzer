@@ -116,7 +116,7 @@ class NetworkPolicy:
         return self.full_name()
 
     def __eq__(self, other):
-        if type(self) == type(other):
+        if type(self) is type(other):
             self.sync_opt_props()
             other.sync_opt_props()
             return \
