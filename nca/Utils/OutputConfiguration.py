@@ -19,7 +19,7 @@ class OutputConfiguration(dict):
         default_output_config = {'fwRulesRunInTestMode': False, 'fwRulesDebug': False,
                                  'fwRulesGroupByLabelSinglePod': False, 'fwRulesFilterSystemNs': False,
                                  'fwRulesMaxIter': 10, 'outputFormat': 'txt', 'outputPath': None,
-                                 'simplifyOutput': False, 'fwRulesOverrideAllowedLabels': None, 'prURL': None,
+                                 'simplifyGraph': False, 'fwRulesOverrideAllowedLabels': None, 'prURL': None,
                                  'connectivityFilterIstioEdges': True, 'outputEndpoints': 'deployments',
                                  'subset': {}, 'explain': None, 'fullExplanation': False, 'excludeIPv6Range': True}
 

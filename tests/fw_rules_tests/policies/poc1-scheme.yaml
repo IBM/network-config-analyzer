@@ -31,7 +31,7 @@ queries:
   outputConfiguration:
     outputFormat: dot
     outputPath: null
-    simplifyOutput: true
+    simplifyGraph: true
     fwRulesRunInTestMode: false
   expectedOutput: expected_output/poc1-scheme_output.dot
 - name: connectivity_map_csv
