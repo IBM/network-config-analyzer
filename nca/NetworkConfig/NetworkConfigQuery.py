@@ -1233,14 +1233,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
             self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         conns_filter = ConnectivityProperties.make_all_props()
         if exclude_ipv6:
-            ip_blocks_mask = IpBlock()
-            ipv6_full_block = IpBlock.get_all_ips_block(exclude_ipv4=True)
-            for ip_block in all_peers:
-                if isinstance(ip_block, IpBlock) and (not exclude_ipv6 or ip_block != ipv6_full_block):
-                    ip_blocks_mask |= ip_block
-            if not ip_blocks_mask:
-                ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6)
-            all_peers.filter_ip_blocks_by_mask(ip_blocks_mask)
+            all_peers.filter_ip_blocks_by_mask(IpBlock.get_all_ips_block(exclude_ipv6=True))
             conns_filter = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers,
                                                                              "dst_peers": all_peers})
         res_conns1 = self.config1.filter_conns_by_peer_types(conns1) & conns_filter
