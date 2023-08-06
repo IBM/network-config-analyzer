@@ -68,7 +68,7 @@ class ConnectivityGraph:
     def add_props_to_graph(self, props, peer_container):
         """
         Add edges to the graph according to the given connectivity properties
-        :param props: the given connectivity properties
+        :param ConnectivityProperties props: the given connectivity properties
         :param PeerContainer peer_container: the peer container
         """
         for cube in props:
