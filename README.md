@@ -95,6 +95,8 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
   *shorthand* `-f`
 - `--expected_output <file name>`\
   A file path to the expected query output (for connectivity or semantic_diff queries).\
+- `--simplify_graph`\
+  simplify the connectivity graph, (relevant only when output_format is dot or jpg)
 - `--pr_url <URL>`\
    Write output as GitHub PR comment. URL points to the relevant `comments` resource in the GitHub API.\
    e.g., https://api.github.com/repos/shift-left-netconfig/online-boutique/issues/1/comments
