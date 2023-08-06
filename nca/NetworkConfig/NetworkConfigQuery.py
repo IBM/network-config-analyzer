@@ -1053,7 +1053,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return the connectivity map in dot-format, considering connectivity_restriction if required
         """
         conn_graph = self._get_conn_graph(connections, peers)
-        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction)
+        return conn_graph.get_connectivity_dot_format_str(connectivity_restriction, self.output_config.simplifyGraph)
 
     def dot_format_from_props(self, props, peers, connectivity_restriction=None):
         """
