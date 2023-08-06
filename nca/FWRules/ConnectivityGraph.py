@@ -340,10 +340,11 @@ class ConnectivityGraph:
         lines_list.extend(sorted(list(lines)))
         return '\n'.join(lines_list)
 
-    def get_connectivity_dot_format_str(self, connectivity_restriction=None):
+    def get_connectivity_dot_format_str(self, connectivity_restriction=None, simplify_graph=False):
         """
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
+        :param simplify_graph[bool, False] whether to simplify the dot output graph
         :rtype str
         :return: a string with content of dot format for connectivity graph
         """
@@ -351,7 +352,7 @@ class ConnectivityGraph:
         query_title = f'{self.output_config.queryName}/' if self.output_config.queryName else ''
         name = f'{query_title}{self.output_config.configName}{restriction_title}'
 
-        dot_graph = DotGraph(name)
+        dot_graph = DotGraph(name, do_not_subgraph=simplify_graph)
         peers_groups = self._get_equals_groups()
         # we are going to treat a peers_group as one peer.
         # the first peer in the peers_group is representing the group
