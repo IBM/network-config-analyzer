@@ -847,7 +847,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             all_conns_opt &= subset_conns
             src_peers, dst_peers = ExplTracker().extract_peers(all_conns_opt)
             all_peers = src_peers | dst_peers
-        all_conns_opt = self.config.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
+        all_conns_opt = self.config.filter_conns_by_peer_types(all_conns_opt)
         expl_conns = all_conns_opt
         if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
             output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
@@ -1227,23 +1227,24 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :rtype: [ConnectivityProperties, ConnectivityProperties]
         :return: two resulting allowed connections
         """
-        peers_to_compare = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
+        all_peers = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
             conns2.project_on_one_dimension('src_peers') | conns2.project_on_one_dimension('dst_peers')
         exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
             self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
-
-        ip_blocks_mask = IpBlock()
-        ipv6_full_block = IpBlock.get_all_ips_block(exclude_ipv4=True)
-        for ip_block in peers_to_compare:
-            if isinstance(ip_block, IpBlock) and (not exclude_ipv6 or ip_block != ipv6_full_block):
-                ip_blocks_mask |= ip_block
-        if not ip_blocks_mask:
-            ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6)
-        peers_to_compare.filter_ip_blocks_by_mask(ip_blocks_mask)
-        conns_filter = ConnectivityProperties.make_conn_props_from_dict({"src_peers": peers_to_compare,
-                                                                         "dst_peers": peers_to_compare})
-        res_conns1 = self.config1.filter_conns_by_peer_types(conns1, peers_to_compare) & conns_filter
-        res_conns2 = self.config2.filter_conns_by_peer_types(conns2, peers_to_compare) & conns_filter
+        conns_filter = ConnectivityProperties.make_all_props()
+        if exclude_ipv6:
+            ip_blocks_mask = IpBlock()
+            ipv6_full_block = IpBlock.get_all_ips_block(exclude_ipv4=True)
+            for ip_block in all_peers:
+                if isinstance(ip_block, IpBlock) and (not exclude_ipv6 or ip_block != ipv6_full_block):
+                    ip_blocks_mask |= ip_block
+            if not ip_blocks_mask:
+                ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6)
+            all_peers.filter_ip_blocks_by_mask(ip_blocks_mask)
+            conns_filter = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers,
+                                                                             "dst_peers": all_peers})
+        res_conns1 = self.config1.filter_conns_by_peer_types(conns1) & conns_filter
+        res_conns2 = self.config2.filter_conns_by_peer_types(conns2) & conns_filter
         return res_conns1, res_conns2
 
     def _append_different_conns_to_list(self, conn_diff_props, different_conns_list, props_based_on_config1=True):
