@@ -1,6 +1,6 @@
 import unittest
 from greenery import fsm
-from nca.CoreDS.DimensionsManager import DimensionsManager
+from greenery import charclass
 from nca.CoreDS.MinDFA import MinDFA
 
 alphabet_regex = MinDFA.default_alphabet_regex
@@ -12,6 +12,7 @@ def get_str_dfa(s):
 
 
 class TestMinDFA(unittest.TestCase):
+
     def test_basic(self):
         dfa1 = get_str_dfa("put|get")
         dfa2 = get_str_dfa("get|put")
@@ -25,19 +26,39 @@ class TestMinDFA(unittest.TestCase):
         print(dfa4.get_fsm_str())
         print(repr(dfa4))
         # equiv dfa created directly, with a different set of state numbers
+        # alphabet={Charclass("a"), Charclass("b"), ~Charclass("ab")},
+        #return
         equiv_dfa = fsm.Fsm(
-            alphabet={"e", "g", "t", fsm.ANYTHING_ELSE},
+            alphabet={charclass.Charclass("e"), charclass.Charclass("g"), charclass.Charclass("t"), ~charclass.Charclass("egt")}, #{"e", "g", "t", fsm.ANYTHING_ELSE},
             states={0, 1, 2, 5},
             initial=0,
             finals={5},
             map={
-                0: {'g': 1},
-                1: {'e': 2},
-                2: {'t': 5},
-                5: {}
+                0: {charclass.Charclass("g"): 1,
+                    ~charclass.Charclass("egt"): 0,
+                    charclass.Charclass("e"): 0,
+                    charclass.Charclass("t"): 0
+                    },
+                1: {charclass.Charclass("e"): 2,
+                    ~charclass.Charclass("egt"): 1,
+                    charclass.Charclass("g"): 1,
+                    charclass.Charclass("t"): 1
+                    },
+                2: {charclass.Charclass("t"): 5,
+                    ~charclass.Charclass("egt"): 2,
+                    charclass.Charclass("g"): 2,
+                    charclass.Charclass("e"): 2
+                    },
+                5: {charclass.Charclass("t"): 5,
+                    ~charclass.Charclass("egt"): 5,
+                    charclass.Charclass("g"): 5,
+                    charclass.Charclass("e"): 5
+                }
             }
         )
+        [equiv_dfa, o1] = fsm.unify_alphabets((equiv_dfa, dfa4.fsm))
         dfa6 = MinDFA.dfa_from_fsm(equiv_dfa)
+
         res1 = dfa6 == dfa4
         print(res1)
         self.assertFalse(res1)

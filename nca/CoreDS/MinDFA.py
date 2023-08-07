@@ -65,7 +65,7 @@ class MinDFA:
         regex_expr: str representation of regex expressions (possibly) with operations (subtract/intersect/union),
                     from which the MinDFA object was constructed
         """
-        self.fsm = fsm.Fsm(initial, finals, alphabet, states, map)
+        self.fsm = fsm.Fsm(initial=initial, finals=finals, alphabet=alphabet, states=states, map=map)
         self.is_all_words = MinDFA.Ternary.UNKNOWN
         self.complement_dfa = None
         self.regex_expr = ''
@@ -86,8 +86,9 @@ class MinDFA:
     def __eq__(self, other):
         if not isinstance(other, MinDFA):
             return False
-        res = self.fsm.states == other.fsm.states and self.fsm.initial == other.fsm.initial and \
-            self.fsm.finals == other.fsm.finals and self.fsm.map == other.fsm.map
+        [s1, o1] = fsm.unify_alphabets((self.fsm, other.fsm))
+        res = s1.states == o1.states and s1.initial == o1.initial and \
+            s1.finals == o1.finals and s1.map == o1.map
         return res
 
     def __ne__(self, other):
@@ -108,7 +109,8 @@ class MinDFA:
         """
         # TODO: consider runtime impact for using alphabet...
         # alphabet = None
-        f = parse(s).to_fsm(alphabet)
+        #f = parse(s).to_fsm(alphabet)
+        f = parse(s).to_fsm()
         # for canonical rep -- transform to minimal MinDFA
         f.reduce()
         res = MinDFA.dfa_from_fsm(f)
@@ -158,7 +160,7 @@ class MinDFA:
         :rtype: str
         """
         str_values = []
-        str_generator = self.fsm.strings()
+        str_generator = self.fsm.strings([])
         for _ in range(0, len(self.fsm)):
             str_val = next(str_generator)
             str_val_new = ''.join(ch for ch in str_val)
@@ -286,6 +288,6 @@ class MinDFA:
         """
         if not self:
             return NotImplemented
-        str_generator = self.fsm.strings()
+        str_generator = self.fsm.strings([])
         str_val = next(str_generator)
         return ''.join(ch for ch in str_val)
