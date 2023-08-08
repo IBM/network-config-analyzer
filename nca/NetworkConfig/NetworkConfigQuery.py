@@ -1932,6 +1932,10 @@ class PairwiseInterferesQuery(TwoNetworkConfigsQuery):
 class IntersectsQuery(TwoNetworkConfigsQuery):
     """
     Checking whether both configs allow the same connection between any pair of peers
+    Note: this query is only used by ForbidsQuery.
+    It's not symmetrical: config1 is a "specification config", that explicitly defines things to be checked
+    in the "implementation" config (config2), i.e., its captured connections are considered,
+    while config2 is the "implementation" config to be checked, and all its connections are considered.
     """
 
     def exec(self, cmd_line_flag=False, only_captured=True):
@@ -1939,6 +1943,12 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer
 
+        if self.config1.optimized_run == 'false':
+            return self.check_intersects_original()
+        else:
+            return self.check_intersects_optimized()
+
+    def check_intersects_original(self, only_captured=True):
         peers_to_compare = \
             self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
@@ -1962,6 +1972,21 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                         return self._query_answer_with_relevant_explanation(intersect_connections_list)
 
         if intersect_connections_list:
+            return self._query_answer_with_relevant_explanation(sorted(intersect_connections_list))
+
+        return QueryAnswer(False, f'The connections allowed by {self.name1}'
+                                  f' do not intersect the connections allowed by {self.name2}', numerical_result=1)
+
+    def check_intersects_optimized(self, only_captured=True):
+        conn_props1 = self.config1.allowed_connections_optimized()
+        conn_props2 = self.config2.allowed_connections_optimized()
+        conns1, conns2 = self.filter_conns_by_input_or_internal_constraints(
+            conn_props1.allowed_conns if only_captured else conn_props1.all_allowed_conns,
+            conn_props2.all_allowed_conns)
+        conns_in_both = conns1 & conns2
+        if conns_in_both:
+            intersect_connections_list = []
+            self._append_different_conns_to_list(conns_in_both, intersect_connections_list)
             return self._query_answer_with_relevant_explanation(sorted(intersect_connections_list))
 
         return QueryAnswer(False, f'The connections allowed by {self.name1}'
