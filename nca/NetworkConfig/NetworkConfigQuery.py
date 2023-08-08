@@ -1946,8 +1946,9 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
     """
     Checking whether both configs allow the same connection between any pair of peers
     Note: this query is only used by ForbidsQuery.
-    It's not symmetrical: config1 is the one to be checked, and only its captured connections are considered,
-    while config2 is a dummy one (that defines things to be checked in config1), and all its connections are considered.
+    It's not symmetrical: config1 is a "specification config", that explicitly defines things to be checked
+    in the "implementation" config (config2), i.e., its captured connections are considered,
+    while config2 is the "implementation" config to be checked, and all its connections are considered.
     """
 
     def exec(self, cmd_line_flag=False, only_captured=True):
