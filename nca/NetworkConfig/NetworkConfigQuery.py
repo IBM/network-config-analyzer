@@ -1875,9 +1875,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
             return query_answer
-        keys_list = []
         orig_conn_graph_removed_per_key = dict()
         orig_conn_graph_added_per_key = dict()
+        res = 0
+        explanation = ""
         if self.config1.optimized_run != 'true':
             keys_list, orig_conn_graph_removed_per_key, orig_conn_graph_added_per_key = self.compute_diff_original()
             if self.config1.optimized_run == 'false':
