@@ -392,7 +392,7 @@ class OptimizedPolicyConnections:
             # all_allowed_conns is needed for the calculation of allowed_conns
             self.all_allowed_conns = ConnectivityProperties()
 
-    def copy(self):
+    def copy(self, include_all_allowed=True):
         res = OptimizedPolicyConnections()
         res.captured = self.captured.copy()
         if self.allowed_conns is None:
@@ -407,7 +407,7 @@ class OptimizedPolicyConnections:
             res.pass_conns = None
         else:
             res.pass_conns = self.pass_conns.copy()
-        if self.all_allowed_conns is None:
+        if self.all_allowed_conns is None or not include_all_allowed:
             res.all_allowed_conns = None
         else:
             res.all_allowed_conns = self.all_allowed_conns.copy()
