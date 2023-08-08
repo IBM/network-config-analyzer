@@ -448,10 +448,12 @@ class IngressNetworkLayer(NetworkLayer):
         else:
             res_conns = self.collect_policies_conns_optimized(is_ingress)
             non_captured_peers = all_peers_no_ips - res_conns.captured
-            if non_captured_peers and res_conns_filter.all_allowed_conns is not None:
-                non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
-                                                                                       "dst_peers": all_peers_and_ips})
-                res_conns.all_allowed_conns = res_conns.allowed_conns | non_captured_conns
+            if res_conns_filter.all_allowed_conns is not None:
+                res_conns.all_allowed_conns = res_conns.allowed_conns
+                if non_captured_peers:
+                    non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
+                                                                                           "dst_peers": all_peers_and_ips})
+                    res_conns.all_allowed_conns |= non_captured_conns
         if non_captured_conns and ExplTracker().is_active():
             src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
             ExplTracker().add_default_policy(src_peers,

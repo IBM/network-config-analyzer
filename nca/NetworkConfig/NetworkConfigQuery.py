@@ -86,11 +86,12 @@ class BaseNetworkQuery:
                                        BasePeerSet().get_peer_interval_of(peer_set))
         DimensionsManager().set_domain("dst_peers", DimensionsManager.DimensionType.IntervalSet,
                                        BasePeerSet().get_peer_interval_of(peer_set))
-        # update all optimized connectivity properties by reducing full src_peers/dst_peers dimensions
-        # according to their updated domains (above)
-        for config in self.get_configs():
-            for policy in config.policies_container.policies.values():
-                policy.reorganize_opt_props_by_new_domains()
+        if self.get_configs()[0].optimized_run != 'false':
+            # update all optimized connectivity properties by reducing full src_peers/dst_peers dimensions
+            # according to their updated domains (above)
+            for config in self.get_configs():
+                for policy in config.policies_container.policies.values():
+                    policy.reorganize_opt_props_by_new_domains()
         # run the query
         query_answer = self.execute(cmd_line_flag)
         # restore peers domains and optimized connectivity properties original values
