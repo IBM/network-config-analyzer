@@ -413,3 +413,35 @@ class OptimizedPolicyConnections:
             res.all_allowed_conns = self.all_allowed_conns.copy()
 
         return res
+
+    def and_by_filter(self, props, the_filter):
+        """
+        Update all properties (allowed, denied, etc.) by conjuncting with a given expression,
+        whenever the corresponding the_filter is not None
+        :param ConnectivityProperties props: the given expression to conjunct with
+        :param OptimizedPolicyConnections the_filter: contains value different from None for all properties to update
+        """
+        if the_filter.allowed_conns is not None:
+            self.allowed_conns &= props
+        if the_filter.denied_conns is not None:
+            self.denied_conns &= props
+        if the_filter.pass_conns is not None:
+            self.pass_conns &= props
+        if the_filter.all_allowed_conns is not None:
+            self.all_allowed_conns &= props
+
+    def sub_by_filter(self, props, the_filter):
+        """
+        Update all properties (allowed, denied, etc.) by subtracting a given expression from them,
+        whenever the corresponding the_filter is not None
+        :param ConnectivityProperties props: the given expression to subtract
+        :param OptimizedPolicyConnections the_filter: contains value different from None for all properties to update
+        """
+        if the_filter.allowed_conns is not None:
+            self.allowed_conns -= props
+        if the_filter.denied_conns is not None:
+            self.denied_conns -= props
+        if the_filter.pass_conns is not None:
+            self.pass_conns -= props
+        if the_filter.all_allowed_conns is not None:
+            self.all_allowed_conns -= props

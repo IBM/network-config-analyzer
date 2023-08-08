@@ -299,12 +299,7 @@ class NetworkConfig:
                 self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
                                                                                          NetworkLayerName.K8s_Calico,
                                                                                          res_conns_filter)
-            if res_conns_filter.allowed_conns is not None:
-                conns_res.allowed_conns &= conn_hep
-            if res_conns_filter.denied_conns is not None:
-                conns_res.denied_conns &= conn_hep
-            if res_conns_filter.pass_conns is not None:
-                conns_res.pass_conns &= conn_hep
+            conns_res.and_by_filter(conn_hep, res_conns_filter)
         else:
             conns_res = OptimizedPolicyConnections()
             if res_conns_filter.all_allowed_conns is not None:
@@ -314,12 +309,7 @@ class NetworkConfig:
             # only K8s_Calico layer handles host_eps
             if layer != NetworkLayerName.K8s_Calico:
                 # connectivity of hostEndpoints is only determined by calico layer
-                if res_conns_filter.allowed_conns is not None:
-                    conns_per_layer.allowed_conns -= conn_hep
-                if res_conns_filter.denied_conns is not None:
-                    conns_per_layer.denied_conns -= conn_hep
-                if res_conns_filter.pass_conns is not None:
-                    conns_per_layer.pass_conns -= conn_hep
+                conns_per_layer.sub_by_filter(conn_hep, res_conns_filter)
 
             conns_res.captured |= conns_per_layer.captured
             if res_conns_filter.all_allowed_conns is not None:
