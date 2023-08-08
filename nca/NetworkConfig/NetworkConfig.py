@@ -269,10 +269,12 @@ class NetworkConfig:
 
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
 
-    def allowed_connections_optimized(self, layer_name=None):
+    def allowed_connections_optimized(self, layer_name=None, res_conns_filter=OptimizedPolicyConnections()):
         """
         Computes the set of allowed connections between any relevant peers.
         :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
+        :param OptimizedPolicyConnections res_conns_filter: filter of the required resulting connections
+        (connections with None value will not be calculated)
         :return: allowed_conns: all allowed connections for relevant peers.
         :rtype: OptimizedPolicyConnections
         """
@@ -281,8 +283,10 @@ class NetworkConfig:
         if layer_name is not None:
             if layer_name not in self.policies_container.layers:
                 return self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
-                                                                                                layer_name)
-            return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
+                                                                                                layer_name,
+                                                                                                res_conns_filter)
+            return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container,
+                                                                                            res_conns_filter)
 
         all_peers = self.peer_container.get_all_peers_group()
         host_eps = Peer.PeerSet(set([peer for peer in all_peers if isinstance(peer, Peer.HostEP)]))
@@ -293,32 +297,45 @@ class NetworkConfig:
             # maintain K8s_Calico layer as active if peer container has hostEndpoint
             conns_res = \
                 self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
-                                                                                         NetworkLayerName.K8s_Calico)
-            conns_res.allowed_conns &= conn_hep
-            conns_res.denied_conns &= conn_hep
-            conns_res.pass_conns &= conn_hep
+                                                                                         NetworkLayerName.K8s_Calico,
+                                                                                         res_conns_filter)
+            if res_conns_filter.allowed_conns is not None:
+                conns_res.allowed_conns &= conn_hep
+            if res_conns_filter.denied_conns is not None:
+                conns_res.denied_conns &= conn_hep
+            if res_conns_filter.pass_conns is not None:
+                conns_res.pass_conns &= conn_hep
         else:
             conns_res = OptimizedPolicyConnections()
-            conns_res.all_allowed_conns = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
+            if res_conns_filter.all_allowed_conns is not None:
+                conns_res.all_allowed_conns = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
         for layer, layer_obj in self.policies_container.layers.items():
-            conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
+            conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container, res_conns_filter)
             # only K8s_Calico layer handles host_eps
             if layer != NetworkLayerName.K8s_Calico:
                 # connectivity of hostEndpoints is only determined by calico layer
-                conns_per_layer.allowed_conns -= conn_hep
-                conns_per_layer.denied_conns -= conn_hep
-                conns_per_layer.pass_conns -= conn_hep
+                if res_conns_filter.allowed_conns is not None:
+                    conns_per_layer.allowed_conns -= conn_hep
+                if res_conns_filter.denied_conns is not None:
+                    conns_per_layer.denied_conns -= conn_hep
+                if res_conns_filter.pass_conns is not None:
+                    conns_per_layer.pass_conns -= conn_hep
 
-            # all allowed connections: intersection of all allowed connections from all layers
-            conns_res.all_allowed_conns &= conns_per_layer.all_allowed_conns
-            # all allowed captured connections: should be captured by at least one layer
-            conns_res.allowed_conns |= conns_per_layer.allowed_conns
             conns_res.captured |= conns_per_layer.captured
-            # denied conns: should be denied by at least one layer
-            conns_res.denied_conns |= conns_per_layer.denied_conns
+            if res_conns_filter.all_allowed_conns is not None:
+                # all allowed connections: intersection of all allowed connections from all layers
+                conns_res.all_allowed_conns &= conns_per_layer.all_allowed_conns
+            if res_conns_filter.allowed_conns is not None:
+                # all allowed captured connections: should be captured by at least one layer
+                conns_res.allowed_conns |= conns_per_layer.allowed_conns
+            if res_conns_filter.denied_conns is not None:
+                # denied conns: should be denied by at least one layer
+                conns_res.denied_conns |= conns_per_layer.denied_conns
 
-        # allowed captured conn (by at least one layer) has to be allowed by all layers (either implicitly or explicitly)
-        conns_res.allowed_conns &= conns_res.all_allowed_conns
+        if res_conns_filter.allowed_conns is not None:
+            # allowed captured conn (by at least one layer) has to be allowed by all layers (either implicitly or explicitly)
+            assert conns_res.all_allowed_conns is not None
+            conns_res.allowed_conns &= conns_res.all_allowed_conns
         return conns_res
 
     def append_policy_to_config(self, policy):

@@ -377,10 +377,39 @@ class PolicyConnections:
 class OptimizedPolicyConnections:
     """
     A class to contain the effect of applying policies to all src and dst peers
+    It also serves as a filter for lazy evaluations of connections:
+    whenever any of allowed_conns/denied_conns/pass_conns/all_allowed_conns is None,
+    those connections will not be calculated.
     """
-    def __init__(self):
+    def __init__(self, make_allowed=True, make_denied=True, make_pass=True, make_all_allowed=True):
         self.captured = PeerSet()
-        self.allowed_conns = ConnectivityProperties()
-        self.denied_conns = ConnectivityProperties()
-        self.pass_conns = ConnectivityProperties()
-        self.all_allowed_conns = ConnectivityProperties()
+        self.allowed_conns = ConnectivityProperties() if make_allowed else None
+        self.denied_conns = ConnectivityProperties() if make_denied else None
+        self.pass_conns = ConnectivityProperties() if make_pass else None
+        self.all_allowed_conns = ConnectivityProperties() if make_all_allowed else None
+
+        if make_allowed and not make_all_allowed:
+            # all_allowed_conns is needed for the calculation of allowed_conns
+            self.all_allowed_conns = ConnectivityProperties()
+
+    def copy(self):
+        res = OptimizedPolicyConnections()
+        res.captured = self.captured.copy()
+        if self.allowed_conns is None:
+            res.allowed_conns = None
+        else:
+            res.allowed_conns = self.allowed_conns.copy()
+        if self.denied_conns is None:
+            res.denied_conns = None
+        else:
+            res.denied_conns = self.denied_conns.copy()
+        if self.pass_conns is None:
+            res.pass_conns = None
+        else:
+            res.pass_conns = self.pass_conns.copy()
+        if self.all_allowed_conns is None:
+            res.all_allowed_conns = None
+        else:
+            res.all_allowed_conns = self.all_allowed_conns.copy()
+
+        return res
