@@ -671,6 +671,8 @@ class PeerSet(set):
         peers_to_add = []
         for peer in self:
             if isinstance(peer, IpBlock):
+                if peer.contained_in(ip_blocks_mask):
+                    continue  # optimization - avoid removing and adding the same peer
                 peers_to_remove.append(peer)
                 if peer.overlaps(ip_blocks_mask):
                     new_peer = peer.copy()
