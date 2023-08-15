@@ -820,7 +820,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         opt_fw_rules = None
         opt_fw_rules_tcp = None
         opt_fw_rules_non_tcp = None
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         opt_conns = self.config.allowed_connections_optimized()
         all_conns_opt = opt_conns.all_allowed_conns
         opt_peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
@@ -828,13 +828,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
             all_conns_opt.project_on_one_dimension('dst_peers')
         if exclude_ipv6:
-            ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6=True)
-            ref_ip_blocks = self.config.get_referenced_ip_blocks(exclude_ipv6)
-            for ip_block in ref_ip_blocks:
-                ip_blocks_mask |= ip_block
-            opt_peers_to_compare.filter_ip_blocks_by_mask(ip_blocks_mask)
-            # remove connections where any of src_peers or dst_peers contains automatically-added IPv6 blocks,
+            # remove connections where any of src_peers or dst_peers contain automatically-added IPv6 blocks,
             # while keeping connections with IPv6 blocks directly referenced in policies
+            opt_peers_to_compare.filter_ip_blocks_by_mask(IpBlock.get_all_ips_block(exclude_ipv6=True))
             all_conns_opt &= ConnectivityProperties.make_conn_props_from_dict({"src_peers": opt_peers_to_compare,
                                                                                "dst_peers": opt_peers_to_compare})
         base_peers_num = len(opt_peers_to_compare)
