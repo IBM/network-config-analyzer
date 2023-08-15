@@ -665,7 +665,7 @@ class PeerSet(set):
     def filter_ip_blocks_by_mask(self, ip_blocks_mask):
         """
         Update ip blocks in the peer set by keeping only parts overlapping with the given mask.
-        :param ip_blocks_mask: the mask according to which ip blocks should be updated
+        :param IpBlock ip_blocks_mask: the mask according to which ip blocks should be updated
         """
         peers_to_remove = []
         peers_to_add = []
