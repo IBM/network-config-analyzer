@@ -774,7 +774,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         fw_rules = None
         fw_rules_tcp = None
         fw_rules_non_tcp = None
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         connections = defaultdict(list)
         # if dns entry peers exist but no istio policies are configured,
         # then actually istio layer exists implicitly, connections to these peers will be considered with the
@@ -881,15 +881,16 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
             if self.config.optimized_run == 'debug':
                 if fw_rules and fw_rules.fw_rules_map and opt_fw_rules and opt_fw_rules.fw_rules_map:
-                    self.compare_fw_rules(fw_rules, opt_fw_rules, self.config.peer_container, "connectivity")
+                    self.compare_fw_rules(fw_rules, opt_fw_rules, self.config.peer_container,
+                                          f"connectivity of {self.config.name}")
                 if fw_rules_tcp and fw_rules_tcp.fw_rules_map and \
                         opt_fw_rules_tcp and opt_fw_rules_tcp.fw_rules_map:
                     self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp, self.config.peer_container,
-                                          "connectivity - tcp only")
+                                          f"connectivity - tcp only of {self.config.name}")
                 if fw_rules_non_tcp and fw_rules_non_tcp.fw_rules_map and \
                         opt_fw_rules_non_tcp and opt_fw_rules_non_tcp.fw_rules_map:
                     self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp, self.config.peer_container,
-                                          "connectivity - non-tcp only")
+                                          f"connectivity - non-tcp only of {self.config.name}")
             else:  # self.config.optimized_run == 'true':
                 if self.output_config.outputFormat in ['json', 'yaml']:
                     res.output_explanation = [ComputedExplanation(dict_explanation=output_res)]
@@ -1207,7 +1208,8 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :return: A set of disjoint ip-blocks
         :rtype: PeerSet
         """
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
+            self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         # TODO - consider including also non referenced IPBlocks, as in ConnectivityMapQuery
         #  (see issue https://github.com/IBM/network-config-analyzer/issues/522)
         return IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
@@ -1501,7 +1503,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                     assert opt_conn_graph_added_conns and opt_conn_graph_added_conns.conn_graph_has_fw_rules()
                     opt_fw_rules = opt_conn_graph_added_conns.get_minimized_firewall_rules()
                     self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config2.peer_container,
-                                          self._get_updated_key(key, True))
+                                          self._get_updated_key(key, True) +
+                                          f'between {self.config1.name} and {self.config2.name}')
                     explanation.append(key_explanation)
                 res += 1
 
@@ -1515,7 +1518,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                     assert opt_conn_graph_removed_conns and opt_conn_graph_removed_conns.conn_graph_has_fw_rules()
                     opt_fw_rules = opt_conn_graph_removed_conns.get_minimized_firewall_rules()
                     self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config1.peer_container,
-                                          self._get_updated_key(key, False))
+                                          self._get_updated_key(key, False) +
+                                          f'between {self.config1.name} and {self.config2.name}')
                     explanation.append(key_explanation)
                 res += 1
 
@@ -1575,7 +1579,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
+            self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
                                                    IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
                                                    exclude_ipv6)
@@ -1745,7 +1750,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
+            self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
                                                    IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
                                                    exclude_ipv6)
