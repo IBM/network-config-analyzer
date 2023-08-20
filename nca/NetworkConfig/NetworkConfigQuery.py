@@ -17,7 +17,7 @@ from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.FWRules.MinimizeFWRules import MinimizeFWRules
 from nca.FWRules.ClusterInfo import ClusterInfo
-from nca.Resources.NetworkPolicy import OptimizedPolicyConnections, PolicyConnectionsFilter
+from nca.Resources.NetworkPolicy import PolicyConnectionsFilter
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
