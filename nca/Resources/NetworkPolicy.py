@@ -381,53 +381,27 @@ class OptimizedPolicyConnections:
     whenever any of allowed_conns/denied_conns/pass_conns/all_allowed_conns is None,
     those connections will not be calculated.
     """
-    def __init__(self, make_allowed=True, make_denied=True, make_pass=True, make_all_allowed=True):
+    def __init__(self):
         self.captured = PeerSet()
-        self.allowed_conns = ConnectivityProperties() if make_allowed else None
-        self.denied_conns = ConnectivityProperties() if make_denied else None
-        self.pass_conns = ConnectivityProperties() if make_pass else None
-        self.all_allowed_conns = ConnectivityProperties() if make_all_allowed else None
-
-        if make_allowed and not make_all_allowed:
-            # all_allowed_conns is needed for the calculation of allowed_conns
-            self.all_allowed_conns = ConnectivityProperties()
-
-    def copy(self, include_all_allowed=True):
-        res = OptimizedPolicyConnections()
-        res.captured = self.captured.copy()
-        if self.allowed_conns is None:
-            res.allowed_conns = None
-        else:
-            res.allowed_conns = self.allowed_conns.copy()
-        if self.denied_conns is None:
-            res.denied_conns = None
-        else:
-            res.denied_conns = self.denied_conns.copy()
-        if self.pass_conns is None:
-            res.pass_conns = None
-        else:
-            res.pass_conns = self.pass_conns.copy()
-        if self.all_allowed_conns is None or not include_all_allowed:
-            res.all_allowed_conns = None
-        else:
-            res.all_allowed_conns = self.all_allowed_conns.copy()
-
-        return res
+        self.allowed_conns = ConnectivityProperties()
+        self.denied_conns = ConnectivityProperties()
+        self.pass_conns = ConnectivityProperties()
+        self.all_allowed_conns = ConnectivityProperties()
 
     def and_by_filter(self, props, the_filter):
         """
         Update all properties (allowed, denied, etc.) by conjuncting with a given expression,
         whenever the corresponding the_filter is not None
         :param ConnectivityProperties props: the given expression to conjunct with
-        :param OptimizedPolicyConnections the_filter: contains value different from None for all properties to update
+        :param PolicyConnectionsFilter the_filter: contains True for all properties to update
         """
-        if the_filter.allowed_conns is not None:
+        if the_filter.calc_allowed:
             self.allowed_conns &= props
-        if the_filter.denied_conns is not None:
+        if the_filter.calc_denied:
             self.denied_conns &= props
-        if the_filter.pass_conns is not None:
+        if the_filter.calc_pass:
             self.pass_conns &= props
-        if the_filter.all_allowed_conns is not None:
+        if the_filter.calc_all_allowed:
             self.all_allowed_conns &= props
 
     def sub_by_filter(self, props, the_filter):
@@ -435,13 +409,29 @@ class OptimizedPolicyConnections:
         Update all properties (allowed, denied, etc.) by subtracting a given expression from them,
         whenever the corresponding the_filter is not None
         :param ConnectivityProperties props: the given expression to subtract
-        :param OptimizedPolicyConnections the_filter: contains value different from None for all properties to update
+        :param PolicyConnectionsFilter the_filter: contains True for all properties to update
         """
-        if the_filter.allowed_conns is not None:
+        if the_filter.calc_allowed:
             self.allowed_conns -= props
-        if the_filter.denied_conns is not None:
+        if the_filter.calc_denied:
             self.denied_conns -= props
-        if the_filter.pass_conns is not None:
+        if the_filter.calc_pass:
             self.pass_conns -= props
-        if the_filter.all_allowed_conns is not None:
+        if the_filter.calc_all_allowed:
             self.all_allowed_conns -= props
+
+
+@dataclass
+class PolicyConnectionsFilter:
+    """
+    A class that serves as a filter for lazy evaluations of connections:
+    whether to calculate allowed_conns/denied_conns/pass_conns/all_allowed_conns (True) or not (False)
+    """
+    calc_allowed: bool = True
+    calc_denied: bool = True
+    calc_pass: bool = True
+    calc_all_allowed: bool = True
+
+    def __post_init__(self):
+        # all_allowed_conns is needed for the calculation of allowed_conns
+        self.calc_all_allowed |= self.calc_allowed
