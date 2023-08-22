@@ -33,8 +33,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.namespace = None
         self.referenced_labels = set()
         self.optimized_run = optimized_run
-        # map from key to value - info about missing resources
-        self.missing_pods_with_labels = {}
+        # a set of (key, value) pairs (note, the set may contain pods with labels having same keys but different values
+        self.missing_pods_with_labels = set()
 
     def check_dns_subdomain_name(self, value, key_container):
         """
@@ -179,7 +179,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 else:
                     res &= self.peer_container.get_peers_with_label(key, [val])
                 if not res:
-                    self.missing_pods_with_labels[key] = val
+                    self.missing_pods_with_labels.add((key, val))
                 keys_set.add(key)
             self.referenced_labels.add(':'.join(keys_set))
 

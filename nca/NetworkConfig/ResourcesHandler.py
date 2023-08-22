@@ -69,12 +69,12 @@ class ResourcesHandler:
         return os.path.join(current_path, livesim_resource_path)
 
     @staticmethod
-    def get_relevant_livesim_resources_paths_by_labels_matching(livesim_resource_path, missing_resource_labels_dict):
+    def get_relevant_livesim_resources_paths_by_labels_matching(livesim_resource_path, missing_resource_labels):
         """
         check by labels matching if one of the livesim resources has matching labels for a resource referenced by one
         of the parsed policies. If yes, return its path to be added to the configuration, to enable the analysis.
         :param str livesim_resource_path: a path to the relevant livesim dir to check for resources
-        :param dict missing_resource_labels_dict: the labels from parsed policy in the config for
+        :param list missing_resource_labels: the labels from parsed policy in the config for
                                                   which a matching peer was missing
         :return: list of paths for relevant livesim resources to add
         :rtype list[str]
@@ -82,9 +82,9 @@ class ResourcesHandler:
         res = []
         resource_full_path = ResourcesHandler.get_full_livesim_resource_path(livesim_resource_path)
         livesim_resource_labels = ResourcesParser.parse_livesim_yamls(resource_full_path)
-        for key in missing_resource_labels_dict.keys():
+        for (key, value) in missing_resource_labels:
             for yaml_path, labels in livesim_resource_labels.items():
-                if missing_resource_labels_dict.get(key) == labels.get(key):
+                if (key, value) in labels:
                     res.append(yaml_path)
         return res
 
@@ -367,15 +367,15 @@ class ResourcesParser:
         for yaml_file in yaml_files:
             pods_finder = PodsFinder()
             ns_finder = NamespacesFinder()
-            labels_found = {}
+            labels_found = set()
             for res_code in yaml_file.data:
                 ns_finder.parse_yaml_code_for_ns(res_code)
                 pods_finder.namespaces_finder = ns_finder
                 pods_finder.add_eps_from_yaml(res_code)
             for item in ns_finder.namespaces.values():
-                labels_found.update(item.labels)
+                labels_found.update(set(item.labels.items()))
             for item in pods_finder.peer_set:
-                labels_found.update(item.labels)
+                labels_found.update(set(item.labels.items()))
             results.update({yaml_file.path: labels_found})
         NcaLogger().collect_msgs()
 
