@@ -458,7 +458,7 @@ class SanityQuery(NetworkConfigQuery):
         :param NetworkPolicy self_policy: The policy to check
         :param NetworkConfig config_with_self_policy: A network config with self_policy as its single policy
         :param NetworkLayerName layer_name: The layer name of the policy
-        :return: A policy containing self_policy's denied connections if exist, None otherwise
+        :return: A policy containing self_policy's denied connections if exists, None otherwise
         :rtype: NetworkPolicy
         """
         policies_list = self.config.policies_container.layers[layer_name].policies_list
@@ -471,25 +471,38 @@ class SanityQuery(NetworkConfigQuery):
             if not other_policy.has_deny_rules():
                 continue
             config_with_other_policy = self.config.clone_with_just_one_policy(other_policy.full_name())
-            # calling get_all_peers_group does not require getting dnsEntry peers, since they are not relevant when computing
-            # deny connections
-            pods_to_compare = self.config.peer_container.get_all_peers_group()
-            pods_to_compare |= TwoNetworkConfigsQuery(self.config,
-                                                      config_with_other_policy).disjoint_referenced_ip_blocks()
-            for pod1 in pods_to_compare:
-                for pod2 in pods_to_compare:
-                    if isinstance(pod1, IpBlock) and isinstance(pod2, IpBlock):
-                        continue
-                    if pod1 == pod2:
-                        continue  # no way to prevent a pod from communicating with itself
-                    _, _, _, self_deny_conns = config_with_self_policy.allowed_connections(pod1, pod2, layer_name)
-                    _, _, _, other_deny_conns = config_with_other_policy.allowed_connections(pod1, pod2, layer_name)
-                    if not self_deny_conns:
-                        continue
-                    if not self_deny_conns.contained_in(other_deny_conns):
-                        return None
-            return other_policy
+            if self.config.optimized_run == 'false':
+                res = self.check_deny_containment_original(config_with_self_policy, config_with_other_policy, layer_name)
+            else:
+                res = self.check_deny_containment_optimized(config_with_self_policy, config_with_other_policy, layer_name)
+            if res:
+                return other_policy
         return None
+
+    def check_deny_containment_original(self, config_with_self_policy, config_with_other_policy, layer_name):
+        # calling get_all_peers_group does not require getting dnsEntry peers, since they are not relevant when computing
+        # deny connections
+        pods_to_compare = self.config.peer_container.get_all_peers_group()
+        pods_to_compare |= TwoNetworkConfigsQuery(self.config, config_with_other_policy).disjoint_referenced_ip_blocks()
+        for pod1 in pods_to_compare:
+            for pod2 in pods_to_compare:
+                if isinstance(pod1, IpBlock) and isinstance(pod2, IpBlock):
+                    continue
+                if pod1 == pod2:
+                    continue  # no way to prevent a pod from communicating with itself
+                _, _, _, self_deny_conns = config_with_self_policy.allowed_connections(pod1, pod2, layer_name)
+                _, _, _, other_deny_conns = config_with_other_policy.allowed_connections(pod1, pod2, layer_name)
+                if not self_deny_conns:
+                    continue
+                if not self_deny_conns.contained_in(other_deny_conns):
+                    return False
+        return True
+
+    @staticmethod
+    def check_deny_containment_optimized(config_with_self_policy, config_with_other_policy, layer_name):
+        self_props = config_with_self_policy.allowed_connections_optimized(layer_name)
+        other_props = config_with_other_policy.allowed_connections_optimized(layer_name)
+        return self_props.denied_conns.contained_in(other_props.denied_conns)
 
     def other_rule_containing(self, self_policy, self_rule_index, is_ingress, layer_name):
         """
@@ -1932,6 +1945,10 @@ class PairwiseInterferesQuery(TwoNetworkConfigsQuery):
 class IntersectsQuery(TwoNetworkConfigsQuery):
     """
     Checking whether both configs allow the same connection between any pair of peers
+    Note: this query is only used by ForbidsQuery.
+    It's not symmetrical: config1 is a "specification config", that explicitly defines things to be checked
+    in the "implementation" config (config2), i.e., its captured connections are considered,
+    while config2 is the "implementation" config to be checked, and all its connections are considered.
     """
 
     def exec(self, cmd_line_flag=False, only_captured=True):
@@ -1939,6 +1956,12 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
         if query_answer.output_result:
             return query_answer
 
+        if self.config1.optimized_run == 'false':
+            return self.check_intersects_original()
+        else:
+            return self.check_intersects_optimized()
+
+    def check_intersects_original(self, only_captured=True):
         peers_to_compare = \
             self.config1.peer_container.get_all_peers_group(include_dns_entries=True)
         peers_to_compare |= self.disjoint_referenced_ip_blocks()
@@ -1962,6 +1985,21 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                         return self._query_answer_with_relevant_explanation(intersect_connections_list)
 
         if intersect_connections_list:
+            return self._query_answer_with_relevant_explanation(sorted(intersect_connections_list))
+
+        return QueryAnswer(False, f'The connections allowed by {self.name1}'
+                                  f' do not intersect the connections allowed by {self.name2}', numerical_result=1)
+
+    def check_intersects_optimized(self, only_captured=True):
+        conn_props1 = self.config1.allowed_connections_optimized()
+        conn_props2 = self.config2.allowed_connections_optimized()
+        conns1, conns2 = self.filter_conns_by_input_or_internal_constraints(
+            conn_props1.allowed_conns if only_captured else conn_props1.all_allowed_conns,
+            conn_props2.all_allowed_conns)
+        conns_in_both = conns1 & conns2
+        if conns_in_both:
+            intersect_connections_list = []
+            self._append_different_conns_to_list(conns_in_both, intersect_connections_list)
             return self._query_answer_with_relevant_explanation(sorted(intersect_connections_list))
 
         return QueryAnswer(False, f'The connections allowed by {self.name1}'

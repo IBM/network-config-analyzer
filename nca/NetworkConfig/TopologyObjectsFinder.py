@@ -47,14 +47,12 @@ class PodsFinder:
         :param kind_override: if set, ignoring the object kind and using this param instead
         :return: None
         """
-        if not isinstance(yaml_obj, dict):
-            try:
-                for ep_sub_list in yaml_obj:  # e.g. when we have a list of lists - call recursively for each list
-                    self.add_eps_from_yaml(ep_sub_list)
-            except TypeError:
-                pass
+        if isinstance(yaml_obj, list):
+            for ep_sub_list in yaml_obj:  # e.g. when we have a list of lists - call recursively for each list
+                self.add_eps_from_yaml(ep_sub_list)
             return
-
+        if not isinstance(yaml_obj, dict):
+            return
         kind = yaml_obj.get('kind') if not kind_override else kind_override
         if kind in ['List', 'PodList', 'WorkloadEndpointList', 'HostEndpointList', 'NetworkSetList',
                     'GlobalNetworkSetList']:
