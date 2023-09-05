@@ -421,7 +421,7 @@ class OptimizedPolicyConnections:
             self.all_allowed_conns -= props
 
 
-@dataclass(frozen=True)
+@dataclass
 class PolicyConnectionsFilter:
     """
     A class that serves as a filter for lazy evaluations of connections:
