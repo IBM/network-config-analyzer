@@ -57,12 +57,22 @@ class ConnectivityGraph:
         Add edges to the graph according to the give cube
         :param ConnectivityCube conn_cube: the given cube
          whereas all other values should be filtered out in the output
+         :param PeerContainer peer_container: the peer container
         """
         conns, src_peers, dst_peers = \
             ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container)
         for src_peer in src_peers:
             for dst_peer in dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))
+
+    def add_props_to_graph(self, props, peer_container):
+        """
+        Add edges to the graph according to the given connectivity properties
+        :param ConnectivityProperties props: the given connectivity properties
+        :param PeerContainer peer_container: the peer container
+        """
+        for cube in props:
+            self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container)
 
     def _get_peer_details(self, peer, format_requirement=False):
         """

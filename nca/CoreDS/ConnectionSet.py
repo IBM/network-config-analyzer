@@ -585,8 +585,9 @@ class ConnectionSet:
     #  get rid of ConnectionSet and move the code below to ConnectivityProperties.py
 
     @staticmethod
-    def get_connection_set_and_peers_from_cube(conn_cube, peer_container,
+    def get_connection_set_and_peers_from_cube(the_cube, peer_container,
                                                relevant_protocols=ProtocolSet(True)):
+        conn_cube = the_cube.copy()
         src_peers = conn_cube["src_peers"] or peer_container.get_all_peers_group(True)
         conn_cube.unset_dim("src_peers")
         dst_peers = conn_cube["dst_peers"] or peer_container.get_all_peers_group(True)

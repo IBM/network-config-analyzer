@@ -324,7 +324,8 @@ class NetworkPolicy:
         """
         return PeerSet()  # default value, can be overridden in derived classes
 
-    def _include_ip_block(self, ip_block, exclude_ipv6):
+    @staticmethod
+    def _include_ip_block(ip_block, exclude_ipv6):
         """
         returns whether to include or not the ipblock in the policy's referenced_ip_blocks
         :param IpBlock ip_block: the ip_block to check
