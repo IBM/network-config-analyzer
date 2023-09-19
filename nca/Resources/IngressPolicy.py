@@ -17,6 +17,7 @@ class IngressPolicyRule:
         """
         :param Peer.PeerSet peer_set: The set of peers this rule allows connection to
         :param ConnectionSet connections: The set of connections allowed by this rule
+        :param ConnectivityProperties opt_props: the optimized connections
         """
         self.peer_set = peer_set
         self.connections = connections

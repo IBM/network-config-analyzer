@@ -86,7 +86,7 @@ class ResourcesHandler:
             for yaml_path, labels in livesim_resource_labels.items():
                 if (key, value) in labels:
                     res.append(yaml_path)
-        return res
+        return list(dict.fromkeys(res))  # remove duplicates
 
     @staticmethod
     def analyze_livesim(policy_finder):
@@ -113,12 +113,12 @@ class ResourcesHandler:
             livesim_configuration_addons.append(resource_full_path)
             ResourcesHandler.livesim_information_message('ingress-controller')
 
-        # find Istio ingress gateway
+        # find Istio ingress/egress gateway
         istio_gateway_added_resources = ResourcesHandler.get_relevant_livesim_resources_paths_by_labels_matching(
             LiveSimPaths.IstioGwCfgPath, policy_finder.missing_istio_gw_pods_with_labels)
         if istio_gateway_added_resources:
             livesim_configuration_addons += istio_gateway_added_resources
-            ResourcesHandler.livesim_information_message('Istio-ingress-gateway')
+            ResourcesHandler.livesim_information_message('Istio-ingress/egress-gateway')
 
         return livesim_configuration_addons
 
