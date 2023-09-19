@@ -179,7 +179,7 @@ class NetworkLayer:
         res_conns = OptimizedPolicyConnections()
         ingress_conns = self._allowed_xgress_conns_optimized(True, peer_container)
         egress_conns = self._allowed_xgress_conns_optimized(False, peer_container)
-        all_pods_peer_set = peer_container.get_all_peers_group(include_dns_entries=True)
+        all_pods_peer_set = peer_container.get_all_peers_group()
         all_ips_peer_set = IpBlock.get_all_ips_block_peer_set()
         # for ingress, all possible connections to IpBlocks are allowed
         ingress_conns.all_allowed_conns |= \
@@ -358,8 +358,8 @@ class IstioNetworkLayer(NetworkLayer):
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container):
         res_conns = self.collect_policies_conns_optimized(is_ingress, IstioNetworkLayer.captured_cond_func)
-        all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
-        all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False, include_dns_entries=True)
+        all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True)
+        all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False)
         dns_entries = peer_container.get_all_dns_entries()
         # for istio initialize non-captured conns with all possible non-TCP connections
         # This is a compact way to represent all peers connections, but it is an over-approximation also containing
