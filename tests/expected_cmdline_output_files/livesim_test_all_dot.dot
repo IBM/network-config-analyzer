@@ -23,12 +23,13 @@ subgraph cluster_ingress_controller_ns_namespace{
 	tooltip="Namespace"
 	"ingress-controller-ns/ingress-controller-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>ingress-controller-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta tooltip="Automatically added workload"]
 }
-subgraph cluster_istio_ingressgateway_ns_namespace{
-	label="istio-ingressgateway-ns"
+subgraph cluster_istio_system_namespace{
+	label="istio-system"
 	fontsize=20
 	fontcolor=blue
 	tooltip="Namespace"
-	"istio-ingressgateway-ns/istio-ingressgateway-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta tooltip="Automatically added workload"]
+	"istio-system/istio-egressgateway-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>istio-egressgateway-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta tooltip="Automatically added workload"]
+	"istio-system/istio-ingressgateway-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta tooltip="Automatically added workload"]
 }
 subgraph cluster_kube_system_namespace{
 	label="kube-system"
@@ -40,19 +41,25 @@ subgraph cluster_kube_system_namespace{
 	"0.0.0.0/0" -> "default/foo-app(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"0.0.0.0/0" -> "default/httpbin(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"0.0.0.0/0" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"0.0.0.0/0" -> "istio-ingressgateway-ns/istio-ingressgateway-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"0.0.0.0/0" -> "istio-system/istio-ingressgateway-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/deployment-A(Deployment)" -> "kube-system/kube-dns-livesim(Pod)"[label="udp53" labeltooltip="UDP 53" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/deployment-B(Deployment)" -> "default/deployment-A(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"default/deployment-B(Deployment)" -> "kube-system/kube-dns-livesim(Pod)"[label="udp53" labeltooltip="UDP 53" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/foo-app(Pod)" -> "kube-system/kube-dns-livesim(Pod)"[label="udp53" labeltooltip="UDP 53" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"default/httpbin(Deployment)" -> "kube-system/kube-dns-livesim(Pod)"[label="udp53" labeltooltip="UDP 53" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"ingress-controller-ns/ingress-controller-livesim(Pod)" -> "default/foo-app(Pod)"[label="tcp5678" labeltooltip="TCP {'dst_ports': '5678', 'paths': '/foo(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"istio-ingressgateway-ns/istio-ingressgateway-livesim(Pod)" -> "default/httpbin(Deployment)"[label="tcp80" labeltooltip="TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com', 'paths': '(/status(/*)?)|(/delay(/*)?)'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-system/istio-egressgateway-livesim(Pod)" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"istio-system/istio-egressgateway-livesim(Pod)" -> "default/foo-app(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-system/istio-egressgateway-livesim(Pod)" -> "default/httpbin(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-system/istio-egressgateway-livesim(Pod)" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-system/istio-egressgateway-livesim(Pod)" -> "istio-system/istio-ingressgateway-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-system/istio-ingressgateway-livesim(Pod)" -> "default/httpbin(Deployment)"[label="tcp80" labeltooltip="TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com', 'paths': '(/status(/*)?)|(/delay(/*)?)'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"kube-system/kube-dns-livesim(Pod)" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"kube-system/kube-dns-livesim(Pod)" -> "default/foo-app(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"kube-system/kube-dns-livesim(Pod)" -> "default/httpbin(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"kube-system/kube-dns-livesim(Pod)" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
-	"kube-system/kube-dns-livesim(Pod)" -> "istio-ingressgateway-ns/istio-ingressgateway-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"kube-system/kube-dns-livesim(Pod)" -> "istio-system/istio-egressgateway-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"kube-system/kube-dns-livesim(Pod)" -> "istio-system/istio-ingressgateway-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
 	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
