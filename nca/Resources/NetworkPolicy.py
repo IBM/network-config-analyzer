@@ -390,8 +390,8 @@ class OptimizedPolicyConnections:
 
     def and_by_filter(self, props, the_filter):
         """
-        Update all properties (allowed, denied, etc.) by conjuncting with a given expression,
-        whenever the corresponding the_filter is not None
+        Update all properties (allowed, denied, etc.) by conjunction with a given expression,
+        for the relevant properties from the input filter (which are set as True)
         :param ConnectivityProperties props: the given expression to conjunct with
         :param PolicyConnectionsFilter the_filter: contains True for all properties to update
         """
