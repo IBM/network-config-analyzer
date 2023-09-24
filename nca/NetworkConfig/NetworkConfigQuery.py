@@ -777,7 +777,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         fw_rules = None
         fw_rules_tcp = None
         fw_rules_non_tcp = None
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         connections = defaultdict(list)
         # if dns entry peers exist but no istio policies are configured,
         # then actually istio layer exists implicitly, connections to these peers will be considered with the
@@ -823,9 +823,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         opt_fw_rules = None
         opt_fw_rules_tcp = None
         opt_fw_rules_non_tcp = None
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         res_conns_filter = PolicyConnectionsFilter.only_all_allowed_connections()
-
         opt_conns = self.config.allowed_connections_optimized(res_conns_filter=res_conns_filter)
         all_conns_opt = opt_conns.all_allowed_conns
         opt_peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
@@ -833,13 +832,9 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         opt_peers_to_compare |= all_conns_opt.project_on_one_dimension('src_peers') | \
             all_conns_opt.project_on_one_dimension('dst_peers')
         if exclude_ipv6:
-            ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6=True)
-            ref_ip_blocks = self.config.get_referenced_ip_blocks(exclude_ipv6)
-            for ip_block in ref_ip_blocks:
-                ip_blocks_mask |= ip_block
-            opt_peers_to_compare.filter_ip_blocks_by_mask(ip_blocks_mask)
-            # remove connections where any of src_peers or dst_peers contains automatically-added IPv6 blocks,
+            # remove connections where any of src_peers or dst_peers contain automatically-added IPv6 blocks,
             # while keeping connections with IPv6 blocks directly referenced in policies
+            opt_peers_to_compare.filter_ip_blocks_by_mask(IpBlock.get_all_ips_block(exclude_ipv6=True))
             all_conns_opt &= ConnectivityProperties.make_conn_props_from_dict({"src_peers": opt_peers_to_compare,
                                                                                "dst_peers": opt_peers_to_compare})
         base_peers_num = len(opt_peers_to_compare)
@@ -852,7 +847,7 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             all_conns_opt &= subset_conns
             src_peers, dst_peers = ExplTracker().extract_peers(all_conns_opt)
             all_peers = src_peers | dst_peers
-        all_conns_opt = self.config.filter_conns_by_peer_types(all_conns_opt, opt_peers_to_compare)
+        all_conns_opt = self.config.filter_conns_by_peer_types(all_conns_opt)
         expl_conns = all_conns_opt
         if self.config.policies_container.layers.does_contain_layer(NetworkLayerName.Istio):
             output_res, opt_fw_rules_tcp, opt_fw_rules_non_tcp = \
@@ -1215,7 +1210,8 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :return: A set of disjoint ip-blocks
         :rtype: PeerSet
         """
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
+            self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         # TODO - consider including also non referenced IPBlocks, as in ConnectivityMapQuery
         #  (see issue https://github.com/IBM/network-config-analyzer/issues/522)
         return IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
@@ -1231,23 +1227,17 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :rtype: [ConnectivityProperties, ConnectivityProperties]
         :return: two resulting allowed connections
         """
-        peers_to_compare = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
+        all_peers = conns1.project_on_one_dimension('src_peers') | conns1.project_on_one_dimension('dst_peers') | \
             conns2.project_on_one_dimension('src_peers') | conns2.project_on_one_dimension('dst_peers')
         exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
             self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
-
-        ip_blocks_mask = IpBlock()
-        ipv6_full_block = IpBlock.get_all_ips_block(exclude_ipv4=True)
-        for ip_block in peers_to_compare:
-            if isinstance(ip_block, IpBlock) and (not exclude_ipv6 or ip_block != ipv6_full_block):
-                ip_blocks_mask |= ip_block
-        if not ip_blocks_mask:
-            ip_blocks_mask = IpBlock.get_all_ips_block(exclude_ipv6)
-        peers_to_compare.filter_ip_blocks_by_mask(ip_blocks_mask)
-        conns_filter = ConnectivityProperties.make_conn_props_from_dict({"src_peers": peers_to_compare,
-                                                                         "dst_peers": peers_to_compare})
-        res_conns1 = self.config1.filter_conns_by_peer_types(conns1, peers_to_compare) & conns_filter
-        res_conns2 = self.config2.filter_conns_by_peer_types(conns2, peers_to_compare) & conns_filter
+        conns_filter = ConnectivityProperties.make_all_props()
+        if exclude_ipv6:
+            all_peers.filter_ip_blocks_by_mask(IpBlock.get_all_ips_block(exclude_ipv6=True))
+            conns_filter = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers,
+                                                                             "dst_peers": all_peers})
+        res_conns1 = self.config1.filter_conns_by_peer_types(conns1) & conns_filter
+        res_conns2 = self.config2.filter_conns_by_peer_types(conns2) & conns_filter
         return res_conns1, res_conns2
 
     def _append_different_conns_to_list(self, conn_diff_props, different_conns_list, props_based_on_config1=True):
@@ -1516,7 +1506,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                     assert opt_conn_graph_added_conns and opt_conn_graph_added_conns.conn_graph_has_fw_rules()
                     opt_fw_rules = opt_conn_graph_added_conns.get_minimized_firewall_rules()
                     self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config2.peer_container,
-                                          self._get_updated_key(key, True) + f" of {self.config2.name}")
+                                          self._get_updated_key(key, True) +
+                                          f'between {self.config1.name} and {self.config2.name}')
                     explanation.append(key_explanation)
                 res += 1
 
@@ -1530,7 +1521,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
                     assert opt_conn_graph_removed_conns and opt_conn_graph_removed_conns.conn_graph_has_fw_rules()
                     opt_fw_rules = opt_conn_graph_removed_conns.get_minimized_firewall_rules()
                     self.compare_fw_rules(orig_fw_rules, opt_fw_rules, self.config1.peer_container,
-                                          self._get_updated_key(key, False) + f" of {self.config2.name}")
+                                          self._get_updated_key(key, False) +
+                                          f'between {self.config1.name} and {self.config2.name}')
                     explanation.append(key_explanation)
                 res += 1
 
@@ -1590,7 +1582,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
+            self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
                                                    IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
                                                    exclude_ipv6)
@@ -1760,7 +1753,8 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         removed_peers = old_peers - intersected_peers
         added_peers = new_peers - intersected_peers
         captured_pods = (self.config1.get_captured_pods() | self.config2.get_captured_pods()) & intersected_peers
-        exclude_ipv6 = self.output_config.excludeIPv6Range
+        exclude_ipv6 = self.config1.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range) and \
+            self.config2.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
         old_ip_blocks = IpBlock.disjoint_ip_blocks(self.config1.get_referenced_ip_blocks(exclude_ipv6),
                                                    IpBlock.get_all_ips_block_peer_set(exclude_ipv6),
                                                    exclude_ipv6)
@@ -1887,9 +1881,10 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         query_answer = self.is_identical_topologies(True)
         if query_answer.bool_result and query_answer.output_result:
             return query_answer
-        keys_list = []
         orig_conn_graph_removed_per_key = dict()
         orig_conn_graph_added_per_key = dict()
+        res = 0
+        explanation = ""
         if self.config1.optimized_run != 'true':
             keys_list, orig_conn_graph_removed_per_key, orig_conn_graph_added_per_key = self.compute_diff_original()
             if self.config1.optimized_run == 'false':
