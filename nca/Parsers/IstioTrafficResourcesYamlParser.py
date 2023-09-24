@@ -333,7 +333,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                     tls_route.all_sni_hosts_dfa = sni_host_dfa
             vs_all_hosts_dfa = reduce(MinDFA.__or__, vs.hosts_dfa)
             if not tls_route.all_sni_hosts_dfa.contained_in(vs_all_hosts_dfa):
-                self.warning(f'sniHosts mentioned in the tls.match are not a subset of hosts. This match will be ignored', vs)
+                self.warning('sniHosts mentioned in the tls.match are not a subset of hosts. This match will be ignored', vs)
                 return None
             self.parse_vs_gateways(vs.namespace, item, tls_route)
         return tls_route
