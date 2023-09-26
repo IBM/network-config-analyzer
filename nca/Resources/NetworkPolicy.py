@@ -377,6 +377,9 @@ class PolicyConnections:
 class OptimizedPolicyConnections:
     """
     A class to contain the effect of applying policies to all src and dst peers
+    It also serves as a filter for lazy evaluations of connections:
+    whenever any of allowed_conns/denied_conns/pass_conns/all_allowed_conns is None,
+    those connections will not be calculated.
     """
     def __init__(self):
         self.captured = PeerSet()
@@ -384,3 +387,63 @@ class OptimizedPolicyConnections:
         self.denied_conns = ConnectivityProperties()
         self.pass_conns = ConnectivityProperties()
         self.all_allowed_conns = ConnectivityProperties()
+
+    def and_by_filter(self, props, the_filter):
+        """
+        Update all properties (allowed, denied, etc.) by conjunction with a given expression,
+        for the relevant properties from the input filter (which are set as True)
+        :param ConnectivityProperties props: the given expression to conjunct with
+        :param PolicyConnectionsFilter the_filter: contains True for all properties to update
+        """
+        if the_filter.calc_allowed:
+            self.allowed_conns &= props
+        if the_filter.calc_denied:
+            self.denied_conns &= props
+        if the_filter.calc_pass:
+            self.pass_conns &= props
+        if the_filter.calc_all_allowed:
+            self.all_allowed_conns &= props
+
+    def sub_by_filter(self, props, the_filter):
+        """
+        Update all properties (allowed, denied, etc.) by subtraction a given expression from them,
+        for the relevant properties from the input filter (which are set as True)
+        :param ConnectivityProperties props: the given expression to subtract
+        :param PolicyConnectionsFilter the_filter: contains True for all properties to update
+        """
+        if the_filter.calc_allowed:
+            self.allowed_conns -= props
+        if the_filter.calc_denied:
+            self.denied_conns -= props
+        if the_filter.calc_pass:
+            self.pass_conns -= props
+        if the_filter.calc_all_allowed:
+            self.all_allowed_conns -= props
+
+
+@dataclass(frozen=True)
+class PolicyConnectionsFilter:
+    """
+    A class that serves as a filter for lazy evaluations of connections:
+    whether to calculate allowed_conns/denied_conns/pass_conns/all_allowed_conns (True) or not (False)
+    """
+    calc_allowed: bool = True
+    calc_denied: bool = True
+    calc_pass: bool = True
+    calc_all_allowed: bool = True
+
+    def __post_init__(self):
+        # all_allowed_conns is needed for the calculation of allowed_conns
+        object.__setattr__(self, 'calc_all_allowed', self.calc_all_allowed | self.calc_allowed)
+
+    @staticmethod
+    def only_allowed_connections():
+        return PolicyConnectionsFilter(calc_allowed=True, calc_denied=False, calc_pass=False, calc_all_allowed=False)
+
+    @staticmethod
+    def only_denied_connections():
+        return PolicyConnectionsFilter(calc_allowed=False, calc_denied=True, calc_pass=False, calc_all_allowed=False)
+
+    @staticmethod
+    def only_all_allowed_connections():
+        return PolicyConnectionsFilter(calc_allowed=False, calc_denied=False, calc_pass=False, calc_all_allowed=True)

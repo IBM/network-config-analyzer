@@ -159,7 +159,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                 values_list = str(dim_values)
             elif dim in ["src_peers", "dst_peers"]:
                 peers_set = BasePeerSet().get_peer_set_by_indices(dim_values)
-                peers_str_list = [str(peer.full_name()) for peer in peers_set]
+                peers_str_list = sorted([str(peer.full_name()) for peer in peers_set])
                 values_list = ','.join(peers_str_list) if is_txt else peers_str_list
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = dim_values.get_interval_set_list_numbers_and_ranges()
