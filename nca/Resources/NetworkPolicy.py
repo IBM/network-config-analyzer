@@ -421,7 +421,7 @@ class OptimizedPolicyConnections:
             self.all_allowed_conns -= props
 
 
-@dataclass
+@dataclass(frozen=True)
 class PolicyConnectionsFilter:
     """
     A class that serves as a filter for lazy evaluations of connections:
@@ -434,7 +434,7 @@ class PolicyConnectionsFilter:
 
     def __post_init__(self):
         # all_allowed_conns is needed for the calculation of allowed_conns
-        self.calc_all_allowed |= self.calc_allowed
+        object.__setattr__(self, 'calc_all_allowed', self.calc_all_allowed | self.calc_allowed)
 
     @staticmethod
     def only_allowed_connections():
