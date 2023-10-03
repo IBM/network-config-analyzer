@@ -17,6 +17,7 @@ from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.FWRules.MinimizeFWRules import MinimizeFWRules
 from nca.FWRules.ClusterInfo import ClusterInfo
+from nca.Resources.NetworkPolicy import PolicyConnectionsFilter
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
 from nca.Resources.IngressPolicy import IngressPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
@@ -85,11 +86,12 @@ class BaseNetworkQuery:
                                        BasePeerSet().get_peer_interval_of(peer_set))
         DimensionsManager().set_domain("dst_peers", DimensionsManager.DimensionType.IntervalSet,
                                        BasePeerSet().get_peer_interval_of(peer_set))
-        # update all optimized connectivity properties by reducing full src_peers/dst_peers dimensions
-        # according to their updated domains (above)
-        for config in self.get_configs():
-            for policy in config.policies_container.policies.values():
-                policy.reorganize_opt_props_by_new_domains()
+        if self.get_configs()[0].optimized_run != 'false':
+            # update all optimized connectivity properties by reducing full src_peers/dst_peers dimensions
+            # according to their updated domains (above)
+            for config in self.get_configs():
+                for policy in config.policies_container.policies.values():
+                    policy.reorganize_opt_props_by_new_domains()
         # run the query
         query_answer = self.execute(cmd_line_flag)
         # restore peers domains and optimized connectivity properties original values
@@ -520,8 +522,9 @@ class SanityQuery(NetworkConfigQuery):
 
     @staticmethod
     def check_deny_containment_optimized(config_with_self_policy, config_with_other_policy, layer_name):
-        self_props = config_with_self_policy.allowed_connections_optimized(layer_name)
-        other_props = config_with_other_policy.allowed_connections_optimized(layer_name)
+        res_conns_filter = PolicyConnectionsFilter.only_denied_connections()
+        self_props = config_with_self_policy.allowed_connections_optimized(layer_name, res_conns_filter)
+        other_props = config_with_other_policy.allowed_connections_optimized(layer_name, res_conns_filter)
         return self_props.denied_conns.contained_in(other_props.denied_conns)
 
     def other_rule_containing(self, self_policy, self_rule_index, is_ingress, layer_name):
@@ -821,7 +824,8 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         opt_fw_rules_tcp = None
         opt_fw_rules_non_tcp = None
         exclude_ipv6 = self.config.check_for_excluding_ipv6_addresses(self.output_config.excludeIPv6Range)
-        opt_conns = self.config.allowed_connections_optimized()
+        res_conns_filter = PolicyConnectionsFilter.only_all_allowed_connections()
+        opt_conns = self.config.allowed_connections_optimized(res_conns_filter=res_conns_filter)
         all_conns_opt = opt_conns.all_allowed_conns
         opt_peers_to_compare = self.config.peer_container.get_all_peers_group(include_dns_entries=True)
         # add all relevant IpBlocks, used in connections
@@ -880,15 +884,13 @@ class ConnectivityMapQuery(NetworkConfigQuery):
             opt_end = time.time()
             print(f'Opt time: {(opt_end - opt_start):6.2f} seconds')
             if self.config.optimized_run == 'debug':
-                if fw_rules and fw_rules.fw_rules_map and opt_fw_rules and opt_fw_rules.fw_rules_map:
+                if fw_rules and opt_fw_rules:
                     self.compare_fw_rules(fw_rules, opt_fw_rules, self.config.peer_container,
                                           f"connectivity of {self.config.name}")
-                if fw_rules_tcp and fw_rules_tcp.fw_rules_map and \
-                        opt_fw_rules_tcp and opt_fw_rules_tcp.fw_rules_map:
+                if fw_rules_tcp and opt_fw_rules_tcp:
                     self.compare_fw_rules(fw_rules_tcp, opt_fw_rules_tcp, self.config.peer_container,
                                           f"connectivity - tcp only of {self.config.name}")
-                if fw_rules_non_tcp and fw_rules_non_tcp.fw_rules_map and \
-                        opt_fw_rules_non_tcp and opt_fw_rules_non_tcp.fw_rules_map:
+                if fw_rules_non_tcp and opt_fw_rules_non_tcp:
                     self.compare_fw_rules(fw_rules_non_tcp, opt_fw_rules_non_tcp, self.config.peer_container,
                                           f"connectivity - non-tcp only of {self.config.name}")
             else:  # self.config.optimized_run == 'true':
@@ -1337,8 +1339,9 @@ class EquivalenceQuery(TwoNetworkConfigsQuery):
                            numerical_result=0)
 
     def check_equivalence_optimized(self, layer_name=None):
-        conn_props1 = self.config1.allowed_connections_optimized(layer_name)
-        conn_props2 = self.config2.allowed_connections_optimized(layer_name)
+        res_conns_filter = PolicyConnectionsFilter.only_all_allowed_connections()
+        conn_props1 = self.config1.allowed_connections_optimized(layer_name, res_conns_filter)
+        conn_props2 = self.config2.allowed_connections_optimized(layer_name, res_conns_filter)
         all_conns1, all_conns2 = self.filter_conns_by_input_or_internal_constraints(conn_props1.all_allowed_conns,
                                                                                     conn_props2.all_allowed_conns)
         if all_conns1 == all_conns2:
@@ -1762,8 +1765,9 @@ class SemanticDiffQuery(TwoNetworkConfigsQuery):
         conn_graph_removed_per_key = dict()
         conn_graph_added_per_key = dict()
         keys_list = []
-        old_conns = self.config1.allowed_connections_optimized()
-        new_conns = self.config2.allowed_connections_optimized()
+        res_conns_filter = PolicyConnectionsFilter.only_all_allowed_connections()
+        old_conns = self.config1.allowed_connections_optimized(res_conns_filter=res_conns_filter)
+        new_conns = self.config2.allowed_connections_optimized(res_conns_filter=res_conns_filter)
         old_props, new_props = self.filter_conns_by_input_or_internal_constraints(old_conns.all_allowed_conns,
                                                                                   new_conns.all_allowed_conns)
 
@@ -1999,8 +2003,13 @@ class ContainmentQuery(TwoNetworkConfigsQuery):
                            numerical_result=1 if not cmd_line_flag else 0)
 
     def check_containment_optimized(self, cmd_line_flag=False, only_captured=False):
-        conn_props1 = self.config1.allowed_connections_optimized()
-        conn_props2 = self.config2.allowed_connections_optimized()
+        if only_captured:
+            res_conns_filter1 = PolicyConnectionsFilter.only_allowed_connections()
+        else:
+            res_conns_filter1 = PolicyConnectionsFilter.only_all_allowed_connections()
+        res_conns_filter2 = PolicyConnectionsFilter.only_all_allowed_connections()
+        conn_props1 = self.config1.allowed_connections_optimized(res_conns_filter=res_conns_filter1)
+        conn_props2 = self.config2.allowed_connections_optimized(res_conns_filter=res_conns_filter2)
         conns1, conns2 = self.filter_conns_by_input_or_internal_constraints(
             conn_props1.allowed_conns if only_captured else conn_props1.all_allowed_conns,
             conn_props2.all_allowed_conns)
@@ -2146,8 +2155,10 @@ class InterferesQuery(TwoNetworkConfigsQuery):
                            numerical_result=0 if not cmd_line_flag else 1)
 
     def check_interferes_optimized(self, cmd_line_flag=False):
-        conn_props1 = self.config1.allowed_connections_optimized()
-        conn_props2 = self.config2.allowed_connections_optimized()
+        res_conns_filter = PolicyConnectionsFilter.only_allowed_connections()
+
+        conn_props1 = self.config1.allowed_connections_optimized(res_conns_filter=res_conns_filter)
+        conn_props2 = self.config2.allowed_connections_optimized(res_conns_filter=res_conns_filter)
         conns1, conns2 = self.filter_conns_by_input_or_internal_constraints(conn_props1.allowed_conns,
                                                                             conn_props2.allowed_conns)
         if conns1.contained_in(conns2):
@@ -2230,8 +2241,13 @@ class IntersectsQuery(TwoNetworkConfigsQuery):
                                   f' do not intersect the connections allowed by {self.name2}', numerical_result=1)
 
     def check_intersects_optimized(self, only_captured=True):
-        conn_props1 = self.config1.allowed_connections_optimized()
-        conn_props2 = self.config2.allowed_connections_optimized()
+        if only_captured:
+            res_conns_filter1 = PolicyConnectionsFilter.only_allowed_connections()
+        else:
+            res_conns_filter1 = PolicyConnectionsFilter.only_all_allowed_connections()
+        res_conns_filter2 = PolicyConnectionsFilter.only_all_allowed_connections()
+        conn_props1 = self.config1.allowed_connections_optimized(res_conns_filter=res_conns_filter1)
+        conn_props2 = self.config2.allowed_connections_optimized(res_conns_filter=res_conns_filter2)
         conns1, conns2 = self.filter_conns_by_input_or_internal_constraints(
             conn_props1.allowed_conns if only_captured else conn_props1.all_allowed_conns,
             conn_props2.all_allowed_conns)

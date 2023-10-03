@@ -689,6 +689,8 @@ class ConnectionSet:
         :return: the resulting ConnectivityProperties.
         """
         res = ConnectivityProperties.make_empty_props()
+        if fw_rules.fw_rules_map is None:
+            return res
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:
                 conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)
