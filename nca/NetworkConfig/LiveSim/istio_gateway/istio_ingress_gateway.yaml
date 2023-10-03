@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: istio-ingressgateway-livesim
+  namespace: istio-system
+  labels:
+    app: istio-ingressgateway
+    istio: ingressgateway
+spec:
+  serviceAccountName: istio-ingressgateway
+  containers:
+  - name: istio-proxy
+    image: auto
+---

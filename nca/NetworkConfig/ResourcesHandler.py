@@ -74,19 +74,19 @@ class ResourcesHandler:
         check by labels matching if one of the livesim resources has matching labels for a resource referenced by one
         of the parsed policies. If yes, return its path to be added to the configuration, to enable the analysis.
         :param str livesim_resource_path: a path to the relevant livesim dir to check for resources
-        :param list missing_resource_labels: the labels from parsed policy in the config for
+        :param set((key, value)) missing_resource_labels: the labels from parsed policy in the config for
                                                   which a matching peer was missing
         :return: list of paths for relevant livesim resources to add
         :rtype list[str]
         """
-        res = []
+        res = set()
         resource_full_path = ResourcesHandler.get_full_livesim_resource_path(livesim_resource_path)
         livesim_resource_labels = ResourcesParser.parse_livesim_yamls(resource_full_path)
         for (key, value) in missing_resource_labels:
             for yaml_path, labels in livesim_resource_labels.items():
                 if (key, value) in labels:
-                    res.append(yaml_path)
-        return list(dict.fromkeys(res))  # remove duplicates
+                    res.add(yaml_path)
+        return list(res)
 
     @staticmethod
     def analyze_livesim(policy_finder):

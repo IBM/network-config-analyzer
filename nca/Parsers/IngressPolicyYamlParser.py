@@ -256,7 +256,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         self.namespace = self.peer_container.get_namespace(policy_ns)
         res_policy = IngressPolicy(policy_name + '/allow', self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
-
+        res_policy.affects_egress = True
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],
                              'rules': [0, list], 'tls': [0, list]}
@@ -290,6 +290,6 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         # allowed_conns = none means that services referenced by this Ingress policy are not found,
         # then no connections rules to add (Ingress policy has no effect)
         if allowed_conns:
-            res_policy.add_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
+            res_policy.add_egress_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
         res_policy.findings = self.warning_msgs
         return res_policy
