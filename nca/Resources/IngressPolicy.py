@@ -40,8 +40,8 @@ class IngressPolicyRule:
 class IngressPolicy(NetworkPolicy):
     """
     This class implements ingress controller logic for incoming http(s) requests
-    The logic is kept similarly to NetworkPolicy, where the selected_peers are the ingress controller peers,
-    and the rules are egress_rules.
+    The logic is kept similarly to NetworkPolicy, where the selected_peers are the ingress/egress controller peers,
+    and the rules are ingress/egress_rules.
     """
 
     def __init__(self, name, namespace):
@@ -50,13 +50,19 @@ class IngressPolicy(NetworkPolicy):
         :param K8sNamespace namespace: the namespace containing this ingress
         """
         super().__init__(name, namespace)
-        self.affects_ingress = False
-        self.affects_egress = True
 
     def __eq__(self, other):
         return super().__eq__(other)
 
-    def add_rules(self, rules):
+    def add_ingress_rules(self, rules):
+        """
+        Adding a given list of rules to the list of ingress rules
+        :param list rules: The list of rules to add
+        :return: None
+        """
+        self.ingress_rules.extend(rules)
+
+    def add_egress_rules(self, rules):
         """
         Adding a given list of rules to the list of egress rules
         :param list rules: The list of rules to add
@@ -72,6 +78,8 @@ class IngressPolicy(NetworkPolicy):
         if self.optimized_props_in_sync:
             return
         self._init_opt_props()
+        for rule in self.ingress_rules:
+            self._optimized_allow_ingress_props |= rule.optimized_props
         for rule in self.egress_rules:
             self._optimized_allow_egress_props |= rule.optimized_props
         self.optimized_props_in_sync = True
@@ -87,15 +95,16 @@ class IngressPolicy(NetworkPolicy):
         :rtype: PolicyConnections
         """
 
-        captured = from_peer in self.selected_peers
+        captured = is_ingress and self.affects_ingress and to_peer in self.selected_peers or \
+            not is_ingress and self.affects_egress and from_peer in self.selected_peers
         if not captured:
-            return PolicyConnections(False)
-        if is_ingress:
             return PolicyConnections(False)
 
         allowed_conns = ConnectionSet()
-        for rule in self.egress_rules:
-            if to_peer in rule.peer_set:
+        rules = self.ingress_rules if is_ingress else self.egress_rules
+        other_peer = from_peer if is_ingress else to_peer
+        for rule in rules:
+            if other_peer in rule.peer_set:
                 assert not rule.connections.has_named_ports()
                 allowed_conns |= rule.connections
 
@@ -113,8 +122,8 @@ class IngressPolicy(NetworkPolicy):
         """
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = ConnectivityProperties.make_empty_props()
-            res_conns.captured = PeerSet()
+            res_conns.allowed_conns = self.optimized_allow_ingress_props().copy()
+            res_conns.captured = self.selected_peers if self.affects_ingress else PeerSet()
         else:
             res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
@@ -128,34 +137,42 @@ class IngressPolicy(NetworkPolicy):
         :rtype: list[str], set, set
         """
         emptiness_explanation = []
-        empty_rules = set()
-        full_name = self.full_name()
+        empty_ingress_rules = set()
+        empty_egress_rules = set()
+        full_name = self.full_name(_config_name)
+        for rule_index, ingress_rule in enumerate(self.ingress_rules, start=1):
+            if not ingress_rule.peer_set:
+                emptiness = f'Rule no. {rule_index} in Ingress/Egress resource {full_name} does not select any pods'
+                emptiness_explanation.append(emptiness)
+                empty_ingress_rules.add(rule_index)
+
         for rule_index, egress_rule in enumerate(self.egress_rules, start=1):
             if not egress_rule.peer_set:
-                emptiness = f'Rule no. {rule_index} in Ingress resource {full_name} does not select any pods'
+                emptiness = f'Rule no. {rule_index} in Ingress/Egress resource {full_name} does not select any pods'
                 emptiness_explanation.append(emptiness)
-                empty_rules.add(rule_index)
+                empty_egress_rules.add(rule_index)
 
-        return emptiness_explanation, set(), empty_rules
+        return emptiness_explanation, empty_ingress_rules, empty_egress_rules
 
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """
         Makes a copy of 'self' without a given policy rule
         :param IngressPolicyRule rule_to_exclude: The one rule not to include in the copy
         :param bool ingress_rule: Whether the rule is an ingress or egress rule
-        (for compatibility with network policies)
         :return: A copy of 'self' without the provided rule
         :rtype: IngressPolicy
         """
-        assert not ingress_rule
         res = IngressPolicy(self.name, self.namespace)
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress
         res.policy_kind = self.policy_kind
         for rule in self.egress_rules:
-            if rule != rule_to_exclude:
+            if ingress_rule or rule != rule_to_exclude:
                 res.add_egress_rule(rule)
+        for rule in self.ingress_rules:
+            if not ingress_rule or rule != rule_to_exclude:
+                res.add_ingress_rule(rule)
         return res
 
     def has_allow_rules(self):
@@ -163,7 +180,11 @@ class IngressPolicy(NetworkPolicy):
         :return: Whether the policy has rules that allow connections.
         :rtype: bool
         """
-        for rule in self.egress_rules:
-            if rule.peer_set:
+        for ingress_rule in self.ingress_rules:
+            if ingress_rule.peer_set:
+                return True
+
+        for egress_rule in self.egress_rules:
+            if egress_rule.peer_set:
                 return True
         return False

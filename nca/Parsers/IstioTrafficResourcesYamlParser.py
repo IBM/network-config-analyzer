@@ -392,10 +392,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             for peer_set, host_dfa in peers_to_hosts.items():
                 res_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
                 res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
+                res_policy.affects_egress = True
                 res_policy.selected_peers = peer_set
                 allowed_conns = self.make_allowed_connections(vs, host_dfa)
                 if allowed_conns:
-                    res_policy.add_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
+                    res_policy.add_egress_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)
             if not vs_policies:
