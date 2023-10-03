@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+import re
 from functools import reduce
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.Peer import PeerSet
@@ -43,18 +44,6 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param Gateway gateway: the gateway to add
         """
         self.gateways[gateway.full_name()] = gateway
-
-    def add_mesh(self, result):
-        """
-        Adds a special mesh Gateway to the internal parser db
-        (to be later used for locating the gateways referenced by virtual services)
-        """
-        if not self.gateways.get('mesh'):
-            mesh_gtw = Gateway('mesh', '')
-            mesh_gtw.peers = self.peer_container.get_all_peers_group()
-            mesh_gtw.all_hosts_dfa = DimensionsManager().get_dimension_domain_by_name('hosts')
-            self.add_gateway(mesh_gtw)
-        VirtualService.add_mesh(result)
 
     def get_gateway(self, gtw_full_name):
         """
@@ -196,11 +185,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             # When this field is omitted, the default gateway (mesh) will be used,
             # which would apply the rule to all sidecars in the mesh, as appears in the description below
             # https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService
-            self.add_mesh(result)
+            VirtualService.add_mesh(result)
             return
         for gtw in gateways:
             if gtw == 'mesh':
-                self.add_mesh(result)
+                VirtualService.add_mesh(result)
             else:
                 gtw_name = gtw
                 gtw_namespace = namespace
@@ -381,29 +370,9 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         port_num = None
         if port:
             port_num = port.get('number')
-
-        # according to https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
-        # check for <service-name>.<namespace-name>.svc.cluster.local
-        service_name = ""
-        namespace = ""
-        is_dns = False
-        splitted_host = host.split('.')
-        if len(splitted_host) == 5 and splitted_host[2] == 'svc' and splitted_host[3] == 'cluster' \
-                and splitted_host[4] == 'local':  # local with name and namespace given
-            service_name = splitted_host[0]
-            namespace = self.peer_container.get_namespace(splitted_host[1])
-        elif len(splitted_host) > 1:  # DNS entry
-            is_dns = True
-        else:  # local without namespace given
-            service_name = host
-            namespace = vs.namespace
-
-        if is_dns:
-            dns_entries = self.peer_container.get_dns_entry_peers_matching_host_name(host)
-            parsed_route.add_destination(host, dns_entries, port_num)
-        else:
-            assert service_name and namespace
-            service = self.peer_container.get_service_by_name_and_ns(service_name, namespace)
+        assert not re.search("\*", host)
+        if self.is_local_service(host):
+            service = self.get_local_service(host, vs.namespace)
             if not service:
                 self.warning(f'The service referenced in destination {dest} in the VirtualService {vs.full_name()}'
                              f' does not exist. This Destination will be ignored', dest)
@@ -423,7 +392,43 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                                  f'in the VirtualService {vs.full_name()}', dest)
                 else:
                     self.warning(f'missing port for service {dest} in the VirtualService {vs.full_name()}', dest)
-            parsed_route.add_destination(service_name, service.target_pods, target_port)
+            parsed_route.add_destination(host, service.target_pods, target_port)
+        else:  # should be DNS entry
+            dns_entries = self.peer_container.get_dns_entry_peers_matching_host_name(host)
+            if not dns_entries:
+                self.warning(f'The host {host} mentioned in the VirtualService {vs.full_name()} '
+                             f'does not match any existing dns entry. This Destination will be ignored', dest)
+                return
+            parsed_route.add_destination(host, dns_entries, port_num)
+
+    def is_local_service(self, host):
+        # according to https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+        # check for <service-name>.<namespace-name>.svc.cluster.local
+        if re.search("\*", host):  # regular expression
+            return False
+        splitted_host = host.split('.')
+        if len(splitted_host) == 5 and splitted_host[2] == 'svc' and splitted_host[3] == 'cluster' \
+                and splitted_host[4] == 'local':  # local with name and namespace given
+            return True
+        elif len(splitted_host) > 1:  # DNS entry
+            return False
+        else:  # local without namespace given
+            return True
+
+    def get_local_service(self, host, ns):
+        # according to https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+        # check for <service-name>.<namespace-name>.svc.cluster.local
+        splitted_host = host.split('.')
+        if len(splitted_host) == 5 and splitted_host[2] == 'svc' and splitted_host[3] == 'cluster' \
+                and splitted_host[4] == 'local':  # local with name and namespace given
+            service_name = splitted_host[0]
+            namespace = self.peer_container.get_namespace(splitted_host[1])
+        else:  # local without namespace given
+            assert len(splitted_host) == 1  # not a DNS entry
+            service_name = host
+            namespace = ns
+        assert service_name and namespace
+        return self.peer_container.get_service_by_name_and_ns(service_name, namespace)
 
     @staticmethod
     def make_http_route_connections(vs, host_dfa):
@@ -483,6 +488,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         """
         gateways = set()
         for gtw_name in gateway_names:
+            if gtw_name == 'mesh':
+                continue
             gtw = self.get_gateway(gtw_name)
             if gtw:
                 gateways.add(gtw)
@@ -499,24 +506,40 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :return: list[IngressPolicy] the resulting list of policies.
         """
         result = []
-        # build peers+hosts partition peers_to_hosts
+        # build peers+hosts partition peers_to_hosts, i.e. for every host mentioned in the virtual service,
+        # finding all gateways mentioned in this virtual service that match this host, and picking up all peers
+        # representing this gateway - these peers will be the source peers in the connections, marked by this host.
         peers_to_hosts = {}
+        local_service_peers = PeerSet()
+        local_service_host_dfa = DimensionsManager().get_dimension_domain_by_name('hosts')
         for host_dfa in vs.hosts_dfa:
-            gtw_peers = [gtw.peers for gtw in global_vs_gateways if host_dfa.contained_in(gtw.all_hosts_dfa)]
-            if gtw_peers:
-                peers = PeerSet(reduce(PeerSet.__or__, gtw_peers))
+            peers = PeerSet()
+            host = str(host_dfa)
+            if self.is_local_service(host):
+                service = self.get_local_service(host, vs.namespace)
+                if service and ('mesh' in vs.gateway_names):
+                    local_service_peers.update(service.target_pods)
+            else:
+                gtw_peers = [gtw.peers for gtw in global_vs_gateways if host_dfa.contained_in(gtw.all_hosts_dfa)]
+                if gtw_peers:
+                    peers = PeerSet(reduce(PeerSet.__or__, gtw_peers))
+            if peers:
                 if peers_to_hosts.get(peers):
                     peers_to_hosts[peers] |= host_dfa
                 else:
                     peers_to_hosts[peers] = host_dfa
 
-        for peer_set, host_dfa in peers_to_hosts.items():
+        for peer_set, host_dfa in list(peers_to_hosts.items()) + [(local_service_peers, local_service_host_dfa)]:
+            if not peer_set:
+                continue
             res_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
             res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
+            res_policy.affects_egress = True
             res_policy.selected_peers = peer_set
+            # TODO - handle http route gateways (that override global gateways)
             allowed_conns = self.make_http_route_connections(vs, host_dfa)
             if allowed_conns:
-                res_policy.add_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
+                res_policy.add_egress_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
                 res_policy.findings = self.warning_msgs
                 result.append(res_policy)
         return result
@@ -531,32 +554,64 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :return: list[IngressPolicy] the resulting list of policies.
         """
         result = []
-        global_gtw_peers = [gtw.peers for gtw in global_vs_gateways]
-        base_src_peers = PeerSet(reduce(PeerSet.__or__, global_gtw_peers))
+        global_has_mesh = 'mesh' in vs.gateway_names
+        global_gtw_peers = PeerSet(reduce(PeerSet.__or__, [gtw.peers for gtw in global_vs_gateways]))
+        local_peers = self.peer_container.get_all_peers_group()
+        protocol_name = 'TCP'  # TODO = should it be TCP?
+        protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol_name)
         for tls_route in vs.tls_routes:
-            gateways = self.pick_vs_gateways_from_list(vs, tls_route.gateway_names)
-            if gateways:
-                src_peers = PeerSet(reduce(PeerSet.__or__, [gtw.peers for gtw in gateways]))
-                used_gateways.update(gateways)
+            gtw_peers = PeerSet()
+            if tls_route.gateway_names:
+                # override global gateways
+                has_mesh = 'mesh' in tls_route.gateway_names
+                gateways = self.pick_vs_gateways_from_list(vs, tls_route.gateway_names)
+                if gateways:
+                    gtw_peers = PeerSet(reduce(PeerSet.__or__, [gtw.peers for gtw in gateways]))
+                    used_gateways.update(gateways)
             else:
-                src_peers = base_src_peers
-            res_policy = IngressPolicy(vs.name + '/' + str(tls_route.gateway_names) + '/' + str(tls_route.all_sni_hosts_dfa),
-                                       vs.namespace)
-            res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
-            res_policy.selected_peers = src_peers
-            protocol_name = 'TCP'  # TODO = should it be TCP?
-            protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol_name)
-            for dest in tls_route.destinations:
-                opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers,
-                                                                              "dst_peers": dest.pods,
-                                                                              "dst_ports": dest.ports,
-                                                                              "protocols": protocols,
-                                                                              "hosts": tls_route.all_sni_hosts_dfa})
-                conns = ConnectionSet()
-                conns.add_connections(protocol_name,
-                                      ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dest.ports,
-                                                                                        "hosts": tls_route.all_sni_hosts_dfa}))
-                res_policy.add_rules([IngressPolicyRule(dest.pods, conns, opt_props)])
-            result.append(res_policy)
+                # use global gateways
+                has_mesh = global_has_mesh
+                gtw_peers = global_gtw_peers
+            if not has_mesh and not gtw_peers:
+                # when no gateways are given, the default is mesh
+                has_mesh = True
+
+            if has_mesh:
+                for dest in tls_route.destinations:
+                    res_policy = IngressPolicy(vs.name + '/mesh/' + str(tls_route.all_sni_hosts_dfa),
+                                               vs.namespace)
+                    res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
+                    res_policy.affects_ingress = True
+                    res_policy.selected_peers = dest.pods
+                    opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": local_peers,
+                                                                                  "dst_peers": dest.pods,
+                                                                                  "dst_ports": dest.ports,
+                                                                                  "protocols": protocols,
+                                                                                  "hosts": tls_route.all_sni_hosts_dfa})
+                    conns = ConnectionSet()
+                    conns.add_connections(protocol_name,
+                                          ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dest.ports,
+                                                                                            "hosts": tls_route.all_sni_hosts_dfa}))
+                    res_policy.add_ingress_rule(IngressPolicyRule(local_peers, conns, opt_props))
+                    result.append(res_policy)
+
+            if gtw_peers:
+                res_policy = IngressPolicy(vs.name + '/' + str(gtw_peers) + '/' + str(tls_route.all_sni_hosts_dfa),
+                                           vs.namespace)
+                res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
+                res_policy.affects_egress = True
+                res_policy.selected_peers = gtw_peers
+                for dest in tls_route.destinations:
+                    opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": gtw_peers,
+                                                                                  "dst_peers": dest.pods,
+                                                                                  "dst_ports": dest.ports,
+                                                                                  "protocols": protocols,
+                                                                                  "hosts": tls_route.all_sni_hosts_dfa})
+                    conns = ConnectionSet()
+                    conns.add_connections(protocol_name,
+                                          ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dest.ports,
+                                                                                            "hosts": tls_route.all_sni_hosts_dfa}))
+                    res_policy.add_egress_rule(IngressPolicyRule(dest.pods, conns, opt_props))
+                result.append(res_policy)
 
         return result
