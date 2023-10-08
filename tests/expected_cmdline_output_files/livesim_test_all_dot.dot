@@ -1,6 +1,6 @@
-// The Connectivity Graph of livesim_test_all_dot/livesim_config
+// The Connectivity Graph of **
 digraph {
-	label="Connectivity Graph of livesim_test_all_dot/livesim_config"	labelloc = "t"
+	label="Connectivity Graph of **"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
