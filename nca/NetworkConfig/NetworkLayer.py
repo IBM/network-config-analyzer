@@ -429,7 +429,6 @@ class IngressNetworkLayer(NetworkLayer):
                                  all_allowed_conns=all_allowed_conns)
 
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container, res_conns_filter=PolicyConnectionsFilter()):
-        # TODO - should we add non-captured connections from mesh to dns_entries??
         all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
         all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False, include_dns_entries=True)
         non_captured_conns = None

@@ -10,7 +10,7 @@ from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
-from nca.Resources.IngressPolicy import IngressPolicy
+from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
@@ -352,7 +352,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
     def create_istio_traffic_policies(self):
         """
         Create IngressPolicies according to the parsed Gateways and VirtualServices
-        :return list[IngressPolicy]: the resulting policies
+        :return list[IstioGatewayPolicy]: the resulting policies
         """
 
         if not self.gateways:
@@ -390,7 +390,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                         peers_to_hosts[peers] = host_dfa
 
             for peer_set, host_dfa in peers_to_hosts.items():
-                res_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
+                res_policy = IstioGatewayPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
                 res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
                 res_policy.affects_egress = True
                 res_policy.selected_peers = peer_set
