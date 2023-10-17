@@ -9,7 +9,7 @@ spec:
   - uk.bookinfo.com
   - eu.bookinfo.com
   gateways:
-  - default/my-gateway
+  - istio-system/my-gateway
   - mesh # applies to all the sidecars in the mesh
   http:
   - match:
@@ -44,7 +44,7 @@ spec:
   hosts:
   - mongosvr.prod.svc.cluster.local # name of internal Mongo service
   gateways:
-  - default/my-gateway # can omit the namespace if gateway is in same namespace as virtual service.
+  - istio-system/my-gateway # can omit the namespace if gateway is in same namespace as virtual service.
   tcp:
   - match:
     - port: 27017
