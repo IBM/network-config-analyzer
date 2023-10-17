@@ -73,6 +73,11 @@ networkConfigList:
       - invalid_sidecars/sidecar-invalid-host-9.yaml
     expectedError: 1
 
+  - name: invalid_host_10
+    networkPolicyList:
+      - invalid_sidecars/sidecar-invalid-host-10.yaml
+    expectedError: 1
+
   - name: invalid_spec
     networkPolicyList:
       - invalid_sidecars/sidecar-missing-spec.yaml
