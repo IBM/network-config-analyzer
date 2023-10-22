@@ -14,7 +14,7 @@ from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
-from nca.Resources.IngressPolicy import IngressPolicy, IngressPolicyRule
+from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy, IstioGatewayPolicyRule
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
@@ -452,7 +452,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
     def create_istio_traffic_policies(self):
         """
         Create IngressPolicies according to the parsed Gateways and VirtualServices
-        :return list[IngressPolicy]: the resulting policies
+        :return list[IstioGatewayPolicy]: the resulting policies
         """
         if not self.virtual_services:
             self.warning('no valid VirtualServices found. Ignoring istio ingress traffic')
@@ -465,6 +465,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             if not global_vs_gateways:
                 self.warning(f'virtual service {vs.full_name()} does not have valid gateways and will be ignored')
                 continue
+
             used_gateways.update(global_vs_gateways)
             vs_policies = self.create_http_route_policies(vs, global_vs_gateways)
             vs_policies.extend(self.create_tls_route_policies(vs, global_vs_gateways, used_gateways))
@@ -503,7 +504,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         Create internal policies representing connections described by http routes of the given virtual service.
         :param VirtualService vs: the given virtual service.
         :param set(Gateway) global_vs_gateways: a set of gateways globally referenced by this virtual service.
-        :return: list[IngressPolicy] the resulting list of policies.
+        :return: list[IstioGatewayPolicy] the resulting list of policies.
         """
         result = []
         # build peers+hosts partition peers_to_hosts, i.e. for every host mentioned in the virtual service,
@@ -532,7 +533,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         for peer_set, host_dfa in list(peers_to_hosts.items()) + [(local_service_peers, local_service_host_dfa)]:
             if not peer_set:
                 continue
-            res_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
+            res_policy = IstioGatewayPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
             res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
             res_policy.affects_egress = True
             res_policy.selected_peers = peer_set
@@ -551,7 +552,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param set(Gateway) global_vs_gateways: a set of gateways globally referenced by this virtual service.
         :param set(Gateway) used_gateways: a set of used gateways, to be updated by adding gateways
         referenced by tls routes of this virtual service
-        :return: list[IngressPolicy] the resulting list of policies.
+        :return: list[IstioGatewayPolicy] the resulting list of policies.
         """
         result = []
         global_has_mesh = 'mesh' in vs.gateway_names
@@ -578,7 +579,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
 
             if has_mesh:
                 for dest in tls_route.destinations:
-                    res_policy = IngressPolicy(vs.name + '/mesh/' + str(tls_route.all_sni_hosts_dfa),
+                    res_policy = IstioGatewayPolicy(vs.name + '/mesh/' + str(tls_route.all_sni_hosts_dfa),
                                                vs.namespace)
                     res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
                     res_policy.affects_ingress = True
@@ -592,11 +593,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                     conns.add_connections(protocol_name,
                                           ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dest.ports,
                                                                                             "hosts": tls_route.all_sni_hosts_dfa}))
-                    res_policy.add_ingress_rule(IngressPolicyRule(local_peers, conns, opt_props))
+                    res_policy.add_ingress_rule(IstioGatewayPolicyRule(local_peers, conns, opt_props))
                     result.append(res_policy)
 
             if gtw_peers:
-                res_policy = IngressPolicy(vs.name + '/' + str(gtw_peers) + '/' + str(tls_route.all_sni_hosts_dfa),
+                res_policy = IstioGatewayPolicy(vs.name + '/' + str(gtw_peers) + '/' + str(tls_route.all_sni_hosts_dfa),
                                            vs.namespace)
                 res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
                 res_policy.affects_egress = True
@@ -611,7 +612,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                     conns.add_connections(protocol_name,
                                           ConnectivityProperties.make_conn_props_from_dict({"dst_ports": dest.ports,
                                                                                             "hosts": tls_route.all_sni_hosts_dfa}))
-                    res_policy.add_egress_rule(IngressPolicyRule(dest.pods, conns, opt_props))
+                    res_policy.add_egress_rule(IstioGatewayPolicyRule(dest.pods, conns, opt_props))
                 result.append(res_policy)
 
         return result

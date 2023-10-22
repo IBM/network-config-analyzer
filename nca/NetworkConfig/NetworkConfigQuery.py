@@ -19,7 +19,7 @@ from nca.FWRules.MinimizeFWRules import MinimizeFWRules
 from nca.FWRules.ClusterInfo import ClusterInfo
 from nca.Resources.NetworkPolicy import PolicyConnectionsFilter
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
-from nca.Resources.IngressPolicy import IngressPolicy
+from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from .QueryOutputHandler import QueryAnswer, DictOutputHandler, StringOutputHandler, \
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, \
@@ -1282,7 +1282,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
             return config  # no ingress policies in this config
         config_without_ingress = config.clone_without_policies(config.name)
         for policy in config.policies_container.policies.values():
-            if not isinstance(policy, IngressPolicy):  # ignoring ingress policies
+            if not isinstance(policy, IstioGatewayPolicy):  # ignoring ingress policies
                 config_without_ingress.append_policy_to_config(policy)
         return config_without_ingress
 

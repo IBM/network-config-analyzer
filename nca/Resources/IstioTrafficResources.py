@@ -16,7 +16,7 @@ istio_root_namespace = 'istio-config'
 
 class Gateway:
     """
-    A class for keeping some elements of parsed Istio Gateway, needed for building IngressPolicy
+    A class for keeping some elements of parsed Istio Gateway, needed for building IstioGatewayPolicy
     """
 
     @dataclass
@@ -74,7 +74,7 @@ class Gateway:
 
 class VirtualService:
     """
-    A class for keeping some elements of parsed Istio VirtualService, needed for building IngressPolicy
+    A class for keeping some elements of parsed Istio VirtualService, needed for building IstioGatewayPolicy
     """
 
     @dataclass

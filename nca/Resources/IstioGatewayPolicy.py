@@ -9,7 +9,7 @@ from nca.CoreDS.Peer import PeerSet
 from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
-class IngressPolicyRule:
+class IstioGatewayPolicyRule:
     """
     A class representing a single ingress rule in an Ingress object
     """
@@ -30,14 +30,14 @@ class IngressPolicyRule:
 
     def contained_in(self, other):
         """
-        :param IngressPolicyRule other: Another rule
+        :param IstioGatewayPolicyRule other: Another rule
         :return: whether the self rule is contained in the other rule (self doesn't allow anything that other does not)
         :type: bool
         """
         return self.peer_set.issubset(other.peer_set) and self.connections.contained_in(other.connections)
 
 
-class IngressPolicy(NetworkPolicy):
+class IstioGatewayPolicy(NetworkPolicy):
     """
     This class implements ingress controller logic for incoming http(s) requests
     The logic is kept similarly to NetworkPolicy, where the selected_peers are the ingress/egress controller peers,
@@ -157,12 +157,12 @@ class IngressPolicy(NetworkPolicy):
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """
         Makes a copy of 'self' without a given policy rule
-        :param IngressPolicyRule rule_to_exclude: The one rule not to include in the copy
+        :param IstioGatewayPolicyRule rule_to_exclude: The one rule not to include in the copy
         :param bool ingress_rule: Whether the rule is an ingress or egress rule
         :return: A copy of 'self' without the provided rule
-        :rtype: IngressPolicy
+        :rtype: IstioGatewayPolicy
         """
-        res = IngressPolicy(self.name, self.namespace)
+        res = IstioGatewayPolicy(self.name, self.namespace)
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress
