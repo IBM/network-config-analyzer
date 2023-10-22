@@ -322,7 +322,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                     tls_route.all_sni_hosts_dfa = sni_host_dfa
             vs_all_hosts_dfa = reduce(MinDFA.__or__, vs.hosts_dfa)
             if not tls_route.all_sni_hosts_dfa.contained_in(vs_all_hosts_dfa):
-                self.warning('sniHosts mentioned in the tls.match are not a subset of hosts. This match will be ignored', vs)
+                self.warning('sniHosts mentioned in the tls.match are not a subset of hosts. This match will be ignored',
+                             vs)
                 return None
             self.parse_vs_gateways(vs.namespace, item, tls_route)
         return tls_route
@@ -370,7 +371,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         port_num = None
         if port:
             port_num = port.get('number')
-        assert not re.search("\*", host)
+        assert not re.search("\\*", host)
         if self.is_local_service(host):
             service = self.get_local_service(host, vs.namespace)
             if not service:
@@ -401,10 +402,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 return
             parsed_route.add_destination(host, dns_entries, port_num)
 
-    def is_local_service(self, host):
+    @staticmethod
+    def is_local_service(host):
         # according to https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
         # check for <service-name>.<namespace-name>.svc.cluster.local
-        if re.search("\*", host):  # regular expression
+        if re.search("\\*", host):  # regular expression
             return False
         splitted_host = host.split('.')
         if len(splitted_host) == 5 and splitted_host[2] == 'svc' and splitted_host[3] == 'cluster' \
@@ -580,7 +582,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             if has_mesh:
                 for dest in tls_route.destinations:
                     res_policy = IstioGatewayPolicy(vs.name + '/mesh/' + str(tls_route.all_sni_hosts_dfa),
-                                               vs.namespace)
+                                                    vs.namespace)
                     res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
                     res_policy.affects_ingress = True
                     res_policy.selected_peers = dest.pods
@@ -598,7 +600,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
 
             if gtw_peers:
                 res_policy = IstioGatewayPolicy(vs.name + '/' + str(gtw_peers) + '/' + str(tls_route.all_sni_hosts_dfa),
-                                           vs.namespace)
+                                                vs.namespace)
                 res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
                 res_policy.affects_egress = True
                 res_policy.selected_peers = gtw_peers
