@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
+from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import PeerSet
@@ -44,15 +45,24 @@ class IstioGatewayPolicy(NetworkPolicy):
     and the rules are ingress/egress_rules.
     """
 
-    def __init__(self, name, namespace):
+    class ActionType(Enum):
+        """
+        Allowed actions for IstioGatewayPolicy policies
+        """
+        Deny = 0
+        Allow = 1
+
+    def __init__(self, name, namespace, action):
         """
         :param str name: Ingress name
         :param K8sNamespace namespace: the namespace containing this ingress
+        :param ActionType action: whether Allow or Deny
         """
         super().__init__(name, namespace)
+        self.action = action
 
     def __eq__(self, other):
-        return super().__eq__(other)
+        return super().__eq__(other) and self.action == other.action
 
     def add_ingress_rules(self, rules):
         """
@@ -79,9 +89,15 @@ class IstioGatewayPolicy(NetworkPolicy):
             return
         self._init_opt_props()
         for rule in self.ingress_rules:
-            self._optimized_allow_ingress_props |= rule.optimized_props
+            if self.action == IstioGatewayPolicy.ActionType.Allow:
+                self._optimized_allow_ingress_props |= rule.optimized_props
+            elif self.action == IstioGatewayPolicy.ActionType.Deny:
+                self._optimized_deny_ingress_props |= rule.optimized_props
         for rule in self.egress_rules:
-            self._optimized_allow_egress_props |= rule.optimized_props
+            if self.action == IstioGatewayPolicy.ActionType.Allow:
+                self._optimized_allow_egress_props |= rule.optimized_props
+            elif self.action == IstioGatewayPolicy.ActionType.Deny:
+                self._optimized_deny_egress_props |= rule.optimized_props
         self.optimized_props_in_sync = True
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
@@ -100,15 +116,18 @@ class IstioGatewayPolicy(NetworkPolicy):
         if not captured:
             return PolicyConnections(False)
 
-        allowed_conns = ConnectionSet()
+        conns = ConnectionSet()
         rules = self.ingress_rules if is_ingress else self.egress_rules
         other_peer = from_peer if is_ingress else to_peer
         for rule in rules:
             if other_peer in rule.peer_set:
                 assert not rule.connections.has_named_ports()
-                allowed_conns |= rule.connections
+                conns |= rule.connections
 
-        return PolicyConnections(True, allowed_conns)
+        if self.action == self.ActionType.Allow:
+            return PolicyConnections(True, allowed_conns=conns)
+        else:  # Deny
+            return PolicyConnections(True, denied_conns=conns)
 
     def allowed_connections_optimized(self, is_ingress):
         """
@@ -123,9 +142,11 @@ class IstioGatewayPolicy(NetworkPolicy):
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
             res_conns.allowed_conns = self.optimized_allow_ingress_props().copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_ingress else PeerSet()
         else:
             res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
         return res_conns
 
@@ -142,13 +163,13 @@ class IstioGatewayPolicy(NetworkPolicy):
         full_name = self.full_name(_config_name)
         for rule_index, ingress_rule in enumerate(self.ingress_rules, start=1):
             if not ingress_rule.peer_set:
-                emptiness = f'Rule no. {rule_index} in Ingress/Egress resource {full_name} does not select any pods'
+                emptiness = f'Rule no. {rule_index} in Istio Gateway/VirtualService resource {full_name} does not select any pods'
                 emptiness_explanation.append(emptiness)
                 empty_ingress_rules.add(rule_index)
 
         for rule_index, egress_rule in enumerate(self.egress_rules, start=1):
             if not egress_rule.peer_set:
-                emptiness = f'Rule no. {rule_index} in Ingress/Egress resource {full_name} does not select any pods'
+                emptiness = f'Rule no. {rule_index} in Istio Gateway/VirtualService resource {full_name} does not select any pods'
                 emptiness_explanation.append(emptiness)
                 empty_egress_rules.add(rule_index)
 
@@ -162,7 +183,7 @@ class IstioGatewayPolicy(NetworkPolicy):
         :return: A copy of 'self' without the provided rule
         :rtype: IstioGatewayPolicy
         """
-        res = IstioGatewayPolicy(self.name, self.namespace)
+        res = IstioGatewayPolicy(self.name, self.namespace, self.action)
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress
@@ -180,6 +201,26 @@ class IstioGatewayPolicy(NetworkPolicy):
         :return: Whether the policy has rules that allow connections.
         :rtype: bool
         """
+        if self.action == self.ActionType.Deny:
+            return False
+
+        for ingress_rule in self.ingress_rules:
+            if ingress_rule.peer_set:
+                return True
+
+        for egress_rule in self.egress_rules:
+            if egress_rule.peer_set:
+                return True
+        return False
+
+    def has_deny_rules(self):
+        """
+        :return: Whether the policy has rules that allow connections.
+        :rtype: bool
+        """
+        if self.action == self.ActionType.Allow:
+            return False
+
         for ingress_rule in self.ingress_rules:
             if ingress_rule.peer_set:
                 return True

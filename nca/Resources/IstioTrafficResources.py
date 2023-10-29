@@ -88,34 +88,34 @@ class VirtualService:
 
     class Route:
         """
-        A base class for various route kinds (HTTPRoute/TLSRoute/TCPRoute) of a VirtualService
+        A class for various route kinds (HTTPRoute/TLSRoute/TCPRoute) of a VirtualService
         """
 
         def __init__(self):
+            self.is_internal_dest = None
             self.destinations = []
+            self.uri_dfa = None  # only in HTTP routes
+            self.methods = None  # only in HTTP routes
+            self.all_sni_hosts_dfa = None  # only in TLS routes
+            self.gateway_names = []
 
-        def add_destination(self, name, pods, port):
+        def add_destination(self, name, pods, port, is_internal_dest):
             """
             Adds the route destination to HTTP/TLS/TCP route
             :param str name: a name of a service representing this destination
             :param PeerSet pods: the destination pods
             :param int/str port: the destination port
+            :param bool is_internal_dest: True if the destination is an internal service, False for external services.
             """
             rule_ports = PortSet()
             if port:
                 rule_ports.add_port(port)  # may be either a number or a named port
             self.destinations.append(VirtualService.Destination(name, pods, rule_ports))
-
-    class HTTPRoute(Route):
-        """
-        A class for keeping a parsed http route of a VirtualService
-        """
-        def __init__(self):
-            super().__init__()
-            self.uri_dfa = None
-#            self.scheme_dfa = None  # not supported yet
-            self.methods = None
-#            self.authority_dfa = None  # not supported yet
+            if self.is_internal_dest is None:
+                self.is_internal_dest = is_internal_dest
+            else:
+                # assuming no both ingress and egress flows in the same route
+                assert self.is_internal_dest == is_internal_dest
 
         def add_uri_dfa(self, uri_dfa):
             """
@@ -137,16 +137,6 @@ class VirtualService:
             else:
                 self.methods = methods.copy()
 
-    class TLSRoute(Route):
-        """
-        A class for keeping a parsed tls route of a VirtualService
-        """
-
-        def __init__(self):
-            super().__init__()
-            self.all_sni_hosts_dfa = None
-            self.gateway_names = []
-
     def __init__(self, name, namespace):
         """
         Create a VirtualService
@@ -159,6 +149,7 @@ class VirtualService:
         self.gateway_names = []
         self.http_routes = []
         self.tls_routes = []
+        self.tcp_routes = []
 
     def full_name(self):
         """
@@ -187,6 +178,13 @@ class VirtualService:
         :param TLSRoute route: the route to add
         """
         self.tls_routes.append(route)
+
+    def add_tcp_route(self, route):
+        """
+        Add tls route to the list of all tls routes of the VirtualService
+        :param TLSRoute route: the route to add
+        """
+        self.tcp_routes.append(route)
 
     @staticmethod
     def add_gateway(gtw_namespace, gtw_name, result):

@@ -8,7 +8,7 @@ metadata:
     service.istio.io/canonical-name: details
 spec:
   ports:
-  - port: 9080
+  - port: 5555
     name: http
   selector:
     app: details
