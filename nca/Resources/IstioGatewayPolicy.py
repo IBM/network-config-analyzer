@@ -163,13 +163,15 @@ class IstioGatewayPolicy(NetworkPolicy):
         full_name = self.full_name(_config_name)
         for rule_index, ingress_rule in enumerate(self.ingress_rules, start=1):
             if not ingress_rule.peer_set:
-                emptiness = f'Rule no. {rule_index} in Istio Gateway/VirtualService resource {full_name} does not select any pods'
+                emptiness = f'Rule no. {rule_index} in Istio Gateway/VirtualService resource {full_name} ' \
+                            f'does not select any pods'
                 emptiness_explanation.append(emptiness)
                 empty_ingress_rules.add(rule_index)
 
         for rule_index, egress_rule in enumerate(self.egress_rules, start=1):
             if not egress_rule.peer_set:
-                emptiness = f'Rule no. {rule_index} in Istio Gateway/VirtualService resource {full_name} does not select any pods'
+                emptiness = f'Rule no. {rule_index} in Istio Gateway/VirtualService resource {full_name} ' \
+                            f'does not select any pods'
                 emptiness_explanation.append(emptiness)
                 empty_egress_rules.add(rule_index)
 

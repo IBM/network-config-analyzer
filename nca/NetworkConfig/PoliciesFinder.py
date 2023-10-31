@@ -91,7 +91,7 @@ class PoliciesFinder:
                 else:
                     istio_sidecar_parser.reset(policy, self.peer_container, file_name)
                 parsed_policy = istio_sidecar_parser.parse_policy()
-            elif policy_type == NetworkPolicy.PolicyType.Ingress:
+            elif policy_type == NetworkPolicy.PolicyType.IngressEgressGateway:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 parsed_policy = parsed_element.parse_policy()
                 self._add_policy(parsed_policy)
@@ -122,7 +122,7 @@ class PoliciesFinder:
                                        policy.line_number,
                                        policy_name
                                        )
-        if istio_traffic_parser:
+        if istio_traffic_parser and not istio_traffic_parser.missing_istio_gw_pods_with_labels:
             istio_traffic_policies = istio_traffic_parser.create_istio_traffic_policies()
             for istio_traffic_policy in istio_traffic_policies:
                 self._add_policy(istio_traffic_policy)

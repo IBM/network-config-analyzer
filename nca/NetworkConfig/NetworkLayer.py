@@ -11,6 +11,7 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
+from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy
 from nca.Resources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy, PolicyConnectionsFilter
 from nca.Utils.ExplTracker import ExplTracker
 
@@ -21,15 +22,15 @@ from nca.Utils.ExplTracker import ExplTracker
 class NetworkLayerName(Enum):
     K8s_Calico = 0
     Istio = 1
-    Ingress = 2
+    IngressEgressGateway = 2
 
     def create_network_layer(self, policies):
         if self == NetworkLayerName.K8s_Calico:
             return K8sCalicoNetworkLayer(policies)
         if self == NetworkLayerName.Istio:
             return IstioNetworkLayer(policies)
-        if self == NetworkLayerName.Ingress:
-            return IngressNetworkLayer(policies)
+        if self == NetworkLayerName.IngressEgressGateway:
+            return GatewayLayer(policies)
         return None
 
     @staticmethod
@@ -39,8 +40,8 @@ class NetworkLayerName(Enum):
             return NetworkLayerName.K8s_Calico
         elif policy_type in {NetworkPolicy.PolicyType.IstioAuthorizationPolicy, NetworkPolicy.PolicyType.IstioSidecar}:
             return NetworkLayerName.Istio
-        elif policy_type == NetworkPolicy.PolicyType.Ingress:
-            return NetworkLayerName.Ingress
+        elif policy_type == NetworkPolicy.PolicyType.IngressEgressGateway:
+            return NetworkLayerName.IngressEgressGateway
         return None
 
 
@@ -418,13 +419,17 @@ class IstioNetworkLayer(NetworkLayer):
         return res_conns
 
 
-class IngressNetworkLayer(NetworkLayer):
+class GatewayLayer(NetworkLayer):
+    @staticmethod
+    def captured_cond_func(policy):
+        return policy.action == IstioGatewayPolicy.ActionType.Allow
 
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
-        all_allowed_conns = ConnectionSet(True)
-        allowed_conns, _, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress)
-        if captured_res:
-            all_allowed_conns = allowed_conns
+        allowed_conns, denied_conns, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress,
+                                                                                   GatewayLayer.captured_cond_func)
+        all_allowed_conns = allowed_conns
+        if not captured_res:
+            all_allowed_conns |= (ConnectionSet(True) - denied_conns)
         return PolicyConnections(captured=captured_res, allowed_conns=allowed_conns, denied_conns=ConnectionSet(),
                                  all_allowed_conns=all_allowed_conns)
 
@@ -432,7 +437,7 @@ class IngressNetworkLayer(NetworkLayer):
         all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
         all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False, include_dns_entries=True)
         non_captured_conns = None
-        res_conns = self.collect_policies_conns_optimized(is_ingress)
+        res_conns = self.collect_policies_conns_optimized(is_ingress, GatewayLayer.captured_cond_func)
         if res_conns_filter.calc_all_allowed:
             res_conns.all_allowed_conns = res_conns.allowed_conns
             non_captured_peers = all_peers_no_ips - res_conns.captured
@@ -443,6 +448,7 @@ class IngressNetworkLayer(NetworkLayer):
                 else:
                     non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                            "dst_peers": all_peers_and_ips})
+                non_captured_conns -= res_conns.denied_conns
                 res_conns.all_allowed_conns |= non_captured_conns
         if non_captured_conns and ExplTracker().is_active():
             src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
