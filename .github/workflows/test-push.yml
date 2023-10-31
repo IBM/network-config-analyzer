@@ -227,7 +227,7 @@ jobs:
     steps:
       - uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1  # v4.7.0
         with:
-          python-version: 3.8
+          python-version: 3.9
           architecture: x64
       - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
         with:
