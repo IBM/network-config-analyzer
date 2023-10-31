@@ -26,9 +26,10 @@ class NetworkPolicy:
         CalicoProfile = 4
         IstioAuthorizationPolicy = 10
         IstioSidecar = 11
-        IngressEgressGateway = 20
+        Ingress = 20
         Gateway = 30
         VirtualService = 31
+        IstioGatewayPolicy = 32
         List = 500
 
         @staticmethod
@@ -44,7 +45,7 @@ class NetworkPolicy:
             elif kind == "IstioSidecar":
                 return NetworkPolicy.PolicyType.IstioSidecar
             elif kind == "K8sIngress":
-                return NetworkPolicy.PolicyType.IngressEgressGateway
+                return NetworkPolicy.PolicyType.Ingress
             return None
 
     def __init__(self, name, namespace):
@@ -258,7 +259,7 @@ class NetworkPolicy:
         elif kind == 'NetworkPolicy':
             policy_type = NetworkPolicy.PolicyType.K8sNetworkPolicy
         elif kind == 'Ingress':
-            policy_type = NetworkPolicy.PolicyType.IngressEgressGateway
+            policy_type = NetworkPolicy.PolicyType.Ingress
 
         return policy_type
 
@@ -357,8 +358,12 @@ class NetworkPolicy:
         return NotImplemented
 
     def policy_type_str(self):
-        return "Istio Gateway/VirtualService/Ingress resource" if self.policy_kind == NetworkPolicy.PolicyType.IngressEgressGateway \
-            else "NetworkPolicy"
+        if self.policy_kind == NetworkPolicy.PolicyType.Ingress:
+            return "Ingress resource"
+        elif self.policy_kind == NetworkPolicy.PolicyType.IstioGatewayPolicy:
+            return "Istio Gateway/VirtualService resource"
+        else:
+            return "NetworkPolicy"
 
 
 @dataclass

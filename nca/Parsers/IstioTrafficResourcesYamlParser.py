@@ -576,7 +576,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         """
         mesh_to_egress_policy = IstioGatewayPolicy(vs.name + '/mesh/egress/allow', vs.namespace,
                                                    IstioGatewayPolicy.ActionType.Allow)
-        mesh_to_egress_policy.policy_kind = NetworkPolicy.PolicyType.IngressEgressGateway
+        mesh_to_egress_policy.policy_kind = NetworkPolicy.PolicyType.IstioGatewayPolicy
         # We model egress flow relatively to egress gateways pods (i.e. they are the selected_peers);
         # since the flow is into those selected peers, the policy will affect ingress.
         mesh_to_egress_policy.affects_ingress = True
@@ -597,7 +597,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
             return None
         deny_mesh_to_ext_policy = IstioGatewayPolicy('mesh/external/deny', self.namespace,
                                                      IstioGatewayPolicy.ActionType.Deny)
-        deny_mesh_to_ext_policy.policy_kind = NetworkPolicy.PolicyType.IngressEgressGateway
+        deny_mesh_to_ext_policy.policy_kind = NetworkPolicy.PolicyType.IstioGatewayPolicy
         # External (DNS) pods are the selected_peers
         # Note: This is a Deny policy. selected_peers will not be captured!
         deny_mesh_to_ext_policy.affects_ingress = True
@@ -648,7 +648,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                                             vs.namespace, IstioGatewayPolicy.ActionType.Allow)
             # We model ingress/egress flow relatively to the gateways pods (which are the selected_peers);
             # since in this case the gateway pods are the source pods, the policy will affect egress.
-            res_policy.policy_kind = NetworkPolicy.PolicyType.IngressEgressGateway
+            res_policy.policy_kind = NetworkPolicy.PolicyType.IstioGatewayPolicy
             res_policy.affects_egress = True
             res_policy.selected_peers = gtw.peers
             for dest in route.destinations:

@@ -255,7 +255,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
         self.namespace = self.peer_container.get_namespace(policy_ns)
         res_policy = IstioGatewayPolicy(policy_name + '/allow', self.namespace, IstioGatewayPolicy.ActionType.Allow)
-        res_policy.policy_kind = NetworkPolicy.PolicyType.IngressEgressGateway
+        res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
         res_policy.affects_egress = True
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],

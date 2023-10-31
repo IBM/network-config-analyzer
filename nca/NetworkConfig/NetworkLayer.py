@@ -40,7 +40,7 @@ class NetworkLayerName(Enum):
             return NetworkLayerName.K8s_Calico
         elif policy_type in {NetworkPolicy.PolicyType.IstioAuthorizationPolicy, NetworkPolicy.PolicyType.IstioSidecar}:
             return NetworkLayerName.Istio
-        elif policy_type == NetworkPolicy.PolicyType.IngressEgressGateway:
+        elif policy_type in {NetworkPolicy.PolicyType.Ingress, NetworkPolicy.PolicyType.IstioGatewayPolicy}:
             return NetworkLayerName.IngressEgressGateway
         return None
 

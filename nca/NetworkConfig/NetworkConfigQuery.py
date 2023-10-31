@@ -1277,8 +1277,8 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         :return: resulting config without ingress policies
         :rtype: NetworkConfig
         """
-        if NetworkLayerName.IngressEgressGateway not in config.policies_container.layers or not config.policies_container.layers[
-                NetworkLayerName.IngressEgressGateway].policies_list:
+        if NetworkLayerName.IngressEgressGateway not in config.policies_container.layers or \
+                not config.policies_container.layers[NetworkLayerName.IngressEgressGateway].policies_list:
             return config  # no ingress policies in this config
         config_without_ingress = config.clone_without_policies(config.name)
         for policy in config.policies_container.policies.values():
@@ -2362,7 +2362,8 @@ class AllCapturedQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         # get_all_peers_group() does not require getting dnsEntry peers, since they are not ClusterEP (pods)
         existing_pods = self.config.peer_container.get_all_peers_group()
-        if not self.config or self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.IngressEgressGateway):
+        if not self.config or \
+                self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.IngressEgressGateway):
             return QueryAnswer(bool_result=False,
                                output_result=f'There are no network policies in {self.config.name}. '
                                              f'All workload resources are non captured',
