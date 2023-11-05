@@ -6,7 +6,6 @@
 import re
 from functools import reduce
 from nca.CoreDS.MinDFA import MinDFA
-from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
