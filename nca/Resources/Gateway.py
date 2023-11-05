@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.MinDFA import MinDFA
 
+
 class Gateway:
     """
     A class for keeping some elements of parsed Istio Gateway, needed for building IstioGatewayPolicy
