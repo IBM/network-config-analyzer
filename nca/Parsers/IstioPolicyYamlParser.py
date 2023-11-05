@@ -13,7 +13,7 @@ from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
-from nca.Resources.IstioTrafficResources import istio_root_namespace
+from nca.Parsers.IstioGenericYamlParser import istio_root_namespace
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .IstioGenericYamlParser import IstioGenericYamlParser
 

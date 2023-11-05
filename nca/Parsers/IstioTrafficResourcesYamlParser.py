@@ -12,7 +12,8 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.Resources.IstioTrafficResources import Gateway, VirtualService
+from nca.Resources.Gateway import Gateway
+from nca.Resources.VirtualService import VirtualService
 from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy, IstioGatewayPolicyRule
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
@@ -257,7 +258,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param dict resource: the HttpMatchRequest resource
         :param str attr_name: the name of the StringMatch attribute
         :param str vs_name: the name of the VirtualService containing this HttpMatchRequest
-        :return MinDFA or MethodSet: the StringMatch attribute converted to the MinDFA format
+        :return Union[MinDFA, MethodSet]: the StringMatch attribute converted to the MinDFA format
         or to the MethodSet format (in case of the 'method' attribute)
         """
         res = resource.get(attr_name)
