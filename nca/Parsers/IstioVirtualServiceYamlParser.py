@@ -413,7 +413,7 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         if not result:
             self.warning('no valid VirtualServices found. Ignoring istio ingress traffic')
         else:
-            result[0].findings = self.warning_msgs
+            result[0].findings = self.warning_msgs + gtw_parser.warning_msgs
         return result
 
     def pick_vs_gateways_by_hosts(self, vs, gateway_names):
