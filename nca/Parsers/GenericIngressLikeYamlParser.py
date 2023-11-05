@@ -27,7 +27,6 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         """
         GenericYamlParser.__init__(self, ingress_file_name)
         self.peer_container = peer_container
-        self.namespace = None
         self.default_backend_peers = PeerSet()
         self.default_backend_ports = PortSet()
 

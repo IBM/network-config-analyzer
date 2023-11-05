@@ -31,7 +31,6 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         against this set of peers
         """
         GenericIngressLikeYamlParser.__init__(self, peer_container)
-        self.namespace = None
         self.gateways = {}  # a map from a name to a Gateway
         self.virtual_services = {}  # a map from a name to a VirtualService
         # missing_istio_gw_pods_with_labels is a set of labels - (key,value) pairs
@@ -142,8 +141,6 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         :param VirtualService vs: the virtual service to add
         """
         self.virtual_services[vs.full_name()] = vs
-        if not self.namespace:
-            self.namespace = vs.namespace
 
     def parse_virtual_service(self, vs_resource, vs_file_name):
         """
@@ -585,9 +582,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
 
     def create_deny_mesh_to_ext_policy(self):
         """
-        Initialization of IstioGatewayPolicy for holding the denied connections from mesh to DNS nodes
-        :param VirtualService vs: the virtual service that defines connections from egress gateway to DNS nodes
-        :param PeerSet selected_peers: mesh pods
+        Create policy for representation of the denied connections from mesh to DNS nodes
         :return: the resulting IstioGatewayPolicy
         """
         source_peers = self.peer_container.get_all_peers_group() - self.get_egress_gtw_pods()
@@ -595,11 +590,11 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         if not dns_peers:
             # This is not an egress flow
             return None
-        deny_mesh_to_ext_policy = IstioGatewayPolicy('mesh/external/deny', self.namespace,
+        deny_mesh_to_ext_policy = IstioGatewayPolicy('mesh/external/deny', self.peer_container.get_namespace('default'),
                                                      IstioGatewayPolicy.ActionType.Deny)
         deny_mesh_to_ext_policy.policy_kind = NetworkPolicy.PolicyType.IstioGatewayPolicy
         # External (DNS) pods are the selected_peers
-        # Note: This is a Deny policy. selected_peers will not be captured!
+        # Note: This is a Deny policy. selected_peers will not be captured (due to conditional captured function)
         deny_mesh_to_ext_policy.affects_ingress = True
         deny_mesh_to_ext_policy.selected_peers = dns_peers
         opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": source_peers,

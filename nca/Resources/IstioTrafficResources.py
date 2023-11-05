@@ -58,7 +58,7 @@ class Gateway:
         """
         :return str: the full gateway name in <namespace>/<name> format
         """
-        return (str(self.namespace) + '/' if self.namespace else '') + self.name
+        return str(self.namespace) + '/' + self.name
 
     def add_server(self, server):
         """
