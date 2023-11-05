@@ -12,14 +12,13 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.Resources.Gateway import Gateway
 from nca.Resources.VirtualService import VirtualService
 from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy, IstioGatewayPolicyRule
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 
-class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
+class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
     """
     A parser for Istio traffic resources for ingress and egress
     """
@@ -32,109 +31,8 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         against this set of peers
         """
         GenericIngressLikeYamlParser.__init__(self, peer_container)
-        self.gateways = {}  # a map from a name to a Gateway
         self.virtual_services = {}  # a map from a name to a VirtualService
-        # missing_istio_gw_pods_with_labels is a set of labels - (key,value) pairs
-        # of gateway resource that has no matching pods
-        self.missing_istio_gw_pods_with_labels = set()
-
-    def add_gateway(self, gateway):
-        """
-        Adds a Gateway to the internal parser db
-        (to be later used for locating the gateways referenced by virtual services)
-        :param Gateway gateway: the gateway to add
-        """
-        self.gateways[gateway.full_name()] = gateway
-
-    def get_gateway(self, gtw_full_name):
-        """
-        Returns a Gateway by its full name or None if not found.
-        :param str gtw_full_name: the gateway full name
-        :return Gateway: the found Gateway / None
-        """
-        return self.gateways.get(gtw_full_name)
-
-    def parse_gateway(self, gateway_resource, gateway_file_name):
-        """
-        Parses a gateway resource object and adds the parsed Gateway object to self.gateways
-        :param dict gateway_resource: the gateway object to parse
-        :param str gateway_file_name: the name of the gateway resource file (for reporting errors and warnings)
-        """
-        self.set_file_name(gateway_file_name)  # for error/warning messages
-        gtw_name, gtw_ns = self.parse_generic_yaml_objects_fields(gateway_resource, ['Gateway'],
-                                                                  ['networking.istio.io/v1alpha3',
-                                                                   'networking.istio.io/v1beta1'], 'istio', True)
-        if gtw_name is None:
-            return None  # not an Istio Gateway
-        gtw_namespace = self.peer_container.get_namespace(gtw_ns)
-        gateway = Gateway(gtw_name, gtw_namespace)
-
-        gtw_spec = gateway_resource['spec']
-        self.check_fields_validity(gtw_spec, f'the spec of Gateway {gateway.full_name()}',
-                                   {'selector': [1, dict], 'servers': [1, list]})
-        selector = gtw_spec['selector']
-        peers = self.peer_container.get_all_peers_group()
-        for key, val in selector.items():
-            selector_peers = self.peer_container.get_peers_with_label(key, [val])
-            if not selector_peers:
-                self.missing_istio_gw_pods_with_labels.add((key, val))
-                peers = PeerSet()
-            else:
-                peers &= selector_peers
-        if not peers:
-            self.warning(f'selector {selector} does not reference any pods in Gateway {gtw_name}. Ignoring the gateway')
-            return
-
-        gateway.peers = peers
-        self.parse_gateway_servers(gtw_name, gtw_spec, gateway)
-        self.add_gateway(gateway)
-
-    def parse_gateway_servers(self, gtw_name, gtw_spec, gateway):
-        """
-        Parses servers list in Gateway resource.
-        :param gtw_name: the gateway name
-        :param gtw_spec: the gateway spec
-        :param gateway: the parsed gateway, to include the resulting parsed servers
-        """
-        servers = gtw_spec['servers']
-
-        for i, server in enumerate(servers, start=1):
-            self.check_fields_validity(server, f'the server #{i} of the  Gateway {gtw_name}',
-                                       {'port': 1, 'bind': [0, str], 'hosts': [1, list], 'tls': 0, 'name': [0, str]})
-            port = self.parse_gateway_port(server)
-            gtw_server = Gateway.Server(port)
-            gtw_server.name = server.get('name')
-            hosts = server['hosts']
-            for host in hosts or []:
-                host_dfa = self.parse_host_value(host, gtw_spec)
-                if host_dfa:
-                    gtw_server.add_host(host_dfa)
-            if not gtw_server.hosts_dfa:
-                self.syntax_error(f'no valid hosts found for the server {gtw_server.name or i} '
-                                  f'of the Gateway {gtw_name}')
-            gateway.add_server(gtw_server)
-
-    def parse_host_value(self, host, resource):
-        """
-        For 'hosts' dimension of type MinDFA -> return a MinDFA, or None for all values
-        :param str host: input regex host value
-        :param dict resource: the parsed gateway object
-        :return: Union[MinDFA, None] object
-        """
-        namespace_and_name = host.split('/', 1)
-        if len(namespace_and_name) > 1:
-            self.warning(f'host {host}: namespace is not supported yet. Ignoring the host', resource)
-            return None
-        return self.parse_regex_host_value(host, resource)
-
-    def parse_gateway_port(self, server):
-        port = server['port']
-        self.check_fields_validity(port, f'the port of the server {server}',
-                                   {'number': [1, int], 'protocol': [1, str], 'name': [1, str], 'targetPort': [3, str]})
-        number = port['number']
-        protocol = port['protocol']
-        name = port['name']
-        return Gateway.Server.GatewayPort(number, protocol, name)
+        self.gtw_parser = None
 
     def add_virtual_service(self, vs):
         """
@@ -471,15 +369,23 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         assert service_name and namespace
         return self.peer_container.get_service_by_name_and_ns(service_name, namespace)
 
-    def create_istio_traffic_policies(self):
+    # Second phase - creation of policies from parsed gateways and virtual services
+
+    def create_istio_traffic_policies(self, gtw_parser):
         """
         Create IngressPolicies according to the parsed Gateways and VirtualServices
+        :param IstioGatewayYamlParser gtw_parser: the gateway parser containing parsed gateways
         :return list[IstioGatewayPolicy]: the resulting policies
         """
         if not self.virtual_services:
-            self.warning('no valid VirtualServices found. Ignoring istio ingress traffic')
+            self.warning('no valid VirtualServices found. Ignoring istio ingress/egress traffic')
             return []
 
+        if not gtw_parser:
+            self.warning('no valid Gateways found. Ignoring istio ingress/egress traffic')
+            return []
+
+        self.gtw_parser = gtw_parser
         result = []
         used_gateways = set()
         for vs in self.virtual_services.values():
@@ -501,7 +407,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         if deny_mesh_to_ext_policy:
             result.append(deny_mesh_to_ext_policy)
 
-        unused_gateways = set(self.gateways.values()) - used_gateways
+        unused_gateways = self.gtw_parser.get_all_gateways() - used_gateways
         if unused_gateways:
             self.warning(f'the following gateways have no virtual services attached: '
                          f'{",".join([gtw.full_name() for gtw in unused_gateways])}')
@@ -525,7 +431,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         for gtw_name in gateway_names:
             if gtw_name == 'mesh':
                 continue
-            gtw = self.get_gateway(gtw_name)
+            gtw = self.gtw_parser.get_gateway(gtw_name)
             if gtw:
                 matching_hosts = gtw.all_hosts_dfa & vs_all_hosts_dfa
                 if matching_hosts:
@@ -537,32 +443,6 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                 self.warning(f'missing gateway {gtw_name}, referenced in the VirtualService {vs.full_name()}. '
                              f'Ignoring the gateway')
         return gtw_to_hosts
-
-    def get_egress_gtw_pods(self):
-        """
-        Heuristically identifying egress gateway pods by having "egress" substring in their names or labels.
-        :return:
-        """
-        result = PeerSet()
-        if not self.gateways:
-            return result
-        look_for = "egress"
-        gtw_peers = reduce(PeerSet.__or__, [gtw.peers for gtw in self.gateways.values()])
-        for peer in gtw_peers:
-            # first, try to look in peer's name
-            if look_for in peer.name:
-                result.add(peer)
-                continue
-            # try to look in peer's labels
-            found = [val for val in list(peer.labels.values()) if look_for in val]
-            if found:
-                result.add(peer)
-                continue
-            # still not found? try to look in extra_labels
-            found = [val for val in list(peer.extra_labels.values()) if look_for in val]
-            if found:
-                result.add(peer)
-        return result
 
     @staticmethod
     def init_mesh_to_egress_policy(vs, selected_peers):
@@ -586,7 +466,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         Create policy for representation of the denied connections from mesh to DNS nodes
         :return: the resulting IstioGatewayPolicy
         """
-        source_peers = self.peer_container.get_all_peers_group() - self.get_egress_gtw_pods()
+        source_peers = self.peer_container.get_all_peers_group() - self.gtw_parser.get_egress_gtw_pods()
         dns_peers = self.peer_container.get_all_dns_entries()
         if not dns_peers:
             # This is not an egress flow
@@ -671,7 +551,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         result = []
         global_has_mesh = 'mesh' in vs.gateway_names
         local_peers = self.peer_container.get_all_peers_group()
-        egress_gtw_pods = self.get_egress_gtw_pods()
+        egress_gtw_pods = self.gtw_parser.get_egress_gtw_pods()
         mesh_to_egress_policy = self.init_mesh_to_egress_policy(vs, egress_gtw_pods)
 
         for route_cnt, route in enumerate(routes, start=1):

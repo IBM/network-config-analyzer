@@ -56,6 +56,19 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
             regex_value = regex_value.replace("*", allowed_chars + '*')
         return MinDFA.dfa_from_regex(regex_value)
 
+    def parse_host_value(self, host, resource):
+        """
+        For 'hosts' dimension of type MinDFA -> return a MinDFA, or None for all values
+        :param str host: input regex host value
+        :param dict resource: the parsed gateway object
+        :return: Union[MinDFA, None] object
+        """
+        namespace_and_name = host.split('/', 1)
+        if len(namespace_and_name) > 1:
+            self.warning(f'host {host}: namespace is not supported yet. Ignoring the host', resource)
+            return None
+        return self.parse_regex_host_value(host, resource)
+
     @staticmethod
     def _make_allow_rules(conn_props, src_peers):
         """
