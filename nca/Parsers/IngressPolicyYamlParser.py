@@ -10,7 +10,7 @@ from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy
+from nca.Resources.GatewayPolicy import GatewayPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
@@ -254,7 +254,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             return None  # Not an Ingress object
 
         self.namespace = self.peer_container.get_namespace(policy_ns)
-        res_policy = IstioGatewayPolicy(policy_name + '/allow', self.namespace)
+        res_policy = GatewayPolicy(policy_name + '/allow', self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
         res_policy.affects_egress = True
         policy_spec = self.policy['spec']
