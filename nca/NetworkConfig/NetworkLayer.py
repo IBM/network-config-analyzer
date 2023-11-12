@@ -21,14 +21,14 @@ from nca.Utils.ExplTracker import ExplTracker
 class NetworkLayerName(Enum):
     K8s_Calico = 0
     Istio = 1
-    Ingress = 2
+    Gateway = 2
 
     def create_network_layer(self, policies):
         if self == NetworkLayerName.K8s_Calico:
             return K8sCalicoNetworkLayer(policies)
         if self == NetworkLayerName.Istio:
             return IstioNetworkLayer(policies)
-        if self == NetworkLayerName.Ingress:
+        if self == NetworkLayerName.Gateway:
             return IngressNetworkLayer(policies)
         return None
 
@@ -40,7 +40,7 @@ class NetworkLayerName(Enum):
         elif policy_type in {NetworkPolicy.PolicyType.IstioAuthorizationPolicy, NetworkPolicy.PolicyType.IstioSidecar}:
             return NetworkLayerName.Istio
         elif policy_type == NetworkPolicy.PolicyType.Ingress:
-            return NetworkLayerName.Ingress
+            return NetworkLayerName.Gateway
         return None
 
 
