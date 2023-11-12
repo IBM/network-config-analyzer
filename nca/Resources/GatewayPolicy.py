@@ -42,6 +42,7 @@ class GatewayPolicy(NetworkPolicy):
     This class implements ingress controller logic for incoming http(s) requests
     The logic is kept similarly to NetworkPolicy, where the selected_peers are the ingress/egress controller peers,
     and the rules are ingress/egress_rules.
+    This class is used to represent policies from `k8s Ingress` , `istio IngressGateway` and `istio EgresGateway`
     """
 
     def __init__(self, name, namespace):
