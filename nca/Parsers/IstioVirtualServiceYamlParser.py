@@ -520,7 +520,7 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
                     continue
             used_gateways.add(gtw)
             res_policy = GatewayPolicy(f'{vs.full_name()}/route_{route_cnt}/{gtw.full_name()}/{str(host_dfa)}/allow',
-                                            vs.namespace, GatewayPolicy.ActionType.Allow)
+                                       vs.namespace, GatewayPolicy.ActionType.Allow)
             # We model ingress/egress flow relatively to the gateways pods (which are the selected_peers);
             # since in this case the gateway pods are the source pods, the policy will affect egress.
             res_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
