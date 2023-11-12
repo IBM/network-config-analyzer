@@ -368,7 +368,7 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         assert service_name and namespace
         return self.peer_container.get_service_by_name_and_ns(service_name, namespace)
 
-    # Second phase - creation of policies from parsed gateways and virtual services
+# Second phase - creation of policies from parsed gateways and virtual services #############################
 
     def create_istio_traffic_policies(self, gtw_parser):
         """
@@ -389,18 +389,22 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         used_gateways = set()
         for vs in self.virtual_services.values():
             global_vs_gtw_to_hosts = self.pick_vs_gateways_by_hosts(vs, vs.gateway_names)
-            if not global_vs_gtw_to_hosts:
-                self.warning(f'virtual service {vs.full_name()} does not match valid gateways and will be ignored')
-                continue
-
             used_gateways.update(set(global_vs_gtw_to_hosts.keys()))
-            vs_policies = self.create_route_policies(vs, vs.http_routes, global_vs_gtw_to_hosts, used_gateways)
-            vs_policies.extend(self.create_route_policies(vs, vs.tls_routes, global_vs_gtw_to_hosts, used_gateways))
-            vs_policies.extend(self.create_route_policies(vs, vs.tcp_routes, global_vs_gtw_to_hosts, used_gateways))
+            only_local_traffic = False
+            vs_policies = self.create_route_policies(vs, vs.http_routes, global_vs_gtw_to_hosts, used_gateways,
+                                                     only_local_traffic)
+            vs_policies.extend(self.create_route_policies(vs, vs.tls_routes, global_vs_gtw_to_hosts, used_gateways,
+                                                          only_local_traffic))
+            vs_policies.extend(self.create_route_policies(vs, vs.tcp_routes, global_vs_gtw_to_hosts, used_gateways,
+                                                          only_local_traffic))
             if vs_policies:
                 result.extend(vs_policies)
             else:
-                self.warning(f'virtual service {vs.full_name()} does not affect traffic and is ignored')
+                if only_local_traffic:
+                    self.warning(f'The virtual service {vs.full_name()} defines only local (mesh-to-mesh) traffic '
+                                 f'that is ignored', vs)
+                else:
+                    self.warning(f'The virtual service {vs.full_name()} does not affect traffic and is ignored', vs)
 
         deny_mesh_to_ext_policy = self.create_deny_mesh_to_ext_policy()
         if deny_mesh_to_ext_policy:
@@ -465,11 +469,11 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         Create policy for representation of the denied connections from mesh to DNS nodes
         :return: the resulting GatewayPolicy
         """
-        source_peers = self.peer_container.get_all_peers_group() - self.gtw_parser.get_egress_gtw_pods()
         dns_peers = self.peer_container.get_all_dns_entries()
         if not dns_peers:
             # This is not an egress flow
             return None
+        source_peers = self.peer_container.get_all_peers_group() - self.gtw_parser.get_egress_gtw_pods()
         deny_mesh_to_ext_policy = GatewayPolicy('mesh/external/deny', self.peer_container.get_namespace('default'),
                                                 GatewayPolicy.ActionType.Deny)
         deny_mesh_to_ext_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
@@ -537,7 +541,7 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
             result.append(res_policy)
         return result
 
-    def create_route_policies(self, vs, routes, global_vs_gtw_to_hosts, used_gateways):
+    def create_route_policies(self, vs, routes, global_vs_gtw_to_hosts, used_gateways, only_local_traffic):
         """
         Create internal policies representing connections described by the given http/tls/tcp routes.
         :param VirtualService vs: the virtual service holding the given routes
@@ -545,23 +549,31 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         :param dict global_vs_gtw_to_hosts: a map from gateways to hosts relevant for this virtual service
         :param set(Gateway) used_gateways: a set of used gateways, to be updated by adding gateways
                referenced by these routes
+        :param bool only_local_traffic: an output flag to be updated if this route contains only the (ignored) mesh-to-mesh traffic
         :return: list[GatewayPolicy] the resulting list of policies
         """
         result = []
         global_has_mesh = 'mesh' in vs.gateway_names
+        has_gateways = len(vs.gateway_names) > 1 if global_has_mesh else bool(vs.gateway_names)
         local_peers = self.peer_container.get_all_peers_group()
         egress_gtw_pods = self.gtw_parser.get_egress_gtw_pods()
         mesh_to_egress_policy = self.init_mesh_to_egress_policy(vs, egress_gtw_pods)
+        mesh_to_mesh_warning_printed = False  # to avoid multiple printing of this warning
 
         for route_cnt, route in enumerate(routes, start=1):
             if route.gateway_names:  # override global gateways
                 has_mesh = 'mesh' in route.gateway_names
+                has_gateways |= len(route.gateway_names) > 1
                 gtw_to_hosts = self.pick_vs_gateways_by_hosts(vs, route.gateway_names)
             else:  # use global gateways
                 has_mesh = global_has_mesh
                 gtw_to_hosts = global_vs_gtw_to_hosts
             if not has_mesh and not gtw_to_hosts:  # when no gateways are given, the default is mesh
                 has_mesh = True
+            if route.is_internal_dest and has_mesh and not mesh_to_mesh_warning_printed:
+                self.warning(f'The internal (mesh-to-mesh) traffic redirection mentioned in the '
+                             f'VirtualService {vs.full_name()} is not currently supported and will be ignored', vs)
+                mesh_to_mesh_warning_printed = True
             result.extend(self.create_gtw_to_mesh_policies(vs, route, route_cnt, gtw_to_hosts, used_gateways))
             # Modeling connections from mesh to (egress) gateway nodes (which should be identified) (Egress flow).
             # Not modelling other connections from mesh to internal nodes here.
@@ -583,4 +595,5 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
 
         if mesh_to_egress_policy.has_allow_rules():
             result.append(mesh_to_egress_policy)
+        only_local_traffic |= (not has_gateways) and mesh_to_mesh_warning_printed
         return result

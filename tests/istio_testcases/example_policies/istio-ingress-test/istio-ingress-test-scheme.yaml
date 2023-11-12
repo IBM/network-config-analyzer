@@ -5,7 +5,7 @@ networkConfigList:
   - name: istio-ingress
     resourceList:
       - ./resources
-    expectedWarnings: 6
+    expectedWarnings: 7
 
 
 queries:

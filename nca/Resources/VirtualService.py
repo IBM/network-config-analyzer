@@ -138,4 +138,5 @@ class VirtualService:
         Add mesh gateway to the list of gateway names of the VirtualService
         :param result: the object to add the gateway to (assuming it has 'gateway_names' attribute).
         """
-        result.gateway_names.append("mesh")
+        if 'mesh' not in result.gateway_names:
+            result.gateway_names.append("mesh")

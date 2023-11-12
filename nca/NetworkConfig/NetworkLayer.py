@@ -441,6 +441,7 @@ class GatewayLayer(NetworkLayer):
         if res_conns_filter.calc_all_allowed:
             res_conns.all_allowed_conns = res_conns.allowed_conns
             non_captured_peers = all_peers_no_ips - res_conns.captured
+            # TODO - check whether ips should be included (depends on REGISTRY_ONLY or ALLOW_ANY default)
             if non_captured_peers:
                 if is_ingress:
                     non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,

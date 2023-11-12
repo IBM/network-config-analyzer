@@ -14,8 +14,6 @@ class IstioGatewayYamlParser(GenericIngressLikeYamlParser):
     """
     A parser for Istio traffic resources for ingress and egress
     """
-    protocol_name = 'TCP'  # TODO = should it be always TCP?
-    protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol_name)
 
     def __init__(self, peer_container):
         """
