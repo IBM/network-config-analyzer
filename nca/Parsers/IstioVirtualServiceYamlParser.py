@@ -549,7 +549,8 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         :param dict global_vs_gtw_to_hosts: a map from gateways to hosts relevant for this virtual service
         :param set(Gateway) used_gateways: a set of used gateways, to be updated by adding gateways
                referenced by these routes
-        :param bool only_local_traffic: an output flag to be updated if this route contains only the (ignored) mesh-to-mesh traffic
+        :param bool only_local_traffic: an output flag indicating whether this route contains
+               only the (ignored) mesh-to-mesh traffic
         :return: list[GatewayPolicy] the resulting list of policies
         """
         result = []

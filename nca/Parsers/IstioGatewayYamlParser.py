@@ -5,7 +5,6 @@
 
 from functools import reduce
 from nca.CoreDS.Peer import PeerSet
-from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.Gateway import Gateway
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
