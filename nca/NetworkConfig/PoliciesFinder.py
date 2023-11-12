@@ -29,9 +29,9 @@ class PoliciesFinder:
         self.optimized_run = optimized_run
         # following missing resources fields are relevant for "livesim" mode,
         # where certain resources are added to enable the analysis
-        self.missing_istio_gw_pods_with_labels = {}
+        self.missing_istio_gw_pods_with_labels = set()
         self.missing_k8s_ingress_peers = False
-        self.missing_dns_pods_with_labels = {}
+        self.missing_dns_pods_with_labels = set()
 
     def set_peer_container(self, peer_container):
         """

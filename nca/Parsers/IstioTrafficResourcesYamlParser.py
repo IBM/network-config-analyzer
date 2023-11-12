@@ -10,7 +10,7 @@ from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.IstioTrafficResources import Gateway, VirtualService
-from nca.Resources.IngressPolicy import IngressPolicy
+from nca.Resources.GatewayPolicy import GatewayPolicy
 from nca.Resources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
@@ -29,9 +29,9 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         self.namespace = None
         self.gateways = {}  # a map from a name to a Gateway
         self.virtual_services = {}  # a map from a name to a VirtualService
-        # missing_istio_gw_pods_with_labels is map from key to value of labels
+        # missing_istio_gw_pods_with_labels is a set of labels - (key,value) pairs
         # of gateway resource that has no matching pods
-        self.missing_istio_gw_pods_with_labels = {}
+        self.missing_istio_gw_pods_with_labels = set()
 
     def add_gateway(self, gateway):
         """
@@ -72,7 +72,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
         for key, val in selector.items():
             selector_peers = self.peer_container.get_peers_with_label(key, [val])
             if not selector_peers:
-                self.missing_istio_gw_pods_with_labels[key] = val
+                self.missing_istio_gw_pods_with_labels.add((key, val))
             else:
                 peers &= selector_peers
         if not peers:
@@ -352,7 +352,7 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
     def create_istio_traffic_policies(self):
         """
         Create IngressPolicies according to the parsed Gateways and VirtualServices
-        :return list[IngressPolicy]: the resulting policies
+        :return list[IstioGatewayPolicy]: the resulting policies
         """
 
         if not self.gateways:
@@ -390,12 +390,13 @@ class IstioTrafficResourcesYamlParser(GenericIngressLikeYamlParser):
                         peers_to_hosts[peers] = host_dfa
 
             for peer_set, host_dfa in peers_to_hosts.items():
-                res_policy = IngressPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
+                res_policy = GatewayPolicy(vs.name + '/' + str(host_dfa) + '/allow', vs.namespace)
                 res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
+                res_policy.affects_egress = True
                 res_policy.selected_peers = peer_set
                 allowed_conns = self.make_allowed_connections(vs, host_dfa)
                 if allowed_conns:
-                    res_policy.add_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
+                    res_policy.add_egress_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
                     res_policy.findings = self.warning_msgs
                     vs_policies.append(res_policy)
             if not vs_policies:

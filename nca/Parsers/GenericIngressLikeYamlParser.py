@@ -11,7 +11,7 @@ from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.Resources.IngressPolicy import IngressPolicyRule
+from nca.Resources.GatewayPolicy import GatewayPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
 
@@ -81,7 +81,7 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
             new_props = ConnectivityProperties.make_conn_props(new_conn_cube)
             new_conns = ConnectionSet()
             new_conns.add_connections('TCP', new_props)
-            res.append(IngressPolicyRule(dst_peer_set, new_conns, rule_opt_props))
+            res.append(GatewayPolicyRule(dst_peer_set, new_conns, rule_opt_props))
         return res
 
     @staticmethod

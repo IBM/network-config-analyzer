@@ -662,6 +662,10 @@ class ConnectionSet:
                 res.append(FWRule.IPBlockElement(peer))
                 peer_set_copy.remove(peer)
                 continue
+            elif isinstance(peer, FWRule.DNSEntry):
+                res.append(FWRule.DNSElement(peer))
+                peer_set_copy.remove(peer)
+                continue
             ns_peers = PeerSet(cluster_info.ns_dict[peer.namespace])
             if ns_peers.issubset(peer_set_copy):
                 ns_set.add(peer.namespace)

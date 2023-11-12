@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: istio-egressgateway-livesim
+  namespace: istio-system
+  labels:
+    app: istio-egressgateway
+    istio: egressgateway
+spec:
+  serviceAccountName: istio-egressgateway
+  containers:
+  - name: istio-proxy
+    image: auto
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-egressgateway
+  namespace: istio-system
+spec:
+  ports:
+    - port: 443
+  selector:
+    app: istio-egressgateway
+    istio: egressgateway
+---
