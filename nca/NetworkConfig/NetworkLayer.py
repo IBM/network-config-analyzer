@@ -11,7 +11,7 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
-from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy
+from nca.Resources.GatewayPolicy import GatewayPolicy
 from nca.Resources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy, PolicyConnectionsFilter
 from nca.Utils.ExplTracker import ExplTracker
 
@@ -22,14 +22,14 @@ from nca.Utils.ExplTracker import ExplTracker
 class NetworkLayerName(Enum):
     K8s_Calico = 0
     Istio = 1
-    IngressEgressGateway = 2
+    Gateway = 2
 
     def create_network_layer(self, policies):
         if self == NetworkLayerName.K8s_Calico:
             return K8sCalicoNetworkLayer(policies)
         if self == NetworkLayerName.Istio:
             return IstioNetworkLayer(policies)
-        if self == NetworkLayerName.IngressEgressGateway:
+        if self == NetworkLayerName.Gateway:
             return GatewayLayer(policies)
         return None
 
@@ -40,8 +40,8 @@ class NetworkLayerName(Enum):
             return NetworkLayerName.K8s_Calico
         elif policy_type in {NetworkPolicy.PolicyType.IstioAuthorizationPolicy, NetworkPolicy.PolicyType.IstioSidecar}:
             return NetworkLayerName.Istio
-        elif policy_type in {NetworkPolicy.PolicyType.Ingress, NetworkPolicy.PolicyType.IstioGatewayPolicy}:
-            return NetworkLayerName.IngressEgressGateway
+        elif policy_type in {NetworkPolicy.PolicyType.Ingress, NetworkPolicy.PolicyType.GatewayPolicy}:
+            return NetworkLayerName.Gateway
         return None
 
 
@@ -422,7 +422,7 @@ class IstioNetworkLayer(NetworkLayer):
 class GatewayLayer(NetworkLayer):
     @staticmethod
     def captured_cond_func(policy):
-        return policy.action == IstioGatewayPolicy.ActionType.Allow
+        return policy.action == GatewayPolicy.ActionType.Allow
 
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
         allowed_conns, denied_conns, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress,

@@ -10,7 +10,7 @@ from nca.CoreDS.MinDFA import MinDFA
 
 class Gateway:
     """
-    A class for keeping some elements of parsed Istio Gateway, needed for building IstioGatewayPolicy
+    A class for keeping some elements of parsed Istio Gateway, needed for building GatewayPolicy
     """
 
     @dataclass

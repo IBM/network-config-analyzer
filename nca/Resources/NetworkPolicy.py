@@ -29,7 +29,7 @@ class NetworkPolicy:
         Ingress = 20
         Gateway = 30
         VirtualService = 31
-        IstioGatewayPolicy = 32
+        GatewayPolicy = 32
         List = 500
 
         @staticmethod
@@ -360,7 +360,7 @@ class NetworkPolicy:
     def policy_type_str(self):
         if self.policy_kind == NetworkPolicy.PolicyType.Ingress:
             return "Ingress resource"
-        elif self.policy_kind == NetworkPolicy.PolicyType.IstioGatewayPolicy:
+        elif self.policy_kind == NetworkPolicy.PolicyType.GatewayPolicy:
             return "Istio Gateway/VirtualService resource"
         else:
             return "NetworkPolicy"

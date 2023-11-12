@@ -10,7 +10,7 @@ from nca.CoreDS.PortSet import PortSet
 
 class VirtualService:
     """
-    A class for keeping some elements of parsed Istio VirtualService, needed for building IstioGatewayPolicy
+    A class for keeping some elements of parsed Istio VirtualService, needed for building GatewayPolicy
     """
 
     @dataclass

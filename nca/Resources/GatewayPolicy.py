@@ -10,7 +10,7 @@ from nca.CoreDS.Peer import PeerSet
 from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
-class IstioGatewayPolicyRule:
+class GatewayPolicyRule:
     """
     A class representing a single ingress rule in an Ingress object
     """
@@ -31,23 +31,24 @@ class IstioGatewayPolicyRule:
 
     def contained_in(self, other):
         """
-        :param IstioGatewayPolicyRule other: Another rule
+        :param GatewayPolicyRule other: Another rule
         :return: whether the self rule is contained in the other rule (self doesn't allow anything that other does not)
         :type: bool
         """
         return self.peer_set.issubset(other.peer_set) and self.connections.contained_in(other.connections)
 
 
-class IstioGatewayPolicy(NetworkPolicy):
+class GatewayPolicy(NetworkPolicy):
     """
     This class implements ingress controller logic for incoming http(s) requests
     The logic is kept similarly to NetworkPolicy, where the selected_peers are the ingress/egress controller peers,
     and the rules are ingress/egress_rules.
+    This class is used to represent policies from `k8s Ingress` , `istio IngressGateway` and `istio EgresGateway`
     """
 
     class ActionType(Enum):
         """
-        Allowed actions for IstioGatewayPolicy policies
+        Allowed actions for GatewayPolicy policies
         """
         Deny = 0
         Allow = 1
@@ -89,14 +90,14 @@ class IstioGatewayPolicy(NetworkPolicy):
             return
         self._init_opt_props()
         for rule in self.ingress_rules:
-            if self.action == IstioGatewayPolicy.ActionType.Allow:
+            if self.action == GatewayPolicy.ActionType.Allow:
                 self._optimized_allow_ingress_props |= rule.optimized_props
-            elif self.action == IstioGatewayPolicy.ActionType.Deny:
+            elif self.action == GatewayPolicy.ActionType.Deny:
                 self._optimized_deny_ingress_props |= rule.optimized_props
         for rule in self.egress_rules:
-            if self.action == IstioGatewayPolicy.ActionType.Allow:
+            if self.action == GatewayPolicy.ActionType.Allow:
                 self._optimized_allow_egress_props |= rule.optimized_props
-            elif self.action == IstioGatewayPolicy.ActionType.Deny:
+            elif self.action == GatewayPolicy.ActionType.Deny:
                 self._optimized_deny_egress_props |= rule.optimized_props
         self.optimized_props_in_sync = True
 
@@ -180,12 +181,12 @@ class IstioGatewayPolicy(NetworkPolicy):
     def clone_without_rule(self, rule_to_exclude, ingress_rule):
         """
         Makes a copy of 'self' without a given policy rule
-        :param IstioGatewayPolicyRule rule_to_exclude: The one rule not to include in the copy
+        :param GatewayPolicyRule rule_to_exclude: The one rule not to include in the copy
         :param bool ingress_rule: Whether the rule is an ingress or egress rule
         :return: A copy of 'self' without the provided rule
-        :rtype: IstioGatewayPolicy
+        :rtype: GatewayPolicy
         """
-        res = IstioGatewayPolicy(self.name, self.namespace, self.action)
+        res = GatewayPolicy(self.name, self.namespace, self.action)
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress

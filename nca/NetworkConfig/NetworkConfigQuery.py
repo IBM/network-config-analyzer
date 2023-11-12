@@ -19,7 +19,7 @@ from nca.FWRules.MinimizeFWRules import MinimizeFWRules
 from nca.FWRules.ClusterInfo import ClusterInfo
 from nca.Resources.NetworkPolicy import PolicyConnectionsFilter
 from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy
-from nca.Resources.IstioGatewayPolicy import IstioGatewayPolicy
+from nca.Resources.GatewayPolicy import GatewayPolicy
 from nca.Utils.OutputConfiguration import OutputConfiguration
 from .QueryOutputHandler import QueryAnswer, DictOutputHandler, StringOutputHandler, \
     PoliciesAndRulesExplanations, PodsListsExplanations, ConnectionsDiffExplanation, IntersectPodsExplanation, \
@@ -217,7 +217,7 @@ class DisjointnessQuery(NetworkConfigQuery):
         # collecting non-disjoint policies per network layer
         non_disjoint_explanation_list = []
         for layer_name, layer in self.config.policies_container.layers.items():
-            if layer_name == NetworkLayerName.IngressEgressGateway:  # skip ingress layer
+            if layer_name == NetworkLayerName.Gateway:  # skip gateway layer
                 continue
             policies_list = layer.policies_list
             for policy1 in policies_list:
@@ -294,12 +294,12 @@ class VacuityQuery(NetworkConfigQuery):
     """
 
     def exec(self):
-        # TODO: should handle 'ingress' layer or not? (ingress controller pod is not expected to have egress
+        # TODO: should handle 'gateway' layer or not? (ingress controller pod is not expected to have egress
         #  traffic without any Ingress resource)
-        #  currently ignoring ingres layer, removing it from configs on this query
+        #  currently ignoring gateway layer, removing it from configs on this query
         self.output_config.fullExplanation = True  # assign true for this query - it is ok to compare its results
         vacuous_config = self.config.clone_without_policies('vacuousConfig')
-        self_config = TwoNetworkConfigsQuery.clone_without_ingress(self.config)
+        self_config = TwoNetworkConfigsQuery.clone_without_gateway_layer(self.config)
         vacuous_res = EquivalenceQuery(self_config, vacuous_config).exec()
         if not vacuous_res.bool_result:
             return QueryAnswer(vacuous_res.bool_result,
@@ -381,7 +381,7 @@ class RedundancyQuery(NetworkConfigQuery):
         redundant_egress_rules = {}
         self.output_config.fullExplanation = True  # assign true for this query - it is ok to compare its results
         for layer_name, layer in self.config.policies_container.layers.items():
-            if layer_name == NetworkLayerName.IngressEgressGateway:
+            if layer_name == NetworkLayerName.Gateway:
                 continue
             policies_list = layer.policies_list
             redundant_policies = sorted(list(self.redundant_policies(policies_list, layer_name)))
@@ -637,7 +637,7 @@ class SanityQuery(NetworkConfigQuery):
                 policies_issue += '\tNote that it contains a single policy.\n'
 
         for layer_name, layer in self.config.policies_container.layers.items():
-            if layer_name == NetworkLayerName.IngressEgressGateway:
+            if layer_name == NetworkLayerName.Gateway:
                 continue
             policies_list = layer.policies_list
             # check for redundant policies in this layer
@@ -1270,21 +1270,21 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
                 return
 
     @staticmethod
-    def clone_without_ingress(config):
+    def clone_without_gateway_layer(config):
         """
-        Clone config without ingress policies
+        Clone config without gateway policies
         :param NetworkConfig config: the config to clone
-        :return: resulting config without ingress policies
+        :return: resulting config without gateway policies
         :rtype: NetworkConfig
         """
-        if NetworkLayerName.IngressEgressGateway not in config.policies_container.layers or \
-                not config.policies_container.layers[NetworkLayerName.IngressEgressGateway].policies_list:
-            return config  # no ingress policies in this config
-        config_without_ingress = config.clone_without_policies(config.name)
+        if NetworkLayerName.Gateway not in config.policies_container.layers or \
+                not config.policies_container.layers[NetworkLayerName.Gateway].policies_list:
+            return config  # no gateway policies in this config
+        config_without_gateway = config.clone_without_policies(config.name)
         for policy in config.policies_container.policies.values():
-            if not isinstance(policy, IstioGatewayPolicy):  # ignoring ingress policies
-                config_without_ingress.append_policy_to_config(policy)
-        return config_without_ingress
+            if not isinstance(policy, GatewayPolicy):  # ignoring gateway policies
+                config_without_gateway.append_policy_to_config(policy)
+        return config_without_gateway
 
     def execute(self, cmd_line_flag):
         return self.exec(cmd_line_flag)
@@ -2094,13 +2094,13 @@ class PermitsQuery(TwoNetworkConfigsQuery):
                 query_answer.output_result = output_result_on_permit
             return query_answer
 
-        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.IngressEgressGateway):
+        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Gateway):
             return QueryAnswer(bool_result=False,
-                               output_result='Permitted traffic cannot be specified using Ingress resources only',
+                               output_result='Permitted traffic cannot be specified using Ingress/Gateway resources only',
                                query_not_executed=True)
 
-        config1_without_ingress = self.clone_without_ingress(self.config1)
-        query_answer = ContainmentQuery(config1_without_ingress, self.config2,
+        config1_without_gateway = self.clone_without_gateway_layer(self.config1)
+        query_answer = ContainmentQuery(config1_without_gateway, self.config2,
                                         self.output_config).exec(cmd_line_flag=cmd_line_flag, only_captured=True)
         if not cmd_line_flag:
             query_answer.numerical_result = 1 if query_answer.output_explanation else 0
@@ -2276,15 +2276,15 @@ class ForbidsQuery(TwoNetworkConfigsQuery):
         if not self.config1:
             return QueryAnswer(False, 'There are no NetworkPolicies in the given forbids config. '
                                       'No traffic is specified as forbidden.', query_not_executed=True)
-        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.IngressEgressGateway):
+        if self.config1.policies_container.layers.does_contain_single_layer(NetworkLayerName.Gateway):
             return QueryAnswer(bool_result=False,
-                               output_result='Forbidden traffic cannot be specified using Ingress resources only',
+                               output_result='Forbidden traffic cannot be specified using Ingress/Gateway resources only',
                                query_not_executed=True)
 
-        config1_without_ingress = self.clone_without_ingress(self.config1)
+        config1_without_gateway = self.clone_without_gateway_layer(self.config1)
 
         query_answer = \
-            IntersectsQuery(config1_without_ingress, self.config2, self.output_config).exec(only_captured=True)
+            IntersectsQuery(config1_without_gateway, self.config2, self.output_config).exec(only_captured=True)
         if query_answer.numerical_result == 1:
             query_answer.output_result += f'\n{self.name2} forbids connections specified in ' \
                                           f'{self.name1}'
@@ -2362,8 +2362,7 @@ class AllCapturedQuery(NetworkConfigQuery):
         self.output_config.fullExplanation = True  # assign true for this query - it is always ok to compare its results
         # get_all_peers_group() does not require getting dnsEntry peers, since they are not ClusterEP (pods)
         existing_pods = self.config.peer_container.get_all_peers_group()
-        if not self.config or \
-                self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.IngressEgressGateway):
+        if not self.config or self.config.policies_container.layers.does_contain_single_layer(NetworkLayerName.Gateway):
             return QueryAnswer(bool_result=False,
                                output_result=f'There are no network policies in {self.config.name}. '
                                              f'All workload resources are non captured',
