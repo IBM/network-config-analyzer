@@ -5,7 +5,7 @@ networkConfigList:
   - name: istio-egress
     resourceList:
       - ./resources
-    expectedWarnings: 2
+    expectedWarnings: 3
 
 
 queries:
