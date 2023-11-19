@@ -14,6 +14,7 @@ from nca.Parsers.IstioSidecarYamlParser import IstioSidecarYamlParser
 from nca.Parsers.IngressPolicyYamlParser import IngressPolicyYamlParser
 from nca.Parsers.IstioGatewayYamlParser import IstioGatewayYamlParser
 from nca.Parsers.IstioVirtualServiceYamlParser import IstioVirtualServiceYamlParser
+from nca.Parsers.IstioGatewayPolicyGenerator import IstioGatewayPolicyGenerator
 from .NetworkConfig import PoliciesContainer
 from nca.Utils.ExplTracker import ExplTracker
 
@@ -124,8 +125,9 @@ class PoliciesFinder:
                                        policy.line_number,
                                        policy_name
                                        )
-        if istio_vs_parser:
-            istio_traffic_policies = istio_vs_parser.create_istio_gateway_policies(istio_gtw_parser)
+        if istio_gtw_parser or istio_vs_parser:
+            istio_gtw_policy_gen = IstioGatewayPolicyGenerator(istio_gtw_parser, istio_vs_parser)
+            istio_traffic_policies = istio_gtw_policy_gen.create_istio_gateway_policies()
             for istio_traffic_policy in istio_traffic_policies:
                 self._add_policy(istio_traffic_policy)
                 if ExplTracker().is_active():
