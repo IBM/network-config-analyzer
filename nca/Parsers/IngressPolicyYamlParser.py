@@ -245,7 +245,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
     def parse_policy(self):
         """
-        Parses the input object to create  GatewayPolicy object (with deny rules only)
+        Parses the input object to create GatewayPolicy object
         :return: GatewayPolicy object with proper deny egress_rules, or None for wrong input object
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['Ingress'],

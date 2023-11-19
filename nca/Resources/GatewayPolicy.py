@@ -12,7 +12,7 @@ from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, Networ
 
 class GatewayPolicyRule:
     """
-    A class representing a single ingress rule in an Ingress object
+    A class representing a single rule in a GatewayPolicy object
     """
     def __init__(self, peer_set, connections, opt_props):
         """
@@ -40,9 +40,8 @@ class GatewayPolicyRule:
 
 class GatewayPolicy(NetworkPolicy):
     """
-    This class implements ingress controller logic for incoming http(s) requests
-    The logic is kept similarly to NetworkPolicy, where the selected_peers are the ingress/egress controller peers,
-    and the rules are ingress/egress_rules.
+    This class implements gateway traffic logic for incoming/outcoming http requests
+    The logic is kept similarly to NetworkPolicy.
     This class is used to represent policies from `k8s Ingress` , `istio IngressGateway` and `istio EgresGateway`
     """
 
@@ -55,8 +54,8 @@ class GatewayPolicy(NetworkPolicy):
 
     def __init__(self, name, namespace, action):
         """
-        :param str name: Ingress name
-        :param K8sNamespace namespace: the namespace containing this ingress
+        :param str name: gateway poilcy name
+        :param K8sNamespace namespace: the namespace containing this policy
         :param ActionType action: whether Allow or Deny
         """
         super().__init__(name, namespace)
@@ -103,12 +102,11 @@ class GatewayPolicy(NetworkPolicy):
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
-        Evaluate the set of connections this ingress resource allows between two peers
+        Evaluate the set of connections this gateway policy allows between two peers
         :param Peer.Peer from_peer: The source peer
         :param Peer.Peer to_peer:  The target peer
-        :param bool is_ingress: For compatibility with other policies.
-         Will return the set of allowed connections only for is_ingress being False.
-        :return: A PolicyConnections object containing sets of allowed connections
+        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only.
+        :return: A PolicyConnections object containing sets of allowed/denied connections
         :rtype: PolicyConnections
         """
 
@@ -133,12 +131,10 @@ class GatewayPolicy(NetworkPolicy):
     def allowed_connections_optimized(self, is_ingress):
         """
         Evaluate the set of connections this ingress resource allows between any two peers
-        :param bool is_ingress: For compatibility with other policies.
-         Will return the set of allowed connections only for is_ingress being False.
-        :return: A ConnectivityProperties object containing all allowed connections for any peers,
-        ConnectivityProperties object containing all denied connections,
-        and the peer set of captured peers by this policy.
-        :rtype: tuple (ConnectivityProperties, ConnectivityProperties, PeerSet)
+        :param bool is_ingress: whether we evaluate ingress rules only or egress rules only.
+        :return: A OptimizedPolicyConnections object containing all allowed/denied connections for any peers
+            and the peer set of captured peers by this policy.
+        :rtype: OptimizedPolicyConnections
         """
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
