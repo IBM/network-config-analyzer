@@ -9,7 +9,6 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.Resources.SpecialResources.VirtualService import VirtualService
 from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy, GatewayPolicyRule
 from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
 from .IstioGatewayYamlParser import IstioGatewayYamlParser
