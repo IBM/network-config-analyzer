@@ -38,6 +38,7 @@ metadata:
 spec:
   hosts:
   - httpbin.example.com
+  - connected_with_mesh.example.com
   ports:
   - number: 80
     name: tls

@@ -7,6 +7,7 @@ import re
 from functools import reduce
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.MethodSet import MethodSet
+from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ConnectionSet import ConnectionSet
@@ -19,7 +20,7 @@ from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
     """
-    A parser for Istio traffic resources for ingress and egress
+    A parser for Istio virtual service resource
     """
     protocol_name = 'TCP'  # TODO = should it be always TCP?
     protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol_name)
@@ -372,7 +373,7 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
 
     def create_istio_traffic_policies(self, gtw_parser):
         """
-        Create IngressPolicies according to the parsed Gateways and VirtualServices
+        Create GatewayPolicies according to the parsed Gateways and VirtualServices
         :param IstioGatewayYamlParser gtw_parser: the gateway parser containing parsed gateways
         :return list[GatewayPolicy]: the resulting policies
         """
@@ -405,10 +406,6 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
                                  f'that is ignored', vs)
                 else:
                     self.warning(f'The virtual service {vs.full_name()} does not affect traffic and is ignored', vs)
-
-        deny_mesh_to_ext_policy = self.create_deny_mesh_to_ext_policy()
-        if deny_mesh_to_ext_policy:
-            result.append(deny_mesh_to_ext_policy)
 
         unused_gateways = self.gtw_parser.get_all_gateways() - used_gateways
         if unused_gateways:
@@ -448,45 +445,6 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         return gtw_to_hosts
 
     @staticmethod
-    def init_mesh_to_egress_policy(vs, selected_peers):
-        """
-        Initialization of GatewayPolicy for holding connections from mesh to egress gateway
-        :param VirtualService vs: the virtual service that defines the connections from mesh to egress gateway
-        :param PeerSet selected_peers: egress gateway pods
-        :return: the resulting GatewayPolicy
-        """
-        mesh_to_egress_policy = GatewayPolicy(vs.name + '/mesh/egress/allow', vs.namespace,
-                                              GatewayPolicy.ActionType.Allow)
-        mesh_to_egress_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
-        # We model egress flow relatively to egress gateways pods (i.e. they are the selected_peers);
-        # since the flow is into those selected peers, the policy will affect ingress.
-        mesh_to_egress_policy.affects_ingress = True
-        mesh_to_egress_policy.selected_peers = selected_peers
-        return mesh_to_egress_policy
-
-    def create_deny_mesh_to_ext_policy(self):
-        """
-        Create policy for representation of the denied connections from mesh to DNS nodes
-        :return: the resulting GatewayPolicy
-        """
-        dns_peers = self.peer_container.get_all_dns_entries()
-        if not dns_peers:
-            # This is not an egress flow
-            return None
-        source_peers = self.peer_container.get_all_peers_group() - self.gtw_parser.get_egress_gtw_pods()
-        deny_mesh_to_ext_policy = GatewayPolicy('mesh/external/deny', self.peer_container.get_namespace('default'),
-                                                GatewayPolicy.ActionType.Deny)
-        deny_mesh_to_ext_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
-        # External (DNS) pods are the selected_peers
-        # Note: This is a Deny policy. selected_peers will not be captured (due to conditional captured function)
-        deny_mesh_to_ext_policy.affects_ingress = True
-        deny_mesh_to_ext_policy.selected_peers = dns_peers
-        opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": source_peers,
-                                                                      "dst_peers": dns_peers})
-        deny_mesh_to_ext_policy.add_ingress_rule(GatewayPolicyRule(source_peers, ConnectionSet(True), opt_props))
-        return deny_mesh_to_ext_policy
-
-    @staticmethod
     def init_route_conn_cube(route):
         """
         Initialize ConnectivityCube according to the given route attributes
@@ -502,9 +460,40 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
             conn_cube["methods"] = route.methods
         return conn_cube
 
+    def create_allow_rule(self, source_peers, dest, this_route_conn_cube, is_ingress):
+        """
+        Create a rule representing allowed connections between source peers and dest peers.
+        :param PeerSet source_peers: the source peers
+        :param VirtualService.Destination dest: the destination, including peers and ports
+        :param this_route_conn_cube: additional attributes for this connection
+        :param is_ingress: whether this is an ingress (True) or egress (False) rule
+        :return: the resulting GatewayPolicyRule
+        """
+        conn_cube = this_route_conn_cube.copy()
+        conn_cube["dst_ports"] = dest.ports
+        conns = ConnectionSet()
+        conns.add_connections(self.protocol_name, ConnectivityProperties.make_conn_props(conn_cube))
+        conn_cube.update({"src_peers": source_peers, "dst_peers": dest.pods, "protocols": self.protocols})
+        opt_props = ConnectivityProperties.make_conn_props(conn_cube)
+        if is_ingress:
+            return GatewayPolicyRule(source_peers, conns, opt_props)
+        else:
+            return GatewayPolicyRule(dest.pods, conns, opt_props)
+
+    @staticmethod
+    def create_deny_rule(source_peers, dst_peers):
+        """
+        Create a rule for representation of the denied connections from between given mesh and DNS nodes
+        :return: the resulting GatewayPolicyRule
+        """
+        opt_props = ConnectivityProperties.make_conn_props_from_dict({"src_peers": source_peers,
+                                                                      "dst_peers": dst_peers})
+        return GatewayPolicyRule(dst_peers, ConnectionSet(True), opt_props)
+
     def create_gtw_to_mesh_policies(self, vs, route, route_cnt, gtw_to_hosts, used_gateways):
         """
         Create internal policies representing connections from gateways to mesh described by the given http/tls/tcp route.
+        When relevant, create also deny policies from mesh to the mentioned DNS entries.
         :param VirtualService vs: the virtual service holding the given route
         :param Route route: the given http/tls/tcp route from which policies should be created
         :param int route_cnt: the index (starting from 1) if the given route inside this virtual service routes
@@ -522,24 +511,56 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
                 host_dfa &= route.all_sni_hosts_dfa
                 if not host_dfa:
                     continue
+            this_route_conn_cube["hosts"] = host_dfa
             used_gateways.add(gtw)
-            res_policy = GatewayPolicy(f'{vs.full_name()}/route_{route_cnt}/{gtw.full_name()}/{str(host_dfa)}/allow',
-                                       vs.namespace, GatewayPolicy.ActionType.Allow)
+            allow_policy = GatewayPolicy(f'Allow policy for virtual service {vs.full_name()}, '
+                                         f'route number {route_cnt}, gateway {gtw.full_name()}',
+                                         vs.namespace, GatewayPolicy.ActionType.Allow)
             # We model ingress/egress flow relatively to the gateways pods (which are the selected_peers);
             # since in this case the gateway pods are the source pods, the policy will affect egress.
-            res_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
-            res_policy.affects_egress = True
-            res_policy.selected_peers = gtw.peers
+            allow_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
+            allow_policy.affects_egress = True
+            allow_policy.selected_peers = gtw.peers
+            egress_gtw_pods = self.gtw_parser.get_egress_gtw_pods(gtw.peers)
+            deny_policy = None
+            if egress_gtw_pods and not route.is_internal_dest:
+                deny_policy = GatewayPolicy(f'Deny policy from mesh to DNS entries for virtual service {vs.full_name()}, '
+                                            f'route number {route_cnt}, gateway {gtw.full_name()}',
+                                            vs.namespace, GatewayPolicy.ActionType.Deny)
+                # We model ingress/egress flow relatively to the gateways pods (which are the selected_peers);
+                # since in this case the gateway pods are the source pods, the policy will affect egress.
+                deny_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
+                deny_policy.affects_egress = True
+                deny_policy.selected_peers = self.peer_container.get_all_peers_group() - egress_gtw_pods
             for dest in route.destinations:
-                this_dest_conn_cube = this_route_conn_cube.copy()
-                this_dest_conn_cube.update({"hosts": host_dfa, "dst_ports": dest.ports})
-                conns = ConnectionSet()
-                conns.add_connections(self.protocol_name, ConnectivityProperties.make_conn_props(this_dest_conn_cube))
-                this_dest_conn_cube.update({"src_peers": gtw.peers, "dst_peers": dest.pods, "protocols": self.protocols})
-                opt_props = ConnectivityProperties.make_conn_props(this_dest_conn_cube)
-                res_policy.add_egress_rule(GatewayPolicyRule(dest.pods, conns, opt_props))
-            result.append(res_policy)
+                allow_policy.add_egress_rule(self.create_allow_rule(gtw.peers, dest, this_route_conn_cube, False))
+                if deny_policy:
+                    deny_policy.add_egress_rule(self.create_deny_rule(deny_policy.selected_peers, dest.pods))
+            result.append(allow_policy)
+            if deny_policy:
+                result.append(deny_policy)
         return result
+
+    def create_mesh_to_egress_policy(self, vs, route_cnt, this_route_conn_cube, dest):
+        """
+        Initialization of GatewayPolicy for holding connections from mesh to egress gateway
+        :param VirtualService vs: the virtual service that defines the connections from mesh to egress gateway
+        :param int route_cnt: the index of the route for which the policy is being created
+        :param ConnectivityCube this_route_conn_cube: a cube holdind this route attributes
+        :param VirtualService.Destination dest: the destination (representing an egress gateway)
+        :return: the resulting GatewayPolicy
+        """
+        local_peers = self.peer_container.get_all_peers_group()
+        mesh_to_egress_policy = GatewayPolicy(f'Allow policy for virtual service {vs.full_name()}, '
+                                              f'route number {route_cnt} destination {dest.name}',
+                                              vs.namespace, GatewayPolicy.ActionType.Allow)
+        mesh_to_egress_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
+        # We model egress flow relatively to egress gateways pods (i.e. they are the selected_peers);
+        # since the flow is into those selected peers, the policy will affect ingress.
+        mesh_to_egress_policy.affects_ingress = True
+        mesh_to_egress_policy.selected_peers = dest.pods
+        mesh_to_egress_policy.add_ingress_rule(self.create_allow_rule(local_peers, dest, this_route_conn_cube, True))
+        return mesh_to_egress_policy
 
     def create_route_policies(self, vs, routes, global_vs_gtw_to_hosts, used_gateways, only_local_traffic):
         """
@@ -556,9 +577,6 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         result = []
         global_has_mesh = 'mesh' in vs.gateway_names
         has_gateways = len(vs.gateway_names) > 1 if global_has_mesh else bool(vs.gateway_names)
-        local_peers = self.peer_container.get_all_peers_group()
-        egress_gtw_pods = self.gtw_parser.get_egress_gtw_pods()
-        mesh_to_egress_policy = self.init_mesh_to_egress_policy(vs, egress_gtw_pods)
         mesh_to_mesh_warning_printed = False  # to avoid multiple printing of this warning
 
         for route_cnt, route in enumerate(routes, start=1):
@@ -571,30 +589,22 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
                 gtw_to_hosts = global_vs_gtw_to_hosts
             if not has_mesh and not gtw_to_hosts:  # when no gateways are given, the default is mesh
                 has_mesh = True
-            if route.is_internal_dest and has_mesh and not mesh_to_mesh_warning_printed:
-                self.warning(f'The internal (mesh-to-mesh) traffic redirection mentioned in the '
-                             f'VirtualService {vs.full_name()} is not currently supported and will be ignored', vs)
-                mesh_to_mesh_warning_printed = True
             result.extend(self.create_gtw_to_mesh_policies(vs, route, route_cnt, gtw_to_hosts, used_gateways))
             # Modeling connections from mesh to (egress) gateway nodes (which should be identified) (Egress flow).
             # Not modelling other connections from mesh to internal nodes here.
-            # Modeling deny all connections from mesh to external service nodes (DNS nodes) (Egress flow).
+            # Modeling deny all connections from mesh to the mentioned external service nodes (DNS nodes) (Egress flow).
             this_route_conn_cube = self.init_route_conn_cube(route)
             for dest in route.destinations:
                 if not route.is_internal_dest:
-                    continue  # external dest cannot be an egress gateway pod
-                if has_mesh and dest.pods.issubset(egress_gtw_pods):
-                    # add a rule to mesh_to_egress_policy
-                    this_dest_conn_cube = this_route_conn_cube.copy()
-                    this_dest_conn_cube["dst_ports"] = dest.ports
-                    conns = ConnectionSet()
-                    conns.add_connections(self.protocol_name, ConnectivityProperties.make_conn_props(this_dest_conn_cube))
-                    this_dest_conn_cube.update({"src_peers": local_peers, "dst_peers": dest.pods,
-                                                "protocols": self.protocols})
-                    opt_props = ConnectivityProperties.make_conn_props(this_dest_conn_cube)
-                    mesh_to_egress_policy.add_ingress_rule(GatewayPolicyRule(local_peers, conns, opt_props))
+                    continue  # external dest were already handled by create_gtw_to_mesh_policies
+                if has_mesh:
+                    if self.gtw_parser.get_egress_gtw_pods(dest.pods):
+                        result.append(self.create_mesh_to_egress_policy(vs, route_cnt, this_route_conn_cube, dest))
+                    elif not mesh_to_mesh_warning_printed:  # we do not handle mesh-to-mesh traffic
+                        self.warning(f'The internal (mesh-to-mesh) traffic redirection mentioned in the '
+                                     f'VirtualService {vs.full_name()} in route {route_cnt} '
+                                     f'is not currently supported and will be ignored', vs)
+                        mesh_to_mesh_warning_printed = True
 
-        if mesh_to_egress_policy.has_allow_rules():
-            result.append(mesh_to_egress_policy)
         only_local_traffic |= (not has_gateways) and mesh_to_mesh_warning_printed
         return result

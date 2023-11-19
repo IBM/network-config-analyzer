@@ -11,7 +11,7 @@ from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 class IstioGatewayYamlParser(GenericIngressLikeYamlParser):
     """
-    A parser for Istio traffic resources for ingress and egress
+    A parser for Istio gateway resource
     """
 
     def __init__(self, peer_container):
@@ -116,17 +116,17 @@ class IstioGatewayYamlParser(GenericIngressLikeYamlParser):
         name = port['name']
         return Gateway.Server.GatewayPort(number, protocol, name)
 
-    def get_egress_gtw_pods(self):
+    @staticmethod
+    def get_egress_gtw_pods(pods):
         """
-        Heuristically identifying egress gateway pods by having "egress" substring in their names or labels.
-        :return:
+        Heuristically identifying egress gateway pods out of given pods.
+        Detection of egress gateway pods is based on having "egress" substring in pod names or labels.
+        :param PeerSet pods: a given set of pods
+        :return: a set of egress gateway pods
         """
         result = PeerSet()
-        if not self.gateways:
-            return result
         look_for = "egress"
-        gtw_peers = reduce(PeerSet.__or__, [gtw.peers for gtw in self.gateways.values()])
-        for peer in gtw_peers:
+        for peer in pods:
             # first, try to look in peer's name
             if look_for in peer.name:
                 result.add(peer)
