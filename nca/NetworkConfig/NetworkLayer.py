@@ -12,7 +12,8 @@ from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.Resources.PolicyResources.IstioNetworkPolicy import IstioNetworkPolicy
 from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy
-from nca.Resources.PolicyResources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy, PolicyConnectionsFilter
+from nca.Resources.PolicyResources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy, \
+    PolicyConnectionsFilter
 from nca.Utils.ExplTracker import ExplTracker
 
 

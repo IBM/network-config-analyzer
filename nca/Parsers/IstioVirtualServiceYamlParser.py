@@ -493,8 +493,8 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         # since in this case the gateway pods are the source pods, the policy will affect egress.
         deny_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
         deny_policy.affects_egress = True
-        deny_policy.selected_peers = self.peer_container.get_all_peers_group() - \
-                                     IstioGatewayYamlParser.get_egress_gtw_pods(gtw.peers)
+        deny_policy.selected_peers = \
+            self.peer_container.get_all_peers_group() - IstioGatewayYamlParser.get_egress_gtw_pods(gtw.peers)
         return deny_policy
 
     def create_allow_rule(self, source_peers, dest, this_route_conn_cube, is_ingress):
