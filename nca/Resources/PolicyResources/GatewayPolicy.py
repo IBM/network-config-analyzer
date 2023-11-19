@@ -7,7 +7,7 @@ from enum import Enum
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import PeerSet
-from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
 class GatewayPolicyRule:
@@ -42,7 +42,12 @@ class GatewayPolicy(NetworkPolicy):
     """
     This class implements gateway traffic logic for incoming/outcoming http requests
     The logic is kept similarly to NetworkPolicy.
-    This class is used to represent policies from `k8s Ingress` , `istio IngressGateway` and `istio EgresGateway`
+    This class is used to represent policies from `k8s Ingress`, `istio IngressGateway` and `istio EgresGateway`.
+    For representation of policies from `k8s Ingress`, `istio IngressGateway`, the generated GatewayPolicies
+    will be of 'Allow' type.
+    For representation of policies from 'istio EgressGateway', there will be GatewayPolicies
+    of both 'Allow' and 'Deny' types. The 'Deny' policy type will be generated to represent denied connections
+    from mesh to those DNS entries whose egress traffic arrives via egress gateways, as defined in virtual services.
     """
 
     class ActionType(Enum):
@@ -160,15 +165,13 @@ class GatewayPolicy(NetworkPolicy):
         full_name = self.full_name(_config_name)
         for rule_index, ingress_rule in enumerate(self.ingress_rules, start=1):
             if not ingress_rule.peer_set:
-                emptiness = f'Rule no. {rule_index} in Istio Gateway/VirtualService resource {full_name} ' \
-                            f'does not select any pods'
+                emptiness = f'The generated policy {full_name} has an ingress rule that does not select any pods'
                 emptiness_explanation.append(emptiness)
                 empty_ingress_rules.add(rule_index)
 
         for rule_index, egress_rule in enumerate(self.egress_rules, start=1):
             if not egress_rule.peer_set:
-                emptiness = f'Rule no. {rule_index} in Istio Gateway/VirtualService resource {full_name} ' \
-                            f'does not select any pods'
+                emptiness = f'The generated policy {full_name} has an egress rule that does not select any pods'
                 emptiness_explanation.append(emptiness)
                 empty_egress_rules.add(rule_index)
 

@@ -12,9 +12,9 @@ from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.MethodSet import MethodSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
+from nca.Resources.PolicyResources.IstioNetworkPolicy import IstioNetworkPolicy, IstioPolicyRule
 from nca.Parsers.IstioGenericYamlParser import istio_root_namespace
-from nca.Resources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
 from .IstioGenericYamlParser import IstioGenericYamlParser
 
 

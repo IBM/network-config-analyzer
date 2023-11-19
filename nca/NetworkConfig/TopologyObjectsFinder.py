@@ -7,7 +7,7 @@ from sys import stderr
 import yaml
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, HostEP, BasePeerSet
-from nca.Resources.K8sNamespace import K8sNamespace
+from nca.Resources.SpecialResources.K8sNamespace import K8sNamespace
 from nca.Parsers.IstioServiceEntryYamlParser import IstioServiceEntryYamlParser
 from nca.Parsers.K8sServiceYamlParser import K8sServiceYamlParser
 from nca.Utils.NcaLogger import NcaLogger

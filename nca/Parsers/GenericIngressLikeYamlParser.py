@@ -11,7 +11,7 @@ from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.Resources.GatewayPolicy import GatewayPolicyRule
+from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
 

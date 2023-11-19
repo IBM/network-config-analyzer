@@ -11,8 +11,8 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.Resources.NetworkPolicy import NetworkPolicy
-from nca.Resources.K8sNetworkPolicy import K8sNetworkPolicy, K8sPolicyRule
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.K8sNetworkPolicy import K8sNetworkPolicy, K8sPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
 

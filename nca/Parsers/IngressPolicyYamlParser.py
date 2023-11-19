@@ -10,8 +10,8 @@ from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.Resources.GatewayPolicy import GatewayPolicy
-from nca.Resources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 
@@ -246,7 +246,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
     def parse_policy(self):
         """
         Parses the input object to create GatewayPolicy object
-        :return: GatewayPolicy object with proper deny egress_rules, or None for wrong input object
+        :return: GatewayPolicy object with proper egress_rules, or None for wrong input object
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['Ingress'],
                                                                         ['networking.k8s.io/v1'], 'k8s', True)
@@ -254,7 +254,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             return None  # Not an Ingress object
 
         self.namespace = self.peer_container.get_namespace(policy_ns)
-        res_policy = GatewayPolicy(policy_name + '/allow', self.namespace, GatewayPolicy.ActionType.Allow)
+        res_policy = GatewayPolicy("Allow policy for Ingress resource " + policy_name, self.namespace,
+                                   GatewayPolicy.ActionType.Allow)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
         res_policy.affects_egress = True
         policy_spec = self.policy['spec']

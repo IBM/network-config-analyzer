@@ -6,7 +6,7 @@
 from collections import deque
 import yaml
 from nca.Utils.CmdlineRunner import CmdlineRunner
-from nca.Resources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
 from nca.Parsers.K8sPolicyYamlParser import K8sPolicyYamlParser
 from nca.Parsers.CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from nca.Parsers.IstioPolicyYamlParser import IstioPolicyYamlParser
@@ -125,7 +125,7 @@ class PoliciesFinder:
                                        policy_name
                                        )
         if istio_vs_parser:
-            istio_traffic_policies = istio_vs_parser.create_istio_traffic_policies(istio_gtw_parser)
+            istio_traffic_policies = istio_vs_parser.create_istio_gateway_policies(istio_gtw_parser)
             for istio_traffic_policy in istio_traffic_policies:
                 self._add_policy(istio_traffic_policy)
                 if ExplTracker().is_active():

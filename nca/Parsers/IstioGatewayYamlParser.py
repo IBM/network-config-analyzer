@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from functools import reduce
 from nca.CoreDS.Peer import PeerSet
-from nca.Resources.Gateway import Gateway
+from nca.Resources.SpecialResources.Gateway import Gateway
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 

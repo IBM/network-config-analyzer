@@ -12,8 +12,8 @@ from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.Resources.NetworkPolicy import NetworkPolicy
-from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy, CalicoPolicyRule
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.CalicoNetworkPolicy import CalicoNetworkPolicy, CalicoPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
 

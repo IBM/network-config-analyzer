@@ -10,9 +10,9 @@ from nca.CoreDS.Peer import IpBlock, HostEP, PeerSet, DNSEntry
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.Resources.IstioNetworkPolicy import IstioNetworkPolicy
-from nca.Resources.GatewayPolicy import GatewayPolicy
-from nca.Resources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy, PolicyConnectionsFilter
+from nca.Resources.PolicyResources.IstioNetworkPolicy import IstioNetworkPolicy
+from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy, PolicyConnectionsFilter
 from nca.Utils.ExplTracker import ExplTracker
 
 
