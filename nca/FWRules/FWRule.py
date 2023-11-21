@@ -4,7 +4,7 @@
 #
 
 from nca.CoreDS.Peer import ClusterEP, IpBlock, Pod, PeerSet, DNSEntry
-from nca.Resources.SpecialResources.K8sNamespace import K8sNamespace
+from nca.Resources.OtherResources.K8sNamespace import K8sNamespace
 from .ClusterInfo import ClusterInfo
 
 

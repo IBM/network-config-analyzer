@@ -4,7 +4,7 @@
 #
 
 from nca.CoreDS.Peer import PeerSet
-from nca.Resources.SpecialResources.Gateway import Gateway
+from nca.Resources.OtherResources.Gateway import Gateway
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 

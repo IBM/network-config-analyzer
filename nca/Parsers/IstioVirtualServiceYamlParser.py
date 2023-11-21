@@ -7,7 +7,7 @@ import re
 from functools import reduce
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.MethodSet import MethodSet
-from nca.Resources.SpecialResources.VirtualService import VirtualService
+from nca.Resources.OtherResources.VirtualService import VirtualService
 from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 
