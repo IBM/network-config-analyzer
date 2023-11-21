@@ -22,6 +22,9 @@ class VirtualService:
         pods: PeerSet
         ports: PortSet
 
+        def is_egress_gateway(self):
+            return self.name == 'istio-egressgateway.istio-system.svc.cluster.local'
+
     class Route:
         """
         A class for various route kinds (HTTPRoute/TLSRoute/TCPRoute) of a VirtualService

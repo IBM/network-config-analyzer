@@ -10,7 +10,9 @@ from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 class IstioGatewayYamlParser(GenericIngressLikeYamlParser):
     """
-    A parser for Istio gateway resource
+    A parser for Istio gateway resource.
+    Currently we support only standard istio ingress or egress gateways, which are identified by
+    'istio: ingressgateway' or 'istio: egressgateway' selectors correspondingly.
     """
 
     def __init__(self, peer_container):
@@ -67,12 +69,22 @@ class IstioGatewayYamlParser(GenericIngressLikeYamlParser):
         selector = gtw_spec['selector']
         peers = self.peer_container.get_all_peers_group()
         for key, val in selector.items():
+            # currently we support only standard istio ingress or egress gateways, which are identified by
+            # 'istio: ingressgateway' or 'istio: egressgateway' selectors correspondingly.
+            if key == 'istio':
+                if val == 'ingressgateway':
+                    gateway.type = Gateway.GatewayType.Ingress
+                elif val == 'egressgateway':
+                    gateway.type = Gateway.GatewayType.Egress
             selector_peers = self.peer_container.get_peers_with_label(key, [val])
             if not selector_peers:
                 self.missing_istio_gw_pods_with_labels.add((key, val))
                 peers = PeerSet()
             else:
                 peers &= selector_peers
+        if not gateway.type:
+            self.warning(f'The gateway {gtw_name} is not a standard istio ingress/egress gateway, and it is ignored')
+            return
         if not peers:
             self.warning(f'selector {selector} does not reference any pods in Gateway {gtw_name}. Ignoring the gateway')
             return
@@ -114,29 +126,3 @@ class IstioGatewayYamlParser(GenericIngressLikeYamlParser):
         protocol = port['protocol']
         name = port['name']
         return Gateway.Server.GatewayPort(number, protocol, name)
-
-    @staticmethod
-    def get_egress_gtw_pods(pods):
-        """
-        Heuristically identifying egress gateway pods out of given pods.
-        Detection of egress gateway pods is based on having "egress" substring in pod names or labels.
-        :param PeerSet pods: a given set of pods
-        :return: a set of egress gateway pods
-        """
-        result = PeerSet()
-        look_for = "egress"
-        for peer in pods:
-            # first, try to look in peer's name
-            if look_for in peer.name:
-                result.add(peer)
-                continue
-            # try to look in peer's labels
-            found = [val for val in list(peer.labels.values()) if look_for in val]
-            if found:
-                result.add(peer)
-                continue
-            # still not found? try to look in extra_labels
-            found = [val for val in list(peer.extra_labels.values()) if look_for in val]
-            if found:
-                result.add(peer)
-        return result

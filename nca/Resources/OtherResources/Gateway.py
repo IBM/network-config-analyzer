@@ -4,6 +4,7 @@
 #
 
 from dataclasses import dataclass
+from enum import Enum
 from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.MinDFA import MinDFA
 
@@ -12,6 +13,13 @@ class Gateway:
     """
     A class for keeping some elements of parsed Istio Gateway, needed for building GatewayPolicy
     """
+
+    class GatewayType(Enum):
+        """
+        Possible gateway types
+        """
+        Ingress = 0
+        Egress = 1
 
     @dataclass
     class Server:
@@ -44,6 +52,7 @@ class Gateway:
         """
         self.name = name
         self.namespace = namespace
+        self.type = None
         self.peers = PeerSet()
         self.servers = []
         self.all_hosts_dfa = None
