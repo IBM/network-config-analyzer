@@ -8,9 +8,9 @@ metadata:
 spec:
   selector:
     matchLabels:
-      istio: custom-ingressgateway
+      istio: ingressgateway
   template:
     metadata:
       labels:
-        istio: custom-ingressgateway
+        istio: ingressgateway
 
