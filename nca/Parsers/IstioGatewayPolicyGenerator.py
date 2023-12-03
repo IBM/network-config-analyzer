@@ -17,6 +17,8 @@ from nca.Resources.OtherResources.Gateway import Gateway
 class IstioGatewayPolicyGenerator:
     """
     This class creates GatewayPolicies from the parsed Gateways and VirtualServices.
+    These GatewayPolicies have a style of network policies, and they model the connectivity logic as defined
+    by the combination of the gateways and the virtual services.
     """
     protocol_name = 'TCP'  # TODO = should it be always TCP?
     protocols = ProtocolSet.get_protocol_set_with_single_protocol(protocol_name)
@@ -90,6 +92,10 @@ class IstioGatewayPolicyGenerator:
                 continue
             gtw = self.gtw_parser.get_gateway(gtw_name)
             if gtw:
+                # Matching gateway hosts to virtual service hosts,
+                # as described in https://istio.io/latest/docs/reference/config/networking/gateway/#Server:
+                # "A VirtualService must be bound to the gateway and must have one or more hosts that match the hosts
+                # specified in a server".
                 matching_hosts = gtw.all_hosts_dfa & vs_all_hosts_dfa
                 if matching_hosts:
                     gtw_to_hosts[gtw] = matching_hosts
@@ -210,8 +216,7 @@ class IstioGatewayPolicyGenerator:
             used_gateways.add(gtw)
             allow_policy = self.init_gtw_to_mesh_policy(vs, route_cnt, gtw)
             deny_policy = None
-            if gtw.type == Gateway.GatewayType.Egress:
-                # this is an egress flow - generate deny mesh-to-dns policy
+            if gtw.type == Gateway.GatewayType.Egress:  # deny mesh-to-dns policy is created only in egress flow
                 assert not route.is_internal_dest
                 deny_policy = self.init_deny_policy(vs, route_cnt, gtw)
             for dest in route.destinations:

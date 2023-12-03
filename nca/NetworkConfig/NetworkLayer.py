@@ -437,7 +437,7 @@ class GatewayLayer(NetworkLayer):
     def _allowed_xgress_conns_optimized(self, is_ingress, peer_container, res_conns_filter=PolicyConnectionsFilter()):
         all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
         all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False, include_dns_entries=True)
-        non_captured_conns = None
+        non_captured_conns = ConnectivityProperties()
         res_conns = self.collect_policies_conns_optimized(is_ingress, GatewayLayer.captured_cond_func)
         if res_conns_filter.calc_all_allowed:
             res_conns.all_allowed_conns = res_conns.allowed_conns
