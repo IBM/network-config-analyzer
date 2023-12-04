@@ -11,6 +11,16 @@ networkConfigList:
       - ./resources
     networkPolicyList:
       - ./resources/ingress.yaml
+      - ./resources/ingress2.yaml
+    expectedWarnings: 0
+
+  - name: complex-k8s-ingress-test-missing-resources
+    namespaceList:
+      - ./resources
+    podList:
+      - ./resources
+    networkPolicyList:
+      - ./resources/ingress.yaml
     expectedWarnings: 0
 
   - name: complex-k8s-ingress-test-missing-resources

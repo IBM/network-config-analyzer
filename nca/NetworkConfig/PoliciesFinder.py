@@ -59,18 +59,19 @@ class PoliciesFinder:
         self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl')
         self._add_policies(CmdlineRunner.get_k8s_resources('sidecar'), 'kubectl')
 
-    def _add_policy(self, policy):
+    def _add_policy(self, policy, file, line):
         """
         This should be the only place where we add policies to the config's set of policies from input resources
         :param NetworkPolicy.NetworkPolicy policy: The policy to add
         :return: None
         """
+        poilicy.file = file
         self.policies_container.append_policy(policy)
 
     def parse_policies_in_parse_queue(self):  # noqa: C901
         istio_traffic_parser = None
         istio_sidecar_parser = None
-        for policy, file_name, policy_type in self._parse_queue:
+        for policy, file_name, policy_type, line_number in self._parse_queue:
             if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name, self.optimized_run)
                 # only during parsing adding extra labels from profiles (not supporting profiles with rules)
@@ -146,7 +147,7 @@ class PoliciesFinder:
         elif policy_type == NetworkPolicy.PolicyType.CalicoProfile:
             self._parse_queue.appendleft((policy_object, file_name, policy_type))  # profiles must be parsed first
         else:
-            self._parse_queue.append((policy_object, file_name, policy_type))
+            self._parse_queue.append((policy_object, file_name, policy_type, policy_object.line_number))
 
     def _add_policies_to_parse_queue(self, policy_list, file_name):
         for policy in policy_list:
