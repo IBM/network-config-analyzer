@@ -1289,8 +1289,6 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
 
         return config  # no K8s/Istio gateway policies in this config
 
-
-
     def execute(self, cmd_line_flag):
         return self.exec(cmd_line_flag)
 
