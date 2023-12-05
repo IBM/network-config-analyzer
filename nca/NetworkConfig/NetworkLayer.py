@@ -23,15 +23,18 @@ from nca.Utils.ExplTracker import ExplTracker
 class NetworkLayerName(Enum):
     K8s_Calico = 0
     Istio = 1
-    Gateway = 2
+    K8sGateway = 2
+    IstioGateway = 3
 
     def create_network_layer(self, policies):
         if self == NetworkLayerName.K8s_Calico:
             return K8sCalicoNetworkLayer(policies)
         if self == NetworkLayerName.Istio:
             return IstioNetworkLayer(policies)
-        if self == NetworkLayerName.Gateway:
-            return GatewayLayer(policies)
+        if self == NetworkLayerName.K8sGateway:
+            return K8sGatewayLayer(policies)
+        if self == NetworkLayerName.IstioGateway:
+            return IstioGatewayLayer(policies)
         return None
 
     @staticmethod
@@ -41,8 +44,10 @@ class NetworkLayerName(Enum):
             return NetworkLayerName.K8s_Calico
         elif policy_type in {NetworkPolicy.PolicyType.IstioAuthorizationPolicy, NetworkPolicy.PolicyType.IstioSidecar}:
             return NetworkLayerName.Istio
-        elif policy_type in {NetworkPolicy.PolicyType.Ingress, NetworkPolicy.PolicyType.GatewayPolicy}:
-            return NetworkLayerName.Gateway
+        elif policy_type in {NetworkPolicy.PolicyType.Ingress}:
+            return NetworkLayerName.K8sGateway
+        elif policy_type in {NetworkPolicy.PolicyType.GatewayPolicy}:
+            return NetworkLayerName.IstioGateway
         return None
 
 
@@ -79,21 +84,19 @@ class NetworkLayersContainer(dict):
         if self.default_layer in self and not self[self.default_layer].policies_list:
             del self[self.default_layer]
 
-    def does_contain_single_layer(self, layer_name):
+    def does_contain_only_gateway_layers(self):
         """
-        Checks if the given layer is the only layer in the map.
-        :param NetworkLayerName layer_name: the layer to check
-        :return: True if the layer is the only layer in the map, False otherwise
+        Checks if the map contains only gateway layers.
+        :return: True if the map contains only gateway layers, False otherwise
         """
-        return len(self) == 1 and list(self.keys())[0] == layer_name
+        return set(self.keys()).issubset({NetworkLayerName.K8sGateway, NetworkLayerName.IstioGateway})
 
-    def does_contain_layer(self, layer_name):
+    def does_contain_istio_layers(self):
         """
-        Checks if the given layer is in the map.
-        :param NetworkLayerName layer_name: the layer to check
-        :return: True if the layer is in the map
+        Checks if any of Istio layers is in the map.
+        :return: True if any of Istio layers is in the map, False otherwise
         """
-        return layer_name in self
+        return {NetworkLayerName.Istio, NetworkLayerName.IstioGateway} & set(self.keys())
 
     @staticmethod
     def empty_layer_allowed_connections(layer_name, from_peer, to_peer):
@@ -349,6 +352,8 @@ class IstioNetworkLayer(NetworkLayer):
     def captured_cond_func(policy):
         if policy.policy_kind == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
             return policy.action == IstioNetworkPolicy.ActionType.Allow
+        if policy.policy_kind == NetworkPolicy.PolicyType.GatewayPolicy:
+            return policy.action == GatewayPolicy.ActionType.Allow
         return True  # only for Istio AuthorizationPolicy the captured condition is more refined with 'Allow' policies
 
     def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
@@ -363,7 +368,7 @@ class IstioNetworkLayer(NetworkLayer):
             allowed_non_captured_conns |= (ConnectionSet(True) - denied_conns)
             # exception: update allowed non-captured conns to DNSEntry dst with TCP only
             if isinstance(to_peer, DNSEntry):
-                allowed_non_captured_conns = ConnectionSet.get_all_tcp_connections()
+                allowed_non_captured_conns = ConnectionSet.get_all_tcp_connections() - denied_conns
         return PolicyConnections(captured_res, allowed_conns, denied_conns,
                                  all_allowed_conns=allowed_conns | allowed_non_captured_conns)
 
@@ -389,7 +394,6 @@ class IstioNetworkLayer(NetworkLayer):
             if is_ingress:
                 all_nc_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                                                  "dst_peers": non_captured_peers})
-                res_conns.all_allowed_conns |= all_nc_conns - res_conns.denied_conns
                 non_captured_dns_entries = dns_entries - res_conns.captured
                 non_captured_conns = all_nc_conns - res_conns.denied_conns
                 if non_captured_dns_entries:
@@ -398,19 +402,16 @@ class IstioNetworkLayer(NetworkLayer):
                         ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
                                                                           "dst_peers": non_captured_dns_entries,
                                                                           "protocols": tcp_protocol})
-                    non_captured_conns |= all_nc_dns_conns
-                    res_conns.all_allowed_conns |= all_nc_dns_conns
+                    non_captured_conns |= (all_nc_dns_conns - res_conns.denied_conns)
             else:
                 nc_all_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                  "dst_peers": all_peers_and_ips})
-                res_conns.all_allowed_conns |= nc_all_conns - res_conns.denied_conns
                 # update allowed non-captured conns to DNSEntry dst with TCP only
                 nc_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
                                                                                  "dst_peers": dns_entries,
                                                                                  "protocols": tcp_protocol})
-                non_captured_conns = nc_all_conns - res_conns.denied_conns
-                non_captured_conns |= nc_dns_conns
-                res_conns.all_allowed_conns |= nc_dns_conns
+                non_captured_conns = (nc_all_conns | nc_dns_conns) - res_conns.denied_conns
+            res_conns.all_allowed_conns |= non_captured_conns
             if ExplTracker().is_active():
                 src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
                 ExplTracker().add_default_policy(src_peers,
@@ -420,42 +421,9 @@ class IstioNetworkLayer(NetworkLayer):
         return res_conns
 
 
-class GatewayLayer(NetworkLayer):
-    @staticmethod
-    def captured_cond_func(policy):
-        return policy.action == GatewayPolicy.ActionType.Allow
+class K8sGatewayLayer(K8sCalicoNetworkLayer):
+    pass
 
-    def _allowed_xgress_conns(self, from_peer, to_peer, is_ingress):
-        allowed_conns, denied_conns, _, captured_res = self.collect_policies_conns(from_peer, to_peer, is_ingress,
-                                                                                   GatewayLayer.captured_cond_func)
-        all_allowed_conns = allowed_conns
-        if not captured_res:
-            all_allowed_conns |= (ConnectionSet(True) - denied_conns)
-        return PolicyConnections(captured=captured_res, allowed_conns=allowed_conns, denied_conns=ConnectionSet(),
-                                 all_allowed_conns=all_allowed_conns)
 
-    def _allowed_xgress_conns_optimized(self, is_ingress, peer_container, res_conns_filter=PolicyConnectionsFilter()):
-        all_peers_and_ips = peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
-        all_peers_no_ips = peer_container.get_all_peers_group(add_external_ips=False, include_dns_entries=True)
-        non_captured_conns = ConnectivityProperties()
-        res_conns = self.collect_policies_conns_optimized(is_ingress, GatewayLayer.captured_cond_func)
-        if res_conns_filter.calc_all_allowed:
-            res_conns.all_allowed_conns = res_conns.allowed_conns
-            non_captured_peers = all_peers_no_ips - res_conns.captured
-            # TODO - check whether ips should be included (depends on REGISTRY_ONLY or ALLOW_ANY default)
-            if non_captured_peers:
-                if is_ingress:
-                    non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips,
-                                                                                           "dst_peers": non_captured_peers})
-                else:
-                    non_captured_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": non_captured_peers,
-                                                                                           "dst_peers": all_peers_and_ips})
-                non_captured_conns -= res_conns.denied_conns
-                res_conns.all_allowed_conns |= non_captured_conns
-        if non_captured_conns and ExplTracker().is_active():
-            src_peers, dst_peers = ExplTracker().extract_peers(non_captured_conns)
-            ExplTracker().add_default_policy(src_peers,
-                                             dst_peers,
-                                             is_ingress
-                                             )
-        return res_conns
+class IstioGatewayLayer(IstioNetworkLayer):
+    pass

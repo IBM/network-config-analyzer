@@ -1,6 +1,6 @@
-// The Connectivity Graph of connectivity-2/complex-istio-and-k8s-ingress-test-missing-resources
+// The Connectivity Graph of connectivity-2/complex-istio-and-k8s-ingress-test-missing-resources, for TCP connections
 digraph {
-	label="Connectivity Graph of connectivity-2/complex-istio-and-k8s-ingress-test-missing-resources"	labelloc = "t"
+	label="Connectivity Graph of connectivity-2/complex-istio-and-k8s-ingress-test-missing-resources, for TCP connections"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
@@ -81,6 +81,48 @@ subgraph cluster_istio_system_namespace{
 	"istio-system/istio-ingressgateway-livesim(Pod)" -> "example/deploy-hhhh(Deployment)"[label="tcp9950b" labeltooltip="TCP {'dst_ports': '9950', 'hosts': 'hhhh.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/hhhh(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"istio-system/istio-ingressgateway-livesim(Pod)" -> "example/deploy-iiii(Deployment)"[label="tcp3000b" labeltooltip="TCP {'dst_ports': '3000', 'hosts': 'iiii.y.z'},{'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/iiii(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"istio-system/istio-ingressgateway-livesim(Pod)" -> "example/deploy-jjjj(Deployment)"[label="tcp9950c" labeltooltip="TCP {'dst_ports': '9950', 'hosts': 'jjjj.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/jjjj(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	color=white
+	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
+	labelloc = "b"
+	fontsize=15
+	fontcolor=maroon
+	}
+}
+// The Connectivity Graph of connectivity-2/complex-istio-and-k8s-ingress-test-missing-resources, for non-TCP connections
+digraph {
+	label="Connectivity Graph of connectivity-2/complex-istio-and-k8s-ingress-test-missing-resources, for non-TCP connections"	labelloc = "t"
+	fontsize=30
+	fontcolor=maroon
+	subgraph cluster_map_explanation {
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
+subgraph cluster_example_namespace{
+	label="example"
+	fontsize=20
+	fontcolor=blue
+	tooltip="Namespace"
+	"example/deploy-aaaa(Deployment)" [label=<<table border="1" cellspacing="0"><tr><td>deploy-aaaa(Deployment)</td></tr><tr><td>deploy-bbbb(Deployment)</td></tr><tr><td>deploy-cccc(Deployment)</td></tr><tr><td>deploy-dddd(Deployment)</td></tr><tr><td>deploy-eeee(Deployment)</td></tr><tr><td>deploy-ffff(Deployment)</td></tr><tr><td>deploy-gggg(Deployment)</td></tr><tr><td>deploy-hhhh(Deployment)</td></tr><tr><td>deploy-iiii(Deployment)</td></tr><tr><td>deploy-jjjj(Deployment)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
+}
+subgraph cluster_ingress_controller_ns_namespace{
+	label="ingress-controller-ns"
+	fontsize=20
+	fontcolor=blue
+	tooltip="Namespace"
+	"ingress-controller-ns/ingress-controller-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>ingress-controller-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta tooltip="Automatically added workload"]
+}
+subgraph cluster_istio_system_namespace{
+	label="istio-system"
+	fontsize=20
+	fontcolor=blue
+	tooltip="Namespace"
+	"istio-system/istio-ingressgateway-livesim(Pod)" [label=<<table border="0" cellspacing="0"><tr><td>istio-ingressgateway-livesim(Pod)</td></tr></table>> shape=box fontcolor=magenta tooltip="Automatically added workload"]
+}
+	"0.0.0.0/0" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-aaaa(Deployment)" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"example/deploy-aaaa(Deployment)" -> "example/deploy-aaaa(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"example/deploy-aaaa(Deployment)" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"istio-system/istio-ingressgateway-livesim(Pod)" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"istio-system/istio-ingressgateway-livesim(Pod)" -> "example/deploy-aaaa(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"istio-system/istio-ingressgateway-livesim(Pod)" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
 	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"

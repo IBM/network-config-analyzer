@@ -14,7 +14,6 @@ src_ns: [istio-system] src_pods: [*] dst: httpbin.example.com conn: TCP {'dst_po
 src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
 
 For connections of type non-TCP, final fw rules for query: onlineboutique-sidecars-connectivity, config: onlineboutique-sidecars-and-gateways:
-src: 0.0.0.0/0 dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
-src_ns: [asm-ingress,default] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [asm-ingress,default] src_pods: [*] dst_ns: [asm-ingress,default] dst_pods: [*] conn: All connections
-src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
+src: 0.0.0.0/0 dst_ns: [asm-ingress,default,istio-system] dst_pods: [*] conn: All connections
+src_ns: [asm-ingress,default,istio-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [asm-ingress,default,istio-system] src_pods: [*] dst_ns: [asm-ingress,default,istio-system] dst_pods: [*] conn: All connections
