@@ -1,6 +1,6 @@
-// The Connectivity Graph of livesim_tests/**, for TCP connections
+// The Connectivity Graph of **, for TCP connections
 digraph {
-	label="Connectivity Graph of livesim_tests/**, for TCP connections"	labelloc = "t"
+	label="Connectivity Graph of **, for TCP connections"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
@@ -56,9 +56,9 @@ subgraph cluster_kube_system_namespace{
 	fontcolor=maroon
 	}
 }
-// The Connectivity Graph of livesim_tests/**, for non-TCP connections
+// The Connectivity Graph of **, for non-TCP connections
 digraph {
-	label="Connectivity Graph of livesim_tests/**, for non-TCP connections"	labelloc = "t"
+	label="Connectivity Graph of **, for non-TCP connections"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
