@@ -51,7 +51,7 @@ class GatewayPolicy(NetworkPolicy):
     For representation of policies from 'istio EgressGateway', there will be GatewayPolicies
     of both 'Allow' and 'Deny' types:
     The 'Allow' policy types represent the connections configured from the mesh to the gateway + from the gateway
-    to external destinations. 
+    to external destinations.
     The 'Deny' policy type will be generated to represent denied connections
     from mesh to those DNS entries whose egress traffic is sent via egress gateways, as defined in virtual services.
     """

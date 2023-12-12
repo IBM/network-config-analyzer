@@ -13,8 +13,9 @@ from .GenericGatewayYamlParser import GenericGatewayYamlParser
 
 class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
     """
-    A parser for Istio VirtualService resources. (see https://github.com/istio/api/blob/master/networking/v1alpha3/virtual_service.proto)
-    Currently VirtualService  is supported in the context of Istio's Ingress/Egress gateway configuration only. 
+    A parser for Istio VirtualService resources.
+    (see https://github.com/istio/api/blob/master/networking/v1alpha3/virtual_service.proto)
+    Currently VirtualService  is supported in the context of Istio's Ingress/Egress gateway configuration only.
     """
 
     def __init__(self, peer_container):
@@ -52,7 +53,8 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                                    {'hosts': [0, list], 'gateways': [0, list], 'http': 0, 'tls': 0, 'tcp': 0,
                                     'exportTo': [3, list]})
         # field 'hosts' is the destination hosts to which traffic is being sent (from the original http request)
-        # (see https://github.com/istio/api/blob/bb3cb9c034df2b5cc1de1d77689d201a0cf961c5/networking/v1alpha3/virtual_service.proto#L209-L238 )
+        # (see https://github.com/istio/api/blob/bb3cb9c034df2b5cc1de1d77689d201a0cf961c5/networking/v1alpha3/
+        #      virtual_service.proto#L209-L238)
         hosts = vs_spec.get('hosts')
         for host in hosts or []:
             host_dfa = self.parse_host_value(host, vs_resource)
