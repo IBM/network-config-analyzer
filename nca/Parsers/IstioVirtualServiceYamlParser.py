@@ -14,6 +14,7 @@ from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
     """
     A parser for Istio VirtualService resources.
+    Currently VirtualService  is supported in the context of Istio's Ingress/Egress gateway configuration only. 
     """
 
     def __init__(self, peer_container):
