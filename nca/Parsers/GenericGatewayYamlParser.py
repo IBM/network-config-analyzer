@@ -15,7 +15,7 @@ from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
 
-class GenericIngressLikeYamlParser(GenericYamlParser):
+class GenericGatewayYamlParser(GenericYamlParser):
     """
     A parser for Ingress like objects (common for k8s ingress and Istio ingress)
     """

@@ -8,10 +8,10 @@ from functools import reduce
 from nca.CoreDS.MinDFA import MinDFA
 from nca.CoreDS.MethodSet import MethodSet
 from nca.Resources.OtherResources.VirtualService import VirtualService
-from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
+from .GenericGatewayYamlParser import GenericGatewayYamlParser
 
 
-class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
+class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
     """
     A parser for Istio VirtualService resources.
     """
@@ -21,9 +21,8 @@ class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
         :param PeerContainer peer_container: The ingress policy will be evaluated
         against this set of peers
         """
-        GenericIngressLikeYamlParser.__init__(self, peer_container)
+        GenericGatewayYamlParser.__init__(self, peer_container)
         self.virtual_services = {}  # a map from a name to a VirtualService
-        self.gtw_parser = None
 
     def add_virtual_service(self, vs):
         """

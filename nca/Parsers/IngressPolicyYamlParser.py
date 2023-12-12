@@ -12,10 +12,10 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy
 from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
-from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
+from .GenericGatewayYamlParser import GenericGatewayYamlParser
 
 
-class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
+class IngressPolicyYamlParser(GenericGatewayYamlParser):
     """
     A parser for Ingress objects
     """
@@ -26,7 +26,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         :param PeerContainer peer_container: The ingress policy will be evaluated against this set of peers
         :param str ingress_file_name: The name of the ingress resource file
         """
-        GenericIngressLikeYamlParser.__init__(self, peer_container, ingress_file_name)
+        GenericGatewayYamlParser.__init__(self, peer_container, ingress_file_name)
         self.policy = policy
         self.namespace = None
         self.default_backend_peers = PeerSet()
@@ -160,7 +160,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                 path_dfa = MinDFA.dfa_from_regex(path_string)
             else:  # Prefix type
                 path_string = '/' if not path_string else path_string
-                path_dfa = GenericIngressLikeYamlParser.get_path_prefix_dfa(path_string)
+                path_dfa = GenericGatewayYamlParser.get_path_prefix_dfa(path_string)
             parsed_paths_with_dfa.append((path_string, path_dfa, path_type, peers, ports))
 
         # next, avoid shorter sub-paths to extend to longer ones, using dfa operations

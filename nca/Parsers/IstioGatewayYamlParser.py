@@ -5,13 +5,13 @@
 
 from nca.CoreDS.Peer import PeerSet
 from nca.Resources.OtherResources.Gateway import Gateway
-from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
+from .GenericGatewayYamlParser import GenericGatewayYamlParser
 
 
-class IstioGatewayYamlParser(GenericIngressLikeYamlParser):
+class IstioGatewayYamlParser(GenericGatewayYamlParser):
     """
     A parser for Istio gateway resource.
-    Currently we support only standard istio ingress or egress gateways, which are identified by
+    Currently, we support only standard istio ingress or egress gateways, which are identified by
     'istio: ingressgateway' or 'istio: egressgateway' selectors correspondingly.
     """
 
@@ -20,7 +20,7 @@ class IstioGatewayYamlParser(GenericIngressLikeYamlParser):
         :param PeerContainer peer_container: The ingress policy will be evaluated
         against this set of peers
         """
-        GenericIngressLikeYamlParser.__init__(self, peer_container)
+        GenericGatewayYamlParser.__init__(self, peer_container)
         self.gateways = {}  # a map from a name to a Gateway
         # missing_istio_gw_pods_with_labels is a set of labels - (key,value) pairs
         # of gateway resource that has no matching pods
