@@ -13,7 +13,7 @@ from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
 
 class IstioVirtualServiceYamlParser(GenericIngressLikeYamlParser):
     """
-    A parser for Istio VirtualService resources.
+    A parser for Istio VirtualService resources. (see https://github.com/istio/api/blob/master/networking/v1alpha3/virtual_service.proto)
     Currently VirtualService  is supported in the context of Istio's Ingress/Egress gateway configuration only. 
     """
 
