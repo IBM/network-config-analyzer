@@ -40,14 +40,20 @@ class GatewayPolicyRule:
 
 class GatewayPolicy(NetworkPolicy):
     """
-    This class implements gateway traffic logic for incoming/outcoming http requests
+    This class implements gateway connectivity logic for incoming/outgoing http requests (to/from the cluster)
     The logic is kept similarly to NetworkPolicy.
-    This class is used to represent policies from `k8s Ingress`, `istio IngressGateway` and `istio EgresGateway`.
+    This class is used to represent "policies" from `k8s Ingress`, `istio IngressGateway` and `istio EgresGateway` resources.
+
     For representation of policies from `k8s Ingress`, `istio IngressGateway`, the generated GatewayPolicies
-    will be of 'Allow' type.
+    will be of 'Allow' type - representing the connections configured from the gateway to the cluster's workloads. 
+
     For representation of policies from 'istio EgressGateway', there will be GatewayPolicies
-    of both 'Allow' and 'Deny' types. The 'Deny' policy type will be generated to represent denied connections
-    from mesh to those DNS entries whose egress traffic arrives via egress gateways, as defined in virtual services.
+    of both 'Allow' and 'Deny' types:
+    The 'Allow' policy types represent the connections configured from the mesh to the gateway + from the gateway
+    to external destinations. 
+    The 'Deny' policy type will be generated to represent denied connections
+    from mesh to those DNS entries whose egress traffic is sent via egress gateways, as defined in virtual services.
+    
     """
 
     class ActionType(Enum):
