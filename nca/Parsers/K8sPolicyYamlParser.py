@@ -321,7 +321,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             for peer in peer_array:
                 res_pods |= self.parse_peer(peer)
         else:
-            res_pods = self.peer_container.get_all_peers_group(True)
+            res_pods = self.peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
 
         if peer_array_key == 'from':  # ingress
             src_pods = res_pods
