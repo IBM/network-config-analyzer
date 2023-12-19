@@ -24,6 +24,7 @@ class IstioGatewayYamlParser(GenericGatewayYamlParser):
         self.gateways = {}  # a map from a name to a Gateway
         # missing_istio_gw_pods_with_labels is a set of labels - (key,value) pairs
         # of gateway resource that has no matching pods
+        # this field is used by "livesim" mechanism - to add the underlying pods of the configured gateway
         self.missing_istio_gw_pods_with_labels = set()
 
     def add_gateway(self, gateway):
