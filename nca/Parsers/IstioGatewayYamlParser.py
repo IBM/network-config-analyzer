@@ -10,7 +10,7 @@ from .GenericGatewayYamlParser import GenericGatewayYamlParser
 
 class IstioGatewayYamlParser(GenericGatewayYamlParser):
     """
-    A parser for Istio gateway resource.
+    A parser for Istio Gateway resource. (see https://istio.io/latest/docs/reference/config/networking/gateway/) 
     Currently, we support only standard istio ingress or egress gateways, which are identified by
     'istio: ingressgateway' or 'istio: egressgateway' selectors correspondingly.
     """
