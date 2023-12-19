@@ -245,7 +245,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                 self.warning('sniHosts mentioned in the tls.match are not a subset of hosts. This match will be ignored',
                              vs)
                 return None
-            self.parse_vs_gateways(vs.namespace, item, tls_route)
+                        # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
+                        # gateways field of the VirtualService (if any) are overridden.
+                        self.parse_vs_gateways(vs.namespace, item, tls_route)
         return tls_route
 
     def parse_l4_match_attributes(self, route, result_route, vs):
