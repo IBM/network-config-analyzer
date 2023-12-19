@@ -266,7 +266,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                                        {'destinationSubnets': [3, list], 'port': [3, int],
                                         'sourceLabels': [3, dict], 'gateways': [0, list], 'sourceNamespace': [3, str]})
             # TODO - understand 'destinationSubnets' usage
-            self.parse_vs_gateways(vs.namespace, item, result_route)
+                        # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
+                        # gateways field of the VirtualService (if any) are overridden.
+                        self.parse_vs_gateways(vs.namespace, item, result_route)
 
     def parse_route_destinations(self, route, result_route, vs, is_http_route):
         """
