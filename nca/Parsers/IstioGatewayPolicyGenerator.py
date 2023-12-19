@@ -54,6 +54,7 @@ class IstioGatewayPolicyGenerator:
             # it represents whether the current virtual service configures connectivity only inside the mesh
             # (internal routing rules, without gateways involved)
             only_local_traffic = False
+            # create gateway policies for every instance of a route rule within a virtual service
             vs_policies = self.create_route_policies(vs, vs.http_routes, global_vs_gtw_to_hosts, used_gateways,
                                                      only_local_traffic)
             vs_policies.extend(self.create_route_policies(vs, vs.tls_routes, global_vs_gtw_to_hosts, used_gateways,
