@@ -256,7 +256,7 @@ class IstioGatewayPolicyGenerator:
 
     def create_route_policies(self, vs, routes, global_vs_gtw_to_hosts, used_gateways, only_local_traffic):
         """
-        Create internal policies representing connections described by the given http/tls/tcp routes.
+        Create internal gateway policies representing connections described by the given http/tls/tcp routes.
         :param VirtualService vs: the virtual service holding the given routes
         :param list[Route] routes: the given http/tls/tcp routes from which policies should be created
         :param dict(Gateway, MinDFA) global_vs_gtw_to_hosts: a map from gateways to hosts
