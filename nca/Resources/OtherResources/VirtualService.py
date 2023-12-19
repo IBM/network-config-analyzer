@@ -36,7 +36,7 @@ class VirtualService:
             self.uri_dfa = None  # only in HTTP routes
             self.methods = None  # only in HTTP routes
             self.all_sni_hosts_dfa = None  # only in TLS routes
-            self.gateway_names = []
+            self.gateway_names = [] # list of gateways full names in format "namespace/name"
 
         def add_destination(self, name, pods, port, is_internal_dest):
             """
