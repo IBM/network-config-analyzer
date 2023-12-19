@@ -33,7 +33,9 @@ class IstioGatewayPolicyGenerator:
 
     def create_istio_gateway_policies(self):
         """
-        Create GatewayPolicies according to the parsed Istio Gateways and VirtualServices
+        The main function for IstioGatewayPolicyGenerator.
+        Create GatewayPolicies according to the parsed Istio Gateway and VirtualService resources.
+        Capturing traffic routing only in the context of gateways (ingress/egress).
         :return list[GatewayPolicy]: the resulting policies
         """
         if not self.gtw_parser or not self.gtw_parser.gateways:
