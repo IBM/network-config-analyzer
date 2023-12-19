@@ -212,7 +212,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                 result_route.add_methods(methods)
             else:
                 result_route.add_methods(MethodSet(True))
-            self.parse_vs_gateways(vs.namespace, item, result_route)
+                        # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
+                        # gateways field of the VirtualService (if any) are overridden.
+                        self.parse_vs_gateways(vs.namespace, item, result_route)
 
     def parse_tls_match_attributes(self, route, vs):
         """
