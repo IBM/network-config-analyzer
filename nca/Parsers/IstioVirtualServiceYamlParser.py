@@ -63,7 +63,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
             if host_dfa:
                 vs.add_host_dfa(host_dfa)
 
-        self.parse_vs_gateways(vs.namespace, vs_spec, vs, True)
+                # gateways field: A single VirtualService is used to configure connectivity of sidecars inside the mesh as well
+                # as for one or more gateways (with the matching hosts)
+                self.parse_vs_gateways(vs.namespace, vs_spec, vs, True)
         self.parse_vs_http_route(vs, vs_spec)
         self.parse_vs_tls_route(vs, vs_spec)
         self.parse_vs_tcp_route(vs, vs_spec)
