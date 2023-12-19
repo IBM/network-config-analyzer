@@ -85,7 +85,7 @@ class VirtualService:
         self.name = name
         self.namespace = namespace
         self.hosts_dfa = []
-        self.gateway_names = []
+        self.gateway_names = [] # list of gateways full names in format "namespace/name"
         self.http_routes = []
         self.tls_routes = []
         self.tcp_routes = []
