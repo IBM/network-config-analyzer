@@ -25,7 +25,7 @@ istio_testcases/example_policies/fly-istio-ingress-test/fly-istio-ingress-test-s
 istio_testcases/example_policies/istio-ingress-test/istio-ingress-test-scheme.yaml,1.91
 istio_testcases/example_policies/istio-egress-test/istio-egress-test-scheme.yaml,0.63
 istio_testcases/example_policies/istio-egress-test-partial-flow1/istio-egress-test-partial-flow1-scheme.yaml,0.12
-istio_testcases/example_policies/istio-egress-test-partial-flow1/istio-egress-test-partial-flow2-scheme.yaml,0.12
+istio_testcases/example_policies/istio-egress-test-partial-flow2/istio-egress-test-partial-flow2-scheme.yaml,0.12
 istio_testcases/example_policies/multi-layer-tests/onlineboutique-multi-layer-tests-scheme.yaml,32.84
 istio_testcases/example_policies/online_boutique/connectivity-scheme.yaml,27.69
 istio_testcases/example_policies/sidecar_examples_w_onlineboutique/frontend_tests/frontend-sidecar-test-scheme.yaml,0.16
