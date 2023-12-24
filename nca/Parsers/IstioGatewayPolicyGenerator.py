@@ -211,6 +211,7 @@ class IstioGatewayPolicyGenerator:
         :return: list[GatewayPolicy] the resulting list of policies
         """
         result = []
+        # this_route_conn_cube initialized based on the match request properties from the rule (hosts,paths,methods)
         this_route_conn_cube = self.init_route_conn_cube(route)
         for gtw, host_dfa in gtw_to_hosts.items():
             # Modeling connections from ingress gateway nodes to internal service nodes (Ingress flow) or
