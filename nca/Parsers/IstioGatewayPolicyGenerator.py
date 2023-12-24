@@ -47,7 +47,7 @@ class IstioGatewayPolicyGenerator:
             return []
 
         result = []
-        # used_gateways collects the gateways used by the analysis of virtual services connectivity  
+        # used_gateways collects the gateways used by the analysis of virtual services connectivity
         used_gateways = set()
         for vs in self.vs_parser.virtual_services.values():
             global_vs_gtw_to_hosts = self.pick_vs_gateways_by_hosts(vs, vs.gateway_names)
