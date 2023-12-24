@@ -215,6 +215,10 @@ class IstioGatewayPolicyGenerator:
         for gtw, host_dfa in gtw_to_hosts.items():
             # Modeling connections from ingress gateway nodes to internal service nodes (Ingress flow) or
             # from egress gateway nodes to external service nodes (DNS nodes) (Egress flow).
+            # In both cases, these connections are originated from VirtualService bound to a Gatewway
+            # The VirtualService configures the routing rules from the gateway to its destinations, given the request attributes
+            # Here we convert these routing rules to connectivity policies that allow the connections from the gateway
+            # to its destinations on the relevant connectivity attributes.
             if route.all_sni_hosts_dfa:
                 host_dfa &= route.all_sni_hosts_dfa
                 if not host_dfa:
