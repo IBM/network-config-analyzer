@@ -211,6 +211,7 @@ class IstioGatewayPolicyGenerator:
         :return: list[GatewayPolicy] the resulting list of policies
         """
         result = []
+        # this_route_conn_cube initialized based on the match request properties from the rule (hosts,paths,methods)
         this_route_conn_cube = self.init_route_conn_cube(route)
         for gtw, host_dfa in gtw_to_hosts.items():
             # Modeling connections from ingress gateway nodes to internal service nodes (Ingress flow) or
@@ -254,7 +255,7 @@ class IstioGatewayPolicyGenerator:
         Initialization of GatewayPolicy for holding connections from mesh to egress gateway
         :param VirtualService vs: the virtual service that defines the connections from mesh to egress gateway
         :param int route_cnt: the index of the route for which the policy is being created
-        :param ConnectivityCube this_route_conn_cube: a cube holdind this route attributes
+        :param ConnectivityCube this_route_conn_cube: a cube holding this route attributes
         :param VirtualService.Destination dest: the destination (representing an egress gateway)
         :return: the resulting GatewayPolicy
         """
