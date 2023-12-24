@@ -39,11 +39,11 @@ class IstioGatewayPolicyGenerator:
         :return list[GatewayPolicy]: the resulting policies
         """
         if not self.gtw_parser or not self.gtw_parser.gateways:
-            self.vs_parser.warning('no valid Gateways found. Ignoring istio ingress/egress traffic')
+            self.vs_parser.warning('no valid Gateways found. Ignoring istio ingress/egress gateway traffic')
             return []
 
         if not self.vs_parser or not self.vs_parser.virtual_services:
-            self.gtw_parser.warning('no valid VirtualServices found. Ignoring istio ingress/egress traffic')
+            self.gtw_parser.warning('no valid VirtualServices found. Ignoring istio ingress/egress gateway traffic')
             return []
 
         result = []
@@ -78,7 +78,7 @@ class IstioGatewayPolicyGenerator:
             self.vs_parser.warning(f'the following gateways have no virtual services attached: '
                                    f'{",".join([gtw.full_name() for gtw in unused_gateways])}')
         if not result:
-            self.vs_parser.warning('no valid VirtualServices found. Ignoring istio ingress traffic')
+            self.vs_parser.warning('no valid VirtualServices found. Ignoring istio ingress/egress gateway traffic')
         else:
             result[0].findings = self.gtw_parser.warning_msgs + self.vs_parser.warning_msgs
         return result
@@ -200,7 +200,7 @@ class IstioGatewayPolicyGenerator:
     def create_gtw_to_mesh_and_deny_policies(self, vs, route, route_cnt, gtw_to_hosts, used_gateways):
         """
         Create internal policies representing connections from gateways to mesh,
-            described by the given http/tls/tcp route.
+        described by the given http/tls/tcp route.
         When relevant, create also deny policies from mesh to the mentioned DNS entries.
         :param VirtualService vs: the virtual service holding the given route
         :param Route route: the given http/tls/tcp route from which policies should be created
@@ -215,11 +215,18 @@ class IstioGatewayPolicyGenerator:
         for gtw, host_dfa in gtw_to_hosts.items():
             # Modeling connections from ingress gateway nodes to internal service nodes (Ingress flow) or
             # from egress gateway nodes to external service nodes (DNS nodes) (Egress flow).
-            # In both cases, these connections are originated from VirtualService bound to a Gatewway
-            # The VirtualService configures the routing rules from the gateway to its destinations, given the request attributes
+            # In both cases, these connections are originated from VirtualService bound to a Gateway.
+            # The VirtualService configures the routing rules from the gateway to its destinations,
+            # given the request attributes.
             # Here we convert these routing rules to connectivity policies that allow the connections from the gateway
             # to its destinations on the relevant connectivity attributes.
             if route.all_sni_hosts_dfa:
+                # in case of TLS route, sniHosts must be a subset of hosts, as described in
+                # https://istio.io/latest/docs/reference/config/networking/virtual-service/#TLSMatchAttributes
+                # according to this, we assume that sniHosts must be used instead of hosts (for matching
+                # to relevant gateways and for being used as a connections' attribute).
+                # the conjunction below may be empty for some gateways, which are therefore not matched and
+                # should be skipped
                 host_dfa &= route.all_sni_hosts_dfa
                 if not host_dfa:
                     continue
@@ -237,6 +244,9 @@ class IstioGatewayPolicyGenerator:
             result.append(allow_policy)
             if deny_policy:
                 result.append(deny_policy)
+        if not result:
+            self.vs_parser.warning(f"The route number {route_cnt} of the virtual service {vs.full_name()} "
+                                   f"does not define any connections and will be ignored")
         return result
 
     def create_mesh_to_egress_policy(self, vs, route_cnt, this_route_conn_cube, dest):
@@ -281,13 +291,19 @@ class IstioGatewayPolicyGenerator:
         for route_cnt, route in enumerate(routes, start=1):
             if route.gateway_names:  # override global gateways
                 has_mesh = 'mesh' in route.gateway_names
-                has_gateways |= len(route.gateway_names) > 1
+                has_gateways |= (len(route.gateway_names) > 1 if has_mesh else bool(route.gateway_names))
                 gtw_to_hosts = self.pick_vs_gateways_by_hosts(vs, route.gateway_names)
             else:  # use global gateways
                 has_mesh = global_has_mesh
                 gtw_to_hosts = global_vs_gtw_to_hosts
-            if not has_mesh and not gtw_to_hosts:  # when no gateways are given, the default is mesh
+            if not has_mesh and not has_gateways:  # when no gateways are given, the default is mesh
                 has_mesh = True
+            # The following call to 'create_gtw_to_mesh_and_deny_policies' creates the following gateway policies:
+            # 1. in case of ingress flow, it creates allow policies modeling connections from the ingress gateway
+            #  to mesh internal nodes;
+            # 2. in case of egress flow, it creates allow policies modeling connections from egress gateway
+            # to external dns nodes, as well as deny policies modeling denied connections from mesh to mentioned
+            # dns nodes.
             result.extend(self.create_gtw_to_mesh_and_deny_policies(vs, route, route_cnt, gtw_to_hosts, used_gateways))
             # Modeling connections from mesh to (egress) gateway nodes (which should be identified) (Egress flow).
             # Not modelling other connections from mesh to internal nodes here.

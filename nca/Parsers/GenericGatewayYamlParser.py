@@ -17,7 +17,8 @@ from .GenericYamlParser import GenericYamlParser
 
 class GenericGatewayYamlParser(GenericYamlParser):
     """
-    A parser for Ingress like objects (common for k8s ingress and Istio ingress)
+    A general parser, common for K8s Ingress resources, as well as for Istio Gateway/VirtualService resources.
+    Specific K8s Ingress / Istio Gateway / Istio VirtualService parsers are inherited from this class.
     """
 
     def __init__(self, peer_container, ingress_file_name=''):

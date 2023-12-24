@@ -16,7 +16,13 @@ class VirtualService:
     @dataclass
     class Destination:
         """
-        A class for keeping a parsed HTTP/TLS/TCP route destination of a VirtualService
+        A class for keeping a parsed HTTP/TLS/TCP route destination of a VirtualService.
+        It originates from Destination attribute of a virtual service, as described in
+        https://istio.io/latest/docs/reference/config/networking/virtual-service/#Destination;
+        'name' field is taken directly as 'Destination.host' attribute,
+        whereas 'pods' field is calculated from 'Destination.host' attribute, by mapping it to a local service
+        or to a remote dns entry;
+        finally, 'ports' field is taken directly from 'Destination.port' attribute.
         """
         name: str
         pods: PeerSet
@@ -27,16 +33,33 @@ class VirtualService:
 
     class Route:
         """
-        A class for various route kinds (HTTPRoute/TLSRoute/TCPRoute) of a VirtualService
+        A class for holding (some of) the attributes of various route kinds (HTTPRoute/TLSRoute/TCPRoute)
+        of a VirtualService. Some fields of this class are unique to a certain types of routes; they have values
+        in relevant types of routes, while being None in other types of routes.
+        During parsing, all Route lists are built for every virtual service, keeping those attributes that are needed
+        for building GatewayPolicies. On the second phase, GatewayPolicies are built from every Route.
         """
 
         def __init__(self):
+            # 'is_internal_dest' field represents whether the destination if to internal (True)
+            # or external (False) service. It is True for Ingress flow routes, as well as for mesh-to-egress-gateway
+            # routes of Egress flow. It is False for egress-gateway-to-dns-service routes of Egress flow.
             self.is_internal_dest = None
+            # 'destinations' field is a list of possible Destinations (as described in VirtualService.Destination above.
             self.destinations = []
-            self.uri_dfa = None  # only in HTTP routes
-            self.methods = None  # only in HTTP routes
-            self.all_sni_hosts_dfa = None  # only in TLS routes
-            self.gateway_names = [] # list of gateways full names in format "namespace/name"
+            # 'uri_dfa' and 'methods' fields originate from 'uri' and 'method' attribute respectively
+            # of HTTPMatchRequest of a virtual service, as described in
+            # https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPMatchRequest
+            # They are rlevant only for HTTP types of routes.
+            self.uri_dfa = None
+            self.methods = None
+            # 'all_sni_hosts_dfa' field is relevant only in TLS routes. It originates from 'sniHosts' attribute of
+            # TLSMatchAttributes, as described in
+            # https://istio.io/latest/docs/reference/config/networking/virtual-service/#TLSMatchAttributes
+            # In case of TLS routes, it refines the 'hosts_dfa' field of a virtual service, and is assigned to
+            # 'hosts' attribute of the resulting gateway policy connections.
+            self.all_sni_hosts_dfa = None
+            self.gateway_names = []  # list of gateways full names in format "namespace/name"
 
         def add_destination(self, name, pods, port, is_internal_dest):
             """
@@ -82,13 +105,17 @@ class VirtualService:
         :param str name: the name of the VirtualService
         :param K8sNamespace namespace: the namespace of the VirtualService
         """
-        self.name = name
-        self.namespace = namespace
+        self.name = name  # the name of the virtual service, as appears in the metadata
+        self.namespace = namespace  # the namespace of the virtual service, as appears in the metadata
+        # the 'hosts_dfa' field originates in VirtualService.hosts attribute, as described in
+        # https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService
+        # It is used for matching gateways to this virtual service, as well as for 'hosts' attribute
+        # of the resulting gateway policy connections.
         self.hosts_dfa = []
-        self.gateway_names = [] # list of gateways full names in format "namespace/name"
-        self.http_routes = []
-        self.tls_routes = []
-        self.tcp_routes = []
+        self.gateway_names = []  # list of gateways full names in format "namespace/name"
+        self.http_routes = []  # a list of HTTP routes of this virtual service. See Route description above.
+        self.tls_routes = []  # a list of TLS routes of this virtual service
+        self.tcp_routes = []  # a list of TCP routes of this virtual service
 
     def full_name(self):
         """
@@ -139,7 +166,7 @@ class VirtualService:
     def add_mesh(result):
         """
         Add mesh gateway to the list of gateway names of the VirtualService
-        :param result: the object to add the gateway to (assuming it has 'gateway_names' attribute).
+        :param VirtualService.Route result: the object to add the gateway to (assuming it has 'gateway_names' attribute)
         """
         if 'mesh' not in result.gateway_names:
-            result.gateway_names.append("mesh")
+            result.gateway_names.append('mesh')

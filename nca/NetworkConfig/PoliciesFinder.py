@@ -127,8 +127,8 @@ class PoliciesFinder:
                                        )
         if istio_gtw_parser or istio_vs_parser:
             istio_gtw_policy_gen = IstioGatewayPolicyGenerator(istio_gtw_parser, istio_vs_parser)
-            istio_traffic_policies = istio_gtw_policy_gen.create_istio_gateway_policies()
-            for istio_traffic_policy in istio_traffic_policies:
+            istio_gateway_policies = istio_gtw_policy_gen.create_istio_gateway_policies()
+            for istio_traffic_policy in istio_gateway_policies:
                 self._add_policy(istio_traffic_policy)
                 if ExplTracker().is_active():
                     ExplTracker().derive_item(istio_traffic_policy.name)

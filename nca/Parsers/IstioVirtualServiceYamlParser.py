@@ -56,16 +56,16 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
         # (see https://github.com/istio/api/blob/bb3cb9c034df2b5cc1de1d77689d201a0cf961c5/networking/v1alpha3/
         #      virtual_service.proto#L209-L238)
         # Hosts field is used for matching virtual services to gateways (whenever 'gateways' field is specified
-        # in the virtual service)
+        # in the virtual service). Also, the matched hosts appear in the 'hosts' attribute of the connections.
         hosts = vs_spec.get('hosts')
         for host in hosts or []:
             host_dfa = self.parse_host_value(host, vs_resource)
             if host_dfa:
                 vs.add_host_dfa(host_dfa)
 
-                # gateways field: A single VirtualService is used to configure connectivity of sidecars inside the mesh as well
-                # as for one or more gateways (with the matching hosts)
-                self.parse_vs_gateways(vs.namespace, vs_spec, vs, True)
+        # gateways field: A single VirtualService is used to configure connectivity of sidecars inside the mesh as well
+        # as for one or more gateways (with the matching hosts)
+        self.parse_vs_gateways(vs.namespace, vs_spec, vs, True)
         self.parse_vs_http_route(vs, vs_spec)
         self.parse_vs_tls_route(vs, vs_spec)
         self.parse_vs_tcp_route(vs, vs_spec)
@@ -78,7 +78,7 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
         internal gateway list
         :param K8sNamespace namespace: the virtual service namespace
         :param dict resource_spec: the resource containing gateways to parse
-        :param result: the object to put the resulting gateways to
+        :param Union[VirtualService, VirtualService.Route] result: the object to put the resulting gateways to
         :param bool are_global_gtw: whether the parsed list is a global virtual service gateway list
         """
         gateways = resource_spec.get('gateways')
@@ -212,9 +212,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                 result_route.add_methods(methods)
             else:
                 result_route.add_methods(MethodSet(True))
-                        # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
-                        # gateways field of the VirtualService (if any) are overridden.
-                        self.parse_vs_gateways(vs.namespace, item, result_route)
+            # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
+            # gateways field of the VirtualService (if any) are overridden.
+            self.parse_vs_gateways(vs.namespace, item, result_route)
 
     def parse_tls_match_attributes(self, route, vs):
         """
@@ -245,9 +245,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                 self.warning('sniHosts mentioned in the tls.match are not a subset of hosts. This match will be ignored',
                              vs)
                 return None
-                        # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
-                        # gateways field of the VirtualService (if any) are overridden.
-                        self.parse_vs_gateways(vs.namespace, item, tls_route)
+            # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
+            # gateways field of the VirtualService (if any) are overridden.
+            self.parse_vs_gateways(vs.namespace, item, tls_route)
         return tls_route
 
     def parse_l4_match_attributes(self, route, result_route, vs):
@@ -266,9 +266,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                                        {'destinationSubnets': [3, list], 'port': [3, int],
                                         'sourceLabels': [3, dict], 'gateways': [0, list], 'sourceNamespace': [3, str]})
             # TODO - understand 'destinationSubnets' usage
-                        # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
-                        # gateways field of the VirtualService (if any) are overridden.
-                        self.parse_vs_gateways(vs.namespace, item, result_route)
+            # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
+            # gateways field of the VirtualService (if any) are overridden.
+            self.parse_vs_gateways(vs.namespace, item, result_route)
 
     def parse_route_destinations(self, route, result_route, vs, is_http_route):
         """
