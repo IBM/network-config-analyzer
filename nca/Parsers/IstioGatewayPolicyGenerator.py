@@ -30,6 +30,10 @@ class IstioGatewayPolicyGenerator:
         """
         self.gtw_parser = gtw_parser
         self.vs_parser = vs_parser
+        self.ingress_gtw_to_mesh_policies = []
+        self.mesh_to_egress_gtw_policies = []
+        self.egress_gtw_to_dns_policies = []
+        self.deny_mesh_to_dns_policies = []
 
     def create_istio_gateway_policies(self):
         """
@@ -46,7 +50,6 @@ class IstioGatewayPolicyGenerator:
             self.gtw_parser.warning('no valid VirtualServices found. Ignoring istio ingress/egress gateway traffic')
             return []
 
-        result = []
         # used_gateways collects the gateways used by the analysis of virtual services connectivity
         used_gateways = set()
         for vs in self.vs_parser.virtual_services.values():
@@ -55,18 +58,20 @@ class IstioGatewayPolicyGenerator:
             # only_local_traffic is a bool flag that gets updated by the function create_route_policies()
             # it represents whether the current virtual service configures connectivity only inside the mesh
             # (internal routing rules, without gateways involved)
-            only_local_traffic = False
+            vs_has_policies = False
             # create gateway policies for every instance of a route rule within a virtual service
-            vs_policies = self.create_route_policies(vs, vs.http_routes, global_vs_gtw_to_hosts, used_gateways,
-                                                     only_local_traffic)
-            vs_policies.extend(self.create_route_policies(vs, vs.tls_routes, global_vs_gtw_to_hosts, used_gateways,
-                                                          only_local_traffic))
-            vs_policies.extend(self.create_route_policies(vs, vs.tcp_routes, global_vs_gtw_to_hosts, used_gateways,
-                                                          only_local_traffic))
-            if vs_policies:
-                result.extend(vs_policies)
-            else:
-                if only_local_traffic:
+            has_policies, http_only_local_traffic = self.create_route_policies(vs, vs.http_routes, global_vs_gtw_to_hosts,
+                                                                               used_gateways)
+            vs_has_policies |= has_policies
+
+            has_policies, tls_only_local_traffic = self.create_route_policies(vs, vs.tls_routes, global_vs_gtw_to_hosts,
+                                                                              used_gateways)
+            vs_has_policies |= has_policies
+            has_policies, tcp_only_local_traffic = self.create_route_policies(vs, vs.tcp_routes, global_vs_gtw_to_hosts,
+                                                                              used_gateways)
+            vs_has_policies |= has_policies
+            if not vs_has_policies:
+                if http_only_local_traffic or tls_only_local_traffic or tcp_only_local_traffic:
                     self.vs_parser.warning(f'The virtual service {vs.full_name()} defines '
                                            f'only local (mesh-to-mesh) traffic that is ignored', vs)
                 else:
@@ -77,6 +82,22 @@ class IstioGatewayPolicyGenerator:
         if unused_gateways:
             self.vs_parser.warning(f'the following gateways have no virtual services attached: '
                                    f'{",".join([gtw.full_name() for gtw in unused_gateways])}')
+        result = self.ingress_gtw_to_mesh_policies.copy()
+        if self.mesh_to_egress_gtw_policies and self.egress_gtw_to_dns_policies:
+            # only if we have both parts of egress flow, will we model the whole egress flow (including deny policies)
+            # Note: we assume here that there is a single egress flow (and the 'hosts' and other attributes
+            # match between mesh-to-egress and egress-to-dns parts of the flow).
+            # A more refined check may be done, that checks those attributes.
+            result.extend(self.mesh_to_egress_gtw_policies)
+            result.extend(self.egress_gtw_to_dns_policies)
+            assert self.deny_mesh_to_dns_policies
+            result.extend(self.deny_mesh_to_dns_policies)
+        elif self.mesh_to_egress_gtw_policies or self.egress_gtw_to_dns_policies:
+            part1_status = "specified" if self.mesh_to_egress_gtw_policies else "missing"
+            part2_status = "specified" if self.egress_gtw_to_dns_policies else "missing"
+            self.vs_parser.warning(f"Ignoring partially defined egress flow: mesh-to-egress-gateway part of the flow "
+                                   f"is {part1_status}, while egress-gateway-to-external-service part of the flow "
+                                   f"is {part2_status}")
         if not result:
             self.vs_parser.warning('no valid VirtualServices found. Ignoring istio ingress/egress gateway traffic')
         else:
@@ -208,9 +229,9 @@ class IstioGatewayPolicyGenerator:
         :param dict(Gateway, MinDFA) gtw_to_hosts: a map from gateways to hosts relevant for this route
         :param set(Gateway) used_gateways: a set of used gateways, to be updated by adding gateways
                referenced by these routes
-        :return: list[GatewayPolicy] the resulting list of policies
+        :return: bool whether policies were created
         """
-        result = []
+        has_policies = False
         # this_route_conn_cube initialized based on the match request properties from the rule (hosts,paths,methods)
         this_route_conn_cube = self.init_route_conn_cube(route)
         for gtw, host_dfa in gtw_to_hosts.items():
@@ -233,28 +254,30 @@ class IstioGatewayPolicyGenerator:
                     continue
             this_route_conn_cube["hosts"] = host_dfa
             used_gateways.add(gtw)
+            has_policies = True
             allow_policy = self.init_gtw_to_mesh_policy(vs, route_cnt, gtw)
             deny_policy = None
             if gtw.type == Gateway.GatewayType.Egress:  # deny mesh-to-dns policy is created only in egress flow
                 assert not route.is_internal_dest
+                self.egress_gtw_to_dns_policies.append(allow_policy)
                 deny_policy = self.init_deny_policy(vs, route_cnt, gtw)
+                self.deny_mesh_to_dns_policies.append(deny_policy)
+            else:
+                self.ingress_gtw_to_mesh_policies.append(allow_policy)
             for dest in route.destinations:
                 allow_policy.add_egress_rule(self.create_allow_rule(gtw.peers, dest, this_route_conn_cube, False))
                 if deny_policy:
                     deny_policy.add_egress_rule(self.create_deny_rule(deny_policy.selected_peers, dest.pods))
-            result.append(allow_policy)
-            if deny_policy:
-                result.append(deny_policy)
-        return result
+
+        return has_policies
 
     def create_mesh_to_egress_policy(self, vs, route_cnt, this_route_conn_cube, dest):
         """
-        Initialization of GatewayPolicy for holding connections from mesh to egress gateway
+        Creates GatewayPolicy for holding connections from mesh to egress gateway
         :param VirtualService vs: the virtual service that defines the connections from mesh to egress gateway
         :param int route_cnt: the index of the route for which the policy is being created
         :param ConnectivityCube this_route_conn_cube: a cube holding this route attributes
         :param VirtualService.Destination dest: the destination (representing an egress gateway)
-        :return: the resulting GatewayPolicy
         """
         local_peers = self.vs_parser.peer_container.get_all_peers_group()
         mesh_to_egress_policy = GatewayPolicy(f'Allow policy for virtual service {vs.full_name()}, '
@@ -266,9 +289,9 @@ class IstioGatewayPolicyGenerator:
         mesh_to_egress_policy.affects_ingress = True
         mesh_to_egress_policy.selected_peers = dest.pods
         mesh_to_egress_policy.add_ingress_rule(self.create_allow_rule(local_peers, dest, this_route_conn_cube, True))
-        return mesh_to_egress_policy
+        self.mesh_to_egress_gtw_policies.append(mesh_to_egress_policy)
 
-    def create_route_policies(self, vs, routes, global_vs_gtw_to_hosts, used_gateways, only_local_traffic):
+    def create_route_policies(self, vs, routes, global_vs_gtw_to_hosts, used_gateways):
         """
         Create internal gateway policies representing connections described by the given http/tls/tcp routes.
         :param VirtualService vs: the virtual service holding the given routes
@@ -277,17 +300,15 @@ class IstioGatewayPolicyGenerator:
             relevant to this virtual service
         :param set(Gateway) used_gateways: a set of used gateways, to be updated by adding gateways
                referenced by these routes
-        :param bool only_local_traffic: an output flag indicating whether this route contains
+        :return: tuple(bool, bool) whether policies were created for these routes, and whether this route contains
                only the (ignored) mesh-to-mesh traffic
-        :return: list[GatewayPolicy] the resulting list of policies
         """
-        result_policies = []
+        has_policies = False
         global_has_mesh = 'mesh' in vs.gateway_names
         has_gateways = len(vs.gateway_names) > 1 if global_has_mesh else bool(vs.gateway_names)
         mesh_to_mesh_warning_printed = False  # to avoid multiple printing of this warning
 
         for route_cnt, route in enumerate(routes, start=1):
-            route_policies = []
             if route.gateway_names:  # override global gateways
                 has_mesh = 'mesh' in route.gateway_names
                 has_gateways |= (len(route.gateway_names) > 1 if has_mesh else bool(route.gateway_names))
@@ -303,7 +324,7 @@ class IstioGatewayPolicyGenerator:
             # 2. in case of egress flow, it creates allow policies modeling connections from egress gateway
             # to external dns nodes, as well as deny policies modeling denied connections from mesh to mentioned
             # dns nodes.
-            route_policies.extend(self.create_gtw_to_mesh_and_deny_policies(vs, route, route_cnt, gtw_to_hosts, used_gateways))
+            route_has_policies = self.create_gtw_to_mesh_and_deny_policies(vs, route, route_cnt, gtw_to_hosts, used_gateways)
             # Modeling connections from mesh to (egress) gateway nodes (which should be identified) (Egress flow).
             # Not modelling other connections from mesh to internal nodes here.
             # Modeling deny all connections from mesh to the mentioned external service nodes (DNS nodes) (Egress flow).
@@ -313,17 +334,18 @@ class IstioGatewayPolicyGenerator:
                     continue  # external dest were already handled by create_gtw_to_mesh_policies
                 if has_mesh:
                     if dest.is_egress_gateway():
-                        route_policies.append(self.create_mesh_to_egress_policy(vs, route_cnt, this_route_conn_cube, dest))
+                        self.create_mesh_to_egress_policy(vs, route_cnt, this_route_conn_cube, dest)
+                        route_has_policies = True
                     elif not mesh_to_mesh_warning_printed:  # we do not handle mesh-to-mesh traffic
                         self.vs_parser.warning(f'The internal (mesh-to-mesh) traffic redirection mentioned in the '
                                                f'VirtualService {vs.full_name()} in route {route_cnt} '
                                                f'is not currently supported and will be ignored', vs)
                         mesh_to_mesh_warning_printed = True
-            if not route_policies:
+            if not route_has_policies:
                 self.vs_parser.warning(f"The route number {route_cnt} of the virtual service {vs.full_name()} "
                                        f"does not define any connections and will be ignored")
             else:
-                result_policies.extend(route_policies)
+                has_policies |= route_has_policies
 
-        only_local_traffic |= (not has_gateways) and mesh_to_mesh_warning_printed
-        return result_policies
+        only_local_traffic = (not has_gateways) and mesh_to_mesh_warning_printed
+        return has_policies, only_local_traffic
