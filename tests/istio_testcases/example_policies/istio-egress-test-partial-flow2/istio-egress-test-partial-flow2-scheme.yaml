@@ -1,0 +1,18 @@
+namespaceList: ./
+podList: ./
+
+networkConfigList:
+  - name: istio-egress
+    resourceList:
+      - ./resources
+    expectedWarnings: 3
+
+
+queries:
+  - name: connectivity
+    connectivityMap:
+      - istio-egress
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/istio_egress_test_partial_flow2_connectivity_map.txt

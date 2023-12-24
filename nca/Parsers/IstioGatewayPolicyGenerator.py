@@ -100,8 +100,13 @@ class IstioGatewayPolicyGenerator:
                                    f"is {part2_status}")
         if not result:
             self.vs_parser.warning('no valid VirtualServices found. Ignoring istio ingress/egress gateway traffic')
-        else:
-            result[0].findings = self.gtw_parser.warning_msgs + self.vs_parser.warning_msgs
+            # create an empty policy in order to keep findings
+            empty_policy = GatewayPolicy("Dummy empty gateway policy",
+                                         self.vs_parser.peer_container.get_namespace('default'),
+                                         GatewayPolicy.ActionType.Allow)
+            empty_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
+            result.append(empty_policy)
+        result[0].findings = self.gtw_parser.warning_msgs + self.vs_parser.warning_msgs
         return result
 
     def pick_vs_gateways_by_hosts(self, vs, gateway_names):
