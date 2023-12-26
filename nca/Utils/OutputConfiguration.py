@@ -72,15 +72,21 @@ class OutputConfiguration(dict):
                     with open(tmp_dot_file, "w") as f:
                         f.write(output)
                     CmdlineRunner.run_and_get_output(dot_cmd)
-                    InteractiveConnectivityGraph(tmp_svg_file, path, ExplTracker().explain_all())\
-                        .create_interactive_graph()
                 except Exception as e:
-                    print(f'Failed to create a svg file: {path}\n{e}', file=sys.stderr)
-                if not os.path.isfile(path):
+                    print(f'Failed to create a svg file: {tmp_svg_file}\n{e}', file=sys.stderr)
+                if not os.path.isfile(tmp_svg_file):
                     dot_cmd_string = ' '.join(dot_cmd)
-                    print(f'Command {dot_cmd_string}\n did not create {path}\n', file=sys.stderr)
+                    print(f'Command {dot_cmd_string}\n did not create {tmp_svg_file}\n', file=sys.stderr)
+                else:
+                    try:
+                        InteractiveConnectivityGraph(tmp_svg_file, path, ExplTracker().explain_all())\
+                            .create_interactive_graph()
+                    except Exception as e:
+                        print(f'Failed to create a html file: {path}\n{e}', file=sys.stderr)
                 if os.path.isfile(tmp_dot_file):
                     os.remove(tmp_dot_file)
+                if os.path.isfile(tmp_svg_file):
+                    os.remove(tmp_svg_file)
             else:
                 try:
                     with open(path, "a") as f:
