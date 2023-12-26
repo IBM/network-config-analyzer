@@ -102,8 +102,10 @@ class IstioGatewayPolicyGenerator:
             self.vs_parser.warning(f"Ignoring partially specified connections through egress gateway: "
                                    f"mesh-to-egress-gateway connections are {part1_status}, "
                                    f"while egress-gateway-to-external-service connections are {part2_status}.")
+        if not self.ingress_gtw_to_mesh_policies and not self.mesh_to_egress_gtw_policies and \
+                not self.egress_gtw_to_dns_policies:
+            self.vs_parser.warning('no valid VirtualServices found. Ignoring istio gateway traffic')
         if not result:
-            self.vs_parser.warning('no valid VirtualServices found. Ignoring istio ingress/egress gateway traffic')
             # create an empty policy in order to keep findings
             empty_policy = GatewayPolicy("Dummy empty gateway policy",
                                          self.vs_parser.peer_container.get_namespace('default'),
