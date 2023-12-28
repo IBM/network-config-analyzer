@@ -129,7 +129,7 @@ class InteractiveConnectivityGraph:
             """
             try:
                 with open(self.input_svg_file) as svg_file:
-                    self.soup = BeautifulSoup(svg_file.read(), 'html')
+                    self.soup = BeautifulSoup(svg_file.read(), 'xml')
             except Exception as e:
                 print(f'Failed to open file: {self.input_svg_file}\n{e} for reading', file=sys.stderr)
 
@@ -319,7 +319,7 @@ class InteractiveConnectivityGraph:
 
             # add the expl' xml block to the svg graph
             xml_soup_str = str(self.soup)
-            lxml_soup = BeautifulSoup(xml_soup_str, 'lxml')
+            lxml_soup = BeautifulSoup(xml_soup_str, 'xml')
             svg_root = lxml_soup.find('svg')
             script = lxml_soup.new_tag('script')
             script['type'] = "text/xml"  # You can use a custom MIME type if needed
@@ -334,7 +334,7 @@ class InteractiveConnectivityGraph:
             # add js code
             html_soup = BeautifulSoup(self.HTML_TEMPLATE, 'html.parser')
             graph_container = html_soup.find(id='graph-container')
-            graph_container.insert(0, BeautifulSoup(str(lxml_soup), 'html.parser'))
+            graph_container.insert(0, BeautifulSoup(str(lxml_soup), 'xml'))
             # add elements_relations to the js as a json parameter
             # convert elements_relations to Json serializable
             er_dict = {}
