@@ -43,7 +43,7 @@ class ExplTracker(metaclass=Singleton):
     """
 
     DEFAULT_POLICY = 'Default-Policy'
-    SUPPORTED_OUTPUT_FORMATS = ['txt', 'txt_no_fw_rules']
+    SUPPORTED_OUTPUT_FORMATS = ['txt', 'txt_no_fw_rules', 'html']
 
     def __init__(self, ep=''):
 
@@ -372,7 +372,7 @@ class ExplTracker(metaclass=Singleton):
         Get a full expl' description of all the peers in the connectivity map
         :return: string: xml format of all the expl' entries for every 2 nodes.
         """
-        soup = BeautifulSoup(features='html')
+        soup = BeautifulSoup(features='xml')
         entry_id = 0
         # use the peer names as defined in the end-points configuration,
         # also use one peer for each deployment
