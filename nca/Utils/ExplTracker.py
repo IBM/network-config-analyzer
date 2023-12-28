@@ -51,8 +51,8 @@ class ExplTracker(metaclass=Singleton):
         # 'path','line','workload_name'
         self.ExplPeerToPolicyContainer = dict()  # a map from str (peer name) to ExplPolicies object
         self._is_active = False
-        self.all_conns = None
-        self.all_peers = None
+        self.all_conns = {}
+        self.all_peers = {}
         self.ep = ep
 
     class ExplPolicies:
@@ -104,10 +104,9 @@ class ExplTracker(metaclass=Singleton):
         self.ExplDescriptorContainer = {}
         self.ExplPeerToPolicyContainer = {}
         self._is_active = False
-        self.all_conns = None
-        self.all_peers = None
+        self.all_conns = {}
+        self.all_peers = {}
         self.ep = ''
-        self.explain_all_results = ''
 
         self.add_item('', 0, self.DEFAULT_POLICY)
 
@@ -407,8 +406,7 @@ class ExplTracker(metaclass=Singleton):
                 entry.append(text_elem)
                 soup.append(entry)
 
-        self.explain_all_results = soup.prettify()
-        return self.explain_all_results
+        return soup.prettify()
 
     def get_working_ep_name(self, name):
         """
