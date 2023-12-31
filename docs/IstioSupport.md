@@ -1,4 +1,4 @@
-## Istio Authorization Policy and Other Traffic Resource analysis
+## Istio connectivity analysis
 
 For Istio Authorization Policy (see [Istio Authorization Policy spec](https://istio.io/latest/docs/reference/config/security/authorization-policy/)), 
 the following is supported:
