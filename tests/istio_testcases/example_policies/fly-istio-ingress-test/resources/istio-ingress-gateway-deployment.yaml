@@ -12,6 +12,7 @@ spec:
         inject.istio.io/templates: gateway
       labels:
         app: istio-ingressgateway
+        istio: ingressgateway
     spec:
       containers:
       - name: istio-proxy

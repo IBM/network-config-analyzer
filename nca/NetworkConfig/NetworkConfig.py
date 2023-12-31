@@ -7,7 +7,7 @@ from dataclasses import dataclass, field, replace
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.Resources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections, PolicyConnectionsFilter
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections, PolicyConnectionsFilter
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
 from nca.Utils.ExplTracker import ExplTracker
 

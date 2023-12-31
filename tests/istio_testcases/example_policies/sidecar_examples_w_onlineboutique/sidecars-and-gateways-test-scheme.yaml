@@ -1,0 +1,20 @@
+resourceList:  # When these resources are (only) in the global resource list, they are ignored after livesim loading
+# Further, when resourceList is empty, the run is very long since trying to load from live cluster.
+  - ../online_boutique/new_online_boutique_manifests_istio/all_deployments.yaml
+
+networkConfigList:
+  - name: onlineboutique-sidecars-and-gateways
+    resourceList:
+      - ../online_boutique/new_online_boutique_manifests_istio/all_deployments.yaml
+      - onlineboutique-services.yaml
+      - onlineboutique-sidecars.yaml
+      - istio-gateways.yaml
+
+queries:
+  - name: onlineboutique-sidecars-connectivity
+    connectivityMap:
+      - onlineboutique-sidecars-and-gateways
+    outputConfiguration:
+      outputFormat: txt
+      fwRulesRunInTestMode: false
+    expectedOutput: ../../expected_output/sidecars-and-gateways-test-connectivity-map.txt

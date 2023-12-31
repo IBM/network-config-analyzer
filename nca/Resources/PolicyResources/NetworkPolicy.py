@@ -29,6 +29,7 @@ class NetworkPolicy:
         Ingress = 20
         Gateway = 30
         VirtualService = 31
+        GatewayPolicy = 32
         List = 500
 
         @staticmethod
@@ -357,7 +358,12 @@ class NetworkPolicy:
         return NotImplemented
 
     def policy_type_str(self):
-        return "Ingress resource" if self.policy_kind == NetworkPolicy.PolicyType.Ingress else "NetworkPolicy"
+        if self.policy_kind == NetworkPolicy.PolicyType.Ingress:
+            return "Ingress resource"
+        elif self.policy_kind == NetworkPolicy.PolicyType.GatewayPolicy:
+            return "Istio Gateway/VirtualService resource"
+        else:
+            return "NetworkPolicy"
 
 
 @dataclass

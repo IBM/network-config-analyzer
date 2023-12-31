@@ -5,7 +5,7 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.Peer import PeerSet, BasePeerSet, Pod
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.Resources.K8sNamespace import K8sNamespace
+from nca.Resources.OtherResources.K8sNamespace import K8sNamespace
 
 
 class TestNamedPorts(unittest.TestCase):

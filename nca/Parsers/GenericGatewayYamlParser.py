@@ -11,13 +11,14 @@ from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.Resources.GatewayPolicy import GatewayPolicyRule
+from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
 
-class GenericIngressLikeYamlParser(GenericYamlParser):
+class GenericGatewayYamlParser(GenericYamlParser):
     """
-    A parser for Ingress like objects (common for k8s ingress and Istio ingress)
+    A general parser, common for K8s Ingress resources, as well as for Istio Gateway/VirtualService resources.
+    Specific K8s Ingress / Istio Gateway / Istio VirtualService parsers are inherited from this class.
     """
 
     def __init__(self, peer_container, ingress_file_name=''):
@@ -27,7 +28,6 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
         """
         GenericYamlParser.__init__(self, ingress_file_name)
         self.peer_container = peer_container
-        self.namespace = None
         self.default_backend_peers = PeerSet()
         self.default_backend_ports = PortSet()
 
@@ -56,6 +56,19 @@ class GenericIngressLikeYamlParser(GenericYamlParser):
                 self.syntax_error(f'Illegal host value pattern: {regex_value}')
             regex_value = regex_value.replace("*", allowed_chars + '*')
         return MinDFA.dfa_from_regex(regex_value)
+
+    def parse_host_value(self, host, resource):
+        """
+        For 'hosts' dimension of type MinDFA -> return a MinDFA, or None for all values
+        :param str host: input regex host value
+        :param dict resource: the parsed gateway object
+        :return: Union[MinDFA, None] object
+        """
+        namespace_and_name = host.split('/', 1)
+        if len(namespace_and_name) > 1:
+            self.warning(f'host {host}: namespace is not supported yet. Ignoring the host', resource)
+            return None
+        return self.parse_regex_host_value(host, resource)
 
     @staticmethod
     def _make_allow_rules(conn_props, src_peers):
