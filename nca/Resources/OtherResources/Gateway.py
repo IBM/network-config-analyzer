@@ -11,7 +11,7 @@ from nca.CoreDS.MinDFA import MinDFA
 
 class Gateway:
     """
-    A class for keeping some elements of parsed Istio Gateway, needed for building GatewayPolicy
+    A class for keeping some elements of parsed Istio Gateway, needed for building GatewayPolicy.
     """
 
     class GatewayType(Enum):
@@ -23,13 +23,17 @@ class Gateway:
 
     @dataclass
     class Server:
+        """
+        A class that holds server attributes of a Gateway, as described in
+        https://istio.io/latest/docs/reference/config/networking/gateway/#Server
+        """
         @dataclass
         class GatewayPort:
             number: int
             protocol: str
             name: str
 
-        port: GatewayPort  # the port field is not currently  used.
+        port: GatewayPort  # the port field is not currently used.
         hosts_dfa: MinDFA or None = None
         name: str = ''
 
@@ -50,11 +54,16 @@ class Gateway:
         :param str name: the gateway name
         :param K8sNamespace namespace: the gateway namespace
         """
-        self.name = name
-        self.namespace = namespace
-        self.type = None
+        self.name = name  # the name of the gateway, as appears in the metadata
+        self.namespace = namespace  # the namespace of the gateway, as appears in the metadata
+        self.type = None  # whether this is an ingress gateway or an egress gateway
+        # the 'peers' field defines the set of pods on which this gateway is applied.
+        # It is calculated from Gateway.selector attribute, as described in
+        # https://istio.io/latest/docs/reference/config/networking/gateway/#Gateway
         self.peers = PeerSet()
-        self.servers = []
+        self.servers = []  # a list of servers, where a server is described in Gateway.Server above.
+        # the 'all_hosts_dfa' field is calculated as the union of 'hosts_dfa' field of all servers of this gateway.
+        # It is used for matching the gateway to virtual services that reference it.
         self.all_hosts_dfa = None
 
     def full_name(self):

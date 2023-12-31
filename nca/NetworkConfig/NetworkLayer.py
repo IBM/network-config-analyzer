@@ -89,14 +89,14 @@ class NetworkLayersContainer(dict):
         Checks if the map contains only gateway layers.
         :return: True if the map contains only gateway layers, False otherwise
         """
-        return set(self.keys()).issubset({NetworkLayerName.K8sGateway, NetworkLayerName.IstioGateway})
+        return bool(self) and set(self.keys()).issubset({NetworkLayerName.K8sGateway, NetworkLayerName.IstioGateway})
 
     def does_contain_istio_layers(self):
         """
         Checks if any of Istio layers is in the map.
         :return: True if any of Istio layers is in the map, False otherwise
         """
-        return {NetworkLayerName.Istio, NetworkLayerName.IstioGateway} & set(self.keys())
+        return bool({NetworkLayerName.Istio, NetworkLayerName.IstioGateway} & set(self.keys()))
 
     @staticmethod
     def empty_layer_allowed_connections(layer_name, from_peer, to_peer):

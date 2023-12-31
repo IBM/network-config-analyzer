@@ -1,0 +1,37 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpbin
+spec:
+  hosts:
+  - httpbin.example.com
+  gateways:
+  - istio-system/my-gateway
+  tls:
+  - match:
+    - gateways:
+        - mesh
+      port: 80
+      sniHosts:
+        - httpbin.example.com
+    route:
+    - destination:
+        port:
+          number: 443
+        host: istio-egressgateway.istio-system.svc.cluster.local
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: httpbin
+spec:
+  hosts:
+  - httpbin.example.com
+  - connected_with_mesh.example.com
+  ports:
+  - number: 80
+    name: tls
+    protocol: TLS
+  resolution: DNS
+
+

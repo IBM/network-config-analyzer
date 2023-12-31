@@ -63,7 +63,7 @@ class GatewayPolicy(NetworkPolicy):
         Deny = 0
         Allow = 1
 
-    def __init__(self, name, namespace, action):
+    def __init__(self, name, namespace, action, origin=""):
         """
         :param str name: gateway poilcy name
         :param K8sNamespace namespace: the namespace containing this policy
@@ -71,6 +71,7 @@ class GatewayPolicy(NetworkPolicy):
         """
         super().__init__(name, namespace)
         self.action = action
+        self.origin = origin or name  # originating virtual service/route/destination/gateway for this policy
 
     def __eq__(self, other):
         return super().__eq__(other) and self.action == other.action
@@ -191,7 +192,7 @@ class GatewayPolicy(NetworkPolicy):
         :return: A copy of 'self' without the provided rule
         :rtype: GatewayPolicy
         """
-        res = GatewayPolicy(self.name, self.namespace, self.action)
+        res = GatewayPolicy(self.name, self.namespace, self.action, self.origin)
         res.selected_peers = self.selected_peers
         res.affects_egress = self.affects_egress
         res.affects_ingress = self.affects_ingress
