@@ -482,7 +482,7 @@ class InteractiveConnectivityGraph:
                       else {
                         const src = selectedElems[0].getAttribute('title');
                         const dst = selectedElems[1].getAttribute('title');
-                        const entry = xmlDoc.querySelector(`entry[src="${src}"][dst="${dst}"]`);
+                        const entry = xmlDoc.querySelector("entry[src='"+src+"'][dst='"+dst+"']");
                         if (entry) {
                           // color the src and dst names
                           let expl_text = entry.textContent;
@@ -500,6 +500,9 @@ class InteractiveConnectivityGraph:
                           }
 
                           selectionBox.innerHTML = expl_text;
+                        }
+                        else {
+                          selectionBox.innerHTML = "Did not find entry of "+src+" and "+dst;
                         }
                       }
                     }
