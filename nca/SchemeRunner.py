@@ -22,11 +22,13 @@ class SchemeRunner(GenericYamlParser):
                                'containment', 'twoWayContainment', 'permits', 'interferes', 'pairwiseInterferes',
                                'forbids', 'emptiness', 'disjointness', 'allCaptured', 'sanity', 'semanticDiff'}
 
-    def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
+    def __init__(self, scheme_file_name, output_endpoints, output_format=None, output_path=None, optimized_run='false'):
         GenericYamlParser.__init__(self, scheme_file_name)
         self.network_configs = {}
         self.global_res = 0
         self.output_config_from_cli_args = dict()
+        # todo - what to do if there is a outputEndpoints value in the query?
+        self.output_config_from_cli_args['outputEndpoints'] = output_endpoints
         if output_format is not None:
             self.output_config_from_cli_args['outputFormat'] = output_format
         if output_path is not None:
@@ -152,7 +154,7 @@ class SchemeRunner(GenericYamlParser):
         resources_handler = ResourcesHandler()
         if self.optimized_run == 'true':
             # we need to track configurations for the queries to use later-on
-            ExplTracker().activate('deployments')
+            ExplTracker().activate(self.output_config_from_cli_args['outputEndpoints'])
         resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                                     self.optimized_run)
 
