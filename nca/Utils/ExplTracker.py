@@ -45,7 +45,7 @@ class ExplTracker(metaclass=Singleton):
     DEFAULT_POLICY = 'Default-Policy'
     SUPPORTED_OUTPUT_FORMATS = ['txt', 'txt_no_fw_rules', 'html']
 
-    def __init__(self, ep=''):
+    def __init__(self):
 
         self.ExplDescriptorContainer = dict()  # a map from str (resource/policy name) to a dict object with entries:
         # 'path','line','workload_name'
@@ -53,7 +53,6 @@ class ExplTracker(metaclass=Singleton):
         self._is_active = False
         self.all_conns = {}
         self.all_peers = {}
-        self.ep = ep
 
     class ExplPolicies:
         """
@@ -110,18 +109,13 @@ class ExplTracker(metaclass=Singleton):
 
         self.add_item('', 0, self.DEFAULT_POLICY)
 
-    def activate(self):
+    def activate(self, ep):
         """
         Make the ExplTracker active
         """
         self._reset()
-        self._is_active = True
-
-    def set_endpoints(self, ep):
-        """
-        Set the endpoints configuration
-        """
         self.ep = ep
+        self._is_active = True
 
     def is_active(self):
         """

@@ -187,12 +187,11 @@ def run_args(args):  # noqa: C901
 
     if args.explain is not None and args.optimized_run == 'true':
         output_config['explain'] = args.explain
-        ExplTracker().activate()
-        ExplTracker().set_endpoints(output_config.outputEndpoints)
+        ExplTracker().activate(output_config.outputEndpoints)
 
     if args.output_format == 'html':
         output_config['expl'] = ['ALL']
-        ExplTracker(output_config.outputEndpoints).activate()
+        ExplTracker().activate(output_config.outputEndpoints)
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
