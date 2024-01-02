@@ -399,7 +399,6 @@ class ExplTracker(metaclass=Singleton):
                 text_elem.string = text
                 entry.append(text_elem)
                 soup.append(entry)
-
         return soup.prettify()
 
     def get_working_ep_name(self, name):
