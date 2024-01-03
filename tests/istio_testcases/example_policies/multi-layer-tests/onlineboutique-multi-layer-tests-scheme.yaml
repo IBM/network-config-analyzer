@@ -4,6 +4,10 @@ networkConfigList:
   - name: onlineboutique-resources
     resourceList:
       - onlineboutique-resources/
+  - name: onlineboutique-resources-with-istio-gateways
+    resourceList:
+      - onlineboutique-resources/
+      - istio-gateways.yaml
 
 
 queries:
@@ -12,4 +16,10 @@ queries:
       - onlineboutique-resources
     expected: 0
     expectedOutput: ../../expected_output/connectivity_map_of_onlineboutique_resources.txt
+
+  - name: connectivity-map-of-onlineboutique-with-istio-gateways
+    connectivityMap:
+      - onlineboutique-resources-with-istio-gateways
+    expected: 0
+    expectedOutput: ../../expected_output/connectivity_map_of_onlineboutique_resources_with_istio_gateways.txt
 

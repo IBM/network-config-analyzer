@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from nca.Resources.K8sService import K8sService
+from nca.Resources.OtherResources.K8sService import K8sService
 from .GenericYamlParser import GenericYamlParser
 
 

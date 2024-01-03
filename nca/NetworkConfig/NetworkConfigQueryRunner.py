@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 import yaml
 
 from nca.Utils.OutputFilesFlags import OutputFilesFlags
-from nca.Resources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
 from .NetworkConfig import NetworkConfig
 from . import NetworkConfigQuery
 from nca.Utils.ExplTracker import ExplTracker

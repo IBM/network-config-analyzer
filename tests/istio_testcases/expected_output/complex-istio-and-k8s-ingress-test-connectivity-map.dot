@@ -1,6 +1,6 @@
-// The Connectivity Graph of connectivity/complex-istio-and-k8s-ingress-test
+// The Connectivity Graph of connectivity/complex-istio-and-k8s-ingress-test, for TCP connections
 digraph {
-	label="Connectivity Graph of connectivity/complex-istio-and-k8s-ingress-test"	labelloc = "t"
+	label="Connectivity Graph of connectivity/complex-istio-and-k8s-ingress-test, for TCP connections"	labelloc = "t"
 	fontsize=30
 	fontcolor=maroon
 	subgraph cluster_map_explanation {
@@ -69,6 +69,32 @@ All"]
 	"example/istio-ingressgateway(Deployment)" -> "example/deploy-hhhh(Deployment)"[label="tcp9950b" labeltooltip="TCP {'dst_ports': '9950', 'hosts': 'hhhh.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/hhhh(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"example/istio-ingressgateway(Deployment)" -> "example/deploy-iiii(Deployment)"[label="tcp3000b" labeltooltip="TCP {'dst_ports': '3000', 'hosts': 'iiii.y.z'},{'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/iiii(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"example/istio-ingressgateway(Deployment)" -> "example/deploy-jjjj(Deployment)"[label="tcp9950c" labeltooltip="TCP {'dst_ports': '9950', 'hosts': 'jjjj.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/jjjj(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	color=white
+	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
+	labelloc = "b"
+	fontsize=15
+	fontcolor=maroon
+	}
+}
+// The Connectivity Graph of connectivity/complex-istio-and-k8s-ingress-test, for non-TCP connections
+digraph {
+	label="Connectivity Graph of connectivity/complex-istio-and-k8s-ingress-test, for non-TCP connections"	labelloc = "t"
+	fontsize=30
+	fontcolor=maroon
+	subgraph cluster_map_explanation {
+	"0.0.0.0/0" [label=<<table border="0" cellspacing="0"><tr><td>0.0.0.0/0</td></tr></table>> shape=box fontcolor=red2 tooltip="IP Block"]
+subgraph cluster_example_namespace{
+	label="example"
+	fontsize=20
+	fontcolor=blue
+	tooltip="Namespace"
+	"example/deploy-aaaa(Deployment)" [label=<<table border="1" cellspacing="0"><tr><td>deploy-aaaa(Deployment)</td></tr><tr><td>deploy-bbbb(Deployment)</td></tr><tr><td>deploy-cccc(Deployment)</td></tr><tr><td>deploy-dddd(Deployment)</td></tr><tr><td>deploy-eeee(Deployment)</td></tr><tr><td>deploy-ffff(Deployment)</td></tr><tr><td>deploy-gggg(Deployment)</td></tr><tr><td>deploy-hhhh(Deployment)</td></tr><tr><td>deploy-iiii(Deployment)</td></tr><tr><td>deploy-jjjj(Deployment)</td></tr><tr><td>istio-ingressgateway(Deployment)</td></tr></table>> shape=box color=blue4 tooltip="A set of workloads having exactly the same connectivity"]
+	"example/deploy-ingress-nginx(Deployment)" [label=<<table border="0" cellspacing="0"><tr><td>deploy-ingress-nginx(Deployment)</td></tr></table>> shape=box fontcolor=blue tooltip="Workload"]
+}
+	"0.0.0.0/0" -> "example/deploy-ingress-nginx(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
+	"example/deploy-aaaa(Deployment)" -> "0.0.0.0/0"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"example/deploy-aaaa(Deployment)" -> "example/deploy-aaaa(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
+	"example/deploy-aaaa(Deployment)" -> "example/deploy-ingress-nginx(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
 	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"

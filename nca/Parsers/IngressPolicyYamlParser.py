@@ -10,12 +10,12 @@ from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.Resources.GatewayPolicy import GatewayPolicy
-from nca.Resources.NetworkPolicy import NetworkPolicy
-from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
+from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
+from .GenericGatewayYamlParser import GenericGatewayYamlParser
 
 
-class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
+class IngressPolicyYamlParser(GenericGatewayYamlParser):
     """
     A parser for Ingress objects
     """
@@ -26,7 +26,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         :param PeerContainer peer_container: The ingress policy will be evaluated against this set of peers
         :param str ingress_file_name: The name of the ingress resource file
         """
-        GenericIngressLikeYamlParser.__init__(self, peer_container, ingress_file_name)
+        GenericGatewayYamlParser.__init__(self, peer_container, ingress_file_name)
         self.policy = policy
         self.namespace = None
         self.default_backend_peers = PeerSet()
@@ -160,7 +160,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                 path_dfa = MinDFA.dfa_from_regex(path_string)
             else:  # Prefix type
                 path_string = '/' if not path_string else path_string
-                path_dfa = GenericIngressLikeYamlParser.get_path_prefix_dfa(path_string)
+                path_dfa = GenericGatewayYamlParser.get_path_prefix_dfa(path_string)
             parsed_paths_with_dfa.append((path_string, path_dfa, path_type, peers, ports))
 
         # next, avoid shorter sub-paths to extend to longer ones, using dfa operations
@@ -245,8 +245,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
     def parse_policy(self):
         """
-        Parses the input object to create  IstioGatewayPolicy object (with deny rules only)
-        :return: IstioGatewayPolicy object with proper deny egress_rules, or None for wrong input object
+        Parses the input object to create GatewayPolicy object
+        :return: GatewayPolicy object with proper egress_rules, or None for wrong input object
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['Ingress'],
                                                                         ['networking.k8s.io/v1'], 'k8s', True)
@@ -254,7 +254,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             return None  # Not an Ingress object
 
         self.namespace = self.peer_container.get_namespace(policy_ns)
-        res_policy = GatewayPolicy(policy_name + '/allow', self.namespace)
+        res_policy = GatewayPolicy("Allow policy for Ingress resource " + policy_name, self.namespace,
+                                   GatewayPolicy.ActionType.Allow)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
         res_policy.affects_egress = True
         policy_spec = self.policy['spec']
