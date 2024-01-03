@@ -114,8 +114,8 @@ class ExplTracker(metaclass=Singleton):
         Make the ExplTracker active
         """
         self._reset()
-        self.ep = ep
         self._is_active = True
+        self.ep = ep
 
     def is_active(self):
         """
