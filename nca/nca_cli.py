@@ -146,7 +146,9 @@ def run_args(args):  # noqa: C901
     # so that configs from certain run do not affect a potential following run.
     BasePeerSet.reset()
     if args.scheme:
-        return SchemeRunner(args.scheme, args.output_endpoints, args.output_format, args.file_out, args.optimized_run).run_scheme()
+        return SchemeRunner(args.scheme, args.output_endpoints,
+                            args.output_format, args.file_out,
+                            args.optimized_run).run_scheme()
     ns_list = args.ns_list
     pod_list = args.pod_list
     resource_list = args.resource_list

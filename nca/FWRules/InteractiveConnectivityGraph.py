@@ -17,6 +17,7 @@ import json
 from bs4 import BeautifulSoup
 from importlib import resources
 
+
 class InteractiveConnectivityGraph:
     """
     InteractiveConnectivityGraph is a class for creating an interactive connectivity graph from an svg file.
