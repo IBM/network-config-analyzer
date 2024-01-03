@@ -24,19 +24,18 @@ src_ns: [default] src_pods: [recommendationservice] dst_ns: [kube-system] dst_po
 src_ns: [kube-system] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
 src_ns: [kube-system] src_pods: [*] dst_ns: [default] dst_pods: [frontend] conn: TCP 8080
 src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: All connections
+
+
+Explainability results:
 <?xml version="1.0" encoding="utf-8"?>
 <entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
  <text>
   Configurations affecting 0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="2" src="0.0.0.0/0">
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/adservice(Deployment):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)default/adservice(Deployment):
 Policy Configurations:
@@ -49,9 +48,6 @@ default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kuberne
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/cartservice(Deployment):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/cartservice(Deployment):
 Policy Configurations:
 cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
@@ -62,9 +58,6 @@ default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kuber
 <entry dst="default/checkoutservice(Deployment)" id="4" src="0.0.0.0/0">
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/checkoutservice(Deployment):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)default/checkoutservice(Deployment):
 Policy Configurations:
@@ -77,9 +70,6 @@ default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/ku
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/currencyservice(Deployment):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/currencyservice(Deployment):
 Policy Configurations:
 currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
@@ -90,9 +80,6 @@ default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/k
 <entry dst="default/emailservice(Deployment)" id="6" src="0.0.0.0/0">
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/emailservice(Deployment):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)default/emailservice(Deployment):
 Policy Configurations:
@@ -105,20 +92,16 @@ default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kuber
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)default/frontend(Deployment):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/frontend(Deployment):
 Policy Configurations:
+frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
+Resource Configurations:
 default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
  </text>
 </entry>
 <entry dst="default/loadgenerator(Deployment)" id="8" src="0.0.0.0/0">
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/loadgenerator(Deployment):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)default/loadgenerator(Deployment):
 Policy Configurations:
@@ -131,9 +114,6 @@ default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kub
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/paymentservice(Deployment):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/paymentservice(Deployment):
 Policy Configurations:
 paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
@@ -144,9 +124,6 @@ default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/ku
 <entry dst="default/productcatalogservice(Deployment)" id="10" src="0.0.0.0/0">
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/productcatalogservice(Deployment):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)default/productcatalogservice(Deployment):
 Policy Configurations:
@@ -159,9 +136,6 @@ default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/pod
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/recommendationservice(Deployment):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/recommendationservice(Deployment):
 Policy Configurations:
 recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
@@ -172,9 +146,6 @@ default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/pod
 <entry dst="default/redis-cart(Deployment)" id="12" src="0.0.0.0/0">
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/redis-cart(Deployment):
-
-(src)0.0.0.0/0:
-IP blocks have no configurations
 
 (dst)default/redis-cart(Deployment):
 Policy Configurations:
@@ -187,9 +158,6 @@ default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubern
  <text>
   Configurations affecting the LACK of connectivity between (src)0.0.0.0/0 and (dst)default/shippingservice(Deployment):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)default/shippingservice(Deployment):
 Policy Configurations:
 shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
@@ -201,11 +169,10 @@ default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/k
  <text>
   Configurations affecting the connectivity between (src)0.0.0.0/0 and (dst)kube-system/kube-dns-livesim(Pod):
 
-(src)0.0.0.0/0:
-IP blocks have no configurations
-
 (dst)kube-system/kube-dns-livesim(Pod):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
  </text>
 </entry>
@@ -218,9 +185,6 @@ Policy Configurations:
 adservice-netpol: line 73 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/adservice(Deployment): line 690 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="16" src="default/adservice(Deployment)">
@@ -445,9 +409,6 @@ Policy Configurations:
 cartservice-netpol: line 157 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/cartservice(Deployment): line 418 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="30" src="default/cartservice(Deployment)">
@@ -672,9 +633,6 @@ Policy Configurations:
 checkoutservice-netpol: line 93 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/checkoutservice(Deployment): line 75 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="44" src="default/checkoutservice(Deployment)">
@@ -899,9 +857,6 @@ Policy Configurations:
 currencyservice-netpol: line 197 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/currencyservice(Deployment): line 522 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="58" src="default/currencyservice(Deployment)">
@@ -1126,9 +1081,6 @@ Policy Configurations:
 emailservice-netpol: line 223 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/emailservice(Deployment): line 19 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="72" src="default/emailservice(Deployment)">
@@ -1353,9 +1305,6 @@ Policy Configurations:
 frontend-netpol: line 1 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/frontend(Deployment): line 204 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="86" src="default/frontend(Deployment)">
@@ -1580,9 +1529,6 @@ Policy Configurations:
 loadgenerator-netpol: line 243 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/loadgenerator(Deployment): line 471 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="100" src="default/loadgenerator(Deployment)">
@@ -1807,9 +1753,6 @@ Policy Configurations:
 paymentservice-netpol: line 271 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/paymentservice(Deployment): line 304 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="114" src="default/paymentservice(Deployment)">
@@ -2034,9 +1977,6 @@ Policy Configurations:
 productcatalogservice-netpol: line 291 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/productcatalogservice(Deployment): line 360 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="128" src="default/productcatalogservice(Deployment)">
@@ -2261,9 +2201,6 @@ Policy Configurations:
 recommendationservice-netpol: line 323 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/recommendationservice(Deployment): line 144 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="142" src="default/recommendationservice(Deployment)">
@@ -2488,9 +2425,6 @@ Policy Configurations:
 redis-cart-netpol: line 357 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/redis-cart(Deployment): line 637 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="156" src="default/redis-cart(Deployment)">
@@ -2715,9 +2649,6 @@ Policy Configurations:
 shippingservice-netpol: line 377 in file ./fw_rules_tests/policies/microservices-netpols.yaml
 Resource Configurations:
 default/shippingservice(Deployment): line 579 in file ./fw_rules_tests/podlist/kubernetes-manifests.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="170" src="default/shippingservice(Deployment)">
@@ -2939,10 +2870,9 @@ kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/Ne
 
 (src)kube-system/kube-dns-livesim(Pod):
 Policy Configurations:
+Default-Policy
+Resource Configurations:
 kube-system/kube-dns-livesim(Pod): line 9 in file network-config-analyzer/nca/NetworkConfig/LiveSim/dns/dns_pods.yaml
-
-(dst)0.0.0.0/0:
-IP blocks have no configurations
  </text>
 </entry>
 <entry dst="default/adservice(Deployment)" id="184" src="kube-system/kube-dns-livesim(Pod)">
