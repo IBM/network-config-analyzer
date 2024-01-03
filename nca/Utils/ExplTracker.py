@@ -399,6 +399,8 @@ class ExplTracker(metaclass=Singleton):
                 text_elem.string = text
                 entry.append(text_elem)
                 soup.append(entry)
+        # todo - why do we return xml format for explainability text file?
+        # if it is a real case, we need to remove "<?xml version="1.0" encoding="utf-8"?>" before returning
         return soup.prettify()
 
     def get_working_ep_name(self, name):
