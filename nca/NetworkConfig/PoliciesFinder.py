@@ -49,8 +49,6 @@ class PoliciesFinder:
     def load_policies_from_k8s_cluster(self):
         self._add_policies(CmdlineRunner.get_k8s_resources('networkPolicy'), 'kubectl')
         self._add_policies(CmdlineRunner.get_k8s_resources('ingress'), 'kubectl')
-        self._add_policies(CmdlineRunner.get_k8s_resources('Gateway'), 'kubectl')
-        self._add_policies(CmdlineRunner.get_k8s_resources('VirtualService'), 'kubectl')
 
     def load_policies_from_calico_cluster(self):
         self._add_policies(CmdlineRunner.get_calico_resources('profile'), 'calicoctl')
@@ -60,6 +58,8 @@ class PoliciesFinder:
     def load_istio_policies_from_k8s_cluster(self):
         self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl')
         self._add_policies(CmdlineRunner.get_k8s_resources('sidecar'), 'kubectl')
+        self._add_policies(CmdlineRunner.get_k8s_resources('Gateway'), 'kubectl')
+        self._add_policies(CmdlineRunner.get_k8s_resources('VirtualService'), 'kubectl')
 
     def _add_policy(self, policy):
         """
