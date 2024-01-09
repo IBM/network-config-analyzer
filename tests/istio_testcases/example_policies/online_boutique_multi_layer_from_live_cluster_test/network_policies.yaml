@@ -1,0 +1,676 @@
+﻿apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"adservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"frontend"}}}],"ports":[{"port":9555,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"adservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:00:57Z"
+    generation: 1
+    name: adservice
+    namespace: onlineboutique
+    resourceVersion: "326234"
+    uid: fe76de6d-ad87-441c-86d1-4041aa76a3ee
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: frontend
+      ports:
+      - port: 9555
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: adservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"cartservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"frontend"}}},{"podSelector":{"matchLabels":{"app":"checkoutservice"}}}],"ports":[{"port":7070,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"cartservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:01:30Z"
+    generation: 1
+    name: cartservice
+    namespace: onlineboutique
+    resourceVersion: "326343"
+    uid: 3d566f69-05cb-4159-9618-82e7bfe45131
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: frontend
+      - podSelector:
+          matchLabels:
+            app: checkoutservice
+      ports:
+      - port: 7070
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: cartservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"checkoutservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"frontend"}}}],"ports":[{"port":5050,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"checkoutservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:01:39Z"
+    generation: 1
+    name: checkoutservice
+    namespace: onlineboutique
+    resourceVersion: "326390"
+    uid: 151809f7-248c-4b8b-9017-9c2416ef7a77
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: frontend
+      ports:
+      - port: 5050
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: checkoutservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"currencyservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"frontend"}}},{"podSelector":{"matchLabels":{"app":"checkoutservice"}}}],"ports":[{"port":7000,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"currencyservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:01:50Z"
+    generation: 1
+    name: currencyservice
+    namespace: onlineboutique
+    resourceVersion: "326454"
+    uid: a16d9dbf-035d-47ca-94f9-0aabfc20cbaa
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: frontend
+      - podSelector:
+          matchLabels:
+            app: checkoutservice
+      ports:
+      - port: 7000
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: currencyservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"deny-all","namespace":"onlineboutique"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:00:54Z"
+    generation: 1
+    name: deny-all
+    namespace: onlineboutique
+    resourceVersion: "326206"
+    uid: 17f4a57b-83df-4401-9223-91cabee1c9b8
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"emailservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"checkoutservice"}}}],"ports":[{"port":8080,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"emailservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:01:58Z"
+    generation: 1
+    name: emailservice
+    namespace: onlineboutique
+    resourceVersion: "326514"
+    uid: 67704145-3f20-40b8-8d45-db0d4e033c64
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: checkoutservice
+      ports:
+      - port: 8080
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: emailservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"frontend","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"loadgenerator"}}},{"namespaceSelector":{"matchLabels":{"name":"asm-ingress"}},"podSelector":{"matchLabels":{"app":"asm-ingressgateway"}}}],"ports":[{"port":8080,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"frontend"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:02:06Z"
+    generation: 1
+    name: frontend
+    namespace: onlineboutique
+    resourceVersion: "326576"
+    uid: 17f72a2c-a875-448f-86ec-081dbbc38668
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: loadgenerator
+      - namespaceSelector:
+          matchLabels:
+            name: asm-ingress
+        podSelector:
+          matchLabels:
+            app: asm-ingressgateway
+      ports:
+      - port: 8080
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: frontend
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"loadgenerator","namespace":"onlineboutique"},"spec":{"egress":[{}],"podSelector":{"matchLabels":{"app":"loadgenerator"}},"policyTypes":["Egress"]}}
+    creationTimestamp: "2024-01-07T14:02:27Z"
+    generation: 1
+    name: loadgenerator
+    namespace: onlineboutique
+    resourceVersion: "326668"
+    uid: 3ac1a6f6-0463-4a26-8943-2055076ed7cd
+  spec:
+    egress:
+    - {}
+    podSelector:
+      matchLabels:
+        app: loadgenerator
+    policyTypes:
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"paymentservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"checkoutservice"}}}],"ports":[{"port":50051,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"paymentservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:02:38Z"
+    generation: 1
+    name: paymentservice
+    namespace: onlineboutique
+    resourceVersion: "326744"
+    uid: 9e308325-a477-465d-b3ab-8f0e9f1bd3cb
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: checkoutservice
+      ports:
+      - port: 50051
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: paymentservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"productcatalogservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"frontend"}}},{"podSelector":{"matchLabels":{"app":"checkoutservice"}}},{"podSelector":{"matchLabels":{"app":"recommendationservice"}}}],"ports":[{"port":3550,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"productcatalogservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:02:48Z"
+    generation: 1
+    name: productcatalogservice
+    namespace: onlineboutique
+    resourceVersion: "326821"
+    uid: 510cec4e-e8a3-4519-a8cb-b68338aed2d9
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: frontend
+      - podSelector:
+          matchLabels:
+            app: checkoutservice
+      - podSelector:
+          matchLabels:
+            app: recommendationservice
+      ports:
+      - port: 3550
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: productcatalogservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"recommendationservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"frontend"}}}],"ports":[{"port":8080,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"recommendationservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:02:57Z"
+    generation: 1
+    name: recommendationservice
+    namespace: onlineboutique
+    resourceVersion: "326892"
+    uid: 9294c522-c9ac-4e03-8f9b-03b58c43ed8c
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: frontend
+      ports:
+      - port: 8080
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: recommendationservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"shippingservice","namespace":"onlineboutique"},"spec":{"egress":[{}],"ingress":[{"from":[{"podSelector":{"matchLabels":{"app":"frontend"}}},{"podSelector":{"matchLabels":{"app":"checkoutservice"}}}],"ports":[{"port":50051,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"shippingservice"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2024-01-07T14:03:05Z"
+    generation: 1
+    name: shippingservice
+    namespace: onlineboutique
+    resourceVersion: "326956"
+    uid: 1812f50c-7ddf-4cd1-baa3-064af07e17a3
+  spec:
+    egress:
+    - {}
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app: frontend
+      - podSelector:
+          matchLabels:
+            app: checkoutservice
+      ports:
+      - port: 50051
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: shippingservice
+    policyTypes:
+    - Ingress
+    - Egress
+  status: {}
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"adservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/frontend"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.AdService/GetAds"],"ports":["9555"]}}]}],"selector":{"matchLabels":{"app":"adservice"}}}}
+    creationTimestamp: "2024-01-07T14:00:57Z"
+    generation: 1
+    name: adservice
+    namespace: onlineboutique
+    resourceVersion: "326235"
+    uid: da3f4bac-3608-4ee1-b4e2-0b10b84cf00f
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/frontend
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.AdService/GetAds
+          ports:
+          - "9555"
+    selector:
+      matchLabels:
+        app: adservice
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"cartservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/frontend","cluster.local/ns/onlineboutique/sa/checkoutservice"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.CartService/AddItem","/hipstershop.CartService/GetCart","/hipstershop.CartService/EmptyCart"]}}]}],"selector":{"matchLabels":{"app":"cartservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:30Z"
+    generation: 1
+    name: cartservice
+    namespace: onlineboutique
+    resourceVersion: "326345"
+    uid: 3c9d2320-3e44-44c5-8bc4-15df5b866dd8
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/frontend
+          - cluster.local/ns/onlineboutique/sa/checkoutservice
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.CartService/AddItem
+          - /hipstershop.CartService/GetCart
+          - /hipstershop.CartService/EmptyCart
+    selector:
+      matchLabels:
+        app: cartservice
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"checkoutservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/frontend"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.CheckoutService/PlaceOrder"],"ports":["5050"]}}]}],"selector":{"matchLabels":{"app":"checkoutservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:40Z"
+    generation: 1
+    name: checkoutservice
+    namespace: onlineboutique
+    resourceVersion: "326392"
+    uid: b47c6423-179d-43c1-aa15-2d6bfbe3c49d
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/frontend
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.CheckoutService/PlaceOrder
+          ports:
+          - "5050"
+    selector:
+      matchLabels:
+        app: checkoutservice
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"currencyservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/frontend","cluster.local/ns/onlineboutique/sa/checkoutservice"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.CurrencyService/Convert","/hipstershop.CurrencyService/GetSupportedCurrencies"],"ports":["7000"]}}]}],"selector":{"matchLabels":{"app":"currencyservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:50Z"
+    generation: 1
+    name: currencyservice
+    namespace: onlineboutique
+    resourceVersion: "326456"
+    uid: 0444b4c6-e6a5-4cec-98de-b5d5e498bb01
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/frontend
+          - cluster.local/ns/onlineboutique/sa/checkoutservice
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.CurrencyService/Convert
+          - /hipstershop.CurrencyService/GetSupportedCurrencies
+          ports:
+          - "7000"
+    selector:
+      matchLabels:
+        app: currencyservice
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"deny-all","namespace":"onlineboutique"},"spec":{}}
+    creationTimestamp: "2024-01-07T14:00:54Z"
+    generation: 1
+    name: deny-all
+    namespace: onlineboutique
+    resourceVersion: "326210"
+    uid: 6a942b7f-d3bd-4731-b59e-13059b39a4d8
+  spec: {}
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"emailservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/checkoutservice"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.EmailService/SendOrderConfirmation"],"ports":["8080"]}}]}],"selector":{"matchLabels":{"app":"emailservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:58Z"
+    generation: 1
+    name: emailservice
+    namespace: onlineboutique
+    resourceVersion: "326516"
+    uid: 846503f7-1550-40e0-8e45-1d402106ed45
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/checkoutservice
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.EmailService/SendOrderConfirmation
+          ports:
+          - "8080"
+    selector:
+      matchLabels:
+        app: emailservice
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"frontend","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/loadgenerator","cluster.local/ns/asm-ingress/sa/asm-ingressgateway"]}}],"to":[{"operation":{"methods":["GET","POST"],"ports":["8080"]}}]}],"selector":{"matchLabels":{"app":"frontend"}}}}
+    creationTimestamp: "2024-01-07T14:02:06Z"
+    generation: 1
+    name: frontend
+    namespace: onlineboutique
+    resourceVersion: "326578"
+    uid: c664b170-0903-4bd5-ba83-12a6a1c195f8
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/loadgenerator
+          - cluster.local/ns/asm-ingress/sa/asm-ingressgateway
+      to:
+      - operation:
+          methods:
+          - GET
+          - POST
+          ports:
+          - "8080"
+    selector:
+      matchLabels:
+        app: frontend
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"paymentservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/checkoutservice"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.PaymentService/Charge"],"ports":["50051"]}}]}],"selector":{"matchLabels":{"app":"paymentservice"}}}}
+    creationTimestamp: "2024-01-07T14:02:38Z"
+    generation: 1
+    name: paymentservice
+    namespace: onlineboutique
+    resourceVersion: "326746"
+    uid: db69a85c-85e5-4114-bf9a-a4b244177f9f
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/checkoutservice
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.PaymentService/Charge
+          ports:
+          - "50051"
+    selector:
+      matchLabels:
+        app: paymentservice
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"productcatalogservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/frontend","cluster.local/ns/onlineboutique/sa/checkoutservice","cluster.local/ns/onlineboutique/sa/recommendationservice"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.ProductCatalogService/GetProduct","/hipstershop.ProductCatalogService/ListProducts"],"ports":["3550"]}}]}],"selector":{"matchLabels":{"app":"productcatalogservice"}}}}
+    creationTimestamp: "2024-01-07T14:02:48Z"
+    generation: 1
+    name: productcatalogservice
+    namespace: onlineboutique
+    resourceVersion: "326822"
+    uid: 41136838-82d0-41f0-bf48-0d75a5ef794c
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/frontend
+          - cluster.local/ns/onlineboutique/sa/checkoutservice
+          - cluster.local/ns/onlineboutique/sa/recommendationservice
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.ProductCatalogService/GetProduct
+          - /hipstershop.ProductCatalogService/ListProducts
+          ports:
+          - "3550"
+    selector:
+      matchLabels:
+        app: productcatalogservice
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"recommendationservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/frontend"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.RecommendationService/ListRecommendations"],"ports":["8080"]}}]}],"selector":{"matchLabels":{"app":"recommendationservice"}}}}
+    creationTimestamp: "2024-01-07T14:02:57Z"
+    generation: 1
+    name: recommendationservice
+    namespace: onlineboutique
+    resourceVersion: "326893"
+    uid: 1b45ea78-423b-434d-b52b-122ee10ba55a
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/frontend
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.RecommendationService/ListRecommendations
+          ports:
+          - "8080"
+    selector:
+      matchLabels:
+        app: recommendationservice
+- apiVersion: security.istio.io/v1
+  kind: AuthorizationPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"security.istio.io/v1beta1","kind":"AuthorizationPolicy","metadata":{"annotations":{},"name":"shippingservice","namespace":"onlineboutique"},"spec":{"rules":[{"from":[{"source":{"principals":["cluster.local/ns/onlineboutique/sa/frontend","cluster.local/ns/onlineboutique/sa/checkoutservice"]}}],"to":[{"operation":{"methods":["POST"],"paths":["/hipstershop.ShippingService/GetQuote","/hipstershop.ShippingService/ShipOrder"],"ports":["50051"]}}]}],"selector":{"matchLabels":{"app":"shippingservice"}}}}
+    creationTimestamp: "2024-01-07T14:03:05Z"
+    generation: 1
+    name: shippingservice
+    namespace: onlineboutique
+    resourceVersion: "326957"
+    uid: aceeacce-757e-41e1-b289-a8326b07f6e4
+  spec:
+    rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/onlineboutique/sa/frontend
+          - cluster.local/ns/onlineboutique/sa/checkoutservice
+      to:
+      - operation:
+          methods:
+          - POST
+          paths:
+          - /hipstershop.ShippingService/GetQuote
+          - /hipstershop.ShippingService/ShipOrder
+          ports:
+          - "50051"
+    selector:
+      matchLabels:
+        app: shippingservice
+kind: List
+metadata:
+  resourceVersion: ""
