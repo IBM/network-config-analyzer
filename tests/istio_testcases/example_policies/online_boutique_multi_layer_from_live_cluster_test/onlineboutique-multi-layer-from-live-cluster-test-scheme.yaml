@@ -1,0 +1,21 @@
+resourceList: onlineboutique-resources/
+
+networkConfigList:
+  - name: onlineboutique-resources
+    resourceList:
+      - onlineboutique-resources/
+      - istio-gateways.yaml
+      - network_policies.yaml
+# check why when using the code below there is a difference in the output!!!
+#    networkPolicyList:
+#      - istio-gateways.yaml
+#      - network_policies.yaml
+
+
+queries:
+  - name: connectivity-map-of-onlineboutique
+    connectivityMap:
+      - onlineboutique-resources
+    expected: 0
+    expectedOutput: connectivity_map_onlineboutique_multi_layer_from_live_cluster.txt
+

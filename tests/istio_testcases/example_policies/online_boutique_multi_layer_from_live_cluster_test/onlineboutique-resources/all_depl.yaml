@@ -1,0 +1,2833 @@
+﻿apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2024-01-02T12:00:43Z"
+    generation: 1
+    labels:
+      app: istio-egressgateway
+      install.operator.istio.io/owning-resource: installed-state
+      install.operator.istio.io/owning-resource-namespace: istio-system
+      istio: egressgateway
+      istio.io/rev: default
+      operator.istio.io/component: EgressGateways
+      operator.istio.io/managed: Reconcile
+      operator.istio.io/version: 1.20.1
+      release: istio
+    name: istio-egressgateway
+    namespace: istio-system
+    resourceVersion: "20723"
+    uid: 58932b54-7f14-4c4c-9eb8-e3e18dbab703
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: istio-egressgateway
+        istio: egressgateway
+    strategy:
+      rollingUpdate:
+        maxSurge: 100%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          istio.io/rev: default
+          prometheus.io/path: /stats/prometheus
+          prometheus.io/port: "15020"
+          prometheus.io/scrape: "true"
+          sidecar.istio.io/inject: "false"
+        creationTimestamp: null
+        labels:
+          app: istio-egressgateway
+          chart: gateways
+          heritage: Tiller
+          install.operator.istio.io/owning-resource: unknown
+          istio: egressgateway
+          istio.io/rev: default
+          operator.istio.io/component: EgressGateways
+          release: istio
+          service.istio.io/canonical-name: istio-egressgateway
+          service.istio.io/canonical-revision: latest
+          sidecar.istio.io/inject: "false"
+      spec:
+        affinity:
+          nodeAffinity: {}
+        containers:
+        - args:
+          - proxy
+          - router
+          - --domain
+          - $(POD_NAMESPACE).svc.cluster.local
+          - --proxyLogLevel=warning
+          - --proxyComponentLogLevel=misc:error
+          - --log_output_level=default:info
+          env:
+          - name: JWT_POLICY
+            value: third-party-jwt
+          - name: PILOT_CERT_PROVIDER
+            value: istiod
+          - name: CA_ADDR
+            value: istiod.istio-system.svc:15012
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: INSTANCE_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          - name: HOST_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.hostIP
+          - name: ISTIO_CPU_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.cpu
+          - name: SERVICE_ACCOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.serviceAccountName
+          - name: ISTIO_META_WORKLOAD_NAME
+            value: istio-egressgateway
+          - name: ISTIO_META_OWNER
+            value: kubernetes://apis/apps/v1/namespaces/istio-system/deployments/istio-egressgateway
+          - name: ISTIO_META_MESH_ID
+            value: cluster.local
+          - name: TRUST_DOMAIN
+            value: cluster.local
+          - name: ISTIO_META_UNPRIVILEGED_POD
+            value: "true"
+          - name: ISTIO_META_CLUSTER_ID
+            value: Kubernetes
+          - name: ISTIO_META_NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          image: docker.io/istio/proxyv2:1.20.1
+          imagePullPolicy: IfNotPresent
+          name: istio-proxy
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 15090
+            name: http-envoy-prom
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /healthz/ready
+              port: 15021
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi
+            requests:
+              cpu: 10m
+              memory: 40Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/run/secrets/workload-spiffe-uds
+            name: workload-socket
+          - mountPath: /var/run/secrets/credential-uds
+            name: credential-socket
+          - mountPath: /var/run/secrets/workload-spiffe-credentials
+            name: workload-certs
+          - mountPath: /etc/istio/proxy
+            name: istio-envoy
+          - mountPath: /etc/istio/config
+            name: config-volume
+          - mountPath: /var/run/secrets/istio
+            name: istiod-ca-cert
+          - mountPath: /var/run/secrets/tokens
+            name: istio-token
+            readOnly: true
+          - mountPath: /var/lib/istio/data
+            name: istio-data
+          - mountPath: /etc/istio/pod
+            name: podinfo
+          - mountPath: /etc/istio/egressgateway-certs
+            name: egressgateway-certs
+            readOnly: true
+          - mountPath: /etc/istio/egressgateway-ca-certs
+            name: egressgateway-ca-certs
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsGroup: 1337
+          runAsNonRoot: true
+          runAsUser: 1337
+        serviceAccount: istio-egressgateway-service-account
+        serviceAccountName: istio-egressgateway-service-account
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: workload-socket
+        - emptyDir: {}
+          name: credential-socket
+        - emptyDir: {}
+          name: workload-certs
+        - configMap:
+            defaultMode: 420
+            name: istio-ca-root-cert
+          name: istiod-ca-cert
+        - downwardAPI:
+            defaultMode: 420
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.labels
+              path: labels
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.annotations
+              path: annotations
+          name: podinfo
+        - emptyDir: {}
+          name: istio-envoy
+        - emptyDir: {}
+          name: istio-data
+        - name: istio-token
+          projected:
+            defaultMode: 420
+            sources:
+            - serviceAccountToken:
+                audience: istio-ca
+                expirationSeconds: 43200
+                path: istio-token
+        - configMap:
+            defaultMode: 420
+            name: istio
+            optional: true
+          name: config-volume
+        - name: egressgateway-certs
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istio-egressgateway-certs
+        - name: egressgateway-ca-certs
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istio-egressgateway-ca-certs
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-01-02T12:00:52Z"
+      lastUpdateTime: "2024-01-02T12:00:52Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2024-01-02T12:00:43Z"
+      lastUpdateTime: "2024-01-02T12:00:52Z"
+      message: ReplicaSet "istio-egressgateway-765d784c5" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2024-01-02T12:00:43Z"
+    generation: 1
+    labels:
+      app: istio-ingressgateway
+      install.operator.istio.io/owning-resource: installed-state
+      install.operator.istio.io/owning-resource-namespace: istio-system
+      istio: ingressgateway
+      istio.io/rev: default
+      operator.istio.io/component: IngressGateways
+      operator.istio.io/managed: Reconcile
+      operator.istio.io/version: 1.20.1
+      release: istio
+    name: istio-ingressgateway
+    namespace: istio-system
+    resourceVersion: "20717"
+    uid: 8226ff5b-08d8-4dca-b978-3f6cc17a468d
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: istio-ingressgateway
+        istio: ingressgateway
+    strategy:
+      rollingUpdate:
+        maxSurge: 100%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          istio.io/rev: default
+          prometheus.io/path: /stats/prometheus
+          prometheus.io/port: "15020"
+          prometheus.io/scrape: "true"
+          sidecar.istio.io/inject: "false"
+        creationTimestamp: null
+        labels:
+          app: istio-ingressgateway
+          chart: gateways
+          heritage: Tiller
+          install.operator.istio.io/owning-resource: unknown
+          istio: ingressgateway
+          istio.io/rev: default
+          operator.istio.io/component: IngressGateways
+          release: istio
+          service.istio.io/canonical-name: istio-ingressgateway
+          service.istio.io/canonical-revision: latest
+          sidecar.istio.io/inject: "false"
+      spec:
+        affinity:
+          nodeAffinity: {}
+        containers:
+        - args:
+          - proxy
+          - router
+          - --domain
+          - $(POD_NAMESPACE).svc.cluster.local
+          - --proxyLogLevel=warning
+          - --proxyComponentLogLevel=misc:error
+          - --log_output_level=default:info
+          env:
+          - name: JWT_POLICY
+            value: third-party-jwt
+          - name: PILOT_CERT_PROVIDER
+            value: istiod
+          - name: CA_ADDR
+            value: istiod.istio-system.svc:15012
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: INSTANCE_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          - name: HOST_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.hostIP
+          - name: ISTIO_CPU_LIMIT
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.cpu
+          - name: SERVICE_ACCOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.serviceAccountName
+          - name: ISTIO_META_WORKLOAD_NAME
+            value: istio-ingressgateway
+          - name: ISTIO_META_OWNER
+            value: kubernetes://apis/apps/v1/namespaces/istio-system/deployments/istio-ingressgateway
+          - name: ISTIO_META_MESH_ID
+            value: cluster.local
+          - name: TRUST_DOMAIN
+            value: cluster.local
+          - name: ISTIO_META_UNPRIVILEGED_POD
+            value: "true"
+          - name: ISTIO_META_CLUSTER_ID
+            value: Kubernetes
+          - name: ISTIO_META_NODE_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+          image: docker.io/istio/proxyv2:1.20.1
+          imagePullPolicy: IfNotPresent
+          name: istio-proxy
+          ports:
+          - containerPort: 15021
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 31400
+            protocol: TCP
+          - containerPort: 15443
+            protocol: TCP
+          - containerPort: 15090
+            name: http-envoy-prom
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /healthz/ready
+              port: 15021
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi
+            requests:
+              cpu: 10m
+              memory: 40Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/run/secrets/workload-spiffe-uds
+            name: workload-socket
+          - mountPath: /var/run/secrets/credential-uds
+            name: credential-socket
+          - mountPath: /var/run/secrets/workload-spiffe-credentials
+            name: workload-certs
+          - mountPath: /etc/istio/proxy
+            name: istio-envoy
+          - mountPath: /etc/istio/config
+            name: config-volume
+          - mountPath: /var/run/secrets/istio
+            name: istiod-ca-cert
+          - mountPath: /var/run/secrets/tokens
+            name: istio-token
+            readOnly: true
+          - mountPath: /var/lib/istio/data
+            name: istio-data
+          - mountPath: /etc/istio/pod
+            name: podinfo
+          - mountPath: /etc/istio/ingressgateway-certs
+            name: ingressgateway-certs
+            readOnly: true
+          - mountPath: /etc/istio/ingressgateway-ca-certs
+            name: ingressgateway-ca-certs
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          runAsGroup: 1337
+          runAsNonRoot: true
+          runAsUser: 1337
+        serviceAccount: istio-ingressgateway-service-account
+        serviceAccountName: istio-ingressgateway-service-account
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: workload-socket
+        - emptyDir: {}
+          name: credential-socket
+        - emptyDir: {}
+          name: workload-certs
+        - configMap:
+            defaultMode: 420
+            name: istio-ca-root-cert
+          name: istiod-ca-cert
+        - downwardAPI:
+            defaultMode: 420
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.labels
+              path: labels
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.annotations
+              path: annotations
+          name: podinfo
+        - emptyDir: {}
+          name: istio-envoy
+        - emptyDir: {}
+          name: istio-data
+        - name: istio-token
+          projected:
+            defaultMode: 420
+            sources:
+            - serviceAccountToken:
+                audience: istio-ca
+                expirationSeconds: 43200
+                path: istio-token
+        - configMap:
+            defaultMode: 420
+            name: istio
+            optional: true
+          name: config-volume
+        - name: ingressgateway-certs
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istio-ingressgateway-certs
+        - name: ingressgateway-ca-certs
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istio-ingressgateway-ca-certs
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-01-02T12:00:51Z"
+      lastUpdateTime: "2024-01-02T12:00:51Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2024-01-02T12:00:43Z"
+      lastUpdateTime: "2024-01-02T12:00:51Z"
+      message: ReplicaSet "istio-ingressgateway-869d777659" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2024-01-02T12:00:32Z"
+    generation: 1
+    labels:
+      app: istiod
+      install.operator.istio.io/owning-resource: installed-state
+      install.operator.istio.io/owning-resource-namespace: istio-system
+      istio: pilot
+      istio.io/rev: default
+      operator.istio.io/component: Pilot
+      operator.istio.io/managed: Reconcile
+      operator.istio.io/version: 1.20.1
+      release: istio
+    name: istiod
+    namespace: istio-system
+    resourceVersion: "20623"
+    uid: d9a4c3b0-181a-47f2-a1a8-5ec0b16a71ef
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        istio: pilot
+    strategy:
+      rollingUpdate:
+        maxSurge: 100%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          ambient.istio.io/redirection: disabled
+          prometheus.io/port: "15014"
+          prometheus.io/scrape: "true"
+          sidecar.istio.io/inject: "false"
+        creationTimestamp: null
+        labels:
+          app: istiod
+          install.operator.istio.io/owning-resource: unknown
+          istio: pilot
+          istio.io/rev: default
+          operator.istio.io/component: Pilot
+          sidecar.istio.io/inject: "false"
+      spec:
+        containers:
+        - args:
+          - discovery
+          - --monitoringAddr=:15014
+          - --log_output_level=default:info
+          - --domain
+          - cluster.local
+          - --keepaliveMaxServerConnectionAge
+          - 30m
+          env:
+          - name: REVISION
+            value: default
+          - name: JWT_POLICY
+            value: third-party-jwt
+          - name: PILOT_CERT_PROVIDER
+            value: istiod
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          - name: SERVICE_ACCOUNT
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: spec.serviceAccountName
+          - name: KUBECONFIG
+            value: /var/run/secrets/remote/config
+          - name: PILOT_TRACE_SAMPLING
+            value: "100"
+          - name: PILOT_ENABLE_ANALYSIS
+            value: "false"
+          - name: CLUSTER_ID
+            value: Kubernetes
+          - name: GOMEMLIMIT
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.memory
+          - name: GOMAXPROCS
+            valueFrom:
+              resourceFieldRef:
+                divisor: "0"
+                resource: limits.cpu
+          - name: PLATFORM
+          image: docker.io/istio/pilot:1.20.1
+          imagePullPolicy: IfNotPresent
+          name: discovery
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 15010
+            protocol: TCP
+          - containerPort: 15017
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 10m
+              memory: 100Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/run/secrets/tokens
+            name: istio-token
+            readOnly: true
+          - mountPath: /var/run/secrets/istio-dns
+            name: local-certs
+          - mountPath: /etc/cacerts
+            name: cacerts
+            readOnly: true
+          - mountPath: /var/run/secrets/remote
+            name: istio-kubeconfig
+            readOnly: true
+          - mountPath: /var/run/secrets/istiod/tls
+            name: istio-csr-dns-cert
+            readOnly: true
+          - mountPath: /var/run/secrets/istiod/ca
+            name: istio-csr-ca-configmap
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: istiod
+        serviceAccountName: istiod
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir:
+            medium: Memory
+          name: local-certs
+        - name: istio-token
+          projected:
+            defaultMode: 420
+            sources:
+            - serviceAccountToken:
+                audience: istio-ca
+                expirationSeconds: 43200
+                path: istio-token
+        - name: cacerts
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: cacerts
+        - name: istio-kubeconfig
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istio-kubeconfig
+        - name: istio-csr-dns-cert
+          secret:
+            defaultMode: 420
+            optional: true
+            secretName: istiod-tls
+        - configMap:
+            defaultMode: 420
+            name: istio-ca-root-cert
+            optional: true
+          name: istio-csr-ca-configmap
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-01-02T12:00:42Z"
+      lastUpdateTime: "2024-01-02T12:00:42Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2024-01-02T12:00:32Z"
+      lastUpdateTime: "2024-01-02T12:00:42Z"
+      message: ReplicaSet "istiod-5c4f4498d" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2024-01-02T08:43:25Z"
+    generation: 1
+    labels:
+      k8s-app: kube-dns
+    name: coredns
+    namespace: kube-system
+    resourceVersion: "1474"
+    uid: f08d1289-d9be-41fa-8a97-05071b55563e
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        k8s-app: kube-dns
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          k8s-app: kube-dns
+      spec:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: k8s-app
+                    operator: In
+                    values:
+                    - kube-dns
+                topologyKey: kubernetes.io/hostname
+              weight: 100
+        containers:
+        - args:
+          - -conf
+          - /etc/coredns/Corefile
+          image: registry.k8s.io/coredns/coredns:v1.10.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: coredns
+          ports:
+          - containerPort: 53
+            name: dns
+            protocol: UDP
+          - containerPort: 53
+            name: dns-tcp
+            protocol: TCP
+          - containerPort: 9153
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 8181
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 170Mi
+            requests:
+              cpu: 100m
+              memory: 70Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              add:
+              - NET_BIND_SERVICE
+              drop:
+              - all
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/coredns
+            name: config-volume
+            readOnly: true
+        dnsPolicy: Default
+        nodeSelector:
+          kubernetes.io/os: linux
+        priorityClassName: system-cluster-critical
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: coredns
+        serviceAccountName: coredns
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+        volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: Corefile
+              path: Corefile
+            name: coredns
+          name: config-volume
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2024-01-02T08:43:38Z"
+      lastUpdateTime: "2024-01-02T08:43:44Z"
+      message: ReplicaSet "coredns-5d78c9869d" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2024-01-02T09:03:48Z"
+      lastUpdateTime: "2024-01-02T09:03:48Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"local-path-provisioner","namespace":"local-path-storage"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"local-path-provisioner"}},"template":{"metadata":{"labels":{"app":"local-path-provisioner"}},"spec":{"containers":[{"command":["local-path-provisioner","--debug","start","--helper-image","docker.io/kindest/local-path-helper:v20230510-486859a6","--config","/etc/config/config.json"],"env":[{"name":"POD_NAMESPACE","valueFrom":{"fieldRef":{"fieldPath":"metadata.namespace"}}}],"image":"docker.io/kindest/local-path-provisioner:v20230511-dc714da8","imagePullPolicy":"IfNotPresent","name":"local-path-provisioner","volumeMounts":[{"mountPath":"/etc/config/","name":"config-volume"}]}],"nodeSelector":{"kubernetes.io/os":"linux"},"serviceAccountName":"local-path-provisioner-service-account","tolerations":[{"effect":"NoSchedule","key":"node-role.kubernetes.io/control-plane","operator":"Equal"},{"effect":"NoSchedule","key":"node-role.kubernetes.io/master","operator":"Equal"}],"volumes":[{"configMap":{"name":"local-path-config"},"name":"config-volume"}]}}}}
+    creationTimestamp: "2024-01-02T08:43:34Z"
+    generation: 1
+    name: local-path-provisioner
+    namespace: local-path-storage
+    resourceVersion: "1491"
+    uid: d120af51-0f24-4f41-831e-ae8bddf7f4f3
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: local-path-provisioner
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: local-path-provisioner
+      spec:
+        containers:
+        - command:
+          - local-path-provisioner
+          - --debug
+          - start
+          - --helper-image
+          - docker.io/kindest/local-path-helper:v20230510-486859a6
+          - --config
+          - /etc/config/config.json
+          env:
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+          image: docker.io/kindest/local-path-provisioner:v20230511-dc714da8
+          imagePullPolicy: IfNotPresent
+          name: local-path-provisioner
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/config/
+            name: config-volume
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/os: linux
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: local-path-provisioner-service-account
+        serviceAccountName: local-path-provisioner-service-account
+        terminationGracePeriodSeconds: 30
+        tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+          operator: Equal
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Equal
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: local-path-config
+          name: config-volume
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2024-01-02T08:43:38Z"
+      lastUpdateTime: "2024-01-02T08:43:43Z"
+      message: ReplicaSet "local-path-provisioner-6bc4bddd6b" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2024-01-02T09:03:58Z"
+      lastUpdateTime: "2024-01-02T09:03:58Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"adservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"adservice"}},"template":{"metadata":{"labels":{"app":"adservice"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"9555"},{"name":"DISABLE_STATS","value":"1"},{"name":"DISABLE_TRACING","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/adservice:v0.3.7","livenessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:9555"]},"initialDelaySeconds":20,"periodSeconds":15,"timeoutSeconds":30},"name":"server","ports":[{"containerPort":9555}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:9555"]},"initialDelaySeconds":20,"periodSeconds":15,"timeoutSeconds":30},"resources":{"limits":{"cpu":"300m","memory":"300Mi"},"requests":{"cpu":"200m","memory":"180Mi"}}}],"serviceAccountName":"adservice","terminationGracePeriodSeconds":5}}}}
+    creationTimestamp: "2024-01-07T14:00:57Z"
+    generation: 1
+    name: adservice
+    namespace: onlineboutique
+    resourceVersion: "327993"
+    uid: b211096f-cff0-40b3-9d7b-cf4f36247046
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: adservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: adservice
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "9555"
+          - name: DISABLE_STATS
+            value: "1"
+          - name: DISABLE_TRACING
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/adservice:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:9555
+            failureThreshold: 3
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 30
+          name: server
+          ports:
+          - containerPort: 9555
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:9555
+            failureThreshold: 3
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 30
+          resources:
+            limits:
+              cpu: 300m
+              memory: 300Mi
+            requests:
+              cpu: 200m
+              memory: 180Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: adservice
+        serviceAccountName: adservice
+        terminationGracePeriodSeconds: 5
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:00:57Z"
+      lastUpdateTime: "2024-01-07T14:00:57Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:10:58Z"
+      lastUpdateTime: "2024-01-07T14:10:58Z"
+      message: ReplicaSet "adservice-68844b765d" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"cartservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"cartservice"}},"template":{"metadata":{"annotations":{"proxy.istio.io/config":"{\"holdApplicationUntilProxyStarts\":true}","sidecar.istio.io/userVolume":"[{\"name\":\"redis-cert\", \"secret\":{\"secretName\":\"redis-cert\"}}]","sidecar.istio.io/userVolumeMount":"[{\"name\":\"redis-cert\", \"mountPath\":\"/etc/certs\", \"readonly\":true}]"},"labels":{"app":"cartservice"}},"spec":{"containers":[{"env":[{"name":"REDIS_ADDR","value":"10.159.147.219:6378"},{"name":"REDIS_AUTH","value":"0f84aec9-24e9-492f-a7df-ae4883bf17c3"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/cartservice:redis7","livenessProbe":{"initialDelaySeconds":15,"tcpSocket":{"port":7070}},"name":"server","ports":[{"containerPort":7070}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:7070","-rpc-timeout=5s"]},"initialDelaySeconds":15},"resources":{"limits":{"cpu":"120m","memory":"320Mi"},"requests":{"cpu":"60m","memory":"160Mi"}},"securityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["all"]},"privileged":false,"readOnlyRootFilesystem":true}}],"securityContext":{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000},"serviceAccountName":"cartservice","terminationGracePeriodSeconds":5}}}}
+    creationTimestamp: "2024-01-07T14:01:30Z"
+    generation: 1
+    name: cartservice
+    namespace: onlineboutique
+    resourceVersion: "328054"
+    uid: 29aa1883-cccf-4690-9fe1-8cd47c22c38b
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: cartservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          proxy.istio.io/config: '{"holdApplicationUntilProxyStarts":true}'
+          sidecar.istio.io/userVolume: '[{"name":"redis-cert", "secret":{"secretName":"redis-cert"}}]'
+          sidecar.istio.io/userVolumeMount: '[{"name":"redis-cert", "mountPath":"/etc/certs",
+            "readonly":true}]'
+        creationTimestamp: null
+        labels:
+          app: cartservice
+      spec:
+        containers:
+        - env:
+          - name: REDIS_ADDR
+            value: 10.159.147.219:6378
+          - name: REDIS_AUTH
+            value: 0f84aec9-24e9-492f-a7df-ae4883bf17c3
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/cartservice:redis7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 7070
+            timeoutSeconds: 1
+          name: server
+          ports:
+          - containerPort: 7070
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:7070
+              - -rpc-timeout=5s
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 120m
+              memory: 320Mi
+            requests:
+              cpu: 60m
+              memory: 160Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 1000
+          runAsGroup: 1000
+          runAsNonRoot: true
+          runAsUser: 1000
+        serviceAccount: cartservice
+        serviceAccountName: cartservice
+        terminationGracePeriodSeconds: 5
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:01:30Z"
+      lastUpdateTime: "2024-01-07T14:01:30Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:11:31Z"
+      lastUpdateTime: "2024-01-07T14:11:31Z"
+      message: ReplicaSet "cartservice-858659f884" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"checkoutservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"checkoutservice"}},"template":{"metadata":{"labels":{"app":"checkoutservice"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"5050"},{"name":"PRODUCT_CATALOG_SERVICE_ADDR","value":"productcatalogservice:3550"},{"name":"SHIPPING_SERVICE_ADDR","value":"shippingservice:50051"},{"name":"PAYMENT_SERVICE_ADDR","value":"paymentservice:50051"},{"name":"EMAIL_SERVICE_ADDR","value":"emailservice:5000"},{"name":"CURRENCY_SERVICE_ADDR","value":"currencyservice:7000"},{"name":"CART_SERVICE_ADDR","value":"cartservice:7070"},{"name":"DISABLE_STATS","value":"1"},{"name":"DISABLE_TRACING","value":"1"},{"name":"DISABLE_PROFILER","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/checkoutservice:v0.3.7","livenessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:5050"]}},"name":"server","ports":[{"containerPort":5050}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:5050"]}},"resources":{"limits":{"cpu":"40m","memory":"152Mi"},"requests":{"cpu":"15m","memory":"29Mi"}}}],"serviceAccountName":"checkoutservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:39Z"
+    generation: 1
+    name: checkoutservice
+    namespace: onlineboutique
+    resourceVersion: "328071"
+    uid: ca0ee377-2f7a-4cff-87f8-8a269c631166
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: checkoutservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: checkoutservice
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "5050"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: productcatalogservice:3550
+          - name: SHIPPING_SERVICE_ADDR
+            value: shippingservice:50051
+          - name: PAYMENT_SERVICE_ADDR
+            value: paymentservice:50051
+          - name: EMAIL_SERVICE_ADDR
+            value: emailservice:5000
+          - name: CURRENCY_SERVICE_ADDR
+            value: currencyservice:7000
+          - name: CART_SERVICE_ADDR
+            value: cartservice:7070
+          - name: DISABLE_STATS
+            value: "1"
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/checkoutservice:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:5050
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: server
+          ports:
+          - containerPort: 5050
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:5050
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 40m
+              memory: 152Mi
+            requests:
+              cpu: 15m
+              memory: 29Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: checkoutservice
+        serviceAccountName: checkoutservice
+        terminationGracePeriodSeconds: 30
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:01:39Z"
+      lastUpdateTime: "2024-01-07T14:01:39Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:11:40Z"
+      lastUpdateTime: "2024-01-07T14:11:40Z"
+      message: ReplicaSet "checkoutservice-5c78b6f96c" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"currencyservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"currencyservice"}},"template":{"metadata":{"labels":{"app":"currencyservice"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"7000"},{"name":"DISABLE_TRACING","value":"1"},{"name":"DISABLE_PROFILER","value":"1"},{"name":"DISABLE_DEBUGGER","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/currencyservice:v0.3.7","livenessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:7000"]}},"name":"server","ports":[{"containerPort":7000,"name":"grpc"}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:7000"]}},"resources":{"limits":{"cpu":"50m","memory":"98Mi"},"requests":{"cpu":"20m","memory":"83Mi"}}}],"serviceAccountName":"currencyservice","terminationGracePeriodSeconds":5}}}}
+    creationTimestamp: "2024-01-07T14:01:50Z"
+    generation: 1
+    name: currencyservice
+    namespace: onlineboutique
+    resourceVersion: "328096"
+    uid: 5b64690a-9d87-4ba2-8801-be3ce39ed8b3
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: currencyservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: currencyservice
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "7000"
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          - name: DISABLE_DEBUGGER
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/currencyservice:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:7000
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: server
+          ports:
+          - containerPort: 7000
+            name: grpc
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:7000
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 50m
+              memory: 98Mi
+            requests:
+              cpu: 20m
+              memory: 83Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: currencyservice
+        serviceAccountName: currencyservice
+        terminationGracePeriodSeconds: 5
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:01:50Z"
+      lastUpdateTime: "2024-01-07T14:01:50Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:11:51Z"
+      lastUpdateTime: "2024-01-07T14:11:51Z"
+      message: ReplicaSet "currencyservice-c768cd6b6" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"emailservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"emailservice"}},"template":{"metadata":{"labels":{"app":"emailservice"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"8080"},{"name":"DISABLE_TRACING","value":"1"},{"name":"DISABLE_PROFILER","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/emailservice:v0.3.7","livenessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:8080"]},"periodSeconds":5,"timeoutSeconds":10},"name":"server","ports":[{"containerPort":8080}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:8080"]},"periodSeconds":5,"timeoutSeconds":10},"resources":{"limits":{"cpu":"200m","memory":"128Mi"},"requests":{"cpu":"100m","memory":"64Mi"}}}],"serviceAccountName":"emailservice","terminationGracePeriodSeconds":5}}}}
+    creationTimestamp: "2024-01-07T14:01:57Z"
+    generation: 1
+    name: emailservice
+    namespace: onlineboutique
+    resourceVersion: "328111"
+    uid: fdb4a9bd-5d42-4281-8092-6a7fc887047a
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: emailservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: emailservice
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "8080"
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/emailservice:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:8080
+            failureThreshold: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: server
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:8080
+            failureThreshold: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: emailservice
+        serviceAccountName: emailservice
+        terminationGracePeriodSeconds: 5
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:01:57Z"
+      lastUpdateTime: "2024-01-07T14:01:57Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:11:58Z"
+      lastUpdateTime: "2024-01-07T14:11:58Z"
+      message: ReplicaSet "emailservice-5546566848" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"frontend","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"frontend"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/rewriteAppHTTPProbers":"true"},"labels":{"app":"frontend"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"8080"},{"name":"PRODUCT_CATALOG_SERVICE_ADDR","value":"productcatalogservice:3550"},{"name":"CURRENCY_SERVICE_ADDR","value":"currencyservice:7000"},{"name":"CART_SERVICE_ADDR","value":"cartservice:7070"},{"name":"RECOMMENDATION_SERVICE_ADDR","value":"recommendationservice:8080"},{"name":"SHIPPING_SERVICE_ADDR","value":"shippingservice:50051"},{"name":"CHECKOUT_SERVICE_ADDR","value":"checkoutservice:5050"},{"name":"AD_SERVICE_ADDR","value":"adservice:9555"},{"name":"ENV_PLATFORM","value":"gcp"},{"name":"DISABLE_TRACING","value":"1"},{"name":"DISABLE_PROFILER","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/frontend:v0.3.7","livenessProbe":{"httpGet":{"httpHeaders":[{"name":"Cookie","value":"shop_session-id=x-liveness-probe"}],"path":"/_healthz","port":8080},"initialDelaySeconds":10},"name":"server","ports":[{"containerPort":8080}],"readinessProbe":{"httpGet":{"httpHeaders":[{"name":"Cookie","value":"shop_session-id=x-readiness-probe"}],"path":"/_healthz","port":8080},"initialDelaySeconds":10},"resources":{"limits":{"cpu":"70m","memory":"151Mi"},"requests":{"cpu":"30m","memory":"27Mi"}}}],"serviceAccountName":"frontend"}}}}
+    creationTimestamp: "2024-01-07T14:02:05Z"
+    generation: 1
+    name: frontend
+    namespace: onlineboutique
+    resourceVersion: "328128"
+    uid: 3060de96-35ed-49a5-8052-7c233f64a445
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: frontend
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          sidecar.istio.io/rewriteAppHTTPProbers: "true"
+        creationTimestamp: null
+        labels:
+          app: frontend
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "8080"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: productcatalogservice:3550
+          - name: CURRENCY_SERVICE_ADDR
+            value: currencyservice:7000
+          - name: CART_SERVICE_ADDR
+            value: cartservice:7070
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: recommendationservice:8080
+          - name: SHIPPING_SERVICE_ADDR
+            value: shippingservice:50051
+          - name: CHECKOUT_SERVICE_ADDR
+            value: checkoutservice:5050
+          - name: AD_SERVICE_ADDR
+            value: adservice:9555
+          - name: ENV_PLATFORM
+            value: gcp
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/frontend:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              httpHeaders:
+              - name: Cookie
+                value: shop_session-id=x-liveness-probe
+              path: /_healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: server
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              httpHeaders:
+              - name: Cookie
+                value: shop_session-id=x-readiness-probe
+              path: /_healthz
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 70m
+              memory: 151Mi
+            requests:
+              cpu: 30m
+              memory: 27Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: frontend
+        serviceAccountName: frontend
+        terminationGracePeriodSeconds: 30
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:02:05Z"
+      lastUpdateTime: "2024-01-07T14:02:05Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:12:06Z"
+      lastUpdateTime: "2024-01-07T14:12:06Z"
+      message: ReplicaSet "frontend-5869c565c8" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"loadgenerator","namespace":"onlineboutique"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"loadgenerator"}},"template":{"metadata":{"annotations":{"sidecar.istio.io/rewriteAppHTTPProbers":"true"},"labels":{"app":"loadgenerator"}},"spec":{"containers":[{"env":[{"name":"FRONTEND_ADDR","value":"frontend:80"},{"name":"USERS","value":"10"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/loadgenerator:v0.3.7","name":"main","resources":{"limits":{"cpu":"55m","memory":"243Mi"},"requests":{"cpu":"50m","memory":"118Mi"}}}],"restartPolicy":"Always","serviceAccountName":"loadgenerator","terminationGracePeriodSeconds":5}}}}
+    creationTimestamp: "2024-01-07T14:02:26Z"
+    generation: 1
+    name: loadgenerator
+    namespace: onlineboutique
+    resourceVersion: "328171"
+    uid: d8367311-6b7c-4f43-a93e-1c9b44b9707f
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: loadgenerator
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          sidecar.istio.io/rewriteAppHTTPProbers: "true"
+        creationTimestamp: null
+        labels:
+          app: loadgenerator
+      spec:
+        containers:
+        - env:
+          - name: FRONTEND_ADDR
+            value: frontend:80
+          - name: USERS
+            value: "10"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/loadgenerator:v0.3.7
+          imagePullPolicy: IfNotPresent
+          name: main
+          resources:
+            limits:
+              cpu: 55m
+              memory: 243Mi
+            requests:
+              cpu: 50m
+              memory: 118Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: loadgenerator
+        serviceAccountName: loadgenerator
+        terminationGracePeriodSeconds: 5
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:02:26Z"
+      lastUpdateTime: "2024-01-07T14:02:26Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:12:27Z"
+      lastUpdateTime: "2024-01-07T14:12:27Z"
+      message: ReplicaSet "loadgenerator-89cf99cd9" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"paymentservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"paymentservice"}},"template":{"metadata":{"labels":{"app":"paymentservice"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"50051"},{"name":"DISABLE_TRACING","value":"1"},{"name":"DISABLE_PROFILER","value":"1"},{"name":"DISABLE_DEBUGGER","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/paymentservice:v0.3.7","livenessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:50051"]}},"name":"server","ports":[{"containerPort":50051}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:50051"]}},"resources":{"limits":{"cpu":"50m","memory":"75Mi"},"requests":{"cpu":"9m","memory":"72Mi"}}}],"serviceAccountName":"paymentservice","terminationGracePeriodSeconds":5}}}}
+    creationTimestamp: "2024-01-07T14:02:38Z"
+    generation: 1
+    name: paymentservice
+    namespace: onlineboutique
+    resourceVersion: "328195"
+    uid: 8529c0c5-658b-4ed9-b6e4-e66fc3bc4e86
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: paymentservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: paymentservice
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "50051"
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          - name: DISABLE_DEBUGGER
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/paymentservice:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:50051
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: server
+          ports:
+          - containerPort: 50051
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:50051
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 50m
+              memory: 75Mi
+            requests:
+              cpu: 9m
+              memory: 72Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: paymentservice
+        serviceAccountName: paymentservice
+        terminationGracePeriodSeconds: 5
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:02:38Z"
+      lastUpdateTime: "2024-01-07T14:02:38Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:12:39Z"
+      lastUpdateTime: "2024-01-07T14:12:39Z"
+      message: ReplicaSet "paymentservice-5867c5b5cb" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"productcatalogservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"productcatalogservice"}},"template":{"metadata":{"labels":{"app":"productcatalogservice"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"3550"},{"name":"DISABLE_STATS","value":"1"},{"name":"DISABLE_TRACING","value":"1"},{"name":"DISABLE_PROFILER","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/productcatalogservice:v0.3.7","livenessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:3550"]}},"name":"server","ports":[{"containerPort":3550}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:3550"]}},"resources":{"limits":{"cpu":"40m","memory":"170Mi"},"requests":{"cpu":"15m","memory":"151Mi"}}}],"serviceAccountName":"productcatalogservice","terminationGracePeriodSeconds":5}}}}
+    creationTimestamp: "2024-01-07T14:02:48Z"
+    generation: 1
+    name: productcatalogservice
+    namespace: onlineboutique
+    resourceVersion: "328218"
+    uid: 16bd2c52-d31b-4a37-97cf-7c4981e5753a
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: productcatalogservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: productcatalogservice
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "3550"
+          - name: DISABLE_STATS
+            value: "1"
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/productcatalogservice:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:3550
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: server
+          ports:
+          - containerPort: 3550
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:3550
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 40m
+              memory: 170Mi
+            requests:
+              cpu: 15m
+              memory: 151Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: productcatalogservice
+        serviceAccountName: productcatalogservice
+        terminationGracePeriodSeconds: 5
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:02:48Z"
+      lastUpdateTime: "2024-01-07T14:02:48Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:12:49Z"
+      lastUpdateTime: "2024-01-07T14:12:49Z"
+      message: ReplicaSet "productcatalogservice-74c98dd5fc" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"recommendationservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"recommendationservice"}},"template":{"metadata":{"labels":{"app":"recommendationservice"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"8080"},{"name":"PRODUCT_CATALOG_SERVICE_ADDR","value":"productcatalogservice:3550"},{"name":"DISABLE_TRACING","value":"1"},{"name":"DISABLE_PROFILER","value":"1"},{"name":"DISABLE_DEBUGGER","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/recommendationservice:v0.3.7","livenessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:8080"]},"periodSeconds":5,"timeoutSeconds":10},"name":"server","ports":[{"containerPort":8080}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:8080"]},"periodSeconds":5,"timeoutSeconds":10},"resources":{"limits":{"cpu":"200m","memory":"450Mi"},"requests":{"cpu":"100m","memory":"220Mi"}}}],"serviceAccountName":"recommendationservice","terminationGracePeriodSeconds":5}}}}
+    creationTimestamp: "2024-01-07T14:02:56Z"
+    generation: 1
+    name: recommendationservice
+    namespace: onlineboutique
+    resourceVersion: "328233"
+    uid: 3f24ca97-b27e-45ba-83c0-4d7f6660b914
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: recommendationservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: recommendationservice
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "8080"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: productcatalogservice:3550
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          - name: DISABLE_DEBUGGER
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/recommendationservice:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:8080
+            failureThreshold: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: server
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:8080
+            failureThreshold: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 200m
+              memory: 450Mi
+            requests:
+              cpu: 100m
+              memory: 220Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: recommendationservice
+        serviceAccountName: recommendationservice
+        terminationGracePeriodSeconds: 5
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:02:56Z"
+      lastUpdateTime: "2024-01-07T14:02:56Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:12:57Z"
+      lastUpdateTime: "2024-01-07T14:12:57Z"
+      message: ReplicaSet "recommendationservice-5458767b6" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"shippingservice","namespace":"onlineboutique"},"spec":{"selector":{"matchLabels":{"app":"shippingservice"}},"template":{"metadata":{"labels":{"app":"shippingservice"}},"spec":{"containers":[{"env":[{"name":"PORT","value":"50051"},{"name":"DISABLE_STATS","value":"1"},{"name":"DISABLE_TRACING","value":"1"},{"name":"DISABLE_PROFILER","value":"1"}],"image":"us-east4-docker.pkg.dev/mygke-200/containers/boutique/shippingservice:v0.3.7","livenessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:50051"]}},"name":"server","ports":[{"containerPort":50051}],"readinessProbe":{"exec":{"command":["/bin/grpc_health_probe","-addr=:50051"]},"periodSeconds":5},"resources":{"limits":{"cpu":"30m","memory":"160Mi"},"requests":{"cpu":"7m","memory":"129Mi"}}}],"serviceAccountName":"shippingservice"}}}}
+    creationTimestamp: "2024-01-07T14:03:05Z"
+    generation: 1
+    name: shippingservice
+    namespace: onlineboutique
+    resourceVersion: "328251"
+    uid: 8a0a0fb8-8bea-41fd-a927-8f10011d0cbe
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: shippingservice
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: shippingservice
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "50051"
+          - name: DISABLE_STATS
+            value: "1"
+          - name: DISABLE_TRACING
+            value: "1"
+          - name: DISABLE_PROFILER
+            value: "1"
+          image: us-east4-docker.pkg.dev/mygke-200/containers/boutique/shippingservice:v0.3.7
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:50051
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: server
+          ports:
+          - containerPort: 50051
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+              - /bin/grpc_health_probe
+              - -addr=:50051
+            failureThreshold: 3
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 30m
+              memory: 160Mi
+            requests:
+              cpu: 7m
+              memory: 129Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: shippingservice
+        serviceAccountName: shippingservice
+        terminationGracePeriodSeconds: 30
+  status:
+    conditions:
+    - lastTransitionTime: "2024-01-07T14:03:05Z"
+      lastUpdateTime: "2024-01-07T14:03:05Z"
+      message: Deployment does not have minimum availability.
+      reason: MinimumReplicasUnavailable
+      status: "False"
+      type: Available
+    - lastTransitionTime: "2024-01-07T14:13:06Z"
+      lastUpdateTime: "2024-01-07T14:13:06Z"
+      message: ReplicaSet "shippingservice-74fbcb8fc8" has timed out progressing.
+      reason: ProgressDeadlineExceeded
+      status: "False"
+      type: Progressing
+    observedGeneration: 1
+    replicas: 1
+    unavailableReplicas: 1
+    updatedReplicas: 1
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      prometheus.io/path: /stats/prometheus
+      prometheus.io/port: "8002"
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2024-01-07T13:17:20Z"
+    generateName: envoy-
+    labels:
+      app: envoy
+      controller-revision-hash: 6c7b887fc6
+      pod-template-generation: "1"
+    name: envoy-mb476
+    namespace: projectcontour
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DaemonSet
+      name: envoy
+      uid: ac790de2-1391-4272-938f-a56fedf96d3d
+    resourceVersion: "321357"
+    uid: 6ce62308-d3a1-47b4-879d-c53665e9d305
+  spec:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchFields:
+            - key: metadata.name
+              operator: In
+              values:
+              - kind-cluster-control-plane
+    automountServiceAccountToken: false
+    containers:
+    - args:
+      - envoy
+      - shutdown-manager
+      command:
+      - /bin/contour
+      image: ghcr.io/projectcontour/contour:v1.24.2
+      imagePullPolicy: IfNotPresent
+      lifecycle:
+        preStop:
+          exec:
+            command:
+            - /bin/contour
+            - envoy
+            - shutdown
+      name: shutdown-manager
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /admin
+        name: envoy-admin
+    - args:
+      - -c
+      - /config/envoy.json
+      - --service-cluster $(CONTOUR_NAMESPACE)
+      - --service-node $(ENVOY_POD_NAME)
+      - --log-level info
+      command:
+      - envoy
+      env:
+      - name: CONTOUR_NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      - name: ENVOY_POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      image: docker.io/envoyproxy/envoy:v1.25.2
+      imagePullPolicy: IfNotPresent
+      lifecycle:
+        preStop:
+          httpGet:
+            path: /shutdown
+            port: 8090
+            scheme: HTTP
+      name: envoy
+      ports:
+      - containerPort: 8080
+        hostPort: 80
+        name: http
+        protocol: TCP
+      - containerPort: 8443
+        hostPort: 443
+        name: https
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /ready
+          port: 8002
+          scheme: HTTP
+        initialDelaySeconds: 3
+        periodSeconds: 4
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /config
+        name: envoy-config
+        readOnly: true
+      - mountPath: /certs
+        name: envoycert
+        readOnly: true
+      - mountPath: /admin
+        name: envoy-admin
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    initContainers:
+    - args:
+      - bootstrap
+      - /config/envoy.json
+      - --xds-address=contour
+      - --xds-port=8001
+      - --xds-resource-version=v3
+      - --resources-dir=/config/resources
+      - --envoy-cafile=/certs/ca.crt
+      - --envoy-cert-file=/certs/tls.crt
+      - --envoy-key-file=/certs/tls.key
+      command:
+      - contour
+      env:
+      - name: CONTOUR_NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      image: ghcr.io/projectcontour/contour:v1.24.2
+      imagePullPolicy: IfNotPresent
+      name: envoy-initconfig
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /config
+        name: envoy-config
+      - mountPath: /certs
+        name: envoycert
+        readOnly: true
+    nodeName: kind-cluster-control-plane
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      runAsGroup: 65534
+      runAsNonRoot: true
+      runAsUser: 65534
+    serviceAccount: envoy
+    serviceAccountName: envoy
+    terminationGracePeriodSeconds: 300
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/disk-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/memory-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/pid-pressure
+      operator: Exists
+    - effect: NoSchedule
+      key: node.kubernetes.io/unschedulable
+      operator: Exists
+    volumes:
+    - emptyDir: {}
+      name: envoy-admin
+    - emptyDir: {}
+      name: envoy-config
+    - name: envoycert
+      secret:
+        defaultMode: 420
+        secretName: envoycert
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2024-01-07T13:17:20Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2024-01-07T13:17:20Z"
+      message: 'containers with unready status: [envoy]'
+      reason: ContainersNotReady
+      status: "False"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2024-01-07T13:17:20Z"
+      message: 'containers with unready status: [envoy]'
+      reason: ContainersNotReady
+      status: "False"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2024-01-07T13:17:20Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://5fc0b21bc06da9b40dcaf80d4e94961a80d1c5f6692cbad80d1e96d814a761be
+      image: docker.io/envoyproxy/envoy:v1.25.2
+      imageID: docker.io/envoyproxy/envoy@sha256:205fbbbd81d524446075152304be915bcf796200e6464755efe99a696f141aa8
+      lastState: {}
+      name: envoy
+      ready: false
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2024-01-07T13:17:21Z"
+    - containerID: containerd://d4b0f4e5c11d26e0710535fd1d805912eebdeb4d27bcb5f8c07e52c28c72e04a
+      image: ghcr.io/projectcontour/contour:v1.24.2
+      imageID: ghcr.io/projectcontour/contour@sha256:ac84d7b960e4330a416e16e184d0ceffea8372f0e2ffcaf56a91fe826d1fe9d5
+      lastState: {}
+      name: shutdown-manager
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2024-01-07T13:17:21Z"
+    hostIP: 10.89.0.2
+    initContainerStatuses:
+    - containerID: containerd://1d686ba9fb0a7630cdc6c7a092ada61e98abed80ae1f7c8699e1aa2aac86e080
+      image: ghcr.io/projectcontour/contour:v1.24.2
+      imageID: ghcr.io/projectcontour/contour@sha256:ac84d7b960e4330a416e16e184d0ceffea8372f0e2ffcaf56a91fe826d1fe9d5
+      lastState: {}
+      name: envoy-initconfig
+      ready: true
+      restartCount: 0
+      state:
+        terminated:
+          containerID: containerd://1d686ba9fb0a7630cdc6c7a092ada61e98abed80ae1f7c8699e1aa2aac86e080
+          exitCode: 0
+          finishedAt: "2024-01-07T13:17:20Z"
+          reason: Completed
+          startedAt: "2024-01-07T13:17:20Z"
+    phase: Running
+    podIP: 10.244.0.27
+    podIPs:
+    - ip: 10.244.0.27
+    qosClass: BestEffort
+    startTime: "2024-01-07T13:17:20Z"
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      checksum/config: a9239b6352e34bbfc748669ed46cb24211fc3491ee7f2c6381af805f8f08fe29
+      istio.io/rev: default
+      kubectl.kubernetes.io/default-container: loki
+      kubectl.kubernetes.io/default-logs-container: loki
+      prometheus.io/path: /stats/prometheus
+      prometheus.io/port: "15020"
+      prometheus.io/scrape: "true"
+      sidecar.istio.io/status: '{"initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["workload-socket","credential-socket","workload-certs","istio-envoy","istio-data","istio-podinfo","istio-token","istiod-ca-cert"],"imagePullSecrets":null,"revision":"default"}'
+    creationTimestamp: "2024-01-02T14:54:20Z"
+    generateName: loki-
+    labels:
+      app.kubernetes.io/component: single-binary
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/part-of: memberlist
+      controller-revision-hash: loki-86c5868897
+      security.istio.io/tlsMode: istio
+      service.istio.io/canonical-name: loki
+      service.istio.io/canonical-revision: latest
+      statefulset.kubernetes.io/pod-name: loki-0
+    name: loki-0
+    namespace: default
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: StatefulSet
+      name: loki
+      uid: 812670de-84e0-463d-9dd4-419f651eeb13
+    resourceVersion: "45596"
+    uid: 83429e31-02a5-45c6-8e52-e8d31b389462
+  spec:
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/component: single-binary
+              app.kubernetes.io/instance: loki
+              app.kubernetes.io/name: loki
+          topologyKey: kubernetes.io/hostname
+    automountServiceAccountToken: true
+    containers:
+    - args:
+      - -config.file=/etc/loki/config/config.yaml
+      - -target=all
+      image: docker.io/grafana/loki:2.7.3
+      imagePullPolicy: IfNotPresent
+      name: loki
+      ports:
+      - containerPort: 3100
+        name: http-metrics
+        protocol: TCP
+      - containerPort: 9095
+        name: grpc
+        protocol: TCP
+      - containerPort: 7946
+        name: http-memberlist
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 3
+        httpGet:
+          path: /app-health/loki/readyz
+          port: 15020
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+      resources: {}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /tmp
+        name: tmp
+      - mountPath: /etc/loki/config
+        name: config
+      - mountPath: /etc/loki/runtime-config
+        name: runtime-config
+      - mountPath: /var/loki
+        name: storage
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-j5gzb
+        readOnly: true
+    - args:
+      - proxy
+      - sidecar
+      - --domain
+      - $(POD_NAMESPACE).svc.cluster.local
+      - --proxyLogLevel=warning
+      - --proxyComponentLogLevel=misc:error
+      - --log_output_level=default:info
+      env:
+      - name: JWT_POLICY
+        value: third-party-jwt
+      - name: PILOT_CERT_PROVIDER
+        value: istiod
+      - name: CA_ADDR
+        value: istiod.istio-system.svc:15012
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
+      - name: POD_NAMESPACE
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.namespace
+      - name: INSTANCE_IP
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: status.podIP
+      - name: SERVICE_ACCOUNT
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.serviceAccountName
+      - name: HOST_IP
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: status.hostIP
+      - name: ISTIO_CPU_LIMIT
+        valueFrom:
+          resourceFieldRef:
+            divisor: "0"
+            resource: limits.cpu
+      - name: PROXY_CONFIG
+        value: |
+          {}
+      - name: ISTIO_META_POD_PORTS
+        value: |-
+          [
+              {"name":"http-metrics","containerPort":3100,"protocol":"TCP"}
+              ,{"name":"grpc","containerPort":9095,"protocol":"TCP"}
+              ,{"name":"http-memberlist","containerPort":7946,"protocol":"TCP"}
+          ]
+      - name: ISTIO_META_APP_CONTAINERS
+        value: loki
+      - name: GOMEMLIMIT
+        valueFrom:
+          resourceFieldRef:
+            divisor: "0"
+            resource: limits.memory
+      - name: GOMAXPROCS
+        valueFrom:
+          resourceFieldRef:
+            divisor: "0"
+            resource: limits.cpu
+      - name: ISTIO_META_CLUSTER_ID
+        value: Kubernetes
+      - name: ISTIO_META_NODE_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      - name: ISTIO_META_INTERCEPTION_MODE
+        value: REDIRECT
+      - name: ISTIO_META_WORKLOAD_NAME
+        value: loki
+      - name: ISTIO_META_OWNER
+        value: kubernetes://apis/apps/v1/namespaces/default/statefulsets/loki
+      - name: ISTIO_META_MESH_ID
+        value: cluster.local
+      - name: TRUST_DOMAIN
+        value: cluster.local
+      - name: ISTIO_KUBE_APP_PROBERS
+        value: '{"/app-health/loki/readyz":{"httpGet":{"path":"/ready","port":3100,"scheme":"HTTP"},"timeoutSeconds":1}}'
+      image: docker.io/istio/proxyv2:1.20.1
+      imagePullPolicy: IfNotPresent
+      name: istio-proxy
+      ports:
+      - containerPort: 15090
+        name: http-envoy-prom
+        protocol: TCP
+      readinessProbe:
+        failureThreshold: 4
+        httpGet:
+          path: /healthz/ready
+          port: 15021
+          scheme: HTTP
+        periodSeconds: 15
+        successThreshold: 1
+        timeoutSeconds: 3
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 10m
+          memory: 40Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        privileged: false
+        readOnlyRootFilesystem: true
+        runAsGroup: 1337
+        runAsNonRoot: true
+        runAsUser: 1337
+      startupProbe:
+        failureThreshold: 600
+        httpGet:
+          path: /healthz/ready
+          port: 15021
+          scheme: HTTP
+        periodSeconds: 1
+        successThreshold: 1
+        timeoutSeconds: 3
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/workload-spiffe-uds
+        name: workload-socket
+      - mountPath: /var/run/secrets/credential-uds
+        name: credential-socket
+      - mountPath: /var/run/secrets/workload-spiffe-credentials
+        name: workload-certs
+      - mountPath: /var/run/secrets/istio
+        name: istiod-ca-cert
+      - mountPath: /var/lib/istio/data
+        name: istio-data
+      - mountPath: /etc/istio/proxy
+        name: istio-envoy
+      - mountPath: /var/run/secrets/tokens
+        name: istio-token
+      - mountPath: /etc/istio/pod
+        name: istio-podinfo
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-j5gzb
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    hostname: loki-0
+    initContainers:
+    - args:
+      - istio-iptables
+      - -p
+      - "15001"
+      - -z
+      - "15006"
+      - -u
+      - "1337"
+      - -m
+      - REDIRECT
+      - -i
+      - '*'
+      - -x
+      - ""
+      - -b
+      - '*'
+      - -d
+      - 15090,15021,15020
+      - --log_output_level=default:info
+      image: docker.io/istio/proxyv2:1.20.1
+      imagePullPolicy: IfNotPresent
+      name: istio-init
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 10m
+          memory: 40Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          add:
+          - NET_ADMIN
+          - NET_RAW
+          drop:
+          - ALL
+        privileged: false
+        readOnlyRootFilesystem: false
+        runAsGroup: 0
+        runAsNonRoot: false
+        runAsUser: 0
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-j5gzb
+        readOnly: true
+    nodeName: kind-cluster-control-plane
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 10001
+      runAsGroup: 10001
+      runAsNonRoot: true
+      runAsUser: 10001
+    serviceAccount: loki
+    serviceAccountName: loki
+    subdomain: loki-headless
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - emptyDir: {}
+      name: workload-socket
+    - emptyDir: {}
+      name: credential-socket
+    - emptyDir: {}
+      name: workload-certs
+    - emptyDir:
+        medium: Memory
+      name: istio-envoy
+    - emptyDir: {}
+      name: istio-data
+    - downwardAPI:
+        defaultMode: 420
+        items:
+        - fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.labels
+          path: labels
+        - fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.annotations
+          path: annotations
+      name: istio-podinfo
+    - name: istio-token
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            audience: istio-ca
+            expirationSeconds: 43200
+            path: istio-token
+    - configMap:
+        defaultMode: 420
+        name: istio-ca-root-cert
+      name: istiod-ca-cert
+    - name: storage
+      persistentVolumeClaim:
+        claimName: storage-loki-0
+    - emptyDir: {}
+      name: tmp
+    - configMap:
+        defaultMode: 420
+        name: loki
+      name: config
+    - configMap:
+        defaultMode: 420
+        name: loki-runtime
+      name: runtime-config
+    - name: kube-api-access-j5gzb
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2024-01-02T14:54:26Z"
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2024-01-02T14:55:45Z"
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2024-01-02T14:55:45Z"
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2024-01-02T14:54:25Z"
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://241fd56707190b39349683649166c48c04e2ff7c402786a06448d6e7623aea92
+      image: docker.io/istio/proxyv2:1.20.1
+      imageID: docker.io/istio/proxyv2@sha256:d58efa92c283c26765a5cdb2d66c4a26ea6e9cb7042242dd2f8a89fc2a520f9c
+      lastState: {}
+      name: istio-proxy
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2024-01-02T14:54:53Z"
+    - containerID: containerd://0cc8330164b749ac7a7f09d406a1b28c2e6291549c51a9bbf68fa32c167a8d94
+      image: docker.io/grafana/loki:2.7.3
+      imageID: docker.io/grafana/loki@sha256:0c86eba2dee75220d99b604503a91bc07532d238454fcfd712ec60d9d8a43c5d
+      lastState: {}
+      name: loki
+      ready: true
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2024-01-02T14:54:53Z"
+    hostIP: 10.89.0.2
+    initContainerStatuses:
+    - containerID: containerd://7ca1af7be42883aa7251c7251da23c38258a5134cc05fb944b5ea1b76c1f4f0b
+      image: docker.io/istio/proxyv2:1.20.1
+      imageID: docker.io/istio/proxyv2@sha256:d58efa92c283c26765a5cdb2d66c4a26ea6e9cb7042242dd2f8a89fc2a520f9c
+      lastState: {}
+      name: istio-init
+      ready: true
+      restartCount: 0
+      state:
+        terminated:
+          containerID: containerd://7ca1af7be42883aa7251c7251da23c38258a5134cc05fb944b5ea1b76c1f4f0b
+          exitCode: 0
+          finishedAt: "2024-01-02T14:54:26Z"
+          reason: Completed
+          startedAt: "2024-01-02T14:54:25Z"
+    phase: Running
+    podIP: 10.244.0.23
+    podIPs:
+    - ip: 10.244.0.23
+    qosClass: Burstable
+    startTime: "2024-01-02T14:54:25Z"
+- apiVersion: networking.istio.io/v1beta1
+  kind: ServiceEntry
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1alpha3","kind":"ServiceEntry","metadata":{"annotations":{},"name":"httpbin","namespace":"default"},"spec":{"hosts":["httpbin.example.com","connected-with-mesh.example.com"],"ports":[{"name":"tls","number":80,"protocol":"TLS"}],"resolution":"DNS"}}
+    creationTimestamp: "2024-01-07T14:16:20Z"
+    generation: 2
+    name: httpbin
+    namespace: default
+    resourceVersion: "330632"
+    uid: 1aff46b4-62dd-4e52-98b1-aef665b73225
+  spec:
+    hosts:
+    - httpbin.example.com
+    - connected-with-mesh.example.com
+    ports:
+    - name: tls
+      number: 80
+      protocol: TLS
+    resolution: DNS
+kind: List
+metadata:
+  resourceVersion: ""
