@@ -2,7 +2,7 @@ For connections of type TCP, final fw rules for query: connectivity-map-of-onlin
 src_ns: [istio-system] src_pods: [*] dst: httpbin.example.com conn: TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com'}
 src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
 src_ns: [onlineboutique] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
-src_ns: [onlineboutique] src_pods: [*] dst: connected_with_mesh.example.com conn: All connections
+Updasrc_ns: [onlineboutique] src_pods: [*] dst: connected-with-mesh.example.com conn: All connections
 src_ns: [onlineboutique] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: TCP {'dst_ports': '443', 'hosts': 'httpbin.example.com'}
 src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend)] dst_ns: [onlineboutique] dst_pods: [cartservice] conn: TCP {'dst_ports': '7070', 'methods': 'POST', 'paths': '/hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'}
 src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend)] dst_ns: [onlineboutique] dst_pods: [currencyservice] conn: TCP {'dst_ports': '7000', 'methods': 'POST', 'paths': '/hipstershop.CurrencyService/Convert, /hipstershop.CurrencyService/GetSupportedCurrencies'}
