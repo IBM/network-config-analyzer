@@ -37,7 +37,7 @@ class PodsFinder:
             self.add_eps_from_yaml(peer_code)
 
     def load_peer_from_k8s_live_cluster(self):
-        peer_code = yaml.load(CmdlineRunner.get_k8s_resources(['pod','serviceentry']), Loader=yaml.CSafeLoader)
+        peer_code = yaml.load(CmdlineRunner.get_k8s_resources(['pod', 'serviceentry']), Loader=yaml.CSafeLoader)
         self.add_eps_from_yaml(peer_code)
 
     def add_eps_from_yaml(self, yaml_obj, kind_override=None):
