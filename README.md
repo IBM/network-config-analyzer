@@ -13,7 +13,7 @@ It takes such resources as input, in addition to a list of relevant endpoints, a
 - What are the endpoints that are not covered by any policy?
 - Are my policies implemented efficiently?
 
-## Installation (requires Python 3.8 or above)
+## Installation (requires Python 3.9 or above)
 For command-line use, NCA is installed with:
 ```shell
 pip install network-config-analyzer

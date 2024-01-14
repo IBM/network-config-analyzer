@@ -11,8 +11,8 @@ from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolNameResolver import ProtocolNameResolver
 from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.Resources.NetworkPolicy import NetworkPolicy
-from nca.Resources.K8sNetworkPolicy import K8sNetworkPolicy, K8sPolicyRule
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.K8sNetworkPolicy import K8sNetworkPolicy, K8sPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
 
@@ -33,8 +33,8 @@ class K8sPolicyYamlParser(GenericYamlParser):
         self.namespace = None
         self.referenced_labels = set()
         self.optimized_run = optimized_run
-        # map from key to value - info about missing resources
-        self.missing_pods_with_labels = {}
+        # a set of (key, value) pairs (note, the set may contain pods with labels having same keys but different values
+        self.missing_pods_with_labels = set()
 
     def check_dns_subdomain_name(self, value, key_container):
         """
@@ -179,7 +179,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
                 else:
                     res &= self.peer_container.get_peers_with_label(key, [val])
                 if not res:
-                    self.missing_pods_with_labels[key] = val
+                    self.missing_pods_with_labels.add((key, val))
                 keys_set.add(key)
             self.referenced_labels.add(':'.join(keys_set))
 
@@ -321,7 +321,7 @@ class K8sPolicyYamlParser(GenericYamlParser):
             for peer in peer_array:
                 res_pods |= self.parse_peer(peer)
         else:
-            res_pods = self.peer_container.get_all_peers_group(True)
+            res_pods = self.peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
 
         if peer_array_key == 'from':  # ingress
             src_pods = res_pods

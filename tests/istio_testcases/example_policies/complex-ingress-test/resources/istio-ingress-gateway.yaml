@@ -6,7 +6,7 @@ metadata:
   namespace: example
 spec:
   selector:
-    istio: custom-ingressgateway # use istio custom controller
+    istio: ingressgateway
   servers:
   - port:
       number: 443

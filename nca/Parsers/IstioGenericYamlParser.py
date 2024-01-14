@@ -3,8 +3,11 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from nca.Resources.IstioTrafficResources import istio_root_namespace
 from .GenericYamlParser import GenericYamlParser
+
+# TODO: istio_root_namespace should be configurable from istio configuration, currently using default value for it
+# If namespace is set to istio root namespace, the policy object applies to all namespaces in a mesh
+istio_root_namespace = 'istio-config'
 
 
 class IstioGenericYamlParser(GenericYamlParser):
