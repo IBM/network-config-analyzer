@@ -95,10 +95,7 @@ class CmdlineRunner:
         :return: The output of 'kubectl get' (should be a list-resource)
         """
         CmdlineRunner.locate_kube_config_file()
-        cmdline_list = ['kubectl', 'get', ','.join([r for r in resources]), '-o=json']
-        if set(['networkPolicy', 'authorizationPolicy', 'pod', 'ingress', 'Gateway', 'VirtualService', 'sidecar',
-                'service', 'serviceentry']).intersection(resources):
-            cmdline_list.append('--all-namespaces')
+        cmdline_list = ['kubectl', 'get', ','.join([r for r in resources]), '-o=json', '--all-namespaces']
         return CmdlineRunner.run_and_get_output(cmdline_list, check_for_silent_exec=True)
 
     @staticmethod

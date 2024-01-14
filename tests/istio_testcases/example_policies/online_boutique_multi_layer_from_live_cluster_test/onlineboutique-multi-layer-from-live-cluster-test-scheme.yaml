@@ -17,3 +17,11 @@ queries:
     expected: 0
     expectedOutput: connectivity_map_onlineboutique_multi_layer_from_live_cluster.txt
 
+  - name: connectivity-map-of-onlineboutique-jpg
+    connectivityMap:
+      - onlineboutique-resources
+    expected: 0
+    outputConfiguration:
+      outputFormat: jpg
+      outputPath: connectivity-map-of-onlineboutique.jpg
+
