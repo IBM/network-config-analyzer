@@ -66,6 +66,7 @@ class InteractiveConnectivityGraph:
         Creates the InteractiveConnectivityGraph
         param: svg_file_name: str
         param: output_directory: str
+        param: expl_xml: soup object - xml with all the connectivity explains
         """
         self.svg_graph = self.SvgGraph(svg_file_name, output_directory, expl_xml)
         self.abstract_graph = self.AbstractGraph()
@@ -118,6 +119,7 @@ class InteractiveConnectivityGraph:
             Creates the InteractiveConnectivityGraph
             param: svg_file_name: str
             param: output_directory: str
+            param: expl_xml: soup object - xml with all the connectivity explains
             """
             self.input_svg_file = input_svg_file
             self.output_directory = output_directory

@@ -190,8 +190,12 @@ def run_args(args):  # noqa: C901
         ExplTracker().activate(output_config.outputEndpoints)
 
     if args.output_format == 'html':
-        output_config['expl'] = ['ALL']
-        ExplTracker().activate(output_config.outputEndpoints)
+        if args.optimized_run == 'true':
+            ExplTracker().activate(output_config.outputEndpoints)
+        else:
+            print(f'Not creating html format since it does not have optimized implementation yet')
+            return _compute_return_value(0, 0, 1)
+
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
