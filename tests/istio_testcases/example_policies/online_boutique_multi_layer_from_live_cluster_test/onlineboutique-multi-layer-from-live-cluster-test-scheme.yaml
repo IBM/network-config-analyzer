@@ -4,12 +4,10 @@ networkConfigList:
   - name: onlineboutique-resources
     resourceList:
       - onlineboutique-resources/
+    networkPolicyList:
       - istio-gateways.yaml
       - network_policies.yaml
-# check why when using the code below there is a difference in the output!!!
-#    networkPolicyList:
-#      - istio-gateways.yaml
-#      - network_policies.yaml
+      - sidecars.yaml
 
 
 queries:
