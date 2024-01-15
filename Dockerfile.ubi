@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:8d43664c250c72d35af8498c7ff76a9f0d42f16b9b3b29f0caa747121778de0e
+FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:d8b81a38b5ad9694742ea03159d3217cd2dde3997b1ee53bbb53c33dd67be7b7
 
 USER 0
 
