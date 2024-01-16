@@ -1,0 +1,115 @@
+﻿apiVersion: v1
+items:
+- apiVersion: networking.istio.io/v1beta1
+  kind: Gateway
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1alpha3","kind":"Gateway","metadata":{"annotations":{},"name":"my-gateway","namespace":"istio-system"},"spec":{"selector":{"istio":"egressgateway"},"servers":[{"hosts":["httpbin.example.com"],"port":{"name":"https","number":443,"protocol":"HTTPS"},"tls":{"mode":"PASSTHROUGH"}}]}}
+    creationTimestamp: "2024-01-07T14:29:08Z"
+    generation: 1
+    name: my-gateway
+    namespace: istio-system
+    resourceVersion: "330134"
+    uid: d636861b-1ef6-4e9e-bec3-c6f457dab257
+  spec:
+    selector:
+      istio: egressgateway
+    servers:
+    - hosts:
+      - httpbin.example.com
+      port:
+        name: https
+        number: 443
+        protocol: HTTPS
+      tls:
+        mode: PASSTHROUGH
+- apiVersion: networking.istio.io/v1beta1
+  kind: VirtualService
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1alpha3","kind":"VirtualService","metadata":{"annotations":{},"name":"httpbin","namespace":"default"},"spec":{"gateways":["istio-system/my-gateway"],"hosts":["httpbin.example.com"],"tls":[{"match":[{"gateways":["mesh"],"port":80,"sniHosts":["httpbin.example.com"]}],"route":[{"destination":{"host":"istio-egressgateway.istio-system.svc.cluster.local","port":{"number":443}}}]},{"match":[{"gateways":["istio-system/my-gateway"],"port":443,"sniHosts":["httpbin.example.com"]}],"route":[{"destination":{"host":"httpbin.example.com","port":{"number":80}}}]}]}}
+    creationTimestamp: "2024-01-07T14:07:18Z"
+    generation: 1
+    name: httpbin
+    namespace: default
+    resourceVersion: "327564"
+    uid: 3a27380c-f040-4d97-addb-43db4c4aca68
+  spec:
+    gateways:
+    - istio-system/my-gateway
+    hosts:
+    - httpbin.example.com
+    tls:
+    - match:
+      - gateways:
+        - mesh
+        port: 80
+        sniHosts:
+        - httpbin.example.com
+      route:
+      - destination:
+          host: istio-egressgateway.istio-system.svc.cluster.local
+          port:
+            number: 443
+    - match:
+      - gateways:
+        - istio-system/my-gateway
+        port: 443
+        sniHosts:
+        - httpbin.example.com
+      route:
+      - destination:
+          host: httpbin.example.com
+          port:
+            number: 80
+- apiVersion: networking.istio.io/v1beta1
+  kind: Gateway
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Gateway","metadata":{"annotations":{},"creationTimestamp":"2024-01-16T09:49:23Z","generation":1,"name":"asm-ingressgateway","namespace":"istio-system","resourceVersion":"627035","uid":"f2a2a39f-a306-443e-bcd2-1c7698d192e7"},"spec":{"selector":{"istio":"ingressgateway"},"servers":[{"hosts":["ob.alwaysupalwayson.com","another.external.com"],"port":{"name":"http","number":80,"protocol":"HTTP"}}]}}
+    creationTimestamp: "2024-01-16T10:24:23Z"
+    generation: 1
+    name: asm-ingressgateway
+    namespace: istio-system
+    resourceVersion: "631099"
+    uid: 2cc39a78-19b6-44fa-86f7-f44356b5781c
+  spec:
+    selector:
+      istio: ingressgateway
+    servers:
+    - hosts:
+      - ob.alwaysupalwayson.com
+      - another.external.com
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+- apiVersion: networking.istio.io/v1beta1
+  kind: VirtualService
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1alpha3","kind":"VirtualService","metadata":{"annotations":{},"name":"frontend","namespace":"onlineboutique"},"spec":{"gateways":["istio-system/asm-ingressgateway"],"hosts":["ob.alwaysupalwayson.com"],"http":[{"route":[{"destination":{"host":"frontend","port":{"number":80}}}]}]}}
+    creationTimestamp: "2024-01-07T14:02:05Z"
+    generation: 1
+    name: frontend
+    namespace: onlineboutique
+    resourceVersion: "326575"
+    uid: 74f39c6d-69d8-4d80-bf44-f515ec0eee1a
+  spec:
+    gateways:
+    - istio-system/asm-ingressgateway
+    hosts:
+    - ob.alwaysupalwayson.com
+    http:
+    - route:
+      - destination:
+          host: frontend
+          port:
+            number: 80
+kind: List
+metadata:
+  resourceVersion: ""

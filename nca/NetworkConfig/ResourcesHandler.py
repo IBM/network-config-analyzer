@@ -475,6 +475,7 @@ class ResourcesParser:
     def _handle_istio_inputs(self, resource_flags):
         if ResourceType.Pods in resource_flags or ResourceType.Namespaces in resource_flags:
             self.load_resources_from_k8s_live_cluster(resource_flags)
+            self.pods_finder.load_peer_from_istio_resource()
         if ResourceType.Policies in resource_flags:
             self.policies_finder.load_istio_policies_from_k8s_cluster()
 

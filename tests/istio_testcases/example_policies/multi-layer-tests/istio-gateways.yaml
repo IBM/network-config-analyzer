@@ -13,6 +13,8 @@ spec:
       protocol: HTTPS
     hosts:
     - httpbin.example.com
+    tls:
+      mode: PASSTHROUGH
 ---
 
 apiVersion: networking.istio.io/v1alpha3
@@ -56,7 +58,7 @@ metadata:
 spec:
   hosts:
   - httpbin.example.com
-  - connected_with_mesh.example.com
+  - connected-with-mesh.example.com
   ports:
   - number: 80
     name: tls

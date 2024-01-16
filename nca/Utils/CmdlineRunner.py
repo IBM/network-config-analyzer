@@ -88,16 +88,14 @@ class CmdlineRunner:
         raise FileNotFoundError('Failed to locate Kubernetes configuration files')
 
     @staticmethod
-    def get_k8s_resources(resource):
+    def get_k8s_resources(resources):
         """
         Run kubectl to get the list of available instances of a given resource
-        :param str resource: The name of the resource
+        :param list resources: The list of resource names
         :return: The output of 'kubectl get' (should be a list-resource)
         """
         CmdlineRunner.locate_kube_config_file()
-        cmdline_list = ['kubectl', 'get', resource, '-o=json']
-        if resource in ['networkPolicy', 'authorizationPolicy', 'pod', 'ingress', 'Gateway', 'VirtualService', 'sidecar']:
-            cmdline_list.append('--all-namespaces')
+        cmdline_list = ['kubectl', 'get', ','.join([r for r in resources]), '-o=json', '--all-namespaces']
         return CmdlineRunner.run_and_get_output(cmdline_list, check_for_silent_exec=True)
 
     @staticmethod

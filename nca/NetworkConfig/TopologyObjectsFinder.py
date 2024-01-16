@@ -36,8 +36,12 @@ class PodsFinder:
                                   Loader=yaml.CSafeLoader)
             self.add_eps_from_yaml(peer_code)
 
+    def load_peer_from_istio_resource(self):
+        peer_code = yaml.load(CmdlineRunner.get_k8s_resources(['serviceentry']), Loader=yaml.CSafeLoader)
+        self.add_eps_from_yaml(peer_code)
+
     def load_peer_from_k8s_live_cluster(self):
-        peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.CSafeLoader)
+        peer_code = yaml.load(CmdlineRunner.get_k8s_resources(['pod']), Loader=yaml.CSafeLoader)
         self.add_eps_from_yaml(peer_code)
 
     def add_eps_from_yaml(self, yaml_obj, kind_override=None):
@@ -289,7 +293,7 @@ class NamespacesFinder:
             self._add_namespace(res_code, False)
 
     def load_ns_from_live_cluster(self):
-        yaml_file = CmdlineRunner.get_k8s_resources('namespace')
+        yaml_file = CmdlineRunner.get_k8s_resources(['namespace'])
         ns_code = yaml.load(yaml_file, Loader=yaml.CSafeLoader)
         self.set_namespaces(ns_code)
 
@@ -353,7 +357,7 @@ class ServicesFinder:
         Loads and parses service resources from live cluster
         :return: The list of parsed services in K8sService format
         """
-        yaml_file = CmdlineRunner.get_k8s_resources('service')
+        yaml_file = CmdlineRunner.get_k8s_resources(['service'])
         srv_resources = yaml.load(yaml_file, Loader=yaml.CSafeLoader)
         if not isinstance(srv_resources, dict):
             return

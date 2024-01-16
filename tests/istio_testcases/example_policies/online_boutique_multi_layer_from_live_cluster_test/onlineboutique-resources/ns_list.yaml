@@ -1,0 +1,127 @@
+﻿apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2024-01-02T08:43:21Z"
+    labels:
+      istio-injection: enabled
+      kubernetes.io/metadata.name: default
+    name: default
+    resourceVersion: "20807"
+    uid: 678aec15-2647-45bd-8eee-a3f525065639
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2024-01-02T12:00:29Z"
+    labels:
+      kubernetes.io/metadata.name: istio-system
+    name: istio-system
+    resourceVersion: "20490"
+    uid: 50baa5e3-969b-4170-9f1d-772a1f3ee78b
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2024-01-02T08:43:21Z"
+    labels:
+      kubernetes.io/metadata.name: kube-node-lease
+    name: kube-node-lease
+    resourceVersion: "37"
+    uid: e1c260c4-2d1b-451f-8e25-f7293f26164e
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2024-01-02T08:43:21Z"
+    labels:
+      kubernetes.io/metadata.name: kube-public
+    name: kube-public
+    resourceVersion: "26"
+    uid: 4e710a99-1640-473a-9389-d620a37225f6
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2024-01-02T08:43:21Z"
+    labels:
+      kubernetes.io/metadata.name: kube-system
+    name: kube-system
+    resourceVersion: "12"
+    uid: dd264559-0da7-4e22-a85a-446017a0a346
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{},"name":"local-path-storage"}}
+    creationTimestamp: "2024-01-02T08:43:34Z"
+    labels:
+      kubernetes.io/metadata.name: local-path-storage
+    name: local-path-storage
+    resourceVersion: "287"
+    uid: 4dbd043a-4fea-4fb6-aa84-f0512d284487
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Namespace","metadata":{"annotations":{"mesh.cloud.google.com/proxy":"{\"managed\": true}"},"labels":{"istio-injection":"enabled","name":"onlineboutique"},"name":"onlineboutique"}}
+      mesh.cloud.google.com/proxy: '{"managed": true}'
+    creationTimestamp: "2024-01-07T14:00:53Z"
+    labels:
+      istio-injection: enabled
+      kubernetes.io/metadata.name: onlineboutique
+      name: onlineboutique
+    name: onlineboutique
+    resourceVersion: "326201"
+    uid: 5346c66e-9800-4707-8dd5-95b5443fb420
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+- apiVersion: v1
+  kind: Namespace
+  metadata:
+    creationTimestamp: "2024-01-02T08:43:40Z"
+    labels:
+      kubernetes.io/metadata.name: projectcontour
+    name: projectcontour
+    resourceVersion: "388"
+    uid: 9d6ef4e7-a705-44a9-b97a-abcb752f5e6d
+  spec:
+    finalizers:
+    - kubernetes
+  status:
+    phase: Active
+kind: List
+metadata:
+  resourceVersion: ""
