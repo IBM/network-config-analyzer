@@ -1,4 +1,4 @@
-## Istio Authorization Policy analysis
+## Istio connectivity analysis
 
 For Istio Authorization Policy (see [Istio Authorization Policy spec](https://istio.io/latest/docs/reference/config/security/authorization-policy/)), 
 the following is supported:
@@ -11,28 +11,37 @@ the following is supported:
 | operation | hosts, notHosts, ports, notPorts, methods, notMethods, paths, notPaths      |
 | condition | source.ip, source.namespace, source.principal, destination.port             |
 
-For Istio Ingress Traffic Management (see [Istio Traffic Management spec](https://istio.io/latest/docs/concepts/traffic-management/)), 
+For [Istio Traffic Management](https://istio.io/latest/docs/concepts/traffic-management/), 
 VirtualServices, Gateways and Sidecars are supported. 
 
-In the VirtualService, the following is supported:
+In the [VirtualService](https://istio.io/latest/docs/reference/config/networking/virtual-service/#VirtualService), the following is supported:
 
-| Field    | Supported (Sub)-Fields     | Supported (Sub)-Fields |
-|----------|----------------------------|------------------------|
-| hosts    | string                     |                        |
-| gateways | string                     |                        |
-| http     | match                      | route                  |
-|          | uri, ignoreUriCase, method | destination            |
-|          |                            | host, port             |
+| Field    | Supported (Sub)-Fields               | Supported (Sub)-Fields |
+|----------|--------------------------------------|------------------------|
+| hosts    | string                               |                        |
+| gateways | string                               |                        |
+| http     | match                                | route                  |
+|          | uri, ignoreUriCase, method, gateways | destination            |
+|          |                                      | host, port             |
+| tls      | match                                | route                  |
+|          | sniHosts, gateways                   | destination            |
+|          |                                      | host, port             |
+| tcp      | match                                | route                  |
+|          | gateways                             | destination            |
+|          |                                      | host, port             |
 
-In the Gateway, the following is supported:
+In the [Gateway](https://istio.io/latest/docs/reference/config/networking/gateway/#Gateway), the following is supported:
 
 | Field    | Supported (Sub)-Fields  | Supported (Sub)-Fields |      |
 |----------|-------------------------|------------------------|------|
 | selector | string:string           |                        |      |
 | servers  | port                    | hosts                  | name |
-|          | number, protocol, name  |                        |
+|          | number, protocol, name  |                        |      |
 
-In the Sidecar, the following is supported:
+Internal policies, having a style of network policies, are generated from the parsed Gateways and VirtualServices.
+These policies model the connectivity logic as defined by the combination of the gateways and the virtual services.
+
+In the [Sidecar](https://istio.io/latest/docs/reference/config/networking/sidecar/#Sidecar), the following is supported:
 
 | Field                 | Supported (Sub)-Fields | 
 |-----------------------|------------------------|
@@ -40,7 +49,7 @@ In the Sidecar, the following is supported:
 | egress                | hosts                  |
 | outboundTrafficPolicy | mode                   |
 
-In the ServiceEntry, the following is suported:
+In the [ServiceEntry](https://istio.io/latest/docs/reference/config/networking/service-entry/#ServiceEntry), the following is supported:
 
 | Field      | Supported (Sub)-Fields | Supported Values           |
 |------------|------------------------|----------------------------|

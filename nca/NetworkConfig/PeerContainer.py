@@ -5,8 +5,8 @@
 import re
 from sys import stderr
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, DNSEntry
-from nca.Resources.K8sNamespace import K8sNamespace
-from nca.Resources.K8sService import K8sService
+from nca.Resources.OtherResources.K8sNamespace import K8sNamespace
+from nca.Resources.OtherResources.K8sService import K8sService
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 
 

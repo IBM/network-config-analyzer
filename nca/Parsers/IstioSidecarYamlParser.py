@@ -4,10 +4,9 @@
 #
 import re
 from nca.CoreDS.Peer import PeerSet
-from nca.Resources.NetworkPolicy import NetworkPolicy
-from nca.Resources.IstioSidecar import IstioSidecar, IstioSidecarRule
-from nca.Resources.IstioTrafficResources import istio_root_namespace
-from .IstioGenericYamlParser import IstioGenericYamlParser
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.IstioSidecar import IstioSidecar, IstioSidecarRule
+from .IstioGenericYamlParser import IstioGenericYamlParser, istio_root_namespace
 
 
 class IstioSidecarYamlParser(IstioGenericYamlParser):
