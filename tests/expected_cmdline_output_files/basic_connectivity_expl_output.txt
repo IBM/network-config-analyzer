@@ -11,6 +11,7 @@ src_ns: [ns3] src_pods: [*] dst_ns: [default] dst_pods: [Pod4] conn: All connect
 
 
 Explainability results:
+<?xml version="1.0" encoding="utf-8"?>
 <entry dst="default/Pod1(Pod)" id="1" src="default/Pod1(Pod)">
  <text>
   Configurations affecting default/Pod1(Pod):

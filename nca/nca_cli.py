@@ -187,8 +187,14 @@ def run_args(args):  # noqa: C901
 
     if args.explain is not None and args.optimized_run == 'true':
         output_config['explain'] = args.explain
-        ExplTracker().activate()
-        ExplTracker().set_endpoints(output_config.outputEndpoints)
+        ExplTracker().activate(output_config.outputEndpoints)
+
+    if args.output_format == 'html':
+        if args.optimized_run == 'true':
+            ExplTracker().activate(output_config.outputEndpoints)
+        else:
+            print('Not creating html format. html format has only optimized implementation')
+            return _compute_return_value(0, 0, 1)
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
@@ -322,7 +328,7 @@ def nca_main(argv=None):
                         help='A list of labels to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
-                        help='Output format specification (txt, txt_no_fw_rules, csv, md, dot, jpg or yaml). '
+                        help='Output format specification (txt, txt_no_fw_rules, csv, md, dot, jpg, html or yaml). '
                              'The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--expected_output', type=str, help='A file path of the expected query output,'

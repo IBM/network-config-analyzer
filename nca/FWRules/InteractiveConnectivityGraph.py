@@ -13,7 +13,9 @@ from dataclasses import dataclass, field
 from collections import defaultdict
 import posixpath
 import networkx
+import json
 from bs4 import BeautifulSoup
+from importlib import resources
 
 
 class InteractiveConnectivityGraph:
@@ -59,13 +61,14 @@ class InteractiveConnectivityGraph:
         highlights: set = field(default_factory=set)
         explanation: list = field(default_factory=set)
 
-    def __init__(self, svg_file_name, output_directory):
+    def __init__(self, svg_file_name, output_directory, expl_xml=None):
         """
         Creates the InteractiveConnectivityGraph
         param: svg_file_name: str
         param: output_directory: str
+        param: expl_xml: soup object - xml with all the connectivity explains
         """
-        self.svg_graph = self.SvgGraph(svg_file_name, output_directory)
+        self.svg_graph = self.SvgGraph(svg_file_name, output_directory, expl_xml)
         self.abstract_graph = self.AbstractGraph()
 
     def create_interactive_graph(self):
@@ -86,7 +89,7 @@ class InteractiveConnectivityGraph:
         # (5b) from the abstract graph, for each element, set the explanation of its connectivity graph:
         self.abstract_graph.set_tags_explanation(elements_relations)
         # (6) for each element, create an svg file containing these related elements:
-        self.svg_graph.create_output(elements_relations)
+        self.svg_graph.create_html(elements_relations)
 
     class SvgGraph:
         """
@@ -111,15 +114,17 @@ class InteractiveConnectivityGraph:
 
         ELEMENTS_DIRECTORY = 'elements'
 
-        def __init__(self, input_svg_file, output_directory):
+        def __init__(self, input_svg_file, output_directory, expl_xml=None):
             """
             Creates the InteractiveConnectivityGraph
             param: svg_file_name: str
             param: output_directory: str
+            param: expl_xml: soup object - xml with all the connectivity explains
             """
             self.input_svg_file = input_svg_file
             self.output_directory = output_directory
             self.soup = None
+            self.expl_xml = expl_xml
 
         def read_input_file(self):
             """
@@ -127,7 +132,7 @@ class InteractiveConnectivityGraph:
             """
             try:
                 with open(self.input_svg_file) as svg_file:
-                    self.soup = BeautifulSoup(svg_file.read(), 'html')
+                    self.soup = BeautifulSoup(svg_file.read(), 'xml')
             except Exception as e:
                 print(f'Failed to open file: {self.input_svg_file}\n{e} for reading', file=sys.stderr)
 
@@ -155,9 +160,6 @@ class InteractiveConnectivityGraph:
                 for conn in conn_legend.find_all('g'):
                     conn[self.CLASS_TA] = self.LEGEND_MISC_CT
 
-            # setting class to explanation tag:
-            explanation_cluster = self.soup.svg.find('title', string='cluster_map_explanation').find_parent('g')
-            explanation_cluster[self.CLASS_TA] = self.EXPLANATION_CT
             # for element that we want to add a link, we replace <g> with <a>, and mark as clickable:
             for tag in self.soup.svg.find_all(True):
                 if tag.get(self.CLASS_TA):
@@ -288,6 +290,74 @@ class InteractiveConnectivityGraph:
             place_holders = explanation_cluster.find_all('text')
             for holder, line in zip(place_holders, explanation + ['']*(len(place_holders) - len(explanation))):
                 holder.string = line
+
+        def create_html(self, elements_relations):
+            # make a node element for each table entry
+            node_elements = self.soup.find_all(class_='node')
+            for node in node_elements:
+                # Find all text elements within the current node
+                text_elements = node.find_all('text')
+                # Check if the current node has more than one text element
+                if len(text_elements) > 1:
+                    namespace = node.find('title').string
+                    namespace = namespace.split('/')[0]
+                    # group each text element with the polygon before it
+                    for text in text_elements:
+                        # Find the previous polygon element
+                        polygon = text.find_previous('polygon')
+                        text['fill'] = 'blue'
+                        # Create a new 'g' element
+                        full_name = namespace + '/' + text.string
+                        group = self.soup.new_tag('g', attrs={'class': 'node', 'title': full_name})
+                        # Move the polygon and text elements inside the new 'g' element
+                        polygon.insert_before(group)
+                        group.append(polygon.extract())
+                        group.append(text.extract())
+                    del node['class']
+
+            # remove all links
+            elements_with_href = self.soup.find_all(attrs={'xlink:href': True})
+            for element in elements_with_href:
+                del element['xlink:href']
+
+            # add the expl' xml block to the svg graph
+            xml_soup_str = str(self.soup)
+            xml_soup = BeautifulSoup(xml_soup_str, 'xml')
+            svg_root = xml_soup.find('svg')
+            script = xml_soup.new_tag('script')
+            script['type'] = "text/xml"  # You can use a custom MIME type if needed
+            # prepare the expl' buffer for js:
+            self.expl_xml = '\n'.join(self.expl_xml.splitlines()[1:])
+
+            # cdata_section = etree.CDATA(self.expl_xml)
+            cdata_section = f'<![CDATA[<data>{self.expl_xml}</data>]]>'
+            script.append(cdata_section)
+            svg_root.append(script)
+
+            # add js code
+            js_code = resources.read_text(__package__, 'interactiveJsCode.js')
+            html_soup = BeautifulSoup(js_code, 'html.parser')
+            graph_container = html_soup.find(id='graph-container')
+            graph_container.insert(0, BeautifulSoup(str(xml_soup), 'xml'))
+            # add elements_relations to the js as a json parameter
+            # convert elements_relations to Json serializable
+            er_dict = {}
+            for key, value in elements_relations.items():
+                er_dict[key] = {'relations': list(elements_relations[key].relations),
+                                'highlights': list(elements_relations[key].highlights),
+                                'explanation': list(elements_relations[key].explanation)
+                                }
+            json_string = json.dumps(er_dict)
+            head = html_soup.head
+            script_tag = html_soup.new_tag('script')
+            script_tag.string = f'const jsObject = {json_string};'
+            head.append(script_tag)
+
+            # write to file
+            tag_file_name = self.output_directory
+            with open(tag_file_name, 'wb') as tag_svg_file:
+                tag_svg_file.write(html_soup.prettify(encoding='utf-8'))
+            return
 
         def create_output(self, elements_relations):
             """

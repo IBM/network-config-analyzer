@@ -152,7 +152,9 @@ class SchemeRunner(GenericYamlParser):
         resources_handler = ResourcesHandler()
         if self.optimized_run == 'true':
             # we need to track configurations for the queries to use later-on
-            ExplTracker().activate()
+            # todo - this is not the place to activate the ExplTracker, should be done per query?
+            # todo - should take the output_endpoints from the query
+            ExplTracker().activate('deployments')
         resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                                     self.optimized_run)
 
