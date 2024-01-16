@@ -106,7 +106,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
         with:
-          name: k8s-log
+          name: k8s-cmp-log
           path: tests/k8s_cmp_log.txt
   calico-tests:
     runs-on: ubuntu-latest
@@ -145,7 +145,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
         with:
-          name: calico-log
+          name: calico-cmp-log
           path: tests/calico_cmp_log.txt
   istio-tests:
     runs-on: ubuntu-latest
@@ -184,7 +184,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
         with:
-          name: istio-log
+          name: istio-cmp-log
           path: tests/istio_cmp_log.txt
   fw-rules-assertion-tests:
     runs-on: ubuntu-latest
