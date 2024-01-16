@@ -76,7 +76,7 @@ jobs:
           python -m build
 
       - name: Push version to PyPi
-        uses: pypa/gh-action-pypi-publish@0bf742be3ebe032c25dd15117957dc15d0cfc38d
+        uses: pypa/gh-action-pypi-publish@2f6f737ca5f74c637829c0f5c3acd0e29ea5e8bf
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
