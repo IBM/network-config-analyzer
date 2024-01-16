@@ -65,11 +65,34 @@ items:
           port:
             number: 80
 - apiVersion: networking.istio.io/v1beta1
+  kind: Gateway
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Gateway","metadata":{"annotations":{},"creationTimestamp":"2024-01-16T09:49:23Z","generation":1,"name":"asm-ingressgateway","namespace":"istio-system","resourceVersion":"627035","uid":"f2a2a39f-a306-443e-bcd2-1c7698d192e7"},"spec":{"selector":{"istio":"ingressgateway"},"servers":[{"hosts":["ob.alwaysupalwayson.com","another.external.com"],"port":{"name":"http","number":80,"protocol":"HTTP"}}]}}
+    creationTimestamp: "2024-01-16T10:24:23Z"
+    generation: 1
+    name: asm-ingressgateway
+    namespace: istio-system
+    resourceVersion: "631099"
+    uid: 2cc39a78-19b6-44fa-86f7-f44356b5781c
+  spec:
+    selector:
+      istio: ingressgateway
+    servers:
+    - hosts:
+      - ob.alwaysupalwayson.com
+      - another.external.com
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+- apiVersion: networking.istio.io/v1beta1
   kind: VirtualService
   metadata:
     annotations:
       kubectl.kubernetes.io/last-applied-configuration: |
-        {"apiVersion":"networking.istio.io/v1alpha3","kind":"VirtualService","metadata":{"annotations":{},"name":"frontend","namespace":"onlineboutique"},"spec":{"gateways":["asm-ingress/asm-ingressgateway"],"hosts":["ob.alwaysupalwayson.com"],"http":[{"route":[{"destination":{"host":"frontend","port":{"number":80}}}]}]}}
+        {"apiVersion":"networking.istio.io/v1alpha3","kind":"VirtualService","metadata":{"annotations":{},"name":"frontend","namespace":"onlineboutique"},"spec":{"gateways":["istio-system/asm-ingressgateway"],"hosts":["ob.alwaysupalwayson.com"],"http":[{"route":[{"destination":{"host":"frontend","port":{"number":80}}}]}]}}
     creationTimestamp: "2024-01-07T14:02:05Z"
     generation: 1
     name: frontend
@@ -78,7 +101,7 @@ items:
     uid: 74f39c6d-69d8-4d80-bf44-f515ec0eee1a
   spec:
     gateways:
-    - asm-ingress/asm-ingressgateway
+    - istio-system/asm-ingressgateway
     hosts:
     - ob.alwaysupalwayson.com
     http:

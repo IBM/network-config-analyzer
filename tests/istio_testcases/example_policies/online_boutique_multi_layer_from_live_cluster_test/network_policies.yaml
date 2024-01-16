@@ -196,10 +196,10 @@ items:
             app: loadgenerator
       - namespaceSelector:
           matchLabels:
-            name: asm-ingress
+            kubernetes.io/metadata.name: 'istio-system'
         podSelector:
           matchLabels:
-            app: asm-ingressgateway
+            app: istio-ingressgateway
       ports:
       - port: 8080
         protocol: TCP
@@ -539,7 +539,7 @@ items:
       - source:
           principals:
           - cluster.local/ns/onlineboutique/sa/loadgenerator
-          - cluster.local/ns/asm-ingress/sa/asm-ingressgateway
+          - cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account
       to:
       - operation:
           methods:
