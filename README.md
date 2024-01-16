@@ -85,8 +85,8 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--period <minutes>`\
   Run NCA with given arguments every specified number of minutes
 - `--output_format <format>`\
-  Output format specification (txt/yaml/csv/md/dot/jpg/txt_no_fw_rules).\
-  `jpg` : Graphviz executables must be installed and on user systems' PATH.\
+  Output format specification (txt/yaml/csv/md/dot/jpg/html/txt_no_fw_rules).\
+  `jpg` or `html`: Graphviz executables must be installed and on user systems' PATH.\
   `txt_no_fw_rules`: supported for ConnectivityMap and SemanticDiff queries, printing connectivity rules for each pair of peers, without minimization and grouping of rules. (excluding  connections between workload to itself).
   *default:* txt\
   *shorthand:* `-o`
@@ -96,7 +96,7 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--expected_output <file name>`\
   A file path to the expected query output (for connectivity or semantic_diff queries).\
 - `--simplify_graph`\
-  simplify the connectivity graph, (relevant only when output_format is dot or jpg)
+  simplify the connectivity graph, (relevant only when output_format is dot, jpg or html)
 - `--pr_url <URL>`\
    Write output as GitHub PR comment. URL points to the relevant `comments` resource in the GitHub API.\
    e.g., https://api.github.com/repos/shift-left-netconfig/online-boutique/issues/1/comments

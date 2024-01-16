@@ -100,19 +100,22 @@ class DotGraph:
         self.edges.append(self.Edge(src_node, dst_node, label, is_dir))
         self.labels.add(label)
 
-    def to_str(self):
+    def to_str(self, with_header=True):
         """
         creates a string in a dot file format
+        :param bool with_header: whether to add a header to the graph (dot has one, but html does not)
         return str: the string
         """
         output_result = f'// The Connectivity Graph of {self.name}\n'
         output_result += 'digraph ' + '{\n'
 
-        output_result += f'\tlabel=\"Connectivity Graph of {self.name}\"'
+        if with_header:
+            output_result += f'\tlabel=\"Connectivity Graph of {self.name}\"'
         output_result += '\tlabelloc = "t"\n'
-        output_result += '\tfontsize=30\n'
-        output_result += '\tfontcolor=maroon\n'
-        output_result += '\tsubgraph cluster_map_explanation {\n'
+        if with_header:
+            output_result += '\tfontsize=30\n'
+            output_result += '\tfontcolor=maroon\n'
+            output_result += '\tsubgraph cluster_map_explanation {\n'
         if self._set_labels_dict():
             output_result += self._labels_dict_to_str()
         self.subgraphs = dict(sorted(self.subgraphs.items()))
@@ -121,9 +124,11 @@ class DotGraph:
         output_result += '\tcolor=white\n'
         output_result += self._explanation_to_str()
         output_result += '\tlabelloc = "b"\n'
-        output_result += '\tfontsize=15\n'
+        if with_header:
+            output_result += '\tfontsize=15\n'
         output_result += '\tfontcolor=maroon\n'
-        output_result += '\t}\n'
+        if with_header:
+            output_result += '\t}\n'
         output_result += '}\n'
         return output_result
 

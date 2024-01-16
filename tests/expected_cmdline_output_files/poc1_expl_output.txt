@@ -27,6 +27,7 @@ src_ns: [kube-system] src_pods: [*] dst_ns: [kube-system] dst_pods: [*] conn: Al
 
 
 Explainability results:
+<?xml version="1.0" encoding="utf-8"?>
 <entry dst="0.0.0.0/0" id="1" src="0.0.0.0/0">
  <text>
   Configurations affecting 0.0.0.0/0:

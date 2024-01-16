@@ -43,17 +43,16 @@ class ExplTracker(metaclass=Singleton):
     """
 
     DEFAULT_POLICY = 'Default-Policy'
-    SUPPORTED_OUTPUT_FORMATS = ['txt', 'txt_no_fw_rules']
+    SUPPORTED_OUTPUT_FORMATS = ['txt', 'txt_no_fw_rules', 'html']
 
-    def __init__(self, ep=''):
+    def __init__(self):
 
         self.ExplDescriptorContainer = dict()  # a map from str (resource/policy name) to a dict object with entries:
         # 'path','line','workload_name'
         self.ExplPeerToPolicyContainer = dict()  # a map from str (peer name) to ExplPolicies object
         self._is_active = False
-        self.all_conns = None
-        self.all_peers = None
-        self.ep = ep
+        self.all_conns = {}
+        self.all_peers = {}
 
     class ExplPolicies:
         """
@@ -104,23 +103,18 @@ class ExplTracker(metaclass=Singleton):
         self.ExplDescriptorContainer = {}
         self.ExplPeerToPolicyContainer = {}
         self._is_active = False
-        self.all_conns = None
-        self.all_peers = None
+        self.all_conns = {}
+        self.all_peers = {}
         self.ep = ''
 
         self.add_item('', 0, self.DEFAULT_POLICY)
 
-    def activate(self):
+    def activate(self, ep):
         """
         Make the ExplTracker active
         """
         self._reset()
         self._is_active = True
-
-    def set_endpoints(self, ep):
-        """
-        Set the endpoints configuration
-        """
         self.ep = ep
 
     def is_active(self):
@@ -372,7 +366,7 @@ class ExplTracker(metaclass=Singleton):
         Get a full expl' description of all the peers in the connectivity map
         :return: string: xml format of all the expl' entries for every 2 nodes.
         """
-        soup = BeautifulSoup(features='html')
+        soup = BeautifulSoup(features='xml')
         entry_id = 0
         # use the peer names as defined in the end-points configuration,
         # also use one peer for each deployment
@@ -405,6 +399,8 @@ class ExplTracker(metaclass=Singleton):
                 text_elem.string = text
                 entry.append(text_elem)
                 soup.append(entry)
+        # todo - why do we return xml format for explainability text file?
+        # if it is a real case, we need to remove "<?xml version="1.0" encoding="utf-8"?>" before returning
         return soup.prettify()
 
     def get_working_ep_name(self, name):

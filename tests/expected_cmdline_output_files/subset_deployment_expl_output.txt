@@ -6,6 +6,7 @@ src_ns: [ns2] src_pods: [deployment-C] dst_ns: [ns1] dst_pods: [deployment-A] co
 
 
 Explainability results:
+<?xml version="1.0" encoding="utf-8"?>
 <entry dst="default/Pod4(Pod)" id="1" src="default/Pod4(Pod)">
  <text>
   Configurations affecting default/Pod4(Pod):
