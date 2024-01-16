@@ -21,6 +21,7 @@ class YamlFile:
 
 class ObjectWithLocation:
     line_number = 0
+    path = ''
     column_number = 0
 
 
@@ -36,6 +37,7 @@ def to_yaml_objects(yaml_node):
     if isinstance(yaml_node, yaml.SequenceNode):
         res = YamlList()
         res.line_number = yaml_node.start_mark.line
+        res.path = yaml_node.start_mark.name
         res.column_number = yaml_node.start_mark.column
         for obj in yaml_node.value:
             res.append(to_yaml_objects(obj))
@@ -43,6 +45,7 @@ def to_yaml_objects(yaml_node):
     if isinstance(yaml_node, yaml.MappingNode):
         res = YamlDict()
         res.line_number = yaml_node.start_mark.line + 1
+        res.path = yaml_node.start_mark.name
         res.column_number = yaml_node.start_mark.column + 1
         for obj in yaml_node.value:
             res[obj[0].value] = to_yaml_objects(obj[1])
@@ -70,6 +73,13 @@ def to_yaml_objects(yaml_node):
 
 def convert_documents(documents):
     return [to_yaml_objects(document) for document in documents]
+
+
+def leave_documents_as_is(documents):
+    """
+    Forces the parser to yield all documents and throw parse errors (if any) at this point of time
+    """
+    return [document for document in documents]
 
 
 class GenericTreeScanner(abc.ABC):
@@ -104,7 +114,7 @@ class GenericTreeScanner(abc.ABC):
         """
         try:
             if self.fast_load:
-                documents = yaml.load_all(stream, Loader=yaml.CSafeLoader)
+                documents = leave_documents_as_is(yaml.load_all(stream, Loader=yaml.CSafeLoader))
             else:
                 documents = convert_documents(yaml.compose_all(stream, Loader=yaml.CSafeLoader))
             yield YamlFile(documents, path)

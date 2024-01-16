@@ -4,11 +4,9 @@
 #
 import re
 from nca.CoreDS.Peer import PeerSet
-from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.Resources.NetworkPolicy import NetworkPolicy
-from nca.Resources.IstioSidecar import IstioSidecar, IstioSidecarRule
-from nca.Resources.IstioTrafficResources import istio_root_namespace
-from .IstioGenericYamlParser import IstioGenericYamlParser
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.IstioSidecar import IstioSidecar, IstioSidecarRule
+from .IstioGenericYamlParser import IstioGenericYamlParser, istio_root_namespace
 
 
 class IstioSidecarYamlParser(IstioGenericYamlParser):
@@ -94,11 +92,12 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
 
         # the dnsName in the internal case form looks like <service_name>.<domain>.svc.cluster.local
         # also FQDN for external hosts is of the format [hostname].[domain].[tld]
+        # The entire FQDN has a max length of 255 characters.
         if alphabet_str:
-            fqdn_regex = "^((?!-)[A-Za-z0-9-]+(?<!-).)+[A-Za-z0-9.]+"
+            fqdn_regex = r"(?=.{1,254}$)[A-Za-z0-9]([-A-Za-z0-9]*[A-Za-z0-9])?(\.[A-Za-z0-9]([-A-Za-z0-9]*[A-Za-z0-9])?)*[.]?"
             if alphabet_str.count('.') == 0 or not re.fullmatch(fqdn_regex, alphabet_str):
                 self.syntax_error(f'Illegal host value pattern: "{dns_name}", '
-                                  f'dnsName must be specified using FQDN format', self)
+                                  f'dnsName must be specified using FQDN format and has a max length of 255 characters', self)
 
     def _get_peers_from_host_dns_name(self, dns_name, host_peers):
         """
@@ -215,8 +214,6 @@ class IstioSidecarYamlParser(IstioGenericYamlParser):
         self.namespace = self.peer_container.get_namespace(policy_ns, warn_if_missing)
         res_policy = IstioSidecar(policy_name, self.namespace)
         res_policy.policy_kind = NetworkPolicy.PolicyType.IstioSidecar
-        all_props = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
-        res_policy.add_optimized_allow_props(all_props, True)
 
         sidecar_spec = self.policy['spec']
         # currently, supported fields in spec are workloadSelector and egress

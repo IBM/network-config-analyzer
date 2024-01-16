@@ -15,6 +15,7 @@ from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
 from nca.SchemeRunner import SchemeRunner
+from nca.Utils.ExplTracker import ExplTracker
 
 
 def _valid_path(path_location, allow_ghe=False, allowed_platforms=None):
@@ -133,7 +134,7 @@ def _make_recursive(path_list):
     return path_list
 
 
-def run_args(args):
+def run_args(args):  # noqa: C901
     """
     Given the parsed cmdline, decide what to run
     :param Namespace args: argparse-style parsed cmdline
@@ -152,9 +153,11 @@ def run_args(args):
 
     output_config = OutputConfiguration({'outputFormat': args.output_format or 'txt',
                                          'outputPath': args.file_out or None,
+                                         'simplifyGraph': args.simplify_graph or False,
                                          'prURL': args.pr_url or None,
                                          'outputEndpoints': args.output_endpoints,
                                          'subset': {},
+                                         'explain': [],
                                          'excludeIPv6Range': not args.print_ipv6})
     expected_output = None
     # default values are for sanity query
@@ -181,6 +184,17 @@ def run_args(args):
                 lbl_dict[key] = value
             all_labels.append(lbl_dict)
         output_config['subset'].update({'label_subset': all_labels})
+
+    if args.explain is not None and args.optimized_run == 'true':
+        output_config['explain'] = args.explain
+        ExplTracker().activate(output_config.outputEndpoints)
+
+    if args.output_format == 'html':
+        if args.optimized_run == 'true':
+            ExplTracker().activate(output_config.outputEndpoints)
+        else:
+            print('Not creating html format. html format has only optimized implementation')
+            return _compute_return_value(0, 0, 1)
 
     if args.equiv is not None:
         np_list = args.equiv if args.equiv != [''] else None
@@ -215,6 +229,12 @@ def run_args(args):
         query_name = 'semanticDiff'
         pair_query_flag = True
         expected_output = args.expected_output or None
+
+    if args.optimized_run == 'debug' or args.optimized_run == 'true':
+        # TODO - update/remove the optimization below when all queries are supported in optimized implementation
+        if not SchemeRunner.has_implemented_opt_queries({query_name}):
+            print(f'Not running query {query_name} since it does not have optimized implementation yet')
+            return _compute_return_value(0, 0, 1)
 
     resources_handler = ResourcesHandler()
     network_config = resources_handler.get_network_config(_make_recursive(np_list), _make_recursive(ns_list),
@@ -298,6 +318,8 @@ def nca_main(argv=None):
                         help='A file/GHE url/cluster-type to read pod list from (may be specified multiple times)')
     parser.add_argument('--resource_list', '-r', type=_resource_list_valid_path, action='append',
                         help='Network policies entries or Filesystem or GHE location of base network resources ')
+    parser.add_argument('--explain', '-expl', type=str,
+                        help='A node or 2 nodes (a connection), to explain the configurations affecting them')
     parser.add_argument('--deployment_subset', '-ds', type=str,
                         help='A list of deployment names to subset the query by')
     parser.add_argument('--namespace_subset', '-nss', type=str,
@@ -306,11 +328,14 @@ def nca_main(argv=None):
                         help='A list of labels to subset the query by')
     parser.add_argument('--ghe_token', '--gh_token', type=str, help='A valid token to access a GitHub repository')
     parser.add_argument('--output_format', '-o', type=str,
-                        help='Output format specification (txt, txt_no_fw_rules, csv, md, dot, jpg or yaml). '
+                        help='Output format specification (txt, txt_no_fw_rules, csv, md, dot, jpg, html or yaml). '
                              'The default is txt.')
     parser.add_argument('--file_out', '-f', type=str, help='A file path to which output is redirected')
     parser.add_argument('--expected_output', type=str, help='A file path of the expected query output,'
                                                             'relevant only with --connectivity and --semantic_diff')
+    parser.add_argument('--simplify_graph', action='store_true',
+                        help='simplify the connectivity graph,'
+                             'relevant only when output_format is dot or jpg')
     parser.add_argument('--pr_url', type=str, help='The full api url for adding a PR comment')
     parser.add_argument('--return_0', action='store_true', help='Force a return value 0')
     parser.add_argument('--version', '-v', action='store_true', help='Print version and exit')

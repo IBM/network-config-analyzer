@@ -1,0 +1,631 @@
+final fw rules for query: , config: test_subset_topology.yaml:
+src_ns: [default] src_pods: [Pod4] dst_ns: [ns2] dst_pods: [deployment-D] conn: All connections
+src_ns: [ns1] src_pods: [deployment-A] dst_ns: [default] dst_pods: [deployment-E] conn: All connections
+src_ns: [ns1] src_pods: [deployment-B] dst_ns: [ns1] dst_pods: [deployment-A] conn: All connections
+src_ns: [ns2] src_pods: [deployment-C] dst_ns: [ns1] dst_pods: [deployment-A] conn: All connections
+
+
+Explainability results:
+<?xml version="1.0" encoding="utf-8"?>
+<entry dst="default/Pod4(Pod)" id="1" src="default/Pod4(Pod)">
+ <text>
+  Configurations affecting default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/deployment-E(Deployment)" id="2" src="default/Pod4(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/Pod4(Pod) and (dst)default/deployment-E(Deployment):
+
+(src)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-A(Deployment)" id="3" src="default/Pod4(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/Pod4(Pod) and (dst)ns1/deployment-A(Deployment):
+
+(src)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-B(Deployment)" id="4" src="default/Pod4(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/Pod4(Pod) and (dst)ns1/deployment-B(Deployment):
+
+(src)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-C(Deployment)" id="5" src="default/Pod4(Pod)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/Pod4(Pod) and (dst)ns2/deployment-C(Deployment):
+
+(src)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-D(Deployment)" id="6" src="default/Pod4(Pod)">
+ <text>
+  Configurations affecting the connectivity between (src)default/Pod4(Pod) and (dst)ns2/deployment-D(Deployment):
+
+(src)default/Pod4(Pod):
+Policy Configurations:
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/Pod4(Pod)" id="7" src="default/deployment-E(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/deployment-E(Deployment) and (dst)default/Pod4(Pod):
+
+(src)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/deployment-E(Deployment)" id="8" src="default/deployment-E(Deployment)">
+ <text>
+  Configurations affecting default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-A(Deployment)" id="9" src="default/deployment-E(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/deployment-E(Deployment) and (dst)ns1/deployment-A(Deployment):
+
+(src)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-B(Deployment)" id="10" src="default/deployment-E(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/deployment-E(Deployment) and (dst)ns1/deployment-B(Deployment):
+
+(src)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-C(Deployment)" id="11" src="default/deployment-E(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/deployment-E(Deployment) and (dst)ns2/deployment-C(Deployment):
+
+(src)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-D(Deployment)" id="12" src="default/deployment-E(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)default/deployment-E(Deployment) and (dst)ns2/deployment-D(Deployment):
+
+(src)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/Pod4(Pod)" id="13" src="ns1/deployment-A(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns1/deployment-A(Deployment) and (dst)default/Pod4(Pod):
+
+(src)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/deployment-E(Deployment)" id="14" src="ns1/deployment-A(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)ns1/deployment-A(Deployment) and (dst)default/deployment-E(Deployment):
+
+(src)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-A(Deployment)" id="15" src="ns1/deployment-A(Deployment)">
+ <text>
+  Configurations affecting ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-B(Deployment)" id="16" src="ns1/deployment-A(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns1/deployment-A(Deployment) and (dst)ns1/deployment-B(Deployment):
+
+(src)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-C(Deployment)" id="17" src="ns1/deployment-A(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns1/deployment-A(Deployment) and (dst)ns2/deployment-C(Deployment):
+
+(src)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-D(Deployment)" id="18" src="ns1/deployment-A(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns1/deployment-A(Deployment) and (dst)ns2/deployment-D(Deployment):
+
+(src)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/Pod4(Pod)" id="19" src="ns1/deployment-B(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns1/deployment-B(Deployment) and (dst)default/Pod4(Pod):
+
+(src)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/deployment-E(Deployment)" id="20" src="ns1/deployment-B(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns1/deployment-B(Deployment) and (dst)default/deployment-E(Deployment):
+
+(src)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-A(Deployment)" id="21" src="ns1/deployment-B(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)ns1/deployment-B(Deployment) and (dst)ns1/deployment-A(Deployment):
+
+(src)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-B(Deployment)" id="22" src="ns1/deployment-B(Deployment)">
+ <text>
+  Configurations affecting ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-C(Deployment)" id="23" src="ns1/deployment-B(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns1/deployment-B(Deployment) and (dst)ns2/deployment-C(Deployment):
+
+(src)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-D(Deployment)" id="24" src="ns1/deployment-B(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns1/deployment-B(Deployment) and (dst)ns2/deployment-D(Deployment):
+
+(src)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/Pod4(Pod)" id="25" src="ns2/deployment-C(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-C(Deployment) and (dst)default/Pod4(Pod):
+
+(src)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/deployment-E(Deployment)" id="26" src="ns2/deployment-C(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-C(Deployment) and (dst)default/deployment-E(Deployment):
+
+(src)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-A(Deployment)" id="27" src="ns2/deployment-C(Deployment)">
+ <text>
+  Configurations affecting the connectivity between (src)ns2/deployment-C(Deployment) and (dst)ns1/deployment-A(Deployment):
+
+(src)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-B(Deployment)" id="28" src="ns2/deployment-C(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-C(Deployment) and (dst)ns1/deployment-B(Deployment):
+
+(src)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-C(Deployment)" id="29" src="ns2/deployment-C(Deployment)">
+ <text>
+  Configurations affecting ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-D(Deployment)" id="30" src="ns2/deployment-C(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-C(Deployment) and (dst)ns2/deployment-D(Deployment):
+
+(src)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/Pod4(Pod)" id="31" src="ns2/deployment-D(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-D(Deployment) and (dst)default/Pod4(Pod):
+
+(src)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/Pod4(Pod):
+Policy Configurations:
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+pod4config: line 370 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/Pod4(Pod): line 226 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="default/deployment-E(Deployment)" id="32" src="ns2/deployment-D(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-D(Deployment) and (dst)default/deployment-E(Deployment):
+
+(src)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)default/deployment-E(Deployment):
+Policy Configurations:
+allow-dep-e: line 580 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-default: line 430 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+default/deployment-E(Deployment): line 122 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-A(Deployment)" id="33" src="ns2/deployment-D(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-D(Deployment) and (dst)ns1/deployment-A(Deployment):
+
+(src)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-A(Deployment):
+Policy Configurations:
+allow-dep-a: line 490 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-A(Deployment): line 30 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns1/deployment-B(Deployment)" id="34" src="ns2/deployment-D(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-D(Deployment) and (dst)ns1/deployment-B(Deployment):
+
+(src)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns1/deployment-B(Deployment):
+Policy Configurations:
+allow-dep-b: line 522 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n1: line 441 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns1/deployment-B(Deployment): line 53 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-C(Deployment)" id="35" src="ns2/deployment-D(Deployment)">
+ <text>
+  Configurations affecting the LACK of connectivity between (src)ns2/deployment-D(Deployment) and (dst)ns2/deployment-C(Deployment):
+
+(src)ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+
+(dst)ns2/deployment-C(Deployment):
+Policy Configurations:
+allow-dep-c: line 540 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-C(Deployment): line 78 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>
+<entry dst="ns2/deployment-D(Deployment)" id="36" src="ns2/deployment-D(Deployment)">
+ <text>
+  Configurations affecting ns2/deployment-D(Deployment):
+Policy Configurations:
+allow-dep-d: line 560 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+deny-all-n2: line 452 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+Resource Configurations:
+ns2/deployment-D(Deployment): line 99 in file ./fw_rules_tests/podlist/test_subset_topology.yaml
+ </text>
+</entry>

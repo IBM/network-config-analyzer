@@ -6,14 +6,17 @@
 from collections import deque
 import yaml
 from nca.Utils.CmdlineRunner import CmdlineRunner
-from nca.Resources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
 from nca.Parsers.K8sPolicyYamlParser import K8sPolicyYamlParser
 from nca.Parsers.CalicoPolicyYamlParser import CalicoPolicyYamlParser
 from nca.Parsers.IstioPolicyYamlParser import IstioPolicyYamlParser
 from nca.Parsers.IstioSidecarYamlParser import IstioSidecarYamlParser
 from nca.Parsers.IngressPolicyYamlParser import IngressPolicyYamlParser
-from nca.Parsers.IstioTrafficResourcesYamlParser import IstioTrafficResourcesYamlParser
+from nca.Parsers.IstioGatewayYamlParser import IstioGatewayYamlParser
+from nca.Parsers.IstioVirtualServiceYamlParser import IstioVirtualServiceYamlParser
+from nca.Parsers.IstioGatewayPolicyGenerator import IstioGatewayPolicyGenerator
 from .NetworkConfig import PoliciesContainer
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class PoliciesFinder:
@@ -28,9 +31,9 @@ class PoliciesFinder:
         self.optimized_run = optimized_run
         # following missing resources fields are relevant for "livesim" mode,
         # where certain resources are added to enable the analysis
-        self.missing_istio_gw_pods_with_labels = {}
+        self.missing_istio_gw_pods_with_labels = set()
         self.missing_k8s_ingress_peers = False
-        self.missing_dns_pods_with_labels = {}
+        self.missing_dns_pods_with_labels = set()
 
     def set_peer_container(self, peer_container):
         """
@@ -44,10 +47,7 @@ class PoliciesFinder:
         self._add_policies(buffer, 'buffer')
 
     def load_policies_from_k8s_cluster(self):
-        self._add_policies(CmdlineRunner.get_k8s_resources('networkPolicy'), 'kubectl')
-        self._add_policies(CmdlineRunner.get_k8s_resources('ingress'), 'kubectl')
-        self._add_policies(CmdlineRunner.get_k8s_resources('Gateway'), 'kubectl')
-        self._add_policies(CmdlineRunner.get_k8s_resources('VirtualService'), 'kubectl')
+        self._add_policies(CmdlineRunner.get_k8s_resources(['networkPolicy', 'ingress']), 'kubectl')
 
     def load_policies_from_calico_cluster(self):
         self._add_policies(CmdlineRunner.get_calico_resources('profile'), 'calicoctl')
@@ -55,8 +55,8 @@ class PoliciesFinder:
         self._add_policies(CmdlineRunner.get_calico_resources('globalNetworkPolicy'), 'calicoctl')
 
     def load_istio_policies_from_k8s_cluster(self):
-        self._add_policies(CmdlineRunner.get_k8s_resources('authorizationPolicy'), 'kubectl')
-        self._add_policies(CmdlineRunner.get_k8s_resources('sidecar'), 'kubectl')
+        self._add_policies(CmdlineRunner.get_k8s_resources(['authorizationPolicy', 'sidecar', 'Gateway',
+                                                            'VirtualService']), 'kubectl')
 
     def _add_policy(self, policy):
         """
@@ -67,53 +67,76 @@ class PoliciesFinder:
         self.policies_container.append_policy(policy)
 
     def parse_policies_in_parse_queue(self):  # noqa: C901
-        istio_traffic_parser = None
+        istio_gtw_parser = None
+        istio_vs_parser = None
         istio_sidecar_parser = None
         for policy, file_name, policy_type in self._parse_queue:
             if policy_type == NetworkPolicy.PolicyType.CalicoProfile:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name, self.optimized_run)
                 # only during parsing adding extra labels from profiles (not supporting profiles with rules)
-                parsed_element.parse_policy()
+                parsed_policy = parsed_element.parse_policy()
             elif policy_type == NetworkPolicy.PolicyType.K8sNetworkPolicy:
                 parsed_element = K8sPolicyYamlParser(policy, self.peer_container, file_name, self.optimized_run)
-                self._add_policy(parsed_element.parse_policy())
+                parsed_policy = parsed_element.parse_policy()
+                self._add_policy(parsed_policy)
                 # add info about missing resources
                 self.missing_dns_pods_with_labels.update(parsed_element.missing_pods_with_labels)
             elif policy_type == NetworkPolicy.PolicyType.IstioAuthorizationPolicy:
                 parsed_element = IstioPolicyYamlParser(policy, self.peer_container, file_name)
-                self._add_policy(parsed_element.parse_policy())
+                parsed_policy = parsed_element.parse_policy()
+                self._add_policy(parsed_policy)
             elif policy_type == NetworkPolicy.PolicyType.IstioSidecar:
                 if not istio_sidecar_parser:
                     istio_sidecar_parser = IstioSidecarYamlParser(policy, self.peer_container, file_name)
                 else:
                     istio_sidecar_parser.reset(policy, self.peer_container, file_name)
-                istio_sidecar_parser.parse_policy()
+                parsed_policy = istio_sidecar_parser.parse_policy()
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
-                self._add_policy(parsed_element.parse_policy())
+                parsed_policy = parsed_element.parse_policy()
+                self._add_policy(parsed_policy)
                 # add info about missing resources
                 self.missing_k8s_ingress_peers |= parsed_element.missing_k8s_ingress_peers
             elif policy_type == NetworkPolicy.PolicyType.Gateway:
-                if not istio_traffic_parser:
-                    istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)
-                istio_traffic_parser.parse_gateway(policy, file_name)
+                if not istio_gtw_parser:
+                    istio_gtw_parser = IstioGatewayYamlParser(self.peer_container)
+                parsed_policy = istio_gtw_parser.parse_gateway(policy, file_name)
                 # add info about missing resources
-                self.missing_istio_gw_pods_with_labels.update(istio_traffic_parser.missing_istio_gw_pods_with_labels)
+                self.missing_istio_gw_pods_with_labels.update(istio_gtw_parser.missing_istio_gw_pods_with_labels)
             elif policy_type == NetworkPolicy.PolicyType.VirtualService:
-                if not istio_traffic_parser:
-                    istio_traffic_parser = IstioTrafficResourcesYamlParser(self.peer_container)
-                istio_traffic_parser.parse_virtual_service(policy, file_name)
+                if not istio_vs_parser:
+                    istio_vs_parser = IstioVirtualServiceYamlParser(self.peer_container)
+                parsed_policy = istio_vs_parser.parse_virtual_service(policy, file_name)
             else:
                 parsed_element = CalicoPolicyYamlParser(policy, self.peer_container, file_name, self.optimized_run)
-                self._add_policy(parsed_element.parse_policy())
-        if istio_traffic_parser:
-            istio_traffic_policies = istio_traffic_parser.create_istio_traffic_policies()
-            for istio_traffic_policy in istio_traffic_policies:
+                parsed_policy = parsed_element.parse_policy()
+                self._add_policy(parsed_policy)
+            # the name is sometimes modified when parsed, like in the ingress case, when "allowed" is added
+            if ExplTracker().is_active():
+                if parsed_policy:
+                    policy_name = parsed_policy.name
+                    ExplTracker().add_policy_to_peers(parsed_policy)
+                else:  # certain istio policies are parsed later (sidecar / virtual-service)
+                    policy_name = policy.get('metadata').get('name')
+                ExplTracker().add_item(policy.path,
+                                       policy.line_number,
+                                       policy_name
+                                       )
+        if istio_gtw_parser or istio_vs_parser:
+            istio_gtw_policy_gen = IstioGatewayPolicyGenerator(istio_gtw_parser, istio_vs_parser)
+            istio_gateway_policies = istio_gtw_policy_gen.create_istio_gateway_policies()
+            for istio_traffic_policy in istio_gateway_policies:
                 self._add_policy(istio_traffic_policy)
+                if ExplTracker().is_active():
+                    ExplTracker().derive_item(istio_traffic_policy.name)
+                    ExplTracker().add_policy_to_peers(istio_traffic_policy)
         if istio_sidecar_parser:
             istio_sidecars = istio_sidecar_parser.get_istio_sidecars()
             for istio_sidecar in istio_sidecars:
                 self._add_policy(istio_sidecar)
+                if ExplTracker().is_active():
+                    ExplTracker().derive_item(istio_sidecar.name)
+                    ExplTracker().add_policy_to_peers(istio_sidecar)
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
         policy_type = NetworkPolicy.get_policy_type_from_dict(policy_object)

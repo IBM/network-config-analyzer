@@ -13,7 +13,7 @@ It takes such resources as input, in addition to a list of relevant endpoints, a
 - What are the endpoints that are not covered by any policy?
 - Are my policies implemented efficiently?
 
-## Installation (requires Python 3.8 or above)
+## Installation (requires Python 3.9 or above)
 For command-line use, NCA is installed with:
 ```shell
 pip install network-config-analyzer
@@ -85,9 +85,9 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
 - `--period <minutes>`\
   Run NCA with given arguments every specified number of minutes
 - `--output_format <format>`\
-  Output format specification (txt/yaml/csv/md/dot/jpg/txt_no_fw_rules).\
-  For jpg format, Graphviz executables must be installed and on user systems' PATH.\
-  txt_no_fw_rules: supported for ConnectivityMap query, printing connectivity rules for each pair of peers, without minimization and grouping of rules.\
+  Output format specification (txt/yaml/csv/md/dot/jpg/html/txt_no_fw_rules).\
+  `jpg` or `html`: Graphviz executables must be installed and on user systems' PATH.\
+  `txt_no_fw_rules`: supported for ConnectivityMap and SemanticDiff queries, printing connectivity rules for each pair of peers, without minimization and grouping of rules. (excluding  connections between workload to itself).
   *default:* txt\
   *shorthand:* `-o`
 - `--file_out <file name>`\
@@ -95,12 +95,19 @@ The arguments to `--resource_list` and to `--base_resource_list` should be one o
   *shorthand* `-f`
 - `--expected_output <file name>`\
   A file path to the expected query output (for connectivity or semantic_diff queries).\
+- `--simplify_graph`\
+  simplify the connectivity graph, (relevant only when output_format is dot, jpg or html)
 - `--pr_url <URL>`\
    Write output as GitHub PR comment. URL points to the relevant `comments` resource in the GitHub API.\
    e.g., https://api.github.com/repos/shift-left-netconfig/online-boutique/issues/1/comments
 - `--output_endpoints`\
   Choose endpoints type in output (pods/deployments).\
   *default:* deployments
+  - `--explain`\
+  A pair of node names (comma separated) to explain the policies affecting their connection or lack of it. Relevant only for connectivity query.\
+  Connections including IP-Blocks will show only the configurations of the node in that connection (since, IP-Blocks does
+  not have configurations). IP-Blocks should be places in CIDR format as seen in the query results (run the connectivity query first, to see the nodes there).\
+  e.g. default/pod-A1,default/deployment-B1.
   - `--print_ipv6`\
   include IPv6 range in the query results even when the policies of the config do not contain any IPv6 addresses.
   

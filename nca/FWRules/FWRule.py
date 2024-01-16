@@ -4,7 +4,7 @@
 #
 
 from nca.CoreDS.Peer import ClusterEP, IpBlock, Pod, PeerSet, DNSEntry
-from nca.Resources.K8sNamespace import K8sNamespace
+from nca.Resources.OtherResources.K8sNamespace import K8sNamespace
 from .ClusterInfo import ClusterInfo
 
 
@@ -383,7 +383,8 @@ class PeerSetElement(FWRuleElement):
         """
         :return: string for the field src_pods or dst_pods in representation for txt rule format
         """
-        return f'[{self._get_pods_names()}]'
+        sorted_pods_names = ', '.join(sorted(self._get_pods_names().split(', ')))
+        return f'[{sorted_pods_names}]'
 
     def _get_pods_names(self):
         res = ''

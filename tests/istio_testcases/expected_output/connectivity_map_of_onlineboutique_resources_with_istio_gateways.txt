@@ -1,0 +1,21 @@
+For connections of type TCP, final fw rules for query: connectivity-map-of-onlineboutique-with-istio-gateways, config: onlineboutique-resources-with-istio-gateways:
+src_ns: [istio-system] src_pods: [*] dst: httpbin.example.com conn: TCP {'dst_ports': '80', 'hosts': 'httpbin.example.com'}
+src_ns: [istio-system] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections
+src_ns: [onlineboutique] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [onlineboutique] src_pods: [*] dst: connected-with-mesh.example.com conn: All connections
+src_ns: [onlineboutique] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: TCP {'dst_ports': '443', 'hosts': 'httpbin.example.com'}
+src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend)] dst_ns: [onlineboutique] dst_pods: [cartservice] conn: TCP {'dst_ports': '7070', 'methods': 'POST', 'paths': '/hipstershop.CartService/AddItem, /hipstershop.CartService/GetCart, /hipstershop.CartService/EmptyCart'}
+src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend)] dst_ns: [onlineboutique] dst_pods: [currencyservice] conn: TCP {'dst_ports': '7000', 'methods': 'POST', 'paths': '/hipstershop.CurrencyService/Convert, /hipstershop.CurrencyService/GetSupportedCurrencies'}
+src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend)] dst_ns: [onlineboutique] dst_pods: [shippingservice] conn: TCP {'dst_ports': '50051', 'methods': 'POST', 'paths': '/hipstershop.ShippingService/GetQuote, /hipstershop.ShippingService/ShipOrder'}
+src_ns: [onlineboutique] src_pods: [app in (checkoutservice,frontend,recommendationservice)] dst_ns: [onlineboutique] dst_pods: [productcatalogservice] conn: TCP {'dst_ports': '3550', 'methods': 'POST', 'paths': '/hipstershop.ProductCatalogService/GetProduct, /hipstershop.ProductCatalogService/ListProducts'}
+src_ns: [onlineboutique] src_pods: [checkoutservice] dst_ns: [onlineboutique] dst_pods: [emailservice] conn: TCP {'dst_ports': '8080', 'methods': 'POST', 'paths': '/hipstershop.EmailService/SendOrderConfirmation'}
+src_ns: [onlineboutique] src_pods: [checkoutservice] dst_ns: [onlineboutique] dst_pods: [paymentservice] conn: TCP {'dst_ports': '50051', 'methods': 'POST', 'paths': '/hipstershop.PaymentService/Charge'}
+src_ns: [onlineboutique] src_pods: [frontend] dst_ns: [onlineboutique] dst_pods: [adservice] conn: TCP {'dst_ports': '9555', 'methods': 'POST', 'paths': '/hipstershop.AdService/GetAds'}
+src_ns: [onlineboutique] src_pods: [frontend] dst_ns: [onlineboutique] dst_pods: [checkoutservice] conn: TCP {'dst_ports': '5050', 'methods': 'POST', 'paths': '/hipstershop.CheckoutService/PlaceOrder'}
+src_ns: [onlineboutique] src_pods: [frontend] dst_ns: [onlineboutique] dst_pods: [recommendationservice] conn: TCP {'dst_ports': '8080', 'methods': 'POST', 'paths': '/hipstershop.RecommendationService/ListRecommendations'}
+src_ns: [onlineboutique] src_pods: [loadgenerator] dst_ns: [onlineboutique] dst_pods: [frontend] conn: TCP {'dst_ports': '8080', 'methods': 'GET, POST'}
+
+For connections of type non-TCP, final fw rules for query: connectivity-map-of-onlineboutique-with-istio-gateways, config: onlineboutique-resources-with-istio-gateways:
+src: 0.0.0.0/0 dst_ns: [istio-system] dst_pods: [*] conn: All connections
+src_ns: [istio-system,onlineboutique] src_pods: [*] dst: 0.0.0.0/0 conn: All connections
+src_ns: [istio-system,onlineboutique] src_pods: [*] dst_ns: [istio-system] dst_pods: [*] conn: All connections

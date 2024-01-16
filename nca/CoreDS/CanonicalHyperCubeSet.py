@@ -40,9 +40,8 @@ class CanonicalHyperCubeSet:
     # TODO: should move dimensions order to DimensionsManager?
     def __init__(self, dimensions, allow_all=False):
         self.layers = dict()  # layers are w.r.t active dimensions
-        self.dimensions_manager = DimensionsManager()
         self.all_dimensions_list = dimensions  # ordered list of all dimensions
-        self.all_dim_types = [self.dimensions_manager.get_dimension_type_by_name(dim_name) for dim_name in dimensions]
+        self.all_dim_types = [DimensionsManager().get_dimension_type_by_name(dim_name) for dim_name in dimensions]
         # init ordered list of active dimensions:
         if allow_all:
             self.active_dimensions = []  # names (for non-active dimensions everything is allowed)
@@ -174,7 +173,7 @@ class CanonicalHyperCubeSet:
         dimensions_list_ordered = self._get_dimensions_subset_by_order(dimensions_list_restriction)
         cube_res = []
         for dim_name in dimensions_list_ordered:
-            cube_res.append(self.dimensions_manager.get_dimension_domain_by_name(dim_name))
+            cube_res.append(DimensionsManager().get_dimension_domain_by_name(dim_name, True))
         return cube_res
 
     def __len__(self):
@@ -266,7 +265,7 @@ class CanonicalHyperCubeSet:
         res = self._and_aux(other_copy)
         self.layers = res.layers
         self.active_dimensions = res.active_dimensions
-        self._reduce_active_dimensions()
+        self.reduce_active_dimensions()
         return self
 
     def _and_aux(self, other):
@@ -317,7 +316,7 @@ class CanonicalHyperCubeSet:
         res = self.or_aux(other_copy)
         self.layers = res.layers
         self.active_dimensions = res.active_dimensions
-        self._reduce_active_dimensions()
+        self.reduce_active_dimensions()
         return self
 
     def or_aux(self, other):
@@ -370,7 +369,7 @@ class CanonicalHyperCubeSet:
         res = self.sub_aux(other_copy)
         self.layers = res.layers
         self.active_dimensions = res.active_dimensions
-        self._reduce_active_dimensions()
+        self.reduce_active_dimensions()
         return self
 
     def sub_aux(self, other):
@@ -524,7 +523,7 @@ class CanonicalHyperCubeSet:
                 else:
                     covered_elem_res |= elem
             # since the current dim is inactive for self, the covered_elem_res should equal the entire dim's domain
-            return covered_elem_res == self.dimensions_manager.get_dimension_domain_by_name(current_dim)
+            return covered_elem_res == DimensionsManager().get_dimension_domain_by_name(current_dim)
 
         # case 3: current_dim is common to both self and other
         assert current_dim in self.active_dimensions and current_dim in other.active_dimensions
@@ -542,20 +541,23 @@ class CanonicalHyperCubeSet:
                 common_part = current_layer_0 & other_layer
                 has_common_part = bool(common_part)
                 if has_common_part:
+                    # if it's not last dim for both self and other, determine containment recursively
                     if not self._is_last_dimension() and not other._is_last_dimension() and \
                             not (self.layers[layer])._contained_in_aux(other_sub_elem, all_active_dims[1:]):
                         return False
+                    # if it's last dim for self but not for other: the remaining of other should be entire cube
+                    if self._is_last_dimension() and not other._is_last_dimension() and \
+                            not other_sub_elem._is_sub_elem_entire_sub_space():
+                        return False
+                    # if it's the last dim for other but not for self -> containment is satisfied on this part
+                    # at this point, sub-object from common_part is contained
                     remaining = current_layer_0 - common_part
                     if remaining:
                         # continue exploring other's cubes for containment of the remaining part from self
                         current_layer_0 = remaining
                     else:
-                        if self._is_last_dimension() and not other._is_last_dimension():
-                            # if it's last dim for self but not for other: the remaining of other should be entire cube
-                            if other_sub_elem._is_sub_elem_entire_sub_space():
-                                is_subset_count += 1
-                        else:
-                            is_subset_count += 1
+                        # count current cube (from current_layer_0) as contained in other
+                        is_subset_count += 1
                         break
         return is_subset_count == len(self.layers)
 
@@ -604,7 +606,7 @@ class CanonicalHyperCubeSet:
         res = ""
         for dim_index, dim_values in enumerate(cube):
             dim_name = self.active_dimensions[dim_index]
-            res += self.dimensions_manager.get_dim_values_str(dim_values, dim_name) + ", "
+            res += DimensionsManager().get_dim_values_str(dim_values, dim_name) + ", "
         return f"({res})"
 
     def _is_last_dimension(self):
@@ -668,7 +670,7 @@ class CanonicalHyperCubeSet:
             if active_dim_name in current_active_dimensions_dict:
                 aligned_cube_values.append(cube[current_active_dimensions_dict[active_dim_name]])
             else:
-                aligned_cube_values.append(DimensionsManager().get_dimension_domain_by_name(active_dim_name))
+                aligned_cube_values.append(DimensionsManager().get_dimension_domain_by_name(active_dim_name, True))
         return aligned_cube_values
 
     def _set_active_dimensions(self, dim_names_set):
@@ -718,7 +720,7 @@ class CanonicalHyperCubeSet:
                 self.active_dimensions = new_active_dimensions
                 new_sub_elem = CanonicalHyperCubeSet(self.all_dimensions_list)
                 new_sub_elem.active_dimensions = [new_active_dimensions[1]]
-                dim_all_values = self.dimensions_manager.get_dimension_domain_by_name(new_active_dimensions[1])
+                dim_all_values = DimensionsManager().get_dimension_domain_by_name(new_active_dimensions[1], True)
                 new_sub_elem.layers[dim_all_values] = CanonicalHyperCubeSet.empty_interval
                 new_sub_elem.build_new_active_dimensions(new_active_dimensions[1:])
                 for layer_elem in self.layers:
@@ -727,7 +729,7 @@ class CanonicalHyperCubeSet:
         # build new layer for new dimension: new_active_dimensions[0]
         new_layers = dict()
         new_dim = new_active_dimensions[0]
-        dim_all_values = self.dimensions_manager.get_dimension_domain_by_name(new_dim)
+        dim_all_values = DimensionsManager().get_dimension_domain_by_name(new_dim, True)
         new_layers[dim_all_values] = self.copy()
         self.active_dimensions = new_active_dimensions
         new_layers[dim_all_values].build_new_active_dimensions(new_active_dimensions[1:])
@@ -816,7 +818,7 @@ class CanonicalHyperCubeSet:
                     res[dim] |= dim_values
         return res
 
-    def _reduce_active_dimensions(self):
+    def reduce_active_dimensions(self):
         """
         Change self so that its active dimensions are as minimal as possible:
         Inactivate dimensions for which every cube in self allows all its domain.
@@ -827,7 +829,7 @@ class CanonicalHyperCubeSet:
         dimensions_to_reduce = []
         values_per_dimension = self._get_values_sets_per_active_dimension()
         for dim_name, values_set in values_per_dimension.items():
-            dim_domain = self.dimensions_manager.get_dimension_domain_by_name(dim_name)
+            dim_domain = DimensionsManager().get_dimension_domain_by_name(dim_name)
             if {dim_domain} == values_set:
                 dimensions_to_reduce.append(dim_name)
         dimensions_to_reduce = self._get_dimensions_subset_by_order(dimensions_to_reduce)
@@ -851,3 +853,6 @@ class CanonicalHyperCubeSet:
                 layer_0_new_elem |= elem
             new_layers[layer_0_new_elem] = layer_1_elem
         self.layers = new_layers
+
+    def is_active_dimension(self, dim_name):
+        return dim_name in self.active_dimensions

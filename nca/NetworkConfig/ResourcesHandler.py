@@ -12,6 +12,7 @@ from .NetworkConfig import NetworkConfig
 from .PoliciesFinder import PoliciesFinder
 from .TopologyObjectsFinder import PodsFinder, NamespacesFinder, ServicesFinder
 from .PeerContainer import PeerContainer
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class ResourceType(Enum):
@@ -68,24 +69,24 @@ class ResourcesHandler:
         return os.path.join(current_path, livesim_resource_path)
 
     @staticmethod
-    def get_relevant_livesim_resources_paths_by_labels_matching(livesim_resource_path, missing_resource_labels_dict):
+    def get_relevant_livesim_resources_paths_by_labels_matching(livesim_resource_path, missing_resource_labels):
         """
         check by labels matching if one of the livesim resources has matching labels for a resource referenced by one
         of the parsed policies. If yes, return its path to be added to the configuration, to enable the analysis.
         :param str livesim_resource_path: a path to the relevant livesim dir to check for resources
-        :param dict missing_resource_labels_dict: the labels from parsed policy in the config for
+        :param set((key, value)) missing_resource_labels: the labels from parsed policy in the config for
                                                   which a matching peer was missing
         :return: list of paths for relevant livesim resources to add
         :rtype list[str]
         """
-        res = []
+        res = set()
         resource_full_path = ResourcesHandler.get_full_livesim_resource_path(livesim_resource_path)
         livesim_resource_labels = ResourcesParser.parse_livesim_yamls(resource_full_path)
-        for key in missing_resource_labels_dict.keys():
+        for (key, value) in missing_resource_labels:
             for yaml_path, labels in livesim_resource_labels.items():
-                if missing_resource_labels_dict.get(key) == labels.get(key):
-                    res.append(yaml_path)
-        return res
+                if (key, value) in labels:
+                    res.add(yaml_path)
+        return list(res)
 
     @staticmethod
     def analyze_livesim(policy_finder):
@@ -112,12 +113,12 @@ class ResourcesHandler:
             livesim_configuration_addons.append(resource_full_path)
             ResourcesHandler.livesim_information_message('ingress-controller')
 
-        # find Istio ingress gateway
+        # find Istio ingress/egress gateway
         istio_gateway_added_resources = ResourcesHandler.get_relevant_livesim_resources_paths_by_labels_matching(
             LiveSimPaths.IstioGwCfgPath, policy_finder.missing_istio_gw_pods_with_labels)
         if istio_gateway_added_resources:
             livesim_configuration_addons += istio_gateway_added_resources
-            ResourcesHandler.livesim_information_message('Istio-ingress-gateway')
+            ResourcesHandler.livesim_information_message('Istio-ingress/egress-gateway')
 
         return livesim_configuration_addons
 
@@ -366,15 +367,15 @@ class ResourcesParser:
         for yaml_file in yaml_files:
             pods_finder = PodsFinder()
             ns_finder = NamespacesFinder()
-            labels_found = {}
+            labels_found = set()
             for res_code in yaml_file.data:
                 ns_finder.parse_yaml_code_for_ns(res_code)
                 pods_finder.namespaces_finder = ns_finder
                 pods_finder.add_eps_from_yaml(res_code)
             for item in ns_finder.namespaces.values():
-                labels_found.update(item.labels)
+                labels_found.update(set(item.labels.items()))
             for item in pods_finder.peer_set:
-                labels_found.update(item.labels)
+                labels_found.update(set(item.labels.items()))
             results.update({yaml_file.path: labels_found})
         NcaLogger().collect_msgs()
 
@@ -396,7 +397,7 @@ class ResourcesParser:
             elif resource_item == 'istio':
                 self._handle_istio_inputs(resource_flags)
             else:
-                fast_load = ResourceType.Policies not in resource_flags
+                fast_load = (ResourceType.Policies not in resource_flags) and not ExplTracker().is_active()
                 resource_scanner = TreeScannerFactory.get_scanner(resource_item, fast_load=fast_load)
                 if resource_scanner is None:
                     continue
@@ -474,6 +475,7 @@ class ResourcesParser:
     def _handle_istio_inputs(self, resource_flags):
         if ResourceType.Pods in resource_flags or ResourceType.Namespaces in resource_flags:
             self.load_resources_from_k8s_live_cluster(resource_flags)
+            self.pods_finder.load_peer_from_istio_resource()
         if ResourceType.Policies in resource_flags:
             self.policies_finder.load_istio_policies_from_k8s_cluster()
 

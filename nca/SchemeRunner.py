@@ -10,12 +10,17 @@ from nca.Utils.OutputConfiguration import OutputConfiguration
 from nca.Parsers.GenericYamlParser import GenericYamlParser
 from nca.NetworkConfig.NetworkConfigQueryRunner import NetworkConfigQueryRunner
 from nca.NetworkConfig.ResourcesHandler import ResourcesHandler
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class SchemeRunner(GenericYamlParser):
     """
     This class takes a scheme file, build all its network configurations and runs all its queries
     """
+
+    implemented_opt_queries = {'connectivityMap', 'equivalence', 'vacuity', 'redundancy', 'strongEquivalence',
+                               'containment', 'twoWayContainment', 'permits', 'interferes', 'pairwiseInterferes',
+                               'forbids', 'emptiness', 'disjointness', 'allCaptured', 'sanity', 'semanticDiff'}
 
     def __init__(self, scheme_file_name, output_format=None, output_path=None, optimized_run='false'):
         GenericYamlParser.__init__(self, scheme_file_name)
@@ -34,6 +39,10 @@ class SchemeRunner(GenericYamlParser):
                 self.scheme = yaml_doc
                 if not isinstance(self.scheme, dict):
                     self.syntax_error("The scheme's top-level object must be a map")
+
+    @staticmethod
+    def has_implemented_opt_queries(queries):
+        return SchemeRunner.implemented_opt_queries.intersection(queries)
 
     def _get_input_file(self, given_path, out_flag=False):
         """
@@ -141,6 +150,11 @@ class SchemeRunner(GenericYamlParser):
         global_ns_list = self._handle_resources_list(self.scheme.get('namespaceList', None))
         global_resource_list = self._handle_resources_list(self.scheme.get('resourceList', None))
         resources_handler = ResourcesHandler()
+        if self.optimized_run == 'true':
+            # we need to track configurations for the queries to use later-on
+            # todo - this is not the place to activate the ExplTracker, should be done per query?
+            # todo - should take the output_endpoints from the query
+            ExplTracker().activate('deployments')
         resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                                     self.optimized_run)
 
@@ -190,10 +204,9 @@ class SchemeRunner(GenericYamlParser):
             not_executed = 0
             self.check_fields_validity(query, 'query', allowed_elements)
             query_name = query['name']
-            if self.optimized_run == 'debug':
+            if self.optimized_run == 'debug' or self.optimized_run == 'true':
                 # TODO - update/remove the optimization below when all queries are supported in optimized implementation
-                # optimization - currently only connectivityMap query has optimized implementation and can be compared
-                if not query.get('connectivityMap'):
+                if not self.has_implemented_opt_queries(set(query.keys())):
                     print(f'Skipping query {query_name} since it does not have optimized implementation yet')
                     continue
             print('Running query', query_name)

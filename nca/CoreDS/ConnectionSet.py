@@ -528,8 +528,12 @@ class ConnectionSet:
             return other_name + ' allows all connections while ' + self_name + ' does not.'
         for protocol, properties in self.allowed_protocols.items():
             if protocol not in other.allowed_protocols:
-                return self_name + ' allows communication using protocol ' + ProtocolNameResolver.get_protocol_name(protocol) \
-                    + ' while ' + other_name + ' does not.'
+                res = self_name + ' allows communication using protocol ' + \
+                      ProtocolNameResolver.get_protocol_name(protocol)
+                if not isinstance(properties, bool) and not properties.is_all():
+                    res += ' on ' + properties._get_first_item_str()
+                res += ' while ' + other_name + ' does not.'
+                return res
             other_properties = other.allowed_protocols[protocol]
             if properties != other_properties:
                 return ProtocolNameResolver.get_protocol_name(protocol) + ' protocol - ' + \
@@ -581,8 +585,9 @@ class ConnectionSet:
     #  get rid of ConnectionSet and move the code below to ConnectivityProperties.py
 
     @staticmethod
-    def get_connection_set_and_peers_from_cube(conn_cube, peer_container,
+    def get_connection_set_and_peers_from_cube(the_cube, peer_container,
                                                relevant_protocols=ProtocolSet(True)):
+        conn_cube = the_cube.copy()
         src_peers = conn_cube["src_peers"] or peer_container.get_all_peers_group(True)
         conn_cube.unset_dim("src_peers")
         dst_peers = conn_cube["dst_peers"] or peer_container.get_all_peers_group(True)
@@ -657,6 +662,10 @@ class ConnectionSet:
                 res.append(FWRule.IPBlockElement(peer))
                 peer_set_copy.remove(peer)
                 continue
+            elif isinstance(peer, FWRule.DNSEntry):
+                res.append(FWRule.DNSElement(peer))
+                peer_set_copy.remove(peer)
+                continue
             ns_peers = PeerSet(cluster_info.ns_dict[peer.namespace])
             if ns_peers.issubset(peer_set_copy):
                 ns_set.add(peer.namespace)
@@ -680,6 +689,8 @@ class ConnectionSet:
         :return: the resulting ConnectivityProperties.
         """
         res = ConnectivityProperties.make_empty_props()
+        if fw_rules.fw_rules_map is None:
+            return res
         for fw_rules_list in fw_rules.fw_rules_map.values():
             for fw_rule in fw_rules_list:
                 conn_props = fw_rule.conn.convert_to_connectivity_properties(peer_container)

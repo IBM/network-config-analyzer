@@ -29,7 +29,8 @@ class ConnectivityCube(dict):
         self.named_ports = set()  # used only in the original solution
         self.excluded_named_ports = set()  # used only in the original solution
         for dim in self.dimensions_list:
-            self.set_dim_directly(dim, DimensionsManager().get_dimension_domain_by_name(dim))
+            dim_value = DimensionsManager().get_dimension_domain_by_name(dim, True)
+            self.set_dim_directly(dim, dim_value)
 
     def copy(self):
         """
@@ -125,7 +126,8 @@ class ConnectivityCube(dict):
         :param str dim_name: the given dimension name
         """
         assert dim_name in self.dimensions_list
-        self.set_dim_directly(dim_name, DimensionsManager().get_dimension_domain_by_name(dim_name))
+        dim_value = DimensionsManager().get_dimension_domain_by_name(dim_name, True)
+        self.set_dim_directly(dim_name, dim_value)
 
     def __getitem__(self, dim_name):
         """
@@ -139,7 +141,7 @@ class ConnectivityCube(dict):
                 # translate CanonicalIntervalSet back to PeerSet
                 return BasePeerSet().get_peer_set_by_indices(dim_value)
             else:
-                return None
+                return BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name(dim_name))
         elif dim_name in ["src_ports", "dst_ports"]:
             res = PortSet()
             res.add_ports(dim_value)

@@ -159,7 +159,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
                 values_list = str(dim_values)
             elif dim in ["src_peers", "dst_peers"]:
                 peers_set = BasePeerSet().get_peer_set_by_indices(dim_values)
-                peers_str_list = [str(peer.full_name()) for peer in peers_set]
+                peers_str_list = sorted([str(peer.full_name()) for peer in peers_set])
                 values_list = ','.join(peers_str_list) if is_txt else peers_str_list
             elif dim_type == DimensionsManager.DimensionType.IntervalSet:
                 values_list = dim_values.get_interval_set_list_numbers_and_ranges()
@@ -345,7 +345,10 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         """
         assert dim_name not in ["icmp_type", "icmp_code"]  # not supporting icmp dimensions
         if dim_name not in self.active_dimensions:
-            return None
+            if dim_name == "src_peers" or dim_name == "dst_peers":
+                return BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name(dim_name))
+            else:
+                return DimensionsManager().get_dimension_domain_by_name(dim_name)
         if dim_name == "src_peers" or dim_name == "dst_peers":
             res = PeerSet()
         elif dim_name == "src_ports" or dim_name == "dst_ports":
@@ -397,9 +400,9 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         src_ports = conn_cube["src_ports"]
         dst_ports = conn_cube["dst_ports"]
-        dst_peers = conn_cube["dst_peers"]
         assert not src_ports.named_ports and not src_ports.excluded_named_ports
-        if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or not dst_peers:
+        if (not dst_ports.named_ports and not dst_ports.excluded_named_ports) or \
+                not conn_cube.is_active_dim("dst_peers"):
             # Should not resolve named ports
             return ConnectivityProperties._make_conn_props_no_named_ports_resolution(conn_cube)
 
@@ -414,7 +417,7 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
 
         # Resolving dst named ports
         protocols = conn_cube["protocols"]
-        assert dst_peers
+        dst_peers = conn_cube["dst_peers"]
         for peer in dst_peers:
             real_ports = ConnectivityProperties._resolve_named_ports(dst_ports.named_ports, peer, protocols)
             if real_ports:
@@ -441,6 +444,17 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
         all_peers_and_ips_and_dns = peer_container.get_all_peers_group(True, True, True)
         return ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_peers_and_ips_and_dns,
                                                                  "dst_peers": all_peers_and_ips_and_dns})
+
+    @staticmethod
+    def get_all_conns_props_per_domain_peers():
+        """
+        Return all possible between-peers connections.
+        This is a compact way to represent all peers connections, but it is an over-approximation also containing
+        IpBlock->IpBlock connections. Those redundant connections will be eventually filtered out.
+        """
+        src_peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("src_peers"))
+        dst_peers = BasePeerSet().get_peer_set_by_indices(DimensionsManager().get_dimension_domain_by_name("dst_peers"))
+        return ConnectivityProperties.make_conn_props_from_dict({"src_peers": src_peers, "dst_peers": dst_peers})
 
     @staticmethod
     def make_empty_props():
@@ -477,3 +491,14 @@ class ConnectivityProperties(CanonicalHyperCubeSet):
             if cube[src_peers_index] != cube[dst_peers_index] or not cube[src_peers_index].is_single_value():
                 return False
         return True
+
+    def props_without_auto_conns(self):
+        """
+        Return the properties after removing all connections from peer to itself
+        """
+        peers = self.project_on_one_dimension("src_peers") | self.project_on_one_dimension("dst_peers")
+        auto_conns = ConnectivityProperties()
+        for peer in peers:
+            auto_conns |= ConnectivityProperties.make_conn_props_from_dict({"src_peers": PeerSet({peer}),
+                                                                            "dst_peers": PeerSet({peer})})
+        return self - auto_conns

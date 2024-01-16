@@ -3,12 +3,13 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from nca.CoreDS import Peer
 from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.Resources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy, OptimizedPolicyConnections, PolicyConnectionsFilter
 from .NetworkLayer import NetworkLayersContainer, NetworkLayerName
+from nca.Utils.ExplTracker import ExplTracker
 
 
 @dataclass
@@ -175,7 +176,7 @@ class NetworkConfig:
 
         return affected_pods
 
-    def _check_for_excluding_ipv6_addresses(self, exclude_ipv6):
+    def check_for_excluding_ipv6_addresses(self, exclude_ipv6):
         """
         checks and returns if to exclude non-referenced IPv6 addresses from the config
         Excluding the IPv6 addresses will be enabled if the exclude_ipv6 param is True and
@@ -201,7 +202,7 @@ class NetworkConfig:
         if self.referenced_ip_blocks is not None:
             return self.referenced_ip_blocks
 
-        exclude_non_ref_ipv6_from_policies = self._check_for_excluding_ipv6_addresses(exclude_non_ref_ipv6)
+        exclude_non_ref_ipv6_from_policies = self.check_for_excluding_ipv6_addresses(exclude_non_ref_ipv6)
         self.referenced_ip_blocks = Peer.PeerSet()
         for policy in self.policies_container.policies.values():
             self.referenced_ip_blocks |= policy.referenced_ip_blocks(exclude_non_ref_ipv6_from_policies)
@@ -268,45 +269,61 @@ class NetworkConfig:
 
         return allowed_conns_res, captured_flag_res, allowed_captured_conns_res, denied_conns_res
 
-    def allowed_connections_optimized(self, layer_name=None):
+    def allowed_connections_optimized(self, layer_name=None, res_conns_filter=PolicyConnectionsFilter()):
         """
         Computes the set of allowed connections between any relevant peers.
         :param NetworkLayerName layer_name: The name of the layer to use, if requested to use a specific layer only
+        :param PolicyConnectionsFilter res_conns_filter: filter of the required resulting connections
+        (connections with False value will not be calculated)
         :return: allowed_conns: all allowed connections for relevant peers.
         :rtype: OptimizedPolicyConnections
         """
+        if ExplTracker().is_active():
+            ExplTracker().set_peers(self.peer_container.peer_set)
         if layer_name is not None:
             if layer_name not in self.policies_container.layers:
                 return self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
-                                                                                                layer_name)
-            return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container)
+                                                                                                layer_name,
+                                                                                                res_conns_filter)
+            return self.policies_container.layers[layer_name].allowed_connections_optimized(self.peer_container,
+                                                                                            res_conns_filter)
 
         all_peers = self.peer_container.get_all_peers_group()
         host_eps = Peer.PeerSet(set([peer for peer in all_peers if isinstance(peer, Peer.HostEP)]))
         # all possible connections involving hostEndpoints
         conn_hep = ConnectivityProperties.make_conn_props_from_dict({"src_peers": host_eps}) | \
             ConnectivityProperties.make_conn_props_from_dict({"dst_peers": host_eps})
-        conns_res = OptimizedPolicyConnections()
-        conns_res.all_allowed_conns = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
+        if host_eps and NetworkLayerName.K8s_Calico not in self.policies_container.layers:
+            # maintain K8s_Calico layer as active if peer container has hostEndpoint
+            conns_res = \
+                self.policies_container.layers.empty_layer_allowed_connections_optimized(self.peer_container,
+                                                                                         NetworkLayerName.K8s_Calico,
+                                                                                         res_conns_filter)
+            conns_res.and_by_filter(conn_hep, replace(res_conns_filter, calc_all_allowed=False))
+        else:
+            conns_res = OptimizedPolicyConnections()
+            if res_conns_filter.calc_all_allowed:
+                conns_res.all_allowed_conns = ConnectivityProperties.get_all_conns_props_per_config_peers(self.peer_container)
         for layer, layer_obj in self.policies_container.layers.items():
-            conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container)
+            conns_per_layer = layer_obj.allowed_connections_optimized(self.peer_container, res_conns_filter)
             # only K8s_Calico layer handles host_eps
             if layer != NetworkLayerName.K8s_Calico:
                 # connectivity of hostEndpoints is only determined by calico layer
-                conns_per_layer.allowed_conns -= conn_hep
-                conns_per_layer.denied_conns -= conn_hep
-                conns_per_layer.pass_conns -= conn_hep
-
-            # all allowed connections: intersection of all allowed connections from all layers
-            conns_res.all_allowed_conns &= conns_per_layer.all_allowed_conns
-            # all allowed captured connections: should be captured by at least one layer
-            conns_res.allowed_conns |= conns_per_layer.allowed_conns
+                conns_per_layer.sub_by_filter(conn_hep, replace(res_conns_filter, calc_all_allowed=False))
             conns_res.captured |= conns_per_layer.captured
-            # denied conns: should be denied by at least one layer
-            conns_res.denied_conns |= conns_per_layer.denied_conns
+            if res_conns_filter.calc_all_allowed:
+                # all allowed connections: intersection of all allowed connections from all layers
+                conns_res.all_allowed_conns &= conns_per_layer.all_allowed_conns
+            if res_conns_filter.calc_allowed:
+                # all allowed captured connections: should be captured by at least one layer
+                conns_res.allowed_conns |= conns_per_layer.allowed_conns
+            if res_conns_filter.calc_denied:
+                # denied conns: should be denied by at least one layer
+                conns_res.denied_conns |= conns_per_layer.denied_conns
 
-        # allowed captured conn (by at least one layer) has to be allowed by all layers (either implicitly or explicitly)
-        conns_res.allowed_conns &= conns_res.all_allowed_conns
+        if res_conns_filter.calc_allowed:
+            # allowed captured conn (by at least one layer) has to be allowed by all layers (either implicitly or explicitly)
+            conns_res.allowed_conns &= conns_res.all_allowed_conns
         return conns_res
 
     def append_policy_to_config(self, policy):
@@ -316,3 +333,24 @@ class NetworkConfig:
         :return: None
         """
         self.policies_container.append_policy(policy)
+
+    def filter_conns_by_peer_types(self, conns):
+        """
+        Filter the given connections by removing several connection kinds that are never allowed
+        (such as IpBlock to IpBlock connections, connections from DNSEntries, and more).
+        :param ConnectivityProperties conns: the given connections.
+        :param PeerSet all_peers: all peers in the system.
+        :return The resulting connections.
+        :rtype ConnectivityProperties
+        """
+        res = conns
+        # avoid IpBlock -> {IpBlock, DNSEntry} connections
+        all_ips = Peer.IpBlock.get_all_ips_block_peer_set()
+        all_dns_entries = self.peer_container.get_all_dns_entries()
+        ip_to_ip_or_dns_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_ips,
+                                                                                  "dst_peers": all_ips | all_dns_entries})
+        res -= ip_to_ip_or_dns_conns
+        # avoid DNSEntry->anything connections
+        dns_to_any_conns = ConnectivityProperties.make_conn_props_from_dict({"src_peers": all_dns_entries})
+        res -= dns_to_any_conns
+        return res

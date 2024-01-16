@@ -12,8 +12,8 @@ from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.CoreDS.ConnectionSet import ConnectionSet
-from nca.Resources.NetworkPolicy import NetworkPolicy
-from nca.Resources.CalicoNetworkPolicy import CalicoNetworkPolicy, CalicoPolicyRule
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
+from nca.Resources.PolicyResources.CalicoNetworkPolicy import CalicoNetworkPolicy, CalicoPolicyRule
 from .GenericYamlParser import GenericYamlParser
 
 
@@ -293,7 +293,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
                 # and then policy has ipv6 no need for more checks
                 self.check_and_update_has_ipv6_addresses(rule_peers)
         else:
-            rule_peers = self.peer_container.get_all_peers_group(True)
+            rule_peers = self.peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
 
         ns_to_use = self.namespace if not ns_selector else None
         if pod_selector is not None:
@@ -496,14 +496,14 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if src_entity_rule:
             src_res_pods, src_res_ports = self._parse_entity_rule(src_entity_rule, protocol_supports_ports)
         else:
-            src_res_pods = self.peer_container.get_all_peers_group(True)
+            src_res_pods = self.peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
             src_res_ports = PortSet(True)
 
         dst_entity_rule = rule.get('destination')
         if dst_entity_rule:
             dst_res_pods, dst_res_ports = self._parse_entity_rule(dst_entity_rule, protocol_supports_ports)
         else:
-            dst_res_pods = self.peer_container.get_all_peers_group(True)
+            dst_res_pods = self.peer_container.get_all_peers_group(add_external_ips=True, include_dns_entries=True)
             dst_res_ports = PortSet(True)
 
         if is_ingress:  # FIXME: We do not handle well the case where dst_res_pods or src_res_pods contain ipBlocks
@@ -558,7 +558,7 @@ class CalicoPolicyYamlParser(GenericYamlParser):
         if not dst_res_pods and policy_selected_eps and (not is_ingress or not is_profile):
             self.warning('Rule selects no destination endpoints', rule)
 
-        return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action), conn_props
+        return CalicoPolicyRule(src_res_pods, dst_res_pods, connections, action, conn_props)
 
     def _verify_named_ports(self, rule, rule_eps, rule_conns):
         """
@@ -698,16 +698,12 @@ class CalicoPolicyYamlParser(GenericYamlParser):
             self.syntax_error('order is not allowed in the spec of a Profile', policy_spec)
 
         for ingress_rule in policy_spec.get('ingress', []):
-            rule, optimized_props = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
+            rule = self._parse_xgress_rule(ingress_rule, True, res_policy.selected_peers, is_profile)
             res_policy.add_ingress_rule(rule)
-            if self.optimized_run != 'false':
-                res_policy.update_and_add_optimized_props(optimized_props, rule.action, True)
 
         for egress_rule in policy_spec.get('egress', []):
-            rule, optimized_props = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
+            rule = self._parse_xgress_rule(egress_rule, False, res_policy.selected_peers, is_profile)
             res_policy.add_egress_rule(rule)
-            if self.optimized_run != 'false':
-                res_policy.update_and_add_optimized_props(optimized_props, rule.action, False)
 
         self._apply_extra_labels(policy_spec, is_profile, res_policy.name)
         res_policy.findings = self.warning_msgs

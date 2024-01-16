@@ -7,10 +7,11 @@ from sys import stderr
 import yaml
 from nca.Utils.CmdlineRunner import CmdlineRunner
 from nca.CoreDS.Peer import PeerSet, Pod, IpBlock, HostEP, BasePeerSet
-from nca.Resources.K8sNamespace import K8sNamespace
+from nca.Resources.OtherResources.K8sNamespace import K8sNamespace
 from nca.Parsers.IstioServiceEntryYamlParser import IstioServiceEntryYamlParser
 from nca.Parsers.K8sServiceYamlParser import K8sServiceYamlParser
 from nca.Utils.NcaLogger import NcaLogger
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class PodsFinder:
@@ -35,8 +36,12 @@ class PodsFinder:
                                   Loader=yaml.CSafeLoader)
             self.add_eps_from_yaml(peer_code)
 
+    def load_peer_from_istio_resource(self):
+        peer_code = yaml.load(CmdlineRunner.get_k8s_resources(['serviceentry']), Loader=yaml.CSafeLoader)
+        self.add_eps_from_yaml(peer_code)
+
     def load_peer_from_k8s_live_cluster(self):
-        peer_code = yaml.load(CmdlineRunner.get_k8s_resources('pod'), Loader=yaml.CSafeLoader)
+        peer_code = yaml.load(CmdlineRunner.get_k8s_resources(['pod']), Loader=yaml.CSafeLoader)
         self.add_eps_from_yaml(peer_code)
 
     def add_eps_from_yaml(self, yaml_obj, kind_override=None):
@@ -46,14 +51,12 @@ class PodsFinder:
         :param kind_override: if set, ignoring the object kind and using this param instead
         :return: None
         """
-        if not isinstance(yaml_obj, dict):
-            try:
-                for ep_sub_list in yaml_obj:  # e.g. when we have a list of lists - call recursively for each list
-                    self.add_eps_from_yaml(ep_sub_list)
-            except TypeError:
-                pass
+        if isinstance(yaml_obj, list):
+            for ep_sub_list in yaml_obj:  # e.g. when we have a list of lists - call recursively for each list
+                self.add_eps_from_yaml(ep_sub_list)
             return
-
+        if not isinstance(yaml_obj, dict):
+            return
         kind = yaml_obj.get('kind') if not kind_override else kind_override
         if kind in ['List', 'PodList', 'WorkloadEndpointList', 'HostEndpointList', 'NetworkSetList',
                     'GlobalNetworkSetList']:
@@ -109,6 +112,8 @@ class PodsFinder:
             for port in container.get('ports') or []:
                 pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
         self._add_peer(pod)
+        if ExplTracker().is_active():
+            ExplTracker().add_item(pod_object.path, pod_object.line_number, pod.full_name(), pod.workload_name)
 
     def _add_peer(self, peer):
         """
@@ -164,6 +169,12 @@ class PodsFinder:
                 for port in container.get('ports') or []:
                     pod.add_named_port(port.get('name'), port.get('containerPort'), port.get('protocol', 'TCP'))
             self._add_peer(pod)
+            if ExplTracker().is_active():
+                ExplTracker().add_item(workload_resource.path,
+                                       workload_resource.line_number,
+                                       pod.full_name(),
+                                       pod.workload_name
+                                       )
 
     def _add_networkset_from_yaml(self, networkset_object):
         """
@@ -194,6 +205,8 @@ class PodsFinder:
         for cidr in cidrs:
             ipb.add_cidr(cidr)
         self._add_peer(ipb)
+        if ExplTracker().is_active():
+            ExplTracker().add_item(networkset_object.path, networkset_object.line_number, ipb.full_name())
 
     def _add_hep_from_yaml(self, hep_object):
         """
@@ -217,6 +230,8 @@ class PodsFinder:
             hep.add_profile(profile)
 
         self._add_peer(hep)
+        if ExplTracker().is_active():
+            ExplTracker().add_item(hep_object.path, hep_object.line_number, hep.full_name())
 
     def _add_wep_from_yaml(self, wep_object):
         """
@@ -243,6 +258,8 @@ class PodsFinder:
             wep.add_profile(profile)
 
         self._add_peer(wep)
+        if ExplTracker().is_active():
+            ExplTracker().add_item(wep_object.path, wep_object.line_number, wep.full_name(), wep.workload_name)
 
     def _add_dns_entries_from_yaml(self, srv_entry_object):
         """
@@ -276,7 +293,7 @@ class NamespacesFinder:
             self._add_namespace(res_code, False)
 
     def load_ns_from_live_cluster(self):
-        yaml_file = CmdlineRunner.get_k8s_resources('namespace')
+        yaml_file = CmdlineRunner.get_k8s_resources(['namespace'])
         ns_code = yaml.load(yaml_file, Loader=yaml.CSafeLoader)
         self.set_namespaces(ns_code)
 
@@ -340,7 +357,7 @@ class ServicesFinder:
         Loads and parses service resources from live cluster
         :return: The list of parsed services in K8sService format
         """
-        yaml_file = CmdlineRunner.get_k8s_resources('service')
+        yaml_file = CmdlineRunner.get_k8s_resources(['service'])
         srv_resources = yaml.load(yaml_file, Loader=yaml.CSafeLoader)
         if not isinstance(srv_resources, dict):
             return

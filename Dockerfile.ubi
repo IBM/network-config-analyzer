@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 
-FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:6910799b75ad41f00891978575a0d955be2f800c51b955af73926e7ab59a41c3
+FROM registry.access.redhat.com/ubi8/ubi-minimal@sha256:8d43664c250c72d35af8498c7ff76a9f0d42f16b9b3b29f0caa747121778de0e
 
 USER 0
 
@@ -14,11 +14,11 @@ RUN INSTALL_PKGS="python39 python39-devel python39-pip graphviz" && \
     microdnf -y clean all --enablerepo='*'
 
 COPY requirements.txt /nca/
-RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
+RUN python3 -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
 
 COPY nca/ /nca/
 
 USER 9000
 
 WORKDIR "/"
-ENTRYPOINT ["python", "-m", "nca"]
+ENTRYPOINT ["python3", "-m", "nca"]

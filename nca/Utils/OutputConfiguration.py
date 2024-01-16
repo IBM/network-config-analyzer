@@ -8,6 +8,8 @@ import os
 import sys
 from urllib import request
 from nca.Utils.CmdlineRunner import CmdlineRunner
+from nca.FWRules.InteractiveConnectivityGraph import InteractiveConnectivityGraph
+from nca.Utils.ExplTracker import ExplTracker
 
 
 class OutputConfiguration(dict):
@@ -19,9 +21,9 @@ class OutputConfiguration(dict):
         default_output_config = {'fwRulesRunInTestMode': False, 'fwRulesDebug': False,
                                  'fwRulesGroupByLabelSinglePod': False, 'fwRulesFilterSystemNs': False,
                                  'fwRulesMaxIter': 10, 'outputFormat': 'txt', 'outputPath': None,
-                                 'fwRulesOverrideAllowedLabels': None, 'prURL': None,
+                                 'simplifyGraph': False, 'fwRulesOverrideAllowedLabels': None, 'prURL': None,
                                  'connectivityFilterIstioEdges': True, 'outputEndpoints': 'deployments',
-                                 'subset': {}, 'fullExplanation': False, 'excludeIPv6Range': True}
+                                 'subset': {}, 'explain': None, 'fullExplanation': False, 'excludeIPv6Range': True}
 
         super().__init__(default_output_config)
         if output_config_dict is not None:
@@ -33,7 +35,7 @@ class OutputConfiguration(dict):
     def __getattr__(self, name):
         return super().__getitem__(name)
 
-    def print_query_output(self, output, supported_output_formats=None):
+    def print_query_output(self, output, supported_output_formats=None):  # noqa: C901
         """
         print accumulated query's output according to query's output config (in required format, to file or stdout)
         :param output: string
@@ -62,6 +64,29 @@ class OutputConfiguration(dict):
                     print(f'Command {dot_cmd_string}\n did not create {path}\n', file=sys.stderr)
                 if os.path.isfile(tmp_dot_file):
                     os.remove(tmp_dot_file)
+            elif self.outputFormat == 'html':
+                tmp_dot_file = f'{path}.nca_tmp.dot'
+                tmp_svg_file = f'{path}.nca_tmp.svg'
+                dot_cmd = ['dot', tmp_dot_file, '-Tsvg', f'-o{tmp_svg_file}']
+                try:
+                    with open(tmp_dot_file, "w") as f:
+                        f.write(output)
+                    CmdlineRunner.run_and_get_output(dot_cmd)
+                except Exception as e:
+                    print(f'Failed to create a svg file: {tmp_svg_file}\n{e}', file=sys.stderr)
+                if not os.path.isfile(tmp_svg_file):
+                    dot_cmd_string = ' '.join(dot_cmd)
+                    print(f'Command {dot_cmd_string}\n did not create {tmp_svg_file}\n', file=sys.stderr)
+                else:
+                    try:
+                        InteractiveConnectivityGraph(tmp_svg_file, path, ExplTracker().explain_all())\
+                            .create_interactive_graph()
+                    except Exception as e:
+                        print(f'Failed to create a html file: {path}\n{e}', file=sys.stderr)
+                if os.path.isfile(tmp_dot_file):
+                    os.remove(tmp_dot_file)
+                if os.path.isfile(tmp_svg_file):
+                    os.remove(tmp_svg_file)
             else:
                 try:
                     with open(path, "a") as f:

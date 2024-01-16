@@ -42,7 +42,12 @@ class TestArgs:
     def _fix_path_args_with_base_dir(self, base_dir):
         for idx, arg in enumerate(self.args):
             if '/' in arg and not arg.startswith(('https://github', 'https://raw.githubusercontent')):
-                self.args[idx] = os.path.join(base_dir, arg)
+                # exclude cases where the arg is not a path
+                if self.args[idx - 1] in ['--explain', '-expl']:
+                    continue
+                full_path = os.path.join(base_dir, arg)
+                self.args[idx] = full_path
+
 
     def get_arg_value(self, arg_str_list):
         for index, arg in enumerate(self.args):
@@ -57,7 +62,7 @@ class CliQuery:
         self.test_dict = test_dict
         self.query_name = self.test_dict['name']
         self.test_name = test_name
-        self.args_obj = TestArgs(test_dict['args'].split() + ['-opt='+hc_opt], cli_tests_base_dir)
+        self.args_obj = TestArgs(['-opt='+hc_opt] + test_dict['args'].split(), cli_tests_base_dir)
 
 
 class SchemeFile:
@@ -104,6 +109,16 @@ class GeneralTest:
 
     def run_all_test_flow(self, all_results):
         # should be overriden by inheriting classes
+        tmp_opt = [i for i in self.test_queries_obj.args_obj.args if '-opt=' in i]
+        opt = tmp_opt[0].split('=')[1] if tmp_opt else 'false'
+        if isinstance(self.test_queries_obj, CliQuery) and (opt == 'debug' or opt == 'true'):
+            implemented_opt_queries = {'--connectivity', '--equiv', '--permits', '--interferes', '--forbids',
+                                       '--sanity', '--semantic_diff'}
+            # TODO - update/remove the optimization below when all queries are supported in optimized implementation
+            if not implemented_opt_queries.intersection(set(self.test_queries_obj.args_obj.args)):
+                print(f'Skipping {self.test_queries_obj.test_name} since it does not have optimized implementation yet')
+                return 0, 0
+
         self.initialize_test()
         self.run_test()
         self.evaluate_test_results()

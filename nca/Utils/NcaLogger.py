@@ -3,18 +3,7 @@
 # SPDX-License-Identifier: Apache2.0
 #
 import sys
-
-
-class Singleton(type):
-    """
-    A metaclass implementing singleton for NcaLogger
-    """
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+from nca.Utils.Utils import Singleton
 
 
 class NcaLogger(metaclass=Singleton):
@@ -88,7 +77,7 @@ class NcaLogger(metaclass=Singleton):
         Log a message
         :param sting msg: message to log
         :param a file-like-object file: output stream
-        :param str level: the level of the message: (I)nfo, (W)arning
+        :param str level: the level of the message: (I)nfo, (W)arning, (E)rror
         """
         if level == 'I':
             msg = f'Info: {msg}'
@@ -96,10 +85,14 @@ class NcaLogger(metaclass=Singleton):
             msg = f'Warning: {msg}'
             if not file:
                 file = sys.stderr
+        elif level == 'E':
+            msg = f'Error: {msg}'
+            if not file:
+                file = sys.stderr
 
         if self._is_collecting_msgs:
             if self.is_mute():
-                self._collected_messages.append(msg)
+                self._collected_messages.append((msg, file))
             else:
                 print(msg, file=file)
 
@@ -108,6 +101,7 @@ class NcaLogger(metaclass=Singleton):
         Flush all collected messages and print them (or not)
         :param bool silent: if silent is True don't print out the messages
         """
-        if not silent and len(self._collected_messages) > 0:
-            print(*self._collected_messages, sep="\n")
+        if not silent:
+            for msg in self._collected_messages:
+                print(msg[0], file=msg[1])
         self._collected_messages.clear()

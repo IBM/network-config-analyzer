@@ -57,12 +57,22 @@ class ConnectivityGraph:
         Add edges to the graph according to the give cube
         :param ConnectivityCube conn_cube: the given cube
          whereas all other values should be filtered out in the output
+         :param PeerContainer peer_container: the peer container
         """
         conns, src_peers, dst_peers = \
             ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, peer_container)
         for src_peer in src_peers:
             for dst_peer in dst_peers:
                 self.connections_to_peers[conns].append((src_peer, dst_peer))
+
+    def add_props_to_graph(self, props, peer_container):
+        """
+        Add edges to the graph according to the given connectivity properties
+        :param ConnectivityProperties props: the given connectivity properties
+        :param PeerContainer peer_container: the peer container
+        """
+        for cube in props:
+            self.add_edges_from_cube_dict(props.get_connectivity_cube(cube), peer_container)
 
     def _get_peer_details(self, peer, format_requirement=False):
         """
@@ -298,39 +308,31 @@ class ConnectivityGraph:
         # returning [(group, list of self edges)]
         return connected_groups + [(nc_group, None) for nc_group in not_connected_groups] + [([p], None) for p in left_out]
 
-    def get_connections_without_fw_rules_txt_format(self, connectivity_msg=None):
+    def get_connections_without_fw_rules_txt_format(self, connectivity_msg=None, exclude_self_loop_conns=True):
         """
         :param Union[str,None] connectivity_msg: a msg header describing either the type of connectivity (TCP/non-TCP)
             for connectivity-map output with connectivity restriction,
             or the type of connectivity changes for semantic-diff query output
+        :param bool exclude_self_loop_conns: indicates if to exclude/ include connections from workload to itself
+        - always true for connectivity-map query output
         :rtype: str
         :return: a string of the original peers connectivity graph content (without minimization of fw-rules)
         """
         lines = set()
-        workload_name_to_peers_map = {}  # a dict from workload_name to pods set, to track replicas and copies
         for connections, peer_pairs in self.connections_to_peers.items():
             if not connections:
                 continue
             for src_peer, dst_peer in peer_pairs:
-                src_peer_name = self._get_peer_details(src_peer, True)[0]
-                if src_peer == dst_peer:  # relevant with all connections only
-                    # add the pod to the map with its workload name
-                    if src_peer_name not in workload_name_to_peers_map:
-                        workload_name_to_peers_map[src_peer_name] = {src_peer}
-                    else:
-                        workload_name_to_peers_map[src_peer_name].add(src_peer)
-                    continue  # after having the full dict, lines from pod to itself will be added for workload names
-                    # with only one pod.
-                    # if a peer has different replicas or copies, a connection from it to itself will be added automatically
-                    # only if there are connections between the replicas too (not only from a single pod to itself)
-                dst_peer_name = self._get_peer_details(dst_peer, True)[0]
-                conn_str = connections.get_simplified_connections_representation(True)
-                conn_str = conn_str.title() if not conn_str.isupper() else conn_str
-                lines.add(f'{src_peer_name} => {dst_peer_name} : {conn_str}')
-
-        # adding conns to itself for workloads with single replica
-        for workload_name in [wl for wl in workload_name_to_peers_map if len(workload_name_to_peers_map[wl]) == 1]:
-            lines.add(f'{workload_name} => {workload_name} : All Connections')
+                if src_peer != dst_peer:
+                    src_peer_name = self._get_peer_details(src_peer, True)[0]
+                    dst_peer_name = self._get_peer_details(dst_peer, True)[0]
+                    # no self-loops: if a peer has different replicas or copies, a connection from it to itself will
+                    # not be added either
+                    if exclude_self_loop_conns and src_peer_name == dst_peer_name:
+                        continue
+                    conn_str = connections.get_simplified_connections_representation(True)
+                    conn_str = conn_str.title() if not conn_str.isupper() else conn_str
+                    lines.add(f'{src_peer_name} => {dst_peer_name} : {conn_str}')
 
         lines_list = []
         if connectivity_msg:
@@ -338,10 +340,11 @@ class ConnectivityGraph:
         lines_list.extend(sorted(list(lines)))
         return '\n'.join(lines_list)
 
-    def get_connectivity_dot_format_str(self, connectivity_restriction=None):
+    def get_connectivity_dot_format_str(self, connectivity_restriction=None, simplify_graph=False):
         """
         :param Union[str,None] connectivity_restriction: specify if connectivity is restricted to
                TCP / non-TCP , or not
+        :param simplify_graph[bool, False] whether to simplify the dot output graph
         :rtype str
         :return: a string with content of dot format for connectivity graph
         """
@@ -349,9 +352,9 @@ class ConnectivityGraph:
         query_title = f'{self.output_config.queryName}/' if self.output_config.queryName else ''
         name = f'{query_title}{self.output_config.configName}{restriction_title}'
 
-        dot_graph = DotGraph(name)
+        dot_graph = DotGraph(name, do_not_subgraph=simplify_graph)
         peers_groups = self._get_equals_groups()
-        # we are going to treat a a peers_group as one peer.
+        # we are going to treat a peers_group as one peer.
         # the first peer in the peers_group is representing the group
         # we will add the text of all the peers in the group to this peer
         for peers_group, group_connection in peers_groups:
@@ -395,7 +398,7 @@ class ConnectivityGraph:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=True)
             for edge in undirected_edges | cliques_edges:
                 dot_graph.add_edge(src_name=edge[0][0], dst_name=edge[1][0], label=conn_str, is_dir=False)
-        return dot_graph.to_str()
+        return dot_graph.to_str(self.output_config.outputFormat == 'dot')
 
     def get_minimized_firewall_rules(self):
         """

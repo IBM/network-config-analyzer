@@ -10,13 +10,12 @@ from nca.CoreDS.Peer import PeerSet
 from nca.CoreDS.PortSet import PortSet
 from nca.CoreDS.ConnectivityCube import ConnectivityCube
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from nca.CoreDS.ProtocolSet import ProtocolSet
-from nca.Resources.IngressPolicy import IngressPolicy
-from nca.Resources.NetworkPolicy import NetworkPolicy
-from .GenericIngressLikeYamlParser import GenericIngressLikeYamlParser
+from nca.Resources.PolicyResources.GatewayPolicy import GatewayPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import NetworkPolicy
+from .GenericGatewayYamlParser import GenericGatewayYamlParser
 
 
-class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
+class IngressPolicyYamlParser(GenericGatewayYamlParser):
     """
     A parser for Ingress objects
     """
@@ -27,7 +26,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         :param PeerContainer peer_container: The ingress policy will be evaluated against this set of peers
         :param str ingress_file_name: The name of the ingress resource file
         """
-        GenericIngressLikeYamlParser.__init__(self, peer_container, ingress_file_name)
+        GenericGatewayYamlParser.__init__(self, peer_container, ingress_file_name)
         self.policy = policy
         self.namespace = None
         self.default_backend_peers = PeerSet()
@@ -95,7 +94,11 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
         service_port = srv.get_port_by_name(port_name) if port_name else srv.get_port_by_number(port_number)
         if not service_port:
-            self.syntax_error(f'Missing port {port_name if port_name else port_number} in the service', service)
+            port_str = f'{port_name if port_name else port_number}'
+            warning_msg = f'Ingress rule redirects traffic to {service_name}:{port_str}, '
+            warning_msg += f' but port {port_str} is not exposed by Service {service_name}'
+            self.warning(warning_msg, service)
+            return None, None, False
 
         rule_ports = PortSet()
         rule_ports.add_port(service_port.target_port)  # may be either a number or a named port
@@ -157,7 +160,7 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
                 path_dfa = MinDFA.dfa_from_regex(path_string)
             else:  # Prefix type
                 path_string = '/' if not path_string else path_string
-                path_dfa = GenericIngressLikeYamlParser.get_path_prefix_dfa(path_string)
+                path_dfa = GenericGatewayYamlParser.get_path_prefix_dfa(path_string)
             parsed_paths_with_dfa.append((path_string, path_dfa, path_type, peers, ports))
 
         # next, avoid shorter sub-paths to extend to longer ones, using dfa operations
@@ -242,8 +245,8 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
 
     def parse_policy(self):
         """
-        Parses the input object to create  IngressPolicy object (with deny rules only)
-        :return: IngressPolicy object with proper deny egress_rules, or None for wrong input object
+        Parses the input object to create GatewayPolicy object
+        :return: GatewayPolicy object with proper egress_rules, or None for wrong input object
         """
         policy_name, policy_ns = self.parse_generic_yaml_objects_fields(self.policy, ['Ingress'],
                                                                         ['networking.k8s.io/v1'], 'k8s', True)
@@ -251,9 +254,10 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
             return None  # Not an Ingress object
 
         self.namespace = self.peer_container.get_namespace(policy_ns)
-        res_policy = IngressPolicy(policy_name + '/allow', self.namespace)
+        res_policy = GatewayPolicy("Allow policy for Ingress resource " + policy_name, self.namespace,
+                                   GatewayPolicy.ActionType.Allow)
         res_policy.policy_kind = NetworkPolicy.PolicyType.Ingress
-
+        res_policy.affects_egress = True
         policy_spec = self.policy['spec']
         allowed_spec_keys = {'defaultBackend': [0, dict], 'ingressClassName': [0, str],
                              'rules': [0, list], 'tls': [0, list]}
@@ -287,10 +291,6 @@ class IngressPolicyYamlParser(GenericIngressLikeYamlParser):
         # allowed_conns = none means that services referenced by this Ingress policy are not found,
         # then no connections rules to add (Ingress policy has no effect)
         if allowed_conns:
-            res_policy.add_rules(self._make_allow_rules(allowed_conns))
-            protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-            allowed_conns &= ConnectivityProperties.make_conn_props_from_dict({"protocols": protocols,
-                                                                               "src_peers": res_policy.selected_peers})
-            res_policy.add_optimized_allow_props(allowed_conns, False)
+            res_policy.add_egress_rules(self._make_allow_rules(allowed_conns, res_policy.selected_peers))
         res_policy.findings = self.warning_msgs
         return res_policy

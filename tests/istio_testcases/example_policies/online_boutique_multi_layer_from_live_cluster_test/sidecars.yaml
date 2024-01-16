@@ -1,0 +1,230 @@
+﻿apiVersion: v1
+items:
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"adservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*"]}],"workloadSelector":{"labels":{"app":"adservice"}}}}
+    creationTimestamp: "2024-01-07T14:00:57Z"
+    generation: 1
+    name: adservice
+    namespace: onlineboutique
+    resourceVersion: "326237"
+    uid: 770b0d87-f318-45f6-956b-419385c637a4
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+    workloadSelector:
+      labels:
+        app: adservice
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"cartservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*","./cart.memorystore-redis.onlineboutique"]}],"workloadSelector":{"labels":{"app":"cartservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:31Z"
+    generation: 1
+    name: cartservice
+    namespace: onlineboutique
+    resourceVersion: "326347"
+    uid: 37c4aa31-c4bc-442a-87df-8971889ff2a6
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+      - ./cart.memorystore-redis.onlineboutique
+    workloadSelector:
+      labels:
+        app: cartservice
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"checkoutservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*","./cartservice.onlineboutique.svc.cluster.local","./currencyservice.onlineboutique.svc.cluster.local","./emailservice.onlineboutique.svc.cluster.local","./paymentservice.onlineboutique.svc.cluster.local","./productcatalogservice.onlineboutique.svc.cluster.local","./shippingservice.onlineboutique.svc.cluster.local"]}],"workloadSelector":{"labels":{"app":"checkoutservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:40Z"
+    generation: 1
+    name: checkoutservice
+    namespace: onlineboutique
+    resourceVersion: "326393"
+    uid: 8d7aa57d-4d40-4f51-b1d1-479df67f3acc
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+      - ./cartservice.onlineboutique.svc.cluster.local
+      - ./currencyservice.onlineboutique.svc.cluster.local
+      - ./emailservice.onlineboutique.svc.cluster.local
+      - ./paymentservice.onlineboutique.svc.cluster.local
+      - ./productcatalogservice.onlineboutique.svc.cluster.local
+      - ./shippingservice.onlineboutique.svc.cluster.local
+    workloadSelector:
+      labels:
+        app: checkoutservice
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"currencyservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*"]}],"workloadSelector":{"labels":{"app":"currencyservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:50Z"
+    generation: 1
+    name: currencyservice
+    namespace: onlineboutique
+    resourceVersion: "326457"
+    uid: 974c9d64-88ef-4f1f-87db-5a658edfa2a8
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+    workloadSelector:
+      labels:
+        app: currencyservice
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"emailservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*"]}],"workloadSelector":{"labels":{"app":"emailservice"}}}}
+    creationTimestamp: "2024-01-07T14:01:58Z"
+    generation: 1
+    name: emailservice
+    namespace: onlineboutique
+    resourceVersion: "326517"
+    uid: 2ca2cfa7-fbe9-4dd6-a4da-8e5be9928de3
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+    workloadSelector:
+      labels:
+        app: emailservice
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"frontend","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*","./adservice.onlineboutique.svc.cluster.local","./cartservice.onlineboutique.svc.cluster.local","./checkoutservice.onlineboutique.svc.cluster.local","./currencyservice.onlineboutique.svc.cluster.local","./productcatalogservice.onlineboutique.svc.cluster.local","./recommendationservice.onlineboutique.svc.cluster.local","./shippingservice.onlineboutique.svc.cluster.local"]}],"workloadSelector":{"labels":{"app":"frontend"}}}}
+    creationTimestamp: "2024-01-07T14:02:06Z"
+    generation: 1
+    name: frontend
+    namespace: onlineboutique
+    resourceVersion: "326579"
+    uid: f5be10ca-5aaa-49ce-8201-e44daf52451b
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+      - ./adservice.onlineboutique.svc.cluster.local
+      - ./cartservice.onlineboutique.svc.cluster.local
+      - ./checkoutservice.onlineboutique.svc.cluster.local
+      - ./currencyservice.onlineboutique.svc.cluster.local
+      - ./productcatalogservice.onlineboutique.svc.cluster.local
+      - ./recommendationservice.onlineboutique.svc.cluster.local
+      - ./shippingservice.onlineboutique.svc.cluster.local
+    workloadSelector:
+      labels:
+        app: frontend
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"loadgenerator","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*","./frontend.onlineboutique.svc.cluster.local"]}],"workloadSelector":{"labels":{"app":"loadgenerator"}}}}
+    creationTimestamp: "2024-01-07T14:02:27Z"
+    generation: 1
+    name: loadgenerator
+    namespace: onlineboutique
+    resourceVersion: "326672"
+    uid: 997ad827-f74a-4d94-8c6e-88406720a0b2
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+      - ./frontend.onlineboutique.svc.cluster.local
+    workloadSelector:
+      labels:
+        app: loadgenerator
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"paymentservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*"]}],"workloadSelector":{"labels":{"app":"paymentservice"}}}}
+    creationTimestamp: "2024-01-07T14:02:38Z"
+    generation: 1
+    name: paymentservice
+    namespace: onlineboutique
+    resourceVersion: "326747"
+    uid: b80ca19c-8a1b-43da-b42f-9be08e35892e
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+    workloadSelector:
+      labels:
+        app: paymentservice
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"productcatalogservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*"]}],"workloadSelector":{"labels":{"app":"productcatalogservice"}}}}
+    creationTimestamp: "2024-01-07T14:02:48Z"
+    generation: 1
+    name: productcatalogservice
+    namespace: onlineboutique
+    resourceVersion: "326823"
+    uid: a8cdef53-9a78-4534-8ec9-2ef4110d8361
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+    workloadSelector:
+      labels:
+        app: productcatalogservice
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"recommendationservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*","./productcatalogservice.onlineboutique.svc.cluster.local"]}],"workloadSelector":{"labels":{"app":"recommendationservice"}}}}
+    creationTimestamp: "2024-01-07T14:02:57Z"
+    generation: 1
+    name: recommendationservice
+    namespace: onlineboutique
+    resourceVersion: "326894"
+    uid: 588e022a-061b-4105-85a6-f91e9fb36394
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+      - ./productcatalogservice.onlineboutique.svc.cluster.local
+    workloadSelector:
+      labels:
+        app: recommendationservice
+- apiVersion: networking.istio.io/v1beta1
+  kind: Sidecar
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Sidecar","metadata":{"annotations":{},"name":"shippingservice","namespace":"onlineboutique"},"spec":{"egress":[{"hosts":["istio-system/*"]}],"workloadSelector":{"labels":{"app":"shippingservice"}}}}
+    creationTimestamp: "2024-01-07T14:03:05Z"
+    generation: 1
+    name: shippingservice
+    namespace: onlineboutique
+    resourceVersion: "326958"
+    uid: cac7635f-1c3e-4352-a104-01fe299f09df
+  spec:
+    egress:
+    - hosts:
+      - istio-system/*
+    workloadSelector:
+      labels:
+        app: shippingservice
+kind: List
+metadata:
+  resourceVersion: ""

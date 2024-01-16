@@ -9,7 +9,7 @@ from nca.CoreDS.ConnectionSet import ConnectionSet
 from nca.CoreDS.Peer import IpBlock, PeerSet, DNSEntry
 from nca.CoreDS.ProtocolSet import ProtocolSet
 from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
-from .NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
+from nca.Resources.PolicyResources.NetworkPolicy import PolicyConnections, OptimizedPolicyConnections, NetworkPolicy
 
 
 @dataclass
@@ -29,6 +29,9 @@ class IstioSidecarRule:
         self.special_egress_peer_set = peers_for_ns_compare  # set of peers captured by a global sidecar with hosts of
         # './<any>' form - then peers in this set will be in allowed connections only if are in the same namespace of the
         # source peer captured by the sidecar
+        self.optimized_props = ConnectivityProperties()
+        # copy of optimized props (used by src_peers/dst_peers domain-updating mechanism)
+        self.optimized_props_copy = ConnectivityProperties()
 
 
 class IstioSidecar(NetworkPolicy):
@@ -47,6 +50,19 @@ class IstioSidecar(NetworkPolicy):
 
     def __eq__(self, other):
         return super().__eq__(other) and self.default_sidecar == other.default_sidecar
+
+    def sync_opt_props(self):
+        """
+        If optimized props of the policy are not synchronized (self.optimized_props_in_sync is False),
+        compute optimized props of the policy according to the optimized props of its rules
+        """
+        if self.optimized_props_in_sync:
+            return
+        self._init_opt_props()
+        self._optimized_allow_ingress_props = ConnectivityProperties.get_all_conns_props_per_domain_peers()
+        for rule in self.egress_rules:
+            self._optimized_allow_egress_props |= rule.optimized_props
+        self.optimized_props_in_sync = True
 
     def allowed_connections(self, from_peer, to_peer, is_ingress):
         """
@@ -86,12 +102,12 @@ class IstioSidecar(NetworkPolicy):
     def allowed_connections_optimized(self, is_ingress):
         res_conns = OptimizedPolicyConnections()
         if is_ingress:
-            res_conns.allowed_conns = self.optimized_allow_ingress_props.copy()
-            res_conns.denied_conns = self.optimized_deny_ingress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_ingress_props().copy()
+            res_conns.denied_conns = self.optimized_deny_ingress_props().copy()
             res_conns.captured = PeerSet()
         else:
-            res_conns.allowed_conns = self.optimized_allow_egress_props.copy()
-            res_conns.denied_conns = self.optimized_deny_egress_props.copy()
+            res_conns.allowed_conns = self.optimized_allow_egress_props().copy()
+            res_conns.denied_conns = self.optimized_deny_egress_props().copy()
             res_conns.captured = self.selected_peers if self.affects_egress else PeerSet()
         return res_conns
 
@@ -153,7 +169,7 @@ class IstioSidecar(NetworkPolicy):
             # connections to IP-block is enabled only if the outbound mode is allow-any (disabled for registry only)
             if self.outbound_mode == IstioSidecar.OutboundMode.ALLOW_ANY:
                 ip_blocks = IpBlock.get_all_ips_block_peer_set()
-                self.optimized_allow_egress_props |= \
+                rule.optimized_props |= \
                     ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
                                                                       "dst_peers": ip_blocks})
 
@@ -161,19 +177,19 @@ class IstioSidecar(NetworkPolicy):
             dst_dns_entries = dns_entries & (rule.egress_peer_set | rule.special_egress_peer_set)
             if self.selected_peers and dst_dns_entries:
                 protocols = ProtocolSet.get_protocol_set_with_single_protocol('TCP')
-                self.optimized_allow_egress_props |= \
+                rule.optimized_props |= \
                     ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
                                                                       "dst_peers": dst_dns_entries,
                                                                       "protocols": protocols})
 
             if self.selected_peers and rule.egress_peer_set:
-                self.optimized_allow_egress_props |= \
+                rule.optimized_props |= \
                     ConnectivityProperties.make_conn_props_from_dict({"src_peers": self.selected_peers,
                                                                       "dst_peers": rule.egress_peer_set})
             peers_sets_by_ns = self.combine_peer_sets_by_ns(self.selected_peers, rule.special_egress_peer_set,
                                                             peer_container)
             for (from_peers, to_peers) in peers_sets_by_ns:
                 if from_peers and to_peers:
-                    self.optimized_allow_egress_props |= \
+                    rule.optimized_props |= \
                         ConnectivityProperties.make_conn_props_from_dict({"src_peers": from_peers,
                                                                           "dst_peers": to_peers})
