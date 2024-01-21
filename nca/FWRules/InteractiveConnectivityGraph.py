@@ -223,63 +223,6 @@ class InteractiveConnectivityGraph:
             elements_info = [self._get_soup_tag_info(tag) for tag in self._get_clickable_elements()]
             return elements_info
 
-        def _set_related_tag_link(self, related_tag, related_tag_info, t_class):
-            """
-            Set the link in the soup tag.
-            Not all the svg files sits in the same directory,
-            (all svg file, except the main file, are in sub directory)
-            therefore, relative path depends on the class of:
-             1. the element that we creates the svg file for
-             2. the soup tag for which we currently update the link
-
-             param: related_tag: the tag from the soup object that we want to update its link
-             param: related_tag_info :the information of this tag: ElementInfo
-             param: t_class: the class of the tag that creates the svg file for: str
-            """
-            if (t_class == self.BACKGROUND_CT and related_tag_info.t_class == self.BACKGROUND_CT) or \
-               (t_class != self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT):
-                relative_path = '.'
-            elif t_class == self.BACKGROUND_CT and related_tag_info.t_class != self.BACKGROUND_CT:
-                relative_path = self.ELEMENTS_DIRECTORY
-            else:
-                relative_path = '..'
-            related_tag['xlink:href'] = posixpath.join(relative_path, related_tag_info.t_id + '.svg')
-
-        def _highlight_tag(self, tag, t_class):
-            """
-            add highlight ingo to the soup tag, depends on the class
-            param: tag: the soup tag to edit
-            param: class: the class type of the tag
-            """
-            if t_class == self.NODE_CT:
-                tag.polygon['stroke-width'] = '5'
-            elif t_class == self.NAMESPACE_CT:
-                tag.polygon['stroke-width'] = '5'
-                tag['font-weight'] = 'bold'
-            elif t_class == self.EDGE_CT:
-                tag.path['stroke-width'] = '3'
-                tag['font-weight'] = 'bold'
-            elif t_class == self.CONNECTIVITY_CT:
-                tag['text-decoration'] = 'underline'
-                tag['font-weight'] = 'bold'
-
-        def _save_tag_file(self, tag_soup, tag_info):
-            """
-            save the soup to an svg file, the name and location is according to the class and id
-            (all svg file, except the main file, are in sub directory)
-            param: tag_soup: the soup to save: soup
-            param: tag_info: the information of the tag for which we currently save its soup
-            """
-            if tag_info.t_class == self.BACKGROUND_CT:
-                tag_file_name = os.path.join(self.output_directory, tag_info.t_id + '.svg')
-            else:
-                tag_file_name = os.path.join(self.output_directory, self.ELEMENTS_DIRECTORY, tag_info.t_id + '.svg')
-            try:
-                with open(tag_file_name, 'wb') as tag_svg_file:
-                    tag_svg_file.write(tag_soup.prettify(encoding='utf-8'))
-            except Exception as e:
-                print(f'Failed to open file: {tag_file_name}\n{e} for writing', file=sys.stderr)
-
         def _set_explanation(self, tag_soup, explanation):
             """
             set the explanation of the graph of a tag
@@ -359,43 +302,6 @@ class InteractiveConnectivityGraph:
                 tag_svg_file.write(html_soup.prettify(encoding='utf-8'))
             return
 
-        def create_output(self, elements_relations):
-            """
-            Creates the set of svg files as an interactive graph
-            param: elements_relations: dict t_id -> ElementRelations:
-            for each tag:
-            1. a list of ids of tags that should be in the svg file of the tag.
-            2. a list of ids of tags that should be highlighted in the svg file of the tag.
-
-            for each tag:
-            (1) creating duplicate the soap object
-            (2) remove from the duplicated soup all other tags which are not related to the tag.
-            (3) highlights the tags that should be highlighted in the the duplicated soup
-            (4) save the duplicated soup to an svg file
-
-            param:  elements_relations dict {str: ElementRelations}: for each element list of relations and list of highlights
-            """
-            try:
-                if os.path.isdir(self.output_directory):
-                    shutil.rmtree(self.output_directory)
-                os.makedirs(os.path.join(self.output_directory, self.ELEMENTS_DIRECTORY))
-            except Exception as e:
-                print(f'Failed to create directory: {self.output_directory}\n{e} for writing', file=sys.stderr)
-                return
-            for tag in self._get_clickable_elements():
-                tag_info = self._get_soup_tag_info(tag)
-                tag_soup = copy.copy(self.soup)
-                if tag_info.t_class != self.BACKGROUND_CT:
-                    self._set_explanation(tag_soup, elements_relations[tag_info.t_id].explanation)
-                for related_tag in self._get_clickable_elements(tag_soup):
-                    related_tag_info = self._get_soup_tag_info(related_tag)
-                    if related_tag_info.t_id not in elements_relations[tag_info.t_id].relations:
-                        related_tag.extract()
-                        continue
-                    self._set_related_tag_link(related_tag, related_tag_info, tag_info.t_class)
-                    if related_tag_info.t_id in elements_relations[tag_info.t_id].highlights:
-                        self._highlight_tag(related_tag, related_tag_info.t_class)
-                self._save_tag_file(tag_soup, tag_info)
 
     class AbstractGraph:
         """
