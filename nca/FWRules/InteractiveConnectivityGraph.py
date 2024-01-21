@@ -4,14 +4,10 @@
 #
 
 from __future__ import annotations
-import os
 import sys
-import shutil
 import itertools
-import copy
 from dataclasses import dataclass, field
 from collections import defaultdict
-import posixpath
 import networkx
 import json
 from bs4 import BeautifulSoup
@@ -301,7 +297,6 @@ class InteractiveConnectivityGraph:
             with open(tag_file_name, 'wb') as tag_svg_file:
                 tag_svg_file.write(html_soup.prettify(encoding='utf-8'))
             return
-
 
     class AbstractGraph:
         """
