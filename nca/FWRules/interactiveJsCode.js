@@ -20,6 +20,9 @@
             <script>
                 const selectableElems = document.querySelectorAll('.node');
                 var selectedElems = [];
+                const mainTitleText = 'Application connectivity graph\n'
+                var filterText = mainTitleText
+                var explainText = 'Please select the SOURCE node'
                 const selectionBox = document.getElementById('selectionBox');
                 const clickableElements = document.querySelectorAll('[clickable="true"]');
 
@@ -33,8 +36,8 @@
                 let indexElement = svg.querySelector('#index');
                 // Find the text element inside the "index" element
                 let titleTextElements = indexElement.querySelectorAll('text');
-                const mainTitleText = titleTextElements[0].textContent
 
+                selectionBox.innerHTML = filterText + explainText
                 let clickFlag = false;
 
                 function selectExplPeer(event) {
@@ -78,10 +81,10 @@
                       }
                       // Update the selection box with the names of the selected circles
                       if (selectedElems.length == 0) {
-                        selectionBox.innerHTML = 'Please select the SOURCE node';
+                        explainText = 'Please select the SOURCE node';
                       }
                       else if (selectedElems.length == 1) {
-                        selectionBox.innerHTML = 'Please select the DESTINATION node';
+                        explainText = 'Please select the DESTINATION node';
                       }
                       else {
                         const src = selectedElems[0].getAttribute('title');
@@ -103,12 +106,13 @@
                             expl_text = expl_text.replace(dstMatch, dstReplacement);
                           }
 
-                          selectionBox.innerHTML = expl_text;
+                          explainText = expl_text;
                         }
                         else {
-                          selectionBox.innerHTML = "Did not find entry of "+src+" and "+dst;
+                          explainText = "Did not find entry of "+src+" and "+dst;
                         }
                       }
+                      selectionBox.innerHTML = filterText + explainText
                     }
                     clickFlag = false; // Reset clickFlag
                   }, 250);
@@ -139,9 +143,11 @@
                 function updateTitleText(element) {
                   const clickedId = element.id;
                   const explanation = jsObject[clickedId].explanation;
+                  filterText = ''
                   explanation.forEach((el, index) => {
-                    titleTextElements[index].textContent = el
+                    filterText += el + '\n'
                   });
+                  selectionBox.innerHTML = filterText + explainText
                 }
 
                 function hideWithoutRelation(element) {
@@ -178,9 +184,8 @@
                         el.addEventListener('dblclick', function() {
                           showAllElements();
                           clearSelection(); // dbclick sellects the text it was clicked on, its annoying...
-                          titleTextElements[0].textContent = mainTitleText;
-                          titleTextElements[1].textContent = '';
-                          titleTextElements[2].textContent = '';
+                          filterText = mainTitleText + '\n'
+                          selectionBox.innerHTML = filterText + explainText
                         });
                       }
                       else {
