@@ -16,13 +16,20 @@
         </head>
         <body>
             <div id="graph-container"></div>
-            <pre id="selectionBox">Please select the SOURCE node</pre>
+            <pre id="selectionBox"></pre>
             <script>
                 const selectableElems = document.querySelectorAll('.node');
                 var selectedElems = [];
-                const mainTitleText = 'Application connectivity graph\n'
-                var filterText = mainTitleText
-                var explainText = 'Please select the SOURCE node'
+                const mainTitleText = 'Application connectivity graph'
+                const filterExplainText = 'For filtering, Please double-click on a node'
+                const unfilterExplainText = 'For unfiltering, Please double-click on the background'
+                const textSeparator = '\n---------------------------------------------------------------------------------\n\n'
+                const selectSrcText = 'For connectivity explanation, Please select the SOURCE node'
+                const selectDstText = 'For connectivity explanation, Please select the DESTINATION node'
+                const reselectSrcText = 'For another connectivity explanation, Please select the SOURCE node'
+
+                var filterText = mainTitleText + '\n' + filterExplainText
+                var explainText = selectSrcText
                 const selectionBox = document.getElementById('selectionBox');
                 const clickableElements = document.querySelectorAll('[clickable="true"]');
 
@@ -37,7 +44,7 @@
                 // Find the text element inside the "index" element
                 let titleTextElements = indexElement.querySelectorAll('text');
 
-                selectionBox.innerHTML = filterText + explainText
+                selectionBox.innerHTML = filterText + textSeparator + explainText
                 let clickFlag = false;
 
                 function selectExplPeer(event) {
@@ -81,10 +88,11 @@
                       }
                       // Update the selection box with the names of the selected circles
                       if (selectedElems.length == 0) {
-                        explainText = 'Please select the SOURCE node';
+                        explainText = selectSrcText;
                       }
                       else if (selectedElems.length == 1) {
-                        explainText = 'Please select the DESTINATION node';
+                        const src = selectedElems[0].getAttribute('title');
+                        explainText = selectDstText;
                       }
                       else {
                         const src = selectedElems[0].getAttribute('title');
@@ -111,8 +119,9 @@
                         else {
                           explainText = "Did not find entry of "+src+" and "+dst;
                         }
+                        explainText += '\n' + reselectSrcText
                       }
-                      selectionBox.innerHTML = filterText + explainText
+                      selectionBox.innerHTML = filterText + textSeparator + explainText
                     }
                     clickFlag = false; // Reset clickFlag
                   }, 250);
@@ -147,7 +156,8 @@
                   explanation.forEach((el, index) => {
                     filterText += el + '\n'
                   });
-                  selectionBox.innerHTML = filterText + explainText
+                  filterText += unfilterExplainText
+                  selectionBox.innerHTML = filterText + textSeparator + explainText
                 }
 
                 function hideWithoutRelation(element) {
@@ -185,7 +195,8 @@
                           showAllElements();
                           clearSelection(); // dbclick sellects the text it was clicked on, its annoying...
                           filterText = mainTitleText + '\n'
-                          selectionBox.innerHTML = filterText + explainText
+                          filterText += filterExplainText
+                          selectionBox.innerHTML = filterText + textSeparator + explainText
                         });
                       }
                       else {
