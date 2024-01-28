@@ -91,7 +91,7 @@ class PoliciesFinder:
                     istio_sidecar_parser = IstioSidecarYamlParser(policy, self.peer_container, file_name)
                 else:
                     istio_sidecar_parser.reset(policy, self.peer_container, file_name)
-                parsed_policy = istio_sidecar_parser.parse_policy()
+                istio_sidecar_parser.parse_policy()
             elif policy_type == NetworkPolicy.PolicyType.Ingress:
                 parsed_element = IngressPolicyYamlParser(policy, self.peer_container, file_name)
                 parsed_policy = parsed_element.parse_policy()
@@ -137,7 +137,6 @@ class PoliciesFinder:
             for istio_sidecar in istio_sidecars:
                 self._add_policy(istio_sidecar)
                 if ExplTracker().is_active():
-                    ExplTracker().derive_item(istio_sidecar.name)
                     ExplTracker().add_policy_to_peers(istio_sidecar)
 
     def parse_yaml_code_for_policy(self, policy_object, file_name):
