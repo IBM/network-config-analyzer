@@ -8,7 +8,7 @@
               #selectionBox {
                 width: 1400px;
                 height: 300px;
-                border: 1px solid black;
+                border: 0 solid black;
                 margin: 10px;
                 padding: 5px;
               }
@@ -21,12 +21,12 @@
                 const selectableElems = document.querySelectorAll('.node');
                 var selectedElems = [];
                 const mainTitleText = 'Application connectivity graph'
-                const filterExplainText = 'For filtering, Please double-click on a node'
+                const filterExplainText = 'For filtering, Please double-click on a node/edge/connectivity'
                 const unfilterExplainText = 'For unfiltering, Please double-click on the background'
                 const textSeparator = '\n---------------------------------------------------------------------------------\n\n'
-                const selectSrcText = 'For connectivity explanation, Please select the SOURCE node'
-                const selectDstText = 'For connectivity explanation, Please select the DESTINATION node'
-                const reselectSrcText = 'For another connectivity explanation, Please select the SOURCE node'
+                const selectSrcText = 'For connectivity explanation, Please click the SOURCE node'
+                const selectDstText = ['SOURCE node is ', ', Please click the DESTINATION node'];
+                const reselectSrcText = 'For another connectivity explanation, Please click the SOURCE node'
 
                 var filterText = mainTitleText + '\n' + filterExplainText
                 var explainText = selectSrcText
@@ -92,7 +92,7 @@
                       }
                       else if (selectedElems.length == 1) {
                         const src = selectedElems[0].getAttribute('title');
-                        explainText = selectDstText;
+                        explainText = selectDstText[0] +'<span style="background-color: yellow;">'+src+'</span>'+ selectDstText[1];
                       }
                       else {
                         const src = selectedElems[0].getAttribute('title');
