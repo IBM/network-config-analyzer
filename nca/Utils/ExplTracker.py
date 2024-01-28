@@ -168,7 +168,7 @@ class ExplTracker(metaclass=Singleton):
                                                       'base_name': name
                                                       }
         else:
-            NcaLogger().log_message(f'Explainability error: derived item {new_name} found no base item',
+            NcaLogger().log_message(f'Explainability error: derived item "{new_name}" found no base item',
                                     level='E')
 
     def add_peer_policy(self, peer_name, policy_name, egress_dst, ingress_src):
