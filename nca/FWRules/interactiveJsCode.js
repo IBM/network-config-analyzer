@@ -8,9 +8,7 @@
               #selectionBox {
                 width: 1400px;
                 height: 300px;
-                border: 0 solid black;
-                margin: 10px;
-                padding: 5px;
+                border: 0;
               }
             </style>
         </head>
@@ -21,15 +19,17 @@
                 const selectableElems = document.querySelectorAll('.node');
                 var selectedElems = [];
                 const mainTitleText = 'Application connectivity graph'
-                const filterExplainText = 'For filtering, Please double-click on a node/edge/connectivity'
-                const unfilterExplainText = 'For unfiltering, Please double-click on the background'
+                const doFilterExplainText = 'For filtering, Please double-click on a node/edge/connectivity'
+                const unFilterExplainText = 'For unfiltering, Please double-click on the background'
                 const textSeparator = '\n---------------------------------------------------------------------------------\n\n'
                 const selectSrcText = 'For connectivity explanation, Please click the SOURCE node'
-                const selectDstText = ['SOURCE node is ', ', Please click the DESTINATION node'];
+                const selectDstText =  'Please click the DESTINATION node'
                 const reselectSrcText = 'For another connectivity explanation, Please click the SOURCE node'
 
-                var filterText = mainTitleText + '\n' + filterExplainText
-                var explainText = selectSrcText
+                var filterText = mainTitleText
+                var filterExplainText = doFilterExplainText
+                var explainText = ''
+                var explainExplainText = selectSrcText
                 const selectionBox = document.getElementById('selectionBox');
                 const clickableElements = document.querySelectorAll('[clickable="true"]');
 
@@ -44,9 +44,18 @@
                 // Find the text element inside the "index" element
                 let titleTextElements = indexElement.querySelectorAll('text');
 
-                selectionBox.innerHTML = filterText + textSeparator + explainText
+                setAllText()
                 let clickFlag = false;
 
+                function setAllText(){
+                    selectionBox.innerHTML =
+                        '<span style="color: maroon; font-size: 20px; ">'+filterText+'</span>' +'\n\n'+
+                        '<span style="color: deepPink; font-size: 14px; ">'+filterExplainText+'</span>'+
+                        textSeparator +
+                        explainText + '\n'+
+                        '<span style="color: deepPink; font-size: 14px; ">'+explainExplainText+'</span>'
+
+                }
                 function selectExplPeer(event) {
                   const selectedElement = event.target;
                   const parentElement = selectedElement.parentNode;
@@ -88,11 +97,13 @@
                       }
                       // Update the selection box with the names of the selected circles
                       if (selectedElems.length == 0) {
-                        explainText = selectSrcText;
+                        explainText = ''
+                        explainExplainText = selectSrcText
                       }
                       else if (selectedElems.length == 1) {
                         const src = selectedElems[0].getAttribute('title');
-                        explainText = selectDstText[0] +'<span style="background-color: yellow;">'+src+'</span>'+ selectDstText[1];
+                        explainText = 'SOURCE node is <span style="background-color: yellow;">'+src+'</span>'
+                        explainExplainText =  selectDstText;
                       }
                       else {
                         const src = selectedElems[0].getAttribute('title');
@@ -119,9 +130,9 @@
                         else {
                           explainText = "Did not find entry of "+src+" and "+dst;
                         }
-                        explainText += '\n' + reselectSrcText
+                        explainExplainText = reselectSrcText
                       }
-                      selectionBox.innerHTML = filterText + textSeparator + explainText
+                      setAllText()
                     }
                     clickFlag = false; // Reset clickFlag
                   }, 250);
@@ -156,8 +167,8 @@
                   explanation.forEach((el, index) => {
                     filterText += el + '\n'
                   });
-                  filterText += unfilterExplainText
-                  selectionBox.innerHTML = filterText + textSeparator + explainText
+                  filterExplainText = unFilterExplainText
+                  setAllText()
                 }
 
                 function hideWithoutRelation(element) {
@@ -194,9 +205,9 @@
                         el.addEventListener('dblclick', function() {
                           showAllElements();
                           clearSelection(); // dbclick sellects the text it was clicked on, its annoying...
-                          filterText = mainTitleText + '\n'
-                          filterText += filterExplainText
-                          selectionBox.innerHTML = filterText + textSeparator + explainText
+                          filterText = mainTitleText
+                          filterExplainText = doFilterExplainText
+                          setAllText()
                         });
                       }
                       else {
