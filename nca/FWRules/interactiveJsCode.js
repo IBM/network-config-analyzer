@@ -39,10 +39,6 @@
 
                 // find title text element
                 let svg = document.querySelector('svg');
-                // Find the element with id="index"
-                let indexElement = svg.querySelector('#index');
-                // Find the text element inside the "index" element
-                let titleTextElements = indexElement.querySelectorAll('text');
 
                 setAllText()
                 let clickFlag = false;
@@ -116,19 +112,20 @@
                           let dstMatch = expl_text.match(/\(dst\)([^\s]+)/);
                           if (srcMatch) {
                             let srcText = srcMatch[1]
-                            let srcReplacement = '<span style="background-color: yellow;">'+srcText+'</span>';
+                            let srcReplacement = '<span style="background-color: yellow;">'+srcText+'</span>'
                             expl_text = expl_text.replace(srcText, srcReplacement);
                           }
                           if (dstMatch) {
                             dstMatch = dstMatch[1]
-                            let dstReplacement = '<span style="background-color: #ADD8E6;">'+dstMatch+'</span>';
+                            let dstReplacement = '<span style="background-color: #ADD8E6;">'+dstMatch+'</span>'
                             expl_text = expl_text.replace(dstMatch, dstReplacement);
                           }
 
                           explainText = expl_text;
                         }
                         else {
-                          explainText = "Did not find entry of "+src+" and "+dst;
+                          explainText = 'Did not find entry of <span style="background-color: yellow;">'+src+'</span>'+
+                          ' and <span style="background-color: #ADD8E6;"> '+dst + '</span>';
                         }
                         explainExplainText = reselectSrcText
                       }
