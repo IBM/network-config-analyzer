@@ -46,7 +46,7 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
         if vs_name is None:
             return None  # Not an Istio VirtualService object
         vs_namespace = self.peer_container.get_namespace(vs_ns)
-        vs = VirtualService(vs_name, vs_namespace)
+        vs = VirtualService(vs_name, vs_namespace, vs_file_name)
 
         vs_spec = vs_resource['spec']
         self.check_fields_validity(vs_spec, f'VirtualService {vs.full_name()}',
@@ -113,7 +113,7 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                                        {'name': [0, str], 'match': 0, 'route': 0, 'redirect': 3, 'delegate': 3,
                                         'rewrite': 0, 'timeout': 0, 'retries': 0, 'fault': 0, 'mirror': 3,
                                         'mirrorPercentage': 0, 'corsPolicy': 3, 'headers': 3})
-            http_route = VirtualService.Route()
+            http_route = VirtualService.Route(route.line_number)
             self.parse_http_match_request(route, http_route, vs)
             self.parse_route_destinations(route, http_route, vs, True)
             vs.add_http_route(http_route)
@@ -128,8 +128,8 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
         for route in tls or []:
             self.check_fields_validity(route, f'TLSRroute in the VirtualService {vs.full_name()}',
                                        {'match': 0, 'route': 0})
-            tls_route = self.parse_tls_match_attributes(route, vs)
-            if tls_route:
+            tls_route = VirtualService.Route(route.line_number)
+            if self.parse_tls_match_attributes(route, tls_route, vs):
                 self.parse_route_destinations(route, tls_route, vs, False)
                 vs.add_tls_route(tls_route)
 
@@ -143,7 +143,7 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
         for route in tcp or []:
             self.check_fields_validity(route, f'TLSRroute in the VirtualService {vs.full_name()}',
                                        {'match': 0, 'route': 0})
-            tcp_route = VirtualService.Route()
+            tcp_route = VirtualService.Route(route.line_number)
             self.parse_l4_match_attributes(route, tcp_route, vs)
             self.parse_route_destinations(route, tcp_route, vs, False)
             vs.add_tcp_route(tcp_route)
@@ -216,18 +216,18 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
             # gateways field of the VirtualService (if any) are overridden.
             self.parse_vs_gateways(vs.namespace, item, result_route)
 
-    def parse_tls_match_attributes(self, route, vs):
+    def parse_tls_match_attributes(self, route, result_route, vs):
         """
-        Parse TLSMatchRequest of a VirtualService and return the parsed result
+        Parse TLSMatchRequest of a VirtualService and add it to the given result_route
         :param dict route: the TLSRoute resource, as defined in
         https://istio.io/latest/docs/reference/config/networking/virtual-service/#TLSRoute
+        :param VirtualService.Route result_route: the output parsed tls route to contain the parsed attributes
         :param VirtualService vs: the virtual service containing this TLSMatchRequest
-        :return: union[VirtualService.Route, None] the parsed tls_route
+        :return: boolean: whether the match attributes were successfully parsed
         """
         match = route.get('match')
         if not match:
-            return None
-        tls_route = VirtualService.Route()
+            return False
         for item in match:
             self.check_fields_validity(item, f'TLSMatchAttributes in the VirtualService {vs.full_name()}',
                                        {'sniHosts': [1, list], 'destinationSubnets': [3, list], 'port': [3, int],
@@ -236,31 +236,31 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
             sni_hosts = item.get('sniHosts')
             for sni_host in sni_hosts or []:
                 sni_host_dfa = self.parse_host_value(sni_host, match)
-                if tls_route.all_sni_hosts_dfa:
-                    tls_route.all_sni_hosts_dfa |= sni_host_dfa
+                if result_route.all_sni_hosts_dfa:
+                    result_route.all_sni_hosts_dfa |= sni_host_dfa
                 else:
-                    tls_route.all_sni_hosts_dfa = sni_host_dfa
+                    result_route.all_sni_hosts_dfa = sni_host_dfa
             vs_all_hosts_dfa = reduce(MinDFA.__or__, vs.hosts_dfa)
-            if not tls_route.all_sni_hosts_dfa.contained_in(vs_all_hosts_dfa):
+            if not result_route.all_sni_hosts_dfa.contained_in(vs_all_hosts_dfa):
                 self.warning('sniHosts mentioned in the tls.match are not a subset of hosts. This match will be ignored',
                              vs)
-                return None
+                return False
             # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
             # gateways field of the VirtualService (if any) are overridden.
-            self.parse_vs_gateways(vs.namespace, item, tls_route)
-        return tls_route
+            self.parse_vs_gateways(vs.namespace, item, result_route)
+        return True
 
     def parse_l4_match_attributes(self, route, result_route, vs):
         """
         Parse TLSMatchRequest of a VirtualService and return the parsed result
-        :param dict route: the TLSRoute resource, as defined in
-        https://istio.io/latest/docs/reference/config/networking/virtual-service/#TLSRoute
+        :param dict route: the TCPRoute resource, as defined in
+        https://istio.io/latest/docs/reference/config/networking/virtual-service/#TCPRoute
         :param VirtualService.Route result_route: the output parsed tcp route to contain the parsed attributes
-        :param VirtualService vs: the virtual service containing this TLSMatchRequest
+        :param VirtualService vs: the virtual service containing this TCPMatchRequest
         """
         match = route.get('match')
         if not match:
-            return None
+            return
         for item in match:
             self.check_fields_validity(item, f'L4MatchAttributes in the VirtualService {vs.full_name()}',
                                        {'destinationSubnets': [3, list], 'port': [3, int],
@@ -295,19 +295,19 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
             else:
                 self.check_fields_validity(item, f'destination in tls/tcp route in VirtualService {vs.full_name()}',
                                            {'destination': 1, 'weight': [0, int]})
-            dest = item['destination']
-            self.check_fields_validity(dest, f'destination in route in VirtualService {vs.full_name()}',
-                                       {'host': [1, str], 'subset': [3, str], 'port': 0})
-            self.parse_destination(dest, vs, result_route)
+            self.parse_destination(item, vs, result_route)
 
-    def parse_destination(self, dest, vs, result_route):
+    def parse_destination(self, dest_item, vs, result_route):
         """
         Parse Destination resource of the VirtualService and return a service corresponding to it
-        :param dict dest: the destination resource, as defined in
+        :param YamlDict dest_item: the destination resource, as defined in
         https://istio.io/latest/docs/reference/config/networking/virtual-service/#Destination
         :param vs: the VirtualService contining this destinatnion
         :param VirtualService.Route result_route: the output route to contain the parsed attributes
         """
+        dest = dest_item['destination']
+        self.check_fields_validity(dest, f'destination in route in VirtualService {vs.full_name()}',
+                                   {'host': [1, str], 'subset': [3, str], 'port': 0})
         host = dest['host']
         port = dest.get('port')
         port_num = None
@@ -335,14 +335,14 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                                  f'in the VirtualService {vs.full_name()}', dest)
                 else:
                     self.warning(f'missing port for service {dest} in the VirtualService {vs.full_name()}', dest)
-            result_route.add_destination(host, service.target_pods, target_port, True)
+            result_route.add_destination(dest_item.line_number, host, service.target_pods, target_port, True)
         else:  # should be DNS entry
             dns_entries = self.peer_container.get_dns_entry_peers_matching_host_name(host)
             if not dns_entries:
                 self.warning(f'The host {host} mentioned in the VirtualService {vs.full_name()} '
                              f'does not match any existing dns entry. This Destination will be ignored', dest)
                 return
-            result_route.add_destination(host, dns_entries, port_num, False)
+            result_route.add_destination(dest_item.line_number, host, dns_entries, port_num, False)
 
     @staticmethod
     def is_local_service(host):
