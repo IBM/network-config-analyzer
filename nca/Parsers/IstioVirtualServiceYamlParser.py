@@ -114,9 +114,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
                                         'rewrite': 0, 'timeout': 0, 'retries': 0, 'fault': 0, 'mirror': 3,
                                         'mirrorPercentage': 0, 'corsPolicy': 3, 'headers': 3})
             http_route = VirtualService.Route(route.line_number)
-            if self.parse_http_match_request(route, http_route, vs):
-                self.parse_route_destinations(route, http_route, vs, True)
-                vs.add_http_route(http_route)
+            self.parse_http_match_request(route, http_route, vs)
+            self.parse_route_destinations(route, http_route, vs, True)
+            vs.add_http_route(http_route)
 
     def parse_vs_tls_route(self, vs, vs_spec):
         """
@@ -144,9 +144,9 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
             self.check_fields_validity(route, f'TLSRroute in the VirtualService {vs.full_name()}',
                                        {'match': 0, 'route': 0})
             tcp_route = VirtualService.Route(route.line_number)
-            if self.parse_l4_match_attributes(route, tcp_route, vs):
-                self.parse_route_destinations(route, tcp_route, vs, False)
-                vs.add_tcp_route(tcp_route)
+            self.parse_l4_match_attributes(route, tcp_route, vs)
+            self.parse_route_destinations(route, tcp_route, vs, False)
+            vs.add_tcp_route(tcp_route)
 
     def parse_istio_regex_string(self, resource, attr_name, vs_name):
         """
@@ -194,11 +194,10 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
         https://istio.io/latest/docs/reference/config/networking/virtual-service/#HTTPRoute
         :param VirtualService.Route result_route: the output parsed http route to contain the parsed attributes
         :param VirtualService vs: the virtual service containing this HttpMatchRequest
-        :return: boolean: whether the match attributes were successfully parsed
         """
         match = route.get('match')
         if not match:
-            return False
+            return
         for item in match:
             self.check_fields_validity(item, f'HTTPMatchRequest in the VirtualService {vs.full_name()}',
                                        {'name': [0, str], 'uri': 0, 'scheme': 3, 'method': 0, 'authority': 3,
@@ -216,7 +215,6 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
             # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
             # gateways field of the VirtualService (if any) are overridden.
             self.parse_vs_gateways(vs.namespace, item, result_route)
-        return True
 
     def parse_tls_match_attributes(self, route, result_route, vs):
         """
@@ -259,11 +257,10 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
         https://istio.io/latest/docs/reference/config/networking/virtual-service/#TCPRoute
         :param VirtualService.Route result_route: the output parsed tcp route to contain the parsed attributes
         :param VirtualService vs: the virtual service containing this TCPMatchRequest
-        :return: boolean: whether the match attributes were successfully parsed
         """
         match = route.get('match')
         if not match:
-            return False
+            return
         for item in match:
             self.check_fields_validity(item, f'L4MatchAttributes in the VirtualService {vs.full_name()}',
                                        {'destinationSubnets': [3, list], 'port': [3, int],
@@ -272,7 +269,6 @@ class IstioVirtualServiceYamlParser(GenericGatewayYamlParser):
             # gateways field: Names of gateways where the rule should be applied. Gateway names in the top-level
             # gateways field of the VirtualService (if any) are overridden.
             self.parse_vs_gateways(vs.namespace, item, result_route)
-        return True
 
     def parse_route_destinations(self, route, result_route, vs, is_http_route):
         """
