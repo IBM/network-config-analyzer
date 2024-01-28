@@ -9,6 +9,7 @@
                 width: 1400px;
                 height: 300px;
                 border: 0;
+                margin: 0 auto;
               }
             </style>
         </head>
@@ -45,7 +46,7 @@
 
                 function setAllText(){
                     selectionBox.innerHTML =
-                        '<span style="color: maroon; font-size: 20px; ">'+filterText+'</span>' +'\n\n'+
+                        '\n<span style="color: maroon; font-size: 20px; ">'+filterText+'</span>' +'\n\n'+
                         '<span style="color: deepPink; font-size: 14px; ">'+filterExplainText+'</span>'+
                         textSeparator +
                         explainText + '\n'+
