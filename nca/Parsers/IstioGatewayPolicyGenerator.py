@@ -163,16 +163,18 @@ class IstioGatewayPolicyGenerator:
         return conn_cube
 
     @staticmethod
-    def init_gtw_to_mesh_policy(vs, route_cnt, gtw):
+    def init_gtw_to_mesh_policy(vs, route, route_cnt, gtw):
         """
         Create and initialize gtw-to-mesh allow policy
         :param VirtualService vs: the virtual service defining this policy
+        :param Route route: the route for which the policy is being created
         :param int route_cnt: the index of route inside the virtual service, for which the policy is being created
         :param Gateway gtw: the gateway relevant to this policy
         :return: the created GatewayPolicy
         """
         origin = f'virtual service {vs.full_name()}, route number {route_cnt}, gateway {gtw.full_name()}'
-        allow_policy = GatewayPolicy(f'Allow policy for {origin}', vs.namespace, GatewayPolicy.ActionType.Allow, origin)
+        allow_policy = GatewayPolicy(f'Allow policy for {origin}', vs.namespace, GatewayPolicy.ActionType.Allow,
+                                     vs.file_name, route.line_number, origin)
         # We model ingress/egress flow relatively to the gateways pods (which are the selected_peers);
         # since in this case the gateway pods are the source pods, the policy will affect egress.
         allow_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
@@ -180,17 +182,18 @@ class IstioGatewayPolicyGenerator:
         allow_policy.selected_peers = gtw.peers
         return allow_policy
 
-    def init_deny_policy(self, vs, route_cnt, egress_gtw):
+    def init_deny_policy(self, vs, route, route_cnt, egress_gtw):
         """
         Create and initialize mesh-to-dns deny policy
         :param VirtualService vs: the virtual service defining this policy
+        :param Route route: the route for which the policy is being created
         :param int route_cnt: the index of route inside the virtual service, for which the policy is being created
         :param Gateway egress_gtw: the egress gateway relevant to this policy
         :return: the created GatewayPolicy
         """
         origin = f'virtual service {vs.full_name()}, route number {route_cnt}, gateway {egress_gtw.full_name()}'
-        deny_policy = GatewayPolicy(f'Deny policy from mesh to DNS entries for {origin}',
-                                    vs.namespace, GatewayPolicy.ActionType.Deny, origin)
+        deny_policy = GatewayPolicy(f'Deny policy from mesh to DNS entries for {origin}', vs.namespace,
+                                    GatewayPolicy.ActionType.Deny, vs.file_name, route.line_number, origin)
         # We model ingress/egress flow relatively to the gateways pods (which are the selected_peers);
         # since in this case the gateway pods are the source pods, the policy will affect egress.
         deny_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
@@ -265,12 +268,12 @@ class IstioGatewayPolicyGenerator:
             this_route_conn_cube["hosts"] = host_dfa
             used_gateways.add(gtw)
             has_policies = True
-            allow_policy = self.init_gtw_to_mesh_policy(vs, route_cnt, gtw)
+            allow_policy = self.init_gtw_to_mesh_policy(vs, route, route_cnt, gtw)
             deny_policy = None
             if gtw.type == Gateway.GatewayType.Egress:  # deny mesh-to-dns policy is created only in egress flow
                 assert not route.is_internal_dest
                 self.egress_gtw_to_dns_policies.append(allow_policy)
-                deny_policy = self.init_deny_policy(vs, route_cnt, gtw)
+                deny_policy = self.init_deny_policy(vs, route, route_cnt, gtw)
                 self.deny_mesh_to_dns_policies.append(deny_policy)
             else:
                 self.ingress_gtw_to_mesh_policies.append(allow_policy)
@@ -291,7 +294,8 @@ class IstioGatewayPolicyGenerator:
         """
         local_peers = self.vs_parser.peer_container.get_all_peers_group()
         origin = f'virtual service {vs.full_name()}, route number {route_cnt}, destination {dest.name}'
-        res_policy = GatewayPolicy(f'Allow policy for {origin}', vs.namespace, GatewayPolicy.ActionType.Allow, origin)
+        res_policy = GatewayPolicy(f'Allow policy for {origin}', vs.namespace, GatewayPolicy.ActionType.Allow,
+                                   vs.file_name, dest.line_number, origin)
         res_policy.policy_kind = NetworkPolicy.PolicyType.GatewayPolicy
         # We model egress flow relatively to egress gateways pods (i.e. they are the selected_peers);
         # since the flow is into those selected peers, the policy will affect ingress.
