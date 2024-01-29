@@ -20,12 +20,12 @@
                 const selectableElems = document.querySelectorAll('.node');
                 var selectedElems = [];
                 const mainTitleText = 'Application connectivity graph'
-                const doFilterExplainText = 'For filtering, Please double-click on a node/edge/connectivity'
-                const unFilterExplainText = 'For unfiltering, Please double-click on the background'
+                const doFilterExplainText = 'For filtering, Double-click on a node/edge/legend item'
+                const unFilterExplainText = 'For unfiltering, Double-click on the background'
                 const textSeparator = '\n---------------------------------------------------------------------------------\n\n'
-                const selectSrcText = 'For connectivity explanation, Please click the SOURCE node'
-                const selectDstText =  'Please click the DESTINATION node'
-                const reselectSrcText = 'For another connectivity explanation, Please click the SOURCE node'
+                const selectSrcText = 'For connectivity explanation, Click the SOURCE node'
+                const selectDstText =  'Click the DESTINATION node'
+                const reselectSrcText = 'For another connectivity explanation, Click the SOURCE node'
 
                 var filterText = mainTitleText
                 var filterExplainText = doFilterExplainText
