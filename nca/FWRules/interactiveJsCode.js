@@ -50,9 +50,9 @@
                         '<span style="color: deepPink; font-size: 14px; ">'+filterExplainText+'</span>'+
                         textSeparator +
                         explainText + '\n'+
-                        '<span style="color: deepPink; font-size: 14px; ">'+explainExplainText+'</span>'
-
+                        '<span style="color: deepPink; font-size: 14px; ">'+explainExplainText+'</span>\n'
                 }
+
                 function selectExplPeer(event) {
                   const selectedElement = event.target;
                   const parentElement = selectedElement.parentNode;
@@ -160,11 +160,7 @@
 
                 function updateTitleText(element) {
                   const clickedId = element.id;
-                  const explanation = jsObject[clickedId].explanation;
-                  filterText = ''
-                  explanation.forEach((el, index) => {
-                    filterText += el + '\n'
-                  });
+                  filterText = jsObject[clickedId].explanation.join('\n')
                   filterExplainText = unFilterExplainText
                   setAllText()
                 }
