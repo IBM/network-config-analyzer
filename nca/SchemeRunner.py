@@ -151,7 +151,7 @@ class SchemeRunner(GenericYamlParser):
         global_resource_list = self._handle_resources_list(self.scheme.get('resourceList', None))
         resources_handler = ResourcesHandler()
         query_array = self.scheme.get('queries', [])
-        if not self.cativate_expTracker(query_array):
+        if not self.acativate_expTracker(query_array):
             return
         resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                                     self.optimized_run)
@@ -181,7 +181,7 @@ class SchemeRunner(GenericYamlParser):
         output_config_obj = OutputConfiguration(output_configuration_dict, query['name'])
         return output_config_obj
 
-    def cativate_exp_tracker(self, query_array):
+    def acativate_exp_tracker(self, query_array):
         """
         check if it is safe to activate the ExplTracker, and activate it
         activating is safe if we have at most one query that needs explainabilty, and it must be the first
