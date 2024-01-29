@@ -65,6 +65,7 @@ class TestMinDFA(unittest.TestCase):
 
         dfa6 = dfa6.fsm
         dfa4 = dfa4.fsm
+        [dfa4, dfa6] = fsm.unify_alphabets((dfa4, dfa6))
         res2 = dfa6.equivalent(dfa4)
         print(res2)
         self.assertTrue(res2)
@@ -172,6 +173,54 @@ class TestMinDFA(unittest.TestCase):
         empty = dfa2 - dfa2
         self.assertFalse(bool(empty))
 
+
+
+    def rebuild_unique_dfa(self, dfa: MinDFA):
+        curr_map = dfa.fsm.map
+        states_renaming = {0: 0}  # map from int to int
+        states_to_visit = [0]
+        visited_states = []
+        next_state = 1
+        while len(states_to_visit) > 0:
+            curr_state = states_to_visit[0]
+            states_to_visit.pop(0)
+            # handle current state
+            state_map_keys_sorted = sorted(list(curr_map[curr_state].keys()))
+            for edge_val in state_map_keys_sorted:
+                edge_state = curr_map[curr_state][edge_val]
+                if not edge_state in states_renaming:
+                    states_renaming[edge_state] = next_state
+                    next_state += 1
+                    states_to_visit.append(edge_state)
+            visited_states.append(curr_state)
+        new_map = dict()
+        for state, state_map in curr_map.items():
+            new_map[states_renaming[state]] = dict()
+            for edge_val, edge_state in state_map.items():
+                new_map[states_renaming[state]][edge_val] = states_renaming[edge_state]
+        #dfa.fsm.map = new_map
+        dfa.fsm = fsm.Fsm(initial=dfa.fsm.initial, finals=dfa.fsm.finals, alphabet=dfa.fsm.alphabet, states=dfa.fsm.states, map=new_map)
+
+
+
+    def test_valid_chars(self):
+        #r = "[.\\w/\\-]*"
+        #res = MinDFA.dfa_from_regex(r)
+        res = MinDFA.dfa_all_words(alphabet_regex)
+        s = res.fsm.strings([])
+        i = 0
+        c_set = set()
+        while i < 200:
+            str_val = next(s)
+            if len(str_val) > 1:
+                break
+            print(str_val)
+            c_set.add(charclass.Charclass(str_val))
+            i+=1
+        partition = fsm.repartition(c_set | res.fsm.alphabet)
+        res1 = res.fsm.replace_alphabet(partition)
+        print('done')
+
     # test to demonstrate the alphabet issue
     def test_hash(self):
         dfa1 = get_str_dfa("put")
@@ -185,8 +234,18 @@ class TestMinDFA(unittest.TestCase):
         self.assertEqual(d[dfa1], d[dfa2])
         self.assertEqual(dfa1.fsm.alphabet, dfa2.fsm.alphabet)
         dfa3 = all2 & dfa1   # changing order of args due to caching, thus not using (dfa1 & all2)
-        self.assertNotEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
-        self.assertEqual(d[dfa1], d[dfa3])
+
+        #self.assertNotEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
+        #[dfa1.fsm, dfa3.fsm] = fsm.unify_alphabets((dfa1.fsm, dfa3.fsm))
+        self.assertEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
+        #self.rebuild_unique_dfa(dfa3)
+        #self.rebuild_unique_dfa(dfa1)
+        #self.assertNotEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
+        my_eq_res = dfa1 == dfa3
+        self.assertTrue(my_eq_res)  # fails
+        my_equiv_res = dfa1.fsm.equivalent(dfa3.fsm)
+        self.assertTrue(my_equiv_res)  # passes
+        self.assertEqual(d[dfa1], d[dfa3])  # fails
 
     '''
     def test_copy(self):

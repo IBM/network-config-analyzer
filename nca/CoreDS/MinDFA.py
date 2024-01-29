@@ -2,11 +2,42 @@
 # Copyright 2020- IBM Inc. All rights reserved
 # SPDX-License-Identifier: Apache2.0
 #
-from greenery import fsm, parse
+from greenery import fsm, parse, charclass
 from functools import lru_cache
 
 
 # TODO: consider adding abstract base class for MinDFA and CanonicalIntervalSet , with common api
+
+
+class Alphabet:
+    default_dfa_alphabet_chars = ".\\w/\\-"
+    default_alphabet_regex = "[.\\w/\\-]*"
+    all_charclasses = set()
+
+    def __init__(self):
+        return
+
+    @staticmethod
+    def all_charclasses_set():
+        if len(Alphabet.all_charclasses) > 0:
+            return Alphabet.all_charclasses
+        f = parse(Alphabet.default_alphabet_regex).to_fsm()
+        # for canonical rep -- transform to minimal MinDFA
+        f.reduce()
+        res = MinDFA.dfa_from_fsm(f)
+        # res = MinDFA.dfa_from_regex(Alphabet.default_alphabet_regex)
+        s = res.fsm.strings([])
+        c_set = set()
+        i = 0
+        while i < 200:
+            str_val = next(s)
+            if len(str_val) > 1:
+                break
+            # print(str_val)
+            c_set.add(charclass.Charclass(str_val))
+            i += 1
+        Alphabet.all_charclasses = c_set
+        return Alphabet.all_charclasses
 
 
 class MinDFA:
@@ -87,12 +118,28 @@ class MinDFA:
         if not isinstance(other, MinDFA):
             return False
         [s1, o1] = fsm.unify_alphabets((self.fsm, other.fsm))
+        s1.reduce()
+        o1.reduce()
+        states_eq = s1.states == o1.states
+        initial_eq = s1.initial == o1.initial
+        finals_eq = s1.finals == o1.finals
+        map_eq = s1.map == o1.map
+        if not map_eq:
+            for k in s1.map:
+                if s1.map[k] != o1.map[k]:
+                    print('debug')
+
         res = s1.states == o1.states and s1.initial == o1.initial and \
-            s1.finals == o1.finals and s1.map == o1.map
+              s1.finals == o1.finals and s1.map == o1.map
+
         return res
 
     def __ne__(self, other):
         return not self == other
+
+    def convert_to_unique_alphabet(self):
+        partition = fsm.repartition(Alphabet.all_charclasses_set() | self.fsm.alphabet)
+        self.fsm = self.fsm.replace_alphabet(partition)
 
     @staticmethod
     # TODO: currently not using the alphabet input param, due to the assumptions above.
@@ -109,11 +156,13 @@ class MinDFA:
         """
         # TODO: consider runtime impact for using alphabet...
         # alphabet = None
-        #f = parse(s).to_fsm(alphabet)
+        # f = parse(s).to_fsm(alphabet)
         f = parse(s).to_fsm()
         # for canonical rep -- transform to minimal MinDFA
         f.reduce()
         res = MinDFA.dfa_from_fsm(f)
+        res.convert_to_unique_alphabet()
+        res.rebuild_unique_dfa()
         # TODO: currently assuming input str as regex only has '*' operator for infinity
         if '*' not in s:
             res.is_all_words = MinDFA.Ternary.FALSE
@@ -151,7 +200,10 @@ class MinDFA:
         return NotImplemented
 
     def __hash__(self):
-        return hash((frozenset(self.fsm.states), frozenset(self.fsm.finals), frozenset(self.fsm.map), self.fsm.initial))
+        all = MinDFA.dfa_all_words(MinDFA.default_alphabet_regex)
+        [s1, o1] = fsm.unify_alphabets((self.fsm, all.fsm))
+        return hash((frozenset(s1.states), frozenset(s1.finals), frozenset(s1.map), s1.initial))
+        # return hash((frozenset(self.fsm.states), frozenset(self.fsm.finals), frozenset(self.fsm.map), self.fsm.initial))
 
     def _get_strings_set_str(self):
         """
@@ -237,6 +289,7 @@ class MinDFA:
             res.regex_expr = self.regex_expr
         else:
             res.regex_expr = f'({self.regex_expr})|({other.regex_expr})'
+        res.rebuild_unique_dfa()
         return res
 
     @lru_cache(maxsize=500)
@@ -254,6 +307,7 @@ class MinDFA:
             res.regex_expr = self.regex_expr
         else:
             res.regex_expr = f'({self.regex_expr})&({other.regex_expr})'
+        res.rebuild_unique_dfa()
         return res
 
     @lru_cache(maxsize=500)
@@ -278,6 +332,7 @@ class MinDFA:
             other.complement_dfa = res
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
+        res.rebuild_unique_dfa()
         return res
 
     @lru_cache(maxsize=500)
@@ -291,3 +346,29 @@ class MinDFA:
         str_generator = self.fsm.strings([])
         str_val = next(str_generator)
         return ''.join(ch for ch in str_val)
+
+    def rebuild_unique_dfa(self):
+        curr_map = self.fsm.map
+        states_renaming = {0: 0}  # map from int to int
+        states_to_visit = [0]
+        visited_states = []
+        next_state = 1
+        while len(states_to_visit) > 0:
+            curr_state = states_to_visit[0]
+            states_to_visit.pop(0)
+            # handle current state
+            state_map_keys_sorted = sorted(list(curr_map[curr_state].keys()))
+            for edge_val in state_map_keys_sorted:
+                edge_state = curr_map[curr_state][edge_val]
+                if not edge_state in states_renaming:
+                    states_renaming[edge_state] = next_state
+                    next_state += 1
+                    states_to_visit.append(edge_state)
+            visited_states.append(curr_state)
+        new_map = dict()
+        for state, state_map in curr_map.items():
+            new_map[states_renaming[state]] = dict()
+            for edge_val, edge_state in state_map.items():
+                new_map[states_renaming[state]][edge_val] = states_renaming[edge_state]
+        self.fsm = fsm.Fsm(initial=self.fsm.initial, finals=self.fsm.finals, alphabet=self.fsm.alphabet,
+                           states=self.fsm.states, map=new_map)
