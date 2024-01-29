@@ -151,7 +151,7 @@ class SchemeRunner(GenericYamlParser):
         global_resource_list = self._handle_resources_list(self.scheme.get('resourceList', None))
         resources_handler = ResourcesHandler()
         query_array = self.scheme.get('queries', [])
-        if self.cativate_expTracker(query_array):
+        if not self.cativate_expTracker(query_array):
             return
         resources_handler.set_global_peer_container(global_ns_list, global_pod_list, global_resource_list,
                                                     self.optimized_run)
@@ -183,35 +183,37 @@ class SchemeRunner(GenericYamlParser):
 
     def cativate_expTracker(self, query_array):
         """
-            check if it is safe to activate the ExplTracker, and activate it
-            activating is safe if we have at most one query that needs explainabilty, and it has to be the first one
-           :param list[dict] query_array: A list of query objects to run
+        check if it is safe to activate the ExplTracker, and activate it
+        activating is safe if we have at most one query that needs explainabilty, and it must be the first
+        :param list[dict] query_array: A list of query objects to run
+        :return: weather it safe to run the queries
+        :rtype: bool
         """
         need_connectivity = ['connectivityMap' in q.keys() for q in query_array]
         out_configs = [self.get_query_output_config_obj(q) for q in query_array]
         need_html = need_connectivity and [oc['outputFormat'] == 'html' for oc in out_configs]
         # todo: if we have explainabilty query, then implement:
-        # todo: query_explainabilty = ['explainabilty' in q.keys() for q in query_array]
-        # todo: need_exp = need_html || query_explainabilty
+        # todo: is_query_explainabilty = ['explainabilty' in q.keys() for q in query_array]
+        # todo: need_exp = need_html || is_query_explainabilty
         need_exp = need_html
         n_need_exp = len([needs_exp for needs_exp in need_exp if needs_exp])
         if n_need_exp == 0:
-            return False
+            return True
         elif n_need_exp == 1 and need_exp[0] and self.optimized_run == 'true':
             ExplTracker().activate(out_configs[0]['outputFormat'])
-            return False
+            return True
         elif n_need_exp == 1 and need_exp[0]:
             query_name = query_array[0]['name']
             print(f'Explainability does not have optimized implementation yet, needs for query "{query_name}"')
-            return True
+            return False
         elif n_need_exp == 1:
             query_name = query_array[need_exp.index(True)]['name']
             print(f'Query "{query_name}" must be the first query, since it needs Explainability')
-            return True
+            return False
         else:
             quaries_names = [q['name'] for q, needs_html in zip(query_array, need_html) if needs_html]
             print(f'Can not run more than one query that needs Explainability, got {n_need_exp}:\n{quaries_names}')
-            return True
+            return False
 
     def run_queries(self, query_array):
         """
