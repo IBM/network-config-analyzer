@@ -122,7 +122,6 @@ class DotGraph:
         output_result += ''.join([self._subgraph_to_str(subgraph) for subgraph in self.subgraphs.values()])
         output_result += ''.join(sorted([self._edge_to_str(edge) for edge in self.edges]))
         output_result += '\tcolor=white\n'
-        output_result += self._explanation_to_str()
         output_result += '\tlabelloc = "b"\n'
         if with_header:
             output_result += '\tfontsize=15\n'
@@ -131,22 +130,6 @@ class DotGraph:
             output_result += '\t}\n'
         output_result += '}\n'
         return output_result
-
-    @staticmethod
-    def _explanation_to_str():
-        """
-        creates a string in dot format of the explanation label
-        """
-        explanation = ['Application connectivity graph',
-                       ' ',
-                       ' ',
-                       ]
-        explanation_table = '<<table border="0" cellspacing="0">'
-        for line in explanation:
-            explanation_table += f'<tr><td align="text" >{line} <br align="left" /></td></tr>'
-        explanation_table += '</table>>\n'
-
-        return f'\tlabel={explanation_table}'
 
     def _labels_dict_to_str(self):
         """
