@@ -8,18 +8,29 @@
               #selectionBox {
                 width: 1400px;
                 height: 300px;
-                border: 1px solid black;
-                margin: 10px;
-                padding: 5px;
+                border: 0;
+                margin: 0 auto;
               }
             </style>
         </head>
         <body>
             <div id="graph-container"></div>
-            <pre id="selectionBox">Please select the SOURCE node</pre>
+            <pre id="selectionBox"></pre>
             <script>
                 const selectableElems = document.querySelectorAll('.node');
                 var selectedElems = [];
+                const mainTitleText = 'Application connectivity graph'
+                const doFilterExplainText = 'For filtering, Double-click on a node/edge/legend item'
+                const unFilterExplainText = 'For unfiltering, Double-click on the background'
+                const textSeparator = '\n---------------------------------------------------------------------------------\n\n'
+                const selectSrcText = 'For connectivity explanation, Click the SOURCE node'
+                const selectDstText =  'Click the DESTINATION node'
+                const reselectSrcText = 'For another connectivity explanation, Click the SOURCE node'
+
+                var filterText = mainTitleText
+                var filterExplainText = doFilterExplainText
+                var explainText = ''
+                var explainExplainText = selectSrcText
                 const selectionBox = document.getElementById('selectionBox');
                 const clickableElements = document.querySelectorAll('[clickable="true"]');
 
@@ -29,13 +40,18 @@
 
                 // find title text element
                 let svg = document.querySelector('svg');
-                // Find the element with id="index"
-                let indexElement = svg.querySelector('#index');
-                // Find the text element inside the "index" element
-                let titleTextElements = indexElement.querySelectorAll('text');
-                const mainTitleText = titleTextElements[0].textContent
 
+                setAllText()
                 let clickFlag = false;
+
+                function setAllText(){
+                    selectionBox.innerHTML =
+                        '\n<span style="color: maroon; font-size: 20px; ">'+filterText+'</span>' +'\n\n'+
+                        '<span style="color: deepPink; font-size: 14px; ">'+filterExplainText+'</span>'+
+                        textSeparator +
+                        explainText + '\n'+
+                        '<span style="color: deepPink; font-size: 14px; ">'+explainExplainText+'</span>\n'
+                }
 
                 function selectExplPeer(event) {
                   const selectedElement = event.target;
@@ -78,10 +94,13 @@
                       }
                       // Update the selection box with the names of the selected circles
                       if (selectedElems.length == 0) {
-                        selectionBox.innerHTML = 'Please select the SOURCE node';
+                        explainText = ''
+                        explainExplainText = selectSrcText
                       }
                       else if (selectedElems.length == 1) {
-                        selectionBox.innerHTML = 'Please select the DESTINATION node';
+                        const src = selectedElems[0].getAttribute('title');
+                        explainText = 'SOURCE node is <span style="background-color: yellow;">'+src+'</span>'
+                        explainExplainText =  selectDstText;
                       }
                       else {
                         const src = selectedElems[0].getAttribute('title');
@@ -94,21 +113,24 @@
                           let dstMatch = expl_text.match(/\(dst\)([^\s]+)/);
                           if (srcMatch) {
                             let srcText = srcMatch[1]
-                            let srcReplacement = '<span style="background-color: yellow;">'+srcText+'</span>';
+                            let srcReplacement = '<span style="background-color: yellow;">'+srcText+'</span>'
                             expl_text = expl_text.replace(srcText, srcReplacement);
                           }
                           if (dstMatch) {
                             dstMatch = dstMatch[1]
-                            let dstReplacement = '<span style="background-color: #ADD8E6;">'+dstMatch+'</span>';
+                            let dstReplacement = '<span style="background-color: #ADD8E6;">'+dstMatch+'</span>'
                             expl_text = expl_text.replace(dstMatch, dstReplacement);
                           }
 
-                          selectionBox.innerHTML = expl_text;
+                          explainText = expl_text;
                         }
                         else {
-                          selectionBox.innerHTML = "Did not find entry of "+src+" and "+dst;
+                          explainText = 'Did not find entry of <span style="background-color: yellow;">'+src+'</span>'+
+                          ' and <span style="background-color: #ADD8E6;"> '+dst + '</span>';
                         }
+                        explainExplainText = reselectSrcText
                       }
+                      setAllText()
                     }
                     clickFlag = false; // Reset clickFlag
                   }, 250);
@@ -138,10 +160,9 @@
 
                 function updateTitleText(element) {
                   const clickedId = element.id;
-                  const explanation = jsObject[clickedId].explanation;
-                  explanation.forEach((el, index) => {
-                    titleTextElements[index].textContent = el
-                  });
+                  filterText = jsObject[clickedId].explanation.join('\n')
+                  filterExplainText = unFilterExplainText
+                  setAllText()
                 }
 
                 function hideWithoutRelation(element) {
@@ -178,9 +199,9 @@
                         el.addEventListener('dblclick', function() {
                           showAllElements();
                           clearSelection(); // dbclick sellects the text it was clicked on, its annoying...
-                          titleTextElements[0].textContent = mainTitleText;
-                          titleTextElements[1].textContent = '';
-                          titleTextElements[2].textContent = '';
+                          filterText = mainTitleText
+                          filterExplainText = doFilterExplainText
+                          setAllText()
                         });
                       }
                       else {

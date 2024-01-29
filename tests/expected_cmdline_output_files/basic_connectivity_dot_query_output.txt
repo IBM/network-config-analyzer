@@ -45,7 +45,6 @@ subgraph cluster_vendor_system_namespace{
 	"vendor-system/barbar-app(ReplicaSet)" -> "clique_All0"[  color=indigo fontcolor=darkgreen dir=both arrowhead=none arrowtail=none]
 	"vendor-system/barbar-app(ReplicaSet)" -> "vendor-system/barbar-app(ReplicaSet)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon

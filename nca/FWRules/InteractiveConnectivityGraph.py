@@ -139,12 +139,10 @@ class InteractiveConnectivityGraph:
             (2) adding/changing the following attribute to every element: id, class, title, conn
 
             """
-            # wrap the title + background polygon with an <a>:
+            # wrap the background polygon with an <a>:
             graph_polygon = self.soup.svg.polygon
             graph_polygon = graph_polygon.wrap(self.soup.new_tag('a'))
             graph_polygon[self.CLASS_TA] = self.BACKGROUND_CT
-            graph_text = self.soup.svg.find('text')
-            graph_polygon.append(graph_text)
 
             # set class to all the legend components:
             conn_legend = self.soup.svg.find('title', string='dict_box')
@@ -168,7 +166,7 @@ class InteractiveConnectivityGraph:
             for tag in self._get_clickable_elements():
                 if tag[self.CLASS_TA] == self.BACKGROUND_CT:
                     tag[self.ID_TA] = 'index'
-                    tag[self.TITLE_TA] = tag.find('text').string
+                    tag[self.TITLE_TA] = ''
                 elif tag[self.CLASS_TA] == self.CONNECTIVITY_CT:
                     short = tag.text.split()[0]
                     conn_id = 'conn_' + short
