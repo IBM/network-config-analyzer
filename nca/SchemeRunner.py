@@ -181,12 +181,12 @@ class SchemeRunner(GenericYamlParser):
         output_config_obj = OutputConfiguration(output_configuration_dict, query['name'])
         return output_config_obj
 
-    def cativate_expTracker(self, query_array):
+    def cativate_exp_tracker(self, query_array):
         """
         check if it is safe to activate the ExplTracker, and activate it
         activating is safe if we have at most one query that needs explainabilty, and it must be the first
         :param list[dict] query_array: A list of query objects to run
-        :return: weather it safe to run the queries
+        :return: whether it safe to run the queries
         :rtype: bool
         """
         need_connectivity = ['connectivityMap' in q.keys() for q in query_array]
