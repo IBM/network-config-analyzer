@@ -82,7 +82,6 @@ subgraph cluster_istio_system_namespace{
 	"istio-system/istio-ingressgateway-livesim(Pod)" -> "example/deploy-iiii(Deployment)"[label="tcp3000b" labeltooltip="TCP {'dst_ports': '3000', 'hosts': 'iiii.y.z'},{'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/iiii(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"istio-system/istio-ingressgateway-livesim(Pod)" -> "example/deploy-jjjj(Deployment)"[label="tcp9950c" labeltooltip="TCP {'dst_ports': '9950', 'hosts': 'jjjj.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/jjjj(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon
@@ -124,7 +123,6 @@ subgraph cluster_istio_system_namespace{
 	"istio-system/istio-ingressgateway-livesim(Pod)" -> "example/deploy-aaaa(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"istio-system/istio-ingressgateway-livesim(Pod)" -> "ingress-controller-ns/ingress-controller-livesim(Pod)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon

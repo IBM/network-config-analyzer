@@ -70,7 +70,6 @@ All"]
 	"example/istio-ingressgateway(Deployment)" -> "example/deploy-iiii(Deployment)"[label="tcp3000b" labeltooltip="TCP {'dst_ports': '3000', 'hosts': 'iiii.y.z'},{'dst_ports': '3000', 'hosts': 'ooo.y.z', 'paths': '/iiii(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	"example/istio-ingressgateway(Deployment)" -> "example/deploy-jjjj(Deployment)"[label="tcp9950c" labeltooltip="TCP {'dst_ports': '9950', 'hosts': 'jjjj.y.z'},{'dst_ports': '9950', 'hosts': 'ooo.y.z', 'paths': '/jjjj(/*)?'}" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon
@@ -96,7 +95,6 @@ subgraph cluster_example_namespace{
 	"example/deploy-aaaa(Deployment)" -> "example/deploy-aaaa(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=normal]
 	"example/deploy-aaaa(Deployment)" -> "example/deploy-ingress-nginx(Deployment)"[label="All" labeltooltip="All" color=darkorange4 fontcolor=darkgreen dir=both arrowhead=normal arrowtail=none]
 	color=white
-	label=<<table border="0" cellspacing="0"><tr><td align="text" >Application connectivity graph <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr><tr><td align="text" >  <br align="left" /></td></tr></table>>
 	labelloc = "b"
 	fontsize=15
 	fontcolor=maroon
