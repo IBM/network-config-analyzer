@@ -117,20 +117,22 @@ class MinDFA:
     def __eq__(self, other):
         if not isinstance(other, MinDFA):
             return False
-        [s1, o1] = fsm.unify_alphabets((self.fsm, other.fsm))
-        s1.reduce()
-        o1.reduce()
-        states_eq = s1.states == o1.states
-        initial_eq = s1.initial == o1.initial
-        finals_eq = s1.finals == o1.finals
-        map_eq = s1.map == o1.map
-        if not map_eq:
-            for k in s1.map:
-                if s1.map[k] != o1.map[k]:
-                    print('debug')
+        # [s1, o1] = fsm.unify_alphabets((self.fsm, other.fsm))
+        # s1.reduce()
+        # o1.reduce()
+        # states_eq = s1.states == o1.states
+        # initial_eq = s1.initial == o1.initial
+        # finals_eq = s1.finals == o1.finals
+        # map_eq = s1.map == o1.map
+        # if not map_eq:
+        #     for k in s1.map:
+        #         if s1.map[k] != o1.map[k]:
+        #             print('debug')
 
-        res = s1.states == o1.states and s1.initial == o1.initial and \
-              s1.finals == o1.finals and s1.map == o1.map
+        # res = s1.states == o1.states and s1.initial == o1.initial and \
+        #       s1.finals == o1.finals and s1.map == o1.map
+        res = self.fsm.states == other.fsm.states and self.fsm.initial == other.fsm.initial and \
+              self.fsm.finals == other.fsm.finals and self.fsm.map == other.fsm.map
 
         return res
 
@@ -370,5 +372,7 @@ class MinDFA:
             new_map[states_renaming[state]] = dict()
             for edge_val, edge_state in state_map.items():
                 new_map[states_renaming[state]][edge_val] = states_renaming[edge_state]
-        self.fsm = fsm.Fsm(initial=self.fsm.initial, finals=self.fsm.finals, alphabet=self.fsm.alphabet,
+        final_states = set(self.fsm.finals)
+        final_states_new = set(states_renaming[x] for x in final_states)
+        self.fsm = fsm.Fsm(initial=self.fsm.initial, finals=frozenset(final_states_new), alphabet=self.fsm.alphabet,
                            states=self.fsm.states, map=new_map)
