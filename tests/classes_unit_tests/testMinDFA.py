@@ -203,6 +203,21 @@ class TestMinDFA(unittest.TestCase):
 
 
 
+    # def test_str_gen(self):
+    #     r = MinDFA.dfa_from_regex("a")
+    #     words_gen = r.fsm.strings([])
+    #     words_key = ''
+    #     i = 0
+    #     while i < 20:
+    #         try:
+    #             str_val = next(words_gen)
+    #         except StopIteration:
+    #             str_val = '@'
+    #         #print(str_val)
+    #         words_key += str_val
+    #         i+=1
+    #     print(words_key)
+
     # def test_valid_chars(self):
     #     #r = "[.\\w/\\-]*"
     #     #res = MinDFA.dfa_from_regex(r)
@@ -235,9 +250,9 @@ class TestMinDFA(unittest.TestCase):
         self.assertEqual(dfa1.fsm.alphabet, dfa2.fsm.alphabet)
         dfa3 = all2 & dfa1   # changing order of args due to caching, thus not using (dfa1 & all2)
 
-        #self.assertNotEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
+        self.assertNotEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
         #[dfa1.fsm, dfa3.fsm] = fsm.unify_alphabets((dfa1.fsm, dfa3.fsm))
-        self.assertEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
+        #self.assertEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)
         #self.rebuild_unique_dfa(dfa3)
         #self.rebuild_unique_dfa(dfa1)
         #self.assertNotEqual(dfa1.fsm.alphabet, dfa3.fsm.alphabet)

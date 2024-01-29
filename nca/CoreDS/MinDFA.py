@@ -13,6 +13,7 @@ class Alphabet:
     default_dfa_alphabet_chars = ".\\w/\\-"
     default_alphabet_regex = "[.\\w/\\-]*"
     all_charclasses = set()
+    cache_dfas = dict()
 
     def __init__(self):
         return
@@ -117,24 +118,12 @@ class MinDFA:
     def __eq__(self, other):
         if not isinstance(other, MinDFA):
             return False
-        # [s1, o1] = fsm.unify_alphabets((self.fsm, other.fsm))
-        # s1.reduce()
-        # o1.reduce()
-        # states_eq = s1.states == o1.states
-        # initial_eq = s1.initial == o1.initial
-        # finals_eq = s1.finals == o1.finals
-        # map_eq = s1.map == o1.map
-        # if not map_eq:
-        #     for k in s1.map:
-        #         if s1.map[k] != o1.map[k]:
-        #             print('debug')
+        return self.fsm.equivalent(other.fsm)
 
-        # res = s1.states == o1.states and s1.initial == o1.initial and \
-        #       s1.finals == o1.finals and s1.map == o1.map
-        res = self.fsm.states == other.fsm.states and self.fsm.initial == other.fsm.initial and \
-              self.fsm.finals == other.fsm.finals and self.fsm.map == other.fsm.map
-
-        return res
+        # res = self.fsm.states == other.fsm.states and self.fsm.initial == other.fsm.initial and \
+        #       self.fsm.finals == other.fsm.finals and self.fsm.map == other.fsm.map
+        #
+        # return res
 
     def __ne__(self, other):
         return not self == other
@@ -163,8 +152,8 @@ class MinDFA:
         # for canonical rep -- transform to minimal MinDFA
         f.reduce()
         res = MinDFA.dfa_from_fsm(f)
-        res.convert_to_unique_alphabet()
-        res.rebuild_unique_dfa()
+        #res.convert_to_unique_alphabet()
+        #res.rebuild_unique_dfa()
         # TODO: currently assuming input str as regex only has '*' operator for infinity
         if '*' not in s:
             res.is_all_words = MinDFA.Ternary.FALSE
@@ -202,10 +191,38 @@ class MinDFA:
         return NotImplemented
 
     def __hash__(self):
-        all = MinDFA.dfa_all_words(MinDFA.default_alphabet_regex)
-        [s1, o1] = fsm.unify_alphabets((self.fsm, all.fsm))
-        return hash((frozenset(s1.states), frozenset(s1.finals), frozenset(s1.map), s1.initial))
+        #all = MinDFA.dfa_all_words(MinDFA.default_alphabet_regex)
+        #[s1, o1] = fsm.unify_alphabets((self.fsm, all.fsm))
+        # copyDFA = MinDFA.dfa_from_fsm(self.fsm)
+        # copyDFA.convert_to_unique_alphabet()
+        # copyDFA.rebuild_unique_dfa()
+        # s1 = copyDFA.fsm
+        # return hash((frozenset(s1.states), frozenset(s1.finals), frozenset(s1.map), s1.initial))
         # return hash((frozenset(self.fsm.states), frozenset(self.fsm.finals), frozenset(self.fsm.map), self.fsm.initial))
+        return self.new_hash()
+
+
+    def new_hash(self):
+        words_gen = self.fsm.strings([])
+        words_key = ''
+        i = 0
+        while i < 20:
+            try:
+                str_val = next(words_gen)
+            except StopIteration:
+                str_val = '@'
+            #print(str_val)
+            words_key += str_val
+            i+=1
+        if words_key not in Alphabet.cache_dfas:
+            Alphabet.cache_dfas[words_key] = []
+        for other_dfa in Alphabet.cache_dfas[words_key]:
+            if self == other_dfa:
+                return hash((frozenset(other_dfa.fsm.states), frozenset(other_dfa.fsm.finals), frozenset(other_dfa.fsm.map), other_dfa.fsm.initial))
+        Alphabet.cache_dfas[words_key].append(self)
+        return hash((frozenset(self.fsm.states), frozenset(self.fsm.finals), frozenset(self.fsm.map),
+                     self.fsm.initial))
+
 
     def _get_strings_set_str(self):
         """
@@ -291,7 +308,7 @@ class MinDFA:
             res.regex_expr = self.regex_expr
         else:
             res.regex_expr = f'({self.regex_expr})|({other.regex_expr})'
-        res.rebuild_unique_dfa()
+        #res.rebuild_unique_dfa()
         return res
 
     @lru_cache(maxsize=500)
@@ -309,7 +326,7 @@ class MinDFA:
             res.regex_expr = self.regex_expr
         else:
             res.regex_expr = f'({self.regex_expr})&({other.regex_expr})'
-        res.rebuild_unique_dfa()
+        #res.rebuild_unique_dfa()
         return res
 
     @lru_cache(maxsize=500)
@@ -334,7 +351,7 @@ class MinDFA:
             other.complement_dfa = res
         if res.has_finite_len():
             res.is_all_words = MinDFA.Ternary.FALSE
-        res.rebuild_unique_dfa()
+        #res.rebuild_unique_dfa()
         return res
 
     @lru_cache(maxsize=500)
