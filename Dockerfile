@@ -4,7 +4,7 @@
 #
 
 # Using python:3.9-slim
-FROM python@sha256:7476637ee33fae24822294643449e7fe9158708c976ea379037960d3007590a4
+FROM python@sha256:a3d69b8412f7068fd060ccc7e175825713d5a767e1e14753e75bce6f746c8a7e
 
 COPY requirements.txt /nca/
 RUN python -m pip install -U pip wheel setuptools && pip install -r /nca/requirements.txt
