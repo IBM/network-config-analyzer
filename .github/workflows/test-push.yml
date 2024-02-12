@@ -229,7 +229,7 @@ jobs:
         with:
           python-version: 3.9
           architecture: x64
-      - uses: actions/download-artifact@6b208ae046db98c579e8a3aa621ab581ff575935
+      - uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe
         with:
           name: nca-package
           path: nca_build
