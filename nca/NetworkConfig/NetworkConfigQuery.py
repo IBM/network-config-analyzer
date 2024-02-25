@@ -16,6 +16,7 @@ from nca.CoreDS.ConnectivityProperties import ConnectivityProperties
 from nca.CoreDS.DimensionsManager import DimensionsManager
 from nca.FWRules.ConnectivityGraph import ConnectivityGraph
 from nca.FWRules.MinimizeFWRules import MinimizeFWRules
+from nca.FWRules.MinimizeBasic import MinimizeBasic
 from nca.FWRules.ClusterInfo import ClusterInfo
 from nca.Resources.PolicyResources.NetworkPolicy import PolicyConnectionsFilter
 from nca.Resources.PolicyResources.CalicoNetworkPolicy import CalicoNetworkPolicy
@@ -157,17 +158,29 @@ class BaseNetworkQuery:
         if fw_rules1.fw_rules_map == fw_rules2.fw_rules_map:
             print(f"{text_prefix} are semantically equivalent")
             return
-        conn_props1 = ConnectionSet.fw_rules_to_conn_props(fw_rules1, peer_container)
-        conn_props2 = ConnectionSet.fw_rules_to_conn_props(fw_rules2, peer_container)
-        if conn_props1 == conn_props2:
+        conn_props1 = MinimizeBasic.fw_rules_to_conn_props(fw_rules1, peer_container)
+        conn_props2 = MinimizeBasic.fw_rules_to_conn_props(fw_rules2, peer_container)
+        BaseNetworkQuery.compare_conn_props(conn_props1, conn_props2, text_prefix)
+
+    @staticmethod
+    def compare_conn_props(props1, props2, text_prefix):
+        if props1 == props2:
             print(f"{text_prefix} are semantically equivalent")
         else:
-            diff_prop = (conn_props1 - conn_props2) | (conn_props2 - conn_props1)
+            diff_prop = (props1 - props2) | (props2 - props1)
             if diff_prop.are_auto_conns():
                 print(f"{text_prefix} differ only in auto-connections")
             else:
                 print(f"Error: {text_prefix} are different")
                 assert False
+
+    @staticmethod
+    def compare_fw_rules_to_conn_props(fw_rules, props, peer_container, rules_descr=""):
+        text_prefix = "Connectivity properties and fw-rules generated from them"
+        if rules_descr:
+            text_prefix += " for " + rules_descr
+        props2 = MinimizeBasic.fw_rules_to_conn_props(fw_rules, peer_container)
+        BaseNetworkQuery.compare_conn_props(props, props2, text_prefix)
 
 
 class NetworkConfigQuery(BaseNetworkQuery):
@@ -1105,10 +1118,16 @@ class ConnectivityMapQuery(NetworkConfigQuery):
         :return the connectivity map in fw-rules, considering connectivity_restriction if required
         :rtype: (Union[str, dict], MinimizeFWRules)
         """
-        cluster_info = ClusterInfo(peers_to_compare, self.config.get_allowed_labels())
-        fw_rules_map = ConnectionSet.conn_props_to_fw_rules(props, cluster_info, self.config.peer_container,
-                                                            connectivity_restriction)
-        fw_rules = MinimizeFWRules(fw_rules_map, cluster_info, self.output_config, {})
+        if self.output_config.fwRulesOverrideAllowedLabels:
+            allowed_labels = set(label for label in self.output_config.fwRulesOverrideAllowedLabels.split(','))
+        else:
+            allowed_labels = self.config.get_allowed_labels()
+        cluster_info = ClusterInfo(peers_to_compare, allowed_labels)
+
+        fw_rules = MinimizeFWRules.get_minimized_firewall_rules_from_props(props, cluster_info, self.output_config,
+                                                                           self.config.peer_container,
+                                                                           connectivity_restriction)
+        self.compare_fw_rules_to_conn_props(fw_rules, props, self.config.peer_container)  # Tanya: debug
         formatted_rules = fw_rules.get_fw_rules_in_required_format(connectivity_restriction=connectivity_restriction)
         return formatted_rules, fw_rules
 
@@ -1253,7 +1272,7 @@ class TwoNetworkConfigsQuery(BaseNetworkQuery):
         for cube in conn_diff_props:
             conn_cube = conn_diff_props.get_connectivity_cube(cube)
             conns, src_peers, dst_peers = \
-                ConnectionSet.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
+                MinimizeBasic.get_connection_set_and_peers_from_cube(conn_cube, self.config1.peer_container)
             conns1 = conns if props_based_on_config1 else no_conns
             conns2 = no_conns if props_based_on_config1 else conns
             if self.output_config.fullExplanation:
